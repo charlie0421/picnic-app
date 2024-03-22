@@ -23,12 +23,18 @@ ThemeData themeLight = ThemeData.light().copyWith(
   ),
   bottomNavigationBarTheme: const BottomNavigationBarThemeData(
     backgroundColor: mainColorLightMode,
-    selectedIconTheme: IconThemeData(color: Colors.white),
-    selectedLabelStyle: TextStyle(color: Colors.white),
-    unselectedIconTheme: IconThemeData(color: Colors.white54),
-    unselectedLabelStyle: TextStyle(color: Colors.white54),
+    selectedIconTheme: IconThemeData(color: Colors.black),
+    unselectedIconTheme: IconThemeData(color: Colors.black54),
+    selectedItemColor: Colors.black,
+    unselectedItemColor: Colors.black54,
+    selectedLabelStyle: TextStyle(color: Colors.black),
+    unselectedLabelStyle: TextStyle(color: Colors.black54),
   ),
-  colorScheme: const ColorScheme(
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ButtonStyle(
+      padding: MaterialStateProperty.all(const EdgeInsets.all(4)),
+    ),
+  ),  colorScheme: const ColorScheme(
     primary: Colors.black,
     onPrimary: Colors.white,
     secondary: Colors.black,
@@ -41,14 +47,9 @@ ThemeData themeLight = ThemeData.light().copyWith(
     onSurface: Colors.black,
     brightness: Brightness.light,
   ),
-  elevatedButtonTheme: ElevatedButtonThemeData(
-    style: ButtonStyle(
-      padding: MaterialStateProperty.all(const EdgeInsets.all(4)),
-    ),
-  ),
 );
 
-ThemeData themeDark = ThemeData.dark(useMaterial3: true).copyWith(
+ThemeData themeDark = ThemeData.dark().copyWith(
   textTheme: const TextTheme(
     displayLarge: TextStyle(fontFamily: 'Pretendard', color: Colors.white),
     displayMedium: TextStyle(fontFamily: 'Pretendard', color: Colors.white),
@@ -71,8 +72,10 @@ ThemeData themeDark = ThemeData.dark(useMaterial3: true).copyWith(
   bottomNavigationBarTheme: const BottomNavigationBarThemeData(
     backgroundColor: mainColorDarkMode,
     selectedIconTheme: IconThemeData(color: Colors.white),
-    selectedLabelStyle: TextStyle(color: Colors.white),
     unselectedIconTheme: IconThemeData(color: Colors.white54),
+    selectedItemColor: Colors.white,
+    unselectedItemColor: Colors.white54,
+    selectedLabelStyle: TextStyle(color: Colors.white),
     unselectedLabelStyle: TextStyle(color: Colors.white54),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(

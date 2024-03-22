@@ -1,3 +1,4 @@
+import 'package:prame_app/constants.dart';
 import 'package:prame_app/providers/app_setting_provider.dart';
 import 'package:prame_app/screens/home_screen.dart';
 import 'package:prame_app/screens/landing_screen.dart';
@@ -11,11 +12,12 @@ class PrameApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ThemeMode themeMode = ref.watch(themeProvider);
     return MaterialApp(
         title: 'Prame App Demo',
         theme: themeLight,
         darkTheme: themeDark,
-        themeMode: ref.watch(themeProvider),
+        themeMode: themeMode,
         routes: {
           LandingScreen.routeName: (context) => const LandingScreen(),
           HomeScreen.routeName: (context) => const HomeScreen(),
