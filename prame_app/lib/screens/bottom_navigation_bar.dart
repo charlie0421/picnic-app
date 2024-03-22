@@ -12,6 +12,10 @@ BottomNavigationBar buildBottomNavigationBar(
         label: 'Home',
       ),
       BottomNavigationBarItem(
+        icon: Icon(Icons.photo),
+        label: 'Gallery',
+      ),
+      BottomNavigationBarItem(
         icon: Icon(Icons.library_books),
         label: 'Library',
       ),
@@ -25,10 +29,10 @@ BottomNavigationBar buildBottomNavigationBar(
       ),
     ],
     currentIndex: counterState,
-    selectedItemColor: Colors.white,
-    unselectedIconTheme: const IconThemeData(color: Colors.white30),
-    unselectedItemColor: Colors.white30,
-    backgroundColor: Colors.red,
+    // backgroundColor: Colors.blue,
+    // selectedItemColor: Colors.white,
+    // unselectedIconTheme: const IconThemeData(color: Colors.white30),
+    // unselectedItemColor: Colors.white30,
     onTap: (index) {
       counterRead.setIndex(index);
     },

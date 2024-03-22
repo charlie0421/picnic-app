@@ -45,7 +45,7 @@ class _LandingPageState extends State<LandingPage> {
               style: Theme.of(context)
                   .textTheme
                   .headlineMedium
-                  ?.copyWith(color: Colors.black, fontWeight: FontWeight.bold)),
+                  ?.copyWith(fontWeight: FontWeight.bold)),
           SizedBox(height: 16),
           ...MyFav.map((item) {
             return FavItem(item: item, type: 'my',);
@@ -55,7 +55,7 @@ class _LandingPageState extends State<LandingPage> {
               style: Theme.of(context)
                   .textTheme
                   .headlineMedium
-                  ?.copyWith(color: Colors.black, fontWeight: FontWeight.bold)),
+                  ?.copyWith(fontWeight: FontWeight.bold)),
           ...FindYourFav.map((item) {
             return FavItem(item: item, type: 'find',);
           }),

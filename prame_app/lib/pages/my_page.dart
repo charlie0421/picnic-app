@@ -57,7 +57,7 @@ class _MyPageState extends State<MyPage> {
               style: Theme.of(context)
                   .textTheme
                   .headlineMedium
-                  ?.copyWith(color: Colors.black, fontWeight: FontWeight.bold)),
+                  ?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
           SizedBox(
             height: 100,
@@ -77,7 +77,7 @@ class _MyPageState extends State<MyPage> {
               style: Theme.of(context)
                   .textTheme
                   .headlineMedium
-                  ?.copyWith(color: Colors.black, fontWeight: FontWeight.bold)),
+                  ?.copyWith( fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
           SizedBox(
             height: 140,

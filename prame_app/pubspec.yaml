@@ -35,6 +35,7 @@ flutter:
     - assets/mockup/
     - assets/mockup/landing/
     - assets/mockup/my/
+    - assets/mockup/gallery/
   fonts:
     - family: Pretendard
       fonts:
