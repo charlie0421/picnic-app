@@ -1,0 +1,44 @@
+name: prame_app
+description: "Prame App"
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.1 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  flutter_native_splash: ^2.3.10
+  logger: ^2.0.1
+  flutter_secure_storage: ^9.0.0
+  shared_preferences: ^2.2.2
+  riverpod: ^2.5.1
+  flutter_riverpod: ^2.5.1
+  hooks_riverpod: ^2.5.1
+  flutter_svg: ^2.0.9
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  generate: true
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/mockup/
+    - assets/mockup/landing/
+    - assets/mockup/my/
+  fonts:
+    - family: Pretendard
+      fonts:
+        - asset: assets/fonts/Pretendard/Pretendard-Bold.otf
+          weight: 500
+        - asset: assets/fonts/Pretendard/Pretendard-Medium.otf
+          weight: 700
