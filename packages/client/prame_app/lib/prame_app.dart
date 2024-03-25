@@ -6,6 +6,7 @@ import 'package:prame_app/screens/home_screen.dart';
 import 'package:prame_app/screens/landing_screen.dart';
 import 'package:prame_app/screens/language_screen.dart';
 import 'package:prame_app/screens/my_screen.dart';
+import 'package:prame_app/screens/prame_screen.dart';
 import 'package:prame_app/ui/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,6 +29,7 @@ class PrameApp extends ConsumerWidget {
           HomeScreen.routeName: (context) => const HomeScreen(),
           MyScreen.routeName: (context) => const MyScreen(),
           LanguageScreen.routeName: (context) => const LanguageScreen(),
+          PrameScreen.routeName: (context) => const PrameScreen(),
         },
         localizationsDelegates: [
           S.delegate,
