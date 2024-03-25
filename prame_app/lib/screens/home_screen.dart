@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prame_app/constants.dart';
 import 'package:prame_app/pages/gallery_page.dart';
 import 'package:prame_app/pages/home_page.dart';
-import 'package:prame_app/providers/app_setting_provider.dart';
 import 'package:prame_app/providers/bottom_navigation_provider.dart';
 import 'package:prame_app/screens/bottom_navigation_bar.dart';
 
@@ -24,6 +22,15 @@ class HomeScreen extends ConsumerWidget {
             : counterState == 1
                 ? Text('Gallery')
                 : Container(),
+        actions: [
+          InkWell(
+            onTap: () {
+              Navigator.pushNamed(context, '/prame');
+            },
+            child:
+                CircleAvatar(backgroundColor: Colors.grey, child: Text('P')),
+          ),
+        ],
       ),
       bottomNavigationBar: buildBottomNavigationBar(counterRead, counterState),
       body: counterState == 0
