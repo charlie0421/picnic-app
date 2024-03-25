@@ -1,0 +1,207 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'intl/messages_all.dart';
+
+// **************************************************************************
+// Generator: Flutter Intl IDE plugin
+// Made by Localizely
+// **************************************************************************
+
+// ignore_for_file: non_constant_identifier_names, lines_longer_than_80_chars
+// ignore_for_file: join_return_with_assignment, prefer_final_in_for_each
+// ignore_for_file: avoid_redundant_argument_values, avoid_escaping_inner_quotes
+
+class S {
+  S();
+
+  static S? _current;
+
+  static S get current {
+    assert(_current != null,
+        'No instance of S was loaded. Try to initialize the S delegate before accessing S.current.');
+    return _current!;
+  }
+
+  static const AppLocalizationDelegate delegate = AppLocalizationDelegate();
+
+  static Future<S> load(Locale locale) {
+    final name = (locale.countryCode?.isEmpty ?? false)
+        ? locale.languageCode
+        : locale.toString();
+    final localeName = Intl.canonicalizedLocale(name);
+    return initializeMessages(localeName).then((_) {
+      Intl.defaultLocale = localeName;
+      final instance = S();
+      S._current = instance;
+
+      return instance;
+    });
+  }
+
+  static S of(BuildContext context) {
+    final instance = S.maybeOf(context);
+    assert(instance != null,
+        'No instance of S present in the widget tree. Did you add S.delegate in localizationsDelegates?');
+    return instance!;
+  }
+
+  static S? maybeOf(BuildContext context) {
+    return Localizations.of<S>(context, S);
+  }
+
+  /// `Language selection`
+  String get title_select_language {
+    return Intl.message(
+      'Language selection',
+      name: 'title_select_language',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Current language`
+  String get label_current_language {
+    return Intl.message(
+      'Current language',
+      name: 'label_current_language',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Home`
+  String get nav_home {
+    return Intl.message(
+      'Home',
+      name: 'nav_home',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Gallery`
+  String get nav_gallery {
+    return Intl.message(
+      'Gallery',
+      name: 'nav_gallery',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Library`
+  String get nav_library {
+    return Intl.message(
+      'Library',
+      name: 'nav_library',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Purchases`
+  String get nav_purchases {
+    return Intl.message(
+      'Purchases',
+      name: 'nav_purchases',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ads`
+  String get nav_ads {
+    return Intl.message(
+      'Ads',
+      name: 'nav_ads',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `My Purchases`
+  String get mypage_purchases {
+    return Intl.message(
+      'My Purchases',
+      name: 'mypage_purchases',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Settings`
+  String get mypage_setting {
+    return Intl.message(
+      'Settings',
+      name: 'mypage_setting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Subscription Info`
+  String get mypage_subscription {
+    return Intl.message(
+      'Subscription Info',
+      name: 'mypage_subscription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Comment Management`
+  String get mypage_comment {
+    return Intl.message(
+      'Comment Management',
+      name: 'mypage_comment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Language Settings`
+  String get mypage_language {
+    return Intl.message(
+      'Language Settings',
+      name: 'mypage_language',
+      desc: '',
+      args: [],
+    );
+  }
+}
+
+class AppLocalizationDelegate extends LocalizationsDelegate<S> {
+  const AppLocalizationDelegate();
+
+  List<Locale> get supportedLocales {
+    return const <Locale>[
+      Locale.fromSubtags(languageCode: 'en'),
+      Locale.fromSubtags(languageCode: 'de'),
+      Locale.fromSubtags(languageCode: 'es'),
+      Locale.fromSubtags(languageCode: 'fr'),
+      Locale.fromSubtags(languageCode: 'it'),
+      Locale.fromSubtags(languageCode: 'ja'),
+      Locale.fromSubtags(languageCode: 'ko'),
+      Locale.fromSubtags(languageCode: 'pt'),
+      Locale.fromSubtags(languageCode: 'ru'),
+      Locale.fromSubtags(languageCode: 'zh'),
+    ];
+  }
+
+  @override
+  bool isSupported(Locale locale) => _isSupported(locale);
+  @override
+  Future<S> load(Locale locale) => S.load(locale);
+  @override
+  bool shouldReload(AppLocalizationDelegate old) => false;
+
+  bool _isSupported(Locale locale) {
+    for (var supportedLocale in supportedLocales) {
+      if (supportedLocale.languageCode == locale.languageCode) {
+        return true;
+      }
+    }
+    return false;
+  }
+}

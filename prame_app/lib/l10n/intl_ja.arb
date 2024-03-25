@@ -1,0 +1,15 @@
+{
+  "@@locale": "ja",
+  "title_select_language": "言語選択",
+  "label_current_language": "現在の言語",
+  "nav_home": "ホーム",
+  "nav_gallery": "ギャラリー",
+  "nav_library": "ライブラリ",
+  "nav_purchases": "購入",
+  "nav_ads": "広告",
+  "mypage_purchases": "私の購入",
+  "mypage_setting": "設定",
+  "mypage_subscription": "購読情報",
+  "mypage_comment": "コメント管理",
+  "mypage_language": "言語設定"
+}
