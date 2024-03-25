@@ -1,0 +1,15 @@
+{
+  "@@locale": "zh",
+  "title_select_language": "语言选择",
+  "label_current_language": "当前语言",
+  "nav_home": "首页",
+  "nav_gallery": "画廊",
+  "nav_library": "图书馆",
+  "nav_purchases": "购买",
+  "nav_ads": "广告",
+  "mypage_purchases": "我的购买",
+  "mypage_setting": "设置",
+  "mypage_subscription": "订阅信息",
+  "mypage_comment": "评论管理",
+  "mypage_language": "语言设置"
+}

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class MyFavItem {
   final String image;
@@ -113,15 +114,20 @@ class _MyPageState extends State<MyPage> {
             shrinkWrap: true,
             children: [
               const Divider(height: 20),
-              Text('결제내역',style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),),
+              Text(Intl.message('mypage_purchases'),style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),),
               const Divider(height: 20),
-              Text('설정',style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),),
+              Text(Intl.message('mypage_setting'),style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),),
               const Divider(height: 20),
-              Text('구독정보',style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),),
+              Text(Intl.message('mypage_subscription'),style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),),
               const Divider(height: 20),
-              Text('댓글관리',style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),),
+              Text(Intl.message('mypage_comment'),style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),),
               const Divider(height: 20),
-              Text('언어설정/Languages',style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),),
+              InkWell(
+                onTap: () {
+                  Navigator.pushNamed(context, '/language');
+
+                },
+                  child: Text(Intl.message('mypage_language'),style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),)),
               const Divider(height: 20),
             ],
           )

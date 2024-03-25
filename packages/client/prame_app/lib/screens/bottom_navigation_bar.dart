@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:prame_app/providers/bottom_navigation_provider.dart';
 import 'package:flutter/material.dart';
 
@@ -6,26 +7,26 @@ BottomNavigationBar buildBottomNavigationBar(
   int counterState,
 ) {
   return BottomNavigationBar(
-    items: const <BottomNavigationBarItem>[
+    items: <BottomNavigationBarItem>[
       BottomNavigationBarItem(
         icon: Icon(Icons.home),
-        label: 'Home',
+        label: Intl.message('nav_home')
       ),
       BottomNavigationBarItem(
         icon: Icon(Icons.photo),
-        label: 'Gallery',
+          label: Intl.message('nav_gallery')
       ),
       BottomNavigationBarItem(
         icon: Icon(Icons.library_books),
-        label: 'Library',
+          label: Intl.message('nav_library')
       ),
       BottomNavigationBarItem(
         icon: Icon(Icons.wallet),
-        label: 'Purchase',
+          label: Intl.message('nav_purchases')
       ),
       BottomNavigationBarItem(
         icon: Icon(Icons.ads_click),
-        label: 'Ads',
+          label: Intl.message('nav_ads')
       ),
     ],
     currentIndex: counterState,

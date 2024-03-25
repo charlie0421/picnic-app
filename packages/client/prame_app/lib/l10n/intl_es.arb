@@ -1,0 +1,15 @@
+{
+  "@@locale": "es",
+  "title_select_language": "Selección de idioma",
+  "label_current_language": "Idioma actual",
+  "nav_home": "Inicio",
+  "nav_gallery": "Galería",
+  "nav_library": "Biblioteca",
+  "nav_purchases": "Compras",
+  "nav_ads": "Anuncios",
+  "mypage_purchases": "Mis Compras",
+  "mypage_setting": "Configuración",
+  "mypage_subscription": "Información de Suscripción",
+  "mypage_comment": "Gestión de Comentarios",
+  "mypage_language": "Configuración de Idioma"
+}

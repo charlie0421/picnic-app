@@ -13,7 +13,6 @@ void main() async {
     await initializeWidgetsAndDeviceOrientation(widgetsBinding);
   }
 
-
   runApp(ProviderScope(child: PrameApp()));
 
   FlutterNativeSplash.remove();

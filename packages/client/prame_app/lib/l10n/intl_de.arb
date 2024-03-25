@@ -1,0 +1,15 @@
+{
+  "@@locale": "de",
+  "title_select_language": "Selecteer taal",
+  "label_current_language": "Huidige taal",
+  "nav_home": "Zuhause",
+  "nav_gallery": "Galerie",
+  "nav_library": "Bibliothek",
+  "nav_purchases": "Käufe",
+  "nav_ads": "Anzeigen",
+  "mypage_purchases": "Meine Käufe",
+  "mypage_setting": "Einstellungen",
+  "mypage_subscription": "Abonnement Info",
+  "mypage_comment": "Kommentarverwaltung",
+  "mypage_language": "Spracheinstellungen"
+}
