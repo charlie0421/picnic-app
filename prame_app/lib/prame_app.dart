@@ -1,4 +1,5 @@
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:prame_app/constants.dart';
 import 'package:prame_app/generated/l10n.dart';
 import 'package:prame_app/providers/app_setting_provider.dart';
@@ -18,26 +19,29 @@ class PrameApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ThemeMode themeMode = ref.watch(themeProvider);
     Locale locale = ref.watch(localeProvider);
-    return MaterialApp(
-        title: 'Prame App Demo',
-        theme: themeLight,
-        darkTheme: themeDark,
-        themeMode: themeMode,
-        locale: locale,
-        routes: {
-          LandingScreen.routeName: (context) => const LandingScreen(),
-          HomeScreen.routeName: (context) => const HomeScreen(),
-          MyScreen.routeName: (context) => const MyScreen(),
-          LanguageScreen.routeName: (context) => const LanguageScreen(),
-          PrameScreen.routeName: (context) => const PrameScreen(),
-        },
-        localizationsDelegates: [
-          S.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: S.delegate.supportedLocales,
-        home: LandingScreen());
+    return ScreenUtilInit(
+      designSize: const Size(430, 932),
+      child: MaterialApp(
+          title: 'Prame App Demo',
+          theme: themeLight,
+          darkTheme: themeDark,
+          themeMode: themeMode,
+          locale: locale,
+          routes: {
+            LandingScreen.routeName: (context) => const LandingScreen(),
+            HomeScreen.routeName: (context) => const HomeScreen(),
+            MyScreen.routeName: (context) => const MyScreen(),
+            LanguageScreen.routeName: (context) => const LanguageScreen(),
+            PrameScreen.routeName: (context) => const PrameScreen(),
+          },
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.delegate.supportedLocales,
+          home: LandingScreen()),
+    );
   }
 }
