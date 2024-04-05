@@ -49,6 +49,7 @@ flutter:
     - assets/mockup/my/
     - assets/mockup/gallery/
     - assets/mockup/prame/
+    - assets/landing/
   fonts:
     - family: NotoSansCJKKr
       fonts:

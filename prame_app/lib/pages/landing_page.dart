@@ -1,36 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:prame_app/components/search_list.dart';
+import 'package:prame_app/mockup/mock_data.dart';
 import 'package:prame_app/screens/home_screen.dart';
 
-class LandingItem {
-  final String image;
-  final String name;
-
-  LandingItem(this.image, this.name);
-}
-
-List<LandingItem> myFav = [
-  LandingItem('Ellipse 2-5.png', '고윤정'),
-  LandingItem('Ellipse 2.png', '이장우'),
-  LandingItem('Ellipse 2-1.png', '배두나'),
-];
-
-List<LandingItem> findYourFav = [
-  LandingItem('Ellipse 2-2.png', '안보현'),
-  LandingItem('Ellipse 2-3.png', '박서준'),
-  LandingItem('Ellipse 2-4.png', '정해인'),
-  LandingItem('Ellipse 2-6.png', '유선'),
-];
-
-class LandingPage extends StatefulWidget {
+class LandingPage extends ConsumerStatefulWidget {
   const LandingPage({super.key});
 
   @override
-  State<LandingPage> createState() => _LandingPageState();
+  ConsumerState<LandingPage> createState() => _LandingPageState();
 }
 
-class _LandingPageState extends State<LandingPage> {
+class _LandingPageState extends ConsumerState<LandingPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -60,6 +43,38 @@ class _LandingPageState extends State<LandingPage> {
                   .textTheme
                   .headlineMedium
                   ?.copyWith(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 16),
+          InkWell(
+            onTap: () {
+              showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  useRootNavigator: true,
+                  useSafeArea: true,
+                  showDragHandle: true,
+                  builder: (BuildContext context) => const SearchList());
+            },
+            child: Container(
+              height: 40,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: const Color(0xFFE6FBEE),
+                border: Border.all(color: const Color(0xFFB7B7B7)),
+              ),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: SvgPicture.asset(
+                    'assets/landing/search_icon.svg',
+                    width: 24,
+                    height: 24,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
           ...findYourFav.map((item) {
             return FavItem(
               item: item,
@@ -101,14 +116,43 @@ class FavItem extends StatelessWidget {
                 Text(item.name, style: Theme.of(context).textTheme.titleLarge),
               ],
             ),
-            SvgPicture.asset(
-              'assets/mockup/landing/landing_plus.svg',
-              width: 18,
-              height: 18,
-              colorFilter: ColorFilter.mode(
-                  Color(type == 'my' ? 0xFF08C97E : 0xFFC4C4C4),
-                  BlendMode.srcIn),
-            ),
+            type == 'my'
+                ? InkWell(
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('즐겨찾기에서 삭제'),
+                          duration: Duration(milliseconds: 300),
+                        ),
+                      );
+                    },
+                    child: SvgPicture.asset(
+                      'assets/landing/bookmark_added.svg',
+                      width: 24,
+                      height: 24,
+                      colorFilter: ColorFilter.mode(
+                          Color(type == 'my' ? 0xFF08C97E : 0xFFC4C4C4),
+                          BlendMode.srcIn),
+                    ),
+                  )
+                : InkWell(
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('즐겨찾기에 추가'),
+                          duration: Duration(milliseconds: 300),
+                        ),
+                      );
+                    },
+                    child: SvgPicture.asset(
+                      'assets/landing/bookmark_add.svg',
+                      width: 24,
+                      height: 24,
+                      colorFilter: ColorFilter.mode(
+                          Color(type == 'my' ? 0xFF08C97E : 0xFFC4C4C4),
+                          BlendMode.srcIn),
+                    ),
+                  ),
           ],
         ),
       ),

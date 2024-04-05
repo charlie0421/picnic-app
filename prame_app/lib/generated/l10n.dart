@@ -189,6 +189,26 @@ class S {
       args: [],
     );
   }
+
+  /// `Search for celebrities.`
+  String get text_hint_search {
+    return Intl.message(
+      'Search for celebrities.',
+      name: 'text_hint_search',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You can add up to 5 My Celebrities.`
+  String get toast_max_5_celeb {
+    return Intl.message(
+      'You can add up to 5 My Celebrities.',
+      name: 'toast_max_5_celeb',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
