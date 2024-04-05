@@ -1,18 +1,16 @@
 {
   "@@locale": "ko",
-
   "nav_home": "홈",
   "nav_gallery": "갤러리",
   "nav_library": "라이브러리",
   "nav_purchases": "구매",
   "nav_ads": "광고",
-
   "mypage_purchases": "내 구매",
   "mypage_setting": "설정",
   "mypage_subscription": "구독정보",
   "mypage_comment": "댓글관리",
   "mypage_language": "언어설정",
-
   "title_select_language": "언어 선택",
-  "label_current_language": "현재 언어"
+  "label_current_language": "현재 언어",
+  "lable_my_celeb": "내 셀럽"
 }
