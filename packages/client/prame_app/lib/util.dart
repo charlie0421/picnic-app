@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:prame_app/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:prame_app/constants.dart';
+import 'package:prame_app/ui/style.dart';
 
 String formatCount(int number, String labelName) {
   final String viewString = Intl.getCurrentLocale() == 'ko'
@@ -38,16 +38,18 @@ String formatTimeAgo(DateTime timestamp) {
   final difference = now.difference(timestamp);
 
   if (difference.inDays >= 1) {
-    return Intl.message('label_time_ago_day', args: [difference.inDays.toString()]);
+    return Intl.message('label_time_ago_day',
+        args: [difference.inDays.toString()]);
   } else if (difference.inHours >= 1) {
-    return Intl.message('label_time_ago_hour', args: [difference.inHours.toString()]);
+    return Intl.message('label_time_ago_hour',
+        args: [difference.inHours.toString()]);
   } else if (difference.inMinutes >= 1) {
-    return Intl.message('label_time_ago_minute', args: [difference.inMinutes.toString()]);
+    return Intl.message('label_time_ago_minute',
+        args: [difference.inMinutes.toString()]);
   } else {
     return Intl.message('label_time_ago_right_now');
   }
 }
-
 
 bool isTablet(BuildContext context) {
   return MediaQuery.of(context).size.shortestSide > 600;
@@ -99,4 +101,26 @@ bool isWindows() {
 
 bool isLinux() {
   return Platform.isLinux;
+}
+
+void showOverlayToast(BuildContext context, Widget child) {
+  OverlayEntry overlayEntry = OverlayEntry(
+    builder: (context) => Center(
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.5,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.Gray100,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: child,
+      ),
+    ),
+  );
+
+  Overlay.of(context).insert(overlayEntry);
+
+  Future.delayed(const Duration(seconds: 1), () {
+    overlayEntry.remove();
+  });
 }

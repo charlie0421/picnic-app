@@ -41,7 +41,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_home": MessageLookupByLibrary.simpleMessage("Home"),
         "nav_library": MessageLookupByLibrary.simpleMessage("Library"),
         "nav_purchases": MessageLookupByLibrary.simpleMessage("Purchases"),
+        "text_hint_search":
+            MessageLookupByLibrary.simpleMessage("Search for celebrities."),
         "title_select_language":
-            MessageLookupByLibrary.simpleMessage("Language selection")
+            MessageLookupByLibrary.simpleMessage("Language selection"),
+        "toast_max_5_celeb": MessageLookupByLibrary.simpleMessage(
+            "You can add up to 5 My Celebrities.")
       };
 }

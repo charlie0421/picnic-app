@@ -22,6 +22,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "label_celeb_recommend": MessageLookupByLibrary.simpleMessage("유명인 추천"),
         "label_current_language": MessageLookupByLibrary.simpleMessage("현재 언어"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("내 셀럽"),
         "mypage_comment": MessageLookupByLibrary.simpleMessage("댓글관리"),
