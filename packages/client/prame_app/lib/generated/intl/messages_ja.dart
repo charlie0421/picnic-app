@@ -36,6 +36,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_home": MessageLookupByLibrary.simpleMessage("ホーム"),
         "nav_library": MessageLookupByLibrary.simpleMessage("ライブラリ"),
         "nav_purchases": MessageLookupByLibrary.simpleMessage("購入"),
-        "title_select_language": MessageLookupByLibrary.simpleMessage("言語選択")
+        "text_hint_search": MessageLookupByLibrary.simpleMessage("有名人を探す"),
+        "title_select_language": MessageLookupByLibrary.simpleMessage("言語選択"),
+        "toast_max_5_celeb":
+            MessageLookupByLibrary.simpleMessage("マイ・セレブリティは5人まで追加可能。")
       };
 }

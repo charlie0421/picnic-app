@@ -35,6 +35,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_home": MessageLookupByLibrary.simpleMessage("首页"),
         "nav_library": MessageLookupByLibrary.simpleMessage("图书馆"),
         "nav_purchases": MessageLookupByLibrary.simpleMessage("购买"),
-        "title_select_language": MessageLookupByLibrary.simpleMessage("语言选择")
+        "text_hint_search": MessageLookupByLibrary.simpleMessage("搜索名人。"),
+        "title_select_language": MessageLookupByLibrary.simpleMessage("语言选择"),
+        "toast_max_5_celeb":
+            MessageLookupByLibrary.simpleMessage("您最多可以添加 5 个 \"我的名人\"。")
       };
 }
