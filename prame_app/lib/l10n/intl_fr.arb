@@ -1,7 +1,5 @@
 {
   "@@locale": "fr",
-  "title_select_language": "Sélectionnez la langue",
-  "label_current_language": "Langue actuelle",
   "nav_home": "Accueil",
   "nav_gallery": "Galerie",
   "nav_library": "Bibliothèque",
@@ -11,5 +9,8 @@
   "mypage_setting": "Paramètres",
   "mypage_subscription": "Info Abonnement",
   "mypage_comment": "Gestion des Commentaires",
-  "mypage_language": "Paramètres de Langue"
+  "mypage_language": "Paramètres de Langue",
+  "title_select_language": "Sélectionnez la langue",
+  "label_current_language": "Langue actuelle",
+  "lable_my_celeb": ""
 }
