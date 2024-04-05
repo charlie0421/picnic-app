@@ -12,5 +12,6 @@
   "mypage_language": "언어설정",
   "title_select_language": "언어 선택",
   "label_current_language": "현재 언어",
-  "lable_my_celeb": "내 셀럽"
+  "lable_my_celeb": "내 셀럽",
+  "label_celeb_recommend": "유명인 추천"
 }
