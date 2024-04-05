@@ -13,5 +13,7 @@
   "title_select_language": "言語選択",
   "label_current_language": "現在の言語",
   "lable_my_celeb": "マイ・セレブ",
-  "label_celeb_recommend": "セレブのおすすめ"
+  "label_celeb_recommend": "セレブのおすすめ",
+  "text_hint_search": "有名人を探す",
+  "toast_max_5_celeb": "マイ・セレブリティは5人まで追加可能。"
 }
