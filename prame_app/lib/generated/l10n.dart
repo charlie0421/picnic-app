@@ -179,6 +179,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Celebrity recommendations`
+  String get label_celeb_recommend {
+    return Intl.message(
+      'Celebrity recommendations',
+      name: 'label_celeb_recommend',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
