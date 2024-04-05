@@ -1,7 +1,5 @@
 {
   "@@locale": "de",
-  "title_select_language": "Selecteer taal",
-  "label_current_language": "Huidige taal",
   "nav_home": "Zuhause",
   "nav_gallery": "Galerie",
   "nav_library": "Bibliothek",
@@ -11,5 +9,8 @@
   "mypage_setting": "Einstellungen",
   "mypage_subscription": "Abonnement Info",
   "mypage_comment": "Kommentarverwaltung",
-  "mypage_language": "Spracheinstellungen"
+  "mypage_language": "Spracheinstellungen",
+  "title_select_language": "Selecteer taal",
+  "label_current_language": "Huidige taal",
+  "lable_my_celeb": ""
 }
