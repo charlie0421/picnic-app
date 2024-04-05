@@ -1,7 +1,5 @@
 {
   "@@locale": "ru",
-  "title_select_language": "Выбор языка",
-  "label_current_language": "Текущий язык",
   "nav_home": "Главная",
   "nav_gallery": "Галерея",
   "nav_library": "Библиотека",
@@ -11,5 +9,8 @@
   "mypage_setting": "Настройки",
   "mypage_subscription": "Информация о Подписке",
   "mypage_comment": "Управление Комментариями",
-  "mypage_language": "Настройки Языка"
+  "mypage_language": "Настройки Языка",
+  "title_select_language": "Выбор языка",
+  "label_current_language": "Текущий язык",
+  "lable_my_celeb": ""
 }
