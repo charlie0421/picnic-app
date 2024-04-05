@@ -12,5 +12,6 @@
   "mypage_language": "Configuración de Idioma",
   "title_select_language": "Selección de idioma",
   "label_current_language": "Idioma actual",
-  "lable_my_celeb": "Mi Celeb"
+  "lable_my_celeb": "Mi Celeb",
+  "label_celeb_recommend": "Recomendaciones de famosos"
 }
