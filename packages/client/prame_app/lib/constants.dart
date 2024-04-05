@@ -1,6 +1,6 @@
-import 'package:prame_app/storage/local_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:prame_app/storage/local_storage.dart';
 
 const mainColorLightMode = Color(0xFF07E88F);
 const mainColorDarkMode = Color(0xFF08C97E);
@@ -20,6 +20,30 @@ class Constants {
 
 var logger = Logger();
 
-
 LocalStorage globalStorage = LocalStorage();
 
+Map<String, String> countryMap = {
+  'KR': 'South Korea',
+  'US': 'United States',
+  'JP': 'Japan',
+  'DE': 'Germany',
+  'FR': 'France',
+  'ES': 'Spain',
+  'IT': 'Italy',
+  'RU': 'Russia',
+  'CN': 'China',
+  'BR': 'Brazil',
+};
+
+Map<String, String> languageMap = {
+  'ko': '한국어',
+  'en': 'English',
+  'ja': '日本語',
+  'de': 'Deutsch',
+  'fr': 'Français',
+  'es': 'Español',
+  'it': 'Italiano',
+  'ru': 'Русский',
+  'zh': '中文',
+  'pt': 'Português',
+};

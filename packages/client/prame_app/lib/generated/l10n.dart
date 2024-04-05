@@ -50,26 +50,6 @@ class S {
     return Localizations.of<S>(context, S);
   }
 
-  /// `Language selection`
-  String get title_select_language {
-    return Intl.message(
-      'Language selection',
-      name: 'title_select_language',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Current language`
-  String get label_current_language {
-    return Intl.message(
-      'Current language',
-      name: 'label_current_language',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Home`
   String get nav_home {
     return Intl.message(
@@ -165,6 +145,36 @@ class S {
     return Intl.message(
       'Language Settings',
       name: 'mypage_language',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Language selection`
+  String get title_select_language {
+    return Intl.message(
+      'Language selection',
+      name: 'title_select_language',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Current language`
+  String get label_current_language {
+    return Intl.message(
+      'Current language',
+      name: 'label_current_language',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `My Celeb`
+  String get lable_my_celeb {
+    return Intl.message(
+      'My Celeb',
+      name: 'lable_my_celeb',
       desc: '',
       args: [],
     );

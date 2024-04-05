@@ -1,39 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:prame_app/constants.dart';
 import 'package:prame_app/providers/app_setting_provider.dart';
 
-Map<String, String> countryMap = {
-  'KR': 'South Korea',
-  'US': 'United States',
-  'JP': 'Japan',
-  'DE': 'Germany',
-  'FR': 'France',
-  'ES': 'Spain',
-  'IT': 'Italy',
-  'RU': 'Russia',
-  'CN': 'China',
-  'BR': 'Brazil',
-};
-
-Map<String, String> languageMap = {
-  'ko': '한국어',
-  'en': 'English',
-  'ja': '日本語',
-  'de': 'Deutsch',
-  'fr': 'Français',
-  'es': 'Español',
-  'it': 'Italiano',
-  'ru': 'Русский',
-  'zh': '中文',
-  'pt': 'Português',
-};
+import '../constants.dart';
 
 class LanguagePage extends ConsumerWidget {
+  const LanguagePage({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final locale = ref.watch(localeProvider);
+    final appSettingState = ref.watch(appSettingProvider);
+    final appSettingNotifier = ref.read(appSettingProvider.notifier);
+
     return Column(
       children: [
         Container(
@@ -45,11 +24,20 @@ class LanguagePage extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(Intl.message('label_current_language'), style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),),
-                Text('${countryMap[locale.countryCode] ?? ''}, ${languageMap[locale.languageCode] ?? ''}', style: Theme.of(context).textTheme.titleLarge,)
+                Text(
+                  Intl.message('label_current_language'),
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  '${countryMap[appSettingState.locale.countryCode] ?? ''}, ${languageMap[appSettingState.locale.languageCode] ?? ''}',
+                  style: Theme.of(context).textTheme.titleLarge,
+                )
               ],
             )),
-        Divider(),
+        const Divider(),
         Expanded(
           child: ListView.separated(
             itemCount: languageMap.length,
@@ -66,11 +54,13 @@ class LanguagePage extends ConsumerWidget {
                   ),
                 ),
                 onTap: () {
-                  ref.read(localeProvider.notifier).state  = Locale(
-                    languageMap.keys.elementAt(index),
-                    countryMap.keys.elementAt(index),
-                  );
-                Intl.defaultLocale = locale.languageCode;
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    appSettingNotifier.setLocale(Locale(
+                      languageMap.keys.elementAt(index),
+                      countryMap.keys.elementAt(index),
+                    ));
+                    Intl.defaultLocale = languageMap.keys.elementAt(index);
+                  });
                 },
               );
             },

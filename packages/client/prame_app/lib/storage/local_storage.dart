@@ -7,7 +7,7 @@ abstract class LocalStorage {
 
   Future<void> saveData(String key, String value);
 
-  Future<String?> loadData(String key);
+  Future<String?> loadData(String key, String? defaultValue);
 
   Future<void> removeData(String key);
 
