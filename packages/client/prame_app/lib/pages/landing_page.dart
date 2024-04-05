@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:prame_app/screens/home_screen.dart';
 
 class LandingItem {
@@ -9,13 +10,13 @@ class LandingItem {
   LandingItem(this.image, this.name);
 }
 
-List<LandingItem> MyFav = [
+List<LandingItem> myFav = [
   LandingItem('Ellipse 2-5.png', '고윤정'),
   LandingItem('Ellipse 2.png', '이장우'),
   LandingItem('Ellipse 2-1.png', '배두나'),
 ];
 
-List<LandingItem> FindYourFav = [
+List<LandingItem> findYourFav = [
   LandingItem('Ellipse 2-2.png', '안보현'),
   LandingItem('Ellipse 2-3.png', '박서준'),
   LandingItem('Ellipse 2-4.png', '정해인'),
@@ -41,23 +42,29 @@ class _LandingPageState extends State<LandingPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('My Fav',
+          Text(Intl.message('lable_my_celeb'),
               style: Theme.of(context)
                   .textTheme
                   .headlineMedium
                   ?.copyWith(fontWeight: FontWeight.bold)),
-          SizedBox(height: 16),
-          ...MyFav.map((item) {
-            return FavItem(item: item, type: 'my',);
+          const SizedBox(height: 16),
+          ...myFav.map((item) {
+            return FavItem(
+              item: item,
+              type: 'my',
+            );
           }),
-          SizedBox(height: 16),
-          Text('Find your Fav',
+          const SizedBox(height: 16),
+          Text(Intl.message('label_celeb_recommend'),
               style: Theme.of(context)
                   .textTheme
                   .headlineMedium
                   ?.copyWith(fontWeight: FontWeight.bold)),
-          ...FindYourFav.map((item) {
-            return FavItem(item: item, type: 'find',);
+          ...findYourFav.map((item) {
+            return FavItem(
+              item: item,
+              type: 'find',
+            );
           }),
         ],
       )),
@@ -71,17 +78,16 @@ class FavItem extends StatelessWidget {
 
   const FavItem({
     super.key,
-    required this.item, required this.type,
-
+    required this.item,
+    required this.type,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.pushNamed(context,HomeScreen.routeName);
+        Navigator.pushNamed(context, HomeScreen.routeName);
       },
-
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 16),
         child: Row(
@@ -99,8 +105,9 @@ class FavItem extends StatelessWidget {
               'assets/mockup/landing/landing_plus.svg',
               width: 18,
               height: 18,
-              colorFilter: ColorFilter.mode(Color(
-                  type == 'my' ? 0xFF08C97E : 0xFFC4C4C4), BlendMode.srcIn),
+              colorFilter: ColorFilter.mode(
+                  Color(type == 'my' ? 0xFF08C97E : 0xFFC4C4C4),
+                  BlendMode.srcIn),
             ),
           ],
         ),
