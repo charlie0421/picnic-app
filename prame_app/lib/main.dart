@@ -1,9 +1,9 @@
-import 'package:prame_app/prame_app.dart';
-import 'package:prame_app/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prame_app/prame_app.dart';
+import 'package:prame_app/util.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -13,10 +13,9 @@ void main() async {
     await initializeWidgetsAndDeviceOrientation(widgetsBinding);
   }
 
-  runApp(ProviderScope(child: PrameApp()));
+  runApp(const ProviderScope(child: PrameApp()));
 
   FlutterNativeSplash.remove();
-
 }
 
 Future<void> initializeWidgetsAndDeviceOrientation(

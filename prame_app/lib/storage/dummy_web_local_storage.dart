@@ -5,7 +5,7 @@ class WebLocalStorage implements LocalStorage {
   Future<void> saveData(String key, String value) async {}
 
   @override
-  Future<String?> loadData(String key) async {
+  Future<String?> loadData(String key, dynamic defaultVale) async {
     return null;
   }
 

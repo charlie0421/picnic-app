@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:prame_app/constants.dart';
 import 'package:prame_app/pages/landing_page.dart';
-import 'package:prame_app/providers/bottom_navigation_provider.dart';
-import 'package:prame_app/screens/my_screen.dart';
+import 'package:prame_app/providers/app_setting_provider.dart';
+import 'package:prame_app/screens/home_screen.dart';
+import 'package:prame_app/screens/language_screen.dart';
+import 'package:prame_app/ui/style.dart';
 
 class LandingScreen extends ConsumerWidget {
   static const String routeName = '/landing';
@@ -11,28 +15,31 @@ class LandingScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final counterRead =
-        ref.read(bottomNavigationBarIndexStateProvider.notifier);
-    final counterState = ref.watch(bottomNavigationBarIndexStateProvider);
-
+    final appSettingState = ref.watch(appSettingProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Landing'),
-        actions: [
-          Container(
-            margin: const EdgeInsets.all(10),
-            child: InkWell(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            InkWell(
               onTap: () {
-                Navigator.pushNamed(context, MyScreen.routeName);
+                Navigator.pushNamed(context, HomeScreen.routeName);
               },
-              child: CircleAvatar(
-                child: Text('MY'),
-              ),
+              child: Text(Intl.message('nav_library'),
+                  style: getTextStyle(AppTypo.UI16B, AppColors.Gray900)),
             ),
-          ),
-        ],
+            InkWell(
+              onTap: () {
+                Navigator.pushNamed(context, LanguageScreen.routeName);
+              },
+              child: Text(
+                  'Language : ${languageMap[appSettingState.locale.languageCode]}',
+                  style: getTextStyle(AppTypo.UI16B, AppColors.Gray900)),
+            )
+          ],
+        ),
       ),
-      body: LandingPage(),
+      body: const LandingPage(),
     );
   }
 }

@@ -23,6 +23,7 @@ class MessageLookup extends MessageLookupByLibrary {
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "label_current_language": MessageLookupByLibrary.simpleMessage("現在の言語"),
+        "lable_my_celeb": MessageLookupByLibrary.simpleMessage("マイ・セレブ"),
         "mypage_comment": MessageLookupByLibrary.simpleMessage("コメント管理"),
         "mypage_language": MessageLookupByLibrary.simpleMessage("言語設定"),
         "mypage_purchases": MessageLookupByLibrary.simpleMessage("私の購入"),
