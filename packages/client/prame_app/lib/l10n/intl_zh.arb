@@ -12,5 +12,6 @@
   "mypage_language": "语言设置",
   "title_select_language": "语言选择",
   "label_current_language": "当前语言",
-  "lable_my_celeb": "我的名人"
+  "lable_my_celeb": "我的名人",
+  "label_celeb_recommend": "名人推荐"
 }
