@@ -35,6 +35,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_home": MessageLookupByLibrary.simpleMessage("홈"),
         "nav_library": MessageLookupByLibrary.simpleMessage("라이브러리"),
         "nav_purchases": MessageLookupByLibrary.simpleMessage("구매"),
-        "title_select_language": MessageLookupByLibrary.simpleMessage("언어 선택")
+        "text_hint_search": MessageLookupByLibrary.simpleMessage("유명인을 검색하세요."),
+        "title_select_language": MessageLookupByLibrary.simpleMessage("언어 선택"),
+        "toast_max_5_celeb":
+            MessageLookupByLibrary.simpleMessage("내 셀러브리티를 최대 5개까지 추가할 수 있습니다.")
       };
 }

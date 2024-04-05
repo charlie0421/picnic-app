@@ -41,7 +41,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_home": MessageLookupByLibrary.simpleMessage("Главная"),
         "nav_library": MessageLookupByLibrary.simpleMessage("Библиотека"),
         "nav_purchases": MessageLookupByLibrary.simpleMessage("Покупки"),
+        "text_hint_search":
+            MessageLookupByLibrary.simpleMessage("Поиск знаменитостей."),
         "title_select_language":
-            MessageLookupByLibrary.simpleMessage("Выбор языка")
+            MessageLookupByLibrary.simpleMessage("Выбор языка"),
+        "toast_max_5_celeb": MessageLookupByLibrary.simpleMessage(
+            "Вы можете добавить до 5 моих знаменитостей.")
       };
 }
