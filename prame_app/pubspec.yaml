@@ -27,11 +27,17 @@ dependencies:
   camera: ^0.10.5+9
   flutter_screenutil: ^5.9.0
   overlay_loading_progress: ^1.0.1
+  reflectable: ^4.0.6
+  json_annotation: ^4.8.1
+  dio: ^5.4.2+1
+  cached_network_image: ^3.3.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  json_serializable: ^6.5.4
   riverpod_generator: ^2.4.0
+  intl_utils: ^2.8.7
   build_runner: ^2.4.8
   custom_lint: ^0.6.4
   riverpod_lint: ^2.3.10
@@ -45,7 +51,6 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/mockup/
-    - assets/mockup/landing/
     - assets/mockup/my/
     - assets/mockup/gallery/
     - assets/mockup/prame/

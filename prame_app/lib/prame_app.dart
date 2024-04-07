@@ -11,8 +11,6 @@ import 'package:prame_app/screens/my_screen.dart';
 import 'package:prame_app/screens/prame_screen.dart';
 import 'package:prame_app/ui/theme.dart';
 
-import 'constants.dart';
-
 class PrameApp extends ConsumerStatefulWidget {
   const PrameApp({super.key});
 
@@ -32,7 +30,6 @@ class _PrameAppState extends ConsumerState<PrameApp> {
   @override
   Widget build(BuildContext context) {
     final appSettingState = ref.watch(appSettingProvider);
-    logger.i('appSettingState.locale: ${appSettingState.locale}');
     return ScreenUtilInit(
       designSize: const Size(430, 932),
       child: MaterialApp(

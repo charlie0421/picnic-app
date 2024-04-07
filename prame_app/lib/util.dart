@@ -124,3 +124,12 @@ void showOverlayToast(BuildContext context, Widget child) {
     overlayEntry.remove();
   });
 }
+
+Widget buildLoadingOverlay() {
+  return Container(
+    alignment: Alignment.center,
+    child: const CircularProgressIndicator(
+      color: Colors.green,
+    ), // 로딩바
+  );
+}
