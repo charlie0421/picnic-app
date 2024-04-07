@@ -60,6 +60,8 @@ Future<Dio> authDio({String baseUrl = Constants.userApiUrl}) async {
       final newAccessToken = refreshResponse.data['accessToken'];
       final newRefreshToken = refreshResponse.data['refreshToken'];
 
+      logger.w('newAccessToken: $newAccessToken');
+
       await globalStorage.saveData('ACCESS_TOKEN', newAccessToken);
       await globalStorage.saveData('REFRESH_TOKEN', newRefreshToken);
 

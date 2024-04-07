@@ -11,7 +11,7 @@ class Constants {
       defaultValue: 'https://api-dev.1stype.io/prame');
   static const String authApiUrl = String.fromEnvironment(
     'API_AUTH_ROOT',
-    defaultValue: 'https://api-dev.1stype.io/auth',
+    defaultValue: 'https://api-dev.1stype.io/prame/auth',
   );
   static double webMaxWidth = 600.0;
   static int snackBarDuration = 3;
