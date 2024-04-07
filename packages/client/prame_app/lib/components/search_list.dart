@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:prame_app/constants.dart';
+import 'package:prame_app/components/celeb_list_item.dart';
+import 'package:prame_app/components/error.dart';
+import 'package:prame_app/models/celeb.dart';
 import 'package:prame_app/providers/celeb_search_provider.dart';
 import 'package:prame_app/ui/style.dart';
 import 'package:prame_app/util.dart';
@@ -19,7 +21,9 @@ class _SearchListState extends ConsumerState<SearchList> {
 
   @override
   Widget build(BuildContext context) {
-    final celebSearchState = ref.watch(celebSearchProvider);
+    final asyncCelebSearchState = ref.watch(asyncCelebSearchProvider);
+    final asyncCelebSearchNotifier =
+        ref.read(asyncCelebSearchProvider.notifier);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -46,55 +50,38 @@ class _SearchListState extends ConsumerState<SearchList> {
                 ),
               ),
               onChanged: (value) {
-                logger.i(value);
+                if (value == null || value.isNotEmpty) {
+                  asyncCelebSearchNotifier.searchCeleb(value);
+                  return;
+                } else {
+                  asyncCelebSearchNotifier.reset();
+                }
               },
             ),
           ),
-          Expanded(
-            child: ListView.separated(
-                itemCount: celebSearchState.length,
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 10),
-                itemBuilder: (context, index) {
-                  return Container(
-                    padding: const EdgeInsets.fromLTRB(16, 20, 32, 0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Image.asset(
-                                'assets/mockup/landing/${celebSearchState[index].image}',
-                                width: 60,
-                                height: 60),
-                            const SizedBox(width: 16),
-                            Text(celebSearchState[index].name,
-                                style: Theme.of(context).textTheme.titleLarge),
-                          ],
-                        ),
-                        InkWell(
-                          onTap: () {
-                            showOverlayToast(
-                                context,
-                                Text(Intl.message('toast_max_5_celeb'),
-                                    style: getTextStyle(
-                                        AppTypo.UI16M, AppColors.Gray900)));
-                          },
-                          child: SvgPicture.asset(
-                            'assets/landing/bookmark_add.svg',
-                            width: 24,
-                            height: 24,
-                            colorFilter: const ColorFilter.mode(
-                                Color(0xFFC4C4C4), BlendMode.srcIn),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
+          asyncCelebSearchState.when(
+            data: (data) {
+              return _buildSearchList(data);
+            },
+            loading: () => buildLoadingOverlay(),
+            error: (error, stackTrace) =>
+                ErrorView(context, error: error, stackTrace: stackTrace),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSearchList(CelebListModel data) {
+    return Expanded(
+      child: ListView.separated(
+          itemCount: data.items.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 10),
+          itemBuilder: (context, index) {
+            return CelebListItem(
+                item: data.items[index],
+                type: data.items[index].users.isEmpty ? 'find' : 'my');
+          }),
     );
   }
 }

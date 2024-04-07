@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:prame_app/components/celeb_list_item.dart';
+import 'package:prame_app/components/error.dart';
 import 'package:prame_app/components/search_list.dart';
-import 'package:prame_app/mockup/mock_data.dart';
-import 'package:prame_app/screens/home_screen.dart';
+import 'package:prame_app/providers/celeb_list_provider.dart';
+import 'package:prame_app/providers/celeb_search_provider.dart';
+import 'package:prame_app/ui/style.dart';
+import 'package:prame_app/util.dart';
 
 class LandingPage extends ConsumerStatefulWidget {
   const LandingPage({super.key});
@@ -16,6 +21,29 @@ class LandingPage extends ConsumerStatefulWidget {
 class _LandingPageState extends ConsumerState<LandingPage> {
   @override
   Widget build(BuildContext context) {
+    final asyncCelebListState = ref.watch(asyncCelebListProvider);
+    int userId = 2;
+
+    return asyncCelebListState.when(
+        data: (data) {
+          final myCelebList = data.items
+              .where((element) => element.users
+                  .where((element) => element.id == userId)
+                  .isNotEmpty)
+              .toList();
+          final celebList = data.items
+              .where((element) => element.users
+                  .where((element) => element.id == userId)
+                  .isEmpty)
+              .toList();
+          return _dataView(myCelebList, celebList);
+        },
+        error: (error, stackTrace) => ErrorView(context,
+            error: asyncCelebListState.error, stackTrace: stackTrace),
+        loading: () => buildLoadingOverlay());
+  }
+
+  _dataView(myCelebList, celebList) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(36.0),
@@ -31,12 +59,34 @@ class _LandingPageState extends ConsumerState<LandingPage> {
                   .headlineMedium
                   ?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          ...myFav.map((item) {
-            return FavItem(
-              item: item,
-              type: 'my',
-            );
-          }),
+          if (myCelebList.length == 0)
+            SizedBox(
+              width: double.infinity,
+              height: 134.h,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset('assets/landing/no_celeb.svg',
+                      width: 60.w,
+                      height: 60.h,
+                      colorFilter: const ColorFilter.mode(
+                          Color(0xFFB7B7B7), BlendMode.srcIn)),
+                  SizedBox(height: 8.h),
+                  Text(
+                    Intl.message('label_no_celeb'),
+                    style: getTextStyle(AppTypo.UI20, AppColors.Gray300),
+                  )
+                ],
+              ),
+            )
+          else
+            ...myCelebList.map((item) {
+              return CelebListItem(
+                item: item,
+                type: 'my',
+              );
+            }),
           const SizedBox(height: 16),
           Text(Intl.message('label_celeb_recommend'),
               style: Theme.of(context)
@@ -45,14 +95,15 @@ class _LandingPageState extends ConsumerState<LandingPage> {
                   ?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
           InkWell(
-            onTap: () {
-              showModalBottomSheet(
+            onTap: () async {
+              await showModalBottomSheet(
                   context: context,
                   isScrollControlled: true,
                   useRootNavigator: true,
                   useSafeArea: true,
                   showDragHandle: true,
                   builder: (BuildContext context) => const SearchList());
+              ref.read(asyncCelebSearchProvider.notifier).reset();
             },
             child: Container(
               height: 40,
@@ -75,87 +126,14 @@ class _LandingPageState extends ConsumerState<LandingPage> {
             ),
           ),
           const SizedBox(height: 16),
-          ...findYourFav.map((item) {
-            return FavItem(
+          ...celebList.map((item) {
+            return CelebListItem(
               item: item,
               type: 'find',
             );
           }),
         ],
       )),
-    );
-  }
-}
-
-class FavItem extends StatelessWidget {
-  final LandingItem item;
-  final String type;
-
-  const FavItem({
-    super.key,
-    required this.item,
-    required this.type,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        Navigator.pushNamed(context, HomeScreen.routeName);
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Image.asset('assets/mockup/landing/${item.image}',
-                    width: 60, height: 60),
-                const SizedBox(width: 16),
-                Text(item.name, style: Theme.of(context).textTheme.titleLarge),
-              ],
-            ),
-            type == 'my'
-                ? InkWell(
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('즐겨찾기에서 삭제'),
-                          duration: Duration(milliseconds: 300),
-                        ),
-                      );
-                    },
-                    child: SvgPicture.asset(
-                      'assets/landing/bookmark_added.svg',
-                      width: 24,
-                      height: 24,
-                      colorFilter: ColorFilter.mode(
-                          Color(type == 'my' ? 0xFF08C97E : 0xFFC4C4C4),
-                          BlendMode.srcIn),
-                    ),
-                  )
-                : InkWell(
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('즐겨찾기에 추가'),
-                          duration: Duration(milliseconds: 300),
-                        ),
-                      );
-                    },
-                    child: SvgPicture.asset(
-                      'assets/landing/bookmark_add.svg',
-                      width: 24,
-                      height: 24,
-                      colorFilter: ColorFilter.mode(
-                          Color(type == 'my' ? 0xFF08C97E : 0xFFC4C4C4),
-                          BlendMode.srcIn),
-                    ),
-                  ),
-          ],
-        ),
-      ),
     );
   }
 }
