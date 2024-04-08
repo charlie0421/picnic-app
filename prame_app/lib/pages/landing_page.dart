@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:prame_app/components/celeb_list_item.dart';
 import 'package:prame_app/components/error.dart';
+import 'package:prame_app/components/no_bookmark_celeb.dart';
 import 'package:prame_app/components/search_list.dart';
 import 'package:prame_app/providers/celeb_list_provider.dart';
 import 'package:prame_app/providers/celeb_search_provider.dart';
-import 'package:prame_app/ui/style.dart';
 import 'package:prame_app/util.dart';
 
 class LandingPage extends ConsumerStatefulWidget {
@@ -60,26 +59,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
                   ?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
           if (myCelebList.length == 0)
-            SizedBox(
-              width: double.infinity,
-              height: 134.h,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SvgPicture.asset('assets/landing/no_celeb.svg',
-                      width: 60.w,
-                      height: 60.h,
-                      colorFilter: const ColorFilter.mode(
-                          Color(0xFFB7B7B7), BlendMode.srcIn)),
-                  SizedBox(height: 8.h),
-                  Text(
-                    Intl.message('label_no_celeb'),
-                    style: getTextStyle(AppTypo.UI20, AppColors.Gray300),
-                  )
-                ],
-              ),
-            )
+            const NoBookmarkCeleb()
           else
             ...myCelebList.map((item) {
               return CelebListItem(

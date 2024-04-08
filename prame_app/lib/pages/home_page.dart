@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:prame_app/components/error.dart';
-import 'package:prame_app/constants.dart';
 import 'package:prame_app/providers/celeb_banner_list_provider.dart';
 import 'package:prame_app/providers/selected_celeb_provider.dart';
 import 'package:prame_app/ui/style.dart';
@@ -52,7 +51,6 @@ class HomePage extends ConsumerWidget {
           ),
           celebBannerListState.when(
             data: (data) {
-              logger.i('data: $data');
               return SizedBox(
                 height: 236,
                 width: MediaQuery.of(context).size.width - 32,

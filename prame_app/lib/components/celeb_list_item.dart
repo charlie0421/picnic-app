@@ -6,8 +6,11 @@ import 'package:intl/intl.dart';
 import 'package:prame_app/models/celeb.dart';
 import 'package:prame_app/providers/celeb_list_provider.dart';
 import 'package:prame_app/providers/celeb_search_provider.dart';
+import 'package:prame_app/providers/selected_celeb_provider.dart';
 import 'package:prame_app/ui/style.dart';
 import 'package:prame_app/util.dart';
+
+import '../constants.dart';
 
 class CelebListItem extends ConsumerWidget {
   final CelebModel item;
@@ -29,6 +32,7 @@ class CelebListItem extends ConsumerWidget {
     final asyncCelebListNotifier = ref.read(asyncCelebListProvider.notifier);
     final asyncCelebSearchNotifier =
         ref.read(asyncCelebSearchProvider.notifier);
+    final selectedCelebNotifier = ref.read(selectedCelebProvider.notifier);
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 16),
@@ -54,6 +58,15 @@ class CelebListItem extends ConsumerWidget {
                           ? () async {
                               await asyncCelebListNotifier.removeBookmark(item);
                               asyncCelebSearchNotifier.repeatSearch();
+                              logger.i(
+                                  'getBookmarkCount(asyncCelebListState): ${getBookmarkCount(ref.read(asyncCelebListProvider))}');
+                              if (getBookmarkCount(
+                                      ref.read(asyncCelebListProvider))! <=
+                                  0) {
+                                logger.i(
+                                    'selectedCelebNotifier.setSelectedCeleb(null)');
+                                selectedCelebNotifier.setSelectedCeleb(null);
+                              }
                             }
                           : () {},
                       child: SvgPicture.asset(
