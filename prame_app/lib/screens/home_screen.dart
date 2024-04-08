@@ -13,6 +13,7 @@ import 'package:prame_app/providers/celeb_banner_list_provider.dart';
 import 'package:prame_app/providers/my_celeb_list_provider.dart';
 import 'package:prame_app/providers/selected_celeb_provider.dart';
 import 'package:prame_app/screens/bottom_navigation_bar.dart';
+import 'package:prame_app/screens/landing_screen.dart';
 import 'package:prame_app/ui/style.dart';
 import 'package:prame_app/util.dart';
 
@@ -136,7 +137,12 @@ class HomeScreen extends ConsumerWidget {
                           stackTrace: stackTrace,
                         )
                       ]),
-              Text(Intl.message('label_find_celeb'))
+              GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamedAndRemoveUntil(
+                        context, LandingScreen.routeName, (route) => false);
+                  },
+                  child: Text(Intl.message('label_find_celeb')))
             ],
           );
         });
