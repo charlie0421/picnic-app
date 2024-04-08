@@ -15,5 +15,10 @@
   "lable_my_celeb": "Mi Celeb",
   "label_celeb_recommend": "Recomendaciones de famosos",
   "text_hint_search": "Búsqueda de famosos.",
-  "toast_max_5_celeb": "Puedes añadir hasta 5 Mis Famosos."
+  "toast_max_5_celeb": "Puedes añadir hasta 5 Mis Famosos.",
+  "label_moveto_celeb_gallery": "Ir a la Galería de famosos",
+  "text_moveto_celeb_gallery": "Navega hasta la página de inicio de la celebridad seleccionada.",
+  "text_ads_random": "Ver anuncios y recopilar imágenes aleatorias.",
+  "label_find_celeb": "Más famosos",
+  "label_no_celeb": "Usted no tiene ninguna celebridad en favoritos todavía!."
 }
