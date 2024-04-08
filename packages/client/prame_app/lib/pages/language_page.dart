@@ -37,7 +37,7 @@ class LanguagePage extends ConsumerWidget {
                 )
               ],
             )),
-        const Divider(),
+        const Divider(height: 1),
         Expanded(
           child: ListView.separated(
             itemCount: languageMap.length,
