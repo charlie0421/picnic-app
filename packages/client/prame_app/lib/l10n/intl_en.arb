@@ -18,8 +18,7 @@
   "toast_max_5_celeb": "You can add up to 5 My Celebrities.",
   "label_moveto_celeb_gallery": "Go to the Celebrity Gallery",
   "text_moveto_celeb_gallery": "Navigates to the selected celebrity's home.",
-  "text_ads_random":"Viewing ads and collecting random images.",
+  "text_ads_random": "Viewing ads and collecting random images.",
   "label_find_celeb": "Find more celebrities",
   "label_no_celeb": "You don't have any celebrities bookmarked yet!."
-
 }
