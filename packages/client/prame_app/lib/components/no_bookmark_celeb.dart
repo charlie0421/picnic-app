@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -24,9 +25,14 @@ class NoBookmarkCeleb extends StatelessWidget {
               colorFilter:
                   const ColorFilter.mode(Color(0xFFB7B7B7), BlendMode.srcIn)),
           SizedBox(height: 8.h),
-          Text(
-            Intl.message('label_no_celeb'),
-            style: getTextStyle(AppTypo.UI20, AppColors.Gray300),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            alignment: Alignment.center,
+            child: Text(
+              Intl.message('label_no_celeb'),
+              textAlign: TextAlign.center,
+              style: getTextStyle(AppTypo.UI20, AppColors.Gray300),
+            ),
           )
         ],
       ),
