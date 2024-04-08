@@ -209,6 +209,56 @@ class S {
       args: [],
     );
   }
+
+  /// `Go to the Celebrity Gallery`
+  String get label_moveto_celeb_gallery {
+    return Intl.message(
+      'Go to the Celebrity Gallery',
+      name: 'label_moveto_celeb_gallery',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Navigates to the selected celebrity's home.`
+  String get text_moveto_celeb_gallery {
+    return Intl.message(
+      'Navigates to the selected celebrity\'s home.',
+      name: 'text_moveto_celeb_gallery',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Viewing ads and collecting random images.`
+  String get text_ads_random {
+    return Intl.message(
+      'Viewing ads and collecting random images.',
+      name: 'text_ads_random',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Find more celebrities`
+  String get label_find_celeb {
+    return Intl.message(
+      'Find more celebrities',
+      name: 'label_find_celeb',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You don't have any celebrities bookmarked yet!.`
+  String get label_no_celeb {
+    return Intl.message(
+      'You don\'t have any celebrities bookmarked yet!.',
+      name: 'label_no_celeb',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
