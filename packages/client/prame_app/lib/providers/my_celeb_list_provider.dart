@@ -9,10 +9,10 @@ part 'my_celeb_list_provider.g.dart';
 class AsyncMyCelebList extends _$AsyncMyCelebList {
   @override
   Future<CelebListModel> build() async {
-    return _fetchMyCelebList();
+    return fetchMyCelebList();
   }
 
-  Future<CelebListModel> _fetchMyCelebList() async {
+  Future<CelebListModel> fetchMyCelebList() async {
     final dio = await authDio(baseUrl: Constants.userApiUrl);
     final response = await dio.get('/celeb/me');
     return CelebListModel.fromJson(response.data);

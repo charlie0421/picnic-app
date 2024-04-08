@@ -10,7 +10,7 @@ class SelectedCeleb extends _$SelectedCeleb {
   @override
   CelebModel? build() => selectedCeleb;
 
-  void setSelectedCeleb(CelebModel celebModel) {
+  void setSelectedCeleb(CelebModel? celebModel) {
     state = celebModel;
   }
 }

@@ -31,9 +31,8 @@ class AsyncCelebSearch extends _$AsyncCelebSearch {
   }
 
   Future<void> repeatSearch() async {
-    logger.d('Repeating search for $_lastQuery');
     if (_lastQuery == null) {
-      throw Exception("No previous query to repeat.");
+      return;
     }
     await searchCeleb(_lastQuery!);
   }
