@@ -1,17 +1,25 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:prame_app/providers/app_setting_provider.dart';
 import 'package:prame_app/ui/style.dart';
 
-class NoBookmarkCeleb extends StatelessWidget {
+class NoBookmarkCeleb extends ConsumerStatefulWidget {
   const NoBookmarkCeleb({
     super.key,
   });
 
   @override
+  ConsumerState<NoBookmarkCeleb> createState() => _NoBookmarkCelebState();
+}
+
+class _NoBookmarkCelebState extends ConsumerState<NoBookmarkCeleb> {
+  @override
   Widget build(BuildContext context) {
+    ref.watch(appSettingProvider);
     return SizedBox(
       width: double.infinity,
       height: 134.h,
