@@ -26,6 +26,11 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Recomendaciones de famosos"),
         "label_current_language":
             MessageLookupByLibrary.simpleMessage("Idioma actual"),
+        "label_find_celeb": MessageLookupByLibrary.simpleMessage("Más famosos"),
+        "label_moveto_celeb_gallery":
+            MessageLookupByLibrary.simpleMessage("Ir a la Galería de famosos"),
+        "label_no_celeb": MessageLookupByLibrary.simpleMessage(
+            "Usted no tiene ninguna celebridad en favoritos todavía!."),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("Mi Celeb"),
         "mypage_comment":
             MessageLookupByLibrary.simpleMessage("Gestión de Comentarios"),
@@ -40,8 +45,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_home": MessageLookupByLibrary.simpleMessage("Inicio"),
         "nav_library": MessageLookupByLibrary.simpleMessage("Biblioteca"),
         "nav_purchases": MessageLookupByLibrary.simpleMessage("Compras"),
+        "text_ads_random": MessageLookupByLibrary.simpleMessage(
+            "Ver anuncios y recopilar imágenes aleatorias."),
         "text_hint_search":
             MessageLookupByLibrary.simpleMessage("Búsqueda de famosos."),
+        "text_moveto_celeb_gallery": MessageLookupByLibrary.simpleMessage(
+            "Navega hasta la página de inicio de la celebridad seleccionada."),
         "title_select_language":
             MessageLookupByLibrary.simpleMessage("Selección de idioma"),
         "toast_max_5_celeb": MessageLookupByLibrary.simpleMessage(

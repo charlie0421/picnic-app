@@ -45,7 +45,7 @@ class _PrameAppState extends ConsumerState<PrameApp> {
             LanguageScreen.routeName: (context) => const LanguageScreen(),
             PrameScreen.routeName: (context) => const PrameScreen(),
           },
-          localizationsDelegates: const [
+          localizationsDelegates: [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,

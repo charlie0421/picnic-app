@@ -25,6 +25,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_celeb_recommend":
             MessageLookupByLibrary.simpleMessage("セレブのおすすめ"),
         "label_current_language": MessageLookupByLibrary.simpleMessage("現在の言語"),
+        "label_find_celeb": MessageLookupByLibrary.simpleMessage("セレブをもっと探す"),
+        "label_moveto_celeb_gallery":
+            MessageLookupByLibrary.simpleMessage("セレブリティ・ギャラリーへ"),
+        "label_no_celeb":
+            MessageLookupByLibrary.simpleMessage("あなたはまだ有名人をブックマークしていない!"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("マイ・セレブ"),
         "mypage_comment": MessageLookupByLibrary.simpleMessage("コメント管理"),
         "mypage_language": MessageLookupByLibrary.simpleMessage("言語設定"),
@@ -36,7 +41,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_home": MessageLookupByLibrary.simpleMessage("ホーム"),
         "nav_library": MessageLookupByLibrary.simpleMessage("ライブラリ"),
         "nav_purchases": MessageLookupByLibrary.simpleMessage("購入"),
+        "text_ads_random":
+            MessageLookupByLibrary.simpleMessage("広告を見て、ランダムな画像を集める。"),
         "text_hint_search": MessageLookupByLibrary.simpleMessage("有名人を探す"),
+        "text_moveto_celeb_gallery":
+            MessageLookupByLibrary.simpleMessage("選択した有名人のホームに移動します。"),
         "title_select_language": MessageLookupByLibrary.simpleMessage("言語選択"),
         "toast_max_5_celeb":
             MessageLookupByLibrary.simpleMessage("マイ・セレブリティは5人まで追加可能。")
