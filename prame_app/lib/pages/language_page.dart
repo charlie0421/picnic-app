@@ -58,16 +58,15 @@ class LanguagePage extends ConsumerWidget {
                   ),
                 ),
                 onTap: () {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    appSettingNotifier
-                        .setLocale(Locale(
-                      languageMap.keys.elementAt(index),
-                      countryMap.keys.elementAt(index),
-                    ))
-                        .then((value) {
+                  WidgetsBinding.instance.addPostFrameCallback(
+                    (_) {
+                      appSettingNotifier.setLocale(Locale(
+                        languageMap.keys.elementAt(index),
+                        countryMap.keys.elementAt(index),
+                      ));
                       Navigator.pop(context);
-                    });
-                  });
+                    },
+                  );
                 },
               );
             },
