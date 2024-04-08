@@ -41,13 +41,17 @@ class LanguagePage extends ConsumerWidget {
         Expanded(
           child: ListView.separated(
             itemCount: languageMap.length,
-            separatorBuilder: (context, index) => const Divider(),
+            separatorBuilder: (context, index) => const Divider(height: 1),
             itemBuilder: (context, index) {
               return InkWell(
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   alignment: Alignment.centerLeft,
-                  height: 40,
+                  height: 50,
+                  color: appSettingState.locale.languageCode ==
+                          languageMap.keys.elementAt(index)
+                      ? Constants.mainColor
+                      : null,
                   child: Text(
                     '${countryMap[countryMap.keys.elementAt(index)]!}, ${languageMap[languageMap.keys.elementAt(index)]!}',
                     style: Theme.of(context).textTheme.titleLarge,
@@ -60,6 +64,7 @@ class LanguagePage extends ConsumerWidget {
                       countryMap.keys.elementAt(index),
                     ));
                     Intl.defaultLocale = languageMap.keys.elementAt(index);
+                    Navigator.pop(context);
                   });
                 },
               );
