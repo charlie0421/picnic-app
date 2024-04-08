@@ -59,12 +59,14 @@ class LanguagePage extends ConsumerWidget {
                 ),
                 onTap: () {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                    appSettingNotifier.setLocale(Locale(
+                    appSettingNotifier
+                        .setLocale(Locale(
                       languageMap.keys.elementAt(index),
                       countryMap.keys.elementAt(index),
-                    ));
-                    Intl.defaultLocale = languageMap.keys.elementAt(index);
-                    Navigator.pop(context);
+                    ))
+                        .then((value) {
+                      Navigator.pop(context);
+                    });
                   });
                 },
               );

@@ -25,11 +25,11 @@ class AppSetting extends _$AppSetting {
     globalStorage.saveData('themeMode', modeStr);
   }
 
-  setLocale(Locale locale) {
+  setLocale(Locale locale) async {
+    Intl.defaultLocale = locale.languageCode;
     state = state.copyWith(locale: locale);
     globalStorage.saveData(
         'locale', '${locale.languageCode}_${locale.countryCode}');
-    Intl.defaultLocale = locale.languageCode;
   }
 }
 
