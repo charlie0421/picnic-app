@@ -29,7 +29,7 @@ class CelebModel {
   final String nameKo;
   final String nameEn;
   final String thumbnail;
-  final List<UserModel> users;
+  final List<UserModel>? users;
 
   CelebModel({
     required this.id,

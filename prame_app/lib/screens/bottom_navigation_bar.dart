@@ -1,33 +1,23 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:prame_app/providers/bottom_navigation_provider.dart';
-import 'package:flutter/material.dart';
 
-BottomNavigationBar buildBottomNavigationBar(
-  BottomNavigationBarCount counterRead,
-  int counterState,
-) {
+BottomNavigationBar buildBottomNavigationBar(ref) {
+  final counterRead = ref.read(bottomNavigationBarIndexStateProvider.notifier);
+  final counterState = ref.watch(bottomNavigationBarIndexStateProvider);
+
   return BottomNavigationBar(
     items: <BottomNavigationBarItem>[
       BottomNavigationBarItem(
-        icon: Icon(Icons.home),
-        label: Intl.message('nav_home')
-      ),
+          icon: Icon(Icons.home), label: Intl.message('nav_home')),
       BottomNavigationBarItem(
-        icon: Icon(Icons.photo),
-          label: Intl.message('nav_gallery')
-      ),
+          icon: Icon(Icons.photo), label: Intl.message('nav_gallery')),
       BottomNavigationBarItem(
-        icon: Icon(Icons.library_books),
-          label: Intl.message('nav_library')
-      ),
+          icon: Icon(Icons.library_books), label: Intl.message('nav_library')),
       BottomNavigationBarItem(
-        icon: Icon(Icons.wallet),
-          label: Intl.message('nav_purchases')
-      ),
+          icon: Icon(Icons.wallet), label: Intl.message('nav_purchases')),
       BottomNavigationBarItem(
-        icon: Icon(Icons.ads_click),
-          label: Intl.message('nav_ads')
-      ),
+          icon: Icon(Icons.ads_click), label: Intl.message('nav_ads')),
     ],
     currentIndex: counterState,
     // backgroundColor: Colors.blue,

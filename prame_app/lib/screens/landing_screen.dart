@@ -23,7 +23,7 @@ class LandingScreen extends ConsumerWidget {
           children: [
             InkWell(
               onTap: () {
-                Navigator.pushNamed(context, HomeScreen.routeName);
+                Navigator.pushReplacementNamed(context, HomeScreen.routeName);
               },
               child: Text(Intl.message('nav_library'),
                   style: getTextStyle(AppTypo.UI16B, AppColors.Gray900)),

@@ -22,8 +22,8 @@ Future<Dio> authDio({String baseUrl = Constants.userApiUrl}) async {
     options.headers['Content-Type'] = 'application/json';
 
     if (kDebugMode) {
-      // logger.d(
-      //     '${options.method} ${options.baseUrl}${options.path} ${options.data ?? ''}');
+      logger.d(
+          '${options.method} ${options.baseUrl}${options.path} ${options.data ?? ''}');
     }
 
     return handler.next(options);
