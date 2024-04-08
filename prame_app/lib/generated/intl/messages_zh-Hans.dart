@@ -24,6 +24,10 @@ class MessageLookup extends MessageLookupByLibrary {
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "label_celeb_recommend": MessageLookupByLibrary.simpleMessage("名人推荐"),
         "label_current_language": MessageLookupByLibrary.simpleMessage("当前语言"),
+        "label_find_celeb": MessageLookupByLibrary.simpleMessage("查找更多名人"),
+        "label_moveto_celeb_gallery":
+            MessageLookupByLibrary.simpleMessage("前往名人图库"),
+        "label_no_celeb": MessageLookupByLibrary.simpleMessage("您还没有将任何名人加入书签"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("我的名人"),
         "mypage_comment": MessageLookupByLibrary.simpleMessage("评论管理"),
         "mypage_language": MessageLookupByLibrary.simpleMessage("语言设置"),
@@ -35,7 +39,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_home": MessageLookupByLibrary.simpleMessage("首页"),
         "nav_library": MessageLookupByLibrary.simpleMessage("图书馆"),
         "nav_purchases": MessageLookupByLibrary.simpleMessage("购买"),
+        "text_ads_random": MessageLookupByLibrary.simpleMessage("查看广告并收集随机图片。"),
         "text_hint_search": MessageLookupByLibrary.simpleMessage("搜索名人。"),
+        "text_moveto_celeb_gallery":
+            MessageLookupByLibrary.simpleMessage("导航至所选名人的主页。"),
         "title_select_language": MessageLookupByLibrary.simpleMessage("语言选择"),
         "toast_max_5_celeb":
             MessageLookupByLibrary.simpleMessage("您最多可以添加 5 个 \"我的名人\"。")

@@ -22,7 +22,6 @@ class _NoBookmarkCelebState extends ConsumerState<NoBookmarkCeleb> {
     ref.watch(appSettingProvider);
     return SizedBox(
       width: double.infinity,
-      height: 134.h,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,

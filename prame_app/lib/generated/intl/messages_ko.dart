@@ -24,6 +24,11 @@ class MessageLookup extends MessageLookupByLibrary {
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "label_celeb_recommend": MessageLookupByLibrary.simpleMessage("유명인 추천"),
         "label_current_language": MessageLookupByLibrary.simpleMessage("현재 언어"),
+        "label_find_celeb": MessageLookupByLibrary.simpleMessage("더 많은 유명인 찾기"),
+        "label_moveto_celeb_gallery":
+            MessageLookupByLibrary.simpleMessage("셀러브리티 갤러리로 이동"),
+        "label_no_celeb":
+            MessageLookupByLibrary.simpleMessage("아직 북마크한 유명인이 없습니다!"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("내 셀럽"),
         "mypage_comment": MessageLookupByLibrary.simpleMessage("댓글관리"),
         "mypage_language": MessageLookupByLibrary.simpleMessage("언어설정"),
@@ -35,7 +40,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_home": MessageLookupByLibrary.simpleMessage("홈"),
         "nav_library": MessageLookupByLibrary.simpleMessage("라이브러리"),
         "nav_purchases": MessageLookupByLibrary.simpleMessage("구매"),
+        "text_ads_random":
+            MessageLookupByLibrary.simpleMessage("광고 보기 및 무작위 이미지 수집."),
         "text_hint_search": MessageLookupByLibrary.simpleMessage("유명인을 검색하세요."),
+        "text_moveto_celeb_gallery":
+            MessageLookupByLibrary.simpleMessage("선택한 셀러브리티의 집으로 이동합니다."),
         "title_select_language": MessageLookupByLibrary.simpleMessage("언어 선택"),
         "toast_max_5_celeb":
             MessageLookupByLibrary.simpleMessage("내 셀러브리티를 최대 5개까지 추가할 수 있습니다.")

@@ -26,6 +26,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Рекомендации знаменитостей"),
         "label_current_language":
             MessageLookupByLibrary.simpleMessage("Текущий язык"),
+        "label_find_celeb":
+            MessageLookupByLibrary.simpleMessage("Найти больше знаменитостей"),
+        "label_moveto_celeb_gallery": MessageLookupByLibrary.simpleMessage(
+            "Перейти в галерею знаменитостей"),
+        "label_no_celeb": MessageLookupByLibrary.simpleMessage(
+            "У вас еще нет ни одной знаменитости в закладках!"),
         "lable_my_celeb":
             MessageLookupByLibrary.simpleMessage("Моя знаменитость"),
         "mypage_comment":
@@ -41,8 +47,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_home": MessageLookupByLibrary.simpleMessage("Главная"),
         "nav_library": MessageLookupByLibrary.simpleMessage("Библиотека"),
         "nav_purchases": MessageLookupByLibrary.simpleMessage("Покупки"),
+        "text_ads_random": MessageLookupByLibrary.simpleMessage(
+            "Просмотр рекламы и сбор случайных изображений."),
         "text_hint_search":
             MessageLookupByLibrary.simpleMessage("Поиск знаменитостей."),
+        "text_moveto_celeb_gallery": MessageLookupByLibrary.simpleMessage(
+            "Переход к дому выбранной знаменитости."),
         "title_select_language":
             MessageLookupByLibrary.simpleMessage("Выбор языка"),
         "toast_max_5_celeb": MessageLookupByLibrary.simpleMessage(
