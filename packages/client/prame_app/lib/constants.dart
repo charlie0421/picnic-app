@@ -15,7 +15,7 @@ class Constants {
   );
   static double webMaxWidth = 600.0;
   static int snackBarDuration = 3;
-  static Color mainColor = const Color(0xFF0A481E);
+  static Color mainColor = const Color(0xFF47E89B);
 }
 
 var logger = Logger();
