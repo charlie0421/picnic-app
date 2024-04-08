@@ -80,7 +80,7 @@ class _SearchListState extends ConsumerState<SearchList> {
           itemBuilder: (context, index) {
             return CelebListItem(
                 item: data.items[index],
-                type: data.items[index].users.isEmpty ? 'find' : 'my');
+                type: data.items[index].users!.isEmpty ? 'find' : 'my');
           }),
     );
   }
