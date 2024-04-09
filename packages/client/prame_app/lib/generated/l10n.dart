@@ -259,6 +259,36 @@ class S {
       args: [],
     );
   }
+
+  /// `Celeb Gallery.`
+  String get label_celeb_gallery {
+    return Intl.message(
+      'Celeb Gallery.',
+      name: 'label_celeb_gallery',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Chance to win a random image`
+  String get label_draw_image {
+    return Intl.message(
+      'Chance to win a random image',
+      name: 'label_draw_image',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Confirmed ownership of 1 image from the entire gallery`
+  String get text_draw_image {
+    return Intl.message(
+      'Confirmed ownership of 1 image from the entire gallery',
+      name: 'text_draw_image',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

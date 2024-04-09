@@ -22,8 +22,10 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "label_celeb_gallery": MessageLookupByLibrary.simpleMessage("萨洛普画廊"),
         "label_celeb_recommend": MessageLookupByLibrary.simpleMessage("名人推荐"),
         "label_current_language": MessageLookupByLibrary.simpleMessage("当前语言"),
+        "label_draw_image": MessageLookupByLibrary.simpleMessage("赢取随机图片的机会"),
         "label_find_celeb": MessageLookupByLibrary.simpleMessage("查找更多名人"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("前往名人图库"),
@@ -40,6 +42,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_library": MessageLookupByLibrary.simpleMessage("图书馆"),
         "nav_purchases": MessageLookupByLibrary.simpleMessage("购买"),
         "text_ads_random": MessageLookupByLibrary.simpleMessage("查看广告并收集随机图片。"),
+        "text_draw_image":
+            MessageLookupByLibrary.simpleMessage("来自整个画廊的 1 张图片已确认收藏"),
         "text_hint_search": MessageLookupByLibrary.simpleMessage("搜索名人。"),
         "text_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("导航至所选名人的主页。"),
