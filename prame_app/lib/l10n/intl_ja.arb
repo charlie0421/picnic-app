@@ -20,5 +20,8 @@
   "text_moveto_celeb_gallery": "選択した有名人のホームに移動します。",
   "text_ads_random": "広告を見て、ランダムな画像を集める。",
   "label_find_celeb": "セレブをもっと探す",
-  "label_no_celeb": "あなたはまだ有名人をブックマークしていない!"
+  "label_no_celeb": "あなたはまだ有名人をブックマークしていない!",
+  "label_celeb_gallery": "ソラップギャラリー。",
+  "label_draw_image": "ランダム画像獲得チャンス",
+  "text_draw_image": "全ギャラリーのうち、1枚の画像を確定的に所蔵"
 }
