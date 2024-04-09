@@ -22,9 +22,13 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "label_celeb_gallery":
+            MessageLookupByLibrary.simpleMessage("ソラップギャラリー。"),
         "label_celeb_recommend":
             MessageLookupByLibrary.simpleMessage("セレブのおすすめ"),
         "label_current_language": MessageLookupByLibrary.simpleMessage("現在の言語"),
+        "label_draw_image":
+            MessageLookupByLibrary.simpleMessage("ランダム画像獲得チャンス"),
         "label_find_celeb": MessageLookupByLibrary.simpleMessage("セレブをもっと探す"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("セレブリティ・ギャラリーへ"),
@@ -43,6 +47,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_purchases": MessageLookupByLibrary.simpleMessage("購入"),
         "text_ads_random":
             MessageLookupByLibrary.simpleMessage("広告を見て、ランダムな画像を集める。"),
+        "text_draw_image":
+            MessageLookupByLibrary.simpleMessage("全ギャラリーのうち、1枚の画像を確定的に所蔵"),
         "text_hint_search": MessageLookupByLibrary.simpleMessage("有名人を探す"),
         "text_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("選択した有名人のホームに移動します。"),
