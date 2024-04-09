@@ -20,5 +20,8 @@
   "text_moveto_celeb_gallery": "Navigiert zur Homepage des ausgewählten Prominenten.",
   "text_ads_random": "Anzeigen ansehen und Zufallsbilder sammeln.",
   "label_find_celeb": "Mehr Berühmtheiten finden",
-  "label_no_celeb": "Sie haben noch keine Berühmtheiten als Lesezeichen gespeichert."
+  "label_no_celeb": "Sie haben noch keine Berühmtheiten als Lesezeichen gespeichert.",
+  "label_celeb_gallery": "Galerie Salop.",
+  "label_draw_image": "Chance, ein zufälliges Bild zu gewinnen",
+  "text_draw_image": "1 Bild aus der gesamten Galerie bestätigt Sammlung"
 }
