@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:prame_app/generated/l10n.dart';
 import 'package:prame_app/providers/app_setting_provider.dart';
+import 'package:prame_app/screens/draw_image_screen.dart';
 import 'package:prame_app/screens/home_screen.dart';
 import 'package:prame_app/screens/landing_screen.dart';
 import 'package:prame_app/screens/language_screen.dart';
@@ -44,6 +45,7 @@ class _PrameAppState extends ConsumerState<PrameApp> {
             MyScreen.routeName: (context) => const MyScreen(),
             LanguageScreen.routeName: (context) => const LanguageScreen(),
             PrameScreen.routeName: (context) => const PrameScreen(),
+            DrawImageScreen.routeName: (context) => const DrawImageScreen(),
           },
           localizationsDelegates: [
             S.delegate,
