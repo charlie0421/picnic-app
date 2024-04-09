@@ -20,5 +20,8 @@
   "text_moveto_celeb_gallery": "Navigates to the selected celebrity's home.",
   "text_ads_random": "Viewing ads and collecting random images.",
   "label_find_celeb": "Find more celebrities",
-  "label_no_celeb": "You don't have any celebrities bookmarked yet!."
+  "label_no_celeb": "You don't have any celebrities bookmarked yet!.",
+  "label_celeb_gallery": "Celeb Gallery.",
+  "label_draw_image": "Chance to win a random image",
+  "text_draw_image": "Confirmed ownership of 1 image from the entire gallery"
 }
