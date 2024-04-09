@@ -17,8 +17,6 @@ class AsyncCelebBannerList extends _$AsyncCelebBannerList {
     final dio = await authDio(baseUrl: Constants.userApiUrl);
     final response = await dio.get('/celeb/banner/$celebId');
 
-    logger.i('response.data: ${response.data}');
-
     return CelebBannerListModel.fromJson(response.data);
   }
 }

@@ -1,13 +1,12 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'celeb_banner_list_provider.dart';
+part of 'gallery_list_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$asyncCelebBannerListHash() =>
-    r'677c978c9ce3c7df14f7b61af82484d51d1a835b';
+String _$asyncGalleryListHash() => r'10cff53bb93afff3ddc0be1c7f9c312036da9ee2';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -30,37 +29,36 @@ class _SystemHash {
   }
 }
 
-abstract class _$AsyncCelebBannerList
-    extends BuildlessAutoDisposeAsyncNotifier<CelebBannerListModel> {
+abstract class _$AsyncGalleryList
+    extends BuildlessAutoDisposeAsyncNotifier<GalleryListModel> {
   late final int celebId;
 
-  FutureOr<CelebBannerListModel> build({
+  FutureOr<GalleryListModel> build({
     required int celebId,
   });
 }
 
-/// See also [AsyncCelebBannerList].
-@ProviderFor(AsyncCelebBannerList)
-const asyncCelebBannerListProvider = AsyncCelebBannerListFamily();
+/// See also [AsyncGalleryList].
+@ProviderFor(AsyncGalleryList)
+const asyncGalleryListProvider = AsyncGalleryListFamily();
 
-/// See also [AsyncCelebBannerList].
-class AsyncCelebBannerListFamily
-    extends Family<AsyncValue<CelebBannerListModel>> {
-  /// See also [AsyncCelebBannerList].
-  const AsyncCelebBannerListFamily();
+/// See also [AsyncGalleryList].
+class AsyncGalleryListFamily extends Family<AsyncValue<GalleryListModel>> {
+  /// See also [AsyncGalleryList].
+  const AsyncGalleryListFamily();
 
-  /// See also [AsyncCelebBannerList].
-  AsyncCelebBannerListProvider call({
+  /// See also [AsyncGalleryList].
+  AsyncGalleryListProvider call({
     required int celebId,
   }) {
-    return AsyncCelebBannerListProvider(
+    return AsyncGalleryListProvider(
       celebId: celebId,
     );
   }
 
   @override
-  AsyncCelebBannerListProvider getProviderOverride(
-    covariant AsyncCelebBannerListProvider provider,
+  AsyncGalleryListProvider getProviderOverride(
+    covariant AsyncGalleryListProvider provider,
   ) {
     return call(
       celebId: provider.celebId,
@@ -79,30 +77,30 @@ class AsyncCelebBannerListFamily
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'asyncCelebBannerListProvider';
+  String? get name => r'asyncGalleryListProvider';
 }
 
-/// See also [AsyncCelebBannerList].
-class AsyncCelebBannerListProvider extends AutoDisposeAsyncNotifierProviderImpl<
-    AsyncCelebBannerList, CelebBannerListModel> {
-  /// See also [AsyncCelebBannerList].
-  AsyncCelebBannerListProvider({
+/// See also [AsyncGalleryList].
+class AsyncGalleryListProvider extends AutoDisposeAsyncNotifierProviderImpl<
+    AsyncGalleryList, GalleryListModel> {
+  /// See also [AsyncGalleryList].
+  AsyncGalleryListProvider({
     required int celebId,
   }) : this._internal(
-          () => AsyncCelebBannerList()..celebId = celebId,
-          from: asyncCelebBannerListProvider,
-          name: r'asyncCelebBannerListProvider',
+          () => AsyncGalleryList()..celebId = celebId,
+          from: asyncGalleryListProvider,
+          name: r'asyncGalleryListProvider',
           debugGetCreateSourceHash:
               const bool.fromEnvironment('dart.vm.product')
                   ? null
-                  : _$asyncCelebBannerListHash,
-          dependencies: AsyncCelebBannerListFamily._dependencies,
+                  : _$asyncGalleryListHash,
+          dependencies: AsyncGalleryListFamily._dependencies,
           allTransitiveDependencies:
-              AsyncCelebBannerListFamily._allTransitiveDependencies,
+              AsyncGalleryListFamily._allTransitiveDependencies,
           celebId: celebId,
         );
 
-  AsyncCelebBannerListProvider._internal(
+  AsyncGalleryListProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -115,8 +113,8 @@ class AsyncCelebBannerListProvider extends AutoDisposeAsyncNotifierProviderImpl<
   final int celebId;
 
   @override
-  FutureOr<CelebBannerListModel> runNotifierBuild(
-    covariant AsyncCelebBannerList notifier,
+  FutureOr<GalleryListModel> runNotifierBuild(
+    covariant AsyncGalleryList notifier,
   ) {
     return notifier.build(
       celebId: celebId,
@@ -124,10 +122,10 @@ class AsyncCelebBannerListProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 
   @override
-  Override overrideWith(AsyncCelebBannerList Function() create) {
+  Override overrideWith(AsyncGalleryList Function() create) {
     return ProviderOverride(
       origin: this,
-      override: AsyncCelebBannerListProvider._internal(
+      override: AsyncGalleryListProvider._internal(
         () => create()..celebId = celebId,
         from: from,
         name: null,
@@ -140,14 +138,14 @@ class AsyncCelebBannerListProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<AsyncCelebBannerList,
-      CelebBannerListModel> createElement() {
-    return _AsyncCelebBannerListProviderElement(this);
+  AutoDisposeAsyncNotifierProviderElement<AsyncGalleryList, GalleryListModel>
+      createElement() {
+    return _AsyncGalleryListProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is AsyncCelebBannerListProvider && other.celebId == celebId;
+    return other is AsyncGalleryListProvider && other.celebId == celebId;
   }
 
   @override
@@ -159,19 +157,19 @@ class AsyncCelebBannerListProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 }
 
-mixin AsyncCelebBannerListRef
-    on AutoDisposeAsyncNotifierProviderRef<CelebBannerListModel> {
+mixin AsyncGalleryListRef
+    on AutoDisposeAsyncNotifierProviderRef<GalleryListModel> {
   /// The parameter `celebId` of this provider.
   int get celebId;
 }
 
-class _AsyncCelebBannerListProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<AsyncCelebBannerList,
-        CelebBannerListModel> with AsyncCelebBannerListRef {
-  _AsyncCelebBannerListProviderElement(super.provider);
+class _AsyncGalleryListProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<AsyncGalleryList,
+        GalleryListModel> with AsyncGalleryListRef {
+  _AsyncGalleryListProviderElement(super.provider);
 
   @override
-  int get celebId => (origin as AsyncCelebBannerListProvider).celebId;
+  int get celebId => (origin as AsyncGalleryListProvider).celebId;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

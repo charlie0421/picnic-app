@@ -1,65 +1,110 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
+import 'package:prame_app/components/error.dart';
+import 'package:prame_app/models/gallery.dart';
+import 'package:prame_app/providers/gallery_list_provider.dart';
+import 'package:prame_app/ui/style.dart';
+import 'package:prame_app/util.dart';
 
-class GalleryPage extends StatefulWidget {
+class GalleryPage extends ConsumerStatefulWidget {
   const GalleryPage({super.key});
 
   @override
-  State<GalleryPage> createState() => _GalleryPageState();
+  ConsumerState<GalleryPage> createState() => _GalleryPageState();
 }
 
-class _GalleryPageState extends State<GalleryPage> {
+class _GalleryPageState extends ConsumerState<GalleryPage> {
   final PageController _pageController = PageController(
     viewportFraction: 0.9,
   );
 
   @override
   Widget build(BuildContext context) {
-    return PageView.builder(
-      controller: _pageController,
-      itemCount: 10,
-      itemBuilder: (context, index) {
-        return Container(
-          margin: const EdgeInsets.fromLTRB(10,16,10,0),
-          child: Column(
-            children: [
-              Container(
-                  alignment: Alignment.centerLeft,
-                  margin: const EdgeInsets.only(bottom: 16.0),
-                  child: Text(
-                    'Day ${index + 1}',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  )),
-              Image.asset('assets/mockup/gallery/Group 4.png'),
-              Container(
-                  margin: const EdgeInsets.only(top: 16.0),
-                  child: Text(
-                      '오늘 백화점에 갔는데, 김치볶음밥 패키지가 넘 웃긴거 있지? 그리고 매뉴팩트 커피에 들리기! 나서긴 좀 부끄러워서 매니저가 대신 사와줬어! 플랫 화이트가 역시 죽인다니깐~~!~!')),
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.only(top: 16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('철썩이', style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
-                    Text('나도 그런데 우린 사실 운명이 아니었을까??', style: Theme.of(context).textTheme.bodyMedium),
-                  ],
-                ),
-              ),
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.only(top: 16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('고운정고윤정', style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
-                    Text('연희동이었는데 나도 방금!', style: Theme.of(context).textTheme.bodyMedium),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
+    final asyncGalleryListState =
+        ref.watch(asyncGalleryListProvider(celebId: 0));
+
+    return asyncGalleryListState.when(
+      data: (galleryList) {
+        return _buildData(galleryList);
       },
+      loading: () => buildLoadingOverlay(),
+      error: (error, stackTrace) => ErrorView(
+        context,
+        error: error,
+        stackTrace: stackTrace,
+        retryFunction: () => ref
+            .read(asyncGalleryListProvider(celebId: 0).notifier)
+            .build(celebId: 0),
+      ),
+    );
+  }
+
+  _buildData(GalleryListModel galleryList) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Column(
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              Intl.message('title_celeb_gallery'),
+              style: getTextStyle(
+                AppTypo.UI24B,
+                AppColors.Gray900,
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 20.h,
+          ),
+          Expanded(
+            child: ListView.separated(
+              controller: _pageController,
+              scrollDirection: Axis.vertical,
+              itemCount: galleryList.items.length,
+              separatorBuilder: (context, index) {
+                return SizedBox(
+                  height: 16.h,
+                );
+              },
+              itemBuilder: (context, index) {
+                final gallery = galleryList.items[index];
+                return Stack(
+                  alignment: Alignment.topCenter,
+                  children: [
+                    SizedBox(
+                        width: double.infinity,
+                        height: 215.h,
+                        child: CachedNetworkImage(
+                          imageUrl: gallery.cover,
+                          width: 361.w,
+                          height: 215.h,
+                          fit: BoxFit.cover,
+                        )),
+                    Positioned(
+                      bottom: 10,
+                      left: 10,
+                      child: Container(
+                        height: 30.h,
+                        child: Text(
+                          gallery.titleKo,
+                          style: getTextStyle(
+                            AppTypo.UI20B,
+                            AppColors.Gray00,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
