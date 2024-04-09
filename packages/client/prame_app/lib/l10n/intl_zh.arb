@@ -20,5 +20,8 @@
   "text_moveto_celeb_gallery": "导航至所选名人的主页。",
   "text_ads_random": "查看广告并收集随机图片。",
   "label_find_celeb": "查找更多名人",
-  "label_no_celeb": "您还没有将任何名人加入书签"
+  "label_no_celeb": "您还没有将任何名人加入书签",
+  "label_celeb_gallery": "萨洛普画廊",
+  "label_draw_image": "赢取随机图片的机会",
+  "text_draw_image": "来自整个画廊的 1 张图片已确认收藏"
 }
