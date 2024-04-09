@@ -20,5 +20,8 @@
   "text_moveto_celeb_gallery": "Consente di accedere alla home della celebrità selezionata.",
   "text_ads_random": "Visualizzazione di annunci e raccolta di immagini casuali.",
   "label_find_celeb": "Trova altre celebrità",
-  "label_no_celeb": "Non hai ancora nessuna celebrità tra i preferiti!."
+  "label_no_celeb": "Non hai ancora nessuna celebrità tra i preferiti!.",
+  "label_celeb_gallery": "Galleria Salop.",
+  "label_draw_image": "Possibilità di vincere un'immagine a caso",
+  "text_draw_image": "1 immagine dall'intera galleria collezione confermata"
 }
