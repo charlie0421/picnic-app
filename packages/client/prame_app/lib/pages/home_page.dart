@@ -9,6 +9,7 @@ import 'package:prame_app/providers/celeb_banner_list_provider.dart';
 import 'package:prame_app/providers/gallery_list_provider.dart';
 import 'package:prame_app/providers/selected_celeb_provider.dart';
 import 'package:prame_app/screens/draw_image_screen.dart';
+import 'package:prame_app/screens/gallery_detail_screen.dart';
 import 'package:prame_app/ui/style.dart';
 import 'package:prame_app/util.dart';
 
@@ -126,35 +127,43 @@ class HomePage extends ConsumerWidget {
       child: ListView.separated(
           scrollDirection: Axis.horizontal,
           itemBuilder: (context, index) {
-            return Stack(
-              children: [
-                SizedBox(
-                  height: 215,
-                  width: 215,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: CachedNetworkImage(
-                      imageUrl: data.items[index].cover,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    height: 40,
-                    color: AppColors.Gray900.withOpacity(0.5),
-                    child: Center(
-                      child: Text(
-                        data.items[index].titleKo,
-                        style: getTextStyle(AppTypo.UI16B, AppColors.Gray00),
+            return GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(context, GalleryDetailScreen.routeName,
+                    arguments: GalleryDetailScreenArguments(
+                        galleryId: data.items[index].id,
+                        galleryName: data.items[index].titleKo));
+              },
+              child: Stack(
+                children: [
+                  SizedBox(
+                    height: 215,
+                    width: 215,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: CachedNetworkImage(
+                        imageUrl: data.items[index].cover,
+                        fit: BoxFit.cover,
                       ),
                     ),
                   ),
-                ),
-              ],
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      height: 40,
+                      color: AppColors.Gray900.withOpacity(0.5),
+                      child: Center(
+                        child: Text(
+                          data.items[index].titleKo,
+                          style: getTextStyle(AppTypo.UI16B, AppColors.Gray00),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             );
           },
           separatorBuilder: (context, index) => const VerticalDivider(

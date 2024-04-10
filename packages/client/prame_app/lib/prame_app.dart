@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:prame_app/generated/l10n.dart';
 import 'package:prame_app/providers/app_setting_provider.dart';
 import 'package:prame_app/screens/draw_image_screen.dart';
+import 'package:prame_app/screens/gallery_detail_screen.dart';
 import 'package:prame_app/screens/home_screen.dart';
 import 'package:prame_app/screens/landing_screen.dart';
 import 'package:prame_app/screens/language_screen.dart';
@@ -46,6 +47,17 @@ class _PrameAppState extends ConsumerState<PrameApp> {
             LanguageScreen.routeName: (context) => const LanguageScreen(),
             PrameScreen.routeName: (context) => const PrameScreen(),
             DrawImageScreen.routeName: (context) => const DrawImageScreen(),
+          },
+          onGenerateRoute: (settings) {
+            if (settings.name == GalleryDetailScreen.routeName) {
+              final args = settings.arguments as GalleryDetailScreenArguments;
+              return MaterialPageRoute(
+                  builder: (context) => GalleryDetailScreen(
+                        galleryId: args.galleryId,
+                        galleryName: args.galleryName,
+                      ));
+            }
+            return null;
           },
           localizationsDelegates: [
             S.delegate,
