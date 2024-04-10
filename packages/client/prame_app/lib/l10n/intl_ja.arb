@@ -23,5 +23,7 @@
   "label_no_celeb": "あなたはまだ有名人をブックマークしていない!",
   "label_celeb_gallery": "ソラップギャラリー。",
   "label_draw_image": "ランダム画像獲得チャンス",
-  "text_draw_image": "全ギャラリーのうち、1枚の画像を確定的に所蔵"
+  "text_draw_image": "全ギャラリーのうち、1枚の画像を確定的に所蔵",
+  "label_gallery_tab_gallery": "ギャラリー",
+  "label_gallery_tab_chat": "チャット"
 }
