@@ -23,5 +23,7 @@
   "label_no_celeb": "Non hai ancora nessuna celebrità tra i preferiti!.",
   "label_celeb_gallery": "Galleria Salop.",
   "label_draw_image": "Possibilità di vincere un'immagine a caso",
-  "text_draw_image": "1 immagine dall'intera galleria collezione confermata"
+  "text_draw_image": "1 immagine dall'intera galleria collezione confermata",
+  "label_gallery_tab_gallery": "Galleria",
+  "label_gallery_tab_chat": "Chat"
 }
