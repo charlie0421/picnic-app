@@ -32,6 +32,9 @@ class MessageLookup extends MessageLookupByLibrary {
             "Chance, ein zufälliges Bild zu gewinnen"),
         "label_find_celeb":
             MessageLookupByLibrary.simpleMessage("Mehr Berühmtheiten finden"),
+        "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("Chat"),
+        "label_gallery_tab_gallery":
+            MessageLookupByLibrary.simpleMessage("Galerie"),
         "label_moveto_celeb_gallery": MessageLookupByLibrary.simpleMessage(
             "Zur Prominenten-Galerie gehen"),
         "label_no_celeb": MessageLookupByLibrary.simpleMessage(

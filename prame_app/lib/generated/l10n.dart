@@ -289,6 +289,26 @@ class S {
       args: [],
     );
   }
+
+  /// `Gallery`
+  String get label_gallery_tab_gallery {
+    return Intl.message(
+      'Gallery',
+      name: 'label_gallery_tab_gallery',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Chat`
+  String get label_gallery_tab_chat {
+    return Intl.message(
+      'Chat',
+      name: 'label_gallery_tab_chat',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
