@@ -23,5 +23,7 @@
   "label_no_celeb": "Você ainda não tem nenhuma celebridade marcada como favorita!",
   "label_celeb_gallery": "Galeria Salop.",
   "label_draw_image": "Chance de ganhar uma imagem aleatória",
-  "text_draw_image": "1 imagem de toda a coleção confirmada da galeria"
+  "text_draw_image": "1 imagem de toda a coleção confirmada da galeria",
+  "label_gallery_tab_gallery": "Galeria",
+  "label_gallery_tab_chat": "Bate-papo"
 }
