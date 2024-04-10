@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:prame_app/components/error.dart';
 import 'package:prame_app/models/gallery.dart';
 import 'package:prame_app/providers/gallery_list_provider.dart';
+import 'package:prame_app/screens/gallery_detail_screen.dart';
 import 'package:prame_app/ui/style.dart';
 import 'package:prame_app/util.dart';
 
@@ -72,33 +73,41 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
               },
               itemBuilder: (context, index) {
                 final gallery = galleryList.items[index];
-                return Stack(
-                  alignment: Alignment.topCenter,
-                  children: [
-                    SizedBox(
-                        width: double.infinity,
-                        height: 215.h,
-                        child: CachedNetworkImage(
-                          imageUrl: gallery.cover,
-                          width: 361.w,
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, GalleryDetailScreen.routeName,
+                        arguments: GalleryDetailScreenArguments(
+                            galleryId: gallery.id,
+                            galleryName: gallery.titleKo));
+                  },
+                  child: Stack(
+                    alignment: Alignment.topCenter,
+                    children: [
+                      SizedBox(
+                          width: double.infinity,
                           height: 215.h,
-                          fit: BoxFit.cover,
-                        )),
-                    Positioned(
-                      bottom: 10,
-                      left: 10,
-                      child: Container(
-                        height: 30.h,
-                        child: Text(
-                          gallery.titleKo,
-                          style: getTextStyle(
-                            AppTypo.UI20B,
-                            AppColors.Gray00,
+                          child: CachedNetworkImage(
+                            imageUrl: gallery.cover,
+                            width: 361.w,
+                            height: 215.h,
+                            fit: BoxFit.cover,
+                          )),
+                      Positioned(
+                        bottom: 10,
+                        left: 10,
+                        child: SizedBox(
+                          height: 30.h,
+                          child: Text(
+                            gallery.titleKo,
+                            style: getTextStyle(
+                              AppTypo.UI20B,
+                              AppColors.Gray00,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 );
               },
             ),

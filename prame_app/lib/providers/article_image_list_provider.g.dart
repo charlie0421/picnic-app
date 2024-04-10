@@ -1,13 +1,13 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'gallery_image_list_provider.dart';
+part of 'article_image_list_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$asyncGalleryImageListHash() =>
-    r'349d5c9c90f359adaa7fd7a3bbda74fe4a17c0d1';
+String _$asyncArticleImageListHash() =>
+    r'18d1e0979f591a5bcaf2d791cf172fc981492a7e';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -30,37 +30,37 @@ class _SystemHash {
   }
 }
 
-abstract class _$AsyncGalleryImageList
-    extends BuildlessAutoDisposeAsyncNotifier<GalleryImageListModel> {
+abstract class _$AsyncArticleImageList
+    extends BuildlessAutoDisposeAsyncNotifier<ArticleImageListModel> {
   late final int galleryId;
 
-  FutureOr<GalleryImageListModel> build({
+  FutureOr<ArticleImageListModel> build({
     required int galleryId,
   });
 }
 
-/// See also [AsyncGalleryImageList].
-@ProviderFor(AsyncGalleryImageList)
-const asyncGalleryImageListProvider = AsyncGalleryImageListFamily();
+/// See also [AsyncArticleImageList].
+@ProviderFor(AsyncArticleImageList)
+const asyncArticleImageListProvider = AsyncArticleImageListFamily();
 
-/// See also [AsyncGalleryImageList].
-class AsyncGalleryImageListFamily
-    extends Family<AsyncValue<GalleryImageListModel>> {
-  /// See also [AsyncGalleryImageList].
-  const AsyncGalleryImageListFamily();
+/// See also [AsyncArticleImageList].
+class AsyncArticleImageListFamily
+    extends Family<AsyncValue<ArticleImageListModel>> {
+  /// See also [AsyncArticleImageList].
+  const AsyncArticleImageListFamily();
 
-  /// See also [AsyncGalleryImageList].
-  AsyncGalleryImageListProvider call({
+  /// See also [AsyncArticleImageList].
+  AsyncArticleImageListProvider call({
     required int galleryId,
   }) {
-    return AsyncGalleryImageListProvider(
+    return AsyncArticleImageListProvider(
       galleryId: galleryId,
     );
   }
 
   @override
-  AsyncGalleryImageListProvider getProviderOverride(
-    covariant AsyncGalleryImageListProvider provider,
+  AsyncArticleImageListProvider getProviderOverride(
+    covariant AsyncArticleImageListProvider provider,
   ) {
     return call(
       galleryId: provider.galleryId,
@@ -79,31 +79,31 @@ class AsyncGalleryImageListFamily
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'asyncGalleryImageListProvider';
+  String? get name => r'asyncArticleImageListProvider';
 }
 
-/// See also [AsyncGalleryImageList].
-class AsyncGalleryImageListProvider
-    extends AutoDisposeAsyncNotifierProviderImpl<AsyncGalleryImageList,
-        GalleryImageListModel> {
-  /// See also [AsyncGalleryImageList].
-  AsyncGalleryImageListProvider({
+/// See also [AsyncArticleImageList].
+class AsyncArticleImageListProvider
+    extends AutoDisposeAsyncNotifierProviderImpl<AsyncArticleImageList,
+        ArticleImageListModel> {
+  /// See also [AsyncArticleImageList].
+  AsyncArticleImageListProvider({
     required int galleryId,
   }) : this._internal(
-          () => AsyncGalleryImageList()..galleryId = galleryId,
-          from: asyncGalleryImageListProvider,
-          name: r'asyncGalleryImageListProvider',
+          () => AsyncArticleImageList()..galleryId = galleryId,
+          from: asyncArticleImageListProvider,
+          name: r'asyncArticleImageListProvider',
           debugGetCreateSourceHash:
               const bool.fromEnvironment('dart.vm.product')
                   ? null
-                  : _$asyncGalleryImageListHash,
-          dependencies: AsyncGalleryImageListFamily._dependencies,
+                  : _$asyncArticleImageListHash,
+          dependencies: AsyncArticleImageListFamily._dependencies,
           allTransitiveDependencies:
-              AsyncGalleryImageListFamily._allTransitiveDependencies,
+              AsyncArticleImageListFamily._allTransitiveDependencies,
           galleryId: galleryId,
         );
 
-  AsyncGalleryImageListProvider._internal(
+  AsyncArticleImageListProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -116,8 +116,8 @@ class AsyncGalleryImageListProvider
   final int galleryId;
 
   @override
-  FutureOr<GalleryImageListModel> runNotifierBuild(
-    covariant AsyncGalleryImageList notifier,
+  FutureOr<ArticleImageListModel> runNotifierBuild(
+    covariant AsyncArticleImageList notifier,
   ) {
     return notifier.build(
       galleryId: galleryId,
@@ -125,10 +125,10 @@ class AsyncGalleryImageListProvider
   }
 
   @override
-  Override overrideWith(AsyncGalleryImageList Function() create) {
+  Override overrideWith(AsyncArticleImageList Function() create) {
     return ProviderOverride(
       origin: this,
-      override: AsyncGalleryImageListProvider._internal(
+      override: AsyncArticleImageListProvider._internal(
         () => create()..galleryId = galleryId,
         from: from,
         name: null,
@@ -141,14 +141,14 @@ class AsyncGalleryImageListProvider
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<AsyncGalleryImageList,
-      GalleryImageListModel> createElement() {
-    return _AsyncGalleryImageListProviderElement(this);
+  AutoDisposeAsyncNotifierProviderElement<AsyncArticleImageList,
+      ArticleImageListModel> createElement() {
+    return _AsyncArticleImageListProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is AsyncGalleryImageListProvider &&
+    return other is AsyncArticleImageListProvider &&
         other.galleryId == galleryId;
   }
 
@@ -161,19 +161,19 @@ class AsyncGalleryImageListProvider
   }
 }
 
-mixin AsyncGalleryImageListRef
-    on AutoDisposeAsyncNotifierProviderRef<GalleryImageListModel> {
+mixin AsyncArticleImageListRef
+    on AutoDisposeAsyncNotifierProviderRef<ArticleImageListModel> {
   /// The parameter `galleryId` of this provider.
   int get galleryId;
 }
 
-class _AsyncGalleryImageListProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<AsyncGalleryImageList,
-        GalleryImageListModel> with AsyncGalleryImageListRef {
-  _AsyncGalleryImageListProviderElement(super.provider);
+class _AsyncArticleImageListProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<AsyncArticleImageList,
+        ArticleImageListModel> with AsyncArticleImageListRef {
+  _AsyncArticleImageListProviderElement(super.provider);
 
   @override
-  int get galleryId => (origin as AsyncGalleryImageListProvider).galleryId;
+  int get galleryId => (origin as AsyncArticleImageListProvider).galleryId;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
