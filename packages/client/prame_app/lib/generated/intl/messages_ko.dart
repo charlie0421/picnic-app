@@ -28,6 +28,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_draw_image":
             MessageLookupByLibrary.simpleMessage("랜덤 이미지 획득 기회"),
         "label_find_celeb": MessageLookupByLibrary.simpleMessage("더 많은 유명인 찾기"),
+        "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("채팅"),
+        "label_gallery_tab_gallery":
+            MessageLookupByLibrary.simpleMessage("갤러리"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("셀러브리티 갤러리로 이동"),
         "label_no_celeb":
