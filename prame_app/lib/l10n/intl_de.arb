@@ -23,5 +23,7 @@
   "label_no_celeb": "Sie haben noch keine Berühmtheiten als Lesezeichen gespeichert.",
   "label_celeb_gallery": "Galerie Salop.",
   "label_draw_image": "Chance, ein zufälliges Bild zu gewinnen",
-  "text_draw_image": "1 Bild aus der gesamten Galerie bestätigt Sammlung"
+  "text_draw_image": "1 Bild aus der gesamten Galerie bestätigt Sammlung",
+  "label_gallery_tab_gallery": "Galerie",
+  "label_gallery_tab_chat": "Chat"
 }
