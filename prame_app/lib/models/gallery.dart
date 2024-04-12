@@ -29,7 +29,7 @@ class GalleryModel {
   final String titleKo;
   final String titleEn;
   final String cover;
-  final CelebModel celeb;
+  final CelebModel? celeb;
 
   GalleryModel({
     required this.id,

@@ -3,6 +3,8 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
+import 'package:prame_app/components/article/comment/comment.dart';
 import 'package:prame_app/components/error.dart';
 import 'package:prame_app/models/article.dart';
 import 'package:prame_app/providers/article_list_provider.dart';
@@ -110,6 +112,7 @@ class _ArticlePageState extends ConsumerState<ArticlePage> {
                     ),
                     GestureDetector(
                       child: Container(
+                        padding: const EdgeInsets.only(bottom: 10),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
@@ -131,29 +134,36 @@ class _ArticlePageState extends ConsumerState<ArticlePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
-                              child: Swiper(
-                                itemBuilder: (BuildContext context, int index) {
-                                  return ClipRRect(
-                                    borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(10),
-                                      topRight: Radius.circular(10),
+                              child: article.images != null
+                                  ? Swiper(
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        return ClipRRect(
+                                          borderRadius: const BorderRadius.only(
+                                            topLeft: Radius.circular(10),
+                                            topRight: Radius.circular(10),
+                                          ),
+                                          child: CachedNetworkImage(
+                                            imageUrl:
+                                                article.images![index].image,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        );
+                                      },
+                                      itemCount: article.images!.length,
+                                      itemWidth: 300.w,
+                                      itemHeight: 300.h,
+                                      pagination: const SwiperPagination(
+                                        builder: DotSwiperPaginationBuilder(
+                                          color: Colors.grey,
+                                          activeColor: Colors.red,
+                                        ),
+                                      ),
+                                    )
+                                  : Container(
+                                      width: 300.w,
+                                      height: 300.h,
                                     ),
-                                    child: CachedNetworkImage(
-                                      imageUrl: article.images[index].image,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  );
-                                },
-                                itemCount: article.images.length,
-                                itemWidth: 300.w,
-                                itemHeight: 300.h,
-                                pagination: const SwiperPagination(
-                                  builder: DotSwiperPaginationBuilder(
-                                    color: Colors.grey,
-                                    activeColor: Colors.red,
-                                  ),
-                                ),
-                              ),
                             ),
                             Padding(
                                 padding: const EdgeInsets.all(8.0),
@@ -164,6 +174,19 @@ class _ArticlePageState extends ConsumerState<ArticlePage> {
                                     AppColors.Gray900,
                                   ),
                                 )),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: GestureDetector(
+                                onTap: () => buildCommentBottomSheet(
+                                    context, article.id),
+                                child: Text(
+                                    Intl.message('label_read_more_comment'),
+                                    style: getTextStyle(
+                                      AppTypo.UI14B,
+                                      AppColors.Gray900,
+                                    )),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -176,5 +199,15 @@ class _ArticlePageState extends ConsumerState<ArticlePage> {
         ],
       ),
     );
+  }
+
+  void buildCommentBottomSheet(BuildContext context, articleId) {
+    showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        builder: (BuildContext context) {
+          return SafeArea(child: Comment(articleId: articleId));
+        });
   }
 }
