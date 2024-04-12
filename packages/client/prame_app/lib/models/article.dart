@@ -30,8 +30,8 @@ class ArticleModel {
   final String titleKo;
   final String titleEn;
   final String content;
-  final GalleryModel gallery;
-  final List<ArticleImageModel> images;
+  final GalleryModel? gallery;
+  final List<ArticleImageModel>? images;
   final DateTime createdAt;
 
   ArticleModel({

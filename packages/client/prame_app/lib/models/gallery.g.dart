@@ -25,7 +25,9 @@ GalleryModel _$GalleryModelFromJson(Map<String, dynamic> json) => GalleryModel(
       titleKo: json['titleKo'] as String,
       titleEn: json['titleEn'] as String,
       cover: json['cover'] as String,
-      celeb: CelebModel.fromJson(json['celeb'] as Map<String, dynamic>),
+      celeb: json['celeb'] == null
+          ? null
+          : CelebModel.fromJson(json['celeb'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$GalleryModelToJson(GalleryModel instance) =>
