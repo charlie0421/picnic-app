@@ -25,5 +25,16 @@
   "label_draw_image": "Шанс выиграть случайное изображение",
   "text_draw_image": "1 изображение из всей коллекции \"Галерея подтверждена",
   "label_gallery_tab_gallery": "Галерея",
-  "label_gallery_tab_chat": "Чат"
+  "label_gallery_tab_chat": "Чат",
+  "label_reply": "Ответить",
+  "label_time_ago_day": "{день} дней назад",
+  "label_time_ago_hour": "{час} часов назад",
+  "label_time_ago_minute": "{минута} минут назад",
+  "label_time_ago_right_now": "Минуту назад",
+  "label_read_more_comment": "Больше комментариев",
+  "label_title_report": "Составьте отчет",
+  "message_report_confirm": "Вы хотите сообщить об этом?",
+  "message_report_ok": "Отчет завершен.",
+  "label_title_comment": "Комментарий",
+  "label_hint_comment": "Оставьте комментарий."
 }
