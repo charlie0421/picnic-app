@@ -36,5 +36,7 @@
   "message_report_confirm": "Want to report?",
   "message_report_ok": "The report is complete.",
   "label_title_comment": "Comments",
-  "label_hint_comment": "Leave a comment."
+  "label_hint_comment": "Leave a comment.",
+  "button_ok": "Confirm",
+  "button_cancel": "Cancel"
 }
