@@ -25,5 +25,16 @@
   "label_draw_image": "Chance, ein zufälliges Bild zu gewinnen",
   "text_draw_image": "1 Bild aus der gesamten Galerie bestätigt Sammlung",
   "label_gallery_tab_gallery": "Galerie",
-  "label_gallery_tab_chat": "Chat"
+  "label_gallery_tab_chat": "Chat",
+  "label_reply": "Antwort",
+  "label_time_ago_day": "vor {Tag} Tagen",
+  "label_time_ago_hour": "vor {Stunde} Stunden",
+  "label_time_ago_minute": "vor {Minute} Minuten",
+  "label_time_ago_right_now": "Eben noch",
+  "label_read_more_comment": "Weitere Kommentare",
+  "label_title_report": "Einen Bericht erstellen",
+  "message_report_confirm": "Möchten Sie es melden?",
+  "message_report_ok": "Der Bericht ist vollständig.",
+  "label_title_comment": "Kommentar",
+  "label_hint_comment": "Hinterlassen Sie einen Kommentar."
 }
