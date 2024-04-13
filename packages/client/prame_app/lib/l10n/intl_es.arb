@@ -25,5 +25,16 @@
   "label_draw_image": "Oportunidad de ganar una imagen al azar",
   "text_draw_image": "1 imagen de toda la galería colección confirmada",
   "label_gallery_tab_gallery": "Galería",
-  "label_gallery_tab_chat": "Chat"
+  "label_gallery_tab_chat": "Chat",
+  "label_reply": "Respuesta",
+  "label_time_ago_day": "Hace {día} días",
+  "label_time_ago_hour": "Hace {hora} horas",
+  "label_time_ago_minute": "Hace {minuto} minutos",
+  "label_time_ago_right_now": "Hace un momento",
+  "label_read_more_comment": "Más comentarios",
+  "label_title_report": "Hacer un informe",
+  "message_report_confirm": "¿Quieres denunciarlo?",
+  "message_report_ok": "El informe está completo.",
+  "label_title_comment": "Comentario",
+  "label_hint_comment": "Deja un comentario."
 }
