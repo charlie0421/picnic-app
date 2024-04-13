@@ -25,5 +25,16 @@
   "label_draw_image": "ランダム画像獲得チャンス",
   "text_draw_image": "全ギャラリーのうち、1枚の画像を確定的に所蔵",
   "label_gallery_tab_gallery": "ギャラリー",
-  "label_gallery_tab_chat": "チャット"
+  "label_gallery_tab_chat": "チャット",
+  "label_reply": "返信する",
+  "label_time_ago_day": "{day}日前",
+  "label_time_ago_hour": "{hour}時間前",
+  "label_time_ago_minute": "{minute}分前",
+  "label_time_ago_right_now": "先ほど",
+  "label_read_more_comment": "コメントをもっと見る",
+  "label_title_report": "報告する",
+  "message_report_confirm": "申告しますか？",
+  "message_report_ok": "申告が完了しました。",
+  "label_title_comment": "コメント",
+  "label_hint_comment": "コメントを残してください。"
 }
