@@ -309,6 +309,136 @@ class S {
       args: [],
     );
   }
+
+  /// `Replying to a reply`
+  String get label_reply {
+    return Intl.message(
+      'Replying to a reply',
+      name: 'label_reply',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{day} days ago`
+  String label_time_ago_day(Object day) {
+    return Intl.message(
+      '$day days ago',
+      name: 'label_time_ago_day',
+      desc: '',
+      args: [day],
+    );
+  }
+
+  /// `{hour} hours ago`
+  String label_time_ago_hour(Object hour) {
+    return Intl.message(
+      '$hour hours ago',
+      name: 'label_time_ago_hour',
+      desc: '',
+      args: [hour],
+    );
+  }
+
+  /// `{minute} minutes ago`
+  String label_time_ago_minute(Object minute) {
+    return Intl.message(
+      '$minute minutes ago',
+      name: 'label_time_ago_minute',
+      desc: '',
+      args: [minute],
+    );
+  }
+
+  /// `Just a moment ago`
+  String get label_time_ago_right_now {
+    return Intl.message(
+      'Just a moment ago',
+      name: 'label_time_ago_right_now',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `More comments`
+  String get label_read_more_comment {
+    return Intl.message(
+      'More comments',
+      name: 'label_read_more_comment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Make a report`
+  String get label_title_report {
+    return Intl.message(
+      'Make a report',
+      name: 'label_title_report',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Want to report?`
+  String get message_report_confirm {
+    return Intl.message(
+      'Want to report?',
+      name: 'message_report_confirm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The report is complete.`
+  String get message_report_ok {
+    return Intl.message(
+      'The report is complete.',
+      name: 'message_report_ok',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Comments`
+  String get label_title_comment {
+    return Intl.message(
+      'Comments',
+      name: 'label_title_comment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Leave a comment.`
+  String get label_hint_comment {
+    return Intl.message(
+      'Leave a comment.',
+      name: 'label_hint_comment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Confirm`
+  String get button_ok {
+    return Intl.message(
+      'Confirm',
+      name: 'button_ok',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel`
+  String get button_cancel {
+    return Intl.message(
+      'Cancel',
+      name: 'button_cancel',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

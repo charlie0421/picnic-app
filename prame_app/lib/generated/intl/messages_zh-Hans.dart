@@ -20,8 +20,16 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'zh_Hans';
 
+  static String m0(day) => "${day}前";
+
+  static String m1(hour) => "${hour}前";
+
+  static String m2(minute) => "${minute}前";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "button_cancel": MessageLookupByLibrary.simpleMessage("取消"),
+        "button_ok": MessageLookupByLibrary.simpleMessage("确认"),
         "label_celeb_gallery": MessageLookupByLibrary.simpleMessage("萨洛普画廊"),
         "label_celeb_recommend": MessageLookupByLibrary.simpleMessage("名人推荐"),
         "label_current_language": MessageLookupByLibrary.simpleMessage("当前语言"),
@@ -29,10 +37,23 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_find_celeb": MessageLookupByLibrary.simpleMessage("查找更多名人"),
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("聊天"),
         "label_gallery_tab_gallery": MessageLookupByLibrary.simpleMessage("画廊"),
+        "label_hint_comment": MessageLookupByLibrary.simpleMessage("发表评论。"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("前往名人图库"),
         "label_no_celeb": MessageLookupByLibrary.simpleMessage("您还没有将任何名人加入书签"),
+        "label_read_more_comment": MessageLookupByLibrary.simpleMessage("更多评论"),
+        "label_reply": MessageLookupByLibrary.simpleMessage("答复"),
+        "label_time_ago_day": m0,
+        "label_time_ago_hour": m1,
+        "label_time_ago_minute": m2,
+        "label_time_ago_right_now":
+            MessageLookupByLibrary.simpleMessage("就在刚才"),
+        "label_title_comment": MessageLookupByLibrary.simpleMessage("评论"),
+        "label_title_report": MessageLookupByLibrary.simpleMessage("提交报告"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("我的名人"),
+        "message_report_confirm":
+            MessageLookupByLibrary.simpleMessage("你想报告吗？"),
+        "message_report_ok": MessageLookupByLibrary.simpleMessage("报告已完成。"),
         "mypage_comment": MessageLookupByLibrary.simpleMessage("评论管理"),
         "mypage_language": MessageLookupByLibrary.simpleMessage("语言设置"),
         "mypage_purchases": MessageLookupByLibrary.simpleMessage("我的购买"),

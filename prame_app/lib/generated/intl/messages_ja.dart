@@ -20,8 +20,16 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ja';
 
+  static String m0(day) => "${day}日前";
+
+  static String m1(hour) => "${hour}時間前";
+
+  static String m2(minute) => "${minute}分前";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "button_cancel": MessageLookupByLibrary.simpleMessage("キャンセル"),
+        "button_ok": MessageLookupByLibrary.simpleMessage("確認"),
         "label_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("ソラップギャラリー。"),
         "label_celeb_recommend":
@@ -33,11 +41,25 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("チャット"),
         "label_gallery_tab_gallery":
             MessageLookupByLibrary.simpleMessage("ギャラリー"),
+        "label_hint_comment":
+            MessageLookupByLibrary.simpleMessage("コメントを残してください。"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("セレブリティ・ギャラリーへ"),
         "label_no_celeb":
             MessageLookupByLibrary.simpleMessage("あなたはまだ有名人をブックマークしていない!"),
+        "label_read_more_comment":
+            MessageLookupByLibrary.simpleMessage("コメントをもっと見る"),
+        "label_reply": MessageLookupByLibrary.simpleMessage("返信する"),
+        "label_time_ago_day": m0,
+        "label_time_ago_hour": m1,
+        "label_time_ago_minute": m2,
+        "label_time_ago_right_now": MessageLookupByLibrary.simpleMessage("先ほど"),
+        "label_title_comment": MessageLookupByLibrary.simpleMessage("コメント"),
+        "label_title_report": MessageLookupByLibrary.simpleMessage("報告する"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("マイ・セレブ"),
+        "message_report_confirm":
+            MessageLookupByLibrary.simpleMessage("申告しますか？"),
+        "message_report_ok": MessageLookupByLibrary.simpleMessage("申告が完了しました。"),
         "mypage_comment": MessageLookupByLibrary.simpleMessage("コメント管理"),
         "mypage_language": MessageLookupByLibrary.simpleMessage("言語設定"),
         "mypage_purchases": MessageLookupByLibrary.simpleMessage("私の購入"),
