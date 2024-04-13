@@ -25,5 +25,16 @@
   "label_draw_image": "赢取随机图片的机会",
   "text_draw_image": "来自整个画廊的 1 张图片已确认收藏",
   "label_gallery_tab_gallery": "画廊",
-  "label_gallery_tab_chat": "聊天"
+  "label_gallery_tab_chat": "聊天",
+  "label_reply": "答复",
+  "label_time_ago_day": "{天}前",
+  "label_time_ago_hour": "{小时}前",
+  "label_time_ago_minute": "{分钟}前",
+  "label_time_ago_right_now": "就在刚才",
+  "label_read_more_comment": "更多评论",
+  "label_title_report": "提交报告",
+  "message_report_confirm": "你想报告吗？",
+  "message_report_ok": "报告已完成。",
+  "label_title_comment": "评论",
+  "label_hint_comment": "发表评论。"
 }
