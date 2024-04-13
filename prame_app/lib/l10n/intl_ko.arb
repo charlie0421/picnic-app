@@ -25,5 +25,16 @@
   "label_draw_image": "랜덤 이미지 획득 기회",
   "text_draw_image": "전체 갤러리 중 이미지 1개 확정 소장",
   "label_gallery_tab_gallery": "갤러리",
-  "label_gallery_tab_chat": "채팅"
+  "label_gallery_tab_chat": "채팅",
+  "label_reply": "답글 달기",
+  "label_time_ago_day": "{day}일 전",
+  "label_time_ago_hour": "{hour}시간 전",
+  "label_time_ago_minute": "{minute}분 전",
+  "label_time_ago_right_now": "방금 전",
+  "label_read_more_comment": "댓글 더보기",
+  "label_title_report": "신고하기",
+  "message_report_confirm": "신고하시겠습니까?",
+  "message_report_ok": "신고가 완료되었습니다.",
+  "label_title_comment": "댓글",
+  "label_hint_comment": "댓글을 남겨주세요."
 }
