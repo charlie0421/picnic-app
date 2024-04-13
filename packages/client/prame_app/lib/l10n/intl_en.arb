@@ -25,5 +25,16 @@
   "label_draw_image": "Chance to win a random image",
   "text_draw_image": "Confirmed ownership of 1 image from the entire gallery",
   "label_gallery_tab_gallery": "Gallery",
-  "label_gallery_tab_chat": "Chat"
+  "label_gallery_tab_chat": "Chat",
+  "label_reply": "Replying to a reply",
+  "label_time_ago_day": "{day} days ago",
+  "label_time_ago_hour": "{hour} hours ago",
+  "label_time_ago_minute": "{minute} minutes ago",
+  "label_time_ago_right_now": "Just a moment ago",
+  "label_read_more_comment": "More comments",
+  "label_title_report": "Make a report",
+  "message_report_confirm": "Want to report?",
+  "message_report_ok": "The report is complete.",
+  "label_title_comment": "Comments",
+  "label_hint_comment": "Leave a comment."
 }
