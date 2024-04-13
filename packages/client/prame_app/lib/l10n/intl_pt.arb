@@ -27,14 +27,16 @@
   "label_gallery_tab_gallery": "Galeria",
   "label_gallery_tab_chat": "Bate-papo",
   "label_reply": "Responder",
-  "label_time_ago_day": "{day} dias atrás",
-  "label_time_ago_hour": "{hour} horas atrás",
-  "label_time_ago_minute": "{minute} minutos atrás",
+  "label_time_ago_day": "{dia} dias atrás",
+  "label_time_ago_hour": "{hora} horas atrás",
+  "label_time_ago_minute": "{minuto} minutos atrás",
   "label_time_ago_right_now": "Há pouco tempo",
   "label_read_more_comment": "Mais comentários",
   "label_title_report": "Fazer um relatório",
   "message_report_confirm": "Você quer fazer uma denúncia?",
   "message_report_ok": "O relatório está completo.",
   "label_title_comment": "Comentário",
-  "label_hint_comment": "Deixe um comentário."
+  "label_hint_comment": "Deixe um comentário.",
+  "button_ok": "Confirmar",
+  "button_cancel": "取消"
 }
