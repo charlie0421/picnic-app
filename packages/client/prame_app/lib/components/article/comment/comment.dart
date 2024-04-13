@@ -4,18 +4,20 @@ import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
-import 'package:prame_app/components/article/comment/comment_actions.dart';
 import 'package:prame_app/components/article/comment/comment_header.dart';
+import 'package:prame_app/components/article/comment/comment_contents.dart';
+import 'package:prame_app/components/article/comment/comment_actions.dart';
 import 'package:prame_app/components/article/comment/comment_user.dart';
 import 'package:prame_app/components/ui/bottom-sheet-header.dart';
 import 'package:prame_app/constants.dart';
+import 'package:prame_app/models/article.dart';
 import 'package:prame_app/models/comment.dart';
 import 'package:prame_app/providers/comment_list_provider.dart';
 
 class Comment extends ConsumerStatefulWidget {
-  final int articleId;
+  final ArticleModel articleModel;
 
-  const Comment({super.key, required this.articleId});
+  const Comment({super.key, required this.articleModel});
 
   @override
   ConsumerState<Comment> createState() => _CommentState();
@@ -39,7 +41,7 @@ class _CommentState extends ConsumerState<Comment> {
     logger.w('fetchPage');
     final asyncCommentList = ref.read(asyncCommentListProvider.notifier).fetch(
         pageKey, 10, 'article.created_at', 'DESC',
-        articleId: widget.articleId);
+        articleId: widget.articleModel.id);
 
     final page = await asyncCommentList;
     logger.w(page.items);
@@ -64,7 +66,7 @@ class _CommentState extends ConsumerState<Comment> {
       body: KeyboardDismissOnTap(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           BottomSheetHeader(
-            title: '${widget.articleId} ($commentCount)',
+            title: '${widget.articleModel.titleKo} ($commentCount)',
           ),
           Flexible(
             flex: 1,
@@ -93,23 +95,29 @@ class _CommentState extends ConsumerState<Comment> {
                               : MediaQuery.of(context).size.width,
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.max,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               CommentUser(
                                 nickname: item.user?.nickname ?? '',
                                 profileImage: item.user?.profileImage ?? '',
                               ),
+                              const SizedBox(width: 10),
                               Expanded(
-                                child: Column(
-                                  children: [
-                                    CommentHeader(item: item),
-                                    CommentActions(
-                                      item: item,
-                                      textEditingController:
-                                          _textEditingController,
-                                      pagingController: _pagingController,
-                                    ),
-                                  ],
+                                child: Container(
+                                  child: Column(
+                                    children: [
+                                      CommentHeader(
+                                        item: item,
+                                        pagingController: _pagingController,
+                                      ),
+                                      CommentContents(item: item),
+                                      CommentActions(
+                                        item: item,
+                                        textEditingController:
+                                            _textEditingController,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
@@ -139,7 +147,10 @@ class _CommentState extends ConsumerState<Comment> {
                                             ),
                                             Expanded(
                                               child: CommentHeader(
-                                                  item: item.children![index]),
+                                                item: item.children![index],
+                                                pagingController:
+                                                    _pagingController,
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -147,7 +158,6 @@ class _CommentState extends ConsumerState<Comment> {
                                           item: item.children![index],
                                           textEditingController:
                                               _textEditingController,
-                                          pagingController: _pagingController,
                                         ),
                                       ],
                                     ),
@@ -218,65 +228,9 @@ class _CommentState extends ConsumerState<Comment> {
     final int parentId = ref.watch<int>(parentIdProvider);
 
     ref.read(asyncCommentListProvider.notifier).submitComment(
-        articleId: widget.articleId,
+        articleId: widget.articleModel.id,
         content: _textEditingController.text,
         parentId: parentId);
     _textEditingController.clear();
   }
 }
-// Future<void> _fetchComments(int pageKey) async {
-//   var dio = await authDio(baseUrl: Constants.userApiUrl);
-//   final response =
-//       await dio.get('/comment/${widget.articleId}/?page=$pageKey');
-//
-//   if (response.statusCode == 200) {
-//     CommentListModel commentListModel =
-//         CommentListModel.fromJson(response.data);
-//
-//     if (commentListModel.meta.currentPage ==
-//         commentListModel.meta.totalPages) {
-//       _pagingController.appendLastPage(commentListModel.items);
-//     } else {
-//       _pagingController.appendPage(commentListModel.items, pageKey + 1);
-//     }
-//     setState(() {
-//       parentId = null;
-//       commentCount = commentListModel.meta.totalItems;
-//     });
-//   } else {
-//     throw Exception('Failed to load post');
-//   }
-// }
-
-// Future<void> _submitComment({
-//   required int articleId,
-//   required String content,
-//   int? parentId,
-// }) async {
-//   var dio = await authDio(baseUrl: Constants.userApiUrl);
-//   try {
-//     final response = parentId != null
-//         ? await dio
-//             .post('/comment/${widget.articleId}/comment/$parentId', data: {
-//             'articleId': articleId,
-//             'content': content,
-//           })
-//         : await dio.post('/comment/${articleId}', data: {
-//             'articleId': articleId,
-//             'content': content,
-//           });
-//
-//     setState(() {
-//       parentId = null;
-//     });
-//
-//     if (response.statusCode == 201) {
-//       _pagingController.refresh();
-//     } else {
-//       throw Exception('Failed to load post');
-//     }
-//   } catch (e, stacTrace) {
-//     logger.i(stacTrace);
-//   }
-// }
-// }

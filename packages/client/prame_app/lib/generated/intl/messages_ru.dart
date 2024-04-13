@@ -20,8 +20,16 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ru';
 
+  static String m0(day) => "${day} дней назад";
+
+  static String m1(hour) => "${hour} часов назад";
+
+  static String m2(minute) => "${minute} минут назад";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "button_cancel": MessageLookupByLibrary.simpleMessage("取消"),
+        "button_ok": MessageLookupByLibrary.simpleMessage("Подтвердите"),
         "label_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("Галерея Салоп."),
         "label_celeb_recommend":
@@ -35,12 +43,30 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("Чат"),
         "label_gallery_tab_gallery":
             MessageLookupByLibrary.simpleMessage("Галерея"),
+        "label_hint_comment":
+            MessageLookupByLibrary.simpleMessage("Оставьте комментарий."),
         "label_moveto_celeb_gallery": MessageLookupByLibrary.simpleMessage(
             "Перейти в галерею знаменитостей"),
         "label_no_celeb": MessageLookupByLibrary.simpleMessage(
             "У вас еще нет ни одной знаменитости в закладках!"),
+        "label_read_more_comment":
+            MessageLookupByLibrary.simpleMessage("Больше комментариев"),
+        "label_reply": MessageLookupByLibrary.simpleMessage("Ответить"),
+        "label_time_ago_day": m0,
+        "label_time_ago_hour": m1,
+        "label_time_ago_minute": m2,
+        "label_time_ago_right_now":
+            MessageLookupByLibrary.simpleMessage("Минуту назад"),
+        "label_title_comment":
+            MessageLookupByLibrary.simpleMessage("Комментарий"),
+        "label_title_report":
+            MessageLookupByLibrary.simpleMessage("Составьте отчет"),
         "lable_my_celeb":
             MessageLookupByLibrary.simpleMessage("Моя знаменитость"),
+        "message_report_confirm":
+            MessageLookupByLibrary.simpleMessage("Вы хотите сообщить об этом?"),
+        "message_report_ok":
+            MessageLookupByLibrary.simpleMessage("Отчет завершен."),
         "mypage_comment":
             MessageLookupByLibrary.simpleMessage("Управление Комментариями"),
         "mypage_language":

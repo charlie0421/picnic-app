@@ -20,8 +20,16 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'de';
 
+  static String m0(day) => "vor ${day} Tagen";
+
+  static String m1(hour) => "vor ${hour} Stunden";
+
+  static String m2(minute) => "vor ${minute} Minuten";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "button_cancel": MessageLookupByLibrary.simpleMessage("取消"),
+        "button_ok": MessageLookupByLibrary.simpleMessage("Bestätigen Sie"),
         "label_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("Galerie Salop."),
         "label_celeb_recommend":
@@ -35,12 +43,30 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("Chat"),
         "label_gallery_tab_gallery":
             MessageLookupByLibrary.simpleMessage("Galerie"),
+        "label_hint_comment": MessageLookupByLibrary.simpleMessage(
+            "Hinterlassen Sie einen Kommentar."),
         "label_moveto_celeb_gallery": MessageLookupByLibrary.simpleMessage(
             "Zur Prominenten-Galerie gehen"),
         "label_no_celeb": MessageLookupByLibrary.simpleMessage(
             "Sie haben noch keine Berühmtheiten als Lesezeichen gespeichert."),
+        "label_read_more_comment":
+            MessageLookupByLibrary.simpleMessage("Weitere Kommentare"),
+        "label_reply": MessageLookupByLibrary.simpleMessage("Antwort"),
+        "label_time_ago_day": m0,
+        "label_time_ago_hour": m1,
+        "label_time_ago_minute": m2,
+        "label_time_ago_right_now":
+            MessageLookupByLibrary.simpleMessage("Eben noch"),
+        "label_title_comment":
+            MessageLookupByLibrary.simpleMessage("Kommentar"),
+        "label_title_report":
+            MessageLookupByLibrary.simpleMessage("Einen Bericht erstellen"),
         "lable_my_celeb":
             MessageLookupByLibrary.simpleMessage("Meine Berühmtheit"),
+        "message_report_confirm":
+            MessageLookupByLibrary.simpleMessage("Möchten Sie es melden?"),
+        "message_report_ok": MessageLookupByLibrary.simpleMessage(
+            "Der Bericht ist vollständig."),
         "mypage_comment":
             MessageLookupByLibrary.simpleMessage("Kommentarverwaltung"),
         "mypage_language":

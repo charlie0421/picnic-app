@@ -1,39 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:intl/intl.dart';
+import 'package:prame_app/components/article/comment/like_button.dart';
+import 'package:prame_app/components/article/comment/report_popup_menu.dart';
 import 'package:prame_app/models/comment.dart';
+import 'package:prame_app/providers/comment_list_provider.dart';
+import 'package:prame_app/util.dart';
 
-class CommentHeader extends StatelessWidget {
+class CommentActions extends ConsumerWidget {
   final CommentModel item;
+  final TextEditingController textEditingController;
 
-  const CommentHeader({
+  const CommentActions({
     super.key,
     required this.item,
+    required this.textEditingController,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(left: 10),
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: Colors.grey,
-      ),
-      child: Text.rich(
-        TextSpan(children: <TextSpan>[
-          TextSpan(
-              text: '${item.user?.nickname} ',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              )),
-          TextSpan(
-              text: item.content,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.normal,
-              )),
-        ]),
+      height: 30,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              GestureDetector(
+                  onTap: () {
+                    textEditingController.text = '@${item.user?.nickname} ';
+                    ref.read(parentIdProvider.notifier).setParentId(item.id);
+                  },
+                  child: Text(
+                    Intl.message('label_reply'),
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w800),
+                  )),
+              LikeButton(
+                commentId: item.id,
+                initialLikes: item.likes,
+                initiallyLiked: item.myLike != null,
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

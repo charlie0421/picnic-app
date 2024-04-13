@@ -177,8 +177,8 @@ class _ArticlePageState extends ConsumerState<ArticlePage> {
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: GestureDetector(
-                                onTap: () => buildCommentBottomSheet(
-                                    context, article.id),
+                                onTap: () =>
+                                    buildCommentBottomSheet(context, article),
                                 child: Text(
                                     Intl.message('label_read_more_comment'),
                                     style: getTextStyle(
@@ -201,13 +201,14 @@ class _ArticlePageState extends ConsumerState<ArticlePage> {
     );
   }
 
-  void buildCommentBottomSheet(BuildContext context, articleId) {
+  void buildCommentBottomSheet(
+      BuildContext context, ArticleModel articleModel) {
     showModalBottomSheet(
         context: context,
         isScrollControlled: true,
         useSafeArea: true,
         builder: (BuildContext context) {
-          return SafeArea(child: Comment(articleId: articleId));
+          return SafeArea(child: Comment(articleModel: articleModel));
         });
   }
 }
