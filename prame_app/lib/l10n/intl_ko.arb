@@ -36,5 +36,7 @@
   "message_report_confirm": "신고하시겠습니까?",
   "message_report_ok": "신고가 완료되었습니다.",
   "label_title_comment": "댓글",
-  "label_hint_comment": "댓글을 남겨주세요."
+  "label_hint_comment": "댓글을 남겨주세요.",
+  "button_ok": "확인",
+  "button_cancel": "취소"
 }
