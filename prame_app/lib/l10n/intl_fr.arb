@@ -27,8 +27,8 @@
   "label_gallery_tab_gallery": "Galerie",
   "label_gallery_tab_chat": "Chat",
   "label_reply": "Répondre",
-  "label_time_ago_day": "Il y a {day} jours",
-  "label_time_ago_hour": "Il y a {hour} heures",
+  "label_time_ago_day": "Il y a {jour} jours",
+  "label_time_ago_hour": "Il y a {heure} heures",
   "label_time_ago_minute": "Il y a {minute} minutes",
   "label_time_ago_right_now": "Il y a quelques instants",
   "label_read_more_comment": "Plus de commentaires",
@@ -36,5 +36,7 @@
   "message_report_confirm": "Voulez-vous le signaler ?",
   "message_report_ok": "Le rapport est complet.",
   "label_title_comment": "Commentaire",
-  "label_hint_comment": "Laissez un commentaire."
+  "label_hint_comment": "Laissez un commentaire.",
+  "button_ok": "Confirmer",
+  "button_cancel": "取消"
 }
