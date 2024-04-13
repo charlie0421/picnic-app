@@ -36,5 +36,7 @@
   "message_report_confirm": "申告しますか？",
   "message_report_ok": "申告が完了しました。",
   "label_title_comment": "コメント",
-  "label_hint_comment": "コメントを残してください。"
+  "label_hint_comment": "コメントを残してください。",
+  "button_ok": "確認",
+  "button_cancel": "キャンセル"
 }
