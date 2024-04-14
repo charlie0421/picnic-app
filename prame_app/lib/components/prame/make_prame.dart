@@ -37,8 +37,8 @@ class _MakePrameState extends ConsumerState<MakgePrame> {
     ref.read(userImageProvider);
     ref.read(convertedImageProvider);
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-    _loadOverlayImage();
-    _initializeCameras();
+      _loadOverlayImage();
+      _initializeCameras();
     });
   }
 
@@ -107,8 +107,8 @@ class _MakePrameState extends ConsumerState<MakgePrame> {
   }
 
   Future<void> _loadOverlayImage() async {
-
-    final ByteData data = await rootBundle.load('assets/mockup/prame/ko${ref.watch(prameSelectedIndexProvider)+1}.png');
+    final ByteData data = await rootBundle.load(
+        'assets/mockup/prame/ko${ref.watch(prameSelectedIndexProvider) + 1}.png');
     final Uint8List bytes = data.buffer.asUint8List();
     final img.Image image = img.decodeImage(bytes)!;
     final uiImage = await _convertImage(image);
@@ -139,7 +139,6 @@ class _MakePrameState extends ConsumerState<MakgePrame> {
       });
     }
     OverlayLoadingProgress.stop();
-
   }
 
   @override
@@ -185,7 +184,7 @@ class _MakePrameState extends ConsumerState<MakgePrame> {
               ),
             ),
             child: Column(mainAxisSize: MainAxisSize.max, children: [
-              SizedBox(height: 34.h),
+              SizedBox(height: 10.h),
               Container(
                 height: 54.h,
                 padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -199,7 +198,7 @@ class _MakePrameState extends ConsumerState<MakgePrame> {
                   ],
                 ),
               ),
-              SizedBox(height: 34.h),
+              SizedBox(height: 10.h),
               Stack(
                 children: [
                   if (ref.watch(userImageProvider.notifier).state != null)
@@ -218,11 +217,10 @@ class _MakePrameState extends ConsumerState<MakgePrame> {
                       height: 386.h,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
-
-                            color: userImage == null
-                                ? Colors.white
-                                : Colors.transparent,
-                  ),
+                        color: userImage == null
+                            ? Colors.white
+                            : Colors.transparent,
+                      ),
                       child: Hero(
                         tag: 'prame',
                         child: Image.asset(
@@ -241,97 +239,108 @@ class _MakePrameState extends ConsumerState<MakgePrame> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                    ElevatedButton(
-                      onPressed: getImage,
-                      child: Text('사진첩'),
-                    ),
-                    if (cameras != null && cameras!.isNotEmpty)
-                      SizedBox(width: 16),
-                    if (cameras != null && cameras!.isNotEmpty)
-                      ElevatedButton(
-                        onPressed: () {
-                          showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            builder: (BuildContext context) {
-                              return StatefulBuilder(builder:
-                                  (BuildContext context, StateSetter setState) {
-                                return SizedBox(
-                                  height: MediaQuery.of(context)
-                                      .size
-                                      .height, // 전체 화면 높이를 사용
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      CameraPreview(
-                                        controller!,
-                                        child: CustomPaint(
-                                          size: Size.infinite,
-                                          painter: OverlayImagePainter(
-                                              overlayImage: _overlayImage),
-                                        ),
-                                      ),
-                                      Container(
-                                        width: double.infinity,
-                                        alignment: Alignment.bottomCenter,
-                                        padding:
-                                            const EdgeInsets.only(bottom: 100),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            ElevatedButton(
-                                              onPressed: () async {
-                                                OverlayLoadingProgress.start(context);
-
-                                                final XFile file =
-                                                    await controller!
-                                                        .takePicture();
-                                                final img.Image image =
-                                                    img.decodeImage(await file
-                                                        .readAsBytes())!;
-                                                final uiImage =
-                                                    await _convertImage(image);
-                                                  ref.read(userImageProvider.notifier).state = File(file.path);
-                                                  ref.read(convertedImageProvider.notifier).state = File(file.path);
-                                                  // _userImage = File(file.path);
-                                                  // _convertedUserImage = uiImage;
-                                                OverlayLoadingProgress.stop();
-                                                Navigator.pop(context);
-                                              },
-                                              child: Text('사진 찍기'),
+                        ElevatedButton(
+                          onPressed: getImage,
+                          child: Text('사진첩'),
+                        ),
+                        if (cameras != null && cameras!.isNotEmpty)
+                          SizedBox(width: 16),
+                        if (cameras != null && cameras!.isNotEmpty)
+                          ElevatedButton(
+                            onPressed: () {
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                builder: (BuildContext context) {
+                                  return StatefulBuilder(builder:
+                                      (BuildContext context,
+                                          StateSetter setState) {
+                                    return SizedBox(
+                                      height: MediaQuery.of(context)
+                                          .size
+                                          .height, // 전체 화면 높이를 사용
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          CameraPreview(
+                                            controller!,
+                                            child: CustomPaint(
+                                              size: Size.infinite,
+                                              painter: OverlayImagePainter(
+                                                  overlayImage: _overlayImage),
                                             ),
-                                            SizedBox(width: 16),
-                                            if (cameras != null &&
-                                                cameras!.isNotEmpty)
-                                              ElevatedButton(
-                                                onPressed: () async {
-                                                  _toggleCamera();
-                                                  Future.delayed(
-                                                      Duration(
-                                                          milliseconds: 1000),
-                                                      () {
-                                                    setState(() {});
-                                                  });
-                                                },
-                                                child: Text('카메라 전환'),
-                                              ),
-                                          ],
-                                        ),
+                                          ),
+                                          Container(
+                                            width: double.infinity,
+                                            alignment: Alignment.bottomCenter,
+                                            padding: const EdgeInsets.only(
+                                                bottom: 100),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                ElevatedButton(
+                                                  onPressed: () async {
+                                                    OverlayLoadingProgress
+                                                        .start(context);
+
+                                                    final XFile file =
+                                                        await controller!
+                                                            .takePicture();
+                                                    final img.Image image = img
+                                                        .decodeImage(await file
+                                                            .readAsBytes())!;
+                                                    final uiImage =
+                                                        await _convertImage(
+                                                            image);
+                                                    ref
+                                                        .read(userImageProvider
+                                                            .notifier)
+                                                        .state = File(file.path);
+                                                    ref
+                                                        .read(
+                                                            convertedImageProvider
+                                                                .notifier)
+                                                        .state = File(file.path);
+                                                    // _userImage = File(file.path);
+                                                    // _convertedUserImage = uiImage;
+                                                    OverlayLoadingProgress
+                                                        .stop();
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: Text('사진 찍기'),
+                                                ),
+                                                SizedBox(width: 16),
+                                                if (cameras != null &&
+                                                    cameras!.isNotEmpty)
+                                                  ElevatedButton(
+                                                    onPressed: () async {
+                                                      _toggleCamera();
+                                                      Future.delayed(
+                                                          Duration(
+                                                              milliseconds:
+                                                                  1000), () {
+                                                        setState(() {});
+                                                      });
+                                                    },
+                                                    child: Text('카메라 전환'),
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                );
-                              });
+                                    );
+                                  });
+                                },
+                              );
                             },
-                          );
-                        },
-                        child: Text('카메라'),
-                      ),
-                    ],),
+                            child: Text('카메라'),
+                          ),
+                      ],
+                    ),
                     Image.asset('assets/mockup/prame/decoration.png',
                         width: 54.w, height: 54.h),
-
                   ],
                 ),
               ),
@@ -343,6 +352,7 @@ class _MakePrameState extends ConsumerState<MakgePrame> {
     );
   }
 }
+
 class _ImagePainter extends CustomPainter {
   final ui.Image image;
 
