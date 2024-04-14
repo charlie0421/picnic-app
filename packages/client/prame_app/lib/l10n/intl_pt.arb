@@ -38,5 +38,9 @@
   "label_title_comment": "Comentário",
   "label_hint_comment": "Deixe um comentário.",
   "button_ok": "Confirmar",
-  "button_cancel": "取消"
+  "button_cancel": "取消",
+  "label_library_tab_library": "Bibliotecas",
+  "label_library_tab_prame": "PRAME",
+  "label_library_tab_ai_photo": "Fotos de IA",
+  "label_article_comment_empty": "Seja o primeiro a comentar!"
 }
