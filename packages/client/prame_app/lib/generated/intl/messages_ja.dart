@@ -30,6 +30,8 @@ class MessageLookup extends MessageLookupByLibrary {
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "button_cancel": MessageLookupByLibrary.simpleMessage("キャンセル"),
         "button_ok": MessageLookupByLibrary.simpleMessage("確認"),
+        "label_article_comment_empty":
+            MessageLookupByLibrary.simpleMessage("最初のコメントの主人公になりましょう！"),
         "label_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("ソラップギャラリー。"),
         "label_celeb_recommend":
@@ -43,6 +45,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("ギャラリー"),
         "label_hint_comment":
             MessageLookupByLibrary.simpleMessage("コメントを残してください。"),
+        "label_library_tab_ai_photo":
+            MessageLookupByLibrary.simpleMessage("AIフォト"),
+        "label_library_tab_library":
+            MessageLookupByLibrary.simpleMessage("ライブラリ"),
+        "label_library_tab_prame":
+            MessageLookupByLibrary.simpleMessage("PRAME"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("セレブリティ・ギャラリーへ"),
         "label_no_celeb":
