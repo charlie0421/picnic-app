@@ -180,7 +180,7 @@ class _ArticlePageState extends ConsumerState<ArticlePage> {
                                 onTap: () =>
                                     buildCommentBottomSheet(context, article),
                                 child: Text(
-                                    Intl.message('label_read_more_comment'),
+                                    '${Intl.message('label_read_more_comment')} ${article.commentCount.toString()}',
                                     style: getTextStyle(
                                       AppTypo.UI14B,
                                       AppColors.Gray900,
