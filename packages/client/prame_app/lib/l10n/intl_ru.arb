@@ -38,5 +38,9 @@
   "label_title_comment": "Комментарий",
   "label_hint_comment": "Оставьте комментарий.",
   "button_ok": "Подтвердите",
-  "button_cancel": "取消"
+  "button_cancel": "取消",
+  "label_library_tab_library": "Библиотеки",
+  "label_library_tab_prame": "ПРАМЕ",
+  "label_library_tab_ai_photo": "Фотографии ИИ",
+  "label_article_comment_empty": "Будьте первым, кто оставит комментарий!"
 }
