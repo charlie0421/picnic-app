@@ -12,7 +12,6 @@ class SelectArtist extends ConsumerStatefulWidget {
 class _SelectArtistState extends ConsumerState<SelectArtist> {
   int selectedPrameIndex = 0;
 
-
   @override
   void initState() {
     super.initState();
@@ -26,7 +25,10 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
       children: [
         Container(
           height: 116,
-          padding: EdgeInsets.only(left: 36.w, top: 16.h, bottom: 16.h),
+          padding: EdgeInsets.only(
+            left: 36.w,
+            top: 16.h,
+          ),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: 5,
@@ -47,14 +49,7 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
             child: Column(
               mainAxisSize: MainAxisSize.max,
               children: [
-                SizedBox(height: 34.h),
-                Text('이번주의 ${''}\n 고윤정 P-Rame',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                    textAlign: TextAlign.center),
-                SizedBox(height: 34.h),
+                SizedBox(height: 20.h),
                 Container(
                   height: 110.h,
                   padding: EdgeInsets.only(left: 36.w),
@@ -67,7 +62,7 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
                     },
                   ),
                 ),
-                SizedBox(height: 34.h),
+                SizedBox(height: 10.h),
                 Container(
                     width: 180.w,
                     height: 277.h,
@@ -80,7 +75,7 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
                       child: Image.asset(
                           'assets/mockup/prame/ko${selectedPrameIndex + 1}.png'),
                     )),
-                SizedBox(height: 34.h),
+                SizedBox(height: 10.h),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
@@ -106,8 +101,6 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
         ),
       ],
     );
-
-
 
     // return Stack(
     //   children: [
@@ -260,5 +253,4 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
           ],
         ));
   }
-
 }
