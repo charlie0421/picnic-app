@@ -71,13 +71,13 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                       ))),
               Align(
                   alignment: Alignment.center,
-                  child: Text(Intl.message('label_library_tab_library'),
+                  child: Text(Intl.message('label_library_tab_prame'),
                       style: const TextStyle(
                         fontSize: 16,
                       ))),
               Align(
                   alignment: Alignment.center,
-                  child: Text(Intl.message('label_library_tab_library'),
+                  child: Text(Intl.message('label_library_tab_ai_photo'),
                       style: const TextStyle(
                         fontSize: 16,
                       ))),

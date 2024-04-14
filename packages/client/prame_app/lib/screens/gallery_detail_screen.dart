@@ -36,7 +36,6 @@ class _GalleryDetailScreenState extends ConsumerState<GalleryDetailScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context, ref),
-      bottomNavigationBar: buildBottomNavigationBar(ref),
       body: _buildPage(ref),
     );
   }

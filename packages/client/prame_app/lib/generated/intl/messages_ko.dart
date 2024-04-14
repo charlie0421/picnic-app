@@ -30,7 +30,7 @@ class MessageLookup extends MessageLookupByLibrary {
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "button_cancel": MessageLookupByLibrary.simpleMessage("취소"),
         "button_ok": MessageLookupByLibrary.simpleMessage("확인"),
-        "label_celeb_gallery": MessageLookupByLibrary.simpleMessage("샐럽 갤러리."),
+        "label_celeb_gallery": MessageLookupByLibrary.simpleMessage("샐럽 갤러리"),
         "label_celeb_recommend": MessageLookupByLibrary.simpleMessage("유명인 추천"),
         "label_current_language": MessageLookupByLibrary.simpleMessage("현재 언어"),
         "label_draw_image":

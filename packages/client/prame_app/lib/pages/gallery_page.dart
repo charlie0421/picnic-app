@@ -51,7 +51,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              Intl.message('title_celeb_gallery'),
+              Intl.message('label_celeb_gallery'),
               style: getTextStyle(
                 AppTypo.UI24B,
                 AppColors.Gray900,

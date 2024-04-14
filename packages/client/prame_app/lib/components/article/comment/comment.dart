@@ -78,7 +78,7 @@ class _CommentState extends ConsumerState<Comment> {
                         child: Container(
                           padding: const EdgeInsets.all(10),
                           child: Text(
-                            Intl.message('label_episode_comment_empty'),
+                            Intl.message('label_article_comment_empty'),
                             style: const TextStyle(
                                 fontSize: 30, fontWeight: FontWeight.bold),
                           ),

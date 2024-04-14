@@ -95,7 +95,8 @@ class _ArticlePageState extends ConsumerState<ArticlePage> {
                           Align(
                             alignment: Alignment.topCenter,
                             child: Text(
-                              article.createdAt.toIso8601String(),
+                              DateFormat('yyyy-MM-dd')
+                                  .format(article.createdAt),
                               style: getTextStyle(
                                 AppTypo.UI14B,
                                 AppColors.Gray900,
