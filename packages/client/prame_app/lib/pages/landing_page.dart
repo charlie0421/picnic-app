@@ -65,6 +65,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
               return CelebListItem(
                 item: item,
                 type: 'my',
+                moveHome: true,
               );
             }),
           const SizedBox(height: 16),

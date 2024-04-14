@@ -42,7 +42,6 @@ class _PrameAppState extends ConsumerState<PrameApp> {
           locale: appSettingState.locale,
           routes: {
             LandingScreen.routeName: (context) => const LandingScreen(),
-            HomeScreen.routeName: (context) => const HomeScreen(),
             MyScreen.routeName: (context) => const MyScreen(),
             LanguageScreen.routeName: (context) => const LanguageScreen(),
             PrameScreen.routeName: (context) => const PrameScreen(),
@@ -57,6 +56,15 @@ class _PrameAppState extends ConsumerState<PrameApp> {
                         galleryName: args.galleryName,
                       ));
             }
+            if (settings.name == HomeScreen.routeName) {
+              final args = settings.arguments as HomeScreenArguments;
+
+              return MaterialPageRoute(
+                  builder: (context) => HomeScreen(
+                        celebModel: args.celebModel,
+                      ));
+            }
+
             return null;
           },
           localizationsDelegates: [
