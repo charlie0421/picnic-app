@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:prame_app/models/article_image.dart';
+import 'package:prame_app/models/comment.dart';
 import 'package:prame_app/models/gallery.dart';
 import 'package:prame_app/models/meta.dart';
 import 'package:prame_app/reflector.dart';
@@ -33,6 +34,7 @@ class ArticleModel {
   final GalleryModel? gallery;
   final List<ArticleImageModel>? images;
   final DateTime createdAt;
+  final int? commentCount;
 
   ArticleModel({
     required this.id,
@@ -42,6 +44,7 @@ class ArticleModel {
     required this.gallery,
     required this.images,
     required this.createdAt,
+    required this.commentCount,
   });
 
   factory ArticleModel.fromJson(Map<String, dynamic> json) =>

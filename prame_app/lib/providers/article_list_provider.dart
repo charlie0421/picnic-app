@@ -33,7 +33,6 @@ class AsyncArticleList extends _$AsyncArticleList {
   }) async {
     final dio = await authDio(baseUrl: Constants.userApiUrl);
     final response = await dio.get('/gallery/articles/$galleryId');
-
     return ArticleListModel.fromJson(response.data);
   }
 }
