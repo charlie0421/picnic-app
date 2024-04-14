@@ -64,7 +64,6 @@ class LanguagePage extends ConsumerWidget {
                         languageMap.keys.elementAt(index),
                         countryMap.keys.elementAt(index),
                       ));
-                      Navigator.pop(context);
                     },
                   );
                 },

@@ -9,15 +9,16 @@ BottomNavigationBar buildBottomNavigationBar(ref) {
   return BottomNavigationBar(
     items: <BottomNavigationBarItem>[
       BottomNavigationBarItem(
-          icon: Icon(Icons.home), label: Intl.message('nav_home')),
+          icon: const Icon(Icons.home), label: Intl.message('nav_home')),
       BottomNavigationBarItem(
-          icon: Icon(Icons.photo), label: Intl.message('nav_gallery')),
+          icon: const Icon(Icons.photo), label: Intl.message('nav_gallery')),
       BottomNavigationBarItem(
-          icon: Icon(Icons.library_books), label: Intl.message('nav_library')),
+          icon: const Icon(Icons.library_books),
+          label: Intl.message('nav_library')),
       BottomNavigationBarItem(
-          icon: Icon(Icons.wallet), label: Intl.message('nav_purchases')),
+          icon: const Icon(Icons.wallet), label: Intl.message('nav_purchases')),
       BottomNavigationBarItem(
-          icon: Icon(Icons.ads_click), label: Intl.message('nav_ads')),
+          icon: const Icon(Icons.settings), label: Intl.message('nav_setting')),
     ],
     currentIndex: counterState,
     // backgroundColor: Colors.blue,
