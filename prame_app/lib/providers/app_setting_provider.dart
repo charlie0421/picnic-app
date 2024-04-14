@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:prame_app/constants.dart';
+import 'package:prame_app/reflector.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'app_setting_provider.g.dart';
@@ -33,6 +34,7 @@ class AppSetting extends _$AppSetting {
   }
 }
 
+@reflector
 class Setting {
   ThemeMode themeMode = ThemeMode.system;
   Locale locale = const Locale('ko_KR');

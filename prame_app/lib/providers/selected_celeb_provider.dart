@@ -10,7 +10,8 @@ class SelectedCeleb extends _$SelectedCeleb {
   @override
   CelebModel? build() => selectedCeleb;
 
-  void setSelectedCeleb(CelebModel? celebModel) {
+  Future<void> setSelectedCeleb(CelebModel? celebModel) {
     state = celebModel;
+    return Future.value();
   }
 }

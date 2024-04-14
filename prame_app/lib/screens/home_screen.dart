@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:prame_app/components/celeb_list_item.dart';
 import 'package:prame_app/components/error.dart';
 import 'package:prame_app/components/no_bookmark_celeb.dart';
+import 'package:prame_app/constants.dart';
 import 'package:prame_app/models/celeb.dart';
 import 'package:prame_app/pages/gallery_page.dart';
 import 'package:prame_app/pages/home_page.dart';
@@ -22,7 +23,8 @@ import 'package:prame_app/util.dart';
 class HomeScreen extends ConsumerWidget {
   static const String routeName = '/home';
 
-  const HomeScreen({super.key});
+  CelebModel celebModel;
+  HomeScreen({super.key, required this.celebModel});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,8 +40,8 @@ class HomeScreen extends ConsumerWidget {
         ref.watch(bottomNavigationBarIndexStateProvider);
     final asyncMyCelebListState = ref.watch(asyncMyCelebListProvider);
     final asyncCelebListState = ref.watch(asyncCelebListProvider);
-    final selectedCelebState = ref.watch(selectedCelebProvider);
-    final selectedCelebNotifier = ref.read(selectedCelebProvider.notifier);
+    final asyncSelectedCelebState = ref.watch(selectedCelebProvider);
+    celebModel = asyncSelectedCelebState ?? celebModel;
 
     switch (bottomNavigationBarIndexState) {
       case 0:
@@ -89,11 +91,13 @@ class HomeScreen extends ConsumerWidget {
                     loading: () => buildLoadingOverlay(),
                   );
                 } else {
-                  CelebModel celebModel =
-                      selectedCelebState ?? data.items.first;
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    selectedCelebNotifier.setSelectedCeleb(celebModel);
-                  });
+                  // celebModel = selectedCelebState ?? data.items.first;
+                  // logger.w('selectedCelebState.nameKo: ${celebModel.nameKo}');
+                  // final selectedCelebNotifier =
+                  //     ref.read(selectedCelebProvider.notifier);
+                  // WidgetsBinding.instance.addPostFrameCallback((_) {
+                  //   selectedCelebNotifier.setSelectedCeleb(celebModel);
+                  // });
 
                   return SizedBox(
                       width: double.infinity,
@@ -148,7 +152,9 @@ class HomeScreen extends ConsumerWidget {
 
     switch (counterState) {
       case 0:
-        return const HomePage();
+        return HomePage(
+          celebModel: celebModel,
+        );
       case 1:
         return const GalleryPage();
       default:
@@ -186,6 +192,7 @@ class HomeScreen extends ConsumerWidget {
               const SizedBox(height: 16),
               ...asyncMyCelebListState.when(
                   data: (data) {
+                    logger.w('data.items.length: ${data.items.length}');
                     return data.items.isNotEmpty
                         ? _buildSearchList(context, ref, data, selectedCeleb)
                         : [const NoBookmarkCeleb()];
@@ -220,6 +227,10 @@ class HomeScreen extends ConsumerWidget {
 
   List<Widget> _buildSearchList(BuildContext context, WidgetRef ref,
       CelebListModel data, CelebModel? selectedCeleb) {
+    logger.w('selectedCeleb: ${selectedCeleb}');
+    logger.w('selectedCeleb: ${selectedCeleb?.nameKo}');
+    logger.w('CelebListModel: ${data.items.length}');
+
     if (selectedCeleb != null) {
       data.items.removeWhere((item) => item.id == selectedCeleb.id);
       data.items.insert(0, selectedCeleb);
@@ -256,4 +267,10 @@ class HomeScreen extends ConsumerWidget {
             .toList()
         : [const NoBookmarkCeleb()];
   }
+}
+
+class HomeScreenArguments {
+  final CelebModel celebModel;
+
+  HomeScreenArguments(this.celebModel);
 }

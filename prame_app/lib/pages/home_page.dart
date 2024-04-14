@@ -2,8 +2,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:prame_app/components/error.dart';
+import 'package:prame_app/constants.dart';
+import 'package:prame_app/models/celeb.dart';
 import 'package:prame_app/models/gallery.dart';
 import 'package:prame_app/providers/celeb_banner_list_provider.dart';
 import 'package:prame_app/providers/gallery_list_provider.dart';
@@ -14,15 +17,17 @@ import 'package:prame_app/ui/style.dart';
 import 'package:prame_app/util.dart';
 
 class HomePage extends ConsumerWidget {
-  const HomePage({super.key});
+  CelebModel celebModel;
+  HomePage({super.key, required this.celebModel});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedCelebState = ref.watch(selectedCelebProvider);
-    final celebBannerListState = ref.watch(
-        asyncCelebBannerListProvider(celebId: selectedCelebState?.id ?? 1));
+    celebModel = selectedCelebState ?? celebModel;
+    final celebBannerListState =
+        ref.watch(asyncCelebBannerListProvider(celebId: celebModel.id));
     final asyncGalleryListState =
-        ref.watch(asyncGalleryListProvider(celebId: 0));
+        ref.watch(asyncGalleryListProvider(celebId: celebModel.id));
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: SingleChildScrollView(
