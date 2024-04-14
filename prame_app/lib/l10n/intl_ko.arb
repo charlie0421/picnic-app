@@ -21,7 +21,7 @@
   "text_ads_random": "광고 보기 및 무작위 이미지 수집.",
   "label_find_celeb": "더 많은 유명인 찾기",
   "label_no_celeb": "아직 북마크한 유명인이 없습니다!",
-  "label_celeb_gallery": "샐럽 갤러리.",
+  "label_celeb_gallery": "샐럽 갤러리",
   "label_draw_image": "랜덤 이미지 획득 기회",
   "text_draw_image": "전체 갤러리 중 이미지 1개 확정 소장",
   "label_gallery_tab_gallery": "갤러리",
@@ -38,5 +38,9 @@
   "label_title_comment": "댓글",
   "label_hint_comment": "댓글을 남겨주세요.",
   "button_ok": "확인",
-  "button_cancel": "취소"
+  "button_cancel": "취소",
+  "label_library_tab_library": "라이브러리",
+  "label_library_tab_prame": "PRAME",
+  "label_library_tab_ai_photo": "AI 포토",
+  "label_article_comment_empty": "첫 댓글의 주인공이 되세요!"
 }
