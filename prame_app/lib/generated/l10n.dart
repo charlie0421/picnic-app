@@ -439,6 +439,46 @@ class S {
       args: [],
     );
   }
+
+  /// `Libraries`
+  String get label_library_tab_library {
+    return Intl.message(
+      'Libraries',
+      name: 'label_library_tab_library',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `PRAME`
+  String get label_library_tab_prame {
+    return Intl.message(
+      'PRAME',
+      name: 'label_library_tab_prame',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `AI Photos`
+  String get label_library_tab_ai_photo {
+    return Intl.message(
+      'AI Photos',
+      name: 'label_library_tab_ai_photo',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Be the first to comment!`
+  String get label_article_comment_empty {
+    return Intl.message(
+      'Be the first to comment!',
+      name: 'label_article_comment_empty',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

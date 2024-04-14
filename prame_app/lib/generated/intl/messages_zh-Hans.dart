@@ -30,6 +30,8 @@ class MessageLookup extends MessageLookupByLibrary {
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "button_cancel": MessageLookupByLibrary.simpleMessage("取消"),
         "button_ok": MessageLookupByLibrary.simpleMessage("确认"),
+        "label_article_comment_empty":
+            MessageLookupByLibrary.simpleMessage("成为第一个发表评论的人！"),
         "label_celeb_gallery": MessageLookupByLibrary.simpleMessage("萨洛普画廊"),
         "label_celeb_recommend": MessageLookupByLibrary.simpleMessage("名人推荐"),
         "label_current_language": MessageLookupByLibrary.simpleMessage("当前语言"),
@@ -38,6 +40,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("聊天"),
         "label_gallery_tab_gallery": MessageLookupByLibrary.simpleMessage("画廊"),
         "label_hint_comment": MessageLookupByLibrary.simpleMessage("发表评论。"),
+        "label_library_tab_ai_photo":
+            MessageLookupByLibrary.simpleMessage("人工智能照片"),
+        "label_library_tab_library":
+            MessageLookupByLibrary.simpleMessage("图书馆"),
+        "label_library_tab_prame":
+            MessageLookupByLibrary.simpleMessage("PRAME"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("前往名人图库"),
         "label_no_celeb": MessageLookupByLibrary.simpleMessage("您还没有将任何名人加入书签"),

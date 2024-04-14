@@ -30,6 +30,8 @@ class MessageLookup extends MessageLookupByLibrary {
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "button_cancel": MessageLookupByLibrary.simpleMessage("취소"),
         "button_ok": MessageLookupByLibrary.simpleMessage("확인"),
+        "label_article_comment_empty":
+            MessageLookupByLibrary.simpleMessage("첫 댓글의 주인공이 되세요!"),
         "label_celeb_gallery": MessageLookupByLibrary.simpleMessage("샐럽 갤러리"),
         "label_celeb_recommend": MessageLookupByLibrary.simpleMessage("유명인 추천"),
         "label_current_language": MessageLookupByLibrary.simpleMessage("현재 언어"),
@@ -41,6 +43,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("갤러리"),
         "label_hint_comment":
             MessageLookupByLibrary.simpleMessage("댓글을 남겨주세요."),
+        "label_library_tab_ai_photo":
+            MessageLookupByLibrary.simpleMessage("AI 포토"),
+        "label_library_tab_library":
+            MessageLookupByLibrary.simpleMessage("라이브러리"),
+        "label_library_tab_prame":
+            MessageLookupByLibrary.simpleMessage("PRAME"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("셀러브리티 갤러리로 이동"),
         "label_no_celeb":
