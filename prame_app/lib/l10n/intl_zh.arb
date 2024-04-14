@@ -38,5 +38,9 @@
   "label_title_comment": "评论",
   "label_hint_comment": "发表评论。",
   "button_ok": "确认",
-  "button_cancel": "取消"
+  "button_cancel": "取消",
+  "label_library_tab_library": "图书馆",
+  "label_library_tab_prame": "PRAME",
+  "label_library_tab_ai_photo": "人工智能照片",
+  "label_article_comment_empty": "成为第一个发表评论的人！"
 }
