@@ -38,5 +38,9 @@
   "label_title_comment": "Comments",
   "label_hint_comment": "Leave a comment.",
   "button_ok": "Confirm",
-  "button_cancel": "Cancel"
+  "button_cancel": "Cancel",
+  "label_library_tab_library": "Libraries",
+  "label_library_tab_prame": "PRAME",
+  "label_library_tab_ai_photo": "AI Photos",
+  "label_article_comment_empty": "Be the first to comment!"
 }
