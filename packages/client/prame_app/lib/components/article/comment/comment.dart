@@ -40,7 +40,7 @@ class _CommentState extends ConsumerState<Comment> {
   void fetchPage(int pageKey) async {
     logger.w('fetchPage');
     final asyncCommentList = ref.read(asyncCommentListProvider.notifier).fetch(
-        pageKey, 10, 'article.created_at', 'DESC',
+        pageKey, 10, 'comment.created_at', 'DESC',
         articleId: widget.articleModel.id);
 
     final page = await asyncCommentList;
@@ -227,10 +227,15 @@ class _CommentState extends ConsumerState<Comment> {
   _commitComment() {
     final int parentId = ref.watch<int>(parentIdProvider);
 
-    ref.read(asyncCommentListProvider.notifier).submitComment(
-        articleId: widget.articleModel.id,
-        content: _textEditingController.text,
-        parentId: parentId);
+    ref
+        .read(asyncCommentListProvider.notifier)
+        .submitComment(
+            articleId: widget.articleModel.id,
+            content: _textEditingController.text,
+            parentId: parentId)
+        .then((value) {
+      _pagingController.refresh();
+    });
     _textEditingController.clear();
   }
 }

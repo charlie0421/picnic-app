@@ -42,6 +42,7 @@ class AsyncCommentList extends _$AsyncCommentList {
   }) async {
     var dio = await authDio(baseUrl: Constants.userApiUrl);
     try {
+      parentId == 0 ? parentId = null : parentId;
       final response = parentId != null
           ? await dio
               .post('/comment/article/${articleId}/comment/$parentId', data: {
