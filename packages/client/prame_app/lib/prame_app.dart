@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:prame_app/generated/l10n.dart';
 import 'package:prame_app/providers/app_setting_provider.dart';
+import 'package:prame_app/providers/celeb_list_provider.dart';
 import 'package:prame_app/screens/draw_image_screen.dart';
 import 'package:prame_app/screens/gallery_detail_screen.dart';
 import 'package:prame_app/screens/home_screen.dart';
@@ -32,6 +33,7 @@ class _PrameAppState extends ConsumerState<PrameApp> {
   @override
   Widget build(BuildContext context) {
     final appSettingState = ref.watch(appSettingProvider);
+    final asyncCelebListState = ref.watch(asyncCelebListProvider);
     return ScreenUtilInit(
       designSize: const Size(430, 932),
       child: MaterialApp(
@@ -74,7 +76,9 @@ class _PrameAppState extends ConsumerState<PrameApp> {
             GlobalCupertinoLocalizations.delegate,
           ],
           supportedLocales: S.delegate.supportedLocales,
-          home: const LandingScreen()),
+          home: HomeScreen(
+            celebModel: asyncCelebListState.value?.items.first,
+          )),
     );
   }
 }

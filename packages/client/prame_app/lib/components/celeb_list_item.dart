@@ -19,6 +19,7 @@ class CelebListItem extends ConsumerWidget {
   bool? showBookmark;
   bool? enableBookmark;
   bool? moveHome;
+  VoidCallback? onTap;
 
   CelebListItem({
     super.key,
@@ -41,15 +42,8 @@ class CelebListItem extends ConsumerWidget {
       onTap: () async {
         await selectedCelebNotifier.setSelectedCeleb(item).then((value) {
           logger.i('selectedCeleb: ${item.nameKo}');
-          if (moveHome != null && moveHome!) {
-            Navigator.pushNamed(context, HomeScreen.routeName,
-                arguments: HomeScreenArguments(
-                  item,
-                ));
-            return;
-          } else {
-            Navigator.pop(context);
-          }
+          onTap?.call();
+          Navigator.pop(context);
         });
       },
       child: Container(

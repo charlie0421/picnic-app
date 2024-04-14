@@ -6,7 +6,7 @@ part of 'selected_celeb_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$selectedCelebHash() => r'de544f79c7d80643ac5feb419ca90c23afd6bf78';
+String _$selectedCelebHash() => r'bd79565c75df5d0e4df7965f6f89080e2b464089';
 
 /// See also [SelectedCeleb].
 @ProviderFor(SelectedCeleb)

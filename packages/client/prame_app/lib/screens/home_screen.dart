@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -10,6 +11,8 @@ import 'package:prame_app/constants.dart';
 import 'package:prame_app/models/celeb.dart';
 import 'package:prame_app/pages/gallery_page.dart';
 import 'package:prame_app/pages/home_page.dart';
+import 'package:prame_app/pages/landing_page.dart';
+import 'package:prame_app/pages/language_page.dart';
 import 'package:prame_app/providers/bottom_navigation_provider.dart';
 import 'package:prame_app/providers/celeb_banner_list_provider.dart';
 import 'package:prame_app/providers/celeb_list_provider.dart';
@@ -20,10 +23,12 @@ import 'package:prame_app/screens/landing_screen.dart';
 import 'package:prame_app/ui/style.dart';
 import 'package:prame_app/util.dart';
 
+import '../pages/library_page.dart';
+
 class HomeScreen extends ConsumerWidget {
   static const String routeName = '/home';
 
-  CelebModel celebModel;
+  CelebModel? celebModel;
   HomeScreen({super.key, required this.celebModel});
 
   @override
@@ -31,8 +36,24 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       appBar: _buildAppBar(context, ref),
       bottomNavigationBar: buildBottomNavigationBar(ref),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _buildFloating(context),
+        backgroundColor: Constants.mainColor,
+        child: const Icon(Icons.bookmarks),
+      ),
       body: _buildPage(ref),
     );
+  }
+
+  void _buildFloating(context) {
+    showModalBottomSheet(
+        context: context,
+        useSafeArea: true,
+        showDragHandle: true,
+        isScrollControlled: true,
+        builder: (BuildContext context) {
+          return const LandingPage();
+        });
   }
 
   AppBar _buildAppBar(context, WidgetRef ref) {
@@ -69,8 +90,8 @@ class HomeScreen extends ConsumerWidget {
                               ),
                               const SizedBox(width: 8),
                               GestureDetector(
-                                onTap: () =>
-                                    _buildSelectCelebBottomSheet(context, ref),
+                                onTap: () => _buildSelectCelebBottomSheet(
+                                    context, celebModel, ref),
                                 child: SvgPicture.asset(
                                   'assets/icons/dropdown.svg',
                                   width: 20,
@@ -98,26 +119,28 @@ class HomeScreen extends ConsumerWidget {
                   // WidgetsBinding.instance.addPostFrameCallback((_) {
                   //   selectedCelebNotifier.setSelectedCeleb(celebModel);
                   // });
-
+                  if (celebModel == null) {
+                    return const SizedBox();
+                  }
                   return SizedBox(
                       width: double.infinity,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           CachedNetworkImage(
-                              imageUrl: celebModel.thumbnail,
+                              imageUrl: celebModel!.thumbnail,
                               width: 38,
                               height: 38),
                           const SizedBox(width: 8),
                           Text(
-                            celebModel.nameKo,
+                            celebModel!.nameKo,
                             style:
                                 getTextStyle(AppTypo.UI16B, AppColors.Gray00),
                           ),
                           const SizedBox(width: 8),
                           GestureDetector(
-                            onTap: () =>
-                                _buildSelectCelebBottomSheet(context, ref),
+                            onTap: () => _buildSelectCelebBottomSheet(
+                                context, celebModel, ref),
                             child: SvgPicture.asset(
                               'assets/icons/dropdown.svg',
                               width: 20,
@@ -150,22 +173,31 @@ class HomeScreen extends ConsumerWidget {
   Widget _buildPage(ref) {
     final counterState = ref.watch(bottomNavigationBarIndexStateProvider);
 
+    if (celebModel == null) {
+      return Container();
+    }
+
     switch (counterState) {
       case 0:
         return HomePage(
-          celebModel: celebModel,
+          celebModel: celebModel!,
         );
       case 1:
         return const GalleryPage();
+      case 2:
+        return const LibraryPage();
+      case 4:
+        return const LanguagePage();
       default:
         return Container();
     }
   }
 
-  void _buildSelectCelebBottomSheet(BuildContext context, WidgetRef ref) {
+  void _buildSelectCelebBottomSheet(
+      BuildContext context, selectedCeleb, WidgetRef ref) {
     final asyncMyCelebListState = ref.watch(asyncMyCelebListProvider);
     final asyncSelectedCelebState = ref.watch(selectedCelebProvider);
-    CelebModel? selectedCeleb = asyncSelectedCelebState;
+
     showModalBottomSheet(
         context: context,
         useSafeArea: false,
@@ -190,31 +222,31 @@ class HomeScreen extends ConsumerWidget {
                 style: getTextStyle(AppTypo.UI16, AppColors.Gray900),
               ),
               const SizedBox(height: 16),
-              ...asyncMyCelebListState.when(
-                  data: (data) {
-                    logger.w('data.items.length: ${data.items.length}');
-                    return data.items.isNotEmpty
-                        ? _buildSearchList(context, ref, data, selectedCeleb)
-                        : [const NoBookmarkCeleb()];
-                  },
-                  loading: () => [buildLoadingOverlay()],
-                  error: (error, stackTrace) => [
-                        ErrorView(
-                          context,
-                          retryFunction: () {
-                            ref.refresh(asyncMyCelebListProvider);
-                          },
-                          error: error,
-                          stackTrace: stackTrace,
-                        )
-                      ]),
+              if (selectedCeleb != null)
+                ...asyncMyCelebListState.when(
+                    data: (data) {
+                      logger.w('data.items.length: ${data.items.length}');
+                      return data.items.isNotEmpty
+                          ? _buildSearchList(context, ref, data, selectedCeleb)
+                          : [const NoBookmarkCeleb()];
+                    },
+                    loading: () => [buildLoadingOverlay()],
+                    error: (error, stackTrace) => [
+                          ErrorView(
+                            context,
+                            retryFunction: () {
+                              ref.refresh(asyncMyCelebListProvider);
+                            },
+                            error: error,
+                            stackTrace: stackTrace,
+                          )
+                        ]),
               const SizedBox(
                 height: 20,
               ),
               GestureDetector(
                   onTap: () {
-                    Navigator.pushNamedAndRemoveUntil(
-                        context, LandingScreen.routeName, (route) => false);
+                    _buildFloating(context);
                   },
                   child: Text(Intl.message('label_find_celeb'))),
               const SizedBox(
@@ -226,7 +258,7 @@ class HomeScreen extends ConsumerWidget {
   }
 
   List<Widget> _buildSearchList(BuildContext context, WidgetRef ref,
-      CelebListModel data, CelebModel? selectedCeleb) {
+      CelebListModel data, CelebModel selectedCeleb) {
     logger.w('selectedCeleb: ${selectedCeleb}');
     logger.w('selectedCeleb: ${selectedCeleb?.nameKo}');
     logger.w('CelebListModel: ${data.items.length}');
@@ -261,7 +293,7 @@ class HomeScreen extends ConsumerWidget {
                   child: CelebListItem(
                       item: e,
                       type: 'my',
-                      showBookmark: e.id != selectedCeleb?.id,
+                      showBookmark: e.id != selectedCeleb.id,
                       enableBookmark: false),
                 )))
             .toList()
