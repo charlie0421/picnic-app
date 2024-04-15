@@ -29,6 +29,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   initState() {
     super.initState();
     _tabController = TabController(
+      initialIndex: 1,
       length: 3,
       vsync: this,
     );
