@@ -105,7 +105,6 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
 
   Widget _buildPrameTab(ref) {
     int pramePageIndex = ref.watch(parmePageIndexProvider);
-    logger.d('pramePageIndex: $pramePageIndex');
     Widget widget = pramePageIndex == 0 ? PramePage() : PrameMakePage();
 
     return WillPopScope(

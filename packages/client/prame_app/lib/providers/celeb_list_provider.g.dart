@@ -6,7 +6,7 @@ part of 'celeb_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$asyncCelebListHash() => r'e034991ef84f069a33df77028c44d081da4ac673';
+String _$asyncCelebListHash() => r'242565151d062020fcb56897fe71fd6bf855e880';
 
 /// See also [AsyncCelebList].
 @ProviderFor(AsyncCelebList)
