@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:prame_app/components/article/comment/comment.dart';
 import 'package:prame_app/components/error.dart';
+import 'package:prame_app/constants.dart';
 import 'package:prame_app/models/article.dart';
 import 'package:prame_app/providers/article_list_provider.dart';
 import 'package:prame_app/ui/style.dart';
@@ -141,13 +142,29 @@ class _ArticlePageState extends ConsumerState<ArticlePage> {
                                           (BuildContext context, int index) {
                                         return ClipRRect(
                                           borderRadius: const BorderRadius.only(
-                                            topLeft: Radius.circular(10),
-                                            topRight: Radius.circular(10),
+                                            topLeft: Radius.circular(5),
+                                            topRight: Radius.circular(5),
                                           ),
-                                          child: CachedNetworkImage(
-                                            imageUrl:
-                                                article.images![index].image,
-                                            fit: BoxFit.cover,
+                                          child: Stack(
+                                            fit: StackFit.expand,
+                                            children: [
+                                              CachedNetworkImage(
+                                                imageUrl: article
+                                                    .images![index].image,
+                                                fit: BoxFit.cover,
+                                              ),
+                                              Positioned(
+                                                top: 5,
+                                                right: 5,
+                                                child: IconButton(
+                                                  icon: Icon(
+                                                    Icons.bookmarks,
+                                                    color: Constants.mainColor,
+                                                  ),
+                                                  onPressed: () {},
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         );
                                       },
