@@ -14,7 +14,6 @@ Future<Dio> authDio({String baseUrl = Constants.userApiUrl}) async {
 
     if (kDebugMode) {
       logger.w('accessToken:${accessToken ?? 'no access token'}');
-      logger.w('refreshToken:${refreshToken ?? 'no refresh token'}');
     }
 
     options.baseUrl = baseUrl;

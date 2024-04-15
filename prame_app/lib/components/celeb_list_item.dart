@@ -72,8 +72,6 @@ class CelebListItem extends ConsumerWidget {
                                 await asyncCelebListNotifier
                                     .removeBookmark(item);
                                 asyncCelebSearchNotifier.repeatSearch();
-                                logger.i(
-                                    'getBookmarkCount(asyncCelebListState): ${getBookmarkCount(ref.read(asyncCelebListProvider))}');
                                 if (getBookmarkCount(
                                         ref.read(asyncCelebListProvider))! <=
                                     0) {}

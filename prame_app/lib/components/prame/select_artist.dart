@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:prame_app/constants.dart';
 import 'package:prame_app/providers/celeb_list_provider.dart';
 import 'package:prame_app/providers/my_celeb_list_provider.dart';
 import 'package:prame_app/providers/prame_provider.dart';
+import 'package:prame_app/ui/style.dart';
 
 class SelectArtist extends ConsumerStatefulWidget {
   @override
@@ -125,9 +127,15 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
   }
 
   _buildSelectArtist() {
-    final asyncMyCelebState = ref.watch(asyncMyCelebListProvider);
-    return asyncMyCelebState.when(
+    final asyncCelebListState = ref.watch(asyncCelebListProvider);
+    return asyncCelebListState.when(
       data: (data) {
+        final myCelebList = data.items
+            .where((element) => element.users!
+                .where((element) => element.id == userId)
+                .isNotEmpty)
+            .toList();
+
         return Container(
           height: 84,
           decoration: BoxDecoration(
@@ -136,7 +144,7 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
           ),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemCount: data.items.length,
+            itemCount: myCelebList.length,
             separatorBuilder: (context, index) => SizedBox(width: 16.w),
             itemBuilder: (BuildContext context, int index) {
               return Container(
@@ -149,18 +157,13 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
                 child: Column(
                   children: [
                     Image.network(
-                      data.items[index].thumbnail,
+                      myCelebList[index].thumbnail,
                       width: 60.w,
                       height: 60.h,
                     ),
                     SizedBox(height: 4.h),
-                    Text(
-                      data.items[index].nameKo,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w700),
-                    )
+                    Text(data.items[index].nameKo,
+                        style: getTextStyle(AppTypo.UI16B, AppColors.Gray900))
                   ],
                 ),
               );
