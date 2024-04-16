@@ -33,7 +33,6 @@ class CommentModel {
   final UserModel? user;
   final int likes;
   final String content; // 댓글 내용
-  final ArticleModel article;
   final int? parentId;
   final DateTime createdAt;
 
@@ -44,7 +43,6 @@ class CommentModel {
     required this.myLike,
     required this.likes,
     required this.content,
-    required this.article,
     required this.parentId,
     required this.createdAt,
   });

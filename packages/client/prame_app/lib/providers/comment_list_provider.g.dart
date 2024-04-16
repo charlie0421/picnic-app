@@ -6,7 +6,7 @@ part of 'comment_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$asyncCommentListHash() => r'a1975521f68ac2fa6946b3aad73e35a459998601';
+String _$asyncCommentListHash() => r'a7eb27a6c13959c86cdc1a0378b5a67fa7d00df3';
 
 /// See also [AsyncCommentList].
 @ProviderFor(AsyncCommentList)
@@ -22,19 +22,20 @@ final asyncCommentListProvider = AutoDisposeAsyncNotifierProvider<
 );
 
 typedef _$AsyncCommentList = AutoDisposeAsyncNotifier<CommentListModel>;
-String _$parentIdHash() => r'da872059d5c00e1ee6544ef4b83b69ac97e3e3c2';
+String _$parentItemHash() => r'30d7e81bfa5563d77693ce2e504753acaddecca4';
 
-/// See also [ParentId].
-@ProviderFor(ParentId)
-final parentIdProvider = AutoDisposeNotifierProvider<ParentId, int>.internal(
-  ParentId.new,
-  name: r'parentIdProvider',
+/// See also [ParentItem].
+@ProviderFor(ParentItem)
+final parentItemProvider =
+    AutoDisposeNotifierProvider<ParentItem, CommentModel?>.internal(
+  ParentItem.new,
+  name: r'parentItemProvider',
   debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$parentIdHash,
+      const bool.fromEnvironment('dart.vm.product') ? null : _$parentItemHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$ParentId = AutoDisposeNotifier<int>;
+typedef _$ParentItem = AutoDisposeNotifier<CommentModel?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

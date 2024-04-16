@@ -2,17 +2,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
-import 'package:prame_app/components/article/comment/comment_header.dart';
-import 'package:prame_app/components/article/comment/comment_contents.dart';
-import 'package:prame_app/components/article/comment/comment_actions.dart';
-import 'package:prame_app/components/article/comment/comment_user.dart';
+import 'package:prame_app/components/article/comment/comment_item.dart';
 import 'package:prame_app/components/ui/bottom-sheet-header.dart';
 import 'package:prame_app/constants.dart';
 import 'package:prame_app/models/article.dart';
 import 'package:prame_app/models/comment.dart';
 import 'package:prame_app/providers/comment_list_provider.dart';
+import 'package:prame_app/ui/style.dart';
 
 class Comment extends ConsumerStatefulWidget {
   final ArticleModel articleModel;
@@ -24,7 +24,6 @@ class Comment extends ConsumerStatefulWidget {
 }
 
 class _CommentState extends ConsumerState<Comment> {
-  int commentCount = 0;
   final _textEditingController = TextEditingController();
   late final PagingController<int, CommentModel> _pagingController;
 
@@ -38,13 +37,11 @@ class _CommentState extends ConsumerState<Comment> {
   }
 
   void fetchPage(int pageKey) async {
-    logger.w('fetchPage');
     final asyncCommentList = ref.read(asyncCommentListProvider.notifier).fetch(
         pageKey, 10, 'comment.created_at', 'DESC',
         articleId: widget.articleModel.id);
 
     final page = await asyncCommentList;
-    logger.w(page.items);
     if (page.meta.currentPage < page.meta.totalPages) {
       _pagingController.appendPage(page.items, pageKey + 1);
     } else {
@@ -60,14 +57,20 @@ class _CommentState extends ConsumerState<Comment> {
 
   @override
   Widget build(BuildContext context) {
-    logger.w('Comment build');
+    final asyncCommentListState = ref.watch(asyncCommentListProvider);
+    asyncCommentListState.value?.meta.totalItems;
+
+    final commentCount = asyncCommentListState.value != null &&
+            asyncCommentListState.value!.meta.totalItems != null
+        ? asyncCommentListState.value!.meta.totalItems
+        : 0;
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: KeyboardDismissOnTap(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           BottomSheetHeader(
-            title: '${widget.articleModel.titleKo} ($commentCount)',
-          ),
+              title: '${widget.articleModel.titleKo} ($commentCount)'),
           Flexible(
             flex: 1,
             child: PagedListView<int, CommentModel>(
@@ -85,44 +88,12 @@ class _CommentState extends ConsumerState<Comment> {
                         ),
                       ),
                   itemBuilder: (context, item, index) {
-                    logger.w(item);
                     return Column(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          width: kIsWeb
-                              ? Constants.webMaxWidth
-                              : MediaQuery.of(context).size.width,
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              CommentUser(
-                                nickname: item.user?.nickname ?? '',
-                                profileImage: item.user?.profileImage ?? '',
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Container(
-                                  child: Column(
-                                    children: [
-                                      CommentHeader(
-                                        item: item,
-                                        pagingController: _pagingController,
-                                      ),
-                                      CommentContents(item: item),
-                                      CommentActions(
-                                        item: item,
-                                        textEditingController:
-                                            _textEditingController,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        CommentItem(
+                            commentModel: item,
+                            pagingController: _pagingController,
+                            textEditingController: _textEditingController),
                         item.children != null
                             ? ListView.builder(
                                 shrinkWrap: true,
@@ -130,94 +101,129 @@ class _CommentState extends ConsumerState<Comment> {
                                 itemCount: item.children!.length,
                                 itemBuilder: (context, index) {
                                   return Container(
-                                    padding: const EdgeInsets.only(left: 58),
-                                    child: Column(
-                                      children: [
-                                        Row(
-                                          children: [
-                                            CommentUser(
-                                              nickname: item.children?[index]
-                                                      .user?.nickname ??
-                                                  '',
-                                              profileImage: item
-                                                      .children?[index]
-                                                      .user
-                                                      ?.profileImage ??
-                                                  '',
-                                            ),
-                                            Expanded(
-                                              child: CommentHeader(
-                                                item: item.children![index],
-                                                pagingController:
-                                                    _pagingController,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        CommentActions(
-                                          item: item.children![index],
-                                          textEditingController:
-                                              _textEditingController,
-                                        ),
-                                      ],
-                                    ),
+                                    padding: const EdgeInsets.only(left: 50),
+                                    child: CommentItem(
+                                        commentModel: item.children![index],
+                                        pagingController: _pagingController,
+                                        textEditingController:
+                                            _textEditingController),
                                   );
                                 })
-                            : const SizedBox(),
+                            : const Text('aaaa'),
                       ],
                     );
                   }),
             ),
           ),
-          Container(
-            height: 80,
-            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-            width: kIsWeb
-                ? Constants.webMaxWidth
-                : MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(
-                  color: Colors.grey[300]!,
-                  width: 1,
-                ),
+          Column(
+            children: [
+              Consumer(
+                builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                  final parentComment = ref.watch(parentItemProvider);
+                  return parentComment != null
+                      ? Container(
+                          color: AppColors.Gray300,
+                          width: double.infinity,
+                          height: 40.h,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                        text:
+                                            '${parentComment.user?.nickname ?? ''} ',
+                                        style: getTextStyle(
+                                            AppTypo.UI14B, AppColors.Gray900)),
+                                    TextSpan(
+                                        text: '님에게 답글을 남깁니다.',
+                                        style: getTextStyle(
+                                            AppTypo.UI12, AppColors.Gray900)),
+                                  ],
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  ref
+                                      .read(parentItemProvider.notifier)
+                                      .setParentItem(null);
+                                },
+                                iconSize: 20,
+                                icon: const Icon(Icons.close,
+                                    color: AppColors.Gray900),
+                              ),
+                            ],
+                          ),
+                        )
+                      : Container();
+                },
               ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 70,
-                    child: TextFormField(
-                        controller: _textEditingController,
-                        decoration: InputDecoration(
-                          hintText: Intl.message('label_hint_comment'),
-                          hintStyle: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[400],
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30.0),
-                            borderSide: BorderSide(
-                              color: Colors.grey[300]!,
-                              width: 1,
-                            ),
-                          ),
-                          contentPadding: const EdgeInsets.only(left: 10),
-                        ),
-                        maxLength: 100,
-                        textInputAction: TextInputAction.done,
-                        onFieldSubmitted: (value) => _commitComment()),
+              Container(
+                height: 80,
+                padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                width: kIsWeb
+                    ? Constants.webMaxWidth
+                    : MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(
+                      color: Colors.grey[300]!,
+                      width: 1,
+                    ),
                   ),
                 ),
-                IconButton(
-                  onPressed: () => _commitComment(),
-                  icon: const Icon(Icons.send),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 60,
+                        child: TextFormField(
+                            controller: _textEditingController,
+                            decoration: InputDecoration(
+                              counterText: '',
+                              hintText: Intl.message('label_hint_comment'),
+                              hintStyle: TextStyle(
+                                fontSize: 16.sp,
+                                color: AppColors.Gray400,
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30.0),
+                                borderSide: const BorderSide(
+                                  color: AppColors.Gray300,
+                                  width: 1,
+                                ),
+                              ),
+                              contentPadding: const EdgeInsets.only(left: 10),
+                              suffixIcon: Container(
+                                // alignment: Alignment.bottomRight,
+                                padding: EdgeInsets.only(top: 30.h),
+                                child: Text(
+                                  '${_textEditingController.text.length}/100',
+                                  style: getTextStyle(
+                                      AppTypo.UI11, AppColors.Gray400),
+                                ),
+                              ),
+                            ),
+                            maxLength: 100,
+                            textInputAction: TextInputAction.done,
+                            style:
+                                getTextStyle(AppTypo.UI16, AppColors.Gray900),
+                            onFieldSubmitted: (value) => _commitComment()),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => _commitComment(),
+                      icon: Icon(Icons.send, color: Constants.mainColor),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ]),
       ),
@@ -225,15 +231,16 @@ class _CommentState extends ConsumerState<Comment> {
   }
 
   _commitComment() {
-    final int parentId = ref.watch<int>(parentIdProvider);
+    final parentItemState = ref.watch(parentItemProvider);
 
     ref
         .read(asyncCommentListProvider.notifier)
         .submitComment(
             articleId: widget.articleModel.id,
             content: _textEditingController.text,
-            parentId: parentId)
+            parentId: parentItemState?.id)
         .then((value) {
+      ref.read(parentItemProvider.notifier).setParentItem(null);
       _pagingController.refresh();
     });
     _textEditingController.clear();

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:prame_app/components/article/comment/report_popup_menu.dart';
 import 'package:prame_app/models/comment.dart';
+import 'package:prame_app/ui/style.dart';
 import 'package:prame_app/util.dart';
 
 class CommentHeader extends StatelessWidget {
@@ -25,17 +26,12 @@ class CommentHeader extends StatelessWidget {
             TextSpan(children: <TextSpan>[
               TextSpan(
                   text: '${item.user?.nickname} ',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  )),
-              TextSpan(text: formatTimeAgo(item.createdAt)),
+                  style: getTextStyle(AppTypo.UI16B, AppColors.Gray900)),
+              TextSpan(
+                  text: formatTimeAgo(item.createdAt),
+                  style: getTextStyle(AppTypo.UI14M, AppColors.Gray900)),
             ]),
           ),
-          ReportPopupMenu(
-              context: context,
-              commentId: item.id,
-              pagingController: pagingController),
         ],
       ),
     );
