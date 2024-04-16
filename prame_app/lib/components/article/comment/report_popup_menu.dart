@@ -20,7 +20,8 @@ class ReportPopupMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<String>(
-      icon: Icon(Icons.more_vert),
+      padding: EdgeInsets.zero,
+      icon: const Icon(Icons.more_vert),
       onSelected: (String result) {
         if (result == 'Report') {
           showCommonDialog(
@@ -28,7 +29,7 @@ class ReportPopupMenu extends StatelessWidget {
               title: Intl.message('label_title_report'),
               contents: Intl.message('message_report_confirm'),
               okBtnFn: () async {
-                await _reportComment(commentId: commentId);
+                _reportComment(commentId: commentId);
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text(Intl.message('message_report_ok')),
                     duration: const Duration(microseconds: 500)));
