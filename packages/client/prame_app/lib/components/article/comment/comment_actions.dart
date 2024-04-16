@@ -21,31 +21,48 @@ class CommentActions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SizedBox(
-      height: 30,
-      child: item.parentId == null
-          ? Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(Intl.message('label_reply'),
-                    style: getTextStyle(AppTypo.UI14B, AppColors.Gray900)),
-                LikeButton(
-                  commentId: item.id,
-                  initialLikes: item.likes,
-                  initiallyLiked: item.myLike != null,
-                ),
-              ],
-            )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                LikeButton(
-                  commentId: item.id,
-                  initialLikes: item.likes,
-                  initiallyLiked: item.myLike != null,
-                ),
-              ],
-            ),
+    return InkWell(
+      child: SizedBox(
+        height: 40,
+        child: item.parentId == null
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      ref.read(parentItemProvider.notifier).setParentItem(item);
+                    },
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    child: Container(
+                      alignment: Alignment.topLeft,
+                      padding: EdgeInsets.only(
+                        top: 5.h,
+                        bottom: 10.h,
+                      ),
+                      child: Text(Intl.message('label_reply'),
+                          style:
+                              getTextStyle(AppTypo.UI16B, AppColors.Gray900)),
+                    ),
+                  ),
+                  LikeButton(
+                    commentId: item.id,
+                    initialLikes: item.likes,
+                    initiallyLiked: item.myLike != null,
+                  ),
+                ],
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  LikeButton(
+                    commentId: item.id,
+                    initialLikes: item.likes,
+                    initiallyLiked: item.myLike != null,
+                  ),
+                ],
+              ),
+      ),
     );
   }
 }

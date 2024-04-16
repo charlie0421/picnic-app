@@ -81,22 +81,35 @@ class LikeButtonState extends State<LikeButton> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: _toggleLike,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: 30.w,
-            child: Icon(
-              isLiked
-                  ? FontAwesomeIcons.heartCircleCheck
-                  : FontAwesomeIcons.heart,
-              size: 14.w,
-            ),
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      child: Container(
+        alignment: Alignment.topRight,
+        padding: EdgeInsets.only(
+          top: 5.w,
+          bottom: 10.h,
+        ),
+        child: SizedBox(
+          height: 40.h,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                child: Icon(
+                  isLiked
+                      ? FontAwesomeIcons.heartCircleCheck
+                      : FontAwesomeIcons.heart,
+                  size: 20.sp,
+                ),
+              ),
+              SizedBox(width: 16.w),
+              Text('$likes',
+                  style: getTextStyle(AppTypo.UI16M, AppColors.Gray900))
+            ],
           ),
-          Text('$likes', style: getTextStyle(AppTypo.UI14M, AppColors.Gray900))
-        ],
+        ),
       ),
     );
   }

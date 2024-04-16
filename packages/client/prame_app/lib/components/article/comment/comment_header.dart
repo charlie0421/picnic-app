@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:prame_app/components/article/comment/report_popup_menu.dart';
 import 'package:prame_app/models/comment.dart';
 import 'package:prame_app/ui/style.dart';
 import 'package:prame_app/util.dart';
@@ -17,7 +16,7 @@ class CommentHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
