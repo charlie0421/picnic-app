@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prame_app/models/comment.dart';
+import 'package:prame_app/ui/style.dart';
 import 'package:prame_app/util.dart';
 
 class CommentContents extends StatelessWidget {
@@ -16,9 +17,7 @@ class CommentContents extends StatelessWidget {
         width: double.infinity,
         child: Text(
           item.content,
-          style: const TextStyle(
-            fontSize: 16,
-          ),
+          style: getTextStyle(AppTypo.UI14, AppColors.Gray900),
         ));
   }
 }

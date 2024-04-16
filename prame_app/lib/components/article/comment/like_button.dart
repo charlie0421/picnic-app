@@ -1,7 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:prame_app/auth_dio.dart';
 import 'package:prame_app/constants.dart';
+import 'package:prame_app/ui/style.dart';
 
 class LikeButton extends StatefulWidget {
   final int commentId;
@@ -78,18 +81,23 @@ class LikeButtonState extends State<LikeButton> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-          onPressed: _toggleLike,
-          icon: Icon(
-            isLiked ? FontAwesomeIcons.solidHeart : FontAwesomeIcons.heart,
-            size: 16,
+    return GestureDetector(
+      onTap: _toggleLike,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 30.w,
+            child: Icon(
+              isLiked
+                  ? FontAwesomeIcons.heartCircleCheck
+                  : FontAwesomeIcons.heart,
+              size: 14.w,
+            ),
           ),
-        ),
-        Text('$likes', style: const TextStyle(fontSize: 14)),
-      ],
+          Text('$likes', style: getTextStyle(AppTypo.UI14M, AppColors.Gray900))
+        ],
+      ),
     );
   }
 }

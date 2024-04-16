@@ -27,7 +27,6 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
             1, 10, 'article.createdAt', 'DESC',
             galleryId: widget.galleryId)
         .notifier);
-    logger.i('sortOptionState: $sortOptionState');
     return InkWell(
       onTap: () => showModalBottomSheet(
         context: context,

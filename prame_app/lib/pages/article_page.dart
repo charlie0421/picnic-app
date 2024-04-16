@@ -225,6 +225,7 @@ class _ArticlePageState extends ConsumerState<ArticlePage> {
         context: context,
         isScrollControlled: true,
         useSafeArea: true,
+        barrierColor: Colors.transparent,
         builder: (BuildContext context) {
           return SafeArea(child: Comment(articleModel: articleModel));
         });

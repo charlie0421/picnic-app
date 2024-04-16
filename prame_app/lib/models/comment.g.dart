@@ -34,7 +34,6 @@ CommentModel _$CommentModelFromJson(Map<String, dynamic> json) => CommentModel(
               json['myLike'] as Map<String, dynamic>),
       likes: json['likes'] as int,
       content: json['content'] as String,
-      article: ArticleModel.fromJson(json['article'] as Map<String, dynamic>),
       parentId: json['parentId'] as int?,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
@@ -47,7 +46,6 @@ Map<String, dynamic> _$CommentModelToJson(CommentModel instance) =>
       'user': instance.user,
       'likes': instance.likes,
       'content': instance.content,
-      'article': instance.article,
       'parentId': instance.parentId,
       'createdAt': instance.createdAt.toIso8601String(),
     };

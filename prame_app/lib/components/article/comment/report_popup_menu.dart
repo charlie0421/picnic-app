@@ -20,6 +20,7 @@ class ReportPopupMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<String>(
+      icon: Icon(Icons.more_vert),
       onSelected: (String result) {
         if (result == 'Report') {
           showCommonDialog(

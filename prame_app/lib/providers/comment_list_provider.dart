@@ -30,7 +30,6 @@ class AsyncCommentList extends _$AsyncCommentList {
     final dio = await authDio(baseUrl: Constants.userApiUrl);
     final response = await dio.get(
         '/comment/article/$articleId?page=$page&limit=$limit&sort=$sort&order=$order');
-    logger.i('response.data: ${response.data}');
     state = AsyncData(CommentListModel.fromJson(response.data));
     return CommentListModel.fromJson(response.data);
   }
@@ -65,14 +64,13 @@ class AsyncCommentList extends _$AsyncCommentList {
 }
 
 @riverpod
-class ParentId extends _$ParentId {
+class ParentItem extends _$ParentItem {
   @override
-  int build() {
-    return 0;
+  CommentModel? build() {
+    return null;
   }
 
-  void setParentId(int id) {
-    logger.w('id: $id');
-    state = id;
+  void setParentItem(CommentModel? commentModel) {
+    state = commentModel;
   }
 }
