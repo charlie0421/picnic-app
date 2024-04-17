@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_swiper/card_swiper.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -192,6 +193,42 @@ class _ArticlePageState extends ConsumerState<ArticlePage> {
                                     AppColors.Gray900,
                                   ),
                                 )),
+                            Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text.rich(
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: article.comment != null
+                                          ? article.comment!.user?.nickname
+                                          : '',
+                                      style: getTextStyle(
+                                        AppTypo.UI14B,
+                                        AppColors.Gray900,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: ' ',
+                                      style: getTextStyle(
+                                        AppTypo.UI14M,
+                                        AppColors.Gray900,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: article.comment != null
+                                          ? article.comment!.content.toString()
+                                          : '',
+                                      style: getTextStyle(
+                                        AppTypo.UI12M,
+                                        AppColors.Gray900,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: GestureDetector(

@@ -35,6 +35,7 @@ class ArticleModel {
   final List<ArticleImageModel>? images;
   final DateTime createdAt;
   final int? commentCount;
+  final CommentModel? comment;
 
   ArticleModel({
     required this.id,
@@ -45,6 +46,7 @@ class ArticleModel {
     required this.images,
     required this.createdAt,
     required this.commentCount,
+    required this.comment,
   });
 
   factory ArticleModel.fromJson(Map<String, dynamic> json) =>
