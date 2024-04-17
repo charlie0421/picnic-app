@@ -120,7 +120,7 @@ class _CommentState extends ConsumerState<Comment> {
               Consumer(
                 builder: (BuildContext context, WidgetRef ref, Widget? child) {
                   final parentComment = ref.watch(parentItemProvider);
-                  return parentComment != null
+                  return parentComment != null && parentComment.id != 0
                       ? Container(
                           color: AppColors.Gray300,
                           width: double.infinity,
