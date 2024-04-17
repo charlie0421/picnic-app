@@ -23,7 +23,6 @@ class CommentActions extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final parentComment = ref.watch(parentItemProvider);
 
-    logger.i(item.toJson());
     return InkWell(
       child: SizedBox(
         height: 40,

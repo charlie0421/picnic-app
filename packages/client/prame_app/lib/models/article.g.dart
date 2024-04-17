@@ -33,6 +33,9 @@ ArticleModel _$ArticleModelFromJson(Map<String, dynamic> json) => ArticleModel(
           .toList(),
       createdAt: DateTime.parse(json['createdAt'] as String),
       commentCount: json['commentCount'] as int?,
+      comment: json['comment'] == null
+          ? null
+          : CommentModel.fromJson(json['comment'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ArticleModelToJson(ArticleModel instance) =>
@@ -45,4 +48,5 @@ Map<String, dynamic> _$ArticleModelToJson(ArticleModel instance) =>
       'images': instance.images,
       'createdAt': instance.createdAt.toIso8601String(),
       'commentCount': instance.commentCount,
+      'comment': instance.comment,
     };
