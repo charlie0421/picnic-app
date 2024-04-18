@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:prame_app/components/article/comment/comment_actions.dart';
 import 'package:prame_app/components/article/comment/comment_contents.dart';
@@ -8,19 +9,26 @@ import 'package:prame_app/components/article/comment/comment_user.dart';
 import 'package:prame_app/components/article/comment/report_popup_menu.dart';
 import 'package:prame_app/constants.dart';
 import 'package:prame_app/models/comment.dart';
+import 'package:prame_app/providers/comment_list_provider.dart';
 
-class CommentItem extends StatelessWidget {
+class CommentItem extends ConsumerStatefulWidget {
   const CommentItem({
     super.key,
     required PagingController<int, CommentModel> pagingController,
-    required TextEditingController textEditingController,
     required this.commentModel,
-  })  : _pagingController = pagingController,
-        _textEditingController = textEditingController;
+    required this.articleId,
+  }) : _pagingController = pagingController;
 
   final PagingController<int, CommentModel> _pagingController;
-  final TextEditingController _textEditingController;
   final CommentModel commentModel;
+  final int articleId;
+
+  @override
+  ConsumerState<CommentItem> createState() => _CommentItemState();
+}
+
+class _CommentItemState extends ConsumerState<CommentItem> {
+  TextEditingController _textEditingController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +40,8 @@ class CommentItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CommentUser(
-            nickname: commentModel.user?.nickname ?? '',
-            profileImage: commentModel.user?.profileImage ?? '',
+            nickname: widget.commentModel.user?.nickname ?? '',
+            profileImage: widget.commentModel.user?.profileImage ?? '',
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -41,23 +49,38 @@ class CommentItem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 CommentHeader(
-                  item: commentModel,
-                  pagingController: _pagingController,
+                  item: widget.commentModel,
+                  pagingController: widget._pagingController,
                 ),
-                CommentContents(item: commentModel),
+                CommentContents(item: widget.commentModel),
                 CommentActions(
-                  item: commentModel,
-                  textEditingController: _textEditingController,
+                  item: widget.commentModel,
                 ),
               ],
             ),
           ),
           ReportPopupMenu(
               context: context,
-              commentId: commentModel.id,
-              pagingController: _pagingController),
+              commentId: widget.commentModel.id,
+              pagingController: widget._pagingController),
         ],
       ),
     );
+  }
+
+  _commitComment() {
+    final parentItemState = ref.watch(parentItemProvider);
+
+    ref
+        .read(asyncCommentListProvider.notifier)
+        .submitComment(
+            articleId: widget.articleId,
+            content: _textEditingController.text,
+            parentId: parentItemState?.id)
+        .then((value) {
+      ref.read(parentItemProvider.notifier).setParentItem(null);
+      widget._pagingController.refresh();
+    });
+    _textEditingController.clear();
   }
 }
