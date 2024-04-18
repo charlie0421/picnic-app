@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:prame_app/constants.dart';
 import 'package:prame_app/providers/article_list_provider.dart';
 import 'package:prame_app/ui/style.dart';
 
 class ArticleSortWidget extends ConsumerStatefulWidget {
   final int galleryId;
+
   const ArticleSortWidget({
     super.key,
     required this.galleryId,
@@ -23,10 +23,8 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
     final sortOptionState = ref.watch(sortOptionProvider);
     final sortOptionNotifier = ref.read(sortOptionProvider.notifier);
 
-    final asyncArticleListNotifier = ref.read(asyncArticleListProvider(
-            1, 10, 'article.createdAt', 'DESC',
-            galleryId: widget.galleryId)
-        .notifier);
+    final asyncArticleListNotifier =
+        ref.read(asyncArticleListProvider.notifier);
     return InkWell(
       onTap: () => showModalBottomSheet(
         context: context,
@@ -49,18 +47,13 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
                               style: getTextStyle(
                                   AppTypo.UI16B, AppColors.Gray900)),
                           IconButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            icon: SvgPicture.asset(
-                                'assets/icons/icon/close_s.svg',
-                                width: 18.w,
-                                height: 18.h,
-                                colorFilter: const ColorFilter.mode(
-                                  AppColors.Gray800,
-                                  BlendMode.srcIn,
-                                )),
-                          ),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              icon: Icon(
+                                Icons.close,
+                                size: 18.w,
+                              )),
                         ],
                       ),
                       ListView.separated(
@@ -76,11 +69,12 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
                             case 0:
                               return InkWell(
                                 onTap: () {
-                                  asyncArticleListNotifier.fetch(
-                                      1, 10, 'article.created_at', 'DESC',
+                                  asyncArticleListNotifier.setSortOption(
+                                      limit: 10,
+                                      sort: 'id',
+                                      order: 'DESC',
                                       galleryId: widget.galleryId);
-                                  sortOptionNotifier
-                                      .setSortOption('article.created_at');
+                                  sortOptionNotifier.setSortOption('id');
                                   Navigator.pop(context);
                                 },
                                 child: Container(
@@ -88,17 +82,16 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
                                   height: 56.h,
                                   child: Row(
                                     children: [
-                                      sortOptionState == 'article.created_at'
+                                      sortOptionState == 'id'
                                           ? SvgPicture.asset(
-                                              'assets/icons/icon/check_green.svg',
+                                              'assets/icons/check_green.svg',
                                               width: 18.w,
                                               height: 18.h,
                                             )
                                           : SizedBox(width: 18.w),
                                       SizedBox(width: 8.w),
                                       Text('최신 등록순',
-                                          style: sortOptionState ==
-                                                  'article.created_at'
+                                          style: sortOptionState == 'id'
                                               ? getTextStyle(AppTypo.UI16B,
                                                   AppColors.GP400)
                                               : getTextStyle(AppTypo.UI16M,
@@ -110,11 +103,12 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
                             case 1:
                               return InkWell(
                                 onTap: () {
-                                  asyncArticleListNotifier.fetch(
-                                      1, 10, 'article.viewCount', 'ASC',
+                                  asyncArticleListNotifier.setSortOption(
+                                      limit: 10,
+                                      sort: 'viewCount',
+                                      order: 'ASC',
                                       galleryId: widget.galleryId);
-                                  sortOptionNotifier
-                                      .setSortOption('article.viewCount');
+                                  sortOptionNotifier.setSortOption('viewCount');
 
                                   Navigator.pop(context);
                                 },
@@ -123,17 +117,16 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
                                   height: 56.h,
                                   child: Row(
                                     children: [
-                                      sortOptionState == 'article.viewCount'
+                                      sortOptionState == 'viewCount'
                                           ? SvgPicture.asset(
-                                              'assets/icons/icon/check_green.svg',
+                                              'assets/icons/check_green.svg',
                                               width: 18.w,
                                               height: 18.h,
                                             )
                                           : SizedBox(width: 18.w),
                                       SizedBox(width: 8.w),
-                                      Text('조회수',
-                                          style: sortOptionState ==
-                                                  'article.viewCount'
+                                      Text('저장순',
+                                          style: sortOptionState == 'viewCount'
                                               ? getTextStyle(AppTypo.UI16B,
                                                   AppColors.GP400)
                                               : getTextStyle(AppTypo.UI16M,
@@ -145,11 +138,13 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
                             case 2:
                               return InkWell(
                                 onTap: () {
-                                  asyncArticleListNotifier.fetch(
-                                      1, 10, 'article.point', 'DESC',
+                                  asyncArticleListNotifier.setSortOption(
+                                      limit: 10,
+                                      sort: 'commentCount',
+                                      order: 'DESC',
                                       galleryId: widget.galleryId);
                                   sortOptionNotifier
-                                      .setSortOption('article.point');
+                                      .setSortOption('commentCount');
 
                                   Navigator.pop(context);
                                 },
@@ -158,9 +153,9 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
                                   height: 56.h,
                                   child: Row(
                                     children: [
-                                      sortOptionState == 'article.comment'
+                                      sortOptionState == 'commentCount'
                                           ? SvgPicture.asset(
-                                              'assets/icons/icon/check_green.svg',
+                                              'assets/icons/check_green.svg',
                                               width: 18.w,
                                               height: 18.h,
                                             )
@@ -168,7 +163,7 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
                                       SizedBox(width: 8.w),
                                       Text('댓글 순',
                                           style:
-                                              sortOptionState == 'article.point'
+                                              sortOptionState == 'commentCount'
                                                   ? getTextStyle(AppTypo.UI16B,
                                                       AppColors.GP400)
                                                   : getTextStyle(AppTypo.UI16M,
@@ -206,9 +201,9 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
               child: Align(
                 alignment: Alignment.center,
                 child: Text(
-                  sortOptionState == 'article.created_at'
+                  sortOptionState == 'id'
                       ? '최신 등록순'
-                      : sortOptionState == 'article.viewCount'
+                      : sortOptionState == 'viewCount'
                           ? '조회순'
                           : '댓글순',
                   style: getTextStyle(AppTypo.UI14M, AppColors.Gray600),

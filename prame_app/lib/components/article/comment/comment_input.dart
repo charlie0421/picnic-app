@@ -96,6 +96,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
             parentId: parentItemState?.id)
         .then((value) {
       ref.read(parentItemProvider.notifier).setParentItem(null);
+      ref.invalidate(asyncCommentListProvider);
       widget.pagingController.refresh();
     });
     _textEditingController.clear();

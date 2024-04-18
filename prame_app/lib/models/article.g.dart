@@ -36,6 +36,10 @@ ArticleModel _$ArticleModelFromJson(Map<String, dynamic> json) => ArticleModel(
       comment: json['comment'] == null
           ? null
           : CommentModel.fromJson(json['comment'] as Map<String, dynamic>),
+      mostLikedComment: json['mostLikedComment'] == null
+          ? null
+          : CommentModel.fromJson(
+              json['mostLikedComment'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ArticleModelToJson(ArticleModel instance) =>
@@ -49,4 +53,5 @@ Map<String, dynamic> _$ArticleModelToJson(ArticleModel instance) =>
       'createdAt': instance.createdAt.toIso8601String(),
       'commentCount': instance.commentCount,
       'comment': instance.comment,
+      'mostLikedComment': instance.mostLikedComment,
     };
