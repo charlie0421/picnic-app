@@ -1,10 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_swiper/card_swiper.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
+import 'package:prame_app/components/article/best_comment.dart';
 import 'package:prame_app/components/article/comment/comment.dart';
 import 'package:prame_app/components/error.dart';
 import 'package:prame_app/constants.dart';
@@ -17,6 +19,7 @@ import '../components/article_sort_widget.dart';
 
 class ArticlePage extends ConsumerStatefulWidget {
   final int galleryId;
+
   const ArticlePage({super.key, required this.galleryId});
 
   @override
@@ -24,236 +27,210 @@ class ArticlePage extends ConsumerStatefulWidget {
 }
 
 class _ArticlePageState extends ConsumerState<ArticlePage> {
-  final PageController _pageController = PageController(
-    viewportFraction: 0.9,
-  );
+  final PagingController<int, ArticleModel> _pagingController =
+      PagingController(firstPageKey: 1);
+
+  @override
+  initState() {
+    super.initState();
+    _pagingController.addPageRequestListener((pageKey) => _fetchPage(pageKey));
+  }
+
+  @override
+  void dispose() {
+    _pagingController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final asyncArticleListState = ref.watch(asyncArticleListProvider(
-        1, 10, 'createdAt', 'DESC',
-        galleryId: widget.galleryId));
+    logger.d('ArticlePage build');
+    final sortOptionState = ref.watch(sortOptionProvider);
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      _pagingController.refresh();
+    });
 
-    return asyncArticleListState.when(
-      data: (data) {
-        return _buildData(data);
-      },
-      loading: () => buildLoadingOverlay(),
-      error: (error, stackTrace) => ErrorView(context,
-          error: error,
-          stackTrace: stackTrace,
-          retryFunction: () => ref.read(asyncArticleListProvider(
-                  1, 10, 'createdAt', 'DESC',
-                  galleryId: widget.galleryId)
-              .notifier)),
-    );
-  }
-
-  _buildData(ArticleListModel articleList) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-      child: Column(
-        children: [
-          Align(
-            alignment: Alignment.centerRight,
-            child: ArticleSortWidget(
-              galleryId: widget.galleryId,
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+        child: Column(
+          children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: ArticleSortWidget(
+                galleryId: widget.galleryId,
+              ),
             ),
-          ),
-          SizedBox(
-            height: 20.h,
-          ),
-          Expanded(
-            child: ListView.separated(
-              controller: _pageController,
+            SizedBox(
+              height: 20.h,
+            ),
+            Expanded(
+                child: PagedListView<int, ArticleModel>(
+              pagingController: _pagingController,
               scrollDirection: Axis.vertical,
-              itemCount: articleList.items.length,
-              separatorBuilder: (context, index) {
-                return SizedBox(
-                  height: 16.h,
-                );
-              },
-              itemBuilder: (context, index) {
-                final article = articleList.items[index];
-                return Column(
-                  children: [
-                    SizedBox(
-                      height: 30.h,
-                      child: Row(
-                        children: [
-                          Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Text(
-                              article.titleKo,
-                              style: getTextStyle(
-                                AppTypo.UI24B,
-                                AppColors.Gray900,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 10.w,
-                          ),
-                          Align(
-                            alignment: Alignment.topCenter,
-                            child: Text(
-                              DateFormat('yyyy-MM-dd')
-                                  .format(article.createdAt),
-                              style: getTextStyle(
-                                AppTypo.UI14B,
-                                AppColors.Gray900,
-                              ).copyWith(
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 10.h,
-                    ),
-                    GestureDetector(
-                      child: Container(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: Colors.grey.withOpacity(1),
-                            width: 2,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.5),
-                              spreadRadius: 1,
-                              blurRadius: 7,
-                              offset: const Offset(2, 2),
-                            ),
-                          ],
-                        ),
-                        height: 400.h,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: article.images != null
-                                  ? Swiper(
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        return ClipRRect(
-                                          borderRadius: const BorderRadius.only(
-                                            topLeft: Radius.circular(5),
-                                            topRight: Radius.circular(5),
-                                          ),
-                                          child: Stack(
-                                            fit: StackFit.expand,
-                                            children: [
-                                              CachedNetworkImage(
-                                                imageUrl: article
-                                                    .images![index].image,
-                                                fit: BoxFit.cover,
-                                              ),
-                                              Positioned(
-                                                top: 5,
-                                                right: 5,
-                                                child: IconButton(
-                                                  icon: Icon(
-                                                    Icons.bookmarks,
-                                                    color: Constants.mainColor,
-                                                  ),
-                                                  onPressed: () {},
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
-                                      itemCount: article.images!.length,
-                                      itemWidth: 300.w,
-                                      itemHeight: 300.h,
-                                      pagination: const SwiperPagination(
-                                        builder: DotSwiperPaginationBuilder(
-                                          color: Colors.grey,
-                                          activeColor: Colors.red,
-                                        ),
-                                      ),
-                                    )
-                                  : Container(
-                                      width: 300.w,
-                                      height: 300.h,
-                                    ),
-                            ),
-                            Padding(
-                                padding: const EdgeInsets.all(8.0),
+              builderDelegate: PagedChildBuilderDelegate<ArticleModel>(
+                firstPageErrorIndicatorBuilder: (context) {
+                  return ErrorView(context,
+                      error: _pagingController.error.toString(),
+                      retryFunction: () => _pagingController.refresh(),
+                      stackTrace: _pagingController.error.stackTrace);
+                },
+                firstPageProgressIndicatorBuilder: (context) {
+                  return buildLoadingOverlay();
+                },
+                noItemsFoundIndicatorBuilder: (context) {
+                  return ErrorView(context,
+                      error: 'No Items Found', stackTrace: null);
+                },
+                itemBuilder: (context, item, index) {
+                  final article = item;
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 20),
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 30.h,
+                          child: Row(
+                            children: [
+                              Align(
+                                alignment: Alignment.bottomCenter,
                                 child: Text(
-                                  article.content,
+                                  article.titleKo,
                                   style: getTextStyle(
-                                    AppTypo.UI14M,
+                                    AppTypo.UI24B,
                                     AppColors.Gray900,
                                   ),
-                                )),
-                            Container(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text.rich(
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: article.comment != null
-                                          ? article.comment!.user?.nickname
-                                          : '',
-                                      style: getTextStyle(
-                                        AppTypo.UI14B,
-                                        AppColors.Gray900,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: ' ',
+                                ),
+                              ),
+                              SizedBox(
+                                width: 10.w,
+                              ),
+                              Align(
+                                alignment: Alignment.topCenter,
+                                child: Text(
+                                  DateFormat('yyyy-MM-dd')
+                                      .format(article.createdAt),
+                                  style: getTextStyle(
+                                    AppTypo.UI14B,
+                                    AppColors.Gray900,
+                                  ).copyWith(
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10.h,
+                        ),
+                        GestureDetector(
+                          child: Container(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: Colors.grey.withOpacity(1),
+                                width: 2,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.5),
+                                  spreadRadius: 1,
+                                  blurRadius: 7,
+                                  offset: const Offset(2, 2),
+                                ),
+                              ],
+                            ),
+                            height: 400.h,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: article.images != null
+                                      ? Swiper(
+                                          itemBuilder: (BuildContext context,
+                                              int index) {
+                                            return ClipRRect(
+                                              borderRadius:
+                                                  const BorderRadius.only(
+                                                topLeft: Radius.circular(5),
+                                                topRight: Radius.circular(5),
+                                              ),
+                                              child: Stack(
+                                                fit: StackFit.expand,
+                                                children: [
+                                                  CachedNetworkImage(
+                                                    imageUrl: article
+                                                        .images![index].image,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                  Positioned(
+                                                    top: 5,
+                                                    right: 5,
+                                                    child: IconButton(
+                                                      icon: Icon(
+                                                        Icons.bookmarks,
+                                                        color:
+                                                            Constants.mainColor,
+                                                      ),
+                                                      onPressed: () {},
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                          itemCount: article.images!.length,
+                                          itemWidth: 300.w,
+                                          itemHeight: 300.h,
+                                          pagination: const SwiperPagination(
+                                            builder: DotSwiperPaginationBuilder(
+                                              color: Colors.grey,
+                                              activeColor: Colors.red,
+                                            ),
+                                          ),
+                                        )
+                                      : Container(
+                                          width: 300.w,
+                                          height: 300.h,
+                                        ),
+                                ),
+                                Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      article.content,
                                       style: getTextStyle(
                                         AppTypo.UI14M,
                                         AppColors.Gray900,
                                       ),
-                                    ),
-                                    TextSpan(
-                                      text: article.comment != null
-                                          ? article.comment!.content.toString()
-                                          : '',
-                                      style: getTextStyle(
-                                        AppTypo.UI12M,
-                                        AppColors.Gray900,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: GestureDetector(
-                                onTap: () =>
-                                    buildCommentBottomSheet(context, article),
-                                child: Text(
-                                    '${Intl.message('label_read_more_comment')} ${article.commentCount.toString()}',
-                                    style: getTextStyle(
-                                      AppTypo.UI14B,
-                                      AppColors.Gray900,
                                     )),
-                              ),
+                                BestComment(article: article),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: GestureDetector(
+                                    onTap: () => buildCommentBottomSheet(
+                                        context, article),
+                                    child: Text(
+                                        '${Intl.message('label_read_more_comment')} ${article.commentCount.toString()}',
+                                        style: getTextStyle(
+                                          AppTypo.UI14B,
+                                          AppColors.Gray900,
+                                        )),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
+                  );
+                },
+              ),
+            )),
+          ],
+        ));
   }
 
   void buildCommentBottomSheet(
@@ -266,5 +243,31 @@ class _ArticlePageState extends ConsumerState<ArticlePage> {
         builder: (BuildContext context) {
           return SafeArea(child: Comment(articleModel: articleModel));
         });
+  }
+
+  Future<void> _fetchPage(int pageKey) async {
+    final asyncArticleListNotifier =
+        ref.read(asyncArticleListProvider.notifier);
+    final sortOptionState = ref.watch(sortOptionProvider);
+    logger.d('fetch page $pageKey');
+    try {
+      final newItems = await asyncArticleListNotifier.fetch(
+          galleryId: widget.galleryId,
+          page: pageKey,
+          limit: 10,
+          sort: sortOptionState,
+          order: 'DESC');
+      final isLastPage = newItems!.meta.currentPage >= newItems.meta.totalPages;
+      if (isLastPage) {
+        _pagingController.appendLastPage(newItems.items);
+      } else {
+        final nextPageKey = pageKey + newItems.items.length;
+        _pagingController.appendPage(newItems.items, nextPageKey);
+      }
+      // Riverpod 상태 업데이트
+      asyncArticleListNotifier.addItems(newItems);
+    } catch (error) {
+      _pagingController.error = error;
+    }
   }
 }

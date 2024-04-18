@@ -53,7 +53,9 @@ class LoggingObserver extends ProviderObserver {
     // logger.i('type of Object: ${container.runtimeType}');
 
     if (previousValue.runtimeType.toString().startsWith('Async') ||
-        newValue.runtimeType.toString().startsWith('Async')) {
+        newValue.runtimeType.toString().startsWith('Async') ||
+        previousValue.runtimeType.toString().startsWith('String') ||
+        newValue.runtimeType.toString().startsWith('String')) {
       return;
     }
 

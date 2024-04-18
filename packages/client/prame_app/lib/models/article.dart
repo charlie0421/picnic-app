@@ -36,6 +36,7 @@ class ArticleModel {
   final DateTime createdAt;
   final int? commentCount;
   final CommentModel? comment;
+  final CommentModel? mostLikedComment;
 
   ArticleModel({
     required this.id,
@@ -47,6 +48,7 @@ class ArticleModel {
     required this.createdAt,
     required this.commentCount,
     required this.comment,
+    required this.mostLikedComment,
   });
 
   factory ArticleModel.fromJson(Map<String, dynamic> json) =>

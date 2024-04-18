@@ -22,7 +22,7 @@ Future<Dio> authDio({String baseUrl = Constants.userApiUrl}) async {
 
     if (kDebugMode) {
       logger.d(
-          '${options.method} ${options.baseUrl}${options.path} ${options.data ?? ''}');
+          '${options.method} ${options.baseUrl}${options.path} ${options.queryParameters} ${options.data ?? ''}');
     }
 
     return handler.next(options);

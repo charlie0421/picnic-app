@@ -2,18 +2,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:prame_app/components/article/comment/comment_item.dart';
 import 'package:prame_app/components/article/comment/comment_reply_layer.dart';
 import 'package:prame_app/components/ui/bottom-sheet-header.dart';
-import 'package:prame_app/constants.dart';
 import 'package:prame_app/models/article.dart';
 import 'package:prame_app/models/comment.dart';
 import 'package:prame_app/providers/comment_list_provider.dart';
-import 'package:prame_app/ui/style.dart';
 
 import 'comment_input.dart';
 
@@ -40,7 +37,7 @@ class _CommentState extends ConsumerState<Comment> {
 
   void fetchPage(int pageKey) async {
     final asyncCommentList = ref.read(asyncCommentListProvider.notifier).fetch(
-        pageKey, 10, 'comment.created_at', 'DESC',
+        pageKey, 1000, 'comment.created_at', 'DESC',
         articleId: widget.articleModel.id);
 
     final page = await asyncCommentList;

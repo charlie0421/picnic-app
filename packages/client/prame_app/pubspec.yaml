@@ -55,6 +55,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/icons/line_arrow/
     - assets/mockup/
     - assets/mockup/my/
     - assets/mockup/gallery/

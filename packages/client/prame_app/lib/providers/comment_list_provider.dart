@@ -44,11 +44,11 @@ class AsyncCommentList extends _$AsyncCommentList {
       parentId == 0 ? parentId = null : parentId;
       final response = parentId != null
           ? await dio
-              .post('/comment/article/${articleId}/comment/$parentId', data: {
+              .post('/comment/article/$articleId/comment/$parentId', data: {
               'articleId': articleId,
               'content': content,
             })
-          : await dio.post('/comment/article/${articleId}', data: {
+          : await dio.post('/comment/article/$articleId', data: {
               'articleId': articleId,
               'content': content,
             });
