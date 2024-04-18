@@ -11,12 +11,10 @@ import 'package:prame_app/ui/style.dart';
 
 class CommentActions extends ConsumerWidget {
   final CommentModel item;
-  final TextEditingController textEditingController;
 
   const CommentActions({
     super.key,
     required this.item,
-    required this.textEditingController,
   });
 
   @override
