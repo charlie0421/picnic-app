@@ -6,6 +6,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:prame_app/constants.dart';
 import 'package:prame_app/models/comment.dart';
+import 'package:prame_app/providers/article_list_provider.dart';
 import 'package:prame_app/providers/comment_list_provider.dart';
 import 'package:prame_app/ui/style.dart';
 
@@ -97,6 +98,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
         .then((value) {
       ref.read(parentItemProvider.notifier).setParentItem(null);
       ref.invalidate(asyncCommentListProvider);
+      ref.invalidate(asyncArticleListProvider);
       widget.pagingController.refresh();
     });
     _textEditingController.clear();

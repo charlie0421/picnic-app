@@ -2,6 +2,7 @@ import 'package:prame_app/auth_dio.dart';
 import 'package:prame_app/constants.dart';
 import 'package:prame_app/models/comment.dart';
 import 'package:prame_app/models/meta.dart';
+import 'package:prame_app/providers/article_list_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'comment_list_provider.g.dart';
@@ -54,6 +55,8 @@ class AsyncCommentList extends _$AsyncCommentList {
             });
       if (response.statusCode == 201) {
         logger.i('response.data: ${response.data}');
+        AsyncValue.data(
+            state.value?.items.addAll([CommentModel.fromJson(response.data)]));
       } else {
         throw Exception('Failed to load post');
       }

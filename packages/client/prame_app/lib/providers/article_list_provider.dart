@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:prame_app/auth_dio.dart';
 import 'package:prame_app/constants.dart';
 import 'package:prame_app/models/article.dart';
@@ -11,33 +12,42 @@ part 'article_list_provider.g.dart';
 
 @riverpod
 class AsyncArticleList extends _$AsyncArticleList {
-  AsyncArticleList() : super();
-
+  final PagingController<int, ArticleModel> _pagingController =
+      PagingController(firstPageKey: 1);
+  late int galleryId;
   @override
-  Future<ArticleListModel?> build() async {
-    return Future.value(null);
+  Future<PagingController<int, ArticleModel>> build(galleyId) async {
+    galleryId = galleyId;
+    final sortOption = ref.read(sortOptionProvider);
+    fetch(
+        page: 1,
+        galleryId: galleryId,
+        limit: 10,
+        sort: sortOption.sort,
+        order: sortOption.order);
+    return _pagingController;
   }
 
-  Future<void> addItems(ArticleListModel articleListModel) {
-    final newState = state.copyWithPrevious(state);
-    newState.value?.items.addAll(articleListModel.items);
-    state = newState;
-    return Future.value();
-  }
+  PagingController<int, ArticleModel> get pagingController => _pagingController;
+
+  // Future<void> addItems(ArticleListModel articleListModel) {
+  //   final newState = state.copyWithPrevious(state);
+  //   newState.value?.items.addAll(articleListModel.items);
+  //   state = newState;
+  //   return Future.value();
+  // }
 
   Future<void> clearItems() {
-    final newState = state.copyWithPrevious(state);
-    newState.value?.items.clear();
-    state = newState;
+    state.value?.itemList?.clear();
     return Future.value();
   }
 
-  Future<ArticleListModel?> fetch({
+  Future<void> fetch({
     required int page,
     required int galleryId,
-    int? limit,
-    String? sort,
-    String? order,
+    required int limit,
+    required String sort,
+    required String order,
   }) async {
     final params = {
       'page': page,
@@ -49,37 +59,39 @@ class AsyncArticleList extends _$AsyncArticleList {
     final dio = await authDio(baseUrl: Constants.userApiUrl);
     final response =
         await dio.get('/gallery/articles/$galleryId', queryParameters: params);
-    // logger.d(response.data);
-    return ArticleListModel.fromJson(response.data);
-  }
+    final ArticleListModel articleListModel =
+        ArticleListModel.fromJson(response.data);
+    if (articleListModel.meta.currentPage >= articleListModel.meta.totalPages) {
+      _pagingController.appendLastPage(articleListModel.items);
+    } else {
+      _pagingController.appendPage(
+          articleListModel.items, articleListModel.meta.currentPage + 1);
+    }
 
-  void setSortOption(
-      {required int galleryId,
-      required int limit,
-      required String sort,
-      required String order}) {
-    state = AsyncData(ArticleListModel(
-        items: [],
-        meta: MetaModel(
-            currentPage: 0,
-            itemCount: 0,
-            itemsPerPage: 0,
-            totalItems: 0,
-            totalPages: 0)));
-    ref.read(sortOptionProvider.notifier).setSortOption(sort);
-    // fetch(galleryId: 1, limit: limit, page: 1, sort: sort, order: order);
+    // logger.d(response.data);
+    // return ArticleListModel.fromJson(response.data);
   }
 }
 
 @riverpod
 class SortOption extends _$SortOption {
+  SortOptionType sortOptions = SortOptionType('id', 'DESC');
+
   @override
-  String build() {
-    return 'id';
+  SortOptionType build() {
+    sortOptions = SortOptionType('id', 'DESC');
+    return sortOptions;
   }
 
-  void setSortOption(String sort) {
-    ref.read(asyncArticleListProvider.notifier).clearItems();
-    state = sort;
+  void setSortOption(String sort, String order) {
+    sortOptions.sort = sort;
+    sortOptions.order = order;
   }
+}
+
+class SortOptionType {
+  String sort = '';
+  String order = '';
+
+  SortOptionType(this.sort, this.order);
 }
