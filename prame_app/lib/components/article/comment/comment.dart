@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:prame_app/components/article/comment/comment_item.dart';
 import 'package:prame_app/components/article/comment/comment_reply_layer.dart';
 import 'package:prame_app/components/ui/bottom-sheet-header.dart';
+import 'package:prame_app/constants.dart';
 import 'package:prame_app/models/article.dart';
 import 'package:prame_app/models/comment.dart';
 import 'package:prame_app/providers/comment_list_provider.dart';
@@ -16,8 +17,9 @@ import 'comment_input.dart';
 
 class Comment extends ConsumerStatefulWidget {
   final ArticleModel articleModel;
+  final int? commentId;
 
-  const Comment({super.key, required this.articleModel});
+  const Comment({super.key, required this.articleModel, this.commentId});
 
   @override
   ConsumerState<Comment> createState() => _CommentState();
@@ -25,11 +27,15 @@ class Comment extends ConsumerStatefulWidget {
 
 class _CommentState extends ConsumerState<Comment> {
   late final PagingController<int, CommentModel> _pagingController;
+  late final ScrollController _scrollController; // Add this line
+  late int _scrollToIndex; // Add this line
 
   @override
   void initState() {
     super.initState();
     _pagingController = PagingController<int, CommentModel>(firstPageKey: 1);
+    _scrollController = ScrollController(); // Add this line
+    _scrollToIndex = -1; // Add this line
     _pagingController.addPageRequestListener((pageKey) {
       fetchPage(pageKey);
     });
@@ -46,11 +52,30 @@ class _CommentState extends ConsumerState<Comment> {
     } else {
       _pagingController.appendLastPage(page.items);
     }
+
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      if (widget.commentId != -1) {
+        for (int i = 0; i < page.items.length; i++) {
+          if (page.items[i].id == widget.commentId) {
+            _scrollToIndex =
+                _pagingController.itemList!.length - page.items.length + i;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _scrollController.animateTo(_scrollToIndex * 100.0,
+                  duration: const Duration(seconds: 1),
+                  curve: Curves.easeInOut);
+            });
+            break;
+          }
+        }
+      }
+    });
   }
 
   @override
   void dispose() {
     _pagingController.dispose();
+    _scrollController.dispose();
+
     super.dispose();
   }
 
@@ -73,6 +98,7 @@ class _CommentState extends ConsumerState<Comment> {
           Flexible(
             flex: 1,
             child: PagedListView<int, CommentModel>(
+              scrollController: _scrollController,
               physics: const ScrollPhysics(),
               pagingController: _pagingController,
               builderDelegate: PagedChildBuilderDelegate<CommentModel>(
@@ -90,9 +116,12 @@ class _CommentState extends ConsumerState<Comment> {
                     return Column(
                       children: [
                         CommentItem(
-                            commentModel: item,
-                            pagingController: _pagingController,
-                            articleId: widget.articleModel.id),
+                          commentModel: item,
+                          pagingController: _pagingController,
+                          articleId: widget.articleModel.id,
+                          shouldHighlight:
+                              item.id == widget.commentId, // Add this line
+                        ),
                         item.children != null
                             ? ListView.builder(
                                 shrinkWrap: true,
@@ -105,6 +134,9 @@ class _CommentState extends ConsumerState<Comment> {
                                       commentModel: item.children![index],
                                       pagingController: _pagingController,
                                       articleId: widget.articleModel.id,
+                                      shouldHighlight:
+                                          item.children?[index].id ==
+                                              widget.commentId,
                                     ),
                                   );
                                 })
