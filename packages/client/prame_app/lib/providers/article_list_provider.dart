@@ -84,8 +84,7 @@ class SortOption extends _$SortOption {
   }
 
   void setSortOption(String sort, String order) {
-    sortOptions.sort = sort;
-    sortOptions.order = order;
+    state = SortOptionType(sort, order);
   }
 }
 

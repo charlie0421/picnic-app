@@ -22,7 +22,7 @@ class ArticleList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ref.watch(asyncArticleListProvider(galleryId)).when(
           data: (pagingController) => Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: PagedListView<int, ArticleModel>(
                 pagingController: pagingController,
                 scrollDirection: Axis.vertical,
@@ -128,7 +128,7 @@ class ArticleList extends ConsumerWidget {
                                                       top: 5,
                                                       right: 5,
                                                       child: IconButton(
-                                                        icon: Icon(
+                                                        icon: const Icon(
                                                           Icons.bookmarks,
                                                           color: Constants
                                                               .mainColor,
@@ -146,9 +146,9 @@ class ArticleList extends ConsumerWidget {
                                             pagination: const SwiperPagination(
                                               builder:
                                                   DotSwiperPaginationBuilder(
-                                                color: Colors.grey,
-                                                activeColor: Colors.red,
-                                              ),
+                                                      color: Colors.grey,
+                                                      activeColor:
+                                                          Constants.mainColor),
                                             ),
                                           )
                                         : SizedBox(

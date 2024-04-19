@@ -173,7 +173,7 @@ class _AsyncArticleListProviderElement
   dynamic get galleyId => (origin as AsyncArticleListProvider).galleyId;
 }
 
-String _$sortOptionHash() => r'84f57d3c7e068d752206dff682cf60e67c1d6767';
+String _$sortOptionHash() => r'8d0e51b1242be85e0437cebf8d5053fbce6dd7fe';
 
 /// See also [SortOption].
 @ProviderFor(SortOption)

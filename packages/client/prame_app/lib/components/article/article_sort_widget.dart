@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,7 +6,7 @@ import 'package:prame_app/constants.dart';
 import 'package:prame_app/providers/article_list_provider.dart';
 import 'package:prame_app/ui/style.dart';
 
-class ArticleSortWidget extends ConsumerStatefulWidget {
+class ArticleSortWidget extends ConsumerWidget {
   final int galleryId;
 
   const ArticleSortWidget({
@@ -17,17 +15,10 @@ class ArticleSortWidget extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ArticleSortWidget> createState() => _ArticleSortWidgetState();
-}
-
-class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final sortOptionState = ref.watch(sortOptionProvider);
     final sortOptionNotifier = ref.read(sortOptionProvider.notifier);
     logger.w('sortOptionState.sort: ${sortOptionState.sort}');
-    final asyncArticleListNotifier =
-        ref.read(asyncArticleListProvider(widget.galleryId).notifier);
 
     return InkWell(
       onTap: () => showModalBottomSheet(
@@ -78,11 +69,10 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
 
                                   sortOptionNotifier.setSortOption(sort, order);
                                   ref
-                                      .read(asyncArticleListProvider(
-                                              widget.galleryId)
+                                      .read(asyncArticleListProvider(galleryId)
                                           .notifier)
                                       .fetch(
-                                          galleryId: widget.galleryId,
+                                          galleryId: galleryId,
                                           sort: sort,
                                           order: order,
                                           page: 1,
@@ -120,11 +110,10 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
 
                                   sortOptionNotifier.setSortOption(sort, order);
                                   ref
-                                      .read(asyncArticleListProvider(
-                                              widget.galleryId)
+                                      .read(asyncArticleListProvider(galleryId)
                                           .notifier)
                                       .fetch(
-                                          galleryId: widget.galleryId,
+                                          galleryId: galleryId,
                                           sort: sort,
                                           order: order,
                                           page: 1,
@@ -162,16 +151,16 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
                                   String sort = 'commentCount';
                                   String order = 'DESC';
 
-                                  WidgetsBinding.instance!
+                                  WidgetsBinding.instance
                                       .addPostFrameCallback((_) {
                                     sortOptionNotifier.setSortOption(
                                         sort, order);
                                     ref
-                                        .read(asyncArticleListProvider(
-                                                widget.galleryId)
-                                            .notifier)
+                                        .read(
+                                            asyncArticleListProvider(galleryId)
+                                                .notifier)
                                         .fetch(
-                                            galleryId: widget.galleryId,
+                                            galleryId: galleryId,
                                             sort: sort,
                                             order: order,
                                             page: 1,
@@ -216,41 +205,46 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
           );
         },
       ),
-      child: Container(
-        width: 102.w,
-        height: 30.h,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8).r,
-          border: Border.all(color: AppColors.Gray100),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 4).w,
-        margin: const EdgeInsets.only(right: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Align(
-                alignment: Alignment.center,
-                child: Text(
-                  sortOptionState.sort == 'id'
-                      ? '최신 등록순'
-                      : sortOptionState.sort == 'viewCount'
-                          ? '조회순'
-                          : sortOptionState.sort == 'commentCount'
-                              ? '댓글순'
-                              : '',
-                  style: getTextStyle(AppTypo.UI14M, AppColors.Gray600),
-                ),
-              ),
+      child: Consumer(
+        builder: (BuildContext context, WidgetRef ref, Widget? child) {
+          final sortOptionState = ref.watch(sortOptionProvider);
+          return Container(
+            width: 102.w,
+            height: 30.h,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8).r,
+              border: Border.all(color: AppColors.Gray100),
             ),
-            SvgPicture.asset(
-              'assets/icons/line_arrow/state=down.svg',
-              width: 18.w,
-              height: 18.h,
-            )
-          ],
-        ),
+            padding: const EdgeInsets.symmetric(horizontal: 4).w,
+            margin: const EdgeInsets.only(right: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      sortOptionState.sort == 'id'
+                          ? '최신 등록순'
+                          : sortOptionState.sort == 'viewCount'
+                              ? '조회순'
+                              : sortOptionState.sort == 'commentCount'
+                                  ? '댓글순'
+                                  : '',
+                      style: getTextStyle(AppTypo.UI14M, AppColors.Gray600),
+                    ),
+                  ),
+                ),
+                SvgPicture.asset(
+                  'assets/icons/line_arrow/state=down.svg',
+                  width: 18.w,
+                  height: 18.h,
+                )
+              ],
+            ),
+          );
+        },
       ),
     );
   }
