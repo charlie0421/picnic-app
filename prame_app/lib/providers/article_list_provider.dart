@@ -1,12 +1,9 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:prame_app/auth_dio.dart';
 import 'package:prame_app/constants.dart';
 import 'package:prame_app/models/article.dart';
-import 'package:prame_app/models/meta.dart';
+import 'package:prame_app/reflector.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-import '../pages/article_page.dart';
 
 part 'article_list_provider.g.dart';
 
@@ -29,13 +26,6 @@ class AsyncArticleList extends _$AsyncArticleList {
   }
 
   PagingController<int, ArticleModel> get pagingController => _pagingController;
-
-  // Future<void> addItems(ArticleListModel articleListModel) {
-  //   final newState = state.copyWithPrevious(state);
-  //   newState.value?.items.addAll(articleListModel.items);
-  //   state = newState;
-  //   return Future.value();
-  // }
 
   Future<void> clearItems() {
     state.value?.itemList?.clear();
@@ -88,6 +78,7 @@ class SortOption extends _$SortOption {
   }
 }
 
+@reflector
 class SortOptionType {
   String sort = '';
   String order = '';
