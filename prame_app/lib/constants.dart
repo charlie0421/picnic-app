@@ -13,9 +13,9 @@ class Constants {
     'API_AUTH_ROOT',
     defaultValue: 'https://api-dev.1stype.io/prame/auth',
   );
-  static double webMaxWidth = 600.0;
-  static int snackBarDuration = 3;
-  static Color mainColor = const Color(0xFF47E89B);
+  static const double webMaxWidth = 600.0;
+  static const int snackBarDuration = 3;
+  static const Color mainColor = Color(0xFF47E89B);
 }
 
 var logger = Logger();
