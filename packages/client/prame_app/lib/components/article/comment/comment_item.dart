@@ -9,7 +9,7 @@ import 'package:prame_app/components/article/comment/comment_user.dart';
 import 'package:prame_app/components/article/comment/report_popup_menu.dart';
 import 'package:prame_app/constants.dart';
 import 'package:prame_app/models/comment.dart';
-import 'package:prame_app/providers/comment_list_provider.dart';
+import 'package:prame_app/ui/style.dart';
 
 class CommentItem extends ConsumerStatefulWidget {
   const CommentItem({
@@ -17,70 +17,119 @@ class CommentItem extends ConsumerStatefulWidget {
     required PagingController<int, CommentModel> pagingController,
     required this.commentModel,
     required this.articleId,
+    this.shouldHighlight = false,
   }) : _pagingController = pagingController;
 
   final PagingController<int, CommentModel> _pagingController;
   final CommentModel commentModel;
   final int articleId;
+  final bool shouldHighlight;
 
   @override
   ConsumerState<CommentItem> createState() => _CommentItemState();
 }
 
-class _CommentItemState extends ConsumerState<CommentItem> {
-  TextEditingController _textEditingController = TextEditingController();
+class _CommentItemState extends ConsumerState<CommentItem>
+    with SingleTickerProviderStateMixin {
+  AnimationController? _animationController;
+  Animation<double>? _animation;
+  Color _backgroundColor = Colors.white;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+
+    _animation =
+        Tween<double>(begin: 1, end: .95).animate(_animationController!);
+
+    _animationController!.addStatusListener((status) {
+      if (status == AnimationStatus.forward) {
+        setState(() {
+          _backgroundColor = AppColors.Gray100;
+        });
+      } else if (status == AnimationStatus.completed ||
+          status == AnimationStatus.dismissed) {
+        setState(() {
+          _backgroundColor = Colors.white;
+        });
+      }
+    });
+
+    if (widget.shouldHighlight) {
+      _animationController!.forward().then((_) {
+        _animationController!.reverse();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _animationController?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(left: 20),
-      margin: const EdgeInsets.only(bottom: 20),
-      width: kIsWeb ? Constants.webMaxWidth : MediaQuery.of(context).size.width,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CommentUser(
-            nickname: widget.commentModel.user?.nickname ?? '',
-            profileImage: widget.commentModel.user?.profileImage ?? '',
+    return ScaleTransition(
+      scale: _animation!,
+      child: AnimatedContainer(
+        duration: const Duration(seconds: 1),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: _backgroundColor,
+            width: 1.0,
           ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                CommentHeader(
-                  item: widget.commentModel,
-                  pagingController: widget._pagingController,
-                ),
-                CommentContents(item: widget.commentModel),
-                CommentActions(
-                  item: widget.commentModel,
-                ),
-              ],
+          boxShadow: [
+            BoxShadow(
+              color: _backgroundColor.withOpacity(0.5),
+              spreadRadius: 5,
+              blurRadius: 7,
+              offset: const Offset(0, 3), // changes position of shadow
             ),
+          ],
+        ),
+        child: Container(
+          padding: const EdgeInsets.only(left: 20),
+          margin: const EdgeInsets.only(bottom: 20),
+          width: kIsWeb
+              ? Constants.webMaxWidth
+              : MediaQuery.of(context).size.width,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CommentUser(
+                nickname: widget.commentModel.user?.nickname ?? '',
+                profileImage: widget.commentModel.user?.profileImage ?? '',
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    CommentHeader(
+                      item: widget.commentModel,
+                      pagingController: widget._pagingController,
+                    ),
+                    CommentContents(item: widget.commentModel),
+                    CommentActions(
+                      item: widget.commentModel,
+                    ),
+                  ],
+                ),
+              ),
+              ReportPopupMenu(
+                  context: context,
+                  commentId: widget.commentModel.id,
+                  pagingController: widget._pagingController),
+            ],
           ),
-          ReportPopupMenu(
-              context: context,
-              commentId: widget.commentModel.id,
-              pagingController: widget._pagingController),
-        ],
+        ),
       ),
     );
-  }
-
-  _commitComment() {
-    final parentItemState = ref.watch(parentItemProvider);
-
-    ref
-        .read(asyncCommentListProvider.notifier)
-        .submitComment(
-            articleId: widget.articleId,
-            content: _textEditingController.text,
-            parentId: parentItemState?.id)
-        .then((value) {
-      ref.read(parentItemProvider.notifier).setParentItem(null);
-      widget._pagingController.refresh();
-    });
-    _textEditingController.clear();
   }
 }

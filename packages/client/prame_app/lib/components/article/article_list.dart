@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_swiper/card_swiper.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -165,7 +166,11 @@ class ArticleList extends ConsumerWidget {
                                           AppColors.Gray900,
                                         ),
                                       )),
-                                  BestComment(article: article),
+                                  GestureDetector(
+                                      onTap: () => buildCommentBottomSheet(
+                                          context, article,
+                                          commentId: item.mostLikedComment?.id),
+                                      child: BestComment(article: article)),
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: GestureDetector(
@@ -195,15 +200,16 @@ class ArticleList extends ConsumerWidget {
         );
   }
 
-  void buildCommentBottomSheet(
-      BuildContext context, ArticleModel articleModel) {
+  void buildCommentBottomSheet(BuildContext context, ArticleModel articleModel,
+      {int? commentId}) {
     showModalBottomSheet(
         context: context,
         isScrollControlled: true,
         useSafeArea: true,
         barrierColor: Colors.transparent,
         builder: (BuildContext context) {
-          return SafeArea(child: Comment(articleModel: articleModel));
+          return SafeArea(
+              child: Comment(articleModel: articleModel, commentId: commentId));
         });
   }
 }
