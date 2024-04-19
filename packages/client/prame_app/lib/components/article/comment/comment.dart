@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,9 +7,9 @@ import 'package:intl/intl.dart';
 import 'package:prame_app/components/article/comment/comment_item.dart';
 import 'package:prame_app/components/article/comment/comment_reply_layer.dart';
 import 'package:prame_app/components/ui/bottom-sheet-header.dart';
-import 'package:prame_app/constants.dart';
 import 'package:prame_app/models/article.dart';
 import 'package:prame_app/models/comment.dart';
+import 'package:prame_app/providers/article_list_provider.dart';
 import 'package:prame_app/providers/comment_list_provider.dart';
 
 import 'comment_input.dart';
@@ -53,7 +52,7 @@ class _CommentState extends ConsumerState<Comment> {
       _pagingController.appendLastPage(page.items);
     }
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.commentId != -1) {
         for (int i = 0; i < page.items.length; i++) {
           if (page.items[i].id == widget.commentId) {
@@ -82,12 +81,18 @@ class _CommentState extends ConsumerState<Comment> {
   @override
   Widget build(BuildContext context) {
     final asyncCommentListState = ref.watch(asyncCommentListProvider);
+    final commentCountNotifier =
+        ref.watch(commentCountProvider(widget.articleModel.id).notifier);
+
     asyncCommentListState.value?.meta.totalItems;
 
-    final commentCount = asyncCommentListState.value != null &&
-            asyncCommentListState.value!.meta.totalItems != null
+    final commentCount = asyncCommentListState.value != null
         ? asyncCommentListState.value!.meta.totalItems
         : 0;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      commentCountNotifier.setCount(commentCount);
+    });
 
     return Scaffold(
       resizeToAvoidBottomInset: true,

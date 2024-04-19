@@ -177,7 +177,7 @@ class ArticleList extends ConsumerWidget {
                                       onTap: () => buildCommentBottomSheet(
                                           context, article),
                                       child: Text(
-                                          '${Intl.message('label_read_more_comment')} ${article.commentCount.toString()}',
+                                          '${Intl.message('label_read_more_comment')} ${ref.watch(commentCountProvider(article.id)).value != 0 ? ref.watch(commentCountProvider(article.id)).value : article.commentCount}',
                                           style: getTextStyle(
                                             AppTypo.UI14B,
                                             AppColors.Gray900,

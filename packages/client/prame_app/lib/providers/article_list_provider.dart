@@ -85,3 +85,23 @@ class SortOptionType {
 
   SortOptionType(this.sort, this.order);
 }
+
+@riverpod
+class CommentCount extends _$CommentCount {
+  @override
+  Future<int> build(int articleId) async {
+    return 0;
+  }
+
+  setCount(int count) {
+    state = AsyncValue.data(count);
+  }
+
+  increment() {
+    state = AsyncValue.data(state.value! + 1);
+  }
+
+  decrement() {
+    state = AsyncValue.data(state.value! - 1);
+  }
+}
