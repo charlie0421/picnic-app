@@ -188,5 +188,146 @@ final sortOptionProvider =
 );
 
 typedef _$SortOption = AutoDisposeNotifier<SortOptionType>;
+String _$commentCountHash() => r'1521c9af9aeb5ffa1bd95002f50392867e7179fc';
+
+abstract class _$CommentCount extends BuildlessAutoDisposeAsyncNotifier<int> {
+  late final int articleId;
+
+  FutureOr<int> build(
+    int articleId,
+  );
+}
+
+/// See also [CommentCount].
+@ProviderFor(CommentCount)
+const commentCountProvider = CommentCountFamily();
+
+/// See also [CommentCount].
+class CommentCountFamily extends Family<AsyncValue<int>> {
+  /// See also [CommentCount].
+  const CommentCountFamily();
+
+  /// See also [CommentCount].
+  CommentCountProvider call(
+    int articleId,
+  ) {
+    return CommentCountProvider(
+      articleId,
+    );
+  }
+
+  @override
+  CommentCountProvider getProviderOverride(
+    covariant CommentCountProvider provider,
+  ) {
+    return call(
+      provider.articleId,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'commentCountProvider';
+}
+
+/// See also [CommentCount].
+class CommentCountProvider
+    extends AutoDisposeAsyncNotifierProviderImpl<CommentCount, int> {
+  /// See also [CommentCount].
+  CommentCountProvider(
+    int articleId,
+  ) : this._internal(
+          () => CommentCount()..articleId = articleId,
+          from: commentCountProvider,
+          name: r'commentCountProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$commentCountHash,
+          dependencies: CommentCountFamily._dependencies,
+          allTransitiveDependencies:
+              CommentCountFamily._allTransitiveDependencies,
+          articleId: articleId,
+        );
+
+  CommentCountProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.articleId,
+  }) : super.internal();
+
+  final int articleId;
+
+  @override
+  FutureOr<int> runNotifierBuild(
+    covariant CommentCount notifier,
+  ) {
+    return notifier.build(
+      articleId,
+    );
+  }
+
+  @override
+  Override overrideWith(CommentCount Function() create) {
+    return ProviderOverride(
+      origin: this,
+      override: CommentCountProvider._internal(
+        () => create()..articleId = articleId,
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        articleId: articleId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeAsyncNotifierProviderElement<CommentCount, int> createElement() {
+    return _CommentCountProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is CommentCountProvider && other.articleId == articleId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, articleId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin CommentCountRef on AutoDisposeAsyncNotifierProviderRef<int> {
+  /// The parameter `articleId` of this provider.
+  int get articleId;
+}
+
+class _CommentCountProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<CommentCount, int>
+    with CommentCountRef {
+  _CommentCountProviderElement(super.provider);
+
+  @override
+  int get articleId => (origin as CommentCountProvider).articleId;
+}
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

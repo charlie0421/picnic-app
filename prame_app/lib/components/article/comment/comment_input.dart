@@ -88,7 +88,6 @@ class _CommentInputState extends ConsumerState<CommentInput> {
 
   _commitComment() {
     final parentItemState = ref.watch(parentItemProvider);
-
     ref
         .read(asyncCommentListProvider.notifier)
         .submitComment(
@@ -97,8 +96,8 @@ class _CommentInputState extends ConsumerState<CommentInput> {
             parentId: parentItemState?.id)
         .then((value) {
       ref.read(parentItemProvider.notifier).setParentItem(null);
-      ref.invalidate(asyncCommentListProvider);
-      ref.invalidate(asyncArticleListProvider);
+      ref.read(commentCountProvider(widget.articleId).notifier).increment();
+
       widget.pagingController.refresh();
     });
     _textEditingController.clear();
