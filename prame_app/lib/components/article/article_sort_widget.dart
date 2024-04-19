@@ -1,7 +1,10 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:prame_app/constants.dart';
 import 'package:prame_app/providers/article_list_provider.dart';
 import 'package:prame_app/ui/style.dart';
 
@@ -22,9 +25,10 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
   Widget build(BuildContext context) {
     final sortOptionState = ref.watch(sortOptionProvider);
     final sortOptionNotifier = ref.read(sortOptionProvider.notifier);
-
+    logger.w('sortOptionState.sort: ${sortOptionState.sort}');
     final asyncArticleListNotifier =
-        ref.read(asyncArticleListProvider.notifier);
+        ref.read(asyncArticleListProvider(widget.galleryId).notifier);
+
     return InkWell(
       onTap: () => showModalBottomSheet(
         context: context,
@@ -69,12 +73,20 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
                             case 0:
                               return InkWell(
                                 onTap: () {
-                                  asyncArticleListNotifier.setSortOption(
-                                      limit: 10,
-                                      sort: 'id',
-                                      order: 'DESC',
-                                      galleryId: widget.galleryId);
-                                  sortOptionNotifier.setSortOption('id');
+                                  String sort = 'id';
+                                  String order = 'DESC';
+
+                                  sortOptionNotifier.setSortOption(sort, order);
+                                  ref
+                                      .read(asyncArticleListProvider(
+                                              widget.galleryId)
+                                          .notifier)
+                                      .fetch(
+                                          galleryId: widget.galleryId,
+                                          sort: sort,
+                                          order: order,
+                                          page: 1,
+                                          limit: 10);
                                   Navigator.pop(context);
                                 },
                                 child: Container(
@@ -82,7 +94,7 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
                                   height: 56.h,
                                   child: Row(
                                     children: [
-                                      sortOptionState == 'id'
+                                      sortOptionState.sort == 'id'
                                           ? SvgPicture.asset(
                                               'assets/icons/check_green.svg',
                                               width: 18.w,
@@ -91,7 +103,7 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
                                           : SizedBox(width: 18.w),
                                       SizedBox(width: 8.w),
                                       Text('최신 등록순',
-                                          style: sortOptionState == 'id'
+                                          style: sortOptionState.sort == 'id'
                                               ? getTextStyle(AppTypo.UI16B,
                                                   AppColors.GP400)
                                               : getTextStyle(AppTypo.UI16M,
@@ -103,12 +115,20 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
                             case 1:
                               return InkWell(
                                 onTap: () {
-                                  asyncArticleListNotifier.setSortOption(
-                                      limit: 10,
-                                      sort: 'viewCount',
-                                      order: 'ASC',
-                                      galleryId: widget.galleryId);
-                                  sortOptionNotifier.setSortOption('viewCount');
+                                  String sort = 'viewCount';
+                                  String order = 'DESC';
+
+                                  sortOptionNotifier.setSortOption(sort, order);
+                                  ref
+                                      .read(asyncArticleListProvider(
+                                              widget.galleryId)
+                                          .notifier)
+                                      .fetch(
+                                          galleryId: widget.galleryId,
+                                          sort: sort,
+                                          order: order,
+                                          page: 1,
+                                          limit: 10);
 
                                   Navigator.pop(context);
                                 },
@@ -117,7 +137,7 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
                                   height: 56.h,
                                   child: Row(
                                     children: [
-                                      sortOptionState == 'viewCount'
+                                      sortOptionState.sort == 'viewCount'
                                           ? SvgPicture.asset(
                                               'assets/icons/check_green.svg',
                                               width: 18.w,
@@ -126,7 +146,8 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
                                           : SizedBox(width: 18.w),
                                       SizedBox(width: 8.w),
                                       Text('저장순',
-                                          style: sortOptionState == 'viewCount'
+                                          style: sortOptionState.sort ==
+                                                  'viewCount'
                                               ? getTextStyle(AppTypo.UI16B,
                                                   AppColors.GP400)
                                               : getTextStyle(AppTypo.UI16M,
@@ -138,13 +159,24 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
                             case 2:
                               return InkWell(
                                 onTap: () {
-                                  asyncArticleListNotifier.setSortOption(
-                                      limit: 10,
-                                      sort: 'commentCount',
-                                      order: 'DESC',
-                                      galleryId: widget.galleryId);
-                                  sortOptionNotifier
-                                      .setSortOption('commentCount');
+                                  String sort = 'commentCount';
+                                  String order = 'DESC';
+
+                                  WidgetsBinding.instance!
+                                      .addPostFrameCallback((_) {
+                                    sortOptionNotifier.setSortOption(
+                                        sort, order);
+                                    ref
+                                        .read(asyncArticleListProvider(
+                                                widget.galleryId)
+                                            .notifier)
+                                        .fetch(
+                                            galleryId: widget.galleryId,
+                                            sort: sort,
+                                            order: order,
+                                            page: 1,
+                                            limit: 10);
+                                  });
 
                                   Navigator.pop(context);
                                 },
@@ -153,7 +185,7 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
                                   height: 56.h,
                                   child: Row(
                                     children: [
-                                      sortOptionState == 'commentCount'
+                                      sortOptionState.sort == 'commentCount'
                                           ? SvgPicture.asset(
                                               'assets/icons/check_green.svg',
                                               width: 18.w,
@@ -162,12 +194,12 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
                                           : SizedBox(width: 18.w),
                                       SizedBox(width: 8.w),
                                       Text('댓글 순',
-                                          style:
-                                              sortOptionState == 'commentCount'
-                                                  ? getTextStyle(AppTypo.UI16B,
-                                                      AppColors.GP400)
-                                                  : getTextStyle(AppTypo.UI16M,
-                                                      AppColors.Gray900)),
+                                          style: sortOptionState.sort ==
+                                                  'commentCount'
+                                              ? getTextStyle(AppTypo.UI16B,
+                                                  AppColors.GP400)
+                                              : getTextStyle(AppTypo.UI16M,
+                                                  AppColors.Gray900)),
                                     ],
                                   ),
                                 ),
@@ -201,11 +233,13 @@ class _ArticleSortWidgetState extends ConsumerState<ArticleSortWidget> {
               child: Align(
                 alignment: Alignment.center,
                 child: Text(
-                  sortOptionState == 'id'
+                  sortOptionState.sort == 'id'
                       ? '최신 등록순'
-                      : sortOptionState == 'viewCount'
+                      : sortOptionState.sort == 'viewCount'
                           ? '조회순'
-                          : '댓글순',
+                          : sortOptionState.sort == 'commentCount'
+                              ? '댓글순'
+                              : '',
                   style: getTextStyle(AppTypo.UI14M, AppColors.Gray600),
                 ),
               ),
