@@ -42,5 +42,10 @@
   "label_library_tab_library": "Библиотеки",
   "label_library_tab_prame": "ПРАМЕ",
   "label_library_tab_ai_photo": "Фотографии ИИ",
-  "label_article_comment_empty": "Будьте первым, кто оставит комментарий!"
+  "label_article_comment_empty": "Будьте первым, кто оставит комментарий!",
+  "label_library_save": "Сохранение библиотеки",
+  "label_album_add": "Добавить новый альбом",
+  "title_dialog_library_add": "Добавить новый альбом",
+  "hint_library_add": "Название альбома",
+  "button_complete": "完成"
 }
