@@ -42,5 +42,10 @@
   "label_library_tab_library": "Bibliothèques",
   "label_library_tab_prame": "PRAME",
   "label_library_tab_ai_photo": "Photos de l'IA",
-  "label_article_comment_empty": "Soyez le premier à commenter !"
+  "label_article_comment_empty": "Soyez le premier à commenter !",
+  "label_library_save": "Sauvegarde d'une bibliothèque",
+  "label_album_add": "Ajouter un nouvel album",
+  "title_dialog_library_add": "Ajouter un nouvel album",
+  "hint_library_add": "Nom de l'album",
+  "button_complete": "完成"
 }
