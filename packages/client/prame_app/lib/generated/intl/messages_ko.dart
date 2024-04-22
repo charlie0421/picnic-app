@@ -29,7 +29,10 @@ class MessageLookup extends MessageLookupByLibrary {
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "button_cancel": MessageLookupByLibrary.simpleMessage("취소"),
+        "button_complete": MessageLookupByLibrary.simpleMessage("완료"),
         "button_ok": MessageLookupByLibrary.simpleMessage("확인"),
+        "hint_library_add": MessageLookupByLibrary.simpleMessage("앨범명"),
+        "label_album_add": MessageLookupByLibrary.simpleMessage("새로운 앨범 추가"),
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("첫 댓글의 주인공이 되세요!"),
         "label_celeb_gallery": MessageLookupByLibrary.simpleMessage("샐럽 갤러리"),
@@ -43,6 +46,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("갤러리"),
         "label_hint_comment":
             MessageLookupByLibrary.simpleMessage("댓글을 남겨주세요."),
+        "label_library_save": MessageLookupByLibrary.simpleMessage("라이브러리 저장"),
         "label_library_tab_ai_photo":
             MessageLookupByLibrary.simpleMessage("AI 포토"),
         "label_library_tab_library":
@@ -85,6 +89,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_hint_search": MessageLookupByLibrary.simpleMessage("유명인을 검색하세요."),
         "text_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("선택한 셀러브리티의 집으로 이동합니다."),
+        "title_dialog_library_add":
+            MessageLookupByLibrary.simpleMessage("새로운 앨범 추가"),
         "title_select_language": MessageLookupByLibrary.simpleMessage("언어 선택"),
         "toast_max_5_celeb":
             MessageLookupByLibrary.simpleMessage("내 셀러브리티를 최대 5개까지 추가할 수 있습니다.")

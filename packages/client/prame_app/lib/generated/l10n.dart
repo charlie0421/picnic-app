@@ -479,6 +479,56 @@ class S {
       args: [],
     );
   }
+
+  /// `Save the library`
+  String get label_library_save {
+    return Intl.message(
+      'Save the library',
+      name: 'label_library_save',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add a new album`
+  String get label_album_add {
+    return Intl.message(
+      'Add a new album',
+      name: 'label_album_add',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add a new album`
+  String get title_dialog_library_add {
+    return Intl.message(
+      'Add a new album',
+      name: 'title_dialog_library_add',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Album name`
+  String get hint_library_add {
+    return Intl.message(
+      'Album name',
+      name: 'hint_library_add',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Done`
+  String get button_complete {
+    return Intl.message(
+      'Done',
+      name: 'button_complete',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

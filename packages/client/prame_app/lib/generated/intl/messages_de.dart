@@ -29,7 +29,12 @@ class MessageLookup extends MessageLookupByLibrary {
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "button_cancel": MessageLookupByLibrary.simpleMessage("取消"),
+        "button_complete": MessageLookupByLibrary.simpleMessage("完成"),
         "button_ok": MessageLookupByLibrary.simpleMessage("Bestätigen Sie"),
+        "hint_library_add":
+            MessageLookupByLibrary.simpleMessage("Name des Albums"),
+        "label_album_add":
+            MessageLookupByLibrary.simpleMessage("Ein neues Album hinzufügen"),
         "label_article_comment_empty": MessageLookupByLibrary.simpleMessage(
             "Seien Sie der Erste, der einen Kommentar abgibt!"),
         "label_celeb_gallery":
@@ -47,6 +52,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Galerie"),
         "label_hint_comment": MessageLookupByLibrary.simpleMessage(
             "Hinterlassen Sie einen Kommentar."),
+        "label_library_save":
+            MessageLookupByLibrary.simpleMessage("Speichern einer Bibliothek"),
         "label_library_tab_ai_photo":
             MessageLookupByLibrary.simpleMessage("AI-Fotos"),
         "label_library_tab_library":
@@ -96,6 +103,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Suche nach Berühmtheiten."),
         "text_moveto_celeb_gallery": MessageLookupByLibrary.simpleMessage(
             "Navigiert zur Homepage des ausgewählten Prominenten."),
+        "title_dialog_library_add":
+            MessageLookupByLibrary.simpleMessage("Ein neues Album hinzufügen"),
         "title_select_language":
             MessageLookupByLibrary.simpleMessage("Selecteer taal"),
         "toast_max_5_celeb": MessageLookupByLibrary.simpleMessage(

@@ -29,7 +29,12 @@ class MessageLookup extends MessageLookupByLibrary {
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "button_cancel": MessageLookupByLibrary.simpleMessage("取消"),
+        "button_complete": MessageLookupByLibrary.simpleMessage("完成"),
         "button_ok": MessageLookupByLibrary.simpleMessage("Подтвердите"),
+        "hint_library_add":
+            MessageLookupByLibrary.simpleMessage("Название альбома"),
+        "label_album_add":
+            MessageLookupByLibrary.simpleMessage("Добавить новый альбом"),
         "label_article_comment_empty": MessageLookupByLibrary.simpleMessage(
             "Будьте первым, кто оставит комментарий!"),
         "label_celeb_gallery":
@@ -47,6 +52,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Галерея"),
         "label_hint_comment":
             MessageLookupByLibrary.simpleMessage("Оставьте комментарий."),
+        "label_library_save":
+            MessageLookupByLibrary.simpleMessage("Сохранение библиотеки"),
         "label_library_tab_ai_photo":
             MessageLookupByLibrary.simpleMessage("Фотографии ИИ"),
         "label_library_tab_library":
@@ -96,6 +103,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Поиск знаменитостей."),
         "text_moveto_celeb_gallery": MessageLookupByLibrary.simpleMessage(
             "Переход к дому выбранной знаменитости."),
+        "title_dialog_library_add":
+            MessageLookupByLibrary.simpleMessage("Добавить новый альбом"),
         "title_select_language":
             MessageLookupByLibrary.simpleMessage("Выбор языка"),
         "toast_max_5_celeb": MessageLookupByLibrary.simpleMessage(
