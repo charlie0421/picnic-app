@@ -83,6 +83,14 @@ bool isWeb() {
   return kIsWeb;
 }
 
+bool isIOS() {
+  return Platform.isIOS;
+}
+
+bool isAndroid() {
+  return Platform.isAndroid;
+}
+
 bool isMobile() {
   return Platform.isAndroid || Platform.isIOS;
 }

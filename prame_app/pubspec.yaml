@@ -35,7 +35,8 @@ dependencies:
   infinite_scroll_pagination: ^4.0.0
   flutter_keyboard_visibility: ^6.0.0
   font_awesome_flutter: ^10.7.0
-
+  overlay_support: ^2.1.0
+  screen_protector: ^1.4.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
