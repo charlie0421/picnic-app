@@ -39,8 +39,8 @@ class ArticleSortWidget extends ConsumerWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text('정렬 방식 선택',
-                                    style: getTextStyle(
-                                        AppTypo.UI16B, AppColors.Gray900)),
+                                    style: getTextStyle(context, AppTypo.UI16B,
+                                        AppColors.Gray900)),
                                 IconButton(
                                     onPressed: () {
                                       Navigator.pop(context);
@@ -96,9 +96,11 @@ class ArticleSortWidget extends ConsumerWidget {
                                                 style:
                                                     sortOptionState.sort == 'id'
                                                         ? getTextStyle(
+                                                            context,
                                                             AppTypo.UI16B,
                                                             AppColors.GP400)
                                                         : getTextStyle(
+                                                            context,
                                                             AppTypo.UI16M,
                                                             AppColors.Gray900)),
                                           ],
@@ -140,9 +142,11 @@ class ArticleSortWidget extends ConsumerWidget {
                                                 style: sortOptionState.sort ==
                                                         'viewCount'
                                                     ? getTextStyle(
+                                                        context,
                                                         AppTypo.UI16B,
                                                         AppColors.GP400)
                                                     : getTextStyle(
+                                                        context,
                                                         AppTypo.UI16M,
                                                         AppColors.Gray900)),
                                           ],
@@ -184,9 +188,11 @@ class ArticleSortWidget extends ConsumerWidget {
                                                 style: sortOptionState.sort ==
                                                         'commentCount'
                                                     ? getTextStyle(
+                                                        context,
                                                         AppTypo.UI16B,
                                                         AppColors.GP400)
                                                     : getTextStyle(
+                                                        context,
                                                         AppTypo.UI16M,
                                                         AppColors.Gray900)),
                                           ],
@@ -229,7 +235,8 @@ class ArticleSortWidget extends ConsumerWidget {
                             : sortOptionState.sort == 'commentCount'
                                 ? '댓글순'
                                 : '',
-                    style: getTextStyle(AppTypo.UI14M, AppColors.Gray600),
+                    style:
+                        getTextStyle(context, AppTypo.UI14M, AppColors.Gray600),
                   ),
                 ),
               ),

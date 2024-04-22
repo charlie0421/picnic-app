@@ -86,6 +86,7 @@ class HomeScreen extends ConsumerWidget {
                               Text(
                                 celebListModel.items.first.nameKo,
                                 style: getTextStyle(
+                                    context,
                                     AppTypo.UI16B, AppColors.Gray00),
                               ),
                               const SizedBox(width: 8),
@@ -135,7 +136,7 @@ class HomeScreen extends ConsumerWidget {
                           Text(
                             celebModel!.nameKo,
                             style:
-                                getTextStyle(AppTypo.UI16B, AppColors.Gray00),
+                                getTextStyle(context, AppTypo.UI16B, AppColors.Gray00),
                           ),
                           const SizedBox(width: 8),
                           GestureDetector(
@@ -215,11 +216,11 @@ class HomeScreen extends ConsumerWidget {
               const SizedBox(height: 20),
               Text(
                 Intl.message('label_moveto_celeb_gallery'),
-                style: getTextStyle(AppTypo.UI20B, AppColors.Gray900),
+                style: getTextStyle(context, AppTypo.UI20B, AppColors.Gray900),
               ),
               Text(
                 Intl.message('text_moveto_celeb_gallery'),
-                style: getTextStyle(AppTypo.UI16, AppColors.Gray900),
+                style: getTextStyle(context, AppTypo.UI16, AppColors.Gray900),
               ),
               const SizedBox(height: 16),
               if (selectedCeleb != null)

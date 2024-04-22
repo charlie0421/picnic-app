@@ -99,7 +99,8 @@ enum AppTypo {
   );
 }
 
-TextStyle getTextStyle(AppTypo typo, Color color) {
+TextStyle getTextStyle(BuildContext context, AppTypo typo, [Color? color]) {
+  color ??= Theme.of(context).colorScheme.primary;
   return TextStyle(
     color: color,
     fontSize: typo._size,

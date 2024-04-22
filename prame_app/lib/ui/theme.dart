@@ -34,7 +34,8 @@ ThemeData themeLight = ThemeData.light().copyWith(
     style: ButtonStyle(
       padding: MaterialStateProperty.all(const EdgeInsets.all(4)),
     ),
-  ),  colorScheme: const ColorScheme(
+  ),
+  colorScheme: const ColorScheme(
     primary: Colors.black,
     onPrimary: Colors.white,
     secondary: Colors.black,
@@ -46,6 +47,17 @@ ThemeData themeLight = ThemeData.light().copyWith(
     surface: Colors.white,
     onSurface: Colors.black,
     brightness: Brightness.light,
+  ),
+  bottomSheetTheme: const BottomSheetThemeData(
+    showDragHandle: true,
+    dragHandleColor: Constants.mainColor,
+    dragHandleSize: Size(200, 2),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(10),
+        topRight: Radius.circular(10),
+      ),
+    ),
   ),
 );
 
@@ -96,4 +108,15 @@ ThemeData themeDark = ThemeData.dark().copyWith(
     onSurface: Colors.white,
     brightness: Brightness.dark,
   ).copyWith(background: Colors.black),
+  bottomSheetTheme: const BottomSheetThemeData(
+    showDragHandle: true,
+    dragHandleColor: Constants.mainColor,
+    dragHandleSize: Size(200, 2),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(10),
+        topRight: Radius.circular(10),
+      ),
+    ),
+  ),
 );
