@@ -29,7 +29,12 @@ class MessageLookup extends MessageLookupByLibrary {
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "button_cancel": MessageLookupByLibrary.simpleMessage("取消"),
+        "button_complete": MessageLookupByLibrary.simpleMessage("完成"),
         "button_ok": MessageLookupByLibrary.simpleMessage("Confirmer"),
+        "hint_library_add":
+            MessageLookupByLibrary.simpleMessage("Nom de l\'album"),
+        "label_album_add":
+            MessageLookupByLibrary.simpleMessage("Ajouter un nouvel album"),
         "label_article_comment_empty": MessageLookupByLibrary.simpleMessage(
             "Soyez le premier à commenter !"),
         "label_celeb_gallery":
@@ -47,6 +52,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Galerie"),
         "label_hint_comment":
             MessageLookupByLibrary.simpleMessage("Laissez un commentaire."),
+        "label_library_save": MessageLookupByLibrary.simpleMessage(
+            "Sauvegarde d\'une bibliothèque"),
         "label_library_tab_ai_photo":
             MessageLookupByLibrary.simpleMessage("Photos de l\'IA"),
         "label_library_tab_library":
@@ -95,6 +102,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Recherche de célébrités."),
         "text_moveto_celeb_gallery": MessageLookupByLibrary.simpleMessage(
             "Permet d\'accéder à la maison de la célébrité sélectionnée."),
+        "title_dialog_library_add":
+            MessageLookupByLibrary.simpleMessage("Ajouter un nouvel album"),
         "title_select_language":
             MessageLookupByLibrary.simpleMessage("Sélectionnez la langue"),
         "toast_max_5_celeb": MessageLookupByLibrary.simpleMessage(

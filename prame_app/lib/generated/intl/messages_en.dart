@@ -29,7 +29,11 @@ class MessageLookup extends MessageLookupByLibrary {
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "button_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
+        "button_complete": MessageLookupByLibrary.simpleMessage("Done"),
         "button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
+        "hint_library_add": MessageLookupByLibrary.simpleMessage("Album name"),
+        "label_album_add":
+            MessageLookupByLibrary.simpleMessage("Add a new album"),
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("Be the first to comment!"),
         "label_celeb_gallery":
@@ -47,6 +51,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Gallery"),
         "label_hint_comment":
             MessageLookupByLibrary.simpleMessage("Leave a comment."),
+        "label_library_save":
+            MessageLookupByLibrary.simpleMessage("Save the library"),
         "label_library_tab_ai_photo":
             MessageLookupByLibrary.simpleMessage("AI Photos"),
         "label_library_tab_library":
@@ -96,6 +102,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Search for celebrities."),
         "text_moveto_celeb_gallery": MessageLookupByLibrary.simpleMessage(
             "Navigates to the selected celebrity\'s home."),
+        "title_dialog_library_add":
+            MessageLookupByLibrary.simpleMessage("Add a new album"),
         "title_select_language":
             MessageLookupByLibrary.simpleMessage("Language selection"),
         "toast_max_5_celeb": MessageLookupByLibrary.simpleMessage(

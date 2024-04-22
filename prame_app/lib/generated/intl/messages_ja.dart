@@ -29,7 +29,10 @@ class MessageLookup extends MessageLookupByLibrary {
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "button_cancel": MessageLookupByLibrary.simpleMessage("キャンセル"),
+        "button_complete": MessageLookupByLibrary.simpleMessage("完了"),
         "button_ok": MessageLookupByLibrary.simpleMessage("確認"),
+        "hint_library_add": MessageLookupByLibrary.simpleMessage("アルバム名"),
+        "label_album_add": MessageLookupByLibrary.simpleMessage("新しいアルバムを追加"),
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("最初のコメントの主人公になりましょう！"),
         "label_celeb_gallery":
@@ -45,6 +48,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("ギャラリー"),
         "label_hint_comment":
             MessageLookupByLibrary.simpleMessage("コメントを残してください。"),
+        "label_library_save": MessageLookupByLibrary.simpleMessage("ライブラリ保存"),
         "label_library_tab_ai_photo":
             MessageLookupByLibrary.simpleMessage("AIフォト"),
         "label_library_tab_library":
@@ -85,6 +89,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_hint_search": MessageLookupByLibrary.simpleMessage("有名人を探す"),
         "text_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("選択した有名人のホームに移動します。"),
+        "title_dialog_library_add":
+            MessageLookupByLibrary.simpleMessage("新しいアルバムを追加"),
         "title_select_language": MessageLookupByLibrary.simpleMessage("言語選択"),
         "toast_max_5_celeb":
             MessageLookupByLibrary.simpleMessage("マイ・セレブリティは5人まで追加可能。")

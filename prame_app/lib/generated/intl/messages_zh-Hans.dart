@@ -29,7 +29,10 @@ class MessageLookup extends MessageLookupByLibrary {
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "button_cancel": MessageLookupByLibrary.simpleMessage("取消"),
+        "button_complete": MessageLookupByLibrary.simpleMessage("完成"),
         "button_ok": MessageLookupByLibrary.simpleMessage("确认"),
+        "hint_library_add": MessageLookupByLibrary.simpleMessage("专辑名称"),
+        "label_album_add": MessageLookupByLibrary.simpleMessage("添加新相册"),
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("成为第一个发表评论的人！"),
         "label_celeb_gallery": MessageLookupByLibrary.simpleMessage("萨洛普画廊"),
@@ -40,6 +43,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("聊天"),
         "label_gallery_tab_gallery": MessageLookupByLibrary.simpleMessage("画廊"),
         "label_hint_comment": MessageLookupByLibrary.simpleMessage("发表评论。"),
+        "label_library_save": MessageLookupByLibrary.simpleMessage("保存图书馆"),
         "label_library_tab_ai_photo":
             MessageLookupByLibrary.simpleMessage("人工智能照片"),
         "label_library_tab_library":
@@ -78,6 +82,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_hint_search": MessageLookupByLibrary.simpleMessage("搜索名人。"),
         "text_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("导航至所选名人的主页。"),
+        "title_dialog_library_add":
+            MessageLookupByLibrary.simpleMessage("添加新相册"),
         "title_select_language": MessageLookupByLibrary.simpleMessage("语言选择"),
         "toast_max_5_celeb":
             MessageLookupByLibrary.simpleMessage("您最多可以添加 5 个 \"我的名人\"。")
