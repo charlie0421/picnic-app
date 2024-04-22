@@ -44,7 +44,7 @@ class _GalleryDetailScreenState extends ConsumerState<GalleryDetailScreen>
     return AppBar(
       title: Text(
         widget.galleryName,
-        style: getTextStyle(AppTypo.UI20B, AppColors.Gray900),
+        style: getTextStyle(context, AppTypo.UI20B, AppColors.Gray900),
       ),
     );
   }

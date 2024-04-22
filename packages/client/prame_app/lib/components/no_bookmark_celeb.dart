@@ -38,7 +38,7 @@ class _NoBookmarkCelebState extends ConsumerState<NoBookmarkCeleb> {
             child: Text(
               Intl.message('label_no_celeb'),
               textAlign: TextAlign.center,
-              style: getTextStyle(AppTypo.UI20, AppColors.Gray300),
+              style: getTextStyle(context, AppTypo.UI20, AppColors.Gray300),
             ),
           )
         ],

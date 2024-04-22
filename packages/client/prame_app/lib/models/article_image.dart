@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:prame_app/models/meta.dart';
+import 'package:prame_app/models/user.dart';
 import 'package:prame_app/reflector.dart';
 
 part 'article_image.g.dart';
@@ -28,12 +29,14 @@ class ArticleImageModel {
   final String titleKo;
   final String titleEn;
   final String image;
+  final List<UserModel>? bookmarkUsers;
 
   ArticleImageModel({
     required this.id,
     required this.titleKo,
     required this.titleEn,
     required this.image,
+    required this.bookmarkUsers,
   });
 
   factory ArticleImageModel.fromJson(Map<String, dynamic> json) =>

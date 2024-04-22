@@ -55,9 +55,9 @@ class HomePage extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   Text(Intl.message('text_ads_random'),
-                      style: getTextStyle(AppTypo.UI18M, AppColors.Gray900)),
+                      style: getTextStyle(context, AppTypo.UI18M, AppColors.Gray900)),
                   Text('01:00:00',
-                      style: getTextStyle(AppTypo.UI18M, AppColors.Gray900)),
+                      style: getTextStyle(context, AppTypo.UI18M, AppColors.Gray900)),
                 ],
               ),
             ),
@@ -102,7 +102,7 @@ class HomePage extends ConsumerWidget {
             alignment: Alignment.centerLeft,
             child: Text(
               Intl.message('label_celeb_gallery'),
-              style: getTextStyle(AppTypo.UI24B, AppColors.Gray900),
+              style: getTextStyle(context, AppTypo.UI24B, AppColors.Gray900),
             ),
           ),
           const SizedBox(height: 20),
@@ -162,7 +162,7 @@ class HomePage extends ConsumerWidget {
                       child: Center(
                         child: Text(
                           data.items[index].titleKo,
-                          style: getTextStyle(AppTypo.UI16B, AppColors.Gray00),
+                          style: getTextStyle(context, AppTypo.UI16B, AppColors.Gray00),
                         ),
                       ),
                     ),

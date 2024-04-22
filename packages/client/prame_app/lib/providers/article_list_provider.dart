@@ -39,25 +39,30 @@ class AsyncArticleList extends _$AsyncArticleList {
     required String sort,
     required String order,
   }) async {
-    final params = {
-      'page': page,
-      'limit': limit,
-      'sort': sort,
-      'order': order,
-    };
+    try {
+      final params = {
+        'page': page,
+        'limit': limit,
+        'sort': sort,
+        'order': order,
+      };
 
-    final dio = await authDio(baseUrl: Constants.userApiUrl);
-    final response =
-        await dio.get('/gallery/articles/$galleryId', queryParameters: params);
-    final ArticleListModel articleListModel =
-        ArticleListModel.fromJson(response.data);
-    if (articleListModel.meta.currentPage >= articleListModel.meta.totalPages) {
-      _pagingController.appendLastPage(articleListModel.items);
-    } else {
-      _pagingController.appendPage(
-          articleListModel.items, articleListModel.meta.currentPage + 1);
+      final dio = await authDio(baseUrl: Constants.userApiUrl);
+      final response = await dio.get('/gallery/articles/$galleryId',
+          queryParameters: params);
+      final ArticleListModel articleListModel =
+          ArticleListModel.fromJson(response.data);
+      if (articleListModel.meta.currentPage >=
+          articleListModel.meta.totalPages) {
+        _pagingController.appendLastPage(articleListModel.items);
+      } else {
+        _pagingController.appendPage(
+            articleListModel.items, articleListModel.meta.currentPage + 1);
+      }
+    } catch (e, stackTrace) {
+      _pagingController.error = e;
+      logger.e(e, stackTrace: stackTrace);
     }
-
     // logger.d(response.data);
     // return ArticleListModel.fromJson(response.data);
   }

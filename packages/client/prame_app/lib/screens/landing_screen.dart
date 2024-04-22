@@ -26,7 +26,7 @@ class LandingScreen extends ConsumerWidget {
                 Navigator.pushReplacementNamed(context, HomeScreen.routeName);
               },
               child: Text(Intl.message('nav_library'),
-                  style: getTextStyle(AppTypo.UI16B, AppColors.Gray900)),
+                  style: getTextStyle(context, AppTypo.UI16B, AppColors.Gray900)),
             ),
             InkWell(
               onTap: () {
@@ -34,7 +34,7 @@ class LandingScreen extends ConsumerWidget {
               },
               child: Text(
                   'Language : ${languageMap[appSettingState.locale.languageCode]}',
-                  style: getTextStyle(AppTypo.UI16B, AppColors.Gray900)),
+                  style: getTextStyle(context, AppTypo.UI16B, AppColors.Gray900)),
             )
           ],
         ),
