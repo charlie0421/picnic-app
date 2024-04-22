@@ -42,5 +42,10 @@
   "label_library_tab_library": "图书馆",
   "label_library_tab_prame": "PRAME",
   "label_library_tab_ai_photo": "人工智能照片",
-  "label_article_comment_empty": "成为第一个发表评论的人！"
+  "label_article_comment_empty": "成为第一个发表评论的人！",
+  "label_library_save": "保存图书馆",
+  "label_album_add": "添加新相册",
+  "title_dialog_library_add": "添加新相册",
+  "hint_library_add": "专辑名称",
+  "button_complete": "完成"
 }
