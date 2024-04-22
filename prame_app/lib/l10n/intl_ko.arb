@@ -42,5 +42,10 @@
   "label_library_tab_library": "라이브러리",
   "label_library_tab_prame": "PRAME",
   "label_library_tab_ai_photo": "AI 포토",
-  "label_article_comment_empty": "첫 댓글의 주인공이 되세요!"
+  "label_article_comment_empty": "첫 댓글의 주인공이 되세요!",
+  "label_library_save": "라이브러리 저장",
+  "label_album_add": "새로운 앨범 추가",
+  "title_dialog_library_add": "새로운 앨범 추가",
+  "hint_library_add": "앨범명",
+  "button_complete": "완료"
 }
