@@ -47,5 +47,8 @@
   "label_album_add": "Add a new album",
   "title_dialog_library_add": "Add a new album",
   "hint_library_add": "Album name",
-  "button_complete": "Done"
+  "button_complete": "Done",
+  "label_vote_screen_title": "vote",
+  "label_vote_tab_birthday": "birthday vote",
+  "label_vote_tab_prame": "P-RAME Voting"
 }
