@@ -14,6 +14,7 @@ import 'package:prame_app/screens/landing_screen.dart';
 import 'package:prame_app/screens/language_screen.dart';
 import 'package:prame_app/screens/my_screen.dart';
 import 'package:prame_app/screens/prame_screen.dart';
+import 'package:prame_app/screens/vote_list_screen.dart';
 import 'package:prame_app/ui/theme.dart';
 import 'package:prame_app/util.dart';
 import 'package:screen_protector/screen_protector.dart';
@@ -84,6 +85,7 @@ class _PrameAppState extends ConsumerState<PrameApp>
               LanguageScreen.routeName: (context) => const LanguageScreen(),
               PrameScreen.routeName: (context) => const PrameScreen(),
               DrawImageScreen.routeName: (context) => const DrawImageScreen(),
+              VoteListScreen.routeName: (context) => const VoteListScreen(),
             },
             onGenerateRoute: (settings) {
               if (settings.name == GalleryDetailScreen.routeName) {

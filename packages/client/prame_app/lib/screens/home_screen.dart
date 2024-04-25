@@ -86,8 +86,7 @@ class HomeScreen extends ConsumerWidget {
                               Text(
                                 celebListModel.items.first.nameKo,
                                 style: getTextStyle(
-                                    context,
-                                    AppTypo.UI16B, AppColors.Gray00),
+                                    context, AppTypo.UI16B, AppColors.Gray00),
                               ),
                               const SizedBox(width: 8),
                               GestureDetector(
@@ -135,8 +134,8 @@ class HomeScreen extends ConsumerWidget {
                           const SizedBox(width: 8),
                           Text(
                             celebModel!.nameKo,
-                            style:
-                                getTextStyle(context, AppTypo.UI16B, AppColors.Gray00),
+                            style: getTextStyle(
+                                context, AppTypo.UI16B, AppColors.Gray00),
                           ),
                           const SizedBox(width: 8),
                           GestureDetector(
@@ -161,6 +160,14 @@ class HomeScreen extends ConsumerWidget {
                     error: error,
                     stackTrace: stackTrace,
                   )),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.how_to_vote_sharp, color: Colors.pink),
+              onPressed: () {
+                Navigator.pushNamed(context, '/vote-list');
+              },
+            ),
+          ],
         );
       case 1:
         return AppBar(
