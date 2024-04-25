@@ -2,7 +2,7 @@ name: prame_app
 description: "Prame App"
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.0+22
+version: 1.0.0+23
 
 environment:
   sdk: '>=3.3.1 <4.0.0'
