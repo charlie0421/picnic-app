@@ -1,0 +1,87 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:prame_app/constants.dart';
+import 'package:prame_app/models/vote.dart';
+import 'package:prame_app/ui/style.dart';
+
+class VoteArtists extends StatelessWidget {
+  final VoteModel vote;
+
+  const VoteArtists({super.key, required this.vote});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: GridView(
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 6,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          childAspectRatio: 1 / 1.45,
+        ),
+        children: vote.voteItems
+            .asMap()
+            .entries
+            .map((artist) => Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: Colors.grey.withOpacity(1),
+                      width: 2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.5),
+                        spreadRadius: 1,
+                        blurRadius: 7,
+                        offset: const Offset(2, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Stack(
+                        children: [
+                          Image.network(
+                              '${artist.value.myStarMember.image}?w=100'),
+                          Positioned(
+                            left: 0,
+                            top: 0,
+                            child: Container(
+                              width: 18.w,
+                              height: 18.h,
+                              decoration: BoxDecoration(
+                                color: Constants.mainColor,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  (artist.key + 1).toString(),
+                                  style: getTextStyle(
+                                      context, AppTypo.UI12, Colors.white),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 2.h,
+                      ),
+                      Text(
+                        artist.value.myStarMember.nameKo,
+                        style: getTextStyle(context, AppTypo.UI12M),
+                      ),
+                    ],
+                  ),
+                ))
+            .toList(),
+      ),
+    );
+  }
+}
