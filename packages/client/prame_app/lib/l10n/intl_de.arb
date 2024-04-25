@@ -47,5 +47,8 @@
   "label_album_add": "Ein neues Album hinzufügen",
   "title_dialog_library_add": "Ein neues Album hinzufügen",
   "hint_library_add": "Name des Albums",
-  "button_complete": "完成"
+  "button_complete": "完成",
+  "label_vote_screen_title": "Abstimmung",
+  "label_vote_tab_birthday": "Geburtstagsabstimmung",
+  "label_vote_tab_prame": "P-RAME-Abstimmung"
 }
