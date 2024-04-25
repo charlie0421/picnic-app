@@ -47,5 +47,9 @@
   "label_album_add": "새로운 앨범 추가",
   "title_dialog_library_add": "새로운 앨범 추가",
   "hint_library_add": "앨범명",
-  "button_complete": "완료"
+  "button_complete": "완료",
+  "label_vote_screen_title": "투표",
+  "label_vote_tab_birthday": "생일 투표",
+  "label_vote_tab_prame": "P-RAME 투표"
+
 }
