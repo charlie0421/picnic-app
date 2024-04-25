@@ -14,17 +14,20 @@ class VoteImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      constraints: BoxConstraints(minHeight: 100.h),
-      margin: EdgeInsets.only(left: 16.w, right: 16.w, top: 16.h, bottom: 16.h),
+      constraints: BoxConstraints(minHeight: 30.h),
+      margin: EdgeInsets.only(left: 16.w, right: 16.w, top: 16.h, bottom: 0.h),
       decoration: BoxDecoration(
         color: AppColors.Gray600,
         borderRadius: BorderRadius.circular(8.r),
       ),
-      child: CachedNetworkImage(
-        imageUrl: vote.mainImage,
-        fit: BoxFit.cover,
-        placeholder: (context, url) => const LoadingView(),
-        errorWidget: (context, url, error) => const Icon(Icons.error),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8.r),
+        child: CachedNetworkImage(
+          imageUrl: '${vote.mainImage}?w=800',
+          fit: BoxFit.cover,
+          placeholder: (context, url) => const LoadingView(),
+          errorWidget: (context, url, error) => const Icon(Icons.error),
+        ),
       ),
     );
   }
