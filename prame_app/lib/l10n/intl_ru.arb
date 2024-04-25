@@ -47,5 +47,8 @@
   "label_album_add": "Добавить новый альбом",
   "title_dialog_library_add": "Добавить новый альбом",
   "hint_library_add": "Название альбома",
-  "button_complete": "完成"
+  "button_complete": "完成",
+  "label_vote_screen_title": "голосование",
+  "label_vote_tab_birthday": "голосование по случаю дня рождения",
+  "label_vote_tab_prame": "P-RAME Голосование"
 }
