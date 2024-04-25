@@ -77,6 +77,11 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Comentário"),
         "label_title_report":
             MessageLookupByLibrary.simpleMessage("Fazer um relatório"),
+        "label_vote_screen_title": MessageLookupByLibrary.simpleMessage("voto"),
+        "label_vote_tab_birthday":
+            MessageLookupByLibrary.simpleMessage("voto de aniversário"),
+        "label_vote_tab_prame":
+            MessageLookupByLibrary.simpleMessage("Votação P-RAME"),
         "lable_my_celeb":
             MessageLookupByLibrary.simpleMessage("Minha celebridade"),
         "message_report_confirm": MessageLookupByLibrary.simpleMessage(

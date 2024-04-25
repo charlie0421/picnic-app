@@ -62,6 +62,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("就在刚才"),
         "label_title_comment": MessageLookupByLibrary.simpleMessage("评论"),
         "label_title_report": MessageLookupByLibrary.simpleMessage("提交报告"),
+        "label_vote_screen_title": MessageLookupByLibrary.simpleMessage("投票"),
+        "label_vote_tab_birthday": MessageLookupByLibrary.simpleMessage("生日投票"),
+        "label_vote_tab_prame":
+            MessageLookupByLibrary.simpleMessage("P-RAME投票"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("我的名人"),
         "message_report_confirm":
             MessageLookupByLibrary.simpleMessage("你想报告吗？"),
