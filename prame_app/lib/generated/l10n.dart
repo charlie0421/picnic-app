@@ -529,6 +529,36 @@ class S {
       args: [],
     );
   }
+
+  /// `vote`
+  String get label_vote_screen_title {
+    return Intl.message(
+      'vote',
+      name: 'label_vote_screen_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `birthday vote`
+  String get label_vote_tab_birthday {
+    return Intl.message(
+      'birthday vote',
+      name: 'label_vote_tab_birthday',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `P-RAME Voting`
+  String get label_vote_tab_prame {
+    return Intl.message(
+      'P-RAME Voting',
+      name: 'label_vote_tab_prame',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

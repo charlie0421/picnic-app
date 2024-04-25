@@ -68,6 +68,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_time_ago_right_now": MessageLookupByLibrary.simpleMessage("先ほど"),
         "label_title_comment": MessageLookupByLibrary.simpleMessage("コメント"),
         "label_title_report": MessageLookupByLibrary.simpleMessage("報告する"),
+        "label_vote_screen_title": MessageLookupByLibrary.simpleMessage("投票"),
+        "label_vote_tab_birthday":
+            MessageLookupByLibrary.simpleMessage("誕生日投票"),
+        "label_vote_tab_prame":
+            MessageLookupByLibrary.simpleMessage("P-RAME投票"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("マイ・セレブ"),
         "message_report_confirm":
             MessageLookupByLibrary.simpleMessage("申告しますか？"),

@@ -67,6 +67,11 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("방금 전"),
         "label_title_comment": MessageLookupByLibrary.simpleMessage("댓글"),
         "label_title_report": MessageLookupByLibrary.simpleMessage("신고하기"),
+        "label_vote_screen_title": MessageLookupByLibrary.simpleMessage("투표"),
+        "label_vote_tab_birthday":
+            MessageLookupByLibrary.simpleMessage("생일 투표"),
+        "label_vote_tab_prame":
+            MessageLookupByLibrary.simpleMessage("P-RAME 투표"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("내 셀럽"),
         "message_report_confirm":
             MessageLookupByLibrary.simpleMessage("신고하시겠습니까?"),
