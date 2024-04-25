@@ -47,5 +47,8 @@
   "label_album_add": "新しいアルバムを追加",
   "title_dialog_library_add": "新しいアルバムを追加",
   "hint_library_add": "アルバム名",
-  "button_complete": "完了"
+  "button_complete": "完了",
+  "label_vote_screen_title": "投票",
+  "label_vote_tab_birthday": "誕生日投票",
+  "label_vote_tab_prame": "P-RAME投票"
 }
