@@ -5,21 +5,20 @@ import 'package:prame_app/pages/article_page.dart';
 import 'package:prame_app/screens/bottom_navigation_bar.dart';
 import 'package:prame_app/ui/style.dart';
 
-class GalleryDetailScreen extends ConsumerStatefulWidget {
+class GalleryDetailPage extends ConsumerStatefulWidget {
   static const String routeName = '/gallery_detail_screen';
 
   final int galleryId;
   final String galleryName;
 
-  const GalleryDetailScreen(
+  const GalleryDetailPage(
       {super.key, required this.galleryId, required this.galleryName});
 
   @override
-  ConsumerState<GalleryDetailScreen> createState() =>
-      _GalleryDetailScreenState();
+  ConsumerState<GalleryDetailPage> createState() => _GalleryDetailScreenState();
 }
 
-class _GalleryDetailScreenState extends ConsumerState<GalleryDetailScreen>
+class _GalleryDetailScreenState extends ConsumerState<GalleryDetailPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
@@ -34,24 +33,10 @@ class _GalleryDetailScreenState extends ConsumerState<GalleryDetailScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(context, ref),
-      body: _buildPage(ref),
-    );
-  }
-
-  AppBar _buildAppBar(context, WidgetRef ref) {
-    return AppBar(
-      title: Text(
-        widget.galleryName,
-        style: getTextStyle(context, AppTypo.UI20B, AppColors.Gray900),
-      ),
-    );
-  }
-
-  Widget _buildPage(ref) {
     return Column(
       children: [
+        Text(widget.galleryName,
+            style: getTextStyle(context, AppTypo.UI24B, AppColors.Gray900)),
         SizedBox(
           height: 50,
           child: TabBar(

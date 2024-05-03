@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:prame_app/constants.dart';
 import 'package:prame_app/providers/celeb_list_provider.dart';
-import 'package:prame_app/providers/my_celeb_list_provider.dart';
 import 'package:prame_app/providers/prame_provider.dart';
 import 'package:prame_app/ui/style.dart';
 
@@ -163,7 +162,8 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
                     ),
                     SizedBox(height: 4.h),
                     Text(data.items[index].nameKo,
-                        style: getTextStyle(context, AppTypo.UI16B, AppColors.Gray900))
+                        style: getTextStyle(
+                            context, AppTypo.UI16B, AppColors.Gray900))
                   ],
                 ),
               );

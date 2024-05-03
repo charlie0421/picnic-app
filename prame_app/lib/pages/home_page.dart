@@ -2,129 +2,175 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:prame_app/components/error.dart';
+import 'package:prame_app/components/no_bookmark_celeb.dart';
 import 'package:prame_app/constants.dart';
 import 'package:prame_app/models/celeb.dart';
 import 'package:prame_app/models/gallery.dart';
+import 'package:prame_app/pages/gallery_detail_page.dart';
+import 'package:prame_app/pages/landing_page.dart';
 import 'package:prame_app/providers/celeb_banner_list_provider.dart';
 import 'package:prame_app/providers/gallery_list_provider.dart';
-import 'package:prame_app/providers/selected_celeb_provider.dart';
+import 'package:prame_app/providers/navigation_provider.dart';
 import 'package:prame_app/screens/draw_image_screen.dart';
-import 'package:prame_app/screens/gallery_detail_screen.dart';
 import 'package:prame_app/ui/style.dart';
 import 'package:prame_app/util.dart';
 
+import '../components/celeb_list_item.dart';
+import '../providers/celeb_list_provider.dart';
+
 class HomePage extends ConsumerWidget {
-  CelebModel celebModel;
-  HomePage({super.key, required this.celebModel});
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final asyncCelebListState = ref.watch(asyncCelebListProvider);
     final selectedCelebState = ref.watch(selectedCelebProvider);
-    celebModel = selectedCelebState ?? celebModel;
-    final celebBannerListState =
-        ref.watch(asyncCelebBannerListProvider(celebId: celebModel.id));
-    final asyncGalleryListState =
-        ref.watch(asyncGalleryListProvider(celebId: celebModel.id));
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: SingleChildScrollView(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const SizedBox(
-            height: 20,
-          ),
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.Gray100,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            height: 80,
+    final selectedCelebNotifier = ref.read(selectedCelebProvider.notifier);
+    if (selectedCelebState == null) {
+      WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+        selectedCelebNotifier
+            .setSelectedCeleb(asyncCelebListState.value?.items.first);
+      });
+      return const SizedBox.shrink();
+    }
+
+    final celebBannerListState = ref
+        .watch(asyncCelebBannerListProvider(celebId: selectedCelebState!.id));
+    final asyncGalleryListState = ref.watch(asyncGalleryListProvider);
+    return Column(
+      children: [
+        Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             width: double.infinity,
-            child: GestureDetector(
-              onTap: () {
-                Navigator.pushNamed(context, DrawImageScreen.routeName);
-              },
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Text(Intl.message('text_ads_random'),
-                      style: getTextStyle(context, AppTypo.UI18M, AppColors.Gray900)),
-                  Text('01:00:00',
-                      style: getTextStyle(context, AppTypo.UI18M, AppColors.Gray900)),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          celebBannerListState.when(
-            data: (data) {
-              return SizedBox(
-                height: 236,
-                width: MediaQuery.of(context).size.width - 32,
-                child: Swiper(
-                  itemBuilder: (BuildContext context, int index) {
-                    return ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: CachedNetworkImage(
-                        imageUrl: data.items[index].thumbnail,
-                        fit: BoxFit.cover,
-                      ),
-                    );
-                  },
-                  itemCount: data.items.length,
-                  pagination: const SwiperPagination(),
-                  autoplay: true,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                CachedNetworkImage(
+                    imageUrl: selectedCelebState.thumbnail,
+                    width: 38,
+                    height: 38),
+                const SizedBox(width: 8),
+                Text(
+                  selectedCelebState.nameKo,
+                  style:
+                      getTextStyle(context, AppTypo.UI16B, AppColors.Gray900),
                 ),
-              );
-            },
-            loading: () => buildLoadingOverlay(),
-            error: (error, stackTrace) => ErrorView(
-              context,
-              retryFunction: () {
-                ref.refresh(asyncCelebBannerListProvider(
-                    celebId: selectedCelebState?.id ?? 1));
-              },
-              error: error,
-              stackTrace: stackTrace,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              Intl.message('label_celeb_gallery'),
-              style: getTextStyle(context, AppTypo.UI24B, AppColors.Gray900),
-            ),
-          ),
-          const SizedBox(height: 20),
-          asyncGalleryListState.when(
-              data: _buildGalleryList,
-              error: (error, stackTrace) {
-                return ErrorView(
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: () => _buildSelectCelebBottomSheet(
+                      context, selectedCelebState, ref),
+                  child: SvgPicture.asset(
+                    'assets/icons/dropdown.svg',
+                    width: 20,
+                    height: 20,
+                  ),
+                ),
+              ],
+            )),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: SingleChildScrollView(
+              child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(
+                height: 20,
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.Gray100,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                height: 80,
+                width: double.infinity,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, DrawImageScreen.routeName);
+                  },
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Text(Intl.message('text_ads_random'),
+                          style: getTextStyle(
+                              context, AppTypo.UI18M, AppColors.Gray900)),
+                      Text('01:00:00',
+                          style: getTextStyle(
+                              context, AppTypo.UI18M, AppColors.Gray900)),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              celebBannerListState.when(
+                data: (data) {
+                  return SizedBox(
+                    height: 236,
+                    width: MediaQuery.of(context).size.width - 32,
+                    child: Swiper(
+                      itemBuilder: (BuildContext context, int index) {
+                        return ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: CachedNetworkImage(
+                            imageUrl: data.items[index].thumbnail,
+                            fit: BoxFit.cover,
+                          ),
+                        );
+                      },
+                      itemCount: data.items.length,
+                      pagination: const SwiperPagination(),
+                      autoplay: true,
+                    ),
+                  );
+                },
+                loading: () => buildLoadingOverlay(),
+                error: (error, stackTrace) => ErrorView(
                   context,
+                  retryFunction: () {
+                    ref.refresh(asyncCelebBannerListProvider(
+                        celebId: selectedCelebState?.id ?? 1));
+                  },
                   error: error,
                   stackTrace: stackTrace,
-                  retryFunction: () => ref
-                      .read(asyncGalleryListProvider(celebId: 0).notifier)
-                      .build(celebId: 0),
-                );
-              },
-              loading: () => buildLoadingOverlay()),
-        ],
-      )),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  Intl.message('label_celeb_gallery'),
+                  style:
+                      getTextStyle(context, AppTypo.UI24B, AppColors.Gray900),
+                ),
+              ),
+              const SizedBox(height: 20),
+              asyncGalleryListState.when(
+                  data: (data) => _buildGalleryList(ref, data),
+                  error: (error, stackTrace) {
+                    return ErrorView(
+                      context,
+                      error: error,
+                      stackTrace: stackTrace,
+                      retryFunction: () =>
+                          ref.read(asyncGalleryListProvider.notifier).build(),
+                    );
+                  },
+                  loading: () => buildLoadingOverlay()),
+            ],
+          )),
+        ),
+      ],
     );
   }
 
-  Widget _buildGalleryList(GalleryListModel data) {
+  Widget _buildGalleryList(WidgetRef ref, GalleryListModel data) {
     return Container(
       alignment: Alignment.centerLeft,
       height: 215,
@@ -134,10 +180,12 @@ class HomePage extends ConsumerWidget {
           itemBuilder: (context, index) {
             return GestureDetector(
               onTap: () {
-                Navigator.pushNamed(context, GalleryDetailScreen.routeName,
-                    arguments: GalleryDetailScreenArguments(
-                        galleryId: data.items[index].id,
-                        galleryName: data.items[index].titleKo));
+                ref
+                    .read(navigationInfoProvider.notifier)
+                    .setCurrentPage(GalleryDetailPage(
+                      galleryId: data.items[index].id,
+                      galleryName: data.items[index].titleKo,
+                    ));
               },
               child: Stack(
                 children: [
@@ -162,7 +210,8 @@ class HomePage extends ConsumerWidget {
                       child: Center(
                         child: Text(
                           data.items[index].titleKo,
-                          style: getTextStyle(context, AppTypo.UI16B, AppColors.Gray00),
+                          style: getTextStyle(
+                              context, AppTypo.UI16B, AppColors.Gray00),
                         ),
                       ),
                     ),
@@ -178,5 +227,122 @@ class HomePage extends ConsumerWidget {
               ),
           itemCount: data.items.length),
     );
+  }
+
+  void _buildSelectCelebBottomSheet(
+      BuildContext context, selectedCeleb, WidgetRef ref) {
+    final asyncMyCelebListState = ref.watch(asyncMyCelebListProvider);
+
+    showModalBottomSheet(
+        context: context,
+        useSafeArea: false,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(8),
+            topRight: Radius.circular(8),
+          ),
+        ),
+        builder: (BuildContext context) {
+          return SingleChildScrollView(
+              child: Column(
+            children: [
+              const SizedBox(height: 20),
+              Text(
+                Intl.message('label_moveto_celeb_gallery'),
+                style: getTextStyle(context, AppTypo.UI20B, AppColors.Gray900),
+              ),
+              Text(
+                Intl.message('text_moveto_celeb_gallery'),
+                style: getTextStyle(context, AppTypo.UI16, AppColors.Gray900),
+              ),
+              const SizedBox(height: 16),
+              if (selectedCeleb != null)
+                ...asyncMyCelebListState.when(
+                    data: (data) {
+                      logger.w('data.items.length: ${data.items.length}');
+                      return data.items.isNotEmpty
+                          ? _buildSearchList(context, ref, data, selectedCeleb)
+                          : [const NoBookmarkCeleb()];
+                    },
+                    loading: () => [buildLoadingOverlay()],
+                    error: (error, stackTrace) => [
+                          ErrorView(
+                            context,
+                            retryFunction: () {
+                              ref.refresh(asyncMyCelebListProvider);
+                            },
+                            error: error,
+                            stackTrace: stackTrace,
+                          )
+                        ]),
+              const SizedBox(
+                height: 20,
+              ),
+              GestureDetector(
+                  onTap: () {
+                    _buildFloating(context);
+                  },
+                  child: Text(Intl.message('label_find_celeb'))),
+              const SizedBox(
+                height: 40,
+              ),
+            ],
+          ));
+        });
+  }
+
+  List<Widget> _buildSearchList(BuildContext context, WidgetRef ref,
+      CelebListModel data, CelebModel selectedCeleb) {
+    logger.w('selectedCeleb: ${selectedCeleb}');
+    logger.w('selectedCeleb: ${selectedCeleb?.nameKo}');
+    logger.w('CelebListModel: ${data.items.length}');
+
+    if (selectedCeleb != null) {
+      data.items.removeWhere((item) => item.id == selectedCeleb.id);
+      data.items.insert(0, selectedCeleb);
+    }
+    return selectedCeleb != null
+        ? data.items
+            .map((e) => Container(
+                height: 70,
+                margin: const EdgeInsets.symmetric(horizontal: 32, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                decoration: BoxDecoration(
+                  color: e.id == selectedCeleb?.id
+                      ? const Color(0xFF47E89B)
+                      : AppColors.Gray00,
+                  border: Border.all(
+                    color: AppColors.Gray100,
+                    width: 1,
+                  ),
+                ),
+                child: InkWell(
+                  onTap: () {
+                    ref
+                        .read(selectedCelebProvider.notifier)
+                        .setSelectedCeleb(e);
+                    ref.read(asyncCelebBannerListProvider(celebId: e.id));
+                    Navigator.pop(context);
+                  },
+                  child: CelebListItem(
+                      item: e,
+                      type: 'my',
+                      showBookmark: e.id != selectedCeleb.id,
+                      enableBookmark: false),
+                )))
+            .toList()
+        : [const NoBookmarkCeleb()];
+  }
+
+  void _buildFloating(context) {
+    showModalBottomSheet(
+        context: context,
+        useSafeArea: true,
+        showDragHandle: true,
+        isScrollControlled: true,
+        builder: (BuildContext context) {
+          return const LandingPage();
+        });
   }
 }

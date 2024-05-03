@@ -8,15 +8,26 @@ part 'gallery_list_provider.g.dart';
 @riverpod
 class AsyncGalleryList extends _$AsyncGalleryList {
   @override
-  Future<GalleryListModel> build({required int celebId}) async {
-    return _fetchGalleryList(celebId: celebId);
+  Future<GalleryListModel> build() async {
+    return _fetchGalleryList();
   }
 
-  Future<GalleryListModel> _fetchGalleryList({required int celebId}) async {
+  Future<GalleryListModel> _fetchGalleryList() async {
     final dio = await authDio(baseUrl: Constants.userApiUrl);
-    final response = celebId != 0
-        ? await dio.get('/gallery/celeb/$celebId')
-        : await dio.get('/gallery');
+    final response = await dio.get('/gallery');
     return GalleryListModel.fromJson(response.data);
+  }
+}
+
+@riverpod
+class SelectedGalleryId extends _$SelectedGalleryId {
+  int selectedGalleryId = 0; // 초기 값이 필요하다면 임시로 할당
+
+  @override
+  int build() => selectedGalleryId;
+
+  void setSelectedGalleryId(int id) {
+    selectedGalleryId = id;
+    state = selectedGalleryId;
   }
 }
