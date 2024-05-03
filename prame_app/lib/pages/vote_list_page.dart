@@ -6,7 +6,6 @@ import 'package:prame_app/components/error.dart';
 import 'package:prame_app/components/vote/list/vote_artists.dart';
 import 'package:prame_app/components/vote/list/vote_image.dart';
 import 'package:prame_app/components/vote/list/vote_title.dart';
-import 'package:prame_app/constants.dart';
 import 'package:prame_app/models/vote.dart';
 import 'package:prame_app/providers/vote_list_provider.dart';
 import 'package:prame_app/util.dart';
@@ -33,7 +32,6 @@ class _VoteListPageState extends ConsumerState<VoteListPage> {
 
   @override
   Widget build(BuildContext context) {
-    logger.d('VoteListPage build');
     return Column(
       children: [
         // Align(

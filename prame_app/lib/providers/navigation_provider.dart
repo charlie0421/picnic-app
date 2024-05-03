@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:prame_app/constants.dart';
-import 'package:prame_app/pages/home_page.dart';
 import 'package:prame_app/reflector.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -12,6 +11,7 @@ class NavigationInfo extends _$NavigationInfo {
 
   @override
   Navigation build() {
+    loadSettings();
     return setting;
   }
 
@@ -36,6 +36,7 @@ class NavigationInfo extends _$NavigationInfo {
   }
 
   setPortalString(String portalString) {
+    logger.d('setPortalString: $portalString');
     state = state.copyWith(portalString: portalString);
     globalStorage.saveData('portalString', portalString);
   }
@@ -63,6 +64,9 @@ class Navigation {
     String? portalString = await globalStorage.loadData('portalString', 'vote');
     String? bottomNavigationIndex =
         await globalStorage.loadData('bottomNavigationIndex', '0');
+
+    logger.d('portalString: $portalString');
+    logger.d('bottomNavigationIndex: $bottomNavigationIndex');
     return Navigation()
       ..portalString = portalString!
       ..bottomNavigationIndex = int.parse(bottomNavigationIndex!);
