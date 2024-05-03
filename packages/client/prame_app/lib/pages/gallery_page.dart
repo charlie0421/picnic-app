@@ -5,8 +5,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:prame_app/components/error.dart';
 import 'package:prame_app/models/gallery.dart';
+import 'package:prame_app/pages/gallery_detail_page.dart';
 import 'package:prame_app/providers/gallery_list_provider.dart';
-import 'package:prame_app/screens/gallery_detail_screen.dart';
+import 'package:prame_app/providers/navigation_provider.dart';
 import 'package:prame_app/ui/style.dart';
 import 'package:prame_app/util.dart';
 
@@ -24,8 +25,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final asyncGalleryListState =
-        ref.watch(asyncGalleryListProvider(celebId: 0));
+    final asyncGalleryListState = ref.watch(asyncGalleryListProvider);
 
     return asyncGalleryListState.when(
       data: (galleryList) {
@@ -36,9 +36,8 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
         context,
         error: error,
         stackTrace: stackTrace,
-        retryFunction: () => ref
-            .read(asyncGalleryListProvider(celebId: 0).notifier)
-            .build(celebId: 0),
+        retryFunction: () =>
+            ref.read(asyncGalleryListProvider.notifier).build(),
       ),
     );
   }
@@ -76,10 +75,12 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
                 final gallery = galleryList.items[index];
                 return GestureDetector(
                   onTap: () {
-                    Navigator.pushNamed(context, GalleryDetailScreen.routeName,
-                        arguments: GalleryDetailScreenArguments(
-                            galleryId: gallery.id,
-                            galleryName: gallery.titleKo));
+                    ref
+                        .read(navigationInfoProvider.notifier)
+                        .setCurrentPage(GalleryDetailPage(
+                          galleryId: gallery.id,
+                          galleryName: gallery.titleKo,
+                        ));
                   },
                   child: Stack(
                     alignment: Alignment.topCenter,

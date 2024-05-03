@@ -31,7 +31,6 @@ class _VoteListScreenState extends ConsumerState<VoteListScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(context, ref),
       body: _buildPage(ref),
     );
   }

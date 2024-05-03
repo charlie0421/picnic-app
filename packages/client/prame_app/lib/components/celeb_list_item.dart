@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:prame_app/models/celeb.dart';
 import 'package:prame_app/providers/celeb_list_provider.dart';
 import 'package:prame_app/providers/celeb_search_provider.dart';
-import 'package:prame_app/providers/selected_celeb_provider.dart';
 import 'package:prame_app/screens/home_screen.dart';
 import 'package:prame_app/ui/style.dart';
 import 'package:prame_app/util.dart';
@@ -40,11 +39,10 @@ class CelebListItem extends ConsumerWidget {
 
     return InkWell(
       onTap: () async {
-        await selectedCelebNotifier.setSelectedCeleb(item).then((value) {
-          logger.i('selectedCeleb: ${item.nameKo}');
-          onTap?.call();
-          Navigator.pop(context);
-        });
+        selectedCelebNotifier.setSelectedCeleb(item);
+        logger.i('selectedCeleb: ${item.nameKo}');
+        onTap?.call();
+        Navigator.pop(context);
       },
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 16),
@@ -94,7 +92,9 @@ class CelebListItem extends ConsumerWidget {
                                   showOverlayToast(
                                       context,
                                       Text(Intl.message('toast_max_5_celeb'),
-                                          style: getTextStyle(context, AppTypo.UI16M,
+                                          style: getTextStyle(
+                                              context,
+                                              AppTypo.UI16M,
                                               AppColors.Gray900)));
 
                                   return;

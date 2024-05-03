@@ -7,14 +7,7 @@ import 'package:prame_app/generated/l10n.dart';
 import 'package:prame_app/overlays.dart';
 import 'package:prame_app/providers/app_setting_provider.dart';
 import 'package:prame_app/providers/celeb_list_provider.dart';
-import 'package:prame_app/screens/draw_image_screen.dart';
-import 'package:prame_app/screens/gallery_detail_screen.dart';
-import 'package:prame_app/screens/home_screen.dart';
-import 'package:prame_app/screens/landing_screen.dart';
-import 'package:prame_app/screens/language_screen.dart';
-import 'package:prame_app/screens/my_screen.dart';
-import 'package:prame_app/screens/prame_screen.dart';
-import 'package:prame_app/screens/vote_list_screen.dart';
+import 'package:prame_app/screens/portal.dart';
 import 'package:prame_app/ui/theme.dart';
 import 'package:prame_app/util.dart';
 import 'package:screen_protector/screen_protector.dart';
@@ -79,34 +72,34 @@ class _PrameAppState extends ConsumerState<PrameApp>
             darkTheme: themeLight,
             themeMode: appSettingState.themeMode,
             locale: appSettingState.locale,
-            routes: {
-              LandingScreen.routeName: (context) => const LandingScreen(),
-              MyScreen.routeName: (context) => const MyScreen(),
-              LanguageScreen.routeName: (context) => const LanguageScreen(),
-              PrameScreen.routeName: (context) => const PrameScreen(),
-              DrawImageScreen.routeName: (context) => const DrawImageScreen(),
-              VoteListScreen.routeName: (context) => const VoteListScreen(),
-            },
-            onGenerateRoute: (settings) {
-              if (settings.name == GalleryDetailScreen.routeName) {
-                final args = settings.arguments as GalleryDetailScreenArguments;
-                return MaterialPageRoute(
-                    builder: (context) => GalleryDetailScreen(
-                          galleryId: args.galleryId,
-                          galleryName: args.galleryName,
-                        ));
-              }
-              if (settings.name == HomeScreen.routeName) {
-                final args = settings.arguments as HomeScreenArguments;
-
-                return MaterialPageRoute(
-                    builder: (context) => HomeScreen(
-                          celebModel: args.celebModel,
-                        ));
-              }
-
-              return null;
-            },
+            // routes: {
+            //   LandingScreen.routeName: (context) => const LandingScreen(),
+            //   MyScreen.routeName: (context) => const MyScreen(),
+            //   LanguageScreen.routeName: (context) => const LanguageScreen(),
+            //   PrameScreen.routeName: (context) => const PrameScreen(),
+            //   DrawImageScreen.routeName: (context) => const DrawImageScreen(),
+            //   VoteListScreen.routeName: (context) => const VoteListScreen(),
+            // },
+            // onGenerateRoute: (settings) {
+            //   if (settings.name == GalleryDetailScreen.routeName) {
+            //     final args = settings.arguments as GalleryDetailScreenArguments;
+            //     return MaterialPageRoute(
+            //         builder: (context) => GalleryDetailScreen(
+            //               galleryId: args.galleryId,
+            //               galleryName: args.galleryName,
+            //             ));
+            //   }
+            //   if (settings.name == HomeScreen.routeName) {
+            //     final args = settings.arguments as HomeScreenArguments;
+            //
+            //     return MaterialPageRoute(
+            //         builder: (context) => HomeScreen(
+            //               celebModel: args.celebModel,
+            //             ));
+            //   }
+            //
+            //   return null;
+            // },
             localizationsDelegates: [
               S.delegate,
               GlobalMaterialLocalizations.delegate,
@@ -114,9 +107,7 @@ class _PrameAppState extends ConsumerState<PrameApp>
               GlobalCupertinoLocalizations.delegate,
             ],
             supportedLocales: S.delegate.supportedLocales,
-            home: HomeScreen(
-              celebModel: asyncCelebListState.value?.items.first,
-            )),
+            home: const Portal()),
       ),
     );
   }
