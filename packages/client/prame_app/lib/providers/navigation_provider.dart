@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prame_app/constants.dart';
+import 'package:prame_app/pages/home_page.dart';
 import 'package:prame_app/reflector.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -47,8 +48,23 @@ class NavigationInfo extends _$NavigationInfo {
   }
 
   setCurrentPage(Widget page) {
-    logger.d('setCurrentPage: $page');
-    state = state.copyWith(currentPage: page);
+    setting.previousPage = setting.currentPage;
+    setting.currentPage = page;
+    state = state.copyWith(
+        previousPage: setting.previousPage, currentPage: setting.currentPage);
+  }
+
+  bool canBack() {
+    return setting.previousPage != null;
+  }
+
+  goBack() {
+    if (setting.previousPage != null &&
+        setting.currentPage != setting.previousPage) {
+      setting.currentPage = setting.previousPage;
+      state = state.copyWith(
+          previousPage: setting.previousPage, currentPage: setting.currentPage);
+    }
   }
 }
 
@@ -56,7 +72,8 @@ class NavigationInfo extends _$NavigationInfo {
 class Navigation {
   String portalString = 'vote';
   int bottomNavigationIndex = 0;
-  Widget? currentPage;
+  Widget? currentPage = const HomePage();
+  Widget? previousPage;
 
   Navigation();
 
@@ -75,12 +92,14 @@ class Navigation {
   Navigation copyWith({
     String? portalString,
     int? bottomNavigationIndex,
+    Widget? previousPage,
     Widget? currentPage,
   }) {
     return Navigation()
       ..portalString = portalString ?? this.portalString
       ..bottomNavigationIndex =
           bottomNavigationIndex ?? this.bottomNavigationIndex
+      ..previousPage = previousPage ?? this.previousPage
       ..currentPage = currentPage ?? this.currentPage;
   }
 }
