@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:prame_app/constants.dart';
 import 'package:prame_app/providers/navigation_provider.dart';
 import 'package:prame_app/screens/home_screen.dart';
 import 'package:prame_app/screens/vote_list_screen.dart';
@@ -33,8 +32,6 @@ class _PortalState extends ConsumerState<Portal>
   Widget build(BuildContext context) {
     final navigationInfo = ref.watch(navigationInfoProvider);
     final navigationInfoNotifier = ref.read(navigationInfoProvider.notifier);
-
-    logger.d('navigationInfo: ${navigationInfo.portalString}');
 
     Widget currentScreen;
     if (navigationInfo.portalString == 'vote') {

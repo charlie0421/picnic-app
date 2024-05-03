@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:prame_app/pages/article_page.dart';
-import 'package:prame_app/screens/bottom_navigation_bar.dart';
+import 'package:prame_app/providers/navigation_provider.dart';
 import 'package:prame_app/ui/style.dart';
 
 class GalleryDetailPage extends ConsumerStatefulWidget {
@@ -35,8 +36,34 @@ class _GalleryDetailScreenState extends ConsumerState<GalleryDetailPage>
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(widget.galleryName,
-            style: getTextStyle(context, AppTypo.UI24B, AppColors.Gray900)),
+        ref.read(navigationInfoProvider.notifier).canBack()
+            ? SizedBox(
+                width: double.infinity,
+                height: 50.h,
+                child: Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.center,
+                      child: Text(widget.galleryName,
+                          style: getTextStyle(
+                              context, AppTypo.UI24B, AppColors.Gray900)),
+                    ),
+                    Positioned(
+                      left: 0,
+                      top: 0,
+                      bottom: 0,
+                      child: IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: () {
+                          ref.read(navigationInfoProvider.notifier).goBack();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : Text(widget.galleryName,
+                style: getTextStyle(context, AppTypo.UI24B, AppColors.Gray900)),
         SizedBox(
           height: 50,
           child: TabBar(

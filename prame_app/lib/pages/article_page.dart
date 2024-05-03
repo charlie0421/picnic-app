@@ -30,7 +30,6 @@ class _ArticlePageState extends ConsumerState<ArticlePage> {
 
   @override
   Widget build(BuildContext context) {
-    logger.d('ArticlePage build');
     return Column(
       children: [
         Align(

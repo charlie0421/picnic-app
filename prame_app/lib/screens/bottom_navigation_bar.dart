@@ -102,20 +102,20 @@ class Item extends ConsumerWidget {
         onTap: () {
           switch (index) {
             case 0:
-              navigationNotifier.setState(
-                  currentPage: const HomePage(), bottomNavigationIndex: 0);
+              navigationNotifier.setCurrentPage(const HomePage());
+              navigationNotifier.setState(bottomNavigationIndex: 0);
               break;
             case 1:
-              navigationNotifier.setState(
-                  currentPage: const GalleryPage(), bottomNavigationIndex: 1);
+              navigationNotifier.setCurrentPage(const GalleryPage());
+              navigationNotifier.setState(bottomNavigationIndex: 1);
               break;
             case 2:
-              navigationNotifier.setState(
-                  currentPage: const LibraryPage(), bottomNavigationIndex: 2);
+              navigationNotifier.setCurrentPage(const LibraryPage());
+              navigationNotifier.setState(bottomNavigationIndex: 2);
               break;
             case 4:
-              navigationNotifier.setState(
-                  currentPage: const LanguagePage(), bottomNavigationIndex: 4);
+              navigationNotifier.setCurrentPage(const LanguagePage());
+              navigationNotifier.setState(bottomNavigationIndex: 4);
               break;
             default:
           }
