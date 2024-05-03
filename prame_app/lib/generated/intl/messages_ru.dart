@@ -101,6 +101,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_home": MessageLookupByLibrary.simpleMessage("Главная"),
         "nav_library": MessageLookupByLibrary.simpleMessage("Библиотека"),
         "nav_purchases": MessageLookupByLibrary.simpleMessage("Покупки"),
+        "nav_setting": MessageLookupByLibrary.simpleMessage("Настройки"),
         "text_ads_random": MessageLookupByLibrary.simpleMessage(
             "Просмотр рекламы и сбор случайных изображений."),
         "text_draw_image": MessageLookupByLibrary.simpleMessage(
