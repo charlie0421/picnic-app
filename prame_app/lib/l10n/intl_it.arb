@@ -50,5 +50,6 @@
   "button_complete": "完成",
   "label_vote_screen_title": "votazione",
   "label_vote_tab_birthday": "voto di compleanno",
-  "label_vote_tab_prame": "Votazione P-RAME"
+  "label_vote_tab_prame": "Votazione P-RAME",
+  "nav_setting": "Impostazioni"
 }
