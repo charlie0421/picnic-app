@@ -5,7 +5,6 @@
   "nav_library": "라이브러리",
   "nav_purchases": "구매",
   "nav_ads": "광고",
-  "nav_setting": "설정",
   "mypage_purchases": "내 구매",
   "mypage_setting": "설정",
   "mypage_subscription": "구독정보",
@@ -51,5 +50,6 @@
   "button_complete": "완료",
   "label_vote_screen_title": "투표",
   "label_vote_tab_birthday": "생일 투표",
-  "label_vote_tab_prame": "P-RAME 투표"
+  "label_vote_tab_prame": "P-RAME 투표",
+  "nav_setting": "설정"
 }
