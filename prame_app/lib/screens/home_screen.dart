@@ -14,16 +14,27 @@ class HomeScreen extends ConsumerWidget {
     final navigationInfo = ref.watch(navigationInfoProvider);
 
     return Scaffold(
-      bottomNavigationBar: const FanBottomNavigationBar(),
-      floatingActionButton: navigationInfo.bottomNavigationIndex == 0
-          ? FloatingActionButton(
-              onPressed: () => _buildFloating,
-              backgroundColor: Constants.mainColor,
-              child: const Icon(Icons.bookmarks),
-            )
-          : null,
-      body: navigationInfo.currentPage ?? const HomePage(),
-    );
+        bottomNavigationBar: const FanBottomNavigationBar(),
+        floatingActionButton: navigationInfo.bottomNavigationIndex == 0
+            ? FloatingActionButton(
+                onPressed: () => _buildFloating,
+                backgroundColor: Constants.mainColor,
+                child: const Icon(Icons.bookmarks),
+              )
+            : null,
+        body: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 500), // 애니메이션 지속 시간을 줄입니다.
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+          layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
+            return currentChild ?? Container();
+          },
+          child: navigationInfo.currentPage ?? const HomePage(),
+        ));
   }
 
   void _buildFloating(context) {
