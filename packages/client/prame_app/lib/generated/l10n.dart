@@ -559,6 +559,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Settings`
+  String get nav_setting {
+    return Intl.message(
+      'Settings',
+      name: 'nav_setting',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
