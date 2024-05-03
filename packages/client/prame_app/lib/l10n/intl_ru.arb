@@ -50,5 +50,6 @@
   "button_complete": "完成",
   "label_vote_screen_title": "голосование",
   "label_vote_tab_birthday": "голосование по случаю дня рождения",
-  "label_vote_tab_prame": "P-RAME Голосование"
+  "label_vote_tab_prame": "P-RAME Голосование",
+  "nav_setting": "Настройки"
 }
