@@ -10,7 +10,6 @@ import 'package:prame_app/providers/celeb_list_provider.dart';
 import 'package:prame_app/screens/portal.dart';
 import 'package:prame_app/ui/theme.dart';
 import 'package:prame_app/util.dart';
-import 'package:screen_protector/screen_protector.dart';
 
 class PrameApp extends ConsumerStatefulWidget {
   const PrameApp({super.key});
@@ -26,14 +25,14 @@ class _PrameAppState extends ConsumerState<PrameApp>
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref.read(appSettingProvider.notifier).loadSettings();
-      await ScreenProtector.preventScreenshotOn();
+      // await ScreenProtector.preventScreenshotOn();
     });
     WidgetsBinding.instance.addObserver(this);
   }
 
   @override
   void dispose() {
-    ScreenProtector.preventScreenshotOff();
+    // ScreenProtector.preventScreenshotOff();
 
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
