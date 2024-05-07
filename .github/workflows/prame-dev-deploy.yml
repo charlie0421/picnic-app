@@ -46,6 +46,7 @@ jobs:
           yarn install --immutable
           yarn api-$FOLDER_NAME install --immutable
           yarn api-$FOLDER_NAME build 
+          yarn add bcrypt --force
           cp -R ./node_modules packages/api/$FOLDER_NAME
 
       - name: Push Docker image for User
@@ -97,6 +98,7 @@ jobs:
           yarn set version 4.2.1
           yarn install --immutable
           yarn api-$FOLDER_NAME install --immutable
+          yarn add bcrypt --force
           yarn api-$FOLDER_NAME build 
           cp -R ./node_modules packages/api/$FOLDER_NAME
 
