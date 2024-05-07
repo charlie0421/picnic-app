@@ -43,7 +43,7 @@ jobs:
       - name: Build for User
         run: |
           cd packages/api
-          yarn set version 4.2.1
+          yarn set version 3.5.1
           yarn install
           yarn api-$FOLDER_NAME build 
 
@@ -94,7 +94,7 @@ jobs:
       - name: Build for User
         run: |
           cd packages/api
-          yarn set version 4.2.1
+          yarn set version 3.5.1
           yarn install
           yarn api-$FOLDER_NAME build 
 

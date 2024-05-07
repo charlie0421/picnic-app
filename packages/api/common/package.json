@@ -6,7 +6,6 @@
   "private": true,
   "license": "UNLICENSED",
   "type": "commonjs",
-  "packageManager": "yarn@3.5.1",
   "main": "index.js",
   "jest": {
     "moduleFileExtensions": [
