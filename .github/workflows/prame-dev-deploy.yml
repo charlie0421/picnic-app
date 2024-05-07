@@ -29,11 +29,6 @@ jobs:
           node-version: 20
           architecture: arm64
 
-      - name: Install Docker
-        run: |
-          curl -fsSL https://get.docker.com -o get-docker.sh
-          sudo sh get-docker.sh
-
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -80,11 +75,6 @@ jobs:
         with:
           node-version: 20
           architecture: arm64
-
-      - name: Install Docker
-        run: |
-          curl -fsSL https://get.docker.com -o get-docker.sh
-          sudo sh get-docker.sh
 
       - name: Checkout code
         uses: actions/checkout@v4
