@@ -29,6 +29,11 @@ jobs:
           node-version: 20
           architecture: arm64
 
+      - name: Install Docker
+        run: |
+          curl -fsSL https://get.docker.com -o get-docker.sh
+          sudo sh get-docker.sh
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -36,10 +41,6 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
         with:
           mask-password: true
-
-      - name: Install Yarn
-        run: |
-          npm install -g yarn
 
       - name: Build for User
         run: |
@@ -80,6 +81,11 @@ jobs:
           node-version: 20
           architecture: arm64
 
+      - name: Install Docker
+        run: |
+          curl -fsSL https://get.docker.com -o get-docker.sh
+          sudo sh get-docker.sh
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -87,13 +93,6 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
         with:
           mask-password: true
-
-      - name: Set LD_LIBRARY_PATH
-        run: export LD_LIBRARY_PATH=/usr/local/lib/aarch64-linux-gnu
-
-      - name: Install Yarn
-        run: |
-          npm install -g yarn
 
       - name: Build for Auth
         run: |
