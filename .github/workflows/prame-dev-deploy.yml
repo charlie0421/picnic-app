@@ -42,8 +42,7 @@ jobs:
 
       - name: Build and Push Docker image for User
         run: |
-          cd packages/api/$FOLDER_NAME
-          yarn set version 3.5.1
+          yarn set version 4.2.1
           yarn api-$FOLDER_NAME install
           yarn api-$FOLDER_NAME build
           docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_SERVICE_NAME:latest .
@@ -89,8 +88,7 @@ jobs:
 
       - name: Build and Push Docker image for Auth
         run: |
-          cd packages/api/$FOLDER_NAME
-          yarn set version 3.5.1
+          yarn set version 4.2.1
           yarn api-$FOLDER_NAME install
           yarn api-$FOLDER_NAME build
           docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_SERVICE_NAME:latest .
