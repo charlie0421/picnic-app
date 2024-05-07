@@ -2075,11 +2075,11 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:*":
-  version: 20.12.8
-  resolution: "@types/node@npm:20.12.8"
+  version: 20.12.10
+  resolution: "@types/node@npm:20.12.10"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: 10/1feab4c8cb08588eea10811ed4d02485a5cde47fdf92e7b3193fc9f8ee39ea556f6e3124dc6d5378354466ed5f7e5fbe5e20f625908de40ea37560368a50f72c
+  checksum: 10/b3ab044969880084e4da22a0173fc234239de81c22fb9418bd992de98369a3065c0c6119216476711af69ff520331cf06711acdeb1959554de6bbf0912a0494e
   languageName: node
   linkType: hard
 
@@ -3313,9 +3313,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.4.668":
-  version: 1.4.756
-  resolution: "electron-to-chromium@npm:1.4.756"
-  checksum: 10/fb3dfaf729453d01c6de88413fc67fedeaa4b30952b9bf66461d4c6ff017f1414b9f613d8edf65f6c39f68e97143f99d1c56b3fb922b8abe8a75a2f054ede21b
+  version: 1.4.757
+  resolution: "electron-to-chromium@npm:1.4.757"
+  checksum: 10/5ce5d8d7e62a9275333f2712bddf43262a286f223bb548500915625c7a03c6dab6d3535463f56df13102e739607e8d3ab2bc6e47368672244a39a2bc260dff5e
   languageName: node
   linkType: hard
 
@@ -4444,9 +4444,9 @@ __metadata:
   linkType: hard
 
 "libphonenumber-js@npm:^1.10.53":
-  version: 1.10.62
-  resolution: "libphonenumber-js@npm:1.10.62"
-  checksum: 10/0375de5719304b2840137aee8ac02b0354bc310815f693565bb3ff509fdf3a34afc459befd22c7559e7bf71ab8b20cdb3503518668900a008d37b39cb8a17222
+  version: 1.11.1
+  resolution: "libphonenumber-js@npm:1.11.1"
+  checksum: 10/ce34fa0c35e5ee95042ee834918e10b01e37e9d95291a2da466458906a454cde0966dacaea98d3e94fa279e0cef9b613c2bbcdbf0bfd22f75e24f496cfc1c534
   languageName: node
   linkType: hard
 
