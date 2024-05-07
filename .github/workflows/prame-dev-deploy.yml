@@ -21,27 +21,27 @@ jobs:
       AWS_SERVICE_NAME: prame-dev-api-user-service
       FOLDER_NAME: user
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v4
         with:
           platforms: linux/arm64
 
-      - name: Use Node.js 16
-        uses: actions/setup-node@v3
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
           architecture: arm64
 
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Login to AWS ECR
-        uses: aws-actions/amazon-ecr-login@v2
+        uses: aws-actions/amazon-ecr-login@v4
         with:
-          registries: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+          registry: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
           mask-password: true
-          registryIds: $AWS_ACCOUNT_ID
 
       - name: Build for User
         run: |
@@ -74,27 +74,27 @@ jobs:
       AWS_SERVICE_NAME: prame-dev-api-auth-service
       FOLDER_NAME: auth
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v4
         with:
           platforms: linux/arm64
 
       - name: Use Node.js 16
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 16
           architecture: arm64
 
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Login to AWS ECR
-        uses: aws-actions/amazon-ecr-login@v2
+        uses: aws-actions/amazon-ecr-login@v4
         with:
-          registries: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+          registry: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
           mask-password: true
-          registryIds: $AWS_ACCOUNT_ID
 
       - name: Build for Auth
         run: |
