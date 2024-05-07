@@ -5,7 +5,8 @@ RUN	apk update && apk upgrade && \
     apk add --no-cache curl && \
 	apk add --update tzdata && \
 	cp /usr/share/zoneinfo/${TZ} /etc/localtime && \
-	echo "${TZ}" > /etc/timezone
+	echo "${TZ}" > /etc/timezone \
+    apk add --no-cache qemu-user-static
 
 WORKDIR /usr/src/app
 
