@@ -2839,15 +2839,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/bcrypt@npm:^5.0.2":
-  version: 5.0.2
-  resolution: "@types/bcrypt@npm:5.0.2"
-  dependencies:
-    "@types/node": "npm:*"
-  checksum: 10c0/dd7f05e183b9b1fc08ec499069febf197ab8e9c720766b5bbb5628395082e248f9a444c60882fe7788361fcadc302e21e055ab9c26a300f100e08791c353e6aa
-  languageName: node
-  linkType: hard
-
 "@types/body-parser@npm:*":
   version: 1.19.5
   resolution: "@types/body-parser@npm:1.19.5"
@@ -3833,8 +3824,6 @@ __metadata:
 "api-auth@workspace:packages/api/auth":
   version: 0.0.0-use.local
   resolution: "api-auth@workspace:packages/api/auth"
-  dependencies:
-    "@types/bcrypt": "npm:^5.0.2"
   languageName: unknown
   linkType: soft
 
@@ -3847,9 +3836,6 @@ __metadata:
 "api-user@workspace:packages/api/user":
   version: 0.0.0-use.local
   resolution: "api-user@workspace:packages/api/user"
-  dependencies:
-    "@types/bcrypt": "npm:^5.0.2"
-    bcrypt: "npm:^5.1.1"
   languageName: unknown
   linkType: soft
 
@@ -9406,7 +9392,6 @@ __metadata:
     "@nestjs/platform-express": "npm:^10.3.8"
     "@nestjs/swagger": "npm:^7.3.1"
     "@nestjs/typeorm": "npm:^10.0.2"
-    "@types/bcrypt": "npm:^5.0.2"
     "@types/jest": "npm:^29.5.12"
     "@types/multer": "npm:^1.4.11"
     "@types/node": "npm:^20.12.10"
