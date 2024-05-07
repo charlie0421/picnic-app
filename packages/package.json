@@ -7,9 +7,6 @@
     "packages/api/user"
   ],
   "scripts": {
-    "preinstall": "",
-    "install": "",
-    "postinstall": "",
     "api-auth": "yarn workspace api-auth",
     "api-user": "yarn workspace api-user",
     "eslint-config": "yarn workspace eslint-config-1stype"
