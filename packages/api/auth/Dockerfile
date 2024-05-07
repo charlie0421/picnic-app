@@ -1,4 +1,4 @@
-FROM --platform=linux/arm64 node:20-alpine
+FROM --platform=linux/arm64 node:18-alpine
 
 ENV TZ Asia/Seoul
 RUN	apk update && apk upgrade && \
@@ -6,8 +6,6 @@ RUN	apk update && apk upgrade && \
 	apk add --update tzdata && \
 	cp /usr/share/zoneinfo/${TZ} /etc/localtime && \
 	echo "${TZ}" > /etc/timezone
-
-RUN apt-get install libssl-dev
 
 RUN yarn set version 4.2.1
 
