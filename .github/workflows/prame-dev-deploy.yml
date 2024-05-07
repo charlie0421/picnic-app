@@ -42,6 +42,7 @@ jobs:
 
       - name: Build for User
         run: |
+          cd packages
           yarn set version 4.2.1
           yarn install --immutable
           yarn api-$FOLDER_NAME install --immutable
@@ -92,6 +93,7 @@ jobs:
 
       - name: Build for Auth
         run: |
+          cd packages
           yarn set version 4.2.1
           yarn install --immutable
           yarn api-$FOLDER_NAME install --immutable
