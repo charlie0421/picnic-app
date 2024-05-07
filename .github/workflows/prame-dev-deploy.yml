@@ -44,6 +44,7 @@ jobs:
         run: |
           yarn set version 4.2.1
           node copy-dependencies.js $FOLDER_NAME
+          yarn install --immutable
           yarn api-$FOLDER_NAME install --immutable
           yarn api-$FOLDER_NAME build 
 
@@ -95,6 +96,7 @@ jobs:
         run: |
           yarn set version 4.2.1
           node copy-dependencies.js $FOLDER_NAME
+          yarn install --immutable
           yarn api-$FOLDER_NAME install --immutable
           yarn api-$FOLDER_NAME build 
 
