@@ -41,6 +41,7 @@ jobs:
         run: |
           cd packages/api
           yarn set version 4.2.1
+          yarn install
           yarn api-$FOLDER_NAME build
 
       - name: Push Docker image for User
@@ -88,6 +89,7 @@ jobs:
         run: |
           cd packages/api
           yarn set version 4.2.1
+          yarn install
           yarn api-$FOLDER_NAME build
 
       - name: Push Docker image for Auth
