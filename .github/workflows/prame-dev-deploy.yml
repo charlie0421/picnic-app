@@ -40,8 +40,10 @@ jobs:
       - name: Login to AWS ECR
         uses: aws-actions/amazon-ecr-login@v2
         with:
-          registry: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
           mask-password: true
+
+      - name: Set LD_LIBRARY_PATH
+        run: export LD_LIBRARY_PATH=/usr/local/lib/aarch64-linux-gnu
 
       - name: Build for User
         run: |
@@ -93,8 +95,10 @@ jobs:
       - name: Login to AWS ECR
         uses: aws-actions/amazon-ecr-login@v2
         with:
-          registry: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
           mask-password: true
+
+      - name: Set LD_LIBRARY_PATH
+        run: export LD_LIBRARY_PATH=/usr/local/lib/aarch64-linux-gnu
 
       - name: Build for Auth
         run: |
