@@ -8,6 +8,10 @@ on:
 jobs:
   deploy_api_user:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        arch: [arm64]
     env:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
       AWS_REGION: ap-northeast-2
@@ -17,6 +21,12 @@ jobs:
       AWS_SERVICE_NAME: prame-dev-api-user-service
       FOLDER_NAME: user
     steps:
+      - uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: linux/arm64
+
       - name: Use Node.js 20
         uses: actions/setup-node@v2
         with:
@@ -42,6 +52,10 @@ jobs:
 
   deploy_api_auth:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        arch: [arm64]
     env:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
       AWS_REGION: ap-northeast-2
@@ -51,6 +65,12 @@ jobs:
       AWS_SERVICE_NAME: prame-dev-api-auth-service
       FOLDER_NAME: auth
     steps:
+      - uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: linux/arm64
+
       - name: Use Node.js 20
         uses: actions/setup-node@v2
         with:
