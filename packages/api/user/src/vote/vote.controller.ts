@@ -24,7 +24,7 @@ import {BasicUserDto} from "../users/dto/basic-user.dto";
 import {DoSstVoteDto} from "./dto/do-sst-vote.dto";
 import {VotePickForSstVoteResponseDto} from "./dto/vote-pick-for-sst-vote-response.dto";
 import {RankMainDto} from "./dto/rank.dto";
-import { JwtAuthGuard } from '../../../common/auth/jwt-auth.guard';
+import { JwtAuthGuard } from 'api-auth/dist/auth/src/auth/jwt-auth.guard';
 
 @Controller('/user/vote')
 @ApiTags('Vote API')

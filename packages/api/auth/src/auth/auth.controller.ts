@@ -31,12 +31,12 @@ import { AccessAndRefreshTokenDto } from './dto/access-and-refresh-token.dto';
 import { AuthLoginDto } from './dto/auth-login.dto';
 import { LocalLoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { JwtAuthGuard } from '../../../common/auth/jwt-auth.guard';
-import { LocalAuthGuard } from '../../../common/auth/local-auth.guard';
 import type { BasicUserDto } from '../../../common/dto/basic-user.dto';
 import { MessageDto } from '../../../common/dto/message.dto';
 import { ProfileMeDto } from "./dto/profile-me.dto";
 import { UsersService } from '../../../user/src/users/users.service';
+import { LocalAuthGuard } from './local-auth.guard';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth/auth')
 @ApiTags('Auth API')

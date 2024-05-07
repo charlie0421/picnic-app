@@ -8,8 +8,6 @@ import * as winston from 'winston';
 import {AppController} from './app.controller';
 import {AppService} from './app.service';
 import {AuthModule} from './auth/auth.module';
-import {SecretsManager} from '@aws-sdk/client-secrets-manager';
-import {fromIni} from '@aws-sdk/credential-provider-ini';
 
 @Module({
     imports: [

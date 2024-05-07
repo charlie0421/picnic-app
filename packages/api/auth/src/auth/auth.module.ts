@@ -5,7 +5,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { JwtStrategy } from '../../../common/auth/jwt.strategy';
 import { S3Module } from '../../../common/s3/s3.module';
 import { SesModule } from '../../../common/ses/ses.module';
 import { Celeb } from '../../../entities/celeb.entity';
@@ -27,6 +26,7 @@ import { PointHistoryEntity } from '../../../entities/point_history.entity';
 import { MystarMemberEntity } from '../../../entities/mystar-member.entity';
 import { MystarGroup } from '../../../entities/mystar-group.entity';
 import { VoteCommentEntity } from '../../../entities/vote_comment.entity';
+import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [
