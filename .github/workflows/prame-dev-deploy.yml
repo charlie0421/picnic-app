@@ -23,11 +23,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: linux/arm64
-
       - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
@@ -78,11 +73,6 @@ jobs:
       FOLDER_NAME: auth
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: linux/arm64
 
       - name: Use Node.js 20
         uses: actions/setup-node@v4
