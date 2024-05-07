@@ -16,6 +16,11 @@ jobs:
       AWS_CLUSTER_NAME: prame-dev-cluster
       AWS_SERVICE_NAME: prame-dev-api-user-service
     steps:
+      - name: Use Node.js 20
+        uses: actions/setup-node@v2
+        with:
+          node-version: 20
+
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -44,6 +49,11 @@ jobs:
       AWS_CLUSTER_NAME: prame-dev-cluster
       AWS_SERVICE_NAME: prame-dev-api-user-auth
     steps:
+      - name: Use Node.js 20
+        uses: actions/setup-node@v2
+        with:
+          node-version: 20
+
       - name: Checkout code
         uses: actions/checkout@v2
 
