@@ -46,8 +46,6 @@ jobs:
           cd packages/api
           yarn set version 3.5.1
           yarn api-$FOLDER_NAME build
-        with:
-          platforms: linux/arm64
 
       - name: Push Docker image for User
         run: |
