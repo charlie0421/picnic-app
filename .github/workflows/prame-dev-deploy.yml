@@ -44,8 +44,8 @@ jobs:
         run: |
           cd packages/api
           yarn set version 3.5.1
-          yarn install
-          yarn api-$FOLDER_NAME build 
+#          yarn install
+          yarn api-$FOLDER_NAME build
 
       - name: Push Docker image for User
         run: |
@@ -95,8 +95,8 @@ jobs:
         run: |
           cd packages/api
           yarn set version 3.5.1
-          yarn install
-          yarn api-$FOLDER_NAME build 
+#          yarn install
+          yarn api-$FOLDER_NAME build
 
       - name: Push Docker image for User
         run: |
