@@ -40,7 +40,6 @@ jobs:
       - name: Build for User
         run: |
           cd packages/api
-          yarn set version 4.2.1
           yarn install
           yarn api-$FOLDER_NAME build
 
@@ -88,7 +87,6 @@ jobs:
       - name: Build for Auth
         run: |
           cd packages/api
-          yarn set version 4.2.1
           yarn install
           yarn api-$FOLDER_NAME build
 
