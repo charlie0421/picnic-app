@@ -15,6 +15,7 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_CLUSTER_NAME: prame-dev-cluster
       AWS_SERVICE_NAME: prame-dev-api-user-service
+      FOLDER_NAME: user
     steps:
       - name: Use Node.js 20
         uses: actions/setup-node@v2
@@ -31,7 +32,7 @@ jobs:
 
       - name: Build and Push Docker image for User
         run: |
-          cd packages/api/$AWS_SERVICE_NAME
+          cd packages/api/$FOLDER_NAME
           docker build -t $AWS_ACCOUNT_ID.dkr.ecr$AWS_REGION.amazonaws.com/$AWS_SERVICE_NAME:latest .
           docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_SERVICE_NAME:latest
 
@@ -48,6 +49,7 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_CLUSTER_NAME: prame-dev-cluster
       AWS_SERVICE_NAME: prame-dev-api-user-auth
+      FOLDER_NAME: auth
     steps:
       - name: Use Node.js 20
         uses: actions/setup-node@v2
@@ -64,7 +66,7 @@ jobs:
 
       - name: Build and Push Docker image for Auth
         run: |
-          cd packages/api/$AWS_SERVICE_NAME
+          cd packages/api/$FOLDER_NAME
           docker build -t $AWS_ACCOUNT_ID.dkr.ecr$AWS_REGION.amazonaws.com/$AWS_SERVICE_NAME:latest .
           docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_SERVICE_NAME:latest
 
