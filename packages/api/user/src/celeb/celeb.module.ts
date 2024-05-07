@@ -5,12 +5,12 @@ import {TypeOrmModule} from '@nestjs/typeorm';
 import {Celeb} from "../../../entities/celeb.entity";
 import {PrameUserEntity} from "../../../entities/prame-user.entity";
 import {CelebBanner} from "../../../entities/celeb_banner.entity";
-import { JwtStrategy } from 'api-common/auth/jwt.strategy';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
     imports: [TypeOrmModule.forFeature([Celeb,PrameUserEntity,CelebBanner])],
     controllers: [CelebController],
-    providers: [CelebService, JwtStrategy],
+    providers: [CelebService, JwtService],
 })
 export class CelebModule {
 }

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
@@ -26,7 +26,6 @@ import { PointHistoryEntity } from '../../../entities/point_history.entity';
 import { MystarMemberEntity } from '../../../entities/mystar-member.entity';
 import { MystarGroup } from '../../../entities/mystar-group.entity';
 import { VoteCommentEntity } from '../../../entities/vote_comment.entity';
-import { JwtStrategy } from 'api-common/auth/jwt.strategy';
 
 @Module({
   imports: [
@@ -38,7 +37,7 @@ import { JwtStrategy } from 'api-common/auth/jwt.strategy';
     S3Module,
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy, UsersService],
+  providers: [AuthService, LocalStrategy, JwtService, UsersService],
 })
 export class AuthModule {
 }

@@ -1,7 +1,7 @@
 import {Controller, Get, Logger, Param, Query, Request, UseGuards} from "@nestjs/common";
 import {GalleryService} from './gallery.service';
 import {ApiBearerAuth, ApiOperation, ApiQuery, ApiTags} from '@nestjs/swagger';
-import { JwtAuthGuard } from 'api-common/auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../../../common/auth/jwt-auth.guard';
 import {BasicUserDto} from "../../../common/dto/basic-user.dto";
 
 @ApiTags('Gallery API')

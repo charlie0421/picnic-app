@@ -1,8 +1,8 @@
 import { DocumentBuilder } from '@nestjs/swagger';
 
 export const swaggerConfig = new DocumentBuilder()
-  .setTitle('Sportsmax API')
-  .setDescription('Sportsmax API')
+  .setTitle('Prame API')
+  .setDescription('Prame API')
   .setVersion('0.0.1')
   .addBearerAuth(
     { type: 'http', scheme: 'bearer', bearerFormat: 'Token' },

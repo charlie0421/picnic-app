@@ -1,6 +1,6 @@
 import {Module} from '@nestjs/common';
 import {TypeOrmModule} from '@nestjs/typeorm';
-import { JwtStrategy } from 'api-common/auth/jwt.strategy';
+import { JwtStrategy } from '../../../common/auth/jwt.strategy';
 import {GalleryEntity} from "../../../entities/gallery.entity";
 import {PrameUserEntity} from "../../../entities/prame-user.entity";
 import {Celeb} from "../../../entities/celeb.entity";

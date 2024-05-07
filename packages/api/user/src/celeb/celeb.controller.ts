@@ -1,9 +1,8 @@
 import {Controller, Get, Logger, UseGuards, Request, Post, Delete, Param, Query} from "@nestjs/common";
 import {CelebService} from './celeb.service';
 import {ApiBearerAuth, ApiOperation, ApiTags} from '@nestjs/swagger';
-import {BasicUserDto} from "../../../common/dto/basic-user.dto";
-import { JwtAuthGuard } from 'api-common/auth/jwt-auth.guard';
-
+import {BasicUserDto} from '../../../common/dto/basic-user.dto';
+import { JwtAuthGuard } from '../../../common/auth/jwt-auth.guard';
 @ApiTags('Celeb API')
 @Controller('user/celeb')
 export class CelebController {
