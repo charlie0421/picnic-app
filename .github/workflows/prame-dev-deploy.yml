@@ -45,8 +45,8 @@ jobs:
           yarn set version 4.2.1
           node copy-dependencies.js $FOLDER_NAME
           cd packages/api/$FOLDER_NAME
-          yarn install 
-          yarn global add @nestjs/cli
+          yarn install  --immutable
+          yarn global add @nestjs/cli --immutable
           yarn build 
 
       - name: Push Docker image for User
@@ -98,8 +98,8 @@ jobs:
           yarn set version 4.2.1
           node copy-dependencies.js $FOLDER_NAME
           cd packages/api/$FOLDER_NAME
-          yarn install
-          yarn global add @nestjs/cli
+          yarn install --immutable
+          yarn global add @nestjs/cli  --immutable
           yarn build
 
       - name: Push Docker image for Auth
