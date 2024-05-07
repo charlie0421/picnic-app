@@ -16,7 +16,7 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { BasicUserDto } from '../../../common/dto/basic-user.dto';
-import { JwtAuthGuard } from 'api-auth/dist/auth/src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from 'api-common/auth/jwt-auth.guard';
 
 @ApiTags('Comment API')
 @Controller('user/comment')

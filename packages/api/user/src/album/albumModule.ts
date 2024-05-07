@@ -5,7 +5,7 @@ import {TypeOrmModule} from '@nestjs/typeorm';
 import {PrameUserEntity} from "../../../entities/prame-user.entity";
 import {GalleryArticleImageEntity} from "../../../entities/gallery_article_image.entity";
 import {PrameAlbumEntity} from "../../../entities/prame-album.entity";
-import { JwtStrategy } from 'api-auth/dist/auth/src/auth/jwt.strategy';
+import { JwtStrategy } from 'api-common/auth/jwt.strategy';
 
 @Module({
     imports: [TypeOrmModule.forFeature([PrameAlbumEntity,PrameUserEntity,GalleryArticleImageEntity])],

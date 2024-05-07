@@ -5,7 +5,7 @@ import {TypeOrmModule} from '@nestjs/typeorm';
 import {Celeb} from "../../../entities/celeb.entity";
 import {PrameUserEntity} from "../../../entities/prame-user.entity";
 import {CelebBanner} from "../../../entities/celeb_banner.entity";
-import { JwtStrategy } from 'api-auth/dist/auth/src/auth/jwt.strategy';
+import { JwtStrategy } from 'api-common/auth/jwt.strategy';
 
 @Module({
     imports: [TypeOrmModule.forFeature([Celeb,PrameUserEntity,CelebBanner])],

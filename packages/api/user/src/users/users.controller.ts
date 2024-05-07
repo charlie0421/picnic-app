@@ -18,7 +18,7 @@ import {ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiTags,} f
 import {CreateUserDto} from './dto/create-user.dto';
 import {UpdateUserDto} from './dto/update-user.dto';
 import {UsersService} from './users.service';
-import { JwtAuthGuard } from 'api-auth/dist/auth/src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from 'api-common/auth/jwt-auth.guard';
 import type {BasicUserDto} from '../../../common/dto/basic-user.dto';
 import {FileInterceptor} from '@nestjs/platform-express';
 import {UploadProfileImageDto} from './dto/upload-profile-image.dto';

@@ -9,8 +9,8 @@ import type { Request } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 import { Strategy } from 'passport-custom';
-import {TokenType} from "../../../common/enums";
-import {BasicUserDto} from "../../../common/dto/basic-user.dto";
+import {TokenType} from "../enums";
+import {BasicUserDto} from "../dto/basic-user.dto";
 
 
 class JwtTypeError extends Error {

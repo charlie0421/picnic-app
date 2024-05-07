@@ -8,7 +8,7 @@ import { AuthService } from './auth.service';
 import { S3Module } from '../../../common/s3/s3.module';
 import { SesModule } from '../../../common/ses/ses.module';
 import { Celeb } from '../../../entities/celeb.entity';
-import { LocalStrategy } from './local.strategy';
+import { LocalStrategy } from '../../../common/auth/local.strategy';
 import { PrameUserEntity } from '../../../entities/prame-user.entity';
 import { UsersService } from '../../../user/src/users/users.service';
 import { CelebBanner } from '../../../entities/celeb_banner.entity';
@@ -26,7 +26,7 @@ import { PointHistoryEntity } from '../../../entities/point_history.entity';
 import { MystarMemberEntity } from '../../../entities/mystar-member.entity';
 import { MystarGroup } from '../../../entities/mystar-group.entity';
 import { VoteCommentEntity } from '../../../entities/vote_comment.entity';
-import { JwtStrategy } from './jwt.strategy';
+import { JwtStrategy } from 'api-common/auth/jwt.strategy';
 
 @Module({
   imports: [

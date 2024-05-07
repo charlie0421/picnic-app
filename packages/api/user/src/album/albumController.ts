@@ -1,8 +1,8 @@
 import {Controller, Get, Logger, UseGuards, Request, Post, Delete, Param, Query, Body} from "@nestjs/common";
 import {AlbumService} from './album.service';
 import {ApiBearerAuth, ApiOperation, ApiTags} from '@nestjs/swagger';
-import { JwtAuthGuard } from 'api-auth/dist/auth/src/auth/jwt-auth.guard';
 import { BasicUserDto } from 'api-common/dto/basic-user.dto';
+import { JwtAuthGuard } from 'api-common/auth/jwt-auth.guard';
 
 @ApiTags('Library API')
 @Controller('user/library')

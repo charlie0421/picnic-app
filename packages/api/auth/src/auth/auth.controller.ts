@@ -35,8 +35,8 @@ import type { BasicUserDto } from '../../../common/dto/basic-user.dto';
 import { MessageDto } from '../../../common/dto/message.dto';
 import { ProfileMeDto } from "./dto/profile-me.dto";
 import { UsersService } from '../../../user/src/users/users.service';
-import { LocalAuthGuard } from './local-auth.guard';
-import { JwtAuthGuard } from './jwt-auth.guard';
+import { LocalAuthGuard } from '../../../common/auth/local-auth.guard';
+import { JwtAuthGuard } from '../../../common/auth/jwt-auth.guard';
 
 @Controller('auth/auth')
 @ApiTags('Auth API')
