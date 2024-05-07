@@ -1,0 +1,64 @@
+name: ECS Deployment
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  deploy_service1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Login to AWS ECR
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          registry: <your-aws-account-id>.dkr.ecr.<your-region>.amazonaws.com
+
+      - name: Build and Push Docker image for Service 1
+        run: |
+          cd packages/api/${{SERVICE_NAME}}
+          docker build -t ${{AWS_ACCOUNT_ID}}.dkr.ecr{{AWS_REGION}}.amazonaws.com/${{AWS_SERVICE_NAME}}:latest .
+          docker push ${{AWS_ACCOUNT_ID}}.dkr.ecr.${{AWS_REGION}}.amazonaws.com/${{AWS_SERVICE_NAME}}:latest
+
+      - name: Update ECS Service for Service 1
+        run: |
+          aws ecs update-service --cluster ${{AWS_CLUSTER_NAME}} --service ${{AWS_SERVICE_NAME}} --force-new-deployment
+        env:
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          AWS_REGION: ap-northeast-2
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_CLUSTER_NAME: prame-dev-cluster
+          AWS_SERVICE_NAME: auth
+
+  deploy_service2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Login to AWS ECR
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          registry: ${{AWS_ACCOUNT_ID}}.dkr.ecr.${{AWS_REGION}}.amazonaws.com
+
+      - name: Build and Push Docker image for Service 2
+        run: |
+          cd packages/api/${{SERVICE_NAME}}
+          docker build -t ${{AWS_ACCOUNT_ID}}.dkr.ecr{{AWS_REGION}}.amazonaws.com/${{AWS_SERVICE_NAME}}:latest .
+          docker push ${{AWS_ACCOUNT_ID}}.dkr.ecr.${{AWS_REGION}}.amazonaws.com/${{AWS_SERVICE_NAME}}:latest
+
+      - name: Update ECS Service for Auth
+        run: |
+          aws ecs update-service --cluster ${{AWS_CLUSTER_NAME}} --service ${{AWS_SERVICE_NAME}} --force-new-deployment
+        env:
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          AWS_REGION: ap-northeast-2
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_CLUSTER_NAME: prame-dev-cluster
+          AWS_SERVICE_NAME: auth
+
