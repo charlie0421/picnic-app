@@ -38,6 +38,7 @@
     "@typescript-eslint/parser": "^6.0.0",
     "aws-cdk": "^2.136.0",
     "axios": "^1.5.0",
+    "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "date-fns": "^3.3.1",
@@ -71,6 +72,9 @@
     "uuid": "^9.0.1",
     "webpack": "^5.89.0",
     "winston": "^3.8.2"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5"
   },
   "packageManager": "yarn@4.2.1"
 }
