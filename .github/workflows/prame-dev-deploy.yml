@@ -39,7 +39,8 @@ jobs:
       - name: Login to AWS ECR
         uses: aws-actions/amazon-ecr-login@v1
         with:
-          registry: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+          registries: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+          mask-passwords: true
 
       - name: Build for User
         run: |
@@ -79,17 +80,19 @@ jobs:
           platforms: linux/arm64
 
       - name: Use Node.js 16
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
+          architecture: arm64
 
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Login to AWS ECR
         uses: aws-actions/amazon-ecr-login@v1
         with:
-          registry: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+          registries: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+          mask-passwords: true
 
       - name: Build for Auth
         run: |
