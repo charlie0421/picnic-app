@@ -43,6 +43,7 @@ jobs:
       - name: Build and Push Docker image for User
         run: |
           yarn set version 4.2.1
+          yarn install
           yarn api-$FOLDER_NAME install
           yarn api-$FOLDER_NAME build
           docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_SERVICE_NAME:latest .
@@ -89,6 +90,7 @@ jobs:
       - name: Build and Push Docker image for Auth
         run: |
           yarn set version 4.2.1
+          yarn install
           yarn api-$FOLDER_NAME install
           yarn api-$FOLDER_NAME build
           docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_SERVICE_NAME:latest .
