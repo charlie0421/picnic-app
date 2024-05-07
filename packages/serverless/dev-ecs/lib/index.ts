@@ -30,7 +30,6 @@ export class EcsStack extends cdk.Stack {
         const paths = [
             {name: "user", path: "/user/", database: 'prame'},
             {name: "auth", path: "/auth/", database: 'prame'},
-            {name: "admin", path: "/admin/", database: 'prame'},
         ];
 
         const targetGroups = this.createTargetGroups(paths);
@@ -119,7 +118,7 @@ export class EcsStack extends cdk.Stack {
 
             taskDefinition.addContainer(`prame-dev-api-${path.name}-container`, {
                 image: ecs.ContainerImage.fromRegistry(
-                    `851725635868.dkr.ecr.ap-northeast-2.amazonaws.com/prame-dev-api-${path.name}:latest`,
+                    `851725635868.dkr.ecr.ap-northeast-2.amazonaws.com/prame-dev-api-${path.name}-service:latest`,
                 ),
                 memoryReservationMiB: 300,
                 portMappings: [
