@@ -26,26 +26,14 @@ Map<String, String> countryMap = {
   'KR': 'South Korea',
   'US': 'United States',
   'JP': 'Japan',
-  'DE': 'Germany',
-  'FR': 'France',
-  'ES': 'Spain',
-  'IT': 'Italy',
-  'RU': 'Russia',
   'CN': 'China',
-  'BR': 'Brazil',
 };
 
 Map<String, String> languageMap = {
   'ko': '한국어',
   'en': 'English',
   'ja': '日本語',
-  'de': 'Deutsch',
-  'fr': 'Français',
-  'es': 'Español',
-  'it': 'Italiano',
-  'ru': 'Русский',
   'zh': '中文',
-  'pt': 'Português',
 };
 
 int userId = 2;
