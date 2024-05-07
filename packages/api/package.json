@@ -88,5 +88,5 @@
     "eslint": "^8.56.0",
     "typescript": "^5.4.5"
   },
-  "packageManager": "yarn@4.2.1"
+  "packageManager": "yarn@3.5.1"
 }
