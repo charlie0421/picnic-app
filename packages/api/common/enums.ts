@@ -1,0 +1,27 @@
+
+export enum TokenType {
+    ACCESS_TOKEN = 'ACCESS_TOKEN',
+    REFRESH_TOKEN = 'REFRESH_TOKEN',
+    RESET_PASSWORD_TOKEN = 'RESET_PASSWORD_TOKEN',
+    EMAIL_VERIFICATION_TOKEN = 'EMAIL_VERIFICATION_TOKEN',
+}
+
+export enum PolicyType {
+    PRIVACY_KO = 'PRIVACY_KO',
+    PRIVACY_EN = 'PRIVACY_EN',
+    TERMS_KO = 'TERMS_KO',
+    TERMS_EN = 'TERMS_EN',
+    WITHDRAW_ACCOUNT_KO = 'WITHDRAW_ACCOUNT_KO',
+    WITHDRAW_ACCOUNT_EN = 'WITHDRAW_ACCOUNT_EN',
+}
+
+export enum Language {
+    KO = 'KO',
+    EN = 'EN',
+}
+
+export enum Order {
+    ASC = 'ASC',
+    DESC = 'DESC',
+
+}

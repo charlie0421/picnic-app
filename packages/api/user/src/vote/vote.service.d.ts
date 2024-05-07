@@ -1,0 +1,42 @@
+import { IPaginationOptions } from 'nestjs-typeorm-paginate';
+import { Connection, Repository } from 'typeorm';
+import { Vote } from '../../../libs/entities/src/entities/vote.entity';
+import { VoteItem } from '../../../libs/entities/src/entities/vote-item.entity';
+import { VoteReply } from '../../../libs/entities/src/entities/vote-reply.entity';
+import { VoteDetailListMainDto, VoteDetailtDto } from './dto/vote-detail.dto';
+import { VoteDto, VoteMainDto } from './dto/vote-list.dto';
+import { VoteReplyMainDto } from './dto/vote-reply.dto';
+import { User } from '../../../libs/entities/src/entities/user.entity';
+import { VotePick } from '../../../libs/entities/src/entities/vote-pick.entity';
+import { VotePickForSstVoteResponseDto } from './dto/vote-pick-for-sst-vote-response.dto';
+import { VotePickForRightVoteResponseDto } from './dto/vote-pick-for-right-vote-response.dto';
+export declare class VoteService {
+    private voteRepository;
+    private voteItemRepository;
+    private voteReplyRepository;
+    private userRepository;
+    private votePickRepository;
+    private connection;
+    constructor(voteRepository: Repository<Vote>, voteItemRepository: Repository<VoteItem>, voteReplyRepository: Repository<VoteReply>, userRepository: Repository<User>, votePickRepository: Repository<VotePick>, connection: Connection);
+    findAll(options: IPaginationOptions, category: string, activeOnly: boolean, includeArtists: boolean, isMainTop: boolean, sort: string, order: 'ASC' | 'DESC'): Promise<VoteMainDto>;
+    getMainPageVotes(): Promise<VoteDto[]>;
+    private toVoteMainDto;
+    private toFullImagePath;
+    getVoteDetail(id: number): VoteDetailtDto;
+    getVoteDetailList(id: number, options: IPaginationOptions, sort: string, order: 'ASC' | 'DESC'): Promise<VoteDetailListMainDto>;
+    getVoteReplyList(id: number, options: IPaginationOptions, sort: string, order: 'ASC' | 'DESC'): Promise<VoteReplyMainDto>;
+    postVoteReply(voteId: number, userId: number, reply_text: string): Promise<{
+        statusCode: number;
+        message: string;
+    }>;
+    isVoteOver(voteId: number): Promise<boolean>;
+    isThereVote(voteId: number): Promise<boolean>;
+    isThereVoteItem(voteId: number, voteItemId: number): Promise<boolean>;
+    isUserSstLessThan(userId: number, sst: number): Promise<boolean>;
+    isUserRightLessThan(userId: number, right: number): Promise<boolean>;
+    isTotalRightAmountOverTwo(voteId: number, userId: number): Promise<boolean>;
+    voteUsingSst(userId: number, voteId: number, voteItemId: number, sst: number): Promise<VotePickForSstVoteResponseDto>;
+    voteUsingRight(userId: number, voteId: number, voteItemId: number, right: number, voteType: string): Promise<VotePickForRightVoteResponseDto>;
+    alreadyReportedVoteComment(userId: number, commentId: number): Promise<boolean>;
+    reportVoteComment(userId: number, commentId: number): Promise<void>;
+}

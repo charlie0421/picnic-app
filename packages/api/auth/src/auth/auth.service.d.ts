@@ -1,0 +1,35 @@
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { Repository } from 'typeorm';
+import { AccessAndRefreshTokenDto } from './dto/access-and-refresh-token.dto';
+import { AccessTokenDto } from './dto/access-token.dto';
+import { AppleUserDto } from './dto/apple-user.dto';
+import { FacebookUserDto } from './dto/facebook-user.dto';
+import { GoogleUserDto } from './dto/google-user.dto';
+import { KakaoUserDto } from './dto/kakao-user.dto';
+import type { BasicUserDto } from '../../../common/dto/basic-user.dto';
+import { Provider } from '../../../common/enums';
+import { User } from '../../../schema/user.entity';
+import { UserProfile } from '../../../schema/user_profile.entity';
+export declare class AuthService {
+    private readonly jwtService;
+    private readonly configService;
+    private readonly userRepository;
+    private readonly userProfileRepository;
+    constructor(jwtService: JwtService, configService: ConfigService, userRepository: Repository<User>, userProfileRepository: Repository<UserProfile>);
+    validateUser(userId: string, pass: string): Promise<any>;
+    login(user: any): Promise<AccessAndRefreshTokenDto>;
+    private createAccessToken;
+    private createRefreshToken;
+    signUpBySocial(provider: Provider, providerId: string, name: string, email: string, profileImage?: string): Promise<User>;
+    signUpByGoogle(googleUser: GoogleUserDto): Promise<User>;
+    signUpByKakao(kakaoUser: KakaoUserDto): Promise<User>;
+    signUpByFacebook(facebookUser: FacebookUserDto): Promise<User>;
+    signUpByApple(appleUser: AppleUserDto): Promise<User>;
+    getUserIncDeletedByProviderIdOrNull(providerId: string): Promise<User>;
+    loginViaWebview(userId: number): Promise<AccessAndRefreshTokenDto>;
+    isTokenExpired(refreshToken: string): boolean;
+    isRefreshToken(refreshToken: string): Promise<boolean>;
+    refreshAccessToken(user: BasicUserDto): Promise<AccessTokenDto>;
+    refreshAccessAndRefreshToken(user: BasicUserDto): Promise<AccessAndRefreshTokenDto>;
+}

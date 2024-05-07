@@ -1,0 +1,15 @@
+{
+  "name": "send-message",
+  "version": "1.0.0",
+  "description": "sendmessage example for WebSockets on API Gateway",
+  "main": "src/app.js",
+  "author": "SAM CLI",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.690.0",
+    "axios": "^1.4.0",
+    "firebase-admin": "^11.10.1",
+    "http": "^0.0.1-security",
+    "https": "^1.0.0"
+  }
+}

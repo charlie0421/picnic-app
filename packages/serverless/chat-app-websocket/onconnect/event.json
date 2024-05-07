@@ -1,0 +1,47 @@
+{
+  "headers": {
+    "Host": "ns9zdrqyua.execute-api.ap-northeast-2.amazonaws.com",
+    "Sec-WebSocket-Extensions": "permessage-deflate; client_max_window_bits",
+    "Sec-WebSocket-Key": "Bk80Tkn5xxHIA6rrg9GiHQ==",
+    "Sec-WebSocket-Version": "13",
+    "X-Amzn-Trace-Id": "Root=1-64abb05d-4478874f4192e3a72917273c",
+    "X-Forwarded-For": "221.142.243.162",
+    "X-Forwarded-Port": "443",
+    "X-Forwarded-Proto": "https"
+  },
+  "multiValueHeaders": {
+    "Host": [
+      "ns9zdrqyua.execute-api.ap-northeast-2.amazonaws.com"
+    ],
+    "Sec-WebSocket-Extensions": [
+      "permessage-deflate; client_max_window_bits"
+    ],
+    "Sec-WebSocket-Key": [
+      "Bk80Tkn5xxHIA6rrg9GiHQ=="
+    ],
+    "Sec-WebSocket-Version": [
+      "13"
+    ],
+    "X-Amzn-Trace-Id": [
+      "Root=1-64abb05d-4478874f4192e3a72917273c"
+    ],
+    "X-Forwarded-For": [
+      "221.142.243.162"
+    ],
+    "X-Forwarded-Port": [
+      "443"
+    ],
+    "X-Forwarded-Proto": [
+      "https"
+    ]
+  },
+  "requestContext": {
+    "routeKey": "$connect",
+    "eventType": "CONNECT",
+    "extendedRequestId": "H1h-rGvJoE0Fvsw=",
+    "requestTime": "10/Jul/2023:07:16:45 +0000",
+    "messageDirection": "IN",
+    "stage": "dev",
+    "connectedAt": 1688973405652
+  }
+}

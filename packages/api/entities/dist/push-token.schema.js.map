@@ -1,0 +1,1 @@
+{"version":3,"file":"push-token.schema.js","sourceRoot":"","sources":["../push-token.schema.ts"],"names":[],"mappings":";;;AAAA,uCAAuC;AAS1B,QAAA,eAAe,GAAG,IAAI,SAAS,CAAC,MAAM,CAAC;IAClD,SAAS,EAAE;QACT,IAAI,EAAE,MAAM;QACZ,OAAO,EAAE,IAAI;QACb,QAAQ,EAAE,IAAI;KACf;CACF,CAAC,CAAC"}
