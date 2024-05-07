@@ -8,6 +8,13 @@ on:
 jobs:
   deploy_api_user:
     runs-on: ubuntu-latest
+    env:
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      AWS_REGION: ap-northeast-2
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_CLUSTER_NAME: prame-dev-cluster
+      AWS_SERVICE_NAME: user
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -15,27 +22,27 @@ jobs:
       - name: Login to AWS ECR
         uses: aws-actions/amazon-ecr-login@v1
         with:
-          registry: <your-aws-account-id>.dkr.ecr.<your-region>.amazonaws.com
+          registry: ${{AWS_ACCOUNT_ID}}.dkr.ecr.${{AWS_REGION}}.amazonaws.com
 
       - name: Build and Push Docker image for User
         run: |
           cd packages/api/${{AWS_SERVICE_NAME}}
-          docker build -t ${{AWS_ACCOUNT_ID}}.dkr.ecr{{AWS_REGION}}.amazonaws.com/${{AWS_SERVICE_NAME}}:latest .
+          docker build -t ${{AWS_ACCOUNT_ID}}.dkr.ecr${{AWS_REGION}}.amazonaws.com/${{AWS_SERVICE_NAME}}:latest .
           docker push ${{AWS_ACCOUNT_ID}}.dkr.ecr.${{AWS_REGION}}.amazonaws.com/${{AWS_SERVICE_NAME}}:latest
 
       - name: Update ECS Service for Service User
         run: |
           aws ecs update-service --cluster ${{AWS_CLUSTER_NAME}} --service ${{AWS_SERVICE_NAME}} --force-new-deployment
-        env:
-          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-          AWS_REGION: ap-northeast-2
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_CLUSTER_NAME: prame-dev-cluster
-          AWS_SERVICE_NAME: auth
 
   deploy_api_auth:
     runs-on: ubuntu-latest
+    env:
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      AWS_REGION: ap-northeast-2
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_CLUSTER_NAME: prame-dev-cluster
+      AWS_SERVICE_NAME: auth
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -48,17 +55,9 @@ jobs:
       - name: Build and Push Docker image for Auth
         run: |
           cd packages/api/${{AWS_SERVICE_NAME}}
-          docker build -t ${{AWS_ACCOUNT_ID}}.dkr.ecr{{AWS_REGION}}.amazonaws.com/${{AWS_SERVICE_NAME}}:latest .
+          docker build -t ${{AWS_ACCOUNT_ID}}.dkr.ecr${{AWS_REGION}}.amazonaws.com/${{AWS_SERVICE_NAME}}:latest .
           docker push ${{AWS_ACCOUNT_ID}}.dkr.ecr.${{AWS_REGION}}.amazonaws.com/${{AWS_SERVICE_NAME}}:latest
 
       - name: Update ECS Service for Auth
         run: |
           aws ecs update-service --cluster ${{AWS_CLUSTER_NAME}} --service ${{AWS_SERVICE_NAME}} --force-new-deployment
-        env:
-          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-          AWS_REGION: ap-northeast-2
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_CLUSTER_NAME: prame-dev-cluster
-          AWS_SERVICE_NAME: auth
-
