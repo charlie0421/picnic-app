@@ -49,7 +49,7 @@ jobs:
 
       - name: Push Docker image for User
         run: |
-          docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_SERVICE_NAME:latest .
+          docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_SERVICE_NAME:latest ./packages/api/$FOLDER_NAME
           docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_SERVICE_NAME:latest
 
       - name: Update ECS Service for Service User
@@ -99,7 +99,7 @@ jobs:
 
       - name: Push Docker image for Auth
         run: |          
-          docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_SERVICE_NAME:latest .
+          docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_SERVICE_NAME:latest ./packages/api/$FOLDER_NAME
           docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_SERVICE_NAME:latest
 
       - name: Update ECS Service for Auth
