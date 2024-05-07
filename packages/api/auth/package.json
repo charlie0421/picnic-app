@@ -35,11 +35,5 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  },
-  "dependencies": {
-    "bcrypt": "^5.1.1"
-  },
-  "devDependencies": {
-    "@types/bcrypt": "^5"
   }
 }

@@ -43,8 +43,8 @@ jobs:
       - name: Build for User
         run: |
           yarn set version 4.2.1
-          yarn install --immutable
-          cp -R ./node_modules packages/api/$FOLDER_NAME
+          node copy-dependencies.js $FOLDER_NAME
+          yarn install api-$FOLDER_NAME --immutable
           yarn api-$FOLDER_NAME build 
 
       - name: Push Docker image for User
@@ -94,8 +94,8 @@ jobs:
       - name: Build for Auth
         run: |
           yarn set version 4.2.1
-          yarn install --immutable
-          cp -R ./node_modules packages/api/$FOLDER_NAME
+          node copy-dependencies.js $FOLDER_NAME
+          yarn install api-$FOLDER_NAME --immutable
           yarn api-$FOLDER_NAME build 
 
       - name: Push Docker image for Auth
