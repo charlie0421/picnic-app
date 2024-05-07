@@ -1,5 +1,14 @@
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
+
+function installDependencies(workspaceFolder) {
+  const nodeModulesPath = path.join(workspaceFolder, 'node_modules');
+  if (!fs.existsSync(nodeModulesPath)) {
+    console.log(`Installing dependencies in ${workspaceFolder}...`);
+    execSync('yarn', { cwd: workspaceFolder, stdio: 'inherit' });
+  }
+}
 
 function copyDependenciesToWorkspace(apiSubfolders) {
   // 루트의 package.json 파일 경로 설정
@@ -16,6 +25,9 @@ function copyDependenciesToWorkspace(apiSubfolders) {
     // 워크스페이스의 package.json 파일에서 dependencies와 devDependencies 필드 읽기
     if (fs.existsSync(workspacePackageJsonPath)) {
       const workspacePackageJson = require(workspacePackageJsonPath);
+
+      // 의존성 설치
+      installDependencies(workspaceFolder);
 
       // 루트의 dependencies와 devDependencies를 병합하여 워크스페이스의 package.json 파일에 쓰기
       // 단, 이미 존재하는 의존성은 덮어쓰지 않도록 하기 위해 Object.assign을 사용합니다.
