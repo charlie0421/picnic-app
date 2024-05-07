@@ -21,11 +21,11 @@ jobs:
       AWS_SERVICE_NAME: prame-dev-api-user-service
       FOLDER_NAME: user
     steps:
-#      - uses: actions/checkout@v3
-#      - name: Set up QEMU
-#        uses: docker/setup-qemu-action@v2
-#        with:
-#          platforms: linux/arm64
+      - uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: linux/arm64
 
       - name: Use Node.js 16
         uses: actions/setup-node@v2
@@ -71,11 +71,11 @@ jobs:
       AWS_SERVICE_NAME: prame-dev-api-auth-service
       FOLDER_NAME: auth
     steps:
-#      - uses: actions/checkout@v3
-#      - name: Set up QEMU
-#        uses: docker/setup-qemu-action@v2
-#        with:
-#          platforms: linux/arm64
+      - uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: linux/arm64
 
       - name: Use Node.js 16
         uses: actions/setup-node@v2
