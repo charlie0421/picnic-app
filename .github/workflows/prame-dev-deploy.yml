@@ -44,7 +44,8 @@ jobs:
         run: |
           yarn set version 4.2.1
           node copy-dependencies.js $FOLDER_NAME
-          yarn api-$FOLDER_NAME build 
+          cd packages/api/$FOLDER_NAME
+          yarn build 
 
       - name: Push Docker image for User
         run: |
@@ -94,7 +95,8 @@ jobs:
         run: |
           yarn set version 4.2.1
           node copy-dependencies.js $FOLDER_NAME
-          yarn api-$FOLDER_NAME build 
+          cd packages/api/$FOLDER_NAME
+          yarn build 
 
       - name: Push Docker image for Auth
         run: |
