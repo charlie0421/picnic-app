@@ -44,7 +44,7 @@ jobs:
         run: |
           cd packages/api
           yarn set version 3.5.1
-#          yarn api-$FOLDER_NAME build
+          yarn api-$FOLDER_NAME build
 
       - name: Push Docker image for User
         run: |
@@ -90,13 +90,13 @@ jobs:
         with:
           registry: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
 
-      - name: Build for User
+      - name: Build for Auth
         run: |
           cd packages/api
           yarn set version 3.5.1
-#          yarn api-$FOLDER_NAME build
+          yarn api-$FOLDER_NAME build
 
-      - name: Push Docker image for User
+      - name: Push Docker image for Auth
         run: |
           cd packages/api
           docker build -f $FOLDER_NAME/Dockerfile -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_SERVICE_NAME:latest .
