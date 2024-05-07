@@ -40,7 +40,7 @@ jobs:
       - name: Build for User
         run: |
           cd packages/api
-          yarn set version 3.5.1
+          yarn set version 4.2.1
           yarn api-$FOLDER_NAME build
 
       - name: Push Docker image for User
@@ -87,7 +87,7 @@ jobs:
       - name: Build for Auth
         run: |
           cd packages/api
-          yarn set version 3.5.1
+          yarn set version 4.2.1
           yarn api-$FOLDER_NAME build
 
       - name: Push Docker image for Auth
