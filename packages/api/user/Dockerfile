@@ -1,4 +1,4 @@
-FROM node:16-alpine
+FROM --platform=linux/arm64 node:16-alpine
 
 ENV TZ Asia/Seoul
 RUN	apk update && apk upgrade && \
