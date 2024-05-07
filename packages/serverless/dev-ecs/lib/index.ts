@@ -129,7 +129,7 @@ export class EcsStack extends cdk.Stack {
                     },
                 ],
                 disableNetworking: false,
-                entryPoint: ["sh", "-c", `pwd; node dist/${path.name}/src/main`],
+                entryPoint: ["sh", "-c", `pwd; node ${path.name}/dist/${path.name}/src/main`],
                 workingDirectory: `/usr/src/app`,
                 logging: ecs.LogDrivers.awsLogs({
                     streamPrefix: "prame-dev-api",

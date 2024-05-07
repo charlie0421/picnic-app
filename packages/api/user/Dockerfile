@@ -7,6 +7,8 @@ RUN	apk update && apk upgrade && \
 	cp /usr/share/zoneinfo/${TZ} /etc/localtime && \
 	echo "${TZ}" > /etc/timezone
 
+RUN apt-get install libssl-dev
+
 RUN yarn set version 4.2.1
 
 WORKDIR /usr/src/app
