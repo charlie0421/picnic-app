@@ -46,7 +46,7 @@ jobs:
           yarn install --immutable
           yarn api-$FOLDER_NAME install --immutable
           yarn api-$FOLDER_NAME build 
-          cp -R ./node_modules/* packages/api/$FOLDER_NAME/node_modules
+          cp -R ./node_modules packages/api/$FOLDER_NAME
 
       - name: Push Docker image for User
         run: |
@@ -98,7 +98,7 @@ jobs:
           yarn install --immutable
           yarn api-$FOLDER_NAME install --immutable
           yarn api-$FOLDER_NAME build 
-          cp -R ./node_modules/* packages/api/$FOLDER_NAME/node_modules
+          cp -R ./node_modules packages/api/$FOLDER_NAME
 
       - name: Push Docker image for Auth
         run: |
