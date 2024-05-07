@@ -46,7 +46,6 @@ jobs:
           node copy-dependencies.js $FOLDER_NAME
           cd packages/api/$FOLDER_NAME
           yarn install  --immutable
-          yarn global add @nestjs/cli --immutable
           yarn build 
 
       - name: Push Docker image for User
@@ -99,7 +98,6 @@ jobs:
           node copy-dependencies.js $FOLDER_NAME
           cd packages/api/$FOLDER_NAME
           yarn install --immutable
-          yarn global add @nestjs/cli  --immutable
           yarn build
 
       - name: Push Docker image for Auth
