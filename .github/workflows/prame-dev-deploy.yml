@@ -6,7 +6,7 @@ on:
       - develop
 
 jobs:
-  deploy_service1:
+  deploy_api_user:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -17,13 +17,13 @@ jobs:
         with:
           registry: <your-aws-account-id>.dkr.ecr.<your-region>.amazonaws.com
 
-      - name: Build and Push Docker image for Service 1
+      - name: Build and Push Docker image for User
         run: |
           cd packages/api/${{SERVICE_NAME}}
           docker build -t ${{AWS_ACCOUNT_ID}}.dkr.ecr{{AWS_REGION}}.amazonaws.com/${{AWS_SERVICE_NAME}}:latest .
           docker push ${{AWS_ACCOUNT_ID}}.dkr.ecr.${{AWS_REGION}}.amazonaws.com/${{AWS_SERVICE_NAME}}:latest
 
-      - name: Update ECS Service for Service 1
+      - name: Update ECS Service for Service User
         run: |
           aws ecs update-service --cluster ${{AWS_CLUSTER_NAME}} --service ${{AWS_SERVICE_NAME}} --force-new-deployment
         env:
@@ -34,7 +34,7 @@ jobs:
           AWS_CLUSTER_NAME: prame-dev-cluster
           AWS_SERVICE_NAME: auth
 
-  deploy_service2:
+  deploy_api_auth:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -45,7 +45,7 @@ jobs:
         with:
           registry: ${{AWS_ACCOUNT_ID}}.dkr.ecr.${{AWS_REGION}}.amazonaws.com
 
-      - name: Build and Push Docker image for Service 2
+      - name: Build and Push Docker image for Auth
         run: |
           cd packages/api/${{SERVICE_NAME}}
           docker build -t ${{AWS_ACCOUNT_ID}}.dkr.ecr{{AWS_REGION}}.amazonaws.com/${{AWS_SERVICE_NAME}}:latest .
