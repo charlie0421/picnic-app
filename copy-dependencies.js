@@ -3,11 +3,8 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 function installDependencies(workspaceFolder) {
-  const nodeModulesPath = path.join(workspaceFolder, 'node_modules');
-  if (!fs.existsSync(nodeModulesPath)) {
-    console.log(`Installing dependencies in ${workspaceFolder}...`);
-    execSync('yarn', { cwd: workspaceFolder, stdio: 'inherit' });
-  }
+  console.log(`Installing dependencies in ${workspaceFolder}...`);
+  execSync('yarn', { cwd: workspaceFolder, stdio: 'inherit' });
 }
 
 function copyDependenciesToWorkspace(apiSubfolders) {
