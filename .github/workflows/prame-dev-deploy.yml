@@ -45,6 +45,10 @@ jobs:
       - name: Set LD_LIBRARY_PATH
         run: export LD_LIBRARY_PATH=/usr/local/lib/aarch64-linux-gnu
 
+      - name: Install Yarn
+        run: |
+          npm install -g yarn
+
       - name: Build for User
         run: |
           cd packages/api
@@ -99,6 +103,10 @@ jobs:
 
       - name: Set LD_LIBRARY_PATH
         run: export LD_LIBRARY_PATH=/usr/local/lib/aarch64-linux-gnu
+
+      - name: Install Yarn
+        run: |
+          npm install -g yarn
 
       - name: Build for Auth
         run: |
