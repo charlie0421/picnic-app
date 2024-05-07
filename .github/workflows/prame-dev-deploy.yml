@@ -44,8 +44,8 @@ jobs:
         run: |
           yarn set version 4.2.1
           yarn install --immutable
-          yarn api-$FOLDER_NAME build 
           cp -R ./node_modules packages/api/$FOLDER_NAME
+          yarn api-$FOLDER_NAME build 
 
       - name: Push Docker image for User
         run: |
@@ -95,8 +95,8 @@ jobs:
         run: |
           yarn set version 4.2.1
           yarn install --immutable
-          yarn api-$FOLDER_NAME build 
           cp -R ./node_modules packages/api/$FOLDER_NAME
+          yarn api-$FOLDER_NAME build 
 
       - name: Push Docker image for Auth
         run: |
