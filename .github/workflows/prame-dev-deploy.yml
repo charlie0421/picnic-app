@@ -21,26 +21,22 @@ jobs:
       AWS_SERVICE_NAME: prame-dev-api-user-service
       FOLDER_NAME: user
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Use Node.js 16
-        uses: actions/setup-node@v3
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
           architecture: arm64
 
-      - name: setup yarn
-        run: |
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-          nvm install 16
-          npm -g install yarn
-          yarn set version 4.2.1
+      - name: Install Yarn
+        run: npm install -g yarn
 
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Login to AWS ECR
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
         with:
           mask-password: true
 
@@ -80,26 +76,22 @@ jobs:
       AWS_SERVICE_NAME: prame-dev-api-auth-service
       FOLDER_NAME: auth
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Use Node.js 16
-        uses: actions/setup-node@v3
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
           architecture: arm64
 
-      - name: setup yarn
-        run: |
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-          nvm install 16
-          npm -g install yarn
-          yarn set version 4.2.1
+      - name: Install Yarn
+        run: npm install -g yarn
 
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Login to AWS ECR
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
         with:
           mask-password: true
 
