@@ -30,7 +30,7 @@ jobs:
           architecture: arm64
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Login to AWS ECR
         uses: aws-actions/amazon-ecr-login@v2
@@ -82,7 +82,7 @@ jobs:
           architecture: arm64
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Login to AWS ECR
         uses: aws-actions/amazon-ecr-login@v2
