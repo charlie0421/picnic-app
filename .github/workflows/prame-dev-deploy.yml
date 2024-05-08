@@ -23,11 +23,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Use Node.js 18
+      - name: Use Node.js 16
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 16
           architecture: arm64
+
+      - name: setup yarn
+        run: |
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+          nvm install 16
+          npm -g install yarn
+          yarn set version 4.2.1
 
       - name: Checkout code
         uses: actions/checkout@v3
@@ -75,11 +82,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Use Node.js 18
+      - name: Use Node.js 16
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 16
           architecture: arm64
+
+      - name: setup yarn
+        run: |
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+          nvm install 16
+          npm -g install yarn
+          yarn set version 4.2.1
 
       - name: Checkout code
         uses: actions/checkout@v3
