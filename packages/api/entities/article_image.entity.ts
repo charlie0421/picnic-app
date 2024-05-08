@@ -20,7 +20,7 @@ export class GalleryArticleImageEntity extends BaseEntity {
 
     @AfterLoad()
     getImage() {
-        this.image = this.image ? `${process.env.CDN_URL}/prame/article/${this.articleId}/images/${this.id}/${this.image}` : '';
+        this.image = this.image ? `${process.env.CDN_URL}/article/${this.articleId}/images/${this.id}/${this.image}` : '';
     }
 
     @ManyToOne(() => GalleryArticleEntity, (article) => article.images, {eager: true})

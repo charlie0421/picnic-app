@@ -22,7 +22,7 @@ export class CelebBanner extends BaseEntity {
 
     @AfterLoad()
     getThumbnail() {
-        this.thumbnail = `${process.env.CDN_URL}/prame/celeb_banner/${this.id}/${this.thumbnail}`;
+        this.thumbnail = `${process.env.CDN_URL}/celeb_banner/${this.id}/${this.thumbnail}`;
     }
 
     @Column({nullable: true})

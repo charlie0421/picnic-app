@@ -35,16 +35,16 @@ export class VoteEntity extends BaseEntity {
 
     @AfterLoad()
     getMainImagePath() {
-        this.mainImage = `${process.env.CDN_URL}/prame/vote/${this.id}/${this.mainImage}`;
+        this.mainImage = `${process.env.CDN_URL}/vote/${this.id}/${this.mainImage}`;
     }
 
     @AfterLoad()
     getWaitImagePath() {
-        this.waitImage = `${process.env.CDN_URL}/prame/vote/${this.id}/${this.waitImage}`;
+        this.waitImage = `${process.env.CDN_URL}/vote/${this.id}/${this.waitImage}`;
     }
 
     @AfterLoad()
     getResultImagePath() {
-        this.resultImage = `${process.env.CDN_URL}/prame/vote/${this.id}/${this.resultImage}`;
+        this.resultImage = `${process.env.CDN_URL}/vote/${this.id}/${this.resultImage}`;
     }
 }

@@ -18,7 +18,7 @@ export class Celeb extends BaseEntity {
     @AfterLoad()
     getThumbnail() {
         if (this.thumbnail)
-            this.thumbnail = `${process.env.CDN_URL}/prame/celeb/${this.id}/${this.thumbnail}`;
+            this.thumbnail = `${process.env.CDN_URL}/celeb/${this.id}/${this.thumbnail}`;
     }
 
     @ManyToMany(() => UserEntity, (user) => user.celebs)

@@ -19,7 +19,7 @@ export class GalleryEntity extends BaseEntity {
     @AfterLoad()
     getThumbnail() {
         if (this.cover)
-            this.cover = `${process.env.CDN_URL}/prame/gallery/${this.id}/${this.cover}`;
+            this.cover = `${process.env.CDN_URL}/gallery/${this.id}/${this.cover}`;
     }
 
     @ManyToOne(() => Celeb, (celeb) => celeb.galleries)

@@ -1,9 +1,6 @@
-import 'dart:ui';
-
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:prame_app/auth_dio.dart';
 import 'package:prame_app/constants.dart';
-import 'package:prame_app/models/article.dart';
 import 'package:prame_app/models/vote.dart';
 import 'package:prame_app/reflector.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -15,6 +12,7 @@ class AsyncVoteList extends _$AsyncVoteList {
   final PagingController<int, VoteModel> _pagingController =
       PagingController(firstPageKey: 1);
   late int galleryId;
+
   @override
   Future<PagingController<int, VoteModel>> build(
       {required String category}) async {

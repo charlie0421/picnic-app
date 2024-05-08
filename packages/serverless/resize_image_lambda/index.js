@@ -7,7 +7,7 @@ const Sharp = require('sharp');
 const S3 = new AWS.S3({
   region: 'ap-northeast-2'
 });
-const BUCKET = '1stype-dev';
+const BUCKET = 'prame-cdn-dev';
 
 exports.handler = async (event, context, callback) => {
   const { request, response } = event.Records[0].cf;

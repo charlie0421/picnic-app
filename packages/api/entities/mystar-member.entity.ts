@@ -31,6 +31,6 @@ export class MystarMemberEntity extends BaseEntity {
             return;
         }
 
-        this.image = `${process.env.CDN_URL}/prame/mystar/member/${this.id}/${this.image}`;
+        this.image = `${process.env.CDN_URL}/mystar/member/${this.id}/${this.image}`;
     }
 }
