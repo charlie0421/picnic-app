@@ -39,9 +39,13 @@ jobs:
 
       - name: Build for User
         run: |
+          echo "packages/api"
           cd packages/api
+          echo "yarn install"
           yarn install
+          echo "yarn api-$FOLDER_NAME install"
           yarn api-$FOLDER_NAME install
+          echo "yarn api-$FOLDER_NAME build"
           yarn api-$FOLDER_NAME build
 
       - name: Push Docker image for User
@@ -87,9 +91,13 @@ jobs:
 
       - name: Build for Auth
         run: |
+          echo "packages/api"
           cd packages/api
+          echo "yarn install"
           yarn install
+          echo "yarn api-$FOLDER_NAME install"
           yarn api-$FOLDER_NAME install
+          echo "yarn api-$FOLDER_NAME build"
           yarn api-$FOLDER_NAME build
 
       - name: Push Docker image for Auth
