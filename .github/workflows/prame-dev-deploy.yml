@@ -21,7 +21,7 @@ jobs:
       AWS_SERVICE_NAME: prame-dev-api-user-service
       FOLDER_NAME: user
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
       - name: Use Node.js 20
         uses: actions/setup-node@v4
@@ -73,7 +73,7 @@ jobs:
       AWS_SERVICE_NAME: prame-dev-api-auth-service
       FOLDER_NAME: auth
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
       - name: Use Node.js 20
         uses: actions/setup-node@v4
