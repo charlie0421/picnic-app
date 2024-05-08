@@ -8,10 +8,10 @@ const kAccessTokenKey = 'ACCESS_TOKEN';
 
 class Constants {
   static const String userApiUrl = String.fromEnvironment('API_USER_ROOT',
-      defaultValue: 'https://api-dev.1stype.io/prame');
+      defaultValue: 'https://api-dev.iconcasting.io/user');
   static const String authApiUrl = String.fromEnvironment(
     'API_AUTH_ROOT',
-    defaultValue: 'https://api-dev.1stype.io/prame/auth',
+    defaultValue: 'https://api-dev.iconcasting.io/auth',
   );
   static const double webMaxWidth = 600.0;
   static const int snackBarDuration = 3;
