@@ -1,8 +1,8 @@
 import {AfterLoad, Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne,} from "typeorm";
 import {BaseEntity} from "./base_entity";
-import {GalleryArticleEntity} from "./gallery_article.entity";
-import {PrameUserEntity} from "./prame-user.entity";
-import {PrameAlbumEntity} from "./prame-album.entity";
+import {GalleryArticleEntity} from "./article.entity";
+import {UserEntity} from "./user.entity";
+import {AlbumEntity} from "./album.entity";
 
 @Entity("gallery_article_image")
 export class GalleryArticleImageEntity extends BaseEntity {
@@ -31,7 +31,7 @@ export class GalleryArticleImageEntity extends BaseEntity {
     articleId: number;
 
 
-    @ManyToMany(() => PrameUserEntity, (user) => user.bookmarks)
+    @ManyToMany(() => UserEntity, (user) => user.bookmarks)
     @JoinTable({
         name: "album_image_user",
         joinColumn: {
@@ -41,10 +41,10 @@ export class GalleryArticleImageEntity extends BaseEntity {
             name: "image_id",
         },
     })
-    bookmarkUsers: PrameUserEntity[];
+    bookmarkUsers: UserEntity[];
 
 
-    @ManyToMany(() => PrameAlbumEntity, (library) => library.images)
+    @ManyToMany(() => AlbumEntity, (library) => library.images)
     @JoinTable({
         name: "album_image",
         joinColumn: {
@@ -56,6 +56,6 @@ export class GalleryArticleImageEntity extends BaseEntity {
             referencedColumnName: "id",
         },
     })
-    albums: PrameAlbumEntity[];
+    albums: AlbumEntity[];
 
 }

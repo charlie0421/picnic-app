@@ -1,6 +1,6 @@
 import {AfterLoad, Column, Entity, JoinTable, ManyToMany, OneToMany,} from "typeorm";
 import {BaseEntity} from "./base_entity";
-import {PrameUserEntity} from "./prame-user.entity";
+import {UserEntity} from "./user.entity";
 import {CelebBanner} from "./celeb_banner.entity";
 import {GalleryEntity} from "./gallery.entity";
 
@@ -21,9 +21,9 @@ export class Celeb extends BaseEntity {
             this.thumbnail = `${process.env.CDN_URL}/prame/celeb/${this.id}/${this.thumbnail}`;
     }
 
-    @ManyToMany(() => PrameUserEntity, (user) => user.celebs)
+    @ManyToMany(() => UserEntity, (user) => user.celebs)
     @JoinTable({name: "celeb_user", joinColumn: {name: "celeb_id"}, inverseJoinColumn: {name: "user_id"}})
-    users: PrameUserEntity[];
+    users: UserEntity[];
 
     @OneToMany(() => CelebBanner, (banner) => banner.celeb)
     banners: CelebBanner[];

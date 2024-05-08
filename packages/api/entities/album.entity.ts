@@ -1,11 +1,11 @@
 import {Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne} from "typeorm";
 import {BaseEntity} from "./base_entity";
-import {PrameUserCommentReportEntity} from "./prame_user-comment-report.entity";
-import {GalleryArticleImageEntity} from "./gallery_article_image.entity";
-import {PrameUserEntity} from "./prame-user.entity";
+import {UserCommentReportEntity} from "./user-comment-report.entity";
+import {GalleryArticleImageEntity} from "./article_image.entity";
+import {UserEntity} from "./user.entity";
 
 @Entity("album")
-export class PrameAlbumEntity extends BaseEntity {
+export class AlbumEntity extends BaseEntity {
 
     @Column({name:'title'})
     title: string;
@@ -24,8 +24,8 @@ export class PrameAlbumEntity extends BaseEntity {
     })
     images: GalleryArticleImageEntity[];
 
-    @OneToOne(() => PrameUserEntity, (user) => user.album)
+    @OneToOne(() => UserEntity, (user) => user.album)
     @JoinColumn({name: "user_id"})
-    user: PrameUserEntity;
+    user: UserEntity;
 }
 

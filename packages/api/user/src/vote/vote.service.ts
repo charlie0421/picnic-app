@@ -10,7 +10,7 @@ import {VoteEntity} from "../../../entities/vote.entity";
 import {VoteItemEntity} from "../../../entities/vote_item.entity";
 import {VoteCommentEntity} from "../../../entities/vote_comment.entity";
 import {PointHistoryEntity, PointHistoryType} from "../../../entities/point_history.entity";
-import {PrameUserEntity} from "../../../entities/prame-user.entity";
+import {UserEntity} from "../../../entities/user.entity";
 import {VoteItemPickEntity} from "../../../entities/vote_item_pick.entity";
 
 @Injectable()
@@ -24,8 +24,8 @@ export class VoteService {
         private voteItemRepository: Repository<VoteItemEntity>,
         @InjectRepository(VoteCommentEntity)
         private voteCommentRepository: Repository<VoteCommentEntity>,
-        @InjectRepository(PrameUserEntity)
-        private userRepository: Repository<PrameUserEntity>,
+        @InjectRepository(UserEntity)
+        private userRepository: Repository<UserEntity>,
         @InjectRepository(VoteItemPickEntity)
         private votePickRepository: Repository<VoteItemPickEntity>,
         private connection: DataSource,

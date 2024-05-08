@@ -5,9 +5,9 @@ import {InjectDataSource, InjectRepository} from '@nestjs/typeorm';
 import {DataSource, Repository} from 'typeorm';
 import {paginate} from 'nestjs-typeorm-paginate';
 import {ArticleCommentEntity} from "../../../entities/article_comment.entity";
-import {GalleryArticleEntity} from "../../../entities/gallery_article.entity";
-import {PrameUserCommentLikeEntity} from "../../../entities/prame_user_comment_like.entity";
-import {PrameUserCommentReportEntity} from "../../../entities/prame_user-comment-report.entity";
+import {GalleryArticleEntity} from "../../../entities/article.entity";
+import {PrameUserCommentLikeEntity} from "../../../entities/user_comment_like.entity";
+import {UserCommentReportEntity} from "../../../entities/user-comment-report.entity";
 
 @Injectable()
 export class CommentService {
@@ -20,8 +20,8 @@ export class CommentService {
         private articleRepository: Repository<GalleryArticleEntity>,
         @InjectRepository(PrameUserCommentLikeEntity)
         private userCommentLikeRepository: Repository<PrameUserCommentLikeEntity>,
-        @InjectRepository(PrameUserCommentReportEntity)
-        private userCommentReportRepository: Repository<PrameUserCommentReportEntity>,
+        @InjectRepository(UserCommentReportEntity)
+        private userCommentReportRepository: Repository<UserCommentReportEntity>,
         @InjectDataSource() private dataSource: DataSource,
     ) {
     }
@@ -55,7 +55,7 @@ export class CommentService {
             )
             .leftJoinAndMapOne(
                 'comment.report',
-                PrameUserCommentReportEntity,
+                UserCommentReportEntity,
                 'report_myReport',
                 'comment.id = `report_myReport`.comment_id and report_myReport.user_id = :userId',
                 {userId},
@@ -96,7 +96,7 @@ export class CommentService {
             ) // Added this line
             .leftJoinAndMapOne(
                 'children.myReport',
-                PrameUserCommentReportEntity,
+                UserCommentReportEntity,
                 'children_myReport',
                 'children.id = `children_myReport`.comment_id and children.userId = `children_myReport`.user_id',
             )
@@ -206,7 +206,7 @@ export class CommentService {
 
     async addReport(userId: number, commentId: number) {
         try {
-            const userCommentReportEntity = new PrameUserCommentReportEntity();
+            const userCommentReportEntity = new UserCommentReportEntity();
             userCommentReportEntity.userId = userId;
             userCommentReportEntity.commentId = commentId;
             if (userCommentReportEntity.userId == userCommentReportEntity.commentId) {

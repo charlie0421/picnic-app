@@ -6,10 +6,10 @@ import {VoteEntity} from "../../../entities/vote.entity";
 import {VoteItemEntity} from "../../../entities/vote_item.entity";
 import {VoteCommentEntity} from "../../../entities/vote_comment.entity";
 import {VoteItemPickEntity} from "../../../entities/vote_item_pick.entity";
-import {PrameUserEntity} from "../../../entities/prame-user.entity";
+import {UserEntity} from "../../../entities/user.entity";
 
 @Module({
-    imports: [TypeOrmModule.forFeature([VoteEntity, VoteItemEntity, VoteCommentEntity, PrameUserEntity, VoteItemPickEntity,])],
+    imports: [TypeOrmModule.forFeature([VoteEntity, VoteItemEntity, VoteCommentEntity, UserEntity, VoteItemPickEntity,])],
     exports: [TypeOrmModule],
     controllers: [VoteController],
     providers: [VoteService],

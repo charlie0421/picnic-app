@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, ViewColumn,} from "typeorm";
 import {BaseEntity} from "./base_entity";
 import {GalleryEntity} from "./gallery.entity";
-import { GalleryArticleImageEntity } from "./gallery_article_image.entity";
+import { GalleryArticleImageEntity } from "./article_image.entity";
 import {ArticleCommentEntity} from "./article_comment.entity";
 
 @Entity("gallery_article")

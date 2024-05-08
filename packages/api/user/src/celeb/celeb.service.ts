@@ -3,7 +3,7 @@ import {Celeb} from '../../../entities/celeb.entity';
 import {Repository} from 'typeorm';
 import {InjectRepository} from '@nestjs/typeorm';
 import {paginate} from 'nestjs-typeorm-paginate';
-import {PrameUserEntity} from "../../../entities/prame-user.entity";
+import {UserEntity} from "../../../entities/user.entity";
 import {CelebBanner} from "../../../entities/celeb_banner.entity";
 
 @Injectable()
@@ -12,7 +12,7 @@ export class CelebService {
 
     constructor(
         @InjectRepository(Celeb) private celebRepository: Repository<Celeb>,
-        @InjectRepository(PrameUserEntity) private userRepository: Repository<PrameUserEntity>,
+        @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
         @InjectRepository(CelebBanner) private celebBannerRepository: Repository<CelebBanner>,
     ) {
     }

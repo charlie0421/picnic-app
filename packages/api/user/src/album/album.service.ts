@@ -2,10 +2,10 @@ import {Injectable, Logger} from '@nestjs/common';
 import {DataSource, Repository} from 'typeorm';
 import {InjectDataSource, InjectRepository} from '@nestjs/typeorm';
 import {paginate} from 'nestjs-typeorm-paginate';
-import {PrameUserEntity} from "../../../entities/prame-user.entity";
+import {UserEntity} from "../../../entities/user.entity";
 import {CreateLibraryDto} from "./dto/create-library.dto";
-import {PrameAlbumEntity} from "../../../entities/prame-album.entity";
-import {GalleryArticleImageEntity} from "../../../entities/gallery_article_image.entity";
+import {AlbumEntity} from "../../../entities/album.entity";
+import {GalleryArticleImageEntity} from "../../../entities/article_image.entity";
 
 @Injectable()
 export class AlbumService {
@@ -13,8 +13,8 @@ export class AlbumService {
 
     constructor(
         @InjectRepository(GalleryArticleImageEntity) private articleImageRepository: Repository<GalleryArticleImageEntity>,
-        @InjectRepository(PrameAlbumEntity) private albumRepository: Repository<PrameAlbumEntity>,
-        @InjectRepository(PrameUserEntity) private userRepository: Repository<PrameUserEntity>,
+        @InjectRepository(AlbumEntity) private albumRepository: Repository<AlbumEntity>,
+        @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
         @InjectDataSource() private dataSource: DataSource,
     ) {
     }
@@ -26,16 +26,16 @@ export class AlbumService {
             .where('user.id = :id', {id})
             .select(['album', 'image', 'user.id', 'user.nickname'])
 
-        return paginate<PrameAlbumEntity>(queryBuilder, {limit: 100, page: 1});
+        return paginate<AlbumEntity>(queryBuilder, {limit: 100, page: 1});
     }
 
     async addImageToLibrary(userId: number, albumId: number, imageId: number) {
         this.logger.log('addImageToLibrary userId: ' + userId + ' albumId: ' + albumId + ' imageId: ' + imageId);
 
         const result = await this.dataSource.transaction(async manager => {
-            const albumRepository = manager.getRepository(PrameAlbumEntity);
+            const albumRepository = manager.getRepository(AlbumEntity);
             const articleImageRepository = manager.getRepository(GalleryArticleImageEntity);
-            const userRepository = manager.getRepository(PrameUserEntity);
+            const userRepository = manager.getRepository(UserEntity);
 
             const album = await albumRepository.findOne({
                 relations: ['images'],

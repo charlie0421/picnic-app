@@ -1,9 +1,9 @@
 import {Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany} from "typeorm";
 
 import {BaseEntity} from "./base_entity";
-import {PrameUserEntity} from "./prame-user.entity";
-import {PrameUserCommentLikeEntity} from "./prame_user_comment_like.entity";
-import {PrameUserCommentReportEntity} from "./prame_user-comment-report.entity";
+import {UserEntity} from "./user.entity";
+import {PrameUserCommentLikeEntity} from "./user_comment_like.entity";
+import {UserCommentReportEntity} from "./user-comment-report.entity";
 import {VoteEntity} from "./vote.entity";
 
 @Entity("vote_comment")
@@ -14,9 +14,9 @@ export class VoteCommentEntity extends BaseEntity {
     @Column({name: "vote_id"})
     voteId: number;
 
-    @ManyToOne(() => PrameUserEntity, (user) => user.id)
+    @ManyToOne(() => UserEntity, (user) => user.id)
     @JoinColumn({name: "user_id"})
-    user: PrameUserEntity;
+    user: UserEntity;
     @Column({name: "user_id"})
     userId: number;
 
@@ -38,13 +38,13 @@ export class VoteCommentEntity extends BaseEntity {
     @Column({type: "text", nullable: false})
     content: string; // 댓글 내용
 
-    @ManyToMany(() => PrameUserEntity, (user) => user.likedComments)
+    @ManyToMany(() => UserEntity, (user) => user.likedComments)
     @JoinTable({name: "vote_comment_like", joinColumn: {name: "comment_id"}, inverseJoinColumn: {name: "user_id"}})
-    likedUsers: PrameUserEntity[];
+    likedUsers: UserEntity[];
 
-    @ManyToMany(() => PrameUserEntity, (user) => user.reportedComments)
+    @ManyToMany(() => UserEntity, (user) => user.reportedComments)
     @JoinTable({name: "vote_comment_report", joinColumn: {name: "comment_id"}, inverseJoinColumn: {name: "user_id"}})
-    reportedUsers: PrameUserEntity[];
+    reportedUsers: UserEntity[];
 
     @OneToMany(
         () => PrameUserCommentLikeEntity,
@@ -53,8 +53,8 @@ export class VoteCommentEntity extends BaseEntity {
     likesList: PrameUserCommentLikeEntity[]; // 댓글 좋아요 목록
 
     @OneToMany(
-        () => PrameUserCommentReportEntity,
+        () => UserCommentReportEntity,
         (userCommentReportEntity) => userCommentReportEntity.comment,
     )
-    reportsList: PrameUserCommentReportEntity[]; // 댓글 신고 목록
+    reportsList: UserCommentReportEntity[]; // 댓글 신고 목록
 }

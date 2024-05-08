@@ -65,5 +65,12 @@
   "security-group:account=851725635868:region=ap-northeast-2:securityGroupId=sg-07fd25b6220499a74": {
     "securityGroupId": "sg-07fd25b6220499a74",
     "allowAllOutbound": false
+  },
+  "load-balancer-listener:account=851725635868:listenerArn=arn$:aws:elasticloadbalancing:ap-northeast-2:851725635868:listener/app/prame-dev-alb/dde9cf7fcdc7fb80/68ff3ef43bc1f3b9:loadBalancerType=application:region=ap-northeast-2": {
+    "listenerArn": "arn:aws:elasticloadbalancing:ap-northeast-2:851725635868:listener/app/prame-dev-alb/dde9cf7fcdc7fb80/68ff3ef43bc1f3b9",
+    "listenerPort": 443,
+    "securityGroupIds": [
+      "sg-07fd25b6220499a74"
+    ]
   }
 }

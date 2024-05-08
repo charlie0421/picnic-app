@@ -19,7 +19,7 @@ import {JwtInputPayload} from "../../../common/dto/access-token-body.dto";
 import {PutObjectCommandOutput} from '@aws-sdk/client-s3';
 import {v4} from 'uuid';
 import path from 'path';
-import {PrameUserEntity} from "../../../entities/prame-user.entity";
+import {UserEntity} from "../../../entities/user.entity";
 import {IPaginationOptions, paginate} from "nestjs-typeorm-paginate";
 
 @Injectable()
@@ -30,13 +30,13 @@ export class UsersService {
         private readonly configService: ConfigService,
         private readonly sesService: SesService,
         private readonly s3Service: S3Service,
-        @InjectRepository(PrameUserEntity) private usersRepository: Repository<PrameUserEntity>,
+        @InjectRepository(UserEntity) private usersRepository: Repository<UserEntity>,
         private readonly jwtService: JwtService,
         @InjectDataSource() private readonly dataSource: DataSource) {
     }
 
 
-    generateEmailVerificationToken(user: PrameUserEntity) {
+    generateEmailVerificationToken(user: UserEntity) {
         const secretKey = this.configService.get('JWT_SECRET');
         const expiresIn = '24h'; // 토큰 유효 기간
 
@@ -56,12 +56,12 @@ export class UsersService {
         return token;
     }
 
-    async create(createUserDto: CreateUserDto): Promise<PrameUserEntity> {
+    async create(createUserDto: CreateUserDto): Promise<UserEntity> {
         const soltRound = 10;
         createUserDto.password = await bcrypt.hash(createUserDto.password, soltRound);
 
         const user = await this.usersRepository.findOne({where: {email: createUserDto.email}});
-        let newUser: PrameUserEntity;
+        let newUser: UserEntity;
         if (user) {
             newUser = this.usersRepository.merge(user, createUserDto);
             newUser = await this.usersRepository.save(newUser);
@@ -111,10 +111,10 @@ export class UsersService {
             .andWhere('user.emailVerifiedAt is not null').withDeleted();
         const user = await queryBuilder.getOne();
 
-        return plainToInstance(PrameUserEntity, user);
+        return plainToInstance(UserEntity, user);
     }
 
-    async update(updateUserDto: Partial<UpdateUserDto>): Promise<PrameUserEntity> {
+    async update(updateUserDto: Partial<UpdateUserDto>): Promise<UserEntity> {
         const user = await this.usersRepository.findOne({where: {id: updateUserDto.id}});
         const definedValues = getDefinedValues(updateUserDto);
 
@@ -127,7 +127,7 @@ export class UsersService {
         return this.usersRepository.save(user);
     }
 
-    async remove(id: number): Promise<PrameUserEntity> {
+    async remove(id: number): Promise<UserEntity> {
         const user = await this.usersRepository.findOne({where: {id: id}});
         const removedUser = await this.usersRepository.remove(user);
         removedUser.id = id;

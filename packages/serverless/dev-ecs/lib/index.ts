@@ -54,7 +54,7 @@ export class EcsStack extends cdk.Stack {
 
     private lookupListener() {
         this.listener = elbv2.ApplicationListener.fromLookup(this.stack, "dev-alb-listener", {
-            listenerArn: "arn:aws:elasticloadbalancing:ap-northeast-2:851725635868:listener/app/prame-dev-alb/dde9cf7fcdc7fb80/8a4d5b435fb6171d",
+            listenerArn: "arn:aws:elasticloadbalancing:ap-northeast-2:851725635868:listener/app/prame-dev-alb/dde9cf7fcdc7fb80/68ff3ef43bc1f3b9",
         });
     }
 
@@ -120,6 +120,14 @@ export class EcsStack extends cdk.Stack {
                 image: ecs.ContainerImage.fromRegistry(
                     `851725635868.dkr.ecr.ap-northeast-2.amazonaws.com/prame-dev-api-${path.name}-service:latest`,
                 ),
+
+                healthCheck: {
+                    command: ["CMD-SHELL", `curl -f http://localhost:${7100 + index}/${path.name} || exit 1`],
+                    interval: cdk.Duration.seconds(30),
+                    timeout: cdk.Duration.seconds(5),
+                    retries: 3,
+                    startPeriod: cdk.Duration.seconds(60),
+                },
                 memoryReservationMiB: 300,
                 portMappings: [
                     {
@@ -128,6 +136,7 @@ export class EcsStack extends cdk.Stack {
                         protocol: ecs.Protocol.TCP,
                     },
                 ],
+                environment: commonEnvironment,
                 disableNetworking: false,
                 entryPoint: ["sh", "-c", `pwd; node ${path.name}/dist/${path.name}/src/main`],
                 workingDirectory: `/usr/src/app`,
@@ -160,8 +169,8 @@ const commonEnvironment = {
     DATABASE_BIG_NUMBER_STRINGS: "true",
     DATABASE_CONNECTION_LIMIT: "2",
     DATABASE_DATABASE_NAME: "prame",
-    DATABASE_HOST_RO: "db-dev.prame.io",
-    DATABASE_HOST_RW: "db-dev.prame.io",
+    DATABASE_HOST_RO: "prame-dev-db.iconcasting.io",
+    DATABASE_HOST_RW: "prame-dev-db.iconcasting.io",
     DATABASE_ADMIN_PASSWORD: 'tkffudigksek1!',
     DATABASE_ADMIN_USER: 'admin',
     DATABASE_LOGGING: "true",

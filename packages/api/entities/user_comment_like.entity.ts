@@ -1,14 +1,14 @@
 import { Column, Entity, JoinColumn, ManyToOne, Unique } from "typeorm";
 import { BaseEntity } from "./base_entity";
-import {PrameUserEntity} from "./prame-user.entity";
+import {UserEntity} from "./user.entity";
 import {ArticleCommentEntity} from "./article_comment.entity";
 
 @Entity("user_comment_like")
 @Unique(["userId", "commentId"])
 export class PrameUserCommentLikeEntity extends BaseEntity {
-  @ManyToOne(() => PrameUserEntity, (user) => user.id)
+  @ManyToOne(() => UserEntity, (user) => user.id)
   @JoinColumn({ name: "user_id" })
-  user: PrameUserEntity;
+  user: UserEntity;
   @Column({ name: "user_id", nullable: false })
   userId: number;
 

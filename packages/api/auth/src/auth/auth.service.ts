@@ -12,15 +12,15 @@ import type { BasicUserDto } from '../../../common/dto/basic-user.dto';
 import { TokenType } from '../../../common/enums';
 import * as bcrypt from 'bcrypt';
 import { AuthLoginDto } from "./dto/auth-login.dto";
-import {PrameUserEntity} from "../../../entities/prame-user.entity";
+import {UserEntity} from "../../../entities/user.entity";
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    @InjectRepository(PrameUserEntity)
-    private readonly userRepository: Repository<PrameUserEntity>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
   ) {}
 
   async validateUser(email: string, pass: string) {

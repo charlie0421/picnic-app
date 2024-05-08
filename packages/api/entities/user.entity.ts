@@ -3,13 +3,13 @@ import {BaseEntity} from "./base_entity";
 import {Celeb} from "./celeb.entity";
 import {GalleryEntity} from "./gallery.entity";
 import {ArticleCommentEntity} from "./article_comment.entity";
-import {PrameUserCommentReportEntity} from "./prame_user-comment-report.entity";
-import {GalleryArticleImageEntity} from "./gallery_article_image.entity";
-import {PrameAlbumEntity} from "./prame-album.entity";
+import {UserCommentReportEntity} from "./user-comment-report.entity";
+import {GalleryArticleImageEntity} from "./article_image.entity";
+import {AlbumEntity} from "./album.entity";
 
 @Entity("prame-users")
 @Unique(["id", "email"])
-export class PrameUserEntity extends BaseEntity {
+export class UserEntity extends BaseEntity {
 
     @Column()
     nickname: string;
@@ -45,8 +45,8 @@ export class PrameUserEntity extends BaseEntity {
     @ManyToMany(() => ArticleCommentEntity, (comment) => comment.reportedUsers)
     @JoinTable({name: "article_comment_report", joinColumn: {name: "user_id"}, inverseJoinColumn: {name: "comment_id"}})
     reportedComments: ArticleCommentEntity[];
-    @OneToMany(() => PrameUserCommentReportEntity, (comment) => comment.user)
-    userCommentReports: PrameUserCommentReportEntity[]; // 댓글 신고 목록
+    @OneToMany(() => UserCommentReportEntity, (comment) => comment.user)
+    userCommentReports: UserCommentReportEntity[]; // 댓글 신고 목록
     @ManyToMany(() => GalleryArticleImageEntity, (image) => image.bookmarkUsers)
     @JoinTable({
         name: "album_image_user",
@@ -58,8 +58,8 @@ export class PrameUserEntity extends BaseEntity {
         },
     })
     bookmarks: GalleryArticleImageEntity[];
-    @OneToOne(() => PrameAlbumEntity, (library) => library.user)
-    album: PrameAlbumEntity;
+    @OneToOne(() => AlbumEntity, (library) => library.user)
+    album: AlbumEntity;
 
     @AfterLoad()
     getFullImagePath() {

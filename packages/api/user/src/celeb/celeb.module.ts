@@ -3,12 +3,12 @@ import {CelebService} from './celeb.service';
 import {CelebController} from './celeb.controller';
 import {TypeOrmModule} from '@nestjs/typeorm';
 import {Celeb} from "../../../entities/celeb.entity";
-import {PrameUserEntity} from "../../../entities/prame-user.entity";
+import {UserEntity} from "../../../entities/user.entity";
 import {CelebBanner} from "../../../entities/celeb_banner.entity";
 import { JwtService } from '@nestjs/jwt';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Celeb,PrameUserEntity,CelebBanner])],
+    imports: [TypeOrmModule.forFeature([Celeb,UserEntity,CelebBanner])],
     controllers: [CelebController],
     providers: [CelebService, JwtService],
 })

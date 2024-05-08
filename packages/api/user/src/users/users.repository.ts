@@ -1,8 +1,8 @@
 import {EntityRepository, Repository} from 'typeorm';
-import {PrameUserEntity} from "../../../entities/prame-user.entity";
+import {UserEntity} from "../../../entities/user.entity";
 
-@EntityRepository(PrameUserEntity)
-export class UsersRepository extends Repository<PrameUserEntity> {
+@EntityRepository(UserEntity)
+export class UsersRepository extends Repository<UserEntity> {
     async findById(id: number) {
         return this.findOne({
             where: {id},
