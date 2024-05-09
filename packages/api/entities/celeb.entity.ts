@@ -1,7 +1,7 @@
 import {AfterLoad, Column, Entity, JoinTable, ManyToMany, OneToMany,} from "typeorm";
 import {BaseEntity} from "./base_entity";
 import {UserEntity} from "./user.entity";
-import {CelebBannerEntity} from "./celeb_banner.entity";
+import {CelebBannerEntity} from "./celeb-banner.entity";
 import {GalleryEntity} from "./gallery.entity";
 
 @Entity("celeb")

@@ -7,11 +7,11 @@ import {VotePickForSstVoteResponseDto} from "./dto/vote-pick-for-sst-vote-respon
 import {plainToInstance} from "class-transformer";
 import {RankMainDto} from "./dto/rank.dto";
 import {VoteEntity} from "../../../entities/vote.entity";
-import {VoteItemEntity} from "../../../entities/vote_item.entity";
-import {VoteCommentEntity} from "../../../entities/vote_comment.entity";
+import {VoteItemEntity} from "../../../entities/vote-item.entity";
+import {VoteCommentEntity} from "../../../entities/vote-comment.entity";
 import {PointHistoryEntity, PointHistoryType} from "../../../entities/point_history.entity";
 import {UserEntity} from "../../../entities/user.entity";
-import {VoteItemPickEntity} from "../../../entities/vote_item_pick.entity";
+import {VoteItemPickEntity} from "../../../entities/vote-item-pick.entity";
 
 @Injectable()
 export class VoteService {

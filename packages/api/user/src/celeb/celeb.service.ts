@@ -4,7 +4,7 @@ import {Repository} from 'typeorm';
 import {InjectRepository} from '@nestjs/typeorm';
 import {paginate} from 'nestjs-typeorm-paginate';
 import {UserEntity} from "../../../entities/user.entity";
-import {CelebBannerEntity} from "../../../entities/celeb_banner.entity";
+import {CelebBannerEntity} from "../../../entities/celeb-banner.entity";
 
 @Injectable()
 export class CelebService {

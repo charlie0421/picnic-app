@@ -3,8 +3,8 @@ import {Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany}
 import {BaseEntity} from "./base_entity";
 import {ArticleEntity} from "./article.entity";
 import {UserEntity} from "./user.entity";
-import {UserCommentLikeEntity} from "./user_comment_like.entity";
-import {UserCommentReportEntity} from "./user-comment-report.entity";
+import {ArticleCommentLikeEntity} from "./article-comment-like.entity";
+import {ArticleCommentReportEntity} from "./article-comment-report.entity";
 
 @Entity("article_comment")
 export class ArticleCommentEntity extends BaseEntity {
@@ -47,14 +47,14 @@ export class ArticleCommentEntity extends BaseEntity {
     reportedUsers: UserEntity[];
 
     @OneToMany(
-      () => UserCommentLikeEntity,
-      (userCommentLikeEntity) => userCommentLikeEntity.comment,
+      () => ArticleCommentLikeEntity,
+      (articleCommentEntity) => articleCommentEntity.comment,
     )
-    likesList: UserCommentLikeEntity[]; // 댓글 좋아요 목록
+    likesList: ArticleCommentLikeEntity[]; // 댓글 좋아요 목록
 
     @OneToMany(
-      () => UserCommentReportEntity,
-      (userCommentReportEntity) => userCommentReportEntity.comment,
+      () => ArticleCommentReportEntity,
+      (articleCommentReportEntity: ArticleCommentReportEntity) => articleCommentReportEntity.comment,
     )
-    reportsList: UserCommentReportEntity[]; // 댓글 신고 목록
+    reportsList: ArticleCommentReportEntity[]; // 댓글 신고 목록
 }

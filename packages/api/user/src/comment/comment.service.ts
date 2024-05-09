@@ -4,10 +4,10 @@ import {UpdateCommentDto} from './dto/update-comment.dto';
 import {InjectDataSource, InjectRepository} from '@nestjs/typeorm';
 import {DataSource, Repository} from 'typeorm';
 import {paginate} from 'nestjs-typeorm-paginate';
-import {ArticleCommentEntity} from "../../../entities/article_comment.entity";
+import {ArticleCommentEntity} from "../../../entities/article-comment.entity";
 import {ArticleEntity} from "../../../entities/article.entity";
-import {UserCommentLikeEntity} from "../../../entities/user_comment_like.entity";
-import {UserCommentReportEntity} from "../../../entities/user-comment-report.entity";
+import {ArticleCommentLikeEntity} from "../../../entities/article-comment-like.entity";
+import {ArticleCommentReportEntity} from "../../../entities/article-comment-report.entity";
 
 @Injectable()
 export class CommentService {
@@ -18,10 +18,10 @@ export class CommentService {
         private commentRepository: Repository<ArticleCommentEntity>,
         @InjectRepository(ArticleEntity)
         private articleRepository: Repository<ArticleEntity>,
-        @InjectRepository(UserCommentLikeEntity)
-        private userCommentLikeRepository: Repository<UserCommentLikeEntity>,
-        @InjectRepository(UserCommentReportEntity)
-        private userCommentReportRepository: Repository<UserCommentReportEntity>,
+        @InjectRepository(ArticleCommentLikeEntity)
+        private userCommentLikeRepository: Repository<ArticleCommentLikeEntity>,
+        @InjectRepository(ArticleCommentReportEntity)
+        private userCommentReportRepository: Repository<ArticleCommentReportEntity>,
         @InjectDataSource() private dataSource: DataSource,
     ) {
     }
@@ -49,13 +49,13 @@ export class CommentService {
         queryBuilder
             .leftJoinAndMapOne(
                 'comment.myLike',
-                UserCommentLikeEntity,
+                ArticleCommentLikeEntity,
                 'myLike',
                 'comment.id = `myLike`.comment_id and comment.userId = `myLike`.user_id',
             )
             .leftJoinAndMapOne(
                 'comment.report',
-                UserCommentReportEntity,
+                ArticleCommentReportEntity,
                 'report_myReport',
                 'comment.id = `report_myReport`.comment_id and report_myReport.user_id = :userId',
                 {userId},
@@ -85,7 +85,7 @@ export class CommentService {
             })
             .leftJoinAndMapOne(
                 'children.myLike',
-                UserCommentLikeEntity,
+                ArticleCommentLikeEntity,
                 'children_myLike',
                 'children.id = `children_myLike`.comment_id and children.userId = `children_myLike`.user_id',
             )
@@ -96,7 +96,7 @@ export class CommentService {
             ) // Added this line
             .leftJoinAndMapOne(
                 'children.myReport',
-                UserCommentReportEntity,
+                ArticleCommentReportEntity,
                 'children_myReport',
                 'children.id = `children_myReport`.comment_id and children.userId = `children_myReport`.user_id',
             )
@@ -157,11 +157,11 @@ export class CommentService {
                     });
                     if (comment != null && comment.deletedAt != null) {
                         await transactionalEntityManager.restore(
-                            UserCommentLikeEntity,
+                            ArticleCommentLikeEntity,
                             comment.id,
                         );
                     } else {
-                        await transactionalEntityManager.insert(UserCommentLikeEntity, {
+                        await transactionalEntityManager.insert(ArticleCommentLikeEntity, {
                             userId,
                             commentId,
                         });
@@ -206,7 +206,7 @@ export class CommentService {
 
     async addReport(userId: number, commentId: number) {
         try {
-            const userCommentReportEntity = new UserCommentReportEntity();
+            const userCommentReportEntity = new ArticleCommentReportEntity();
             userCommentReportEntity.userId = userId;
             userCommentReportEntity.commentId = commentId;
             if (userCommentReportEntity.userId == userCommentReportEntity.commentId) {

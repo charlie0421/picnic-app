@@ -1,5 +1,5 @@
 import {Column, Entity, JoinColumn, ManyToOne, OneToMany} from 'typeorm';
-import {VoteItemEntity} from './vote_item.entity';
+import {VoteItemEntity} from './vote-item.entity';
 import {VoteEntity} from './vote.entity';
 import {BaseEntity} from "./base_entity";
 import {PointHistoryEntity} from "./point_history.entity";

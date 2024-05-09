@@ -1,5 +1,5 @@
 import {Column, Entity, JoinColumn, ManyToOne} from 'typeorm';
-import {VoteItemPickEntity} from "./vote_item_pick.entity";
+import {VoteItemPickEntity} from "./vote-item-pick.entity";
 import {BaseEntity} from "./base_entity";
 
 export enum PointHistoryType {

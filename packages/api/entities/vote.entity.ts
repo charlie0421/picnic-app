@@ -1,8 +1,8 @@
 import {AfterLoad, Column, Entity, OneToMany} from "typeorm";
 import {BaseEntity} from "./base_entity";
-import {VoteItemEntity} from "./vote_item.entity";
-import {VoteItemPickEntity} from "./vote_item_pick.entity";
-import {VoteCommentEntity} from "./vote_comment.entity";
+import {VoteItemEntity} from "./vote-item.entity";
+import {VoteItemPickEntity} from "./vote-item-pick.entity";
+import {VoteCommentEntity} from "./vote-comment.entity";
 
 @Entity("vote")
 export class VoteEntity extends BaseEntity {

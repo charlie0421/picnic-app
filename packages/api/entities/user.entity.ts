@@ -2,9 +2,9 @@ import {AfterLoad, Column, Entity, JoinTable, ManyToMany, OneToMany, OneToOne, U
 import {BaseEntity} from "./base_entity";
 import {CelebEntity} from "./celeb.entity";
 import {GalleryEntity} from "./gallery.entity";
-import {ArticleCommentEntity} from "./article_comment.entity";
-import {UserCommentReportEntity} from "./user-comment-report.entity";
-import {ArticleImageEntity} from "./article_image.entity";
+import {ArticleCommentEntity} from "./article-comment.entity";
+import {ArticleCommentReportEntity} from "./article-comment-report.entity";
+import {ArticleImageEntity} from "./article-image.entity";
 import {AlbumEntity} from "./album.entity";
 
 @Entity("user")
@@ -45,8 +45,8 @@ export class UserEntity extends BaseEntity {
     @ManyToMany(() => ArticleCommentEntity, (comment) => comment.reportedUsers)
     @JoinTable({name: "article_comment_report", joinColumn: {name: "user_id"}, inverseJoinColumn: {name: "comment_id"}})
     reportedComments: ArticleCommentEntity[];
-    @OneToMany(() => UserCommentReportEntity, (comment) => comment.user)
-    userCommentReports: UserCommentReportEntity[]; // 댓글 신고 목록
+    @OneToMany(() => ArticleCommentReportEntity, (comment) => comment.user)
+    userCommentReports: ArticleCommentReportEntity[]; // 댓글 신고 목록
     @ManyToMany(() => ArticleImageEntity, (image) => image.bookmarkUsers)
     @JoinTable({
         name: "album_image_user",

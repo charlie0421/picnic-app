@@ -11,25 +11,25 @@ import { CelebEntity } from '../../../entities/celeb.entity';
 import { LocalStrategy } from '../../../common/auth/local.strategy';
 import { UserEntity } from '../../../entities/user.entity';
 import { UsersService } from '../../../user/src/users/users.service';
-import { CelebBannerEntity } from '../../../entities/celeb_banner.entity';
+import { CelebBannerEntity } from '../../../entities/celeb-banner.entity';
 import { GalleryEntity } from '../../../entities/gallery.entity';
 import { ArticleEntity } from '../../../entities/article.entity';
 import { VoteEntity } from '../../../entities/vote.entity';
-import { ArticleImageEntity } from '../../../entities/article_image.entity';
+import { ArticleImageEntity } from '../../../entities/article-image.entity';
 import { AlbumEntity } from '../../../entities/album.entity';
-import { ArticleCommentEntity } from '../../../entities/article_comment.entity';
-import { UserCommentLikeEntity } from '../../../entities/user_comment_like.entity';
-import { UserCommentReportEntity } from '../../../entities/user-comment-report.entity';
-import { VoteItemPickEntity } from '../../../entities/vote_item_pick.entity';
-import { VoteItemEntity } from '../../../entities/vote_item.entity';
+import { ArticleCommentEntity } from '../../../entities/article-comment.entity';
+import { ArticleCommentLikeEntity } from '../../../entities/article-comment-like.entity';
+import { ArticleCommentReportEntity } from '../../../entities/article-comment-report.entity';
+import { VoteItemPickEntity } from '../../../entities/vote-item-pick.entity';
+import { VoteItemEntity } from '../../../entities/vote-item.entity';
 import { PointHistoryEntity } from '../../../entities/point_history.entity';
 import { MystarMemberEntity } from '../../../entities/mystar-member.entity';
 import { MystarGroupEntity } from '../../../entities/mystar-group.entity';
-import { VoteCommentEntity } from '../../../entities/vote_comment.entity';
+import { VoteCommentEntity } from '../../../entities/vote-comment.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity, CelebEntity, CelebBannerEntity, GalleryEntity, ArticleEntity, ArticleImageEntity, AlbumEntity, ArticleCommentEntity, UserCommentLikeEntity,UserCommentReportEntity,VoteItemPickEntity,VoteItemEntity,PointHistoryEntity,MystarMemberEntity,MystarGroupEntity,VoteCommentEntity,
+    TypeOrmModule.forFeature([UserEntity, CelebEntity, CelebBannerEntity, GalleryEntity, ArticleEntity, ArticleImageEntity, AlbumEntity, ArticleCommentEntity, ArticleCommentLikeEntity,ArticleCommentReportEntity,VoteItemPickEntity,VoteItemEntity,PointHistoryEntity,MystarMemberEntity,MystarGroupEntity,VoteCommentEntity,
       VoteEntity]),
     PassportModule,
     JwtModule.register({}),

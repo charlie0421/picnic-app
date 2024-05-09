@@ -7,8 +7,8 @@ import {CelebEntity} from "../../../entities/celeb.entity";
 import {GalleryController} from "./gallery.controller";
 import {GalleryService} from "./gallery.service";
 import {ArticleEntity} from "../../../entities/article.entity";
-import {ArticleImageEntity} from "../../../entities/article_image.entity";
-import {ArticleCommentEntity} from "../../../entities/article_comment.entity";
+import {ArticleImageEntity} from "../../../entities/article-image.entity";
+import {ArticleCommentEntity} from "../../../entities/article-comment.entity";
 import {AlbumEntity} from "../../../entities/album.entity";
 
 @Module({

@@ -1,6 +1,6 @@
 import {AfterLoad, Column, Entity, JoinColumn, ManyToOne, OneToOne} from "typeorm";
 import {MystarGroupEntity} from "./mystar-group.entity";
-import {VoteItemEntity} from "./vote_item.entity";
+import {VoteItemEntity} from "./vote-item.entity";
 import {BaseEntity} from "./base_entity";
 
 @Entity("mystar_member")

@@ -5,7 +5,7 @@ import {paginate} from 'nestjs-typeorm-paginate';
 import {UserEntity} from "../../../entities/user.entity";
 import {CreateLibraryDto} from "./dto/create-library.dto";
 import {AlbumEntity} from "../../../entities/album.entity";
-import {ArticleImageEntity} from "../../../entities/article_image.entity";
+import {ArticleImageEntity} from "../../../entities/article-image.entity";
 
 @Injectable()
 export class AlbumService {

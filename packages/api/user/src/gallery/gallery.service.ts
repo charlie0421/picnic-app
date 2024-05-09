@@ -4,8 +4,8 @@ import {InjectRepository} from '@nestjs/typeorm';
 import {IPaginationOptions, paginate} from 'nestjs-typeorm-paginate';
 import {GalleryEntity} from "../../../entities/gallery.entity";
 import {ArticleEntity} from "../../../entities/article.entity";
-import {ArticleCommentEntity} from "../../../entities/article_comment.entity";
-import {ArticleImageEntity} from "../../../entities/article_image.entity";
+import {ArticleCommentEntity} from "../../../entities/article-comment.entity";
+import {ArticleImageEntity} from "../../../entities/article-image.entity";
 
 @Injectable()
 export class GalleryService {

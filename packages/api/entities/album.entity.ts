@@ -1,7 +1,7 @@
 import {Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne} from "typeorm";
 import {BaseEntity} from "./base_entity";
-import {UserCommentReportEntity} from "./user-comment-report.entity";
-import {ArticleImageEntity} from "./article_image.entity";
+import {ArticleCommentReportEntity} from "./article-comment-report.entity";
+import {ArticleImageEntity} from "./article-image.entity";
 import {UserEntity} from "./user.entity";
 
 @Entity("album")

@@ -6,11 +6,11 @@ import {MystarGroupEntity} from "../../../entities/mystar-group.entity";
 import {MystarMemberEntity} from "../../../entities/mystar-member.entity";
 import {S3Service} from "../../../common/s3/s3.service";
 import {UsersRepository} from "../users/users.repository";
-import {VoteItemEntity} from "../../../entities/vote_item.entity";
+import {VoteItemEntity} from "../../../entities/vote-item.entity";
 import {VoteEntity} from "../../../entities/vote.entity";
-import {VoteItemPickEntity} from "../../../entities/vote_item_pick.entity";
+import {VoteItemPickEntity} from "../../../entities/vote-item-pick.entity";
 import {PointHistoryEntity} from "../../../entities/point_history.entity";
-import {VoteCommentEntity} from "../../../entities/vote_comment.entity";
+import {VoteCommentEntity} from "../../../entities/vote-comment.entity";
 
 @Module({
     imports: [

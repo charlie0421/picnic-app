@@ -1,11 +1,11 @@
 import { BaseEntity } from "./base_entity";
 import { Column, Entity, JoinColumn, ManyToOne, Unique } from "typeorm";
 import {UserEntity} from "./user.entity";
-import {ArticleCommentEntity} from "./article_comment.entity";
+import {ArticleCommentEntity} from "./article-comment.entity";
 
 @Entity("user_comment_report")
 @Unique(["userId", "commentId"])
-export class UserCommentReportEntity extends BaseEntity {
+export class ArticleCommentReportEntity extends BaseEntity {
   @ManyToOne(() => ArticleCommentEntity ,(comment) => comment.reportsList)
   @JoinColumn({ name: "comment_id" })
   comment: ArticleCommentEntity;

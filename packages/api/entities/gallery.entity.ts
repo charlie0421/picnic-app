@@ -3,7 +3,7 @@ import {BaseEntity} from "./base_entity";
 import {UserEntity} from "./user.entity";
 import {CelebEntity} from "./celeb.entity";
 import {ArticleEntity} from "./article.entity";
-import {ArticleImageEntity} from "./article_image.entity";
+import {ArticleImageEntity} from "./article-image.entity";
 
 @Entity("gallery")
 export class GalleryEntity extends BaseEntity {
