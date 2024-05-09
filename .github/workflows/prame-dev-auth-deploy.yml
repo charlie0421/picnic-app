@@ -5,7 +5,7 @@ on:
     branches:
       - develop
     paths:
-      - 'packages/api/auth/*'
+      - 'packages/api/auth/**'
   workflow_dispatch:
 
 jobs:
