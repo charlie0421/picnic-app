@@ -38,7 +38,7 @@ import { UsersService } from '../../../user/src/users/users.service';
 import { LocalAuthGuard } from '../../../common/auth/local-auth.guard';
 import { JwtAuthGuard } from '../../../common/auth/jwt-auth.guard';
 
-@Controller('auth/auth')
+@Controller('auth')
 @ApiTags('Auth API')
 export class AuthController {
   constructor(
