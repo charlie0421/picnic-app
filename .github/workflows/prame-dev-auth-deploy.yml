@@ -6,6 +6,7 @@ on:
       - develop
     paths:
       - 'packages/api/auth/*'
+  workflow_dispatch:
 
 jobs:
   deploy_api_auth:
