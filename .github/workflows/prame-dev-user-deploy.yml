@@ -3,7 +3,7 @@ name: deploy_api_user
 on:
   push:
     branches:
-      - develop
+      - trunk
     paths:
       - 'packages/api/user/*'
   workflow_dispatch:

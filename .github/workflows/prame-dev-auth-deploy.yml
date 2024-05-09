@@ -3,7 +3,7 @@ name: deploy_api_auth
 on:
   push:
     branches:
-      - develop
+      - trunk
     paths:
       - 'packages/api/auth/*'
   workflow_dispatch:
