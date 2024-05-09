@@ -5,7 +5,7 @@ import {ArticleCommentEntity} from "./article_comment.entity";
 
 @Entity("user_comment_like")
 @Unique(["userId", "commentId"])
-export class PrameUserCommentLikeEntity extends BaseEntity {
+export class UserCommentLikeEntity extends BaseEntity {
   @ManyToOne(() => UserEntity, (user) => user.id)
   @JoinColumn({ name: "user_id" })
   user: UserEntity;

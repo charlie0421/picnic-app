@@ -1,11 +1,11 @@
 import {AfterLoad, Column, Entity, JoinTable, ManyToMany, OneToMany,} from "typeorm";
 import {BaseEntity} from "./base_entity";
 import {UserEntity} from "./user.entity";
-import {CelebBanner} from "./celeb_banner.entity";
+import {CelebBannerEntity} from "./celeb_banner.entity";
 import {GalleryEntity} from "./gallery.entity";
 
 @Entity("celeb")
-export class Celeb extends BaseEntity {
+export class CelebEntity extends BaseEntity {
     @Column({name: "name_ko"})
     nameKo: string;
 
@@ -25,8 +25,8 @@ export class Celeb extends BaseEntity {
     @JoinTable({name: "celeb_user", joinColumn: {name: "celeb_id"}, inverseJoinColumn: {name: "user_id"}})
     users: UserEntity[];
 
-    @OneToMany(() => CelebBanner, (banner) => banner.celeb)
-    banners: CelebBanner[];
+    @OneToMany(() => CelebBannerEntity, (banner) => banner.celeb)
+    banners: CelebBannerEntity[];
 
     @OneToMany(() => GalleryEntity, (gallery) => gallery.celeb)
     galleries: GalleryEntity[];

@@ -5,7 +5,7 @@ import { BaseEntity } from './base_entity';
 export type AgreementType = 'TERMS' | 'COMMERCE' | 'PRIVACY' | 'LOCATION' | 'MARKETING';
 
 @Entity('agreement')
-export class Agreement extends BaseEntity {
+export class AgreementEntity extends BaseEntity {
   @Column({ name: 'type', type: 'varchar', length: 255 })
   type: AgreementType;
 

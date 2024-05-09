@@ -17,7 +17,7 @@ export enum PointHistoryType {
     REWARD = 'reward',
 }
 
-@Entity('point_sst')
+@Entity('point_history')
 export class PointHistoryEntity extends BaseEntity {
     @Column({name: 'users_id'})
     usersId: number;

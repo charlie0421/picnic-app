@@ -3,9 +3,9 @@ import {Repository} from 'typeorm';
 import {InjectRepository} from '@nestjs/typeorm';
 import {IPaginationOptions, paginate} from 'nestjs-typeorm-paginate';
 import {GalleryEntity} from "../../../entities/gallery.entity";
-import {GalleryArticleEntity} from "../../../entities/article.entity";
+import {ArticleEntity} from "../../../entities/article.entity";
 import {ArticleCommentEntity} from "../../../entities/article_comment.entity";
-import {GalleryArticleImageEntity} from "../../../entities/article_image.entity";
+import {ArticleImageEntity} from "../../../entities/article_image.entity";
 
 @Injectable()
 export class GalleryService {
@@ -14,12 +14,12 @@ export class GalleryService {
     constructor(
         @InjectRepository(GalleryEntity)
         private readonly galleryRepository: Repository<GalleryEntity>,
-        @InjectRepository(GalleryArticleEntity)
-        private readonly galleryArticleRepository: Repository<GalleryArticleEntity>,
+        @InjectRepository(ArticleEntity)
+        private readonly galleryArticleRepository: Repository<ArticleEntity>,
         @InjectRepository(ArticleCommentEntity)
         private readonly articleCommentRepository: Repository<ArticleCommentEntity>,
-        @InjectRepository(GalleryArticleImageEntity)
-        private readonly galleryImageRepository: Repository<GalleryArticleImageEntity>,
+        @InjectRepository(ArticleImageEntity)
+        private readonly galleryImageRepository: Repository<ArticleImageEntity>,
     ) {
     }
 

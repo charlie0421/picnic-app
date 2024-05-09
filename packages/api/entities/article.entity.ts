@@ -1,11 +1,11 @@
 import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, ViewColumn,} from "typeorm";
 import {BaseEntity} from "./base_entity";
 import {GalleryEntity} from "./gallery.entity";
-import { GalleryArticleImageEntity } from "./article_image.entity";
+import { ArticleImageEntity } from "./article_image.entity";
 import {ArticleCommentEntity} from "./article_comment.entity";
 
-@Entity("gallery_article")
-export class GalleryArticleEntity extends BaseEntity {
+@Entity("article")
+export class ArticleEntity extends BaseEntity {
     @Column({name: "title_ko"})
     titleKo: string;
 
@@ -22,8 +22,8 @@ export class GalleryArticleEntity extends BaseEntity {
     @JoinColumn({name: "gallery_id"})
     gallery: GalleryEntity;
 
-    @OneToMany(() => GalleryArticleImageEntity, (image) => image.article, {lazy: true})
-    images: GalleryArticleImageEntity[];
+    @OneToMany(() => ArticleImageEntity, (image) => image.article, {lazy: true})
+    images: ArticleImageEntity[];
 
     @OneToMany(() => ArticleCommentEntity, (comment) => comment.article)
     comments: ArticleCommentEntity[];

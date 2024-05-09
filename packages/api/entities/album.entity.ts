@@ -1,7 +1,7 @@
 import {Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne} from "typeorm";
 import {BaseEntity} from "./base_entity";
 import {UserCommentReportEntity} from "./user-comment-report.entity";
-import {GalleryArticleImageEntity} from "./article_image.entity";
+import {ArticleImageEntity} from "./article_image.entity";
 import {UserEntity} from "./user.entity";
 
 @Entity("album")
@@ -10,7 +10,7 @@ export class AlbumEntity extends BaseEntity {
     @Column({name:'title'})
     title: string;
 
-    @ManyToMany(() => GalleryArticleImageEntity, (image) => image.albums)
+    @ManyToMany(() => ArticleImageEntity, (image) => image.albums)
     @JoinTable({
         name: "album_image",
         joinColumn: {
@@ -22,7 +22,7 @@ export class AlbumEntity extends BaseEntity {
             referencedColumnName: "id",
         },
     })
-    images: GalleryArticleImageEntity[];
+    images: ArticleImageEntity[];
 
     @OneToOne(() => UserEntity, (user) => user.album)
     @JoinColumn({name: "user_id"})

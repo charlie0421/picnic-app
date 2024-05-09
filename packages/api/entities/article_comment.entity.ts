@@ -1,16 +1,16 @@
 import {Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany} from "typeorm";
 
 import {BaseEntity} from "./base_entity";
-import {GalleryArticleEntity} from "./article.entity";
+import {ArticleEntity} from "./article.entity";
 import {UserEntity} from "./user.entity";
-import {PrameUserCommentLikeEntity} from "./user_comment_like.entity";
+import {UserCommentLikeEntity} from "./user_comment_like.entity";
 import {UserCommentReportEntity} from "./user-comment-report.entity";
 
 @Entity("article_comment")
 export class ArticleCommentEntity extends BaseEntity {
-    @ManyToOne(() => GalleryArticleEntity, (article) => article.id)
+    @ManyToOne(() => ArticleEntity, (article) => article.id)
     @JoinColumn({name: "article_id"})
-    article: GalleryArticleEntity;
+    article: ArticleEntity;
     @Column({name: "article_id"})
     articleId: number;
 
@@ -47,10 +47,10 @@ export class ArticleCommentEntity extends BaseEntity {
     reportedUsers: UserEntity[];
 
     @OneToMany(
-      () => PrameUserCommentLikeEntity,
+      () => UserCommentLikeEntity,
       (userCommentLikeEntity) => userCommentLikeEntity.comment,
     )
-    likesList: PrameUserCommentLikeEntity[]; // 댓글 좋아요 목록
+    likesList: UserCommentLikeEntity[]; // 댓글 좋아요 목록
 
     @OneToMany(
       () => UserCommentReportEntity,

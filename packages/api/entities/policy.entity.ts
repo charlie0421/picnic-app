@@ -3,7 +3,7 @@ import { BaseEntity } from "./base_entity";
 import { PolicyType } from "../common/enums";
 
 @Entity('policy')
-export class Policy extends BaseEntity {
+export class PolicyEntity extends BaseEntity {
   @Column()
   type: PolicyType;
 

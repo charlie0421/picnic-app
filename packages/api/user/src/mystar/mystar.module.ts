@@ -2,7 +2,7 @@ import {Module} from '@nestjs/common';
 import {MystarService} from './mystar.service';
 import {MystarController} from './mystar.controller';
 import {TypeOrmModule} from '@nestjs/typeorm';
-import {MystarGroup} from "../../../entities/mystar-group.entity";
+import {MystarGroupEntity} from "../../../entities/mystar-group.entity";
 import {MystarMemberEntity} from "../../../entities/mystar-member.entity";
 import {S3Service} from "../../../common/s3/s3.service";
 import {UsersRepository} from "../users/users.repository";
@@ -15,7 +15,7 @@ import {VoteCommentEntity} from "../../../entities/vote_comment.entity";
 @Module({
     imports: [
         TypeOrmModule.forFeature([
-            MystarGroup,
+            MystarGroupEntity,
             MystarMemberEntity,
             VoteEntity,
             VoteItemEntity,

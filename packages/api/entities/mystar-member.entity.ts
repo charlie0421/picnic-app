@@ -1,5 +1,5 @@
 import {AfterLoad, Column, Entity, JoinColumn, ManyToOne, OneToOne} from "typeorm";
-import {MystarGroup} from "./mystar-group.entity";
+import {MystarGroupEntity} from "./mystar-group.entity";
 import {VoteItemEntity} from "./vote_item.entity";
 import {BaseEntity} from "./base_entity";
 
@@ -17,9 +17,9 @@ export class MystarMemberEntity extends BaseEntity {
     @Column()
     gender: string;
 
-    @ManyToOne(() => MystarGroup, (group) => group.members)
+    @ManyToOne(() => MystarGroupEntity, (group) => group.members)
     @JoinColumn({name: "group_id"})
-    group: MystarGroup;
+    group: MystarGroupEntity;
 
     @OneToOne(() => VoteItemEntity, (voteItem) => voteItem.myStarMember)
     voteItem: VoteItemEntity;

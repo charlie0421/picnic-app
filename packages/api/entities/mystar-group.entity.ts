@@ -1,9 +1,10 @@
 import {AfterLoad, Column, Entity, OneToMany} from "typeorm";
 import {MystarMemberEntity} from "./mystar-member.entity";
 import {BaseEntity} from "./base_entity";
+import { AgreementEntity } from './agreement.entity';
 
 @Entity("mystar_group")
-export class MystarGroup extends BaseEntity {
+export class MystarGroupEntity extends BaseEntity {
     @Column({name: "name_ko"})
     nameKo: string;
 

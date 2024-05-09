@@ -1,19 +1,19 @@
 import {Injectable, Logger} from '@nestjs/common';
-import {Celeb} from '../../../entities/celeb.entity';
+import {CelebEntity} from '../../../entities/celeb.entity';
 import {Repository} from 'typeorm';
 import {InjectRepository} from '@nestjs/typeorm';
 import {paginate} from 'nestjs-typeorm-paginate';
 import {UserEntity} from "../../../entities/user.entity";
-import {CelebBanner} from "../../../entities/celeb_banner.entity";
+import {CelebBannerEntity} from "../../../entities/celeb_banner.entity";
 
 @Injectable()
 export class CelebService {
     private readonly logger = new Logger(CelebService.name);
 
     constructor(
-        @InjectRepository(Celeb) private celebRepository: Repository<Celeb>,
+        @InjectRepository(CelebEntity) private celebRepository: Repository<CelebEntity>,
         @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
-        @InjectRepository(CelebBanner) private celebBannerRepository: Repository<CelebBanner>,
+        @InjectRepository(CelebBannerEntity) private celebBannerRepository: Repository<CelebBannerEntity>,
     ) {
     }
 
@@ -21,7 +21,7 @@ export class CelebService {
         const queryBuilder = this.celebRepository.createQueryBuilder('celeb')
             .leftJoinAndSelect('celeb.users', 'user');
 
-        return paginate<Celeb>(queryBuilder, {limit: 100, page: 1});
+        return paginate<CelebEntity>(queryBuilder, {limit: 100, page: 1});
     }
 
     async findMine(id: number) {
@@ -29,7 +29,7 @@ export class CelebService {
             .leftJoinAndSelect('celeb.users', 'user').where('user.id = :userId', {userId: id})
             .select(['celeb']);
 
-        return paginate<Celeb>(queryBuilder, {limit: 100, page: 1});
+        return paginate<CelebEntity>(queryBuilder, {limit: 100, page: 1});
     }
 
     async search(q: string) {
@@ -37,7 +37,7 @@ export class CelebService {
             .leftJoinAndSelect('celeb.users', 'user')
             .where('celeb.nameKo like :q', {q: `%${q}%`});
 
-        return paginate<Celeb>(queryBuilder, {limit: 100, page: 1});
+        return paginate<CelebEntity>(queryBuilder, {limit: 100, page: 1});
     }
 
     async addBookmark(celebId: number, userId: number) {
@@ -73,6 +73,6 @@ export class CelebService {
     }
 
     async getBanners(celebId: number) {
-        return paginate<CelebBanner>(this.celebBannerRepository, { limit: 100, page: 1}, { where: { celeb: { id: celebId } } });
+        return paginate<CelebBannerEntity>(this.celebBannerRepository, { limit: 100, page: 1}, { where: { celeb: { id: celebId } } });
     }
 }

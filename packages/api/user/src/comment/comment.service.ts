@@ -5,8 +5,8 @@ import {InjectDataSource, InjectRepository} from '@nestjs/typeorm';
 import {DataSource, Repository} from 'typeorm';
 import {paginate} from 'nestjs-typeorm-paginate';
 import {ArticleCommentEntity} from "../../../entities/article_comment.entity";
-import {GalleryArticleEntity} from "../../../entities/article.entity";
-import {PrameUserCommentLikeEntity} from "../../../entities/user_comment_like.entity";
+import {ArticleEntity} from "../../../entities/article.entity";
+import {UserCommentLikeEntity} from "../../../entities/user_comment_like.entity";
 import {UserCommentReportEntity} from "../../../entities/user-comment-report.entity";
 
 @Injectable()
@@ -16,10 +16,10 @@ export class CommentService {
     constructor(
         @InjectRepository(ArticleCommentEntity)
         private commentRepository: Repository<ArticleCommentEntity>,
-        @InjectRepository(GalleryArticleEntity)
-        private articleRepository: Repository<GalleryArticleEntity>,
-        @InjectRepository(PrameUserCommentLikeEntity)
-        private userCommentLikeRepository: Repository<PrameUserCommentLikeEntity>,
+        @InjectRepository(ArticleEntity)
+        private articleRepository: Repository<ArticleEntity>,
+        @InjectRepository(UserCommentLikeEntity)
+        private userCommentLikeRepository: Repository<UserCommentLikeEntity>,
         @InjectRepository(UserCommentReportEntity)
         private userCommentReportRepository: Repository<UserCommentReportEntity>,
         @InjectDataSource() private dataSource: DataSource,
@@ -49,7 +49,7 @@ export class CommentService {
         queryBuilder
             .leftJoinAndMapOne(
                 'comment.myLike',
-                PrameUserCommentLikeEntity,
+                UserCommentLikeEntity,
                 'myLike',
                 'comment.id = `myLike`.comment_id and comment.userId = `myLike`.user_id',
             )
@@ -85,7 +85,7 @@ export class CommentService {
             })
             .leftJoinAndMapOne(
                 'children.myLike',
-                PrameUserCommentLikeEntity,
+                UserCommentLikeEntity,
                 'children_myLike',
                 'children.id = `children_myLike`.comment_id and children.userId = `children_myLike`.user_id',
             )
@@ -157,11 +157,11 @@ export class CommentService {
                     });
                     if (comment != null && comment.deletedAt != null) {
                         await transactionalEntityManager.restore(
-                            PrameUserCommentLikeEntity,
+                            UserCommentLikeEntity,
                             comment.id,
                         );
                     } else {
-                        await transactionalEntityManager.insert(PrameUserCommentLikeEntity, {
+                        await transactionalEntityManager.insert(UserCommentLikeEntity, {
                             userId,
                             commentId,
                         });

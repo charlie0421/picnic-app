@@ -5,14 +5,14 @@ import {IPaginationOptions, paginate} from 'nestjs-typeorm-paginate';
 import {Brackets, Repository} from 'typeorm';
 import {MystarMemberDto} from './dto/mystar-member.dto';
 import {MystarArtistDto, MystarArtistMainDto} from './dto/mystar-artist.dto';
-import {MystarGroup} from "../../../entities/mystar-group.entity";
+import {MystarGroupEntity} from "../../../entities/mystar-group.entity";
 import {MystarMemberEntity} from "../../../entities/mystar-member.entity";
 
 @Injectable()
 export class MystarService {
     constructor(
-        @InjectRepository(MystarGroup)
-        private mystarGroupRepository: Repository<MystarGroup>,
+        @InjectRepository(MystarGroupEntity)
+        private mystarGroupRepository: Repository<MystarGroupEntity>,
         @InjectRepository(MystarMemberEntity)
         private mystarMemberRepository: Repository<MystarMemberEntity>,
     ) {
@@ -23,7 +23,7 @@ export class MystarService {
             .createQueryBuilder('mystarGroup')
             .orderBy(sort, order);
 
-        return await paginate<MystarGroup>(queryBuilder, options);
+        return await paginate<MystarGroupEntity>(queryBuilder, options);
     }
 
     async getGroupsByName(options: IPaginationOptions, name: string, sort: string, order: 'ASC' | 'DESC') {
@@ -44,7 +44,7 @@ export class MystarService {
         // })
         // .orderBy(sort, order);
 
-        return await paginate<MystarGroup>(queryBuilder, options);
+        return await paginate<MystarGroupEntity>(queryBuilder, options);
     }
 
     getGroupMemberList(id: number) {

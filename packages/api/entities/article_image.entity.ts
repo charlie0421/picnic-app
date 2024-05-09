@@ -1,11 +1,11 @@
 import {AfterLoad, Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne,} from "typeorm";
 import {BaseEntity} from "./base_entity";
-import {GalleryArticleEntity} from "./article.entity";
+import {ArticleEntity} from "./article.entity";
 import {UserEntity} from "./user.entity";
 import {AlbumEntity} from "./album.entity";
 
-@Entity("gallery_article_image")
-export class GalleryArticleImageEntity extends BaseEntity {
+@Entity("article_image")
+export class ArticleImageEntity extends BaseEntity {
     @Column({name: "order"})
     order: number;
 
@@ -23,9 +23,9 @@ export class GalleryArticleImageEntity extends BaseEntity {
         this.image = this.image ? `${process.env.CDN_URL}/article/${this.articleId}/images/${this.id}/${this.image}` : '';
     }
 
-    @ManyToOne(() => GalleryArticleEntity, (article) => article.images, {eager: true})
+    @ManyToOne(() => ArticleEntity, (article) => article.images, {eager: true})
     @JoinColumn({name: "article_id"})
-    article: GalleryArticleEntity;
+    article: ArticleEntity;
 
     @Column({name: "article_id"})
     articleId: number;

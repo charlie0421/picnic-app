@@ -1,13 +1,13 @@
 import {AfterLoad, Column, Entity, JoinTable, ManyToMany, OneToMany, OneToOne, Unique} from "typeorm";
 import {BaseEntity} from "./base_entity";
-import {Celeb} from "./celeb.entity";
+import {CelebEntity} from "./celeb.entity";
 import {GalleryEntity} from "./gallery.entity";
 import {ArticleCommentEntity} from "./article_comment.entity";
 import {UserCommentReportEntity} from "./user-comment-report.entity";
-import {GalleryArticleImageEntity} from "./article_image.entity";
+import {ArticleImageEntity} from "./article_image.entity";
 import {AlbumEntity} from "./album.entity";
 
-@Entity("prame-users")
+@Entity("user")
 @Unique(["id", "email"])
 export class UserEntity extends BaseEntity {
 
@@ -33,9 +33,9 @@ export class UserEntity extends BaseEntity {
     loginedAt: Date;
     @Column({name: "country_code", nullable: true})
     countryCode: string;
-    @ManyToMany(() => Celeb, (celeb) => celeb.users)
+    @ManyToMany(() => CelebEntity, (celeb) => celeb.users)
     @JoinTable({name: "celeb_user", joinColumn: {name: "user_id"}, inverseJoinColumn: {name: "celeb_id"}})
-    celebs: Celeb[];
+    celebs: CelebEntity[];
     @ManyToMany(() => GalleryEntity, (gallery) => gallery.users)
     @JoinTable({name: "gallery_user", joinColumn: {name: "user_id"}, inverseJoinColumn: {name: "gallery_id"}})
     galleries: GalleryEntity[];
@@ -47,7 +47,7 @@ export class UserEntity extends BaseEntity {
     reportedComments: ArticleCommentEntity[];
     @OneToMany(() => UserCommentReportEntity, (comment) => comment.user)
     userCommentReports: UserCommentReportEntity[]; // 댓글 신고 목록
-    @ManyToMany(() => GalleryArticleImageEntity, (image) => image.bookmarkUsers)
+    @ManyToMany(() => ArticleImageEntity, (image) => image.bookmarkUsers)
     @JoinTable({
         name: "album_image_user",
         joinColumn: {
@@ -57,7 +57,7 @@ export class UserEntity extends BaseEntity {
             name: "user_id",
         },
     })
-    bookmarks: GalleryArticleImageEntity[];
+    bookmarks: ArticleImageEntity[];
     @OneToOne(() => AlbumEntity, (library) => library.user)
     album: AlbumEntity;
 

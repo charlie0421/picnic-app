@@ -2,7 +2,7 @@ import {Column, Entity} from "typeorm";
 import {BaseEntity} from "./base_entity";
 
 @Entity('version')
-export class Version extends BaseEntity {
+export class VersionEntity extends BaseEntity {
     @Column({name: 'ios_version'})
     iosVersion: string;
 

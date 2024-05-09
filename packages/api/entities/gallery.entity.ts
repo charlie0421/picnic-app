@@ -1,9 +1,9 @@
 import {AfterLoad, Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany,} from "typeorm";
 import {BaseEntity} from "./base_entity";
 import {UserEntity} from "./user.entity";
-import {Celeb} from "./celeb.entity";
-import {GalleryArticleEntity} from "./article.entity";
-import {GalleryArticleImageEntity} from "./article_image.entity";
+import {CelebEntity} from "./celeb.entity";
+import {ArticleEntity} from "./article.entity";
+import {ArticleImageEntity} from "./article_image.entity";
 
 @Entity("gallery")
 export class GalleryEntity extends BaseEntity {
@@ -22,12 +22,12 @@ export class GalleryEntity extends BaseEntity {
             this.cover = `${process.env.CDN_URL}/gallery/${this.id}/${this.cover}`;
     }
 
-    @ManyToOne(() => Celeb, (celeb) => celeb.galleries)
+    @ManyToOne(() => CelebEntity, (celeb) => celeb.galleries)
     @JoinColumn ({name: "celeb_id"})
-    celeb: Celeb;
+    celeb: CelebEntity;
 
-    @OneToMany(() => GalleryArticleEntity, (article) => article.gallery)
-    articles: GalleryArticleEntity[];
+    @OneToMany(() => ArticleEntity, (article) => article.gallery)
+    articles: ArticleEntity[];
 
     @ManyToMany(() => UserEntity, (user) => user.galleries)
     @JoinTable({name: "gallery_user", joinColumn: {name: "gallery_id"}, inverseJoinColumn: {name: "user_id"}})

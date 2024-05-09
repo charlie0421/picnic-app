@@ -5,14 +5,14 @@ import {paginate} from 'nestjs-typeorm-paginate';
 import {UserEntity} from "../../../entities/user.entity";
 import {CreateLibraryDto} from "./dto/create-library.dto";
 import {AlbumEntity} from "../../../entities/album.entity";
-import {GalleryArticleImageEntity} from "../../../entities/article_image.entity";
+import {ArticleImageEntity} from "../../../entities/article_image.entity";
 
 @Injectable()
 export class AlbumService {
     private readonly logger = new Logger(AlbumService.name);
 
     constructor(
-        @InjectRepository(GalleryArticleImageEntity) private articleImageRepository: Repository<GalleryArticleImageEntity>,
+        @InjectRepository(ArticleImageEntity) private articleImageRepository: Repository<ArticleImageEntity>,
         @InjectRepository(AlbumEntity) private albumRepository: Repository<AlbumEntity>,
         @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
         @InjectDataSource() private dataSource: DataSource,
@@ -34,7 +34,7 @@ export class AlbumService {
 
         const result = await this.dataSource.transaction(async manager => {
             const albumRepository = manager.getRepository(AlbumEntity);
-            const articleImageRepository = manager.getRepository(GalleryArticleImageEntity);
+            const articleImageRepository = manager.getRepository(ArticleImageEntity);
             const userRepository = manager.getRepository(UserEntity);
 
             const album = await albumRepository.findOne({

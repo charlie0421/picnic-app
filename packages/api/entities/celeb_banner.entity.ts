@@ -1,10 +1,11 @@
 import {AfterLoad, Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne} from "typeorm";
 
 import {BaseEntity} from './base_entity';
-import {Celeb} from "./celeb.entity";
+import {CelebEntity} from "./celeb.entity";
+import { AgreementEntity } from './agreement.entity';
 
 @Entity('celeb_banner')
-export class CelebBanner extends BaseEntity {
+export class CelebBannerEntity extends BaseEntity {
     @Column({name: 'title_ko'})
     titleKo: string;
 
@@ -34,7 +35,7 @@ export class CelebBanner extends BaseEntity {
     @Column({type: 'datetime', name: 'end_at', nullable: true})
     endAt?: Date;
 
-    @ManyToOne(() => Celeb, (celeb) => celeb.banners)
+    @ManyToOne(() => CelebEntity, (celeb) => celeb.banners)
     @JoinColumn({name: 'celeb_id'})
-    celeb : Celeb;
+    celeb : CelebEntity;
 }

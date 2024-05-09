@@ -1,9 +1,10 @@
 import { AfterLoad, Column, Entity } from "typeorm";
 
 import { BaseEntity } from './base_entity';
+import { AgreementEntity } from './agreement.entity';
 
 @Entity('event_banner')
-export class EventBanner extends BaseEntity {
+export class BannerEntity extends BaseEntity {
   @Column()
   tag_ko: string;
 
