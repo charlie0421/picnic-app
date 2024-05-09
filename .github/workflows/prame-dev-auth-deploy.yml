@@ -1,4 +1,4 @@
-name: ECS Deployment
+name: API-auth-Deploy
 
 on:
   push:
