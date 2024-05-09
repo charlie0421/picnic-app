@@ -1,4 +1,4 @@
-name: API-User-Deploy
+name: deploy_api_user
 
 on:
   push:
