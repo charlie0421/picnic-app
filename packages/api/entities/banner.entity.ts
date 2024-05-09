@@ -1,48 +1,41 @@
-import { AfterLoad, Column, Entity } from "typeorm";
+import {AfterLoad, Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne} from "typeorm";
 
-import { BaseEntity } from './base_entity';
+import {BaseEntity} from './base_entity';
+import {CelebEntity} from "./celeb.entity";
 import { AgreementEntity } from './agreement.entity';
 
-@Entity('event_banner')
+@Entity('banner')
 export class BannerEntity extends BaseEntity {
-  @Column()
-  tag_ko: string;
+    @Column({name: 'title_ko'})
+    titleKo: string;
 
-  @Column()
-  tag_en: string;
+    @Column({name: 'title_en'})
+    titleEn: string;
 
-  @Column()
-  title_ko: string;
+    @Column({name: 'subtitle_ko'})
+    subtitleKo: string;
 
-  @Column()
-  title_en: string;
+    @Column({name: 'subtitle_en'})
+    subtitleEn: string;
 
-  @Column()
-  subtitle_ko: string;
+    @Column()
+    thumbnail: string;
 
-  @Column()
-  subtitle_en: string;
+    @AfterLoad()
+    getThumbnail() {
+        this.thumbnail = `${process.env.CDN_URL}/celeb_banner/${this.id}/${this.thumbnail}`;
+    }
 
-  @Column()
-  event_img_ko: string;
-  @AfterLoad()
-  getImageKo() {
-    this.event_img_ko = `${process.env.CDN_URL}/banner/${this.id}/${this.event_img_ko}`;
-  }
+    @Column({nullable: true})
+    url: string;
 
-  @Column()
-  event_img_en: string;
-  @AfterLoad()
-  getImageEn() {
-    this.event_img_en = `${process.env.CDN_URL}/banner/${this.id}/${this.event_img_en}`;
-  }
+    @Column({type: 'datetime', name: 'start_at'})
+    startAt: Date;
 
-  @Column({ nullable: true })
-  url: string;
+    @Column({type: 'datetime', name: 'end_at', nullable: true})
+    endAt?: Date;
 
-  @Column({ type: 'datetime' })
-  start_at: Date;
-
-  @Column({ type: 'datetime' })
-  end_at: Date;
+    @ManyToOne(() => CelebEntity, (celeb) => celeb.banners)
+    @JoinColumn({name: 'celeb_id'})
+    celeb : CelebEntity;
 }

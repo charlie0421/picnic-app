@@ -4,7 +4,7 @@ import {Repository} from 'typeorm';
 import {InjectRepository} from '@nestjs/typeorm';
 import {paginate} from 'nestjs-typeorm-paginate';
 import {UserEntity} from "../../../entities/user.entity";
-import {CelebBannerEntity} from "../../../entities/celeb-banner.entity";
+import {BannerEntity} from "../../../entities/banner.entity";
 
 @Injectable()
 export class CelebService {
@@ -13,7 +13,7 @@ export class CelebService {
     constructor(
         @InjectRepository(CelebEntity) private celebRepository: Repository<CelebEntity>,
         @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
-        @InjectRepository(CelebBannerEntity) private celebBannerRepository: Repository<CelebBannerEntity>,
+        @InjectRepository(BannerEntity) private celebBannerRepository: Repository<BannerEntity>,
     ) {
     }
 
@@ -73,6 +73,6 @@ export class CelebService {
     }
 
     async getBanners(celebId: number) {
-        return paginate<CelebBannerEntity>(this.celebBannerRepository, { limit: 100, page: 1}, { where: { celeb: { id: celebId } } });
+        return paginate<BannerEntity>(this.celebBannerRepository, { limit: 100, page: 1}, { where: { celeb: { id: celebId } } });
     }
 }

@@ -11,7 +11,7 @@ import { CelebEntity } from '../../../entities/celeb.entity';
 import { LocalStrategy } from '../../../common/auth/local.strategy';
 import { UserEntity } from '../../../entities/user.entity';
 import { UsersService } from '../../../user/src/users/users.service';
-import { CelebBannerEntity } from '../../../entities/celeb-banner.entity';
+import { BannerEntity } from '../../../entities/banner.entity';
 import { GalleryEntity } from '../../../entities/gallery.entity';
 import { ArticleEntity } from '../../../entities/article.entity';
 import { VoteEntity } from '../../../entities/vote.entity';
@@ -29,7 +29,7 @@ import { VoteCommentEntity } from '../../../entities/vote-comment.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity, CelebEntity, CelebBannerEntity, GalleryEntity, ArticleEntity, ArticleImageEntity, AlbumEntity, ArticleCommentEntity, ArticleCommentLikeEntity,ArticleCommentReportEntity,VoteItemPickEntity,VoteItemEntity,PointHistoryEntity,MystarMemberEntity,MystarGroupEntity,VoteCommentEntity,
+    TypeOrmModule.forFeature([UserEntity, CelebEntity, BannerEntity, GalleryEntity, ArticleEntity, ArticleImageEntity, AlbumEntity, ArticleCommentEntity, ArticleCommentLikeEntity,ArticleCommentReportEntity,VoteItemPickEntity,VoteItemEntity,PointHistoryEntity,MystarMemberEntity,MystarGroupEntity,VoteCommentEntity,
       VoteEntity]),
     PassportModule,
     JwtModule.register({}),
