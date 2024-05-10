@@ -1,7 +1,7 @@
-import 'package:prame_app/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:prame_app/constants.dart';
 
-ThemeData themeLight = ThemeData.light().copyWith(
+ThemeData fanThemeLight = ThemeData.light().copyWith(
   textTheme: const TextTheme(
     displayLarge: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
     displayMedium: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
@@ -18,11 +18,11 @@ ThemeData themeLight = ThemeData.light().copyWith(
     labelSmall: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
   ),
   appBarTheme: const AppBarTheme(
-    backgroundColor: mainColorLightMode,
+    backgroundColor: fanMainColorLight,
     foregroundColor: Colors.white,
   ),
   bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-    backgroundColor: mainColorLightMode,
+    backgroundColor: fanMainColorLight,
     selectedIconTheme: IconThemeData(color: Colors.black),
     unselectedIconTheme: IconThemeData(color: Colors.black54),
     selectedItemColor: Colors.black,
@@ -50,7 +50,7 @@ ThemeData themeLight = ThemeData.light().copyWith(
   ),
   bottomSheetTheme: const BottomSheetThemeData(
     showDragHandle: true,
-    dragHandleColor: Constants.mainColor,
+    dragHandleColor: Constants.fanMainColor,
     dragHandleSize: Size(200, 2),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.only(
@@ -61,7 +61,7 @@ ThemeData themeLight = ThemeData.light().copyWith(
   ),
 );
 
-ThemeData themeDark = ThemeData.dark().copyWith(
+ThemeData fanThemeDark = ThemeData.dark().copyWith(
   textTheme: const TextTheme(
     displayLarge: TextStyle(fontFamily: 'Pretendard', color: Colors.white),
     displayMedium: TextStyle(fontFamily: 'Pretendard', color: Colors.white),
@@ -78,11 +78,11 @@ ThemeData themeDark = ThemeData.dark().copyWith(
     labelSmall: TextStyle(fontFamily: 'Pretendard', color: Colors.white),
   ),
   appBarTheme: const AppBarTheme(
-    backgroundColor: mainColorDarkMode,
+    backgroundColor: famMainColorDark,
     foregroundColor: Colors.white,
   ),
   bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-    backgroundColor: mainColorDarkMode,
+    backgroundColor: famMainColorDark,
     selectedIconTheme: IconThemeData(color: Colors.white),
     unselectedIconTheme: IconThemeData(color: Colors.white54),
     selectedItemColor: Colors.white,
@@ -110,7 +110,7 @@ ThemeData themeDark = ThemeData.dark().copyWith(
   ).copyWith(background: Colors.black),
   bottomSheetTheme: const BottomSheetThemeData(
     showDragHandle: true,
-    dragHandleColor: Constants.mainColor,
+    dragHandleColor: Constants.fanMainColor,
     dragHandleSize: Size(200, 2),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.only(

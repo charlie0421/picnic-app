@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:prame_app/pages/article_page.dart';
+import 'package:prame_app/components/bottom/prame_navigation_bar.dart';
+import 'package:prame_app/components/bottom/vote_navigation_bar.dart';
 import 'package:prame_app/pages/vote_list_page.dart';
-import 'package:prame_app/screens/bottom_navigation_bar.dart';
 import 'package:prame_app/ui/style.dart';
 
 class VoteListScreen extends ConsumerStatefulWidget {
@@ -32,6 +32,7 @@ class _VoteListScreenState extends ConsumerState<VoteListScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       body: _buildPage(ref),
+      bottomNavigationBar: const VoteBottomNavigationBar(),
     );
   }
 

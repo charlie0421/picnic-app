@@ -2,6 +2,7 @@
 // https://github.com/dart-lang/reflectable.
 
 import 'dart:core';
+
 import 'package:prame_app/models/article.dart' as prefix7;
 import 'package:prame_app/models/article_image.dart' as prefix13;
 import 'package:prame_app/models/celeb.dart' as prefix2;
@@ -18,7 +19,6 @@ import 'package:prame_app/providers/article_list_provider.dart' as prefix11;
 import 'package:prame_app/providers/navigation_provider.dart' as prefix3;
 import 'package:prame_app/providers/vote_list_provider.dart' as prefix9;
 import 'package:prame_app/reflector.dart' as prefix0;
-
 // ignore_for_file: camel_case_types
 // ignore_for_file: implementation_imports
 // ignore_for_file: prefer_adjacent_string_concatenation
@@ -27,8 +27,8 @@ import 'package:prame_app/reflector.dart' as prefix0;
 // ignore_for_file: unused_import
 
 import 'package:reflectable/mirrors.dart' as m;
-import 'package:reflectable/src/reflectable_builder_based.dart' as r;
 import 'package:reflectable/reflectable.dart' as r show Reflectable;
+import 'package:reflectable/src/reflectable_builder_based.dart' as r;
 
 final _data = <r.Reflectable, r.ReflectorData>{
   const prefix0.Reflector(): r.ReflectorData(
@@ -2007,7 +2007,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
         r'users': (dynamic instance) => instance.users,
         r'portalString': (dynamic instance) => instance.portalString,
         r'bottomNavigationIndex': (dynamic instance) =>
-            instance.bottomNavigationIndex,
+            instance.fanBottomNavigationIndex,
         r'currentPage': (dynamic instance) => instance.currentPage,
         r'previousPage': (dynamic instance) => instance.previousPage,
         r'itemCount': (dynamic instance) => instance.itemCount,
@@ -2060,7 +2060,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
         r'portalString=': (dynamic instance, value) =>
             instance.portalString = value,
         r'bottomNavigationIndex=': (dynamic instance, value) =>
-            instance.bottomNavigationIndex = value,
+            instance.fanBottomNavigationIndex = value,
         r'currentPage=': (dynamic instance, value) =>
             instance.currentPage = value,
         r'previousPage=': (dynamic instance, value) =>

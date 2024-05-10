@@ -15,17 +15,10 @@ class Portal extends ConsumerStatefulWidget {
   ConsumerState<Portal> createState() => _PortalState();
 }
 
-class _PortalState extends ConsumerState<Portal>
-    with SingleTickerProviderStateMixin {
-  TabController? _tabController;
-
+class _PortalState extends ConsumerState<Portal> {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(
-      length: 2,
-      vsync: this,
-    );
   }
 
   @override

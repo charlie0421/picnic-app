@@ -45,7 +45,7 @@ class ReportPopupMenu extends StatelessWidget {
               children: [
                 Icon(
                   Icons.flag,
-                  color: Constants.mainColor,
+                  color: Constants.fanMainColor,
                 ),
                 const SizedBox(width: 5),
                 Text(Intl.message('label_title_report'))

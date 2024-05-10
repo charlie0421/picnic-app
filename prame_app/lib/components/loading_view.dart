@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:prame_app/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prame_app/constants.dart';
 
 class LoadingView extends ConsumerStatefulWidget {
   final bool? viewer;
@@ -43,7 +43,7 @@ class _LoadingViewState extends ConsumerState<LoadingView> {
     return Container(
       alignment: Alignment.center,
       child: CircularProgressIndicator(
-        valueColor: AlwaysStoppedAnimation<Color>(Constants.mainColor),
+        valueColor: AlwaysStoppedAnimation<Color>(Constants.fanMainColor),
       ),
     );
   }

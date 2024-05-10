@@ -3,18 +3,14 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart';
-import 'package:prame_app/components/error.dart';
 import 'package:prame_app/components/library/library_list.dart';
-import 'package:prame_app/components/loading_view.dart';
 import 'package:prame_app/models/article.dart';
-import 'package:prame_app/providers/library_list_provider.dart';
-import 'package:prame_app/ui/style.dart';
 
 import '../../constants.dart';
 
 class ArticleImages extends ConsumerStatefulWidget {
   ArticleModel article;
+
   ArticleImages({super.key, required this.article});
 
   @override
@@ -50,7 +46,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
               itemHeight: 300.h,
               pagination: const SwiperPagination(
                 builder: DotSwiperPaginationBuilder(
-                    color: Colors.grey, activeColor: Constants.mainColor),
+                    color: Colors.grey, activeColor: Constants.fanMainColor),
               ),
             )
           : SizedBox(
@@ -68,14 +64,14 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
           ? IconButton(
               icon: const Icon(
                 Icons.bookmark,
-                color: Constants.mainColor,
+                color: Constants.fanMainColor,
               ),
               onPressed: () {},
             )
           : IconButton(
               icon: const Icon(
                 Icons.bookmark_border,
-                color: Constants.mainColor,
+                color: Constants.fanMainColor,
               ),
               onPressed: () {
                 showModalBottomSheet(
