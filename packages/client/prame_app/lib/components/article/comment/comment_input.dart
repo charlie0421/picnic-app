@@ -80,7 +80,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
           ),
           IconButton(
             onPressed: () => _commitComment(),
-            icon: Icon(Icons.send, color: Constants.mainColor),
+            icon: Icon(Icons.send, color: Constants.fanMainColor),
           ),
         ],
       ),

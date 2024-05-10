@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:prame_app/storage/local_storage.dart';
 
-const mainColorLightMode = Color(0xFF07E88F);
-const mainColorDarkMode = Color(0xFF08C97E);
+const fanMainColorLight = Color(0xFF07E88F);
+const famMainColorDark = Color(0xFF08C97E);
+const voteMainColorLight = Colors.pink;
+const voteMainColorDark = Colors.pinkAccent;
+
 const kAccessTokenKey = 'ACCESS_TOKEN';
 
 class Constants {
@@ -15,7 +18,8 @@ class Constants {
   );
   static const double webMaxWidth = 600.0;
   static const int snackBarDuration = 3;
-  static const Color mainColor = Color(0xFF47E89B);
+  static const Color fanMainColor = Color(0xFF47E89B);
+  static const Color voteMainColor = Color(0xFFE84747);
 }
 
 var logger = Logger();

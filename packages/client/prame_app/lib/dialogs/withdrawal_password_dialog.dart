@@ -69,8 +69,8 @@ class _CommonDialog extends State<CommonDialog> {
                       controller: _controller,
                       decoration: InputDecoration(
                         hintText: Intl.message('password'),
-                        hintStyle:
-                            TextStyle(color: Constants.mainColor, fontSize: 30),
+                        hintStyle: TextStyle(
+                            color: Constants.fanMainColor, fontSize: 30),
                         errorStyle: const TextStyle(
                             color: Colors.redAccent, fontSize: 15),
                         errorMaxLines: 2,
@@ -82,8 +82,8 @@ class _CommonDialog extends State<CommonDialog> {
                         ),
                       ),
                       obscureText: true,
-                      style:
-                          TextStyle(color: Constants.mainColor, fontSize: 30),
+                      style: TextStyle(
+                          color: Constants.fanMainColor, fontSize: 30),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return Intl.message('label_input_password_error');

@@ -20,18 +20,22 @@ class NavigationInfo extends _$NavigationInfo {
     setting = await Navigation.load();
     state = state.copyWith(
         portalString: setting.portalString,
-        bottomNavigationIndex: setting.bottomNavigationIndex);
+        fanBottomNavigationIndex: setting.fanBottomNavigationIndex,
+        voteBottomNavigationIndex: setting.voteBottomNavigationIndex);
   }
 
   setState({
     String? portalString,
-    int? bottomNavigationIndex,
+    int? fanBottomNavigationIndex,
+    int? voteBottomNavigationIndex,
     Widget? currentPage,
   }) {
     state = state.copyWith(
       portalString: portalString ?? state.portalString,
-      bottomNavigationIndex:
-          bottomNavigationIndex ?? state.bottomNavigationIndex,
+      fanBottomNavigationIndex:
+          fanBottomNavigationIndex ?? state.fanBottomNavigationIndex,
+      voteBottomNavigationIndex:
+          voteBottomNavigationIndex ?? state.voteBottomNavigationIndex,
       currentPage: currentPage ?? state.currentPage,
     );
   }
@@ -42,9 +46,14 @@ class NavigationInfo extends _$NavigationInfo {
     globalStorage.saveData('portalString', portalString);
   }
 
-  setBottomNavigationIndex(int index) {
-    state = state.copyWith(bottomNavigationIndex: index);
-    globalStorage.saveData('bottomNavigationIndex', index.toString());
+  setFanBottomNavigationIndex(int index) {
+    state = state.copyWith(fanBottomNavigationIndex: index);
+    globalStorage.saveData('fanBottomNavigationIndex', index.toString());
+  }
+
+  setVoteBottomNavigationIndex(int index) {
+    state = state.copyWith(voteBottomNavigationIndex: index);
+    globalStorage.saveData('voteBottomNavigationIndex', index.toString());
   }
 
   setCurrentPage(Widget page) {
@@ -71,7 +80,8 @@ class NavigationInfo extends _$NavigationInfo {
 @reflector
 class Navigation {
   String portalString = 'vote';
-  int bottomNavigationIndex = 0;
+  int fanBottomNavigationIndex = 0;
+  int voteBottomNavigationIndex = 0;
   Widget? currentPage = const HomePage();
   Widget? previousPage;
 
@@ -86,19 +96,23 @@ class Navigation {
     logger.d('bottomNavigationIndex: $bottomNavigationIndex');
     return Navigation()
       ..portalString = portalString!
-      ..bottomNavigationIndex = int.parse(bottomNavigationIndex!);
+      ..fanBottomNavigationIndex = int.parse(bottomNavigationIndex!)
+      ..voteBottomNavigationIndex = int.parse(bottomNavigationIndex!);
   }
 
   Navigation copyWith({
     String? portalString,
-    int? bottomNavigationIndex,
+    int? fanBottomNavigationIndex,
+    int? voteBottomNavigationIndex,
     Widget? previousPage,
     Widget? currentPage,
   }) {
     return Navigation()
       ..portalString = portalString ?? this.portalString
-      ..bottomNavigationIndex =
-          bottomNavigationIndex ?? this.bottomNavigationIndex
+      ..fanBottomNavigationIndex =
+          fanBottomNavigationIndex ?? this.fanBottomNavigationIndex
+      ..voteBottomNavigationIndex =
+          voteBottomNavigationIndex ?? this.voteBottomNavigationIndex
       ..previousPage = previousPage ?? this.previousPage
       ..currentPage = currentPage ?? this.currentPage;
   }

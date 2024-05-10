@@ -7,8 +7,10 @@ import 'package:prame_app/generated/l10n.dart';
 import 'package:prame_app/overlays.dart';
 import 'package:prame_app/providers/app_setting_provider.dart';
 import 'package:prame_app/providers/celeb_list_provider.dart';
+import 'package:prame_app/providers/navigation_provider.dart';
 import 'package:prame_app/screens/portal.dart';
-import 'package:prame_app/ui/theme.dart';
+import 'package:prame_app/ui/fan_theme.dart';
+import 'package:prame_app/ui/vote_theme.dart';
 import 'package:prame_app/util.dart';
 
 class PrameApp extends ConsumerStatefulWidget {
@@ -67,39 +69,11 @@ class _PrameAppState extends ConsumerState<PrameApp>
       child: OverlaySupport.global(
         child: MaterialApp(
             title: 'Prame App Demo',
-            theme: themeLight,
-            darkTheme: themeLight,
+            theme: _getCurrentTheme(),
+            darkTheme: fanThemeLight,
             themeMode: appSettingState.themeMode,
             locale: appSettingState.locale,
-            // routes: {
-            //   LandingScreen.routeName: (context) => const LandingScreen(),
-            //   MyScreen.routeName: (context) => const MyScreen(),
-            //   LanguageScreen.routeName: (context) => const LanguageScreen(),
-            //   PrameScreen.routeName: (context) => const PrameScreen(),
-            //   DrawImageScreen.routeName: (context) => const DrawImageScreen(),
-            //   VoteListScreen.routeName: (context) => const VoteListScreen(),
-            // },
-            // onGenerateRoute: (settings) {
-            //   if (settings.name == GalleryDetailScreen.routeName) {
-            //     final args = settings.arguments as GalleryDetailScreenArguments;
-            //     return MaterialPageRoute(
-            //         builder: (context) => GalleryDetailScreen(
-            //               galleryId: args.galleryId,
-            //               galleryName: args.galleryName,
-            //             ));
-            //   }
-            //   if (settings.name == HomeScreen.routeName) {
-            //     final args = settings.arguments as HomeScreenArguments;
-            //
-            //     return MaterialPageRoute(
-            //         builder: (context) => HomeScreen(
-            //               celebModel: args.celebModel,
-            //             ));
-            //   }
-            //
-            //   return null;
-            // },
-            localizationsDelegates: [
+            localizationsDelegates: const [
               S.delegate,
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
@@ -109,5 +83,15 @@ class _PrameAppState extends ConsumerState<PrameApp>
             home: const Portal()),
       ),
     );
+  }
+
+  _getCurrentTheme() {
+    final currentPortal = ref.watch(navigationInfoProvider);
+
+    if (currentPortal.portalString == 'vote') {
+      return voteThemeLight;
+    } else {
+      return fanThemeLight;
+    }
   }
 }

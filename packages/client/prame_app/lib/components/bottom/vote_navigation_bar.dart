@@ -8,12 +8,11 @@ import 'package:prame_app/providers/app_setting_provider.dart';
 import 'package:prame_app/providers/navigation_provider.dart';
 import 'package:prame_app/ui/style.dart';
 
-import '../pages/gallery_page.dart';
-import '../pages/language_page.dart';
-import '../pages/library_page.dart';
+import '../../pages/gallery_page.dart';
+import '../../pages/library_page.dart';
 
-class FanBottomNavigationBar extends ConsumerWidget {
-  const FanBottomNavigationBar({super.key});
+class VoteBottomNavigationBar extends ConsumerWidget {
+  const VoteBottomNavigationBar({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -29,7 +28,7 @@ class FanBottomNavigationBar extends ConsumerWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 32).r,
           decoration: ShapeDecoration(
-            color: Constants.mainColor,
+            color: Constants.voteMainColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(120).r,
             ),
@@ -65,11 +64,6 @@ class FanBottomNavigationBar extends ConsumerWidget {
                 icon: Icons.wallet,
                 index: 3,
               ),
-              Item(
-                title: Intl.message('nav_setting'),
-                icon: Icons.settings,
-                index: 4,
-              ),
             ],
           ),
         ),
@@ -92,8 +86,8 @@ class Item extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentIndex = ref.watch(
-        navigationInfoProvider.select((value) => value.bottomNavigationIndex));
+    final currentIndex = ref.watch(navigationInfoProvider
+        .select((value) => value.voteBottomNavigationIndex));
     final navigationNotifier = ref.read(navigationInfoProvider.notifier);
 
     return Padding(
@@ -103,19 +97,15 @@ class Item extends ConsumerWidget {
           switch (index) {
             case 0:
               navigationNotifier.setCurrentPage(const HomePage());
-              navigationNotifier.setState(bottomNavigationIndex: 0);
+              navigationNotifier.setState(voteBottomNavigationIndex: 0);
               break;
             case 1:
               navigationNotifier.setCurrentPage(const GalleryPage());
-              navigationNotifier.setState(bottomNavigationIndex: 1);
+              navigationNotifier.setState(voteBottomNavigationIndex: 1);
               break;
             case 2:
               navigationNotifier.setCurrentPage(const LibraryPage());
-              navigationNotifier.setState(bottomNavigationIndex: 2);
-              break;
-            case 4:
-              navigationNotifier.setCurrentPage(const LanguagePage());
-              navigationNotifier.setState(bottomNavigationIndex: 4);
+              navigationNotifier.setState(voteBottomNavigationIndex: 2);
               break;
             default:
           }

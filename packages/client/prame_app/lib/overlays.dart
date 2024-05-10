@@ -5,7 +5,7 @@ import 'package:prame_app/constants.dart';
 OverlaySupportEntry? blackScreenOverlaySupport;
 OverlaySupportEntry? lockScreenOverlaySupport;
 OverlaySupportEntry? onlyAdultOverlay;
-Color blackScreenColor = Constants.mainColor;
+Color blackScreenColor = Constants.fanMainColor;
 DateTime? lastAuthenticationTime;
 
 void clearLockScreenOverlay() {
