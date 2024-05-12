@@ -78,11 +78,11 @@ ThemeData voteThemeDark = ThemeData.dark().copyWith(
     labelSmall: TextStyle(fontFamily: 'Pretendard', color: Colors.white),
   ),
   appBarTheme: const AppBarTheme(
-    backgroundColor: famMainColorDark,
+    backgroundColor: voteMainColorDark,
     foregroundColor: Colors.white,
   ),
   bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-    backgroundColor: famMainColorDark,
+    backgroundColor: voteMainColorDark,
     selectedIconTheme: IconThemeData(color: Colors.white),
     unselectedIconTheme: IconThemeData(color: Colors.white54),
     selectedItemColor: Colors.white,
