@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:prame_app/components/article/comment/comment.dart';
 import 'package:prame_app/components/article/comment/comment_input.dart';
-import 'package:prame_app/models/comment.dart';
+import 'package:prame_app/models/prame/comment.dart';
 import 'package:prame_app/providers/comment_list_provider.dart';
 import 'package:prame_app/ui/style.dart';
 
@@ -33,10 +33,12 @@ class CommentReplyLayer extends ConsumerWidget {
               children: [
                 TextSpan(
                     text: '${parentComment.user?.nickname ?? ''} ',
-                    style: getTextStyle(context, AppTypo.UI14B, AppColors.Gray900)),
+                    style: getTextStyle(
+                        context, AppTypo.UI14B, AppColors.Gray900)),
                 TextSpan(
                     text: '님에게 답글을 남깁니다.',
-                    style: getTextStyle(context, AppTypo.UI12, AppColors.Gray900)),
+                    style:
+                        getTextStyle(context, AppTypo.UI12, AppColors.Gray900)),
               ],
             ),
           ),

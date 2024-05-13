@@ -21,15 +21,18 @@ ThemeData voteThemeLight = ThemeData.light().copyWith(
     backgroundColor: voteMainColorLight,
     foregroundColor: Colors.white,
   ),
-  bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-    backgroundColor: voteMainColorLight,
-    selectedIconTheme: IconThemeData(color: Colors.black),
-    unselectedIconTheme: IconThemeData(color: Colors.black54),
-    selectedItemColor: Colors.black,
-    unselectedItemColor: Colors.black54,
-    selectedLabelStyle: TextStyle(color: Colors.black),
-    unselectedLabelStyle: TextStyle(color: Colors.black54),
+  bottomAppBarTheme: const BottomAppBarTheme(
+    color: Colors.transparent,
   ),
+  // bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+  //   backgroundColor: voteMainColorLight,
+  //   selectedIconTheme: IconThemeData(color: Colors.black),
+  //   unselectedIconTheme: IconThemeData(color: Colors.black54),
+  //   selectedItemColor: Colors.black,
+  //   unselectedItemColor: Colors.black54,
+  //   selectedLabelStyle: TextStyle(color: Colors.black),
+  //   unselectedLabelStyle: TextStyle(color: Colors.black54),
+  // ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
       padding: MaterialStateProperty.all(const EdgeInsets.all(4)),
@@ -81,15 +84,18 @@ ThemeData voteThemeDark = ThemeData.dark().copyWith(
     backgroundColor: voteMainColorDark,
     foregroundColor: Colors.white,
   ),
-  bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-    backgroundColor: voteMainColorDark,
-    selectedIconTheme: IconThemeData(color: Colors.white),
-    unselectedIconTheme: IconThemeData(color: Colors.white54),
-    selectedItemColor: Colors.white,
-    unselectedItemColor: Colors.white54,
-    selectedLabelStyle: TextStyle(color: Colors.white),
-    unselectedLabelStyle: TextStyle(color: Colors.white54),
+  bottomAppBarTheme: const BottomAppBarTheme(
+    color: Colors.transparent,
   ),
+  // bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+  //   backgroundColor: voteMainColorDark,
+  //   selectedIconTheme: IconThemeData(color: Colors.white),
+  //   unselectedIconTheme: IconThemeData(color: Colors.white54),
+  //   selectedItemColor: Colors.white,
+  //   unselectedItemColor: Colors.white54,
+  //   selectedLabelStyle: TextStyle(color: Colors.white),
+  //   unselectedLabelStyle: TextStyle(color: Colors.white54),
+  // ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
       padding: MaterialStateProperty.all(const EdgeInsets.all(4)),

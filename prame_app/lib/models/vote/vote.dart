@@ -1,7 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:prame_app/models/article_image.dart';
-import 'package:prame_app/models/comment.dart';
-import 'package:prame_app/models/gallery.dart';
 import 'package:prame_app/models/meta.dart';
 import 'package:prame_app/reflector.dart';
 

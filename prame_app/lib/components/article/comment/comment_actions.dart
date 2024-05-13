@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:prame_app/components/article/comment/like_button.dart';
 import 'package:prame_app/constants.dart';
-import 'package:prame_app/models/comment.dart';
+import 'package:prame_app/models/prame/comment.dart';
 import 'package:prame_app/providers/comment_list_provider.dart';
 import 'package:prame_app/ui/style.dart';
 

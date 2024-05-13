@@ -3,14 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:prame_app/constants.dart';
-import 'package:prame_app/pages/home_page.dart';
+import 'package:prame_app/pages/prame/home_page.dart';
+import 'package:prame_app/pages/prame/language_page.dart';
 import 'package:prame_app/providers/app_setting_provider.dart';
 import 'package:prame_app/providers/navigation_provider.dart';
 import 'package:prame_app/ui/style.dart';
 
-import '../../pages/gallery_page.dart';
-import '../../pages/language_page.dart';
-import '../../pages/library_page.dart';
+import '../../pages/prame/gallery_page.dart';
+import '../../pages/prame/library_page.dart';
 
 class FanBottomNavigationBar extends ConsumerWidget {
   const FanBottomNavigationBar({super.key});
@@ -102,7 +102,7 @@ class Item extends ConsumerWidget {
         onTap: () {
           switch (index) {
             case 0:
-              navigationNotifier.setCurrentPage(const HomePage());
+              navigationNotifier.setCurrentPage(const PrameHomePage());
               navigationNotifier.setState(fanBottomNavigationIndex: 0);
               break;
             case 1:

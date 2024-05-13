@@ -7,8 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:prame_app/components/article/comment/comment_item.dart';
 import 'package:prame_app/components/article/comment/comment_reply_layer.dart';
 import 'package:prame_app/components/ui/bottom-sheet-header.dart';
-import 'package:prame_app/models/article.dart';
-import 'package:prame_app/models/comment.dart';
+import 'package:prame_app/models/prame/article.dart';
+import 'package:prame_app/models/prame/comment.dart';
 import 'package:prame_app/providers/article_list_provider.dart';
 import 'package:prame_app/providers/comment_list_provider.dart';
 

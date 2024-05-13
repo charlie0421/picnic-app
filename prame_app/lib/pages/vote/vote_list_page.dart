@@ -6,7 +6,7 @@ import 'package:prame_app/components/error.dart';
 import 'package:prame_app/components/vote/list/vote_artists.dart';
 import 'package:prame_app/components/vote/list/vote_image.dart';
 import 'package:prame_app/components/vote/list/vote_title.dart';
-import 'package:prame_app/models/vote.dart';
+import 'package:prame_app/models/vote/vote.dart';
 import 'package:prame_app/providers/vote_list_provider.dart';
 import 'package:prame_app/util.dart';
 

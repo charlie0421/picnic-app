@@ -1,6 +1,6 @@
 import 'package:prame_app/auth_dio.dart';
 import 'package:prame_app/constants.dart';
-import 'package:prame_app/models/article_image.dart';
+import 'package:prame_app/models/prame/article_image.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'article_image_list_provider.g.dart';

@@ -1,6 +1,6 @@
 import 'package:prame_app/auth_dio.dart';
 import 'package:prame_app/constants.dart';
-import 'package:prame_app/models/celeb_banner.dart';
+import 'package:prame_app/models/prame/celeb_banner.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'celeb_banner_list_provider.g.dart';

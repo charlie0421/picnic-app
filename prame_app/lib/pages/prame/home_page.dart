@@ -7,22 +7,22 @@ import 'package:intl/intl.dart';
 import 'package:prame_app/components/error.dart';
 import 'package:prame_app/components/no_bookmark_celeb.dart';
 import 'package:prame_app/constants.dart';
-import 'package:prame_app/models/celeb.dart';
-import 'package:prame_app/models/gallery.dart';
-import 'package:prame_app/pages/gallery_detail_page.dart';
-import 'package:prame_app/pages/landing_page.dart';
+import 'package:prame_app/models/prame/celeb.dart';
+import 'package:prame_app/models/prame/gallery.dart';
+import 'package:prame_app/pages/prame/gallery_detail_page.dart';
+import 'package:prame_app/pages/prame/landing_page.dart';
 import 'package:prame_app/providers/celeb_banner_list_provider.dart';
 import 'package:prame_app/providers/gallery_list_provider.dart';
 import 'package:prame_app/providers/navigation_provider.dart';
-import 'package:prame_app/screens/draw_image_screen.dart';
+import 'package:prame_app/screens/prame/draw_image_screen.dart';
 import 'package:prame_app/ui/style.dart';
 import 'package:prame_app/util.dart';
 
-import '../components/celeb_list_item.dart';
-import '../providers/celeb_list_provider.dart';
+import '../../components/celeb_list_item.dart';
+import '../../providers/celeb_list_provider.dart';
 
-class HomePage extends ConsumerWidget {
-  const HomePage({super.key});
+class PrameHomePage extends ConsumerWidget {
+  const PrameHomePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

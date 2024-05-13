@@ -4,7 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:prame_app/components/celeb_list_item.dart';
 import 'package:prame_app/components/error.dart';
-import 'package:prame_app/models/celeb.dart';
+import 'package:prame_app/models/prame/celeb.dart';
 import 'package:prame_app/providers/celeb_search_provider.dart';
 import 'package:prame_app/ui/style.dart';
 import 'package:prame_app/util.dart';
@@ -39,7 +39,8 @@ class _SearchListState extends ConsumerState<SearchList> {
               controller: _textEditingController,
               decoration: InputDecoration(
                 hintText: Intl.message('text_hint_search'),
-                hintStyle: getTextStyle(context, AppTypo.UI14B, AppColors.Gray300),
+                hintStyle:
+                    getTextStyle(context, AppTypo.UI14B, AppColors.Gray300),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                 suffixIcon: IconButton(

@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:prame_app/models/celeb.dart';
+import 'package:prame_app/models/prame/celeb.dart';
 import 'package:prame_app/providers/celeb_list_provider.dart';
 import 'package:prame_app/providers/celeb_search_provider.dart';
-import 'package:prame_app/screens/home_screen.dart';
 import 'package:prame_app/ui/style.dart';
 import 'package:prame_app/util.dart';
 

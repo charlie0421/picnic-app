@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prame_app/pages/my_page.dart';
+import 'package:prame_app/pages/prame/my_page.dart';
 
 class LoginScreen extends ConsumerWidget {
   static const String routeName = '/login';

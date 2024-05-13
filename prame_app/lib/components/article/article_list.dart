@@ -14,13 +14,14 @@ import 'package:prame_app/components/article/article_best_comment.dart';
 import 'package:prame_app/components/article/comment/comment.dart';
 import 'package:prame_app/components/error.dart';
 import 'package:prame_app/constants.dart';
-import 'package:prame_app/models/article.dart';
+import 'package:prame_app/models/prame/article.dart';
 import 'package:prame_app/providers/article_list_provider.dart';
 import 'package:prame_app/ui/style.dart';
 import 'package:prame_app/util.dart';
 
 class ArticleList extends ConsumerWidget {
   final int galleryId;
+
   const ArticleList(this.galleryId, {super.key});
 
   @override

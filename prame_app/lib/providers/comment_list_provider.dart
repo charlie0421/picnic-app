@@ -1,6 +1,6 @@
 import 'package:prame_app/auth_dio.dart';
 import 'package:prame_app/constants.dart';
-import 'package:prame_app/models/comment.dart';
+import 'package:prame_app/models/prame/comment.dart';
 import 'package:prame_app/models/meta.dart';
 import 'package:prame_app/providers/article_list_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';

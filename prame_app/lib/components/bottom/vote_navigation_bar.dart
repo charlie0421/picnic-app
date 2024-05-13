@@ -3,13 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:prame_app/constants.dart';
-import 'package:prame_app/pages/home_page.dart';
+import 'package:prame_app/pages/vote/vote_home.dart';
 import 'package:prame_app/providers/app_setting_provider.dart';
 import 'package:prame_app/providers/navigation_provider.dart';
 import 'package:prame_app/ui/style.dart';
-
-import '../../pages/gallery_page.dart';
-import '../../pages/library_page.dart';
 
 class VoteBottomNavigationBar extends ConsumerWidget {
   const VoteBottomNavigationBar({super.key});
@@ -21,7 +18,6 @@ class VoteBottomNavigationBar extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 0).r,
       child: BottomAppBar(
-        color: Colors.transparent,
         elevation: 0,
         padding: EdgeInsets.zero,
         height: 60.h,
@@ -50,18 +46,18 @@ class VoteBottomNavigationBar extends ConsumerWidget {
                 index: 0,
               ),
               Item(
-                title: Intl.message('nav_gallery'),
-                icon: Icons.photo,
+                title: Intl.message('투표'),
+                icon: Icons.how_to_vote_sharp,
                 index: 1,
               ),
               Item(
-                title: Intl.message('nav_library'),
-                icon: Icons.library_books,
+                title: Intl.message('상점'),
+                icon: Icons.storefront,
                 index: 2,
               ),
               Item(
-                title: Intl.message('nav_purchases'),
-                icon: Icons.wallet,
+                title: Intl.message('미디어'),
+                icon: Icons.tv,
                 index: 3,
               ),
             ],
@@ -96,15 +92,15 @@ class Item extends ConsumerWidget {
         onTap: () {
           switch (index) {
             case 0:
-              navigationNotifier.setCurrentPage(const HomePage());
+              navigationNotifier.setCurrentPage(const VoteHomePage());
               navigationNotifier.setState(voteBottomNavigationIndex: 0);
               break;
             case 1:
-              navigationNotifier.setCurrentPage(const GalleryPage());
+              navigationNotifier.setCurrentPage(const VoteHomePage());
               navigationNotifier.setState(voteBottomNavigationIndex: 1);
               break;
             case 2:
-              navigationNotifier.setCurrentPage(const LibraryPage());
+              navigationNotifier.setCurrentPage(const VoteHomePage());
               navigationNotifier.setState(voteBottomNavigationIndex: 2);
               break;
             default:

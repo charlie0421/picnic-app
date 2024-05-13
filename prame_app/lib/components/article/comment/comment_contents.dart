@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prame_app/models/comment.dart';
+import 'package:prame_app/models/prame/comment.dart';
 import 'package:prame_app/ui/style.dart';
 import 'package:prame_app/util.dart';
 
