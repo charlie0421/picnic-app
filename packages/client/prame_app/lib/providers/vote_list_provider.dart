@@ -1,7 +1,7 @@
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:prame_app/auth_dio.dart';
 import 'package:prame_app/constants.dart';
-import 'package:prame_app/models/vote.dart';
+import 'package:prame_app/models/vote/vote.dart';
 import 'package:prame_app/reflector.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

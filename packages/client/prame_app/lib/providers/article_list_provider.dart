@@ -1,7 +1,7 @@
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:prame_app/auth_dio.dart';
 import 'package:prame_app/constants.dart';
-import 'package:prame_app/models/article.dart';
+import 'package:prame_app/models/prame/article.dart';
 import 'package:prame_app/reflector.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -12,6 +12,7 @@ class AsyncArticleList extends _$AsyncArticleList {
   final PagingController<int, ArticleModel> _pagingController =
       PagingController(firstPageKey: 1);
   late int galleryId;
+
   @override
   Future<PagingController<int, ArticleModel>> build(galleyId) async {
     galleryId = galleyId;

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prame_app/constants.dart';
-import 'package:prame_app/pages/prame_make_page.dart';
-import 'package:prame_app/pages/prame_page.dart';
+import 'package:prame_app/pages/prame/prame_make_page.dart';
+import 'package:prame_app/pages/prame/prame_page.dart';
 
-import '../providers/prame_provider.dart';
+import '../../providers/prame_provider.dart';
 
 class PrameScreen extends ConsumerWidget {
   static const String routeName = '/prame';

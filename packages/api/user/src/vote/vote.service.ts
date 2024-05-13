@@ -46,8 +46,9 @@ export class VoteService {
         const queryBuilder = this.voteRepository
             .createQueryBuilder('vote')
             .leftJoinAndSelect('vote.voteItems', 'voteItems').andWhere('voteItems.deleted_at is null')
-            .leftJoinAndSelect('voteItems.myStarMember', 'myStarMember')
-            .andWhere(`vote.vote_category = '${category}'`);
+            .leftJoinAndSelect('voteItems.myStarMember', 'myStarMember');
+        if (category !== 'all')
+          queryBuilder.andWhere(`vote.vote_category = '${category}'`)
 
         return paginate(queryBuilder, options);
     }

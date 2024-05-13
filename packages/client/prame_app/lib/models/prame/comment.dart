@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:prame_app/models/article.dart';
-import 'package:prame_app/models/comment_like.dart';
+import 'package:prame_app/models/prame/article.dart';
+import 'package:prame_app/models/prame/comment_like.dart';
 import 'package:prame_app/models/meta.dart';
 import 'package:prame_app/models/user.dart';
 import 'package:prame_app/reflector.dart';

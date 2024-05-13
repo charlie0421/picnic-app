@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:prame_app/components/bottom/prame_navigation_bar.dart';
 import 'package:prame_app/components/bottom/vote_navigation_bar.dart';
-import 'package:prame_app/pages/vote_list_page.dart';
+import 'package:prame_app/pages/vote/vote_list_page.dart';
 import 'package:prame_app/ui/style.dart';
 
 class VoteListScreen extends ConsumerStatefulWidget {

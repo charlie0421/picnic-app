@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:prame_app/models/article.dart';
+import 'package:prame_app/models/prame/article.dart';
 import 'package:prame_app/ui/style.dart';
 
 class ArticleBestComment extends StatefulWidget {
   final ArticleModel article;
   Function showComments;
+
   ArticleBestComment(
       {super.key, required this.article, required this.showComments});
 

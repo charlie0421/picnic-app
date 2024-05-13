@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:prame_app/constants.dart';
-import 'package:prame_app/models/vote.dart';
+import 'package:prame_app/models/vote/vote.dart';
 import 'package:prame_app/ui/style.dart';
 
 class VoteArtists extends StatelessWidget {

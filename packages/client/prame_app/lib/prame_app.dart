@@ -68,9 +68,9 @@ class _PrameAppState extends ConsumerState<PrameApp>
       designSize: const Size(430, 932),
       child: OverlaySupport.global(
         child: MaterialApp(
-            title: 'Prame App Demo',
+            title: 'Picnic App',
             theme: _getCurrentTheme(),
-            darkTheme: fanThemeLight,
+            darkTheme: voteThemeLight,
             themeMode: appSettingState.themeMode,
             locale: appSettingState.locale,
             localizationsDelegates: const [

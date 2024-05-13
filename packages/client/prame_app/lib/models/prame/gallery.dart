@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:prame_app/models/celeb.dart';
 import 'package:prame_app/models/meta.dart';
+import 'package:prame_app/models/prame/celeb.dart';
 import 'package:prame_app/reflector.dart';
 
 part 'gallery.g.dart';

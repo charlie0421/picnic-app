@@ -6,7 +6,7 @@ import 'package:prame_app/components/article/article_list.dart';
 import 'package:prame_app/components/article/article_sort_widget.dart';
 import 'package:prame_app/components/article/comment/comment.dart';
 import 'package:prame_app/constants.dart';
-import 'package:prame_app/models/article.dart';
+import 'package:prame_app/models/prame/article.dart';
 
 class ArticlePage extends ConsumerStatefulWidget {
   final int galleryId;

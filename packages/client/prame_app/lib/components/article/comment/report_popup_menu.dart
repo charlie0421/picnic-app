@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:prame_app/auth_dio.dart';
 import 'package:prame_app/constants.dart';
 import 'package:prame_app/dialogs/common_dialog.dart';
-import 'package:prame_app/models/comment.dart';
+import 'package:prame_app/models/prame/comment.dart';
 
 class ReportPopupMenu extends StatelessWidget {
   final BuildContext context;

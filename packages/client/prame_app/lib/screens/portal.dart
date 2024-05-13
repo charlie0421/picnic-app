@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:prame_app/providers/navigation_provider.dart';
-import 'package:prame_app/screens/home_screen.dart';
-import 'package:prame_app/screens/vote_list_screen.dart';
+import 'package:prame_app/screens/prame/home_screen.dart';
+import 'package:prame_app/screens/vote/home_screen.dart';
 import 'package:prame_app/ui/style.dart';
 
 class Portal extends ConsumerStatefulWidget {
@@ -28,9 +28,9 @@ class _PortalState extends ConsumerState<Portal> {
 
     Widget currentScreen;
     if (navigationInfo.portalString == 'vote') {
-      currentScreen = const VoteListScreen();
+      currentScreen = const VoteHomeScreen();
     } else if (navigationInfo.portalString == 'fan') {
-      currentScreen = const HomeScreen();
+      currentScreen = const PrameHomeScreen();
     } else {
       return const SizedBox.shrink();
     }
@@ -84,9 +84,8 @@ class _PortalState extends ConsumerState<Portal> {
           ],
         ),
         bottom: PreferredSize(
-          preferredSize:
-              const Size.fromHeight(0.0), // AppBar의 하단에 추가할 위젯의 높이를 0으로 설정합니다.
-          child: Container(), // 빈 Container를 추가합니다.
+          preferredSize: const Size.fromHeight(0.0),
+          child: Container(),
         ),
       ),
       body: currentScreen,

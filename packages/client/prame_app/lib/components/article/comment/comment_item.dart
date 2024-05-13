@@ -8,7 +8,7 @@ import 'package:prame_app/components/article/comment/comment_header.dart';
 import 'package:prame_app/components/article/comment/comment_user.dart';
 import 'package:prame_app/components/article/comment/report_popup_menu.dart';
 import 'package:prame_app/constants.dart';
-import 'package:prame_app/models/comment.dart';
+import 'package:prame_app/models/prame/comment.dart';
 import 'package:prame_app/ui/style.dart';
 
 class CommentItem extends ConsumerStatefulWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:prame_app/models/article.dart';
+import 'package:prame_app/models/prame/article.dart';
 import 'package:prame_app/providers/article_list_provider.dart';
 
 import '../../ui/style.dart';

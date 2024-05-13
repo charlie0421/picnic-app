@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prame_app/pages/draw_image_page.dart';
+import 'package:prame_app/pages/prame/draw_image_page.dart';
 import 'package:prame_app/providers/app_setting_provider.dart';
 
 class DrawImageScreen extends ConsumerWidget {

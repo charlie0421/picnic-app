@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
-import 'package:prame_app/models/article.dart';
+import 'package:prame_app/models/prame/article.dart';
 import 'package:prame_app/ui/style.dart';
 
 class ArticleTitle extends StatelessWidget {
   final ArticleModel article;
+
   const ArticleTitle({super.key, required this.article});
 
   @override

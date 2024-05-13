@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
-import 'package:prame_app/pages/article_page.dart';
+import 'package:prame_app/pages/prame/article_page.dart';
 import 'package:prame_app/providers/navigation_provider.dart';
 import 'package:prame_app/ui/style.dart';
 

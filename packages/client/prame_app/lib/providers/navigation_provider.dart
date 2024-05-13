@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:prame_app/constants.dart';
-import 'package:prame_app/pages/home_page.dart';
+import 'package:prame_app/menu.dart';
+import 'package:prame_app/pages/vote/vote_home.dart';
 import 'package:prame_app/reflector.dart';
+import 'package:prame_app/screens/prame/home_screen.dart';
+import 'package:prame_app/screens/vote/home_screen.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'navigation_provider.g.dart';
@@ -42,7 +45,15 @@ class NavigationInfo extends _$NavigationInfo {
 
   setPortalString(String portalString) {
     logger.d('setPortalString: $portalString');
-    state = state.copyWith(portalString: portalString);
+    state = state.copyWith(
+        portalString: portalString,
+        currentScreen: portalString == 'vote'
+            ? const VoteHomeScreen()
+            : const PrameHomeScreen(),
+        currentPage: portalString == 'vote'
+            ? voteScreens[state.voteBottomNavigationIndex]
+            : prameScreens[state.fanBottomNavigationIndex]);
+
     globalStorage.saveData('portalString', portalString);
   }
 
@@ -82,7 +93,8 @@ class Navigation {
   String portalString = 'vote';
   int fanBottomNavigationIndex = 0;
   int voteBottomNavigationIndex = 0;
-  Widget? currentPage = const HomePage();
+  Widget? currentScreen = const VoteHomeScreen();
+  Widget? currentPage = const VoteHomePage();
   Widget? previousPage;
 
   Navigation();
@@ -104,6 +116,7 @@ class Navigation {
     String? portalString,
     int? fanBottomNavigationIndex,
     int? voteBottomNavigationIndex,
+    Widget? currentScreen,
     Widget? previousPage,
     Widget? currentPage,
   }) {
@@ -113,6 +126,7 @@ class Navigation {
           fanBottomNavigationIndex ?? this.fanBottomNavigationIndex
       ..voteBottomNavigationIndex =
           voteBottomNavigationIndex ?? this.voteBottomNavigationIndex
+      ..currentScreen = currentScreen ?? this.currentScreen
       ..previousPage = previousPage ?? this.previousPage
       ..currentPage = currentPage ?? this.currentPage;
   }

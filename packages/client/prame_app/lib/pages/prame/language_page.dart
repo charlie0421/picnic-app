@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:prame_app/constants.dart';
 import 'package:prame_app/providers/app_setting_provider.dart';
-
-import '../constants.dart';
 
 class LanguagePage extends ConsumerWidget {
   const LanguagePage({super.key});

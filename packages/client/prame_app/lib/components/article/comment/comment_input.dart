@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:prame_app/constants.dart';
-import 'package:prame_app/models/comment.dart';
+import 'package:prame_app/models/prame/comment.dart';
 import 'package:prame_app/providers/article_list_provider.dart';
 import 'package:prame_app/providers/comment_list_provider.dart';
 import 'package:prame_app/ui/style.dart';

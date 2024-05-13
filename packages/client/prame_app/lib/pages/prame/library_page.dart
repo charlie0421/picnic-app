@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:prame_app/pages/prame_make_page.dart';
-import 'package:prame_app/pages/prame_page.dart';
+import 'package:prame_app/pages/prame/prame_make_page.dart';
+import 'package:prame_app/pages/prame/prame_page.dart';
 import 'package:prame_app/providers/prame_provider.dart';
 
 class LibraryPage extends ConsumerStatefulWidget {

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
-import 'package:prame_app/models/vote.dart';
+import 'package:prame_app/models/vote/vote.dart';
 import 'package:prame_app/ui/style.dart';
 
 class VoteTitle extends StatelessWidget {
   final VoteModel vote;
+
   const VoteTitle({super.key, required this.vote});
 
   @override
