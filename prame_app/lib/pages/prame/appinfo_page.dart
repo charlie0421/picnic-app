@@ -1,0 +1,16 @@
+import 'package:flutter/material.dart';
+import 'package:prame_app/components/appinfo.dart';
+
+class AppInfoPage extends StatefulWidget {
+  const AppInfoPage({Key? key}) : super(key: key);
+
+  @override
+  State<AppInfoPage> createState() => _AppInfoPageState();
+}
+
+class _AppInfoPageState extends State<AppInfoPage> {
+  @override
+  Widget build(BuildContext context) {
+    return AppInfo();
+  }
+}

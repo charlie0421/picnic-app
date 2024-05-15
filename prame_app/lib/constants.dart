@@ -20,6 +20,7 @@ class Constants {
   static const int snackBarDuration = 3;
   static const Color fanMainColor = Color(0xFF47E89B);
   static const Color voteMainColor = Color(0xFFE84747);
+  static const Color developerMainColor = Colors.grey;
 }
 
 var logger = Logger();

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:prame_app/providers/navigation_provider.dart';
-import 'package:prame_app/screens/prame/home_screen.dart';
+import 'package:prame_app/screens/developer/developer_home_screen.dart';
+import 'package:prame_app/screens/prame/prame_home_screen.dart';
 import 'package:prame_app/screens/vote/home_screen.dart';
 import 'package:prame_app/ui/style.dart';
 
@@ -31,6 +32,8 @@ class _PortalState extends ConsumerState<Portal> {
       currentScreen = const VoteHomeScreen();
     } else if (navigationInfo.portalString == 'fan') {
       currentScreen = const PrameHomeScreen();
+    } else if (navigationInfo.portalString == 'developer') {
+      currentScreen = const DeveloperHomeScreen();
     } else {
       return const SizedBox.shrink();
     }
@@ -74,6 +77,27 @@ class _PortalState extends ConsumerState<Portal> {
                   Text(
                     'FAN',
                     style: navigationInfo.portalString == 'fan'
+                        ? getTextStyle(context, AppTypo.UI16B, AppColors.GP00)
+                        : getTextStyle(
+                            context, AppTypo.UI16, AppColors.Gray300),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: 20.w),
+            InkWell(
+              onTap: () {
+                navigationInfoNotifier.setPortalString('developer');
+              },
+              child: Row(
+                children: [
+                  Icon(Icons.developer_mode,
+                      color: navigationInfo.portalString == 'developer'
+                          ? AppColors.GP00
+                          : AppColors.Gray300),
+                  Text(
+                    'DEV',
+                    style: navigationInfo.portalString == 'developer'
                         ? getTextStyle(context, AppTypo.UI16B, AppColors.GP00)
                         : getTextStyle(
                             context, AppTypo.UI16, AppColors.Gray300),

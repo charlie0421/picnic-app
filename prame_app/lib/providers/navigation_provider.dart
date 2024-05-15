@@ -3,7 +3,8 @@ import 'package:prame_app/constants.dart';
 import 'package:prame_app/menu.dart';
 import 'package:prame_app/pages/vote/vote_home.dart';
 import 'package:prame_app/reflector.dart';
-import 'package:prame_app/screens/prame/home_screen.dart';
+import 'package:prame_app/screens/developer/developer_home_screen.dart';
+import 'package:prame_app/screens/prame/prame_home_screen.dart';
 import 'package:prame_app/screens/vote/home_screen.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -31,6 +32,7 @@ class NavigationInfo extends _$NavigationInfo {
     String? portalString,
     int? fanBottomNavigationIndex,
     int? voteBottomNavigationIndex,
+    int? developerBottomNavigationIndex,
     Widget? currentPage,
   }) {
     state = state.copyWith(
@@ -39,21 +41,42 @@ class NavigationInfo extends _$NavigationInfo {
           fanBottomNavigationIndex ?? state.fanBottomNavigationIndex,
       voteBottomNavigationIndex:
           voteBottomNavigationIndex ?? state.voteBottomNavigationIndex,
+      developerBottomNavigationIndex: developerBottomNavigationIndex ??
+          state.developerBottomNavigationIndex,
       currentPage: currentPage ?? state.currentPage,
     );
   }
 
   setPortalString(String portalString) {
     logger.d('setPortalString: $portalString');
-    state = state.copyWith(
-        portalString: portalString,
-        currentScreen: portalString == 'vote'
-            ? const VoteHomeScreen()
-            : const PrameHomeScreen(),
-        currentPage: portalString == 'vote'
-            ? voteScreens[state.voteBottomNavigationIndex]
-            : prameScreens[state.fanBottomNavigationIndex]);
 
+    Widget currentScreen;
+    if (portalString == 'vote') {
+      currentScreen = const VoteHomeScreen();
+    } else if (portalString == 'fan') {
+      currentScreen = const PrameHomeScreen();
+    } else if (portalString == 'developer') {
+      currentScreen = const DeveloperHomeScreen();
+    } else {
+      return const SizedBox.shrink();
+    }
+
+    Widget currentPage;
+    if (portalString == 'vote') {
+      currentPage = voteScreens[state.voteBottomNavigationIndex];
+    } else if (portalString == 'fan') {
+      currentPage = prameScreens[state.fanBottomNavigationIndex];
+    } else if (portalString == 'developer') {
+      currentPage = developerScreens[state.developerBottomNavigationIndex];
+    } else {
+      return const SizedBox.shrink();
+    }
+
+    state = state.copyWith(
+      portalString: portalString,
+      currentScreen: currentScreen,
+      currentPage: currentPage,
+    );
     globalStorage.saveData('portalString', portalString);
   }
 
@@ -65,6 +88,11 @@ class NavigationInfo extends _$NavigationInfo {
   setVoteBottomNavigationIndex(int index) {
     state = state.copyWith(voteBottomNavigationIndex: index);
     globalStorage.saveData('voteBottomNavigationIndex', index.toString());
+  }
+
+  setDeveloperBottomNavigationIndex(int index) {
+    state = state.copyWith(developerBottomNavigationIndex: index);
+    globalStorage.saveData('developerBottomNavigationIndex', index.toString());
   }
 
   setCurrentPage(Widget page) {
@@ -93,6 +121,7 @@ class Navigation {
   String portalString = 'vote';
   int fanBottomNavigationIndex = 0;
   int voteBottomNavigationIndex = 0;
+  int developerBottomNavigationIndex = 0;
   Widget? currentScreen = const VoteHomeScreen();
   Widget? currentPage = const VoteHomePage();
   Widget? previousPage;
@@ -109,13 +138,15 @@ class Navigation {
     return Navigation()
       ..portalString = portalString!
       ..fanBottomNavigationIndex = int.parse(bottomNavigationIndex!)
-      ..voteBottomNavigationIndex = int.parse(bottomNavigationIndex!);
+      ..voteBottomNavigationIndex = int.parse(bottomNavigationIndex!)
+      ..developerBottomNavigationIndex = int.parse(bottomNavigationIndex!);
   }
 
   Navigation copyWith({
     String? portalString,
     int? fanBottomNavigationIndex,
     int? voteBottomNavigationIndex,
+    int? developerBottomNavigationIndex,
     Widget? currentScreen,
     Widget? previousPage,
     Widget? currentPage,
@@ -126,6 +157,8 @@ class Navigation {
           fanBottomNavigationIndex ?? this.fanBottomNavigationIndex
       ..voteBottomNavigationIndex =
           voteBottomNavigationIndex ?? this.voteBottomNavigationIndex
+      ..developerBottomNavigationIndex =
+          developerBottomNavigationIndex ?? this.developerBottomNavigationIndex
       ..currentScreen = currentScreen ?? this.currentScreen
       ..previousPage = previousPage ?? this.previousPage
       ..currentPage = currentPage ?? this.currentPage;
