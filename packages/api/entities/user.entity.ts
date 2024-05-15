@@ -6,6 +6,7 @@ import {ArticleCommentEntity} from "./article-comment.entity";
 import {ArticleCommentReportEntity} from "./article-comment-report.entity";
 import {ArticleImageEntity} from "./article-image.entity";
 import {AlbumEntity} from "./album.entity";
+import { UserAgreementEntity } from './user_agreement.entity';
 
 @Entity("user")
 @Unique(["id", "email"])
@@ -60,6 +61,9 @@ export class UserEntity extends BaseEntity {
     bookmarks: ArticleImageEntity[];
     @OneToOne(() => AlbumEntity, (library) => library.user)
     album: AlbumEntity;
+
+    @OneToOne(() => UserAgreementEntity, (userAgreement) => userAgreement.user)
+    userAgreement: UserAgreementEntity;
 
     @AfterLoad()
     getFullImagePath() {

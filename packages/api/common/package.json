@@ -2,10 +2,11 @@
   "name": "api-common",
   "version": "0.0.1",
   "description": "",
-  "author": "",
+  "author": "gil",
   "private": true,
   "license": "UNLICENSED",
   "type": "commonjs",
+  "packageManager": "yarn@4.2.1",
   "main": "index.js",
   "jest": {
     "moduleFileExtensions": [

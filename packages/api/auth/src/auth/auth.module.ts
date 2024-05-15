@@ -26,10 +26,12 @@ import { PointHistoryEntity } from '../../../entities/point_history.entity';
 import { MystarMemberEntity } from '../../../entities/mystar-member.entity';
 import { MystarGroupEntity } from '../../../entities/mystar-group.entity';
 import { VoteCommentEntity } from '../../../entities/vote-comment.entity';
+import { JwtStrategy } from '../../../common/auth/jwt.strategy';
+import { UserAgreementEntity } from '../../../entities/user_agreement.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity, CelebEntity, BannerEntity, GalleryEntity, ArticleEntity, ArticleImageEntity, AlbumEntity, ArticleCommentEntity, ArticleCommentLikeEntity,ArticleCommentReportEntity,VoteItemPickEntity,VoteItemEntity,PointHistoryEntity,MystarMemberEntity,MystarGroupEntity,VoteCommentEntity,
+    TypeOrmModule.forFeature([UserEntity, UserAgreementEntity,CelebEntity, BannerEntity, GalleryEntity, ArticleEntity, ArticleImageEntity, AlbumEntity, ArticleCommentEntity, ArticleCommentLikeEntity,ArticleCommentReportEntity,VoteItemPickEntity,VoteItemEntity,PointHistoryEntity,MystarMemberEntity,MystarGroupEntity,VoteCommentEntity,
       VoteEntity]),
     PassportModule,
     JwtModule.register({}),
@@ -37,7 +39,7 @@ import { VoteCommentEntity } from '../../../entities/vote-comment.entity';
     S3Module,
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtService, UsersService],
+  providers: [AuthService, LocalStrategy, JwtStrategy, UsersService],
 })
 export class AuthModule {
 }
