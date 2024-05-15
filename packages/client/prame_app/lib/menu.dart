@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prame_app/components/appinfo.dart';
 import 'package:prame_app/pages/prame/gallery_page.dart';
 import 'package:prame_app/pages/prame/home_page.dart';
 import 'package:prame_app/pages/prame/landing_page.dart';
@@ -18,4 +19,11 @@ List<Widget> prameScreens = [
   const PrameScreen(),
   Container(),
   const LandingPage(),
+];
+
+List<Widget> developerScreens = [
+  const AppInfo(),
+  Container(),
+  Container(),
+  Container(),
 ];

@@ -90,6 +90,8 @@ class _PrameAppState extends ConsumerState<PrameApp>
 
     if (currentPortal.portalString == 'vote') {
       return voteThemeLight;
+    } else if (currentPortal.portalString == 'fan') {
+      return fanThemeLight;
     } else {
       return fanThemeLight;
     }
