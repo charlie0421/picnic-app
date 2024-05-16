@@ -1,0 +1,75 @@
+name: picnic_app
+description: "Picnic App"
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+29
+
+environment:
+  sdk: '>=3.3.1 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  flutter_native_splash: ^2.3.10
+  logger: ^2.0.1
+  flutter_secure_storage: ^9.0.0
+  shared_preferences: ^2.2.2
+  riverpod: ^2.5.1
+  package_info_plus: ^5.0.1
+  flutter_riverpod: ^2.5.1
+  hooks_riverpod: ^2.5.1
+  flutter_svg: ^2.0.9
+  riverpod_annotation: ^2.3.5
+  intl: ^0.19.0
+  image_picker: ^1.0.7
+  camera: ^0.10.5+9
+  flutter_screenutil: ^5.9.0
+  overlay_loading_progress: ^1.0.1
+  reflectable: ^4.0.6
+  json_annotation: ^4.8.1
+  dio: ^5.4.2+1
+  cached_network_image: ^3.3.0
+  card_swiper: ^3.0.1
+  infinite_scroll_pagination: ^4.0.0
+  flutter_keyboard_visibility: ^6.0.0
+  font_awesome_flutter: ^10.7.0
+  overlay_support: ^2.1.0
+  screen_protector: ^1.4.2
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  json_serializable: ^6.5.4
+  riverpod_generator: ^2.4.0
+  intl_utils: ^2.8.7
+  build_runner: ^2.4.8
+  custom_lint: ^0.6.4
+  riverpod_lint: ^2.3.10
+  change_app_package_name: ^1.1.0
+flutter_intl:
+  enabled: true
+
+flutter:
+  uses-material-design: true
+  generate: true
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/icons/line_arrow/
+    - assets/mockup/
+    - assets/mockup/my/
+    - assets/mockup/gallery/
+    - assets/mockup/prame/
+    - assets/landing/
+  fonts:
+    - family: NotoSansCJKKr
+      fonts:
+        - asset: assets/fonts/NotoSansCJKKr/NotoSansCJKkr-Regular.otf
+          weight: 400
+        - asset: assets/fonts/NotoSansCJKKr/NotoSansCJKkr-Medium.otf
+          weight: 500
+        - asset: assets/fonts/NotoSansCJKKr/NotoSansCJKkr-Bold.otf
+          weight: 800
