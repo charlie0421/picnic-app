@@ -164,6 +164,18 @@
       <excludeFolder url="file://$MODULE_DIR$/packages/client/prame_app/windows/flutter/ephemeral/.plugin_symlinks/image_picker_windows/example/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/packages/client/prame_app/windows/flutter/ephemeral/.plugin_symlinks/image_picker_windows/example/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/packages/client/prame_app/windows/flutter/ephemeral/.plugin_symlinks/image_picker_windows/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/client/prame_app/linux/flutter/ephemeral/.plugin_symlinks/package_info_plus/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/client/prame_app/linux/flutter/ephemeral/.plugin_symlinks/package_info_plus/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/client/prame_app/linux/flutter/ephemeral/.plugin_symlinks/package_info_plus/build" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/client/prame_app/linux/flutter/ephemeral/.plugin_symlinks/package_info_plus/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/client/prame_app/linux/flutter/ephemeral/.plugin_symlinks/package_info_plus/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/client/prame_app/linux/flutter/ephemeral/.plugin_symlinks/package_info_plus/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/client/prame_app/windows/flutter/ephemeral/.plugin_symlinks/package_info_plus/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/client/prame_app/windows/flutter/ephemeral/.plugin_symlinks/package_info_plus/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/client/prame_app/windows/flutter/ephemeral/.plugin_symlinks/package_info_plus/build" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/client/prame_app/windows/flutter/ephemeral/.plugin_symlinks/package_info_plus/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/client/prame_app/windows/flutter/ephemeral/.plugin_symlinks/package_info_plus/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/client/prame_app/windows/flutter/ephemeral/.plugin_symlinks/package_info_plus/example/build" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
