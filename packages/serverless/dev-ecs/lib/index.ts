@@ -28,8 +28,8 @@ export class EcsStack extends cdk.Stack {
         this.lookupCluster();
 
         const paths = [
-            {name: "user", path: "/user/", database: 'prame'},
-            {name: "auth", path: "/auth/", database: 'prame'},
+            {name: "user", path: "/user/", database: 'picnic'},
+            {name: "auth", path: "/auth/", database: 'picnic'},
         ];
 
         const targetGroups = this.createTargetGroups(paths);
@@ -38,7 +38,7 @@ export class EcsStack extends cdk.Stack {
     };
 
     private createStack() {
-        this.stack = new cdk.Stack(new cdk.App(), "ecs-dev-stack", {
+        this.stack = new cdk.Stack(new cdk.App(), "picnic-ecs-dev-stack", {
             env: {
                 account: "851725635868",
                 region: "ap-northeast-2",
@@ -54,13 +54,13 @@ export class EcsStack extends cdk.Stack {
 
     private lookupListener() {
         this.listener = elbv2.ApplicationListener.fromLookup(this.stack, "dev-alb-listener", {
-            listenerArn: "arn:aws:elasticloadbalancing:ap-northeast-2:851725635868:listener/app/prame-dev-alb/dde9cf7fcdc7fb80/68ff3ef43bc1f3b9",
+            listenerArn: "arn:aws:elasticloadbalancing:ap-northeast-2:851725635868:listener/app/picnic-dev-alb/15b5a4b48d0365f7/28a99a191be7ca7b",
         });
     }
 
     private lookupCluster() {
         this.cluster = ecs.Cluster.fromClusterAttributes(this.stack, "dev-cluster", {
-            clusterName: "prame-dev-cluster",
+            clusterName: "picnic-dev-cluster",
             vpc: this.vpc,
         });
     }
@@ -69,7 +69,7 @@ export class EcsStack extends cdk.Stack {
         return paths.map((path) => {
             return new elbv2.ApplicationTargetGroup(this.stack, `${path.name}-targetgroup`, {
                 vpc: this.vpc,
-                targetGroupName: `prame-dev-api-${path.name}-tg`,
+                targetGroupName: `picnic-dev-api-${path.name}-tg`,
                 protocol: ApplicationProtocol.HTTP,
                 port: 80,
                 protocolVersion: ApplicationProtocolVersion.HTTP1,
@@ -87,7 +87,7 @@ export class EcsStack extends cdk.Stack {
             this.listener.addTargetGroups(`${path.name}-target-group`, {
                 targetGroups: [targetGroups[index]],
                 conditions: [
-                    elbv2.ListenerCondition.hostHeaders(["api-dev.iconcasting.io"]),
+                    elbv2.ListenerCondition.hostHeaders(["api-dev.picnic.fan"]),
                     elbv2.ListenerCondition.pathPatterns([`${path.path}*`]),
                 ],
                 priority: index + 1,
@@ -100,9 +100,9 @@ export class EcsStack extends cdk.Stack {
 
             const taskDefinition = new ecs.Ec2TaskDefinition(
                 this.stack,
-                `prame-dev-api-${path.name}-td`,
+                `picnic-dev-api-${path.name}-td`,
                 {
-                    family: `prame-dev-api-${path.name}-td`,
+                    family: `picnic-dev-api-${path.name}-td`,
                     taskRole: iam.Role.fromRoleArn(
                         this.stack,
                         `ecs${path.name}TaskExecutionRole-1`,
@@ -116,9 +116,9 @@ export class EcsStack extends cdk.Stack {
                 },
             );
 
-            taskDefinition.addContainer(`prame-dev-api-${path.name}-container`, {
+            taskDefinition.addContainer(`picnic-dev-api-${path.name}-container`, {
                 image: ecs.ContainerImage.fromRegistry(
-                    `851725635868.dkr.ecr.ap-northeast-2.amazonaws.com/prame-dev-api-${path.name}-service:latest`,
+                    `851725635868.dkr.ecr.ap-northeast-2.amazonaws.com/picnic-dev-api-${path.name}-service:latest`,
                 ),
 
                 healthCheck: {
@@ -141,7 +141,7 @@ export class EcsStack extends cdk.Stack {
                 entryPoint: ["sh", "-c", `pwd; node ${path.name}/dist/${path.name}/src/main`],
                 workingDirectory: `/usr/src/app`,
                 logging: ecs.LogDrivers.awsLogs({
-                    streamPrefix: "prame-dev-api",
+                    streamPrefix: "picnic-dev-api",
                 }),
             });
 
@@ -149,7 +149,7 @@ export class EcsStack extends cdk.Stack {
                 cluster: this.cluster,
                 taskDefinition: taskDefinition,
                 desiredCount: 1,
-                serviceName: `prame-dev-api-${path.name}-service`,
+                serviceName: `picnic-dev-api-${path.name}-service`,
                 enableExecuteCommand: true,
             });
             service.attachToApplicationTargetGroup(targetGroups[index]);
@@ -160,17 +160,17 @@ export class EcsStack extends cdk.Stack {
 
 const commonEnvironment = {
     ACCESS_TOKEN_EXPIRES_IN: "1M",
-    API_AUTH_ROOT: "https://api-dev.iconcasting.io/auth",
-    API_USER_ROOT: "https://api-dev.iconcasting.io/user",
+    API_AUTH_ROOT: "https://api-dev.picnic.fan/auth",
+    API_USER_ROOT: "https://api-dev.picnic.fan/user",
     AWS_ACCESS_KEY: "AKIA4MTWN2EOHQLM2CVX",
     AWS_REGION: "ap-northeast-2",
     AWS_SECRET_ACCESS_KEY: "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",
-    CDN_URL: "https://cdn-dev.iconcasting.io",
+    CDN_URL: "https://cdn-dev.picnic.fan",
     DATABASE_BIG_NUMBER_STRINGS: "true",
     DATABASE_CONNECTION_LIMIT: "2",
-    DATABASE_DATABASE_NAME: "prame",
-    DATABASE_HOST_RO: "prame-dev-db.iconcasting.io",
-    DATABASE_HOST_RW: "prame-dev-db.iconcasting.io",
+    DATABASE_DATABASE_NAME: "picnic",
+    DATABASE_HOST_RO: "dev-db.picnic.fan",
+    DATABASE_HOST_RW: "dev-db.picnic.fan",
     DATABASE_ADMIN_PASSWORD: 'tkffudigksek1!',
     DATABASE_ADMIN_USER: 'admin',
     DATABASE_LOGGING: "true",
@@ -178,9 +178,9 @@ const commonEnvironment = {
     DATABASE_SUPPORT_BIG_NUMBERS: "true",
     DATABASE_SYNCHRONIZE: "true",
     ENVIRONMENT: "dev",
-    ISSUER: "prame",
+    ISSUER: "picnic",
     JWT_SECRET: "47cdf605af23fa0daaf4f85a19452ed9378522ab586452d7cda002387bc050c48b43467790102c1865ad07325fa018867baafc7540298a388ae64c8ed94ca282",
     REFRESH_TOKEN_EXPIRES_IN: "31536000s",
     RESET_PASSWORD_TOKEN_EXPIRES_IN: "3600s",
-    S3_BUCKET_NAME: "prame-dev",
+    S3_BUCKET_NAME: "picnic-dev",
 };

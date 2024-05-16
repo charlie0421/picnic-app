@@ -72,5 +72,16 @@
     "securityGroupIds": [
       "sg-07fd25b6220499a74"
     ]
+  },
+  "load-balancer-listener:account=851725635868:listenerArn=arn$:aws:elasticloadbalancing:ap-northeast-2:851725635868:listener/app/picnic-dev-alb/15b5a4b48d0365f7/28a99a191be7ca7b:loadBalancerType=application:region=ap-northeast-2": {
+    "listenerArn": "arn:aws:elasticloadbalancing:ap-northeast-2:851725635868:listener/app/picnic-dev-alb/15b5a4b48d0365f7/28a99a191be7ca7b",
+    "listenerPort": 443,
+    "securityGroupIds": [
+      "sg-036d328a2c1c6c4cb"
+    ]
+  },
+  "security-group:account=851725635868:region=ap-northeast-2:securityGroupId=sg-036d328a2c1c6c4cb": {
+    "securityGroupId": "sg-036d328a2c1c6c4cb",
+    "allowAllOutbound": false
   }
 }
