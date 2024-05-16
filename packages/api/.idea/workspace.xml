@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bea28b15-e62d-4068-89d6-12f56abe1309" name="Changes" comment="" />
+    <list default="true" id="bea28b15-e62d-4068-89d6-12f56abe1309" name="Changes" comment="feat (api) 프로젝트 분리">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../serverless/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -78,16 +81,38 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1715876590131</updated>
-      <workItem from="1715876591301" duration="789000" />
+      <workItem from="1715876591301" duration="1711000" />
     </task>
+    <task id="LOCAL-00001" summary="feat (api) 프로젝트 분리">
+      <option name="closed" value="true" />
+      <created>1715877457659</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1715877457659</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
     <ignored-roots>
-      <path value="$PROJECT_DIR$/../.." />
+      <path value="$PROJECT_DIR$" />
     </ignored-roots>
+    <MESSAGE value="feat (api) 프로젝트 분리" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat (api) 프로젝트 분리" />
   </component>
 </project>
