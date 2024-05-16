@@ -20,8 +20,8 @@ jobs:
       AWS_REGION: ap-northeast-2
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_CLUSTER_NAME: prame-dev-cluster
-      AWS_SERVICE_NAME: prame-dev-api-user-service
+      AWS_CLUSTER_NAME: picnic-dev-cluster
+      AWS_SERVICE_NAME: picnic-dev-api-user-service
       FOLDER_NAME: user
     steps:
       - uses: actions/checkout@v4
