@@ -4,9 +4,25 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bea28b15-e62d-4068-89d6-12f56abe1309" name="Changes" comment="feat (api) 프로젝트 분리">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../serverless/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="bea28b15-e62d-4068-89d6-12f56abe1309" name="Changes" comment="chore (api) .gitignore 추가">
+      <change afterPath="$PROJECT_DIR$/../serverless/.idea/aws.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../serverless/.idea/libraries/_cache.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../serverless/.idea/libraries/layer.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../serverless/.idea/libraries/layer1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../serverless/.idea/libraries/layer2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../serverless/.idea/libraries/layer3.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../serverless/.idea/libraries/layer4.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../serverless/.idea/libraries/layer5.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../serverless/.idea/libraries/layer6.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../serverless/.idea/libraries/layer7.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../serverless/.idea/libraries/layer8.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../serverless/.idea/libraries/myFunction.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../serverless/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../serverless/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../serverless/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/ios/Runner.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/ios/Runner.xcodeproj/project.pbxproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../serverless/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../serverless/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,22 +35,26 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "charlie0421"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;charlie0421&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/charlie0421/celab.git",
-    "accountId": "72986d97-69de-44c5-be03-c54602de640e"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/charlie0421/celab.git&quot;,
+    &quot;accountId&quot;: &quot;72986d97-69de-44c5-be03-c54602de640e&quot;
   }
+}</component>
+  <component name="KubernetesApiPersistence"><![CDATA[{}]]></component>
+  <component name="KubernetesApiProvider"><![CDATA[{
+  "isMigrated": true
 }]]></component>
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="/opt/homebrew/Cellar/php/8.2.4/bin/php" />
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 8
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
   <component name="ProjectId" id="2gYZhPQZ4qSfKMXHBz9y8k0ieaF" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -53,14 +73,111 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "yarn",
+    "npm.auth(dev).executor": "Run",
+    "npm.user(dev).executor": "Run",
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.17",
     "project.structure.side.proportion": "0.2",
     "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings",
     "show.migrate.to.gradle.popup": "false",
     "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
+    ]
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="configurationTypes">
+      <set>
+        <option value="js.build_tools.npm" />
+      </set>
+    </option>
+  </component>
+  <component name="RunManager" selected="npm.user(dev)">
+    <configuration name="auth(dev)" type="js.build_tools.npm">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="api-auth" />
+      </scripts>
+      <arguments value="start:dev" />
+      <node-interpreter value="project" />
+      <envs>
+        <env name="ACCESS_TOKEN_EXPIRES_IN" value=" 1M" />
+        <env name="API_AUTH_ROOT" value=" https=//api-dev.1stype.io/auth" />
+        <env name="API_USER_ROOT" value=" https=//api-dev.1stype.io/user" />
+        <env name="AWS_ACCESS_KEY" value=" AKIAVFRPRR2SX3SRVLC3" />
+        <env name="AWS_REGION" value=" ap-northeast-2" />
+        <env name="AWS_SECRET_ACCESS_KEY" value=" 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" />
+        <env name="CDN_URL" value=" https=//cdn-dev.1stype.io" />
+        <env name="DATABASE_ADMIN_PASSWORD" value=" tkffudigksek1!" />
+        <env name="DATABASE_ADMIN_USER" value=" admin" />
+        <env name="DATABASE_BIG_NUMBER_STRINGS" value=" true" />
+        <env name="DATABASE_CONNECTION_LIMIT" value=" 2" />
+        <env name="DATABASE_DATABASE_NAME" value=" firsttype" />
+        <env name="DATABASE_HOST_RO" value=" db-dev.1stype.io" />
+        <env name="DATABASE_HOST_RW" value=" db-dev.1stype.io" />
+        <env name="DATABASE_LOGGING" value=" true" />
+        <env name="DATABASE_PORT" value=" 3306" />
+        <env name="DATABASE_SUPPORT_BIG_NUMBERS" value=" true" />
+        <env name="DATABASE_SYNCHRONIZE" value=" true" />
+        <env name="ENVIRONMENT" value=" dev" />
+        <env name="ISSUER" value=" 1stype" />
+        <env name="JWT_SECRET" value=" 47cdf605af23fa0daaf4f85a19452ed9378522ab586452d7cda002387bc050c48b43467790102c1865ad07325fa018867baafc75402988ae64c8ed94ca282" />
+        <env name="REFRESH_TOKEN_EXPIRES_IN" value=" 31536000s" />
+        <env name="RESET_PASSWORD_TOKEN_EXPIRES_IN" value=" 3600s" />
+        <env name="S3_BUCKET_NAME" value=" 1stype-dev" />
+      </envs>
+      <method v="2" />
+    </configuration>
+    <configuration name="user(dev)" type="js.build_tools.npm">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="api-user" />
+      </scripts>
+      <arguments value="start:dev" />
+      <node-interpreter value="project" />
+      <envs>
+        <env name="ACCESS_TOKEN_EXPIRES_IN" value=" 1M" />
+        <env name="API_AUTH_ROOT" value=" https=//api-dev.1stype.io/auth" />
+        <env name="API_USER_ROOT" value=" https=//api-dev.1stype.io/user" />
+        <env name="AWS_ACCESS_KEY" value=" AKIAVFRPRR2SX3SRVLC3" />
+        <env name="AWS_REGION" value=" ap-northeast-2" />
+        <env name="AWS_SECRET_ACCESS_KEY" value=" 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" />
+        <env name="CDN_URL" value=" https=//cdn-dev.1stype.io" />
+        <env name="DATABASE_BIG_NUMBER_STRINGS" value=" true" />
+        <env name="DATABASE_CONNECTION_LIMIT" value=" 2" />
+        <env name="DATABASE_DATABASE_NAME" value=" firsttype" />
+        <env name="DATABASE_HOST_RO" value=" db-dev.1stype.io" />
+        <env name="DATABASE_HOST_RW" value=" db-dev.1stype.io" />
+        <env name="DATABASE_ADMIN_PASSWORD" value=" tkffudigksek1!" />
+        <env name="DATABASE_ADMIN_USER" value=" admin" />
+        <env name="DATABASE_LOGGING" value=" true" />
+        <env name="DATABASE_PORT" value=" 3306" />
+        <env name="DATABASE_SUPPORT_BIG_NUMBERS" value=" true" />
+        <env name="DATABASE_SYNCHRONIZE" value=" true" />
+        <env name="ENVIRONMENT" value=" dev" />
+        <env name="ISSUER" value=" 1stype" />
+        <env name="JWT_SECRET" value=" 47cdf605af23fa0daaf4f85a19452ed9378522ab586452d7cda002387bc050c48b43467790102c1865ad07325fa018867baafc75402988ae64c8ed94ca282" />
+        <env name="REFRESH_TOKEN_EXPIRES_IN" value=" 31536000s" />
+        <env name="RESET_PASSWORD_TOKEN_EXPIRES_IN" value=" 3600s" />
+        <env name="S3_BUCKET_NAME" value=" 1stype-dev" />
+      </envs>
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="npm.user(dev)" />
+      <item itemvalue="npm.auth(dev)" />
+    </list>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -81,7 +198,9 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1715876590131</updated>
-      <workItem from="1715876591301" duration="1711000" />
+      <workItem from="1715876591301" duration="2464000" />
+      <workItem from="1715953305283" duration="1642000" />
+      <workItem from="1715958808318" duration="1141000" />
     </task>
     <task id="LOCAL-00001" summary="feat (api) 프로젝트 분리">
       <option name="closed" value="true" />
@@ -91,7 +210,15 @@
       <option name="project" value="LOCAL" />
       <updated>1715877457659</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="chore (api) .gitignore 추가">
+      <option name="closed" value="true" />
+      <created>1715881559980</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1715881559980</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -113,6 +240,7 @@
       <path value="$PROJECT_DIR$" />
     </ignored-roots>
     <MESSAGE value="feat (api) 프로젝트 분리" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat (api) 프로젝트 분리" />
+    <MESSAGE value="chore (api) .gitignore 추가" />
+    <option name="LAST_COMMIT_MESSAGE" value="chore (api) .gitignore 추가" />
   </component>
 </project>
