@@ -6,6 +6,7 @@ import 'package:picnic_app/components/appinfo.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/screens/login_screen.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class DeveloperBottomNavigationBar extends ConsumerWidget {
@@ -46,6 +47,11 @@ class DeveloperBottomNavigationBar extends ConsumerWidget {
                 icon: Icons.app_settings_alt,
                 index: 0,
               ),
+              Item(
+                title: Intl.message('nav_login'),
+                icon: Icons.app_settings_alt,
+                index: 1,
+              ),
             ],
           ),
         ),
@@ -80,6 +86,11 @@ class Item extends ConsumerWidget {
             case 0:
               navigationNotifier.setCurrentPage(const AppInfo());
               navigationNotifier.setState(fanBottomNavigationIndex: 0);
+              break;
+
+            case 1:
+              navigationNotifier.setCurrentPage(const LoginScreen());
+              navigationNotifier.setState(fanBottomNavigationIndex: 1);
               break;
 
             default:

@@ -1,8 +1,14 @@
 plugins {
     id "com.android.application"
+    // START: FlutterFire Configuration
+    id 'com.google.gms.google-services'
+    // END: FlutterFire Configuration
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
 }
+
+apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
 
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
