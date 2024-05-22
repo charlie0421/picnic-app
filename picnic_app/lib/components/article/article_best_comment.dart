@@ -16,10 +16,10 @@ class ArticleBestComment extends StatefulWidget {
 class _ArticleBestCommentState extends State<ArticleBestComment> {
   @override
   Widget build(BuildContext context) {
-    return widget.article.mostLikedComment != null
+    return widget.article.most_liked_comment != null
         ? GestureDetector(
             onTap: () => widget.showComments(context, widget.article,
-                commentId: widget.article.mostLikedComment?.id),
+                commentId: widget.article.most_liked_comment?.id),
             child: Container(
               padding: const EdgeInsets.all(8.0),
               child: Text.rich(
@@ -28,8 +28,8 @@ class _ArticleBestCommentState extends State<ArticleBestComment> {
                 TextSpan(
                   children: [
                     TextSpan(
-                      text: widget.article.mostLikedComment != null
-                          ? widget.article.mostLikedComment!.user?.nickname
+                      text: widget.article.most_liked_comment != null
+                          ? widget.article.most_liked_comment!.user?.nickname
                           : '',
                       style: getTextStyle(
                         context,
@@ -46,8 +46,9 @@ class _ArticleBestCommentState extends State<ArticleBestComment> {
                       ),
                     ),
                     TextSpan(
-                      text: widget.article.mostLikedComment != null
-                          ? widget.article.mostLikedComment!.content.toString()
+                      text: widget.article.most_liked_comment != null
+                          ? widget.article.most_liked_comment!.content
+                              .toString()
                           : '',
                       style: getTextStyle(
                         context,

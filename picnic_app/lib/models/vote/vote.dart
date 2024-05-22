@@ -25,31 +25,31 @@ class VoteListModel {
 @JsonSerializable()
 class VoteModel {
   final int id;
-  final String voteTitle;
-  final String voteCategory;
-  final String mainImage;
-  final String waitImage;
-  final String resultImage;
-  final String voteContent;
-  final List<VoteItem> voteItems;
-  final DateTime createdAt;
-  final DateTime visibleAt;
-  final DateTime stopAt;
-  final DateTime startAt;
+  final String vote_title;
+  final String vote_category;
+  final String main_image;
+  final String wait_image;
+  final String result_image;
+  final String vote_content;
+  final List<VoteItem> vote_item;
+  final DateTime created_at;
+  final DateTime visible_at;
+  final DateTime stop_at;
+  final DateTime start_at;
 
   VoteModel({
     required this.id,
-    required this.voteTitle,
-    required this.voteCategory,
-    required this.mainImage,
-    required this.waitImage,
-    required this.resultImage,
-    required this.voteContent,
-    required this.voteItems,
-    required this.visibleAt,
-    required this.stopAt,
-    required this.startAt,
-    required this.createdAt,
+    required this.vote_title,
+    required this.vote_category,
+    required this.main_image,
+    required this.wait_image,
+    required this.result_image,
+    required this.vote_content,
+    required this.vote_item,
+    required this.visible_at,
+    required this.stop_at,
+    required this.start_at,
+    required this.created_at,
   });
 
   factory VoteModel.fromJson(Map<String, dynamic> json) =>
@@ -62,15 +62,15 @@ class VoteModel {
 @JsonSerializable()
 class VoteItem {
   final int id;
-  final int voteTotal;
-  final int voteId;
-  final MyStarMemberModel myStarMember;
+  final int vote_total;
+  final int vote_id;
+  final MyStarMemberModel mystar_member;
 
   VoteItem({
     required this.id,
-    required this.voteTotal,
-    required this.voteId,
-    required this.myStarMember,
+    required this.vote_total,
+    required this.vote_id,
+    required this.mystar_member,
   });
 
   factory VoteItem.fromJson(Map<String, dynamic> json) =>
@@ -83,17 +83,17 @@ class VoteItem {
 @JsonSerializable()
 class MyStarMemberModel {
   final int id;
-  final String nameKo;
-  final String nameEn;
+  final String name_ko;
+  final String name_en;
   final String gender;
-  final String image;
+  String? image;
 
   MyStarMemberModel({
     required this.id,
-    required this.nameKo,
-    required this.nameEn,
+    required this.name_ko,
+    required this.name_en,
     required this.gender,
-    required this.image,
+    this.image,
   });
 
   factory MyStarMemberModel.fromJson(Map<String, dynamic> json) =>

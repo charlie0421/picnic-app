@@ -22,8 +22,8 @@ Map<String, dynamic> _$ArticleListModelToJson(ArticleListModel instance) =>
 
 ArticleModel _$ArticleModelFromJson(Map<String, dynamic> json) => ArticleModel(
       id: (json['id'] as num).toInt(),
-      titleKo: json['titleKo'] as String,
-      titleEn: json['titleEn'] as String,
+      title_ko: json['title_ko'] as String,
+      title_en: json['title_en'] as String,
       content: json['content'] as String,
       gallery: json['gallery'] == null
           ? null
@@ -31,27 +31,27 @@ ArticleModel _$ArticleModelFromJson(Map<String, dynamic> json) => ArticleModel(
       images: (json['images'] as List<dynamic>?)
           ?.map((e) => ArticleImageModel.fromJson(e as Map<String, dynamic>))
           .toList(),
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      commentCount: (json['commentCount'] as num?)?.toInt(),
+      created_at: DateTime.parse(json['created_at'] as String),
+      comment_count: (json['comment_count'] as num?)?.toInt(),
       comment: json['comment'] == null
           ? null
           : CommentModel.fromJson(json['comment'] as Map<String, dynamic>),
-      mostLikedComment: json['mostLikedComment'] == null
+      most_liked_comment: json['most_liked_comment'] == null
           ? null
           : CommentModel.fromJson(
-              json['mostLikedComment'] as Map<String, dynamic>),
+              json['most_liked_comment'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ArticleModelToJson(ArticleModel instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'titleKo': instance.titleKo,
-      'titleEn': instance.titleEn,
+      'title_ko': instance.title_ko,
+      'title_en': instance.title_en,
       'content': instance.content,
       'gallery': instance.gallery,
       'images': instance.images,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'commentCount': instance.commentCount,
+      'created_at': instance.created_at.toIso8601String(),
+      'comment_count': instance.comment_count,
       'comment': instance.comment,
-      'mostLikedComment': instance.mostLikedComment,
+      'most_liked_comment': instance.most_liked_comment,
     };

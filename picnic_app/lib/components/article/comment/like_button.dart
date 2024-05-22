@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:picnic_app/auth_dio.dart';
-import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/main.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class LikeButton extends StatefulWidget {
@@ -43,39 +42,15 @@ class LikeButtonState extends State<LikeButton> {
   }
 
   Future<void> _addCommentLike(int commentId) async {
-    var dio = await authDio(baseUrl: Constants.userApiUrl);
-    try {
-      final response = await dio.post('/comment/$commentId/like');
-
-      if (response.statusCode == 201) {
-        setState(() {
-          isLiked = true;
-          likes += 1;
-        });
-      } else {
-        throw Exception('Failed to load post');
-      }
-    } catch (e, stacTrace) {
-      logger.i(stacTrace);
-    }
+    final response =
+        await supabase.from('comment_like').insert({'comment_id': commentId});
   }
 
   Future<void> _removeCommentLike(int commentId) async {
-    var dio = await authDio(baseUrl: Constants.userApiUrl);
-    try {
-      final response = await dio.delete('/comment/$commentId/like');
-
-      if (response.statusCode == 200) {
-        setState(() {
-          isLiked = false;
-          likes -= 1;
-        });
-      } else {
-        throw Exception('Failed to load post');
-      }
-    } catch (e, stacTrace) {
-      logger.i(stacTrace);
-    }
+    final response = await supabase
+        .from('comment_like')
+        .delete()
+        .eq('comment_id', commentId);
   }
 
   @override

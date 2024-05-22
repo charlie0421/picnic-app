@@ -32,7 +32,6 @@ class _CommentState extends ConsumerState<Comment> {
   @override
   void initState() {
     super.initState();
-    _pagingController = PagingController<int, CommentModel>(firstPageKey: 1);
     _scrollController = ScrollController(); // Add this line
     _scrollToIndex = -1; // Add this line
     _pagingController.addPageRequestListener((pageKey) {
@@ -41,33 +40,41 @@ class _CommentState extends ConsumerState<Comment> {
   }
 
   void fetchPage(int pageKey) async {
-    final asyncCommentList = ref.read(asyncCommentListProvider.notifier).fetch(
-        pageKey, 1000, 'comment.created_at', 'DESC',
-        articleId: widget.articleModel.id);
+    final asyncCommentList = ref.read(asyncCommentListProvider(
+            articleId: widget.articleModel.id,
+            pagingController: _pagingController)
+        .notifier);
+    ref
+        .read(asyncCommentListProvider(
+                articleId: widget.articleModel.id,
+                pagingController: _pagingController)
+            .notifier)
+        .fetch(pageKey, 1000, 'comment.created_at', 'DESC',
+            articleId: widget.articleModel.id);
 
-    final page = await asyncCommentList;
-    if (page.meta.currentPage < page.meta.totalPages) {
-      _pagingController.appendPage(page.items, pageKey + 1);
-    } else {
-      _pagingController.appendLastPage(page.items);
-    }
+    // final page = await asyncCommentNotifier;
+    // if (page.meta.currentPage < page.meta.totalPages) {
+    //   _pagingController.appendPage(page.items, pageKey + 1);
+    // } else {
+    //   _pagingController.appendLastPage(page.items);
+    // }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.commentId != -1) {
-        for (int i = 0; i < page.items.length; i++) {
-          if (page.items[i].id == widget.commentId) {
-            _scrollToIndex =
-                _pagingController.itemList!.length - page.items.length + i;
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _scrollController.animateTo(_scrollToIndex * 100.0,
-                  duration: const Duration(seconds: 1),
-                  curve: Curves.easeInOut);
-            });
-            break;
-          }
-        }
-      }
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   if (widget.commentId != -1) {
+    //     for (int i = 0; i < page.items.length; i++) {
+    //       if (page.items[i].id == widget.commentId) {
+    //         _scrollToIndex =
+    //             _pagingController.itemList!.length - page.items.length + i;
+    //         WidgetsBinding.instance.addPostFrameCallback((_) {
+    //           _scrollController.animateTo(_scrollToIndex * 100.0,
+    //               duration: const Duration(seconds: 1),
+    //               curve: Curves.easeInOut);
+    //         });
+    //         break;
+    //       }
+    //     }
+    //   }
+    // });
   }
 
   @override
@@ -80,26 +87,24 @@ class _CommentState extends ConsumerState<Comment> {
 
   @override
   Widget build(BuildContext context) {
-    final asyncCommentListState = ref.watch(asyncCommentListProvider);
+    final asyncCommentList = ref.watch(asyncCommentListProvider(
+        articleId: widget.articleModel.id,
+        pagingController: _pagingController));
+
     final commentCountNotifier =
         ref.watch(commentCountProvider(widget.articleModel.id).notifier);
 
-    asyncCommentListState.value?.meta.totalItems;
-
-    final commentCount = asyncCommentListState.value != null
-        ? asyncCommentListState.value!.meta.totalItems
-        : 0;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      commentCountNotifier.setCount(commentCount);
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   commentCountNotifier.setCount(commentCount);
+    // });
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: KeyboardDismissOnTap(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           BottomSheetHeader(
-              title: '${widget.articleModel.titleKo} ($commentCount)'),
+              title:
+                  '${widget.articleModel.title_ko} (${asyncCommentList.value?.commentCount})'),
           Flexible(
             flex: 1,
             child: PagedListView<int, CommentModel>(

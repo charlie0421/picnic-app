@@ -18,7 +18,7 @@ class VoteTitle extends StatelessWidget {
           Align(
             alignment: Alignment.bottomCenter,
             child: Text(
-              vote.voteTitle,
+              vote.vote_title,
               style: getTextStyle(
                 context,
                 AppTypo.UI24B,
@@ -34,7 +34,7 @@ class VoteTitle extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                DateFormat('yyyy-MM-dd hh:mm:ss').format(vote.startAt),
+                DateFormat('yyyy-MM-dd hh:mm:ss').format(vote.start_at),
                 style: getTextStyle(
                   context,
                   AppTypo.UI12B,
@@ -44,7 +44,7 @@ class VoteTitle extends StatelessWidget {
                 ),
               ),
               Text(
-                DateFormat('yyyy-MM-dd hh:mm:ss').format(vote.stopAt),
+                DateFormat('yyyy-MM-dd hh:mm:ss').format(vote.stop_at),
                 style: getTextStyle(
                   context,
                   AppTypo.UI12B,

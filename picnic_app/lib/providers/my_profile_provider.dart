@@ -1,5 +1,4 @@
-import 'package:picnic_app/auth_dio.dart';
-import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/main.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../models/my_profile.dart';
@@ -14,27 +13,11 @@ class AsyncMyProfile extends _$AsyncMyProfile {
   }
 
   Future<MyProfileModel?> fetch() async {
-    var dio = await authDio(baseUrl: Constants.authApiUrl);
-    final accessToken = await globalStorage.loadData('ACCESS_TOKEN', '');
-
-    if (accessToken!.isEmpty) {
-      return null;
-    }
-
-    const String apiUrl = '/profiles/me';
-    final response = await dio.get(apiUrl);
-    if (response.statusCode == 200) {
-      state = AsyncValue.data(MyProfileModel.fromJson(response.data));
-      return MyProfileModel.fromJson(response.data);
-    } else {
-      state = AsyncError('Failed to load profile', StackTrace.current);
-      logger.e('Failed to load profile');
-      throw Exception('Failed to load profile');
-    }
+    final response = await supabase.from('my_profile').select().single();
+    return MyProfileModel.fromJson(response);
   }
 
   Future<void> logout() async {
-    await globalStorage.removeData("ACCESS_TOKEN");
-    await globalStorage.removeData("REFRESH_TOKEN");
+    supabase.auth.signOut();
   }
 }

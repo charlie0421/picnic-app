@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_app/auth_dio.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/common/cancel_button.dart';
 import 'package:picnic_app/dialogs/common/header.dart';
 import 'package:picnic_app/dialogs/common/ok_button.dart';
+import 'package:picnic_app/main.dart';
 
 Future showWithdrawalDialog(
     {required BuildContext context,
@@ -121,16 +121,8 @@ class _CommonDialog extends State<CommonDialog> {
   }
 
   Future<bool> _passwordCheck() async {
-    final dio = await authDio(baseUrl: Constants.userApiUrl);
-    try {
-      final response = await dio.post('/user/passwordCheck', data: {
-        'password': _controller.text,
-      });
-      logger.i(response.data);
-      return response.data == "true" ? true : false;
-    } catch (e) {
-      logger.e(e);
-      return false;
-    }
+    // TODO 실제 탈퇴 로직 구현
+    final response = await supabase.auth.signOut();
+    return true;
   }
 }

@@ -62,6 +62,9 @@ class _SearchListState extends ConsumerState<SearchList> {
           ),
           asyncCelebSearchState.when(
             data: (data) {
+              if (data == null || data.isEmpty) {
+                return const SizedBox();
+              }
               return _buildSearchList(data);
             },
             loading: () => buildLoadingOverlay(),
@@ -73,15 +76,15 @@ class _SearchListState extends ConsumerState<SearchList> {
     );
   }
 
-  Widget _buildSearchList(CelebListModel data) {
+  Widget _buildSearchList(List<CelebModel> data) {
     return Expanded(
       child: ListView.separated(
-          itemCount: data.items.length,
+          itemCount: data.length,
           separatorBuilder: (context, index) => const SizedBox(height: 10),
           itemBuilder: (context, index) {
             return CelebListItem(
-                item: data.items[index],
-                type: data.items[index].users!.isEmpty ? 'find' : 'my');
+                item: data[index],
+                type: data[index].users!.isEmpty ? 'find' : 'my');
           }),
     );
   }

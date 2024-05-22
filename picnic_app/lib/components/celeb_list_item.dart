@@ -39,7 +39,7 @@ class CelebListItem extends ConsumerWidget {
     return InkWell(
       onTap: () async {
         selectedCelebNotifier.setSelectedCeleb(item);
-        logger.i('selectedCeleb: ${item.nameKo}');
+        logger.i('selectedCeleb: ${item.name_ko}');
         onTap?.call();
         Navigator.pop(context);
       },
@@ -51,12 +51,12 @@ class CelebListItem extends ConsumerWidget {
             Row(
               children: [
                 CachedNetworkImage(
-                  imageUrl: item.thumbnail,
+                  imageUrl: item.thumbnail ?? '',
                   width: 60,
                   height: 60,
                 ),
                 const SizedBox(width: 16),
-                Text(item.nameKo,
+                Text(item.name_ko,
                     style: Theme.of(context).textTheme.titleLarge),
               ],
             ),
@@ -69,8 +69,11 @@ class CelebListItem extends ConsumerWidget {
                                 await asyncCelebListNotifier
                                     .removeBookmark(item);
                                 asyncCelebSearchNotifier.repeatSearch();
-                                if (getBookmarkCount(
-                                        ref.read(asyncCelebListProvider))! <=
+                                if (getBookmarkCount(ref.read(
+                                        asyncCelebListProvider
+                                            as ProviderListenable<
+                                                AsyncValue<
+                                                    List<CelebModel>>?>))! <=
                                     0) {}
                               }
                             : () {},
@@ -86,7 +89,8 @@ class CelebListItem extends ConsumerWidget {
                     : InkWell(
                         onTap: enableBookmark != null && enableBookmark!
                             ? () async {
-                                if (getBookmarkCount(asyncCelebListState)! >=
+                                if (getBookmarkCount(asyncCelebListState
+                                        as AsyncValue<List<CelebModel>>?)! >=
                                     5) {
                                   showOverlayToast(
                                       context,
@@ -117,9 +121,9 @@ class CelebListItem extends ConsumerWidget {
     );
   }
 
-  int? getBookmarkCount(AsyncValue<CelebListModel> celebList) {
-    return celebList.value?.items
-        .where((element) =>
+  int? getBookmarkCount(AsyncValue<List<CelebModel>>? celebList) {
+    return celebList?.value
+        ?.where((element) =>
             element.users!.where((element) => element.id == 2).isNotEmpty)
         .length;
   }

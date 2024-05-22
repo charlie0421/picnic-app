@@ -22,7 +22,7 @@ class VoteArtists extends StatelessWidget {
           mainAxisSpacing: 10,
           childAspectRatio: 1 / 1.45,
         ),
-        children: vote.voteItems
+        children: vote.vote_item
             .asMap()
             .entries
             .map((artist) => Container(
@@ -48,7 +48,7 @@ class VoteArtists extends StatelessWidget {
                       Stack(
                         children: [
                           Image.network(
-                              '${artist.value.myStarMember.image}?w=100'),
+                              '${artist.value.mystar_member.image}?w=100'),
                           Positioned(
                             left: 0,
                             top: 0,
@@ -74,7 +74,7 @@ class VoteArtists extends StatelessWidget {
                         height: 2.h,
                       ),
                       Text(
-                        artist.value.myStarMember.nameKo,
+                        artist.value.mystar_member.name_ko,
                         style: getTextStyle(context, AppTypo.UI12M),
                       ),
                     ],

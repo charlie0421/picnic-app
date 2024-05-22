@@ -7,7 +7,7 @@ part of 'article_image_list_provider.dart';
 // **************************************************************************
 
 String _$asyncArticleImageListHash() =>
-    r'18d1e0979f591a5bcaf2d791cf172fc981492a7e';
+    r'dc778f5ec00edaadf5157a3df109542571bae1b1';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -31,10 +31,10 @@ class _SystemHash {
 }
 
 abstract class _$AsyncArticleImageList
-    extends BuildlessAutoDisposeAsyncNotifier<ArticleImageListModel> {
+    extends BuildlessAutoDisposeAsyncNotifier<List<ArticleImageModel>> {
   late final int galleryId;
 
-  FutureOr<ArticleImageListModel> build({
+  FutureOr<List<ArticleImageModel>> build({
     required int galleryId,
   });
 }
@@ -45,7 +45,7 @@ const asyncArticleImageListProvider = AsyncArticleImageListFamily();
 
 /// See also [AsyncArticleImageList].
 class AsyncArticleImageListFamily
-    extends Family<AsyncValue<ArticleImageListModel>> {
+    extends Family<AsyncValue<List<ArticleImageModel>>> {
   /// See also [AsyncArticleImageList].
   const AsyncArticleImageListFamily();
 
@@ -85,7 +85,7 @@ class AsyncArticleImageListFamily
 /// See also [AsyncArticleImageList].
 class AsyncArticleImageListProvider
     extends AutoDisposeAsyncNotifierProviderImpl<AsyncArticleImageList,
-        ArticleImageListModel> {
+        List<ArticleImageModel>> {
   /// See also [AsyncArticleImageList].
   AsyncArticleImageListProvider({
     required int galleryId,
@@ -116,7 +116,7 @@ class AsyncArticleImageListProvider
   final int galleryId;
 
   @override
-  FutureOr<ArticleImageListModel> runNotifierBuild(
+  FutureOr<List<ArticleImageModel>> runNotifierBuild(
     covariant AsyncArticleImageList notifier,
   ) {
     return notifier.build(
@@ -142,7 +142,7 @@ class AsyncArticleImageListProvider
 
   @override
   AutoDisposeAsyncNotifierProviderElement<AsyncArticleImageList,
-      ArticleImageListModel> createElement() {
+      List<ArticleImageModel>> createElement() {
     return _AsyncArticleImageListProviderElement(this);
   }
 
@@ -162,14 +162,14 @@ class AsyncArticleImageListProvider
 }
 
 mixin AsyncArticleImageListRef
-    on AutoDisposeAsyncNotifierProviderRef<ArticleImageListModel> {
+    on AutoDisposeAsyncNotifierProviderRef<List<ArticleImageModel>> {
   /// The parameter `galleryId` of this provider.
   int get galleryId;
 }
 
 class _AsyncArticleImageListProviderElement
     extends AutoDisposeAsyncNotifierProviderElement<AsyncArticleImageList,
-        ArticleImageListModel> with AsyncArticleImageListRef {
+        List<ArticleImageModel>> with AsyncArticleImageListRef {
   _AsyncArticleImageListProviderElement(super.provider);
 
   @override

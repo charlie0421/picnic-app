@@ -6,34 +6,18 @@ part of 'celeb_banner.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-CelebBannerListModel _$CelebBannerListModelFromJson(
-        Map<String, dynamic> json) =>
-    CelebBannerListModel(
-      items: (json['items'] as List<dynamic>)
-          .map((e) => CelebBannerModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      meta: MetaModel.fromJson(json['meta'] as Map<String, dynamic>),
-    );
-
-Map<String, dynamic> _$CelebBannerListModelToJson(
-        CelebBannerListModel instance) =>
-    <String, dynamic>{
-      'items': instance.items,
-      'meta': instance.meta,
-    };
-
 CelebBannerModel _$CelebBannerModelFromJson(Map<String, dynamic> json) =>
     CelebBannerModel(
       id: (json['id'] as num).toInt(),
-      titleKo: json['titleKo'] as String,
-      titleEn: json['titleEn'] as String,
-      thumbnail: json['thumbnail'] as String,
+      title_ko: json['title_ko'] as String,
+      title_en: json['title_en'] as String,
+      thumbnail: json['thumbnail'] as String?,
     );
 
 Map<String, dynamic> _$CelebBannerModelToJson(CelebBannerModel instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'titleKo': instance.titleKo,
-      'titleEn': instance.titleEn,
+      'title_ko': instance.title_ko,
+      'title_en': instance.title_en,
       'thumbnail': instance.thumbnail,
     };

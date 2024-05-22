@@ -25,13 +25,13 @@ class _LandingPageState extends ConsumerState<LandingPage> {
 
     return asyncCelebListState.when(
         data: (data) {
-          final myCelebList = data.items
-              .where((element) => element.users!
+          final myCelebList = data
+              ?.where((element) => element.users!
                   .where((element) => element.id == userId)
                   .isNotEmpty)
               .toList();
-          final celebList = data.items
-              .where((element) => element.users!
+          final celebList = data
+              ?.where((element) => element.users!
                   .where((element) => element.id == userId)
                   .isEmpty)
               .toList();

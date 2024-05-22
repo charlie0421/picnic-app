@@ -10,12 +10,6 @@ const voteMainColorDark = Colors.pinkAccent;
 const kAccessTokenKey = 'ACCESS_TOKEN';
 
 class Constants {
-  static const String userApiUrl = String.fromEnvironment('API_USER_ROOT',
-      defaultValue: 'https://api-dev.picnic.fan/user');
-  static const String authApiUrl = String.fromEnvironment(
-    'API_AUTH_ROOT',
-    defaultValue: 'https://api-dev.picnic.fan/auth',
-  );
   static const double webMaxWidth = 600.0;
   static const int snackBarDuration = 3;
   static const Color fanMainColor = Color(0xFF47E89B);

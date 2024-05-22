@@ -26,16 +26,16 @@ class CelebListModel {
 @JsonSerializable()
 class CelebModel {
   final int id;
-  final String nameKo;
-  final String nameEn;
-  final String thumbnail;
+  final String name_ko;
+  final String name_en;
+  String? thumbnail;
   final List<UserModel>? users;
 
   CelebModel({
     required this.id,
-    required this.nameKo,
-    required this.nameEn,
-    required this.thumbnail,
+    required this.name_ko,
+    required this.name_en,
+    this.thumbnail,
     required this.users,
   });
 

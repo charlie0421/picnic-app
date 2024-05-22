@@ -1,6 +1,4 @@
-import 'package:picnic_app/auth_dio.dart';
-import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/models/meta.dart';
+import 'package:picnic_app/main.dart';
 import 'package:picnic_app/models/prame/celeb.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -11,23 +9,20 @@ class AsyncCelebSearch extends _$AsyncCelebSearch {
   String? _lastQuery;
 
   @override
-  Future<CelebListModel> build() async {
-    return CelebListModel(
-        items: [],
-        meta: MetaModel(
-            currentPage: 0,
-            itemCount: 0,
-            itemsPerPage: 0,
-            totalItems: 0,
-            totalPages: 0));
+  Future<List<CelebModel>?> build() async {
+    return [];
   }
 
   Future<void> searchCeleb(String query) async {
-    logger.d('Searching for $query');
-    _lastQuery = query; // 쿼리 저장
-    final dio = await authDio(baseUrl: Constants.userApiUrl);
-    final response = await dio.get('/celeb/search?q=$query');
-    state = AsyncValue.data(CelebListModel.fromJson(response.data));
+    final response = await supabase
+        .from('celeb')
+        .select()
+        .ilike('name_ko', '%$query%')
+        .or('name_en')
+        .range(0, 10);
+
+    state =
+        AsyncValue.data(response.map((e) => CelebModel.fromJson(e)).toList());
   }
 
   Future<void> repeatSearch() async {
@@ -38,13 +33,6 @@ class AsyncCelebSearch extends _$AsyncCelebSearch {
   }
 
   Future<void> reset() async {
-    state = AsyncValue.data(CelebListModel(
-        items: [],
-        meta: MetaModel(
-            currentPage: 0,
-            itemCount: 0,
-            itemsPerPage: 0,
-            totalItems: 0,
-            totalPages: 0)));
+    state = AsyncValue.data([]);
   }
 }

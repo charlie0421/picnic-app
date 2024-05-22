@@ -26,17 +26,17 @@ class ArticleImageListModel {
 @JsonSerializable()
 class ArticleImageModel {
   final int id;
-  final String titleKo;
-  final String titleEn;
-  final String image;
-  final List<UserModel>? bookmarkUsers;
+  final String title_ko;
+  final String title_en;
+  String? image;
+  final List<UserModel>? bookmark_users;
 
   ArticleImageModel({
     required this.id,
-    required this.titleKo,
-    required this.titleEn,
-    required this.image,
-    required this.bookmarkUsers,
+    required this.title_ko,
+    required this.title_en,
+    this.image,
+    required this.bookmark_users,
   });
 
   factory ArticleImageModel.fromJson(Map<String, dynamic> json) =>

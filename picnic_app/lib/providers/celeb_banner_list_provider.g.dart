@@ -7,7 +7,7 @@ part of 'celeb_banner_list_provider.dart';
 // **************************************************************************
 
 String _$asyncCelebBannerListHash() =>
-    r'677c978c9ce3c7df14f7b61af82484d51d1a835b';
+    r'0ec6717d0c5e4d279afe5fc84d80c0c7b002c5e9';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -31,10 +31,10 @@ class _SystemHash {
 }
 
 abstract class _$AsyncCelebBannerList
-    extends BuildlessAutoDisposeAsyncNotifier<CelebBannerListModel> {
+    extends BuildlessAutoDisposeAsyncNotifier<List<CelebBannerModel>> {
   late final int celebId;
 
-  FutureOr<CelebBannerListModel> build({
+  FutureOr<List<CelebBannerModel>> build({
     required int celebId,
   });
 }
@@ -45,7 +45,7 @@ const asyncCelebBannerListProvider = AsyncCelebBannerListFamily();
 
 /// See also [AsyncCelebBannerList].
 class AsyncCelebBannerListFamily
-    extends Family<AsyncValue<CelebBannerListModel>> {
+    extends Family<AsyncValue<List<CelebBannerModel>>> {
   /// See also [AsyncCelebBannerList].
   const AsyncCelebBannerListFamily();
 
@@ -84,7 +84,7 @@ class AsyncCelebBannerListFamily
 
 /// See also [AsyncCelebBannerList].
 class AsyncCelebBannerListProvider extends AutoDisposeAsyncNotifierProviderImpl<
-    AsyncCelebBannerList, CelebBannerListModel> {
+    AsyncCelebBannerList, List<CelebBannerModel>> {
   /// See also [AsyncCelebBannerList].
   AsyncCelebBannerListProvider({
     required int celebId,
@@ -115,7 +115,7 @@ class AsyncCelebBannerListProvider extends AutoDisposeAsyncNotifierProviderImpl<
   final int celebId;
 
   @override
-  FutureOr<CelebBannerListModel> runNotifierBuild(
+  FutureOr<List<CelebBannerModel>> runNotifierBuild(
     covariant AsyncCelebBannerList notifier,
   ) {
     return notifier.build(
@@ -141,7 +141,7 @@ class AsyncCelebBannerListProvider extends AutoDisposeAsyncNotifierProviderImpl<
 
   @override
   AutoDisposeAsyncNotifierProviderElement<AsyncCelebBannerList,
-      CelebBannerListModel> createElement() {
+      List<CelebBannerModel>> createElement() {
     return _AsyncCelebBannerListProviderElement(this);
   }
 
@@ -160,14 +160,14 @@ class AsyncCelebBannerListProvider extends AutoDisposeAsyncNotifierProviderImpl<
 }
 
 mixin AsyncCelebBannerListRef
-    on AutoDisposeAsyncNotifierProviderRef<CelebBannerListModel> {
+    on AutoDisposeAsyncNotifierProviderRef<List<CelebBannerModel>> {
   /// The parameter `celebId` of this provider.
   int get celebId;
 }
 
 class _AsyncCelebBannerListProviderElement
     extends AutoDisposeAsyncNotifierProviderElement<AsyncCelebBannerList,
-        CelebBannerListModel> with AsyncCelebBannerListRef {
+        List<CelebBannerModel>> with AsyncCelebBannerListRef {
   _AsyncCelebBannerListProviderElement(super.provider);
 
   @override

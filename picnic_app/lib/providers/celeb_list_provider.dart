@@ -1,5 +1,4 @@
-import 'package:picnic_app/auth_dio.dart';
-import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/main.dart';
 import 'package:picnic_app/models/prame/celeb.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -8,30 +7,39 @@ part 'celeb_list_provider.g.dart';
 @riverpod
 class AsyncCelebList extends _$AsyncCelebList {
   @override
-  Future<CelebListModel> build() async {
+  Future<List<CelebModel>?> build() async {
     return _fetchCelebList();
   }
 
-  Future<CelebListModel> _fetchCelebList() async {
-    final dio = await authDio(baseUrl: Constants.userApiUrl);
-    final response = await dio.get('/celeb');
-    return CelebListModel.fromJson(response.data);
+  Future<List<CelebModel>?> _fetchCelebList() async {
+    final response = await supabase.from('celeb').select();
+    final List<CelebModel> celebList =
+        List<CelebModel>.from(response.map((e) => CelebModel.fromJson(e)));
+    celebList.forEach((element) {
+      element.thumbnail =
+          'https://cdn-dev.picnic.fan/celeb/${element.id}/${element.thumbnail}';
+    });
+    return celebList;
   }
 
   Future<void> addBookmark(CelebModel celeb) async {
-    final dio = await authDio(baseUrl: Constants.userApiUrl);
-    final response = await dio.post('/celeb/${celeb.id}/bookmark');
-    final updatedList = CelebListModel.fromJson(response.data);
-    state = AsyncValue.data(updatedList);
+    final response = await supabase
+        .from('celeb_bookmark')
+        .insert({'celeb_id': celeb.id, 'user_id': 1});
+
+    state = AsyncValue.data(response);
 
     ref.read(asyncMyCelebListProvider.notifier).fetchMyCelebList();
   }
 
   Future<void> removeBookmark(CelebModel celeb) async {
-    final dio = await authDio(baseUrl: Constants.userApiUrl);
-    final response = await dio.delete('/celeb/${celeb.id}/bookmark');
-    final updatedList = CelebListModel.fromJson(response.data);
-    state = AsyncValue.data(updatedList);
+    final response = await supabase
+        .from('celeb_bookmark')
+        .delete()
+        .eq('celeb_id', celeb.id)
+        .eq('user_id', 1);
+
+    state = AsyncValue.data(response);
 
     ref.read(asyncMyCelebListProvider.notifier).fetchMyCelebList();
   }
@@ -40,14 +48,17 @@ class AsyncCelebList extends _$AsyncCelebList {
 @riverpod
 class AsyncMyCelebList extends _$AsyncMyCelebList {
   @override
-  Future<CelebListModel> build() async {
+  Future<List<CelebModel>?> build() async {
     return fetchMyCelebList();
   }
 
-  Future<CelebListModel> fetchMyCelebList() async {
-    final dio = await authDio(baseUrl: Constants.userApiUrl);
-    final response = await dio.get('/celeb/me');
-    return CelebListModel.fromJson(response.data);
+  Future<List<CelebModel>?> fetchMyCelebList() async {
+    final response = await supabase
+        .from('celeb_bookmark')
+        .select('celeb_id')
+        .eq('user_id', 1);
+
+    return List<CelebModel>.from(response.map((e) => CelebModel.fromJson(e)));
   }
 }
 

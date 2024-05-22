@@ -26,14 +26,14 @@ UserCommentLikeModel _$UserCommentLikeModelFromJson(
         Map<String, dynamic> json) =>
     UserCommentLikeModel(
       id: (json['id'] as num).toInt(),
-      userId: (json['userId'] as num).toInt(),
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      user_id: (json['user_id'] as num).toInt(),
+      created_at: DateTime.parse(json['created_at'] as String),
     );
 
 Map<String, dynamic> _$UserCommentLikeModelToJson(
         UserCommentLikeModel instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'userId': instance.userId,
-      'createdAt': instance.createdAt.toIso8601String(),
+      'user_id': instance.user_id,
+      'created_at': instance.created_at.toIso8601String(),
     };

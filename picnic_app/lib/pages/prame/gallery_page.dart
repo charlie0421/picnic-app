@@ -42,7 +42,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
     );
   }
 
-  _buildData(GalleryListModel galleryList) {
+  _buildData(List<GalleryModel> galleryList) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: Column(
@@ -65,21 +65,21 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
             child: ListView.separated(
               controller: _pageController,
               scrollDirection: Axis.vertical,
-              itemCount: galleryList.items.length,
+              itemCount: galleryList.length,
               separatorBuilder: (context, index) {
                 return SizedBox(
                   height: 16.h,
                 );
               },
               itemBuilder: (context, index) {
-                final gallery = galleryList.items[index];
+                final gallery = galleryList[index];
                 return GestureDetector(
                   onTap: () {
                     ref
                         .read(navigationInfoProvider.notifier)
                         .setCurrentPage(GalleryDetailPage(
                           galleryId: gallery.id,
-                          galleryName: gallery.titleKo,
+                          galleryName: gallery.title_en,
                         ));
                   },
                   child: Stack(
@@ -89,7 +89,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
                           width: double.infinity,
                           height: 215.h,
                           child: CachedNetworkImage(
-                            imageUrl: gallery.cover,
+                            imageUrl: gallery.cover ?? '',
                             width: 361.w,
                             height: 215.h,
                             fit: BoxFit.cover,
@@ -100,7 +100,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
                         child: SizedBox(
                           height: 30.h,
                           child: Text(
-                            gallery.titleKo,
+                            gallery.title_en,
                             style: getTextStyle(
                               context,
                               AppTypo.UI20B,

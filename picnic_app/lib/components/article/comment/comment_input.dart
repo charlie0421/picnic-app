@@ -90,7 +90,10 @@ class _CommentInputState extends ConsumerState<CommentInput> {
   _commitComment() {
     final parentItemState = ref.watch(parentItemProvider);
     ref
-        .read(asyncCommentListProvider.notifier)
+        .read(asyncCommentListProvider(
+          articleId: widget.articleId,
+          pagingController: widget.pagingController,
+        ).notifier)
         .submitComment(
             articleId: widget.articleId,
             content: _textEditingController.text,
