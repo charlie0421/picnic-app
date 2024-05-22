@@ -22,65 +22,65 @@ Map<String, dynamic> _$VoteListModelToJson(VoteListModel instance) =>
 
 VoteModel _$VoteModelFromJson(Map<String, dynamic> json) => VoteModel(
       id: (json['id'] as num).toInt(),
-      voteTitle: json['voteTitle'] as String,
-      voteCategory: json['voteCategory'] as String,
-      mainImage: json['mainImage'] as String,
-      waitImage: json['waitImage'] as String,
-      resultImage: json['resultImage'] as String,
-      voteContent: json['voteContent'] as String,
-      voteItems: (json['voteItems'] as List<dynamic>)
+      vote_title: json['vote_title'] as String,
+      vote_category: json['vote_category'] as String,
+      main_image: json['main_image'] as String,
+      wait_image: json['wait_image'] as String,
+      result_image: json['result_image'] as String,
+      vote_content: json['vote_content'] as String,
+      vote_item: (json['vote_item'] as List<dynamic>)
           .map((e) => VoteItem.fromJson(e as Map<String, dynamic>))
           .toList(),
-      visibleAt: DateTime.parse(json['visibleAt'] as String),
-      stopAt: DateTime.parse(json['stopAt'] as String),
-      startAt: DateTime.parse(json['startAt'] as String),
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      visible_at: DateTime.parse(json['visible_at'] as String),
+      stop_at: DateTime.parse(json['stop_at'] as String),
+      start_at: DateTime.parse(json['start_at'] as String),
+      created_at: DateTime.parse(json['created_at'] as String),
     );
 
 Map<String, dynamic> _$VoteModelToJson(VoteModel instance) => <String, dynamic>{
       'id': instance.id,
-      'voteTitle': instance.voteTitle,
-      'voteCategory': instance.voteCategory,
-      'mainImage': instance.mainImage,
-      'waitImage': instance.waitImage,
-      'resultImage': instance.resultImage,
-      'voteContent': instance.voteContent,
-      'voteItems': instance.voteItems,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'visibleAt': instance.visibleAt.toIso8601String(),
-      'stopAt': instance.stopAt.toIso8601String(),
-      'startAt': instance.startAt.toIso8601String(),
+      'vote_title': instance.vote_title,
+      'vote_category': instance.vote_category,
+      'main_image': instance.main_image,
+      'wait_image': instance.wait_image,
+      'result_image': instance.result_image,
+      'vote_content': instance.vote_content,
+      'vote_item': instance.vote_item,
+      'created_at': instance.created_at.toIso8601String(),
+      'visible_at': instance.visible_at.toIso8601String(),
+      'stop_at': instance.stop_at.toIso8601String(),
+      'start_at': instance.start_at.toIso8601String(),
     };
 
 VoteItem _$VoteItemFromJson(Map<String, dynamic> json) => VoteItem(
       id: (json['id'] as num).toInt(),
-      voteTotal: (json['voteTotal'] as num).toInt(),
-      voteId: (json['voteId'] as num).toInt(),
-      myStarMember: MyStarMemberModel.fromJson(
-          json['myStarMember'] as Map<String, dynamic>),
+      vote_total: (json['vote_total'] as num).toInt(),
+      vote_id: (json['vote_id'] as num).toInt(),
+      mystar_member: MyStarMemberModel.fromJson(
+          json['mystar_member'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$VoteItemToJson(VoteItem instance) => <String, dynamic>{
       'id': instance.id,
-      'voteTotal': instance.voteTotal,
-      'voteId': instance.voteId,
-      'myStarMember': instance.myStarMember,
+      'vote_total': instance.vote_total,
+      'vote_id': instance.vote_id,
+      'mystar_member': instance.mystar_member,
     };
 
 MyStarMemberModel _$MyStarMemberModelFromJson(Map<String, dynamic> json) =>
     MyStarMemberModel(
       id: (json['id'] as num).toInt(),
-      nameKo: json['nameKo'] as String,
-      nameEn: json['nameEn'] as String,
+      name_ko: json['name_ko'] as String,
+      name_en: json['name_en'] as String,
       gender: json['gender'] as String,
-      image: json['image'] as String,
+      image: json['image'] as String?,
     );
 
 Map<String, dynamic> _$MyStarMemberModelToJson(MyStarMemberModel instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'nameKo': instance.nameKo,
-      'nameEn': instance.nameEn,
+      'name_ko': instance.name_ko,
+      'name_en': instance.name_en,
       'gender': instance.gender,
       'image': instance.image,
     };

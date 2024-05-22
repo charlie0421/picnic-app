@@ -25,7 +25,7 @@ class _ArticleCommentInfoState extends ConsumerState<ArticleCommentInfo> {
       child: GestureDetector(
         onTap: () => widget.showComments(context, widget.article),
         child: Text(
-            '${Intl.message('label_read_more_comment')} ${ref.watch(commentCountProvider(widget.article.id)).value != 0 ? ref.watch(commentCountProvider(widget.article.id)).value : widget.article.commentCount}',
+            '${Intl.message('label_read_more_comment')} ${ref.watch(commentCountProvider(widget.article.id)).value != 0 ? ref.watch(commentCountProvider(widget.article.id)).value : widget.article.comment_count}',
             style: getTextStyle(
               context,
               AppTypo.UI14B,

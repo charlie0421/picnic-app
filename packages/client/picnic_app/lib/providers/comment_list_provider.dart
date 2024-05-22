@@ -1,7 +1,7 @@
-import 'package:picnic_app/auth_dio.dart';
-import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/models/meta.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:picnic_app/main.dart';
 import 'package:picnic_app/models/prame/comment.dart';
+import 'package:picnic_app/reflector.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'comment_list_provider.g.dart';
@@ -9,29 +9,50 @@ part 'comment_list_provider.g.dart';
 @riverpod
 class AsyncCommentList extends _$AsyncCommentList {
   @override
-  Future<CommentListModel> build() async {
-    return Future.value(CommentListModel(
-        items: [],
-        meta: MetaModel(
-            currentPage: 0,
-            itemCount: 0,
-            itemsPerPage: 0,
-            totalItems: 0,
-            totalPages: 0)));
+  Future<CommentState> build(
+      {required int articleId,
+      required PagingController<int, CommentModel> pagingController}) async {
+    fetch(1, 10, 'article', 'ASC', articleId: articleId);
+    return CommentState(
+      articleId: articleId,
+      page: 1,
+      limit: 10,
+      sort: 'article',
+      order: 'ASC',
+      pagingController: pagingController,
+      commentCount: 0,
+    );
   }
 
-  Future<CommentListModel> fetch(
+  Future<CommentState> fetch(
     int page,
     int limit,
     String sort,
     String order, {
     required int articleId,
   }) async {
-    final dio = await authDio(baseUrl: Constants.userApiUrl);
-    final response = await dio.get(
-        '/comment/article/$articleId?page=$page&limit=$limit&sort=$sort&order=$order');
-    state = AsyncData(CommentListModel.fromJson(response.data));
-    return CommentListModel.fromJson(response.data);
+    final response = await supabase
+        .from('comment')
+        .select()
+        .eq('article_id', articleId)
+        .range((page - 1) * limit, page * limit - 1)
+        .order(sort, ascending: order == 'ASC');
+
+    final commentCount = await supabase
+        .from('comment')
+        .select('count(*)')
+        .eq('article_id', articleId)
+        .single();
+
+    return CommentState(
+      articleId: articleId,
+      page: page,
+      limit: limit,
+      sort: sort,
+      order: order,
+      pagingController: pagingController,
+      commentCount: commentCount['count'] as int,
+    );
   }
 
   Future<void> submitComment({
@@ -39,30 +60,33 @@ class AsyncCommentList extends _$AsyncCommentList {
     required String content,
     int? parentId,
   }) async {
-    var dio = await authDio(baseUrl: Constants.userApiUrl);
-    try {
-      parentId == 0 ? parentId = null : parentId;
-      final response = parentId != null
-          ? await dio
-              .post('/comment/article/$articleId/comment/$parentId', data: {
-              'articleId': articleId,
-              'content': content,
-            })
-          : await dio.post('/comment/article/$articleId', data: {
-              'articleId': articleId,
-              'content': content,
-            });
-      if (response.statusCode == 201) {
-        logger.i('response.data: ${response.data}');
-        AsyncValue.data(
-            state.value?.items.addAll([CommentModel.fromJson(response.data)]));
-      } else {
-        throw Exception('Failed to load post');
-      }
-    } catch (e, stacTrace) {
-      logger.i(stacTrace);
-    }
+    final response = await supabase.from('comment').insert({
+      'article_id': articleId,
+      'content': content,
+      'parent_id': parentId,
+    });
   }
+}
+
+@reflector
+class CommentState {
+  final int articleId;
+  final int page;
+  final int limit;
+  final String sort;
+  final String order;
+  final PagingController<int, CommentModel> pagingController;
+  final int commentCount;
+
+  CommentState({
+    required this.articleId,
+    required this.page,
+    required this.limit,
+    required this.sort,
+    required this.order,
+    required this.pagingController,
+    required this.commentCount,
+  });
 }
 
 @riverpod

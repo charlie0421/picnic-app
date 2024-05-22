@@ -25,13 +25,13 @@ class UserCommentLikeListModel {
 @JsonSerializable()
 class UserCommentLikeModel {
   final int id;
-  final int userId;
-  final DateTime createdAt;
+  final int user_id;
+  final DateTime created_at;
 
   UserCommentLikeModel({
     required this.id,
-    required this.userId,
-    required this.createdAt,
+    required this.user_id,
+    required this.created_at,
   });
 
   factory UserCommentLikeModel.fromJson(Map<String, dynamic> json) =>

@@ -6,12 +6,12 @@ part of 'celeb_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$asyncCelebListHash() => r'242565151d062020fcb56897fe71fd6bf855e880';
+String _$asyncCelebListHash() => r'fc1cf6d6edc67993e016bf219efdf32edc832bf4';
 
 /// See also [AsyncCelebList].
 @ProviderFor(AsyncCelebList)
-final asyncCelebListProvider =
-    AutoDisposeAsyncNotifierProvider<AsyncCelebList, CelebListModel>.internal(
+final asyncCelebListProvider = AutoDisposeAsyncNotifierProvider<AsyncCelebList,
+    List<CelebModel>?>.internal(
   AsyncCelebList.new,
   name: r'asyncCelebListProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -21,13 +21,13 @@ final asyncCelebListProvider =
   allTransitiveDependencies: null,
 );
 
-typedef _$AsyncCelebList = AutoDisposeAsyncNotifier<CelebListModel>;
-String _$asyncMyCelebListHash() => r'ff4ad685acc55f4a92394ad7cf1e3b2bbc8198bd';
+typedef _$AsyncCelebList = AutoDisposeAsyncNotifier<List<CelebModel>?>;
+String _$asyncMyCelebListHash() => r'c942b63b7a468ca940eca3b1352314563f5995a1';
 
 /// See also [AsyncMyCelebList].
 @ProviderFor(AsyncMyCelebList)
-final asyncMyCelebListProvider =
-    AutoDisposeAsyncNotifierProvider<AsyncMyCelebList, CelebListModel>.internal(
+final asyncMyCelebListProvider = AutoDisposeAsyncNotifierProvider<
+    AsyncMyCelebList, List<CelebModel>?>.internal(
   AsyncMyCelebList.new,
   name: r'asyncMyCelebListProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -37,7 +37,7 @@ final asyncMyCelebListProvider =
   allTransitiveDependencies: null,
 );
 
-typedef _$AsyncMyCelebList = AutoDisposeAsyncNotifier<CelebListModel>;
+typedef _$AsyncMyCelebList = AutoDisposeAsyncNotifier<List<CelebModel>?>;
 String _$selectedCelebHash() => r'de544f79c7d80643ac5feb419ca90c23afd6bf78';
 
 /// See also [SelectedCeleb].

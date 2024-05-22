@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_app/auth_dio.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/common_dialog.dart';
+import 'package:picnic_app/main.dart';
 import 'package:picnic_app/models/prame/comment.dart';
 
 class ReportPopupMenu extends StatelessWidget {
@@ -56,18 +56,8 @@ class ReportPopupMenu extends StatelessWidget {
   }
 
   Future<void> _reportComment({required int commentId}) async {
-    var dio = await authDio(baseUrl: Constants.userApiUrl);
-    try {
-      final response = await dio.post('/comment/$commentId/report');
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        logger.i('report success');
-        pagingController.refresh();
-      } else {
-        throw Exception('Failed to load post');
-      }
-    } catch (e, stacTrace) {
-      logger.i(stacTrace);
-    }
+    final response = await supabase.from('comment').update({
+      'report': true,
+    }).eq('id', commentId);
   }
 }

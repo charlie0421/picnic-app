@@ -1,5 +1,4 @@
-import 'package:picnic_app/auth_dio.dart';
-import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/main.dart';
 import 'package:picnic_app/models/prame/library.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -8,27 +7,22 @@ part 'library_list_provider.g.dart';
 @riverpod
 class AsyncLibraryList extends _$AsyncLibraryList {
   @override
-  Future<LibraryListModel> build() async {
+  Future<List<LibraryModel>?> build() async {
     return _fetchGalleryList();
   }
 
-  Future<LibraryListModel> _fetchGalleryList() async {
-    final dio = await authDio(baseUrl: Constants.userApiUrl);
-    final response = await dio.get('/library/me');
-    return LibraryListModel.fromJson(response.data);
+  Future<List<LibraryModel>?> _fetchGalleryList() async {
+    final response = await supabase.from('library').select();
+
+    return List<LibraryModel>.from(
+        response.map((e) => LibraryModel.fromJson(e)));
   }
 
   Future<void> addImageToLibrary(int libraryId, int imageId) async {
-    final dio = await authDio(baseUrl: Constants.userApiUrl);
-    try {
-      final response = await dio.post('/library',
-          queryParameters: {'imageId': imageId, 'libraryId': libraryId});
-      if (response.statusCode == 201) {
-      } else {
-        throw Exception('Failed to load post');
-      }
-    } catch (e, stacktrace) {
-      logger.e(e, stackTrace: stacktrace);
-    }
+    final response = await supabase
+        .from('library_image')
+        .insert({'library_id': libraryId, 'image_id': imageId});
+
+    state = AsyncValue.data(response);
   }
 }

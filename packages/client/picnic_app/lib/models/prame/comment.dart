@@ -33,7 +33,7 @@ class CommentModel {
   final int likes;
   final String content; // 댓글 내용
   final int? parentId;
-  final DateTime createdAt;
+  final DateTime created_at;
 
   CommentModel({
     required this.id,
@@ -43,7 +43,7 @@ class CommentModel {
     required this.likes,
     required this.content,
     required this.parentId,
-    required this.createdAt,
+    required this.created_at,
   });
 
   factory CommentModel.fromJson(Map<String, dynamic> json) =>

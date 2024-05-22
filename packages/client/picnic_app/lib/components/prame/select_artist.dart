@@ -129,8 +129,8 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
     final asyncCelebListState = ref.watch(asyncCelebListProvider);
     return asyncCelebListState.when(
       data: (data) {
-        final myCelebList = data.items
-            .where((element) => element.users!
+        final myCelebList = data
+            ?.where((element) => element.users!
                 .where((element) => element.id == userId)
                 .isNotEmpty)
             .toList();
@@ -143,7 +143,7 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
           ),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemCount: myCelebList.length,
+            itemCount: myCelebList?.length ?? 0,
             separatorBuilder: (context, index) => SizedBox(width: 16.w),
             itemBuilder: (BuildContext context, int index) {
               return Container(
@@ -156,12 +156,12 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
                 child: Column(
                   children: [
                     Image.network(
-                      myCelebList[index].thumbnail,
+                      myCelebList?[index].thumbnail ?? '',
                       width: 60.w,
                       height: 60.h,
                     ),
                     SizedBox(height: 4.h),
-                    Text(data.items[index].nameKo,
+                    Text(data?[index].name_ko ?? '',
                         style: getTextStyle(
                             context, AppTypo.UI16B, AppColors.Gray900))
                   ],

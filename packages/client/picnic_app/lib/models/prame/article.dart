@@ -28,27 +28,27 @@ class ArticleListModel {
 @JsonSerializable()
 class ArticleModel {
   final int id;
-  final String titleKo;
-  final String titleEn;
+  final String title_ko;
+  final String title_en;
   final String content;
   final GalleryModel? gallery;
   final List<ArticleImageModel>? images;
-  final DateTime createdAt;
-  final int? commentCount;
+  final DateTime created_at;
+  final int? comment_count;
   final CommentModel? comment;
-  final CommentModel? mostLikedComment;
+  final CommentModel? most_liked_comment;
 
   ArticleModel({
     required this.id,
-    required this.titleKo,
-    required this.titleEn,
+    required this.title_ko,
+    required this.title_en,
     required this.content,
     required this.gallery,
     required this.images,
-    required this.createdAt,
-    required this.commentCount,
+    required this.created_at,
+    required this.comment_count,
     required this.comment,
-    required this.mostLikedComment,
+    required this.most_liked_comment,
   });
 
   factory ArticleModel.fromJson(Map<String, dynamic> json) =>

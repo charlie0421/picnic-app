@@ -1,5 +1,5 @@
-import 'package:picnic_app/auth_dio.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/main.dart';
 import 'package:picnic_app/models/prame/gallery.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -8,14 +8,20 @@ part 'gallery_list_provider.g.dart';
 @riverpod
 class AsyncGalleryList extends _$AsyncGalleryList {
   @override
-  Future<GalleryListModel> build() async {
+  Future<List<GalleryModel>> build() async {
     return _fetchGalleryList();
   }
 
-  Future<GalleryListModel> _fetchGalleryList() async {
-    final dio = await authDio(baseUrl: Constants.userApiUrl);
-    final response = await dio.get('/gallery');
-    return GalleryListModel.fromJson(response.data);
+  Future<List<GalleryModel>> _fetchGalleryList() async {
+    final response = await supabase.from('gallery').select();
+    logger.w('gallery: $response');
+    List<GalleryModel> galleryList =
+        List<GalleryModel>.from(response.map((e) => GalleryModel.fromJson(e)));
+    galleryList.forEach((element) {
+      element.cover =
+          'https://cdn-dev.picnic.fan/gallery/${element.id}/${element.cover}';
+    });
+    return galleryList;
   }
 }
 

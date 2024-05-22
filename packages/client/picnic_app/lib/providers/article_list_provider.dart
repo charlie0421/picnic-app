@@ -1,6 +1,6 @@
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:picnic_app/auth_dio.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/main.dart';
 import 'package:picnic_app/models/prame/article.dart';
 import 'package:picnic_app/reflector.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -33,7 +33,7 @@ class AsyncArticleList extends _$AsyncArticleList {
     return Future.value();
   }
 
-  Future<void> fetch({
+  Future<List<ArticleModel>?> fetch({
     required int page,
     required int galleryId,
     required int limit,
@@ -48,18 +48,22 @@ class AsyncArticleList extends _$AsyncArticleList {
         'order': order,
       };
 
-      final dio = await authDio(baseUrl: Constants.userApiUrl);
-      final response = await dio.get('/gallery/articles/$galleryId',
-          queryParameters: params);
-      final ArticleListModel articleListModel =
-          ArticleListModel.fromJson(response.data);
-      if (articleListModel.meta.currentPage >=
-          articleListModel.meta.totalPages) {
-        _pagingController.appendLastPage(articleListModel.items);
-      } else {
-        _pagingController.appendPage(
-            articleListModel.items, articleListModel.meta.currentPage + 1);
-      }
+      final List<ArticleModel> response = await supabase
+          .from('article')
+          .select()
+          .eq('gallery_id', galleryId)
+          .order(sort, ascending: order == 'ASC')
+          .range((page - 1) * limit, page * limit)
+          .then((value) => value.map((e) => ArticleModel.fromJson(e)).toList());
+
+      response.forEach((element) {
+        element.images!.forEach((image) {
+          image.image =
+              'https://cdn-dev.picnic.fan/article/${element.id}/${image.image}';
+        });
+      });
+
+      return response;
     } catch (e, stackTrace) {
       _pagingController.error = e;
       logger.e(e, stackTrace: stackTrace);

@@ -32,7 +32,7 @@ class PrameHomePage extends ConsumerWidget {
     if (selectedCelebState == null) {
       WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
         selectedCelebNotifier
-            .setSelectedCeleb(asyncCelebListState.value?.items.first);
+            .setSelectedCeleb(asyncCelebListState.value?.first);
       });
       return const SizedBox.shrink();
     }
@@ -49,12 +49,12 @@ class PrameHomePage extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 CachedNetworkImage(
-                    imageUrl: selectedCelebState.thumbnail,
+                    imageUrl: selectedCelebState.thumbnail ?? '',
                     width: 38,
                     height: 38),
                 const SizedBox(width: 8),
                 Text(
-                  selectedCelebState.nameKo,
+                  selectedCelebState.name_ko,
                   style:
                       getTextStyle(context, AppTypo.UI16B, AppColors.Gray900),
                 ),
@@ -119,12 +119,12 @@ class PrameHomePage extends ConsumerWidget {
                         return ClipRRect(
                           borderRadius: BorderRadius.circular(16),
                           child: CachedNetworkImage(
-                            imageUrl: data.items[index].thumbnail,
+                            imageUrl: data[index].thumbnail ?? '',
                             fit: BoxFit.cover,
                           ),
                         );
                       },
-                      itemCount: data.items.length,
+                      itemCount: data.length,
                       pagination: const SwiperPagination(),
                       autoplay: true,
                     ),
@@ -170,7 +170,7 @@ class PrameHomePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildGalleryList(WidgetRef ref, GalleryListModel data) {
+  Widget _buildGalleryList(WidgetRef ref, List<GalleryModel> data) {
     return Container(
       alignment: Alignment.centerLeft,
       height: 215,
@@ -183,8 +183,8 @@ class PrameHomePage extends ConsumerWidget {
                 ref
                     .read(navigationInfoProvider.notifier)
                     .setCurrentPage(GalleryDetailPage(
-                      galleryId: data.items[index].id,
-                      galleryName: data.items[index].titleKo,
+                      galleryId: data[index].id,
+                      galleryName: data[index].title_en,
                     ));
               },
               child: Stack(
@@ -195,7 +195,7 @@ class PrameHomePage extends ConsumerWidget {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16),
                       child: CachedNetworkImage(
-                        imageUrl: data.items[index].cover,
+                        imageUrl: data[index].cover ?? '',
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -209,7 +209,7 @@ class PrameHomePage extends ConsumerWidget {
                       color: AppColors.Gray900.withOpacity(0.5),
                       child: Center(
                         child: Text(
-                          data.items[index].titleKo,
+                          data[index].title_en,
                           style: getTextStyle(
                               context, AppTypo.UI16B, AppColors.Gray00),
                         ),
@@ -225,7 +225,7 @@ class PrameHomePage extends ConsumerWidget {
                 thickness: 0,
                 color: AppColors.Gray00,
               ),
-          itemCount: data.items.length),
+          itemCount: data.length),
     );
   }
 
@@ -260,8 +260,11 @@ class PrameHomePage extends ConsumerWidget {
               if (selectedCeleb != null)
                 ...asyncMyCelebListState.when(
                     data: (data) {
-                      logger.w('data.items.length: ${data.items.length}');
-                      return data.items.isNotEmpty
+                      if (data == null) {
+                        return [const SizedBox()];
+                      }
+                      logger.w('data.items.length: ${data.length}');
+                      return data.isNotEmpty
                           ? _buildSearchList(context, ref, data, selectedCeleb)
                           : [const NoBookmarkCeleb()];
                     },
@@ -293,17 +296,17 @@ class PrameHomePage extends ConsumerWidget {
   }
 
   List<Widget> _buildSearchList(BuildContext context, WidgetRef ref,
-      CelebListModel data, CelebModel selectedCeleb) {
+      List<CelebModel> data, CelebModel selectedCeleb) {
     logger.w('selectedCeleb: ${selectedCeleb}');
-    logger.w('selectedCeleb: ${selectedCeleb?.nameKo}');
-    logger.w('CelebListModel: ${data.items.length}');
+    logger.w('selectedCeleb: ${selectedCeleb?.name_ko}');
+    logger.w('CelebListModel: ${data.length}');
 
     if (selectedCeleb != null) {
-      data.items.removeWhere((item) => item.id == selectedCeleb.id);
-      data.items.insert(0, selectedCeleb);
+      data.removeWhere((item) => item.id == selectedCeleb.id);
+      data.insert(0, selectedCeleb);
     }
     return selectedCeleb != null
-        ? data.items
+        ? data
             .map((e) => Container(
                 height: 70,
                 margin: const EdgeInsets.symmetric(horizontal: 32, vertical: 4),

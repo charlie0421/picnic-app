@@ -28,7 +28,7 @@ class CommentHeader extends StatelessWidget {
                   style:
                       getTextStyle(context, AppTypo.UI16B, AppColors.Gray900)),
               TextSpan(
-                  text: formatTimeAgo(item.createdAt),
+                  text: formatTimeAgo(item.created_at),
                   style:
                       getTextStyle(context, AppTypo.UI14M, AppColors.Gray900)),
             ]),

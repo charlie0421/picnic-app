@@ -6,12 +6,12 @@ part of 'gallery_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$asyncGalleryListHash() => r'70281c0a4831bf003e7498747876aa534fe7d77b';
+String _$asyncGalleryListHash() => r'49a831e7c121b33d3cb030469ce4971053a55926';
 
 /// See also [AsyncGalleryList].
 @ProviderFor(AsyncGalleryList)
 final asyncGalleryListProvider = AutoDisposeAsyncNotifierProvider<
-    AsyncGalleryList, GalleryListModel>.internal(
+    AsyncGalleryList, List<GalleryModel>>.internal(
   AsyncGalleryList.new,
   name: r'asyncGalleryListProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -21,7 +21,7 @@ final asyncGalleryListProvider = AutoDisposeAsyncNotifierProvider<
   allTransitiveDependencies: null,
 );
 
-typedef _$AsyncGalleryList = AutoDisposeAsyncNotifier<GalleryListModel>;
+typedef _$AsyncGalleryList = AutoDisposeAsyncNotifier<List<GalleryModel>>;
 String _$selectedGalleryIdHash() => r'f9c59fefd740c43c42e7777b3634ca015bfb2573';
 
 /// See also [SelectedGalleryId].

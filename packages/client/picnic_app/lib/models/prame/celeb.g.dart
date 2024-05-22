@@ -22,9 +22,9 @@ Map<String, dynamic> _$CelebListModelToJson(CelebListModel instance) =>
 
 CelebModel _$CelebModelFromJson(Map<String, dynamic> json) => CelebModel(
       id: (json['id'] as num).toInt(),
-      nameKo: json['nameKo'] as String,
-      nameEn: json['nameEn'] as String,
-      thumbnail: json['thumbnail'] as String,
+      name_ko: json['name_ko'] as String,
+      name_en: json['name_en'] as String,
+      thumbnail: json['thumbnail'] as String?,
       users: (json['users'] as List<dynamic>?)
           ?.map((e) => UserModel.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -33,8 +33,8 @@ CelebModel _$CelebModelFromJson(Map<String, dynamic> json) => CelebModel(
 Map<String, dynamic> _$CelebModelToJson(CelebModel instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'nameKo': instance.nameKo,
-      'nameEn': instance.nameEn,
+      'name_ko': instance.name_ko,
+      'name_en': instance.name_en,
       'thumbnail': instance.thumbnail,
       'users': instance.users,
     };

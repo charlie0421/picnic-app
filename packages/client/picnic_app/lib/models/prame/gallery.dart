@@ -26,16 +26,16 @@ class GalleryListModel {
 @JsonSerializable()
 class GalleryModel {
   final int id;
-  final String titleKo;
-  final String titleEn;
-  final String cover;
+  final String title_ko;
+  final String title_en;
+  String? cover;
   final CelebModel? celeb;
 
   GalleryModel({
     required this.id,
-    required this.titleKo,
-    required this.titleEn,
-    required this.cover,
+    required this.title_ko,
+    required this.title_en,
+    this.cover,
     required this.celeb,
   });
 

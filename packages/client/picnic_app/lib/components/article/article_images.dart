@@ -33,7 +33,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
                     fit: StackFit.expand,
                     children: [
                       CachedNetworkImage(
-                        imageUrl: widget.article.images![index].image,
+                        imageUrl: widget.article.images![index].image ?? '',
                         fit: BoxFit.cover,
                       ),
                       _buildBookmark(widget.article, index),
@@ -60,7 +60,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
     return Positioned(
       top: 5,
       right: 5,
-      child: article.images![index].bookmarkUsers!.isNotEmpty
+      child: article.images![index].bookmark_users!.isNotEmpty
           ? IconButton(
               icon: const Icon(
                 Icons.bookmark,

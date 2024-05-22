@@ -1,6 +1,6 @@
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:picnic_app/auth_dio.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/main.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/reflector.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -16,36 +16,58 @@ class AsyncVoteList extends _$AsyncVoteList {
   @override
   Future<PagingController<int, VoteModel>> build(
       {required String category}) async {
-    fetch(category: category);
+    fetch(1, 10, 'vote.id', 'DESC', category: category);
     return _pagingController;
   }
 
   PagingController<int, VoteModel> get pagingController => _pagingController;
 
-  Future<void> clearItems() {
-    state.value?.itemList?.clear();
-    return Future.value();
-  }
-
-  Future<void> fetch({required String category}) async {
+  Future<void> fetch(int page, int limit, String sort, String order,
+      {required String category}) async {
+    logger.w('fetch: $page, $limit, $sort, $order, $category');
     try {
-      final dio = await authDio(baseUrl: Constants.userApiUrl);
-      final response = await dio.get(
-        '/vote?category=$category',
+      final response = await supabase
+          .from('vote')
+          .select('*, vote_item(*, mystar_member(*))')
+          .eq('vote_category', 'birthday')
+          .count();
+
+      logger.w('response: ${response.data}');
+
+      final List<VoteModel> voteList =
+          List<VoteModel>.from(response.data.map((e) => VoteModel.fromJson(e)));
+
+      voteList.forEach((element) {
+        element.vote_item.forEach((element) {
+          element.mystar_member.image =
+              'https://cdn-dev.picnic.fan/mystar/member/${element.mystar_member.id}/${element.mystar_member.image}';
+          logger.w('element: $element');
+        });
+      });
+
+      VoteListState voteListState = VoteListState(
+        category: category,
+        page: page,
+        limit: limit,
+        sort: sort,
+        order: order,
+        voteCount: response.count,
+        currentPage: 1,
+        totalPages: response.count ~/ 10,
+        pagingController: _pagingController,
       );
-      final VoteListModel voteListModel = VoteListModel.fromJson(response.data);
-      if (voteListModel.meta.currentPage >= voteListModel.meta.totalPages) {
-        _pagingController.appendLastPage(voteListModel.items);
+
+      logger.w('voteList: $voteList');
+
+      if (voteListState.currentPage >= voteListState.totalPages) {
+        _pagingController.appendLastPage(voteList);
       } else {
-        _pagingController.appendPage(
-            voteListModel.items, voteListModel.meta.currentPage + 1);
+        _pagingController.appendPage(voteList, voteListState.currentPage + 1);
       }
     } catch (e, stackTrace) {
       _pagingController.error = e;
       logger.e(e, stackTrace: stackTrace);
     }
-    // logger.d(response.data);
-    // return VoteListModel.fromJson(response.data);
   }
 }
 
@@ -70,6 +92,33 @@ class SortOptionType {
   String order = '';
 
   SortOptionType(this.sort, this.order);
+}
+
+@reflector
+class VoteListState {
+  final String category;
+  final int page;
+  final int limit;
+  final String sort;
+  final String order;
+  final PagingController<int, VoteModel> pagingController;
+  final int voteCount;
+  final int currentPage;
+  int totalPages;
+
+  VoteListState({
+    required this.category,
+    required this.page,
+    required this.limit,
+    required this.sort,
+    required this.order,
+    required this.pagingController,
+    required this.voteCount,
+    required this.currentPage,
+    required this.totalPages,
+  }) {
+    totalPages = voteCount ~/ limit;
+  }
 }
 
 @riverpod

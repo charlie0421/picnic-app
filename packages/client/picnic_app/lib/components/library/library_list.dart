@@ -51,16 +51,16 @@ class _LibraryListState extends ConsumerState<AlbumList> {
                   Expanded(
                     child: ListView.separated(
                       physics: const NeverScrollableScrollPhysics(),
-                      itemCount: data.items.length,
+                      itemCount: data?.length ?? 0,
                       itemBuilder: (context, index) {
                         return SizedBox(
                           height: 50.h,
                           width: double.infinity,
                           child: RadioListTile<int>(
                             title: Text(
-                              data.items[index].title,
+                              data?[index].title ?? '',
                             ),
-                            value: data.items[index].id,
+                            value: data?[index].id ?? 0,
                             groupValue: _selectedRadioTile,
                             onChanged: (int? value) {
                               setState(() {

@@ -30,7 +30,6 @@ dependencies:
   overlay_loading_progress: ^1.0.1
   reflectable: ^4.0.6
   json_annotation: ^4.8.1
-  dio: ^5.4.2+1
   cached_network_image: ^3.3.0
   supabase_auth_ui: ^0.4.4
   card_swiper: ^3.0.1
