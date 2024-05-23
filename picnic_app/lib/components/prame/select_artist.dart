@@ -149,10 +149,13 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
                 ),
                 child: Column(
                   children: [
-                    Image.network(
-                      data?[index].thumbnail ?? '',
-                      width: 60.w,
-                      height: 60.h,
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(50),
+                      child: Image.network(
+                        data?[index].thumbnail ?? '',
+                        width: 60.w,
+                        height: 60.h,
+                      ),
                     ),
                     SizedBox(height: 4.h),
                     Text(data?[index].name_ko ?? '',
