@@ -62,10 +62,13 @@ class _PrameHomePageState extends ConsumerState<PrameHomePage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      CachedNetworkImage(
-                          imageUrl: selectedCelebState.thumbnail ?? '',
-                          width: 38,
-                          height: 38),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(50),
+                        child: CachedNetworkImage(
+                            imageUrl: selectedCelebState.thumbnail ?? '',
+                            width: 38,
+                            height: 38),
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         selectedCelebState.name_ko,
