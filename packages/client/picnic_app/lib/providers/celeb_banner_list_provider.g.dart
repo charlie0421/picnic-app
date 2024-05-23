@@ -7,7 +7,7 @@ part of 'celeb_banner_list_provider.dart';
 // **************************************************************************
 
 String _$asyncCelebBannerListHash() =>
-    r'0ec6717d0c5e4d279afe5fc84d80c0c7b002c5e9';
+    r'105c18df6aa0dc023372c92c331fe9bb7ee8356d';
 
 /// Copied from Dart SDK
 class _SystemHash {

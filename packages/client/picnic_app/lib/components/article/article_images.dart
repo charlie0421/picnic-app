@@ -21,7 +21,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: widget.article.images != null
+      child: widget.article.article_image != null
           ? Swiper(
               itemBuilder: (BuildContext context, int index) {
                 return ClipRRect(
@@ -33,17 +33,16 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
                     fit: StackFit.expand,
                     children: [
                       CachedNetworkImage(
-                        imageUrl: widget.article.images![index].image ?? '',
-                        fit: BoxFit.cover,
+                        imageUrl:
+                            widget.article.article_image![index].image ?? '',
+                        fit: BoxFit.fitHeight,
                       ),
                       _buildBookmark(widget.article, index),
                     ],
                   ),
                 );
               },
-              itemCount: widget.article.images!.length,
-              itemWidth: 300.w,
-              itemHeight: 300.h,
+              itemCount: widget.article.article_image!.length,
               pagination: const SwiperPagination(
                 builder: DotSwiperPaginationBuilder(
                     color: Colors.grey, activeColor: Constants.fanMainColor),
@@ -60,7 +59,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
     return Positioned(
       top: 5,
       right: 5,
-      child: article.images![index].bookmark_users!.isNotEmpty
+      child: article.article_image![index].article_image_user!.isNotEmpty
           ? IconButton(
               icon: const Icon(
                 Icons.bookmark,
@@ -80,7 +79,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
                     useRootNavigator: true,
                     useSafeArea: true,
                     builder: (BuildContext context) =>
-                        AlbumList(imageId: article.images![index].id));
+                        AlbumList(imageId: article.article_image![index].id));
               }),
     );
   }

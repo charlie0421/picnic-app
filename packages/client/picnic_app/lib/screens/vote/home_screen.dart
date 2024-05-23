@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/bottom/vote_navigation_bar.dart';
-import 'package:picnic_app/menu.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 
 class VoteHomeScreen extends ConsumerWidget {
@@ -27,7 +26,7 @@ class VoteHomeScreen extends ConsumerWidget {
                     (Widget? currentChild, List<Widget> previousChildren) {
                   return currentChild ?? Container();
                 },
-                child: voteScreens[navigationInfo.voteBottomNavigationIndex]),
+                child: navigationInfo.currentPage),
             const Positioned(
               bottom: 0,
               left: 0,

@@ -28,7 +28,7 @@ ArticleImageModel _$ArticleImageModelFromJson(Map<String, dynamic> json) =>
       title_ko: json['title_ko'] as String,
       title_en: json['title_en'] as String,
       image: json['image'] as String?,
-      bookmark_users: (json['bookmark_users'] as List<dynamic>?)
+      article_image_user: (json['article_image_user'] as List<dynamic>?)
           ?.map((e) => UserModel.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -39,5 +39,5 @@ Map<String, dynamic> _$ArticleImageModelToJson(ArticleImageModel instance) =>
       'title_ko': instance.title_ko,
       'title_en': instance.title_en,
       'image': instance.image,
-      'bookmark_users': instance.bookmark_users,
+      'article_image_user': instance.article_image_user,
     };

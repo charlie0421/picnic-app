@@ -290,11 +290,11 @@ class S {
     );
   }
 
-  /// `Gallery`
-  String get label_gallery_tab_gallery {
+  /// `Articles`
+  String get label_gallery_tab_article {
     return Intl.message(
-      'Gallery',
-      name: 'label_gallery_tab_gallery',
+      'Articles',
+      name: 'label_gallery_tab_article',
       desc: '',
       args: [],
     );

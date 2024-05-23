@@ -4,13 +4,19 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/bottom/prame_navigation_bar.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/pages/prame/landing_page.dart';
+import 'package:picnic_app/pages/prame/prame_home_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 
-class PrameHomeScreen extends ConsumerWidget {
+class PrameHomeScreen extends ConsumerStatefulWidget {
   const PrameHomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PrameHomeScreen> createState() => _PrameHomeScreenState();
+}
+
+class _PrameHomeScreenState extends ConsumerState<PrameHomeScreen> {
+  @override
+  Widget build(BuildContext context) {
     final navigationInfo = ref.watch(navigationInfoProvider);
 
     return Scaffold(
@@ -26,7 +32,7 @@ class PrameHomeScreen extends ConsumerWidget {
             },
             layoutBuilder:
                 (Widget? currentChild, List<Widget> previousChildren) {
-              return currentChild ?? Container();
+              return currentChild ?? PrameHomePage();
             },
             child: navigationInfo.currentPage),
         const Positioned(
@@ -40,7 +46,7 @@ class PrameHomeScreen extends ConsumerWidget {
               right: 20.w,
               bottom: 120.h,
               child: FloatingActionButton(
-                onPressed: () => _buildFloating,
+                onPressed: _buildFloating,
                 backgroundColor: Constants.fanMainColor,
                 child: const Icon(Icons.bookmarks),
               )),
@@ -48,7 +54,8 @@ class PrameHomeScreen extends ConsumerWidget {
     ));
   }
 
-  void _buildFloating(context) {
+  void _buildFloating() {
+    logger.d('Floating button clicked');
     showModalBottomSheet(
         context: context,
         useSafeArea: true,

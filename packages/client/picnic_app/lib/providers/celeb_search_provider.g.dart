@@ -6,7 +6,7 @@ part of 'celeb_search_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$asyncCelebSearchHash() => r'd872df63636af71d653097e3732c31c479b9f815';
+String _$asyncCelebSearchHash() => r'fcbe6be45cd2ac59b8e39b5cde8dc94b4527cf48';
 
 /// See also [AsyncCelebSearch].
 @ProviderFor(AsyncCelebSearch)

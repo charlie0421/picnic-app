@@ -9,6 +9,7 @@ import 'package:picnic_app/components/article/article_images.dart';
 import 'package:picnic_app/components/article/article_title.dart';
 import 'package:picnic_app/components/article/comment/comment.dart';
 import 'package:picnic_app/components/error.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/prame/article.dart';
 import 'package:picnic_app/providers/article_list_provider.dart';
 import 'package:picnic_app/util.dart';
@@ -31,7 +32,7 @@ class ArticleList extends ConsumerWidget {
                       return ErrorView(context,
                           error: pagingController.error.toString(),
                           retryFunction: () => pagingController.refresh(),
-                          stackTrace: pagingController.error.stackTrace);
+                          stackTrace: null);
                     },
                     firstPageProgressIndicatorBuilder: (context) {
                       return buildLoadingOverlay();
@@ -77,7 +78,7 @@ class ArticleList extends ConsumerWidget {
                 ),
               ],
             ),
-            height: 400.h,
+            height: 700.h,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -97,6 +98,7 @@ class ArticleList extends ConsumerWidget {
 
   void _showComments(BuildContext context, ArticleModel articleModel,
       {int? commentId}) {
+    logger.w('showComments');
     showModalBottomSheet(
         context: context,
         isScrollControlled: true,

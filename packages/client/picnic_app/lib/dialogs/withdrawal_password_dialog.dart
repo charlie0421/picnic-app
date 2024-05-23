@@ -4,7 +4,7 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/common/cancel_button.dart';
 import 'package:picnic_app/dialogs/common/header.dart';
 import 'package:picnic_app/dialogs/common/ok_button.dart';
-import 'package:picnic_app/main.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future showWithdrawalDialog(
     {required BuildContext context,
@@ -122,7 +122,7 @@ class _CommonDialog extends State<CommonDialog> {
 
   Future<bool> _passwordCheck() async {
     // TODO 실제 탈퇴 로직 구현
-    final response = await supabase.auth.signOut();
+    final response = await Supabase.instance.client.auth.signOut();
     return true;
   }
 }

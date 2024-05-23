@@ -107,7 +107,7 @@ class _MakePrameState extends ConsumerState<MakgePrame> {
 
   Future<void> _loadOverlayImage() async {
     final ByteData data = await rootBundle.load(
-        'assets/mockup/prame/ko${ref.watch(prameSelectedIndexProvider) + 1}.png');
+        'assets/mockup/prame/che${ref.watch(prameSelectedIndexProvider) + 1}.png');
     final Uint8List bytes = data.buffer.asUint8List();
     final img.Image image = img.decodeImage(bytes)!;
     final uiImage = await _convertImage(image);
@@ -223,7 +223,7 @@ class _MakePrameState extends ConsumerState<MakgePrame> {
                       child: Hero(
                         tag: 'prame',
                         child: Image.asset(
-                            'assets/mockup/prame/ko${selectedPrameIndex + 1}.png'),
+                            'assets/mockup/prame/che${selectedPrameIndex + 1}.png'),
                       )),
                 ],
               ),

@@ -1,9 +1,9 @@
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/main.dart';
 import 'package:picnic_app/models/prame/article.dart';
 import 'package:picnic_app/reflector.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'article_list_provider.g.dart';
 
@@ -48,21 +48,21 @@ class AsyncArticleList extends _$AsyncArticleList {
         'order': order,
       };
 
-      final List<ArticleModel> response = await supabase
+      final List<ArticleModel> response = await Supabase.instance.client
           .from('article')
-          .select()
+          .select('*, article_image(*, article_image_user(*))')
           .eq('gallery_id', galleryId)
           .order(sort, ascending: order == 'ASC')
           .range((page - 1) * limit, page * limit)
           .then((value) => value.map((e) => ArticleModel.fromJson(e)).toList());
 
       response.forEach((element) {
-        element.images!.forEach((image) {
+        element.article_image?.forEach((image) {
           image.image =
-              'https://cdn-dev.picnic.fan/article/${element.id}/${image.image}';
+              'https://cdn-dev.picnic.fan/article/${element.id}/images/${image.id}/${image.image}';
         });
       });
-
+      _pagingController.appendPage(response, page + 1);
       return response;
     } catch (e, stackTrace) {
       _pagingController.error = e;

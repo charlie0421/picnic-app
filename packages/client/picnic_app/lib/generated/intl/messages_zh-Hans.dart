@@ -40,8 +40,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_current_language": MessageLookupByLibrary.simpleMessage("当前语言"),
         "label_draw_image": MessageLookupByLibrary.simpleMessage("赢取随机图片的机会"),
         "label_find_celeb": MessageLookupByLibrary.simpleMessage("查找更多名人"),
+        "label_gallery_tab_article":
+            MessageLookupByLibrary.simpleMessage("Articles"),
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("聊天"),
-        "label_gallery_tab_gallery": MessageLookupByLibrary.simpleMessage("画廊"),
         "label_hint_comment": MessageLookupByLibrary.simpleMessage("发表评论。"),
         "label_library_save": MessageLookupByLibrary.simpleMessage("保存图书馆"),
         "label_library_tab_ai_photo":

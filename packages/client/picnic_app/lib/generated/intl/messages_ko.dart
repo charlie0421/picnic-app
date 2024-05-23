@@ -41,9 +41,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_draw_image":
             MessageLookupByLibrary.simpleMessage("랜덤 이미지 획득 기회"),
         "label_find_celeb": MessageLookupByLibrary.simpleMessage("더 많은 유명인 찾기"),
+        "label_gallery_tab_article":
+            MessageLookupByLibrary.simpleMessage("아티클"),
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("채팅"),
-        "label_gallery_tab_gallery":
-            MessageLookupByLibrary.simpleMessage("갤러리"),
         "label_hint_comment":
             MessageLookupByLibrary.simpleMessage("댓글을 남겨주세요."),
         "label_library_save": MessageLookupByLibrary.simpleMessage("라이브러리 저장"),

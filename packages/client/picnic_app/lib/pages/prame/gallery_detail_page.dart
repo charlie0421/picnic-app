@@ -81,7 +81,7 @@ class _GalleryDetailScreenState extends ConsumerState<GalleryDetailPage>
             tabs: [
               Align(
                   alignment: Alignment.center,
-                  child: Text(Intl.message('label_gallery_tab_gallery'),
+                  child: Text(Intl.message('label_gallery_tab_article'),
                       style: const TextStyle(
                         fontSize: 16,
                       ))),

@@ -1,9 +1,9 @@
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/main.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/reflector.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'vote_list_provider.g.dart';
 
@@ -24,15 +24,12 @@ class AsyncVoteList extends _$AsyncVoteList {
 
   Future<void> fetch(int page, int limit, String sort, String order,
       {required String category}) async {
-    logger.w('fetch: $page, $limit, $sort, $order, $category');
     try {
-      final response = await supabase
+      final response = await Supabase.instance.client
           .from('vote')
           .select('*, vote_item(*, mystar_member(*))')
           .eq('vote_category', 'birthday')
           .count();
-
-      logger.w('response: ${response.data}');
 
       final List<VoteModel> voteList =
           List<VoteModel>.from(response.data.map((e) => VoteModel.fromJson(e)));
@@ -41,7 +38,6 @@ class AsyncVoteList extends _$AsyncVoteList {
         element.vote_item.forEach((element) {
           element.mystar_member.image =
               'https://cdn-dev.picnic.fan/mystar/member/${element.mystar_member.id}/${element.mystar_member.image}';
-          logger.w('element: $element');
         });
       });
 
@@ -56,8 +52,6 @@ class AsyncVoteList extends _$AsyncVoteList {
         totalPages: response.count ~/ 10,
         pagingController: _pagingController,
       );
-
-      logger.w('voteList: $voteList');
 
       if (voteListState.currentPage >= voteListState.totalPages) {
         _pagingController.appendLastPage(voteList);

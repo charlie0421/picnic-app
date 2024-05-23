@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:picnic_app/components/article/comment/comment_item.dart';
 import 'package:picnic_app/components/article/comment/comment_reply_layer.dart';
 import 'package:picnic_app/components/ui/bottom-sheet-header.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/prame/article.dart';
 import 'package:picnic_app/models/prame/comment.dart';
 import 'package:picnic_app/providers/article_list_provider.dart';
@@ -25,7 +26,8 @@ class Comment extends ConsumerStatefulWidget {
 }
 
 class _CommentState extends ConsumerState<Comment> {
-  late final PagingController<int, CommentModel> _pagingController;
+  late final PagingController<int, CommentModel> _pagingController =
+      PagingController(firstPageKey: 1);
   late final ScrollController _scrollController; // Add this line
   late int _scrollToIndex; // Add this line
 
@@ -49,7 +51,7 @@ class _CommentState extends ConsumerState<Comment> {
                 articleId: widget.articleModel.id,
                 pagingController: _pagingController)
             .notifier)
-        .fetch(pageKey, 1000, 'comment.created_at', 'DESC',
+        .fetch(pageKey, 1000, 'article_comment.id', 'DESC',
             articleId: widget.articleModel.id);
 
     // final page = await asyncCommentNotifier;
@@ -123,6 +125,7 @@ class _CommentState extends ConsumerState<Comment> {
                         ),
                       ),
                   itemBuilder: (context, item, index) {
+                    logger.i('item: $item');
                     return Column(
                       children: [
                         CommentItem(

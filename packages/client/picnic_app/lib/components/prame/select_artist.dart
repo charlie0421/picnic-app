@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/celeb_list_provider.dart';
 import 'package:picnic_app/providers/prame_provider.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -52,7 +51,7 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
                     padding: EdgeInsets.only(left: 36.w),
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
-                      itemCount: 5,
+                      itemCount: 3,
                       separatorBuilder: (context, index) =>
                           SizedBox(width: 16.w),
                       itemBuilder: (context, index) {
@@ -72,7 +71,7 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
                     child: Hero(
                       tag: 'prame',
                       child: Image.asset(
-                          'assets/mockup/prame/ko${selectedPrameIndex + 1}.png'),
+                          'assets/mockup/prame/che${selectedPrameIndex + 1}.png'),
                     )),
                 SizedBox(height: 10.h),
                 ElevatedButton(
@@ -118,7 +117,7 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
           child: Opacity(
               opacity: selectedPrameIndex == index ? 1 : 0.2,
               child: Image.asset(
-                'assets/mockup/prame/ko${index + 1}.png',
+                'assets/mockup/prame/che${index + 1}.png',
                 width: 71.w,
                 height: 110.h,
               ))),
@@ -126,15 +125,10 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
   }
 
   _buildSelectArtist() {
-    final asyncCelebListState = ref.watch(asyncCelebListProvider);
-    return asyncCelebListState.when(
-      data: (data) {
-        final myCelebList = data
-            ?.where((element) => element.users!
-                .where((element) => element.id == userId)
-                .isNotEmpty)
-            .toList();
+    final asyncMyCelebListState = ref.watch(asyncMyCelebListProvider);
 
+    return asyncMyCelebListState.when(
+      data: (data) {
         return Container(
           height: 84,
           decoration: BoxDecoration(
@@ -143,7 +137,7 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
           ),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemCount: myCelebList?.length ?? 0,
+            itemCount: data?.length ?? 0,
             separatorBuilder: (context, index) => SizedBox(width: 16.w),
             itemBuilder: (BuildContext context, int index) {
               return Container(
@@ -156,7 +150,7 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
                 child: Column(
                   children: [
                     Image.network(
-                      myCelebList?[index].thumbnail ?? '',
+                      data?[index].thumbnail ?? '',
                       width: 60.w,
                       height: 60.h,
                     ),

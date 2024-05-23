@@ -47,11 +47,11 @@ class DeveloperBottomNavigationBar extends ConsumerWidget {
                 icon: Icons.app_settings_alt,
                 index: 0,
               ),
-              Item(
-                title: Intl.message('nav_login'),
-                icon: Icons.app_settings_alt,
-                index: 1,
-              ),
+              // Item(
+              //   title: Intl.message('nav_login'),
+              //   icon: Icons.app_settings_alt,
+              //   index: 1,
+              // ),
             ],
           ),
         ),

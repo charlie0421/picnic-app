@@ -7,7 +7,7 @@ part of 'article_image_list_provider.dart';
 // **************************************************************************
 
 String _$asyncArticleImageListHash() =>
-    r'dc778f5ec00edaadf5157a3df109542571bae1b1';
+    r'0454887492f6bc075b242e4176ee456764eb9871';
 
 /// Copied from Dart SDK
 class _SystemHash {

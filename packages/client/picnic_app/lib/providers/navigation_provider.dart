@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:picnic_app/components/appinfo.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/menu.dart';
-import 'package:picnic_app/pages/vote/vote_home.dart';
+import 'package:picnic_app/pages/prame/prame_home_page.dart';
 import 'package:picnic_app/reflector.dart';
-import 'package:picnic_app/screens/developer/developer_home_screen.dart';
+import 'package:picnic_app/screens/login_screen.dart';
 import 'package:picnic_app/screens/prame/prame_home_screen.dart';
 import 'package:picnic_app/screens/vote/home_screen.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:supabase_auth_ui/supabase_auth_ui.dart';
+import 'package:supabase_extensions/supabase_extensions.dart';
 
 part 'navigation_provider.g.dart';
 
@@ -55,10 +58,8 @@ class NavigationInfo extends _$NavigationInfo {
       currentScreen = const VoteHomeScreen();
     } else if (portalString == 'fan') {
       currentScreen = const PrameHomeScreen();
-    } else if (portalString == 'developer') {
-      currentScreen = const DeveloperHomeScreen();
     } else {
-      return const SizedBox.shrink();
+      return const PrameHomeScreen();
     }
 
     Widget currentPage;
@@ -67,7 +68,8 @@ class NavigationInfo extends _$NavigationInfo {
     } else if (portalString == 'fan') {
       currentPage = prameScreens[state.fanBottomNavigationIndex];
     } else if (portalString == 'developer') {
-      currentPage = developerScreens[state.developerBottomNavigationIndex];
+      currentPage =
+          Supabase.instance.client.isLogged ? AppInfo() : const LoginScreen();
     } else {
       return const SizedBox.shrink();
     }
@@ -122,8 +124,8 @@ class Navigation {
   int fanBottomNavigationIndex = 0;
   int voteBottomNavigationIndex = 0;
   int developerBottomNavigationIndex = 0;
-  Widget? currentScreen = const VoteHomeScreen();
-  Widget? currentPage = const VoteHomePage();
+  Widget? currentScreen = const PrameHomeScreen();
+  Widget? currentPage = const PrameHomePage();
   Widget? previousPage;
 
   Navigation();

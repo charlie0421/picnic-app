@@ -28,7 +28,7 @@ ArticleModel _$ArticleModelFromJson(Map<String, dynamic> json) => ArticleModel(
       gallery: json['gallery'] == null
           ? null
           : GalleryModel.fromJson(json['gallery'] as Map<String, dynamic>),
-      images: (json['images'] as List<dynamic>?)
+      article_image: (json['article_image'] as List<dynamic>?)
           ?.map((e) => ArticleImageModel.fromJson(e as Map<String, dynamic>))
           .toList(),
       created_at: DateTime.parse(json['created_at'] as String),
@@ -49,7 +49,7 @@ Map<String, dynamic> _$ArticleModelToJson(ArticleModel instance) =>
       'title_en': instance.title_en,
       'content': instance.content,
       'gallery': instance.gallery,
-      'images': instance.images,
+      'article_image': instance.article_image,
       'created_at': instance.created_at.toIso8601String(),
       'comment_count': instance.comment_count,
       'comment': instance.comment,

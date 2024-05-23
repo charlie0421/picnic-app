@@ -1,6 +1,6 @@
-import 'package:picnic_app/main.dart';
 import 'package:picnic_app/models/prame/celeb_banner.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'celeb_banner_list_provider.g.dart';
 
@@ -13,7 +13,10 @@ class AsyncCelebBannerList extends _$AsyncCelebBannerList {
 
   Future<List<CelebBannerModel>> _fetchCelebBannerList(
       {required int celebId}) async {
-    final response = await supabase.from('celeb_banner').select();
+    final response = await Supabase.instance.client
+        .from('celeb_banner')
+        .select()
+        .eq('celeb_id', celebId);
     List<CelebBannerModel> celebList = List<CelebBannerModel>.from(
         response.map((e) => CelebBannerModel.fromJson(e)));
     celebList.forEach((element) {

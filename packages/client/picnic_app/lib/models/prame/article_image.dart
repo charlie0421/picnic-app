@@ -29,14 +29,14 @@ class ArticleImageModel {
   final String title_ko;
   final String title_en;
   String? image;
-  final List<UserModel>? bookmark_users;
+  final List<UserModel>? article_image_user;
 
   ArticleImageModel({
     required this.id,
     required this.title_ko,
     required this.title_en,
     this.image,
-    required this.bookmark_users,
+    required this.article_image_user,
   });
 
   factory ArticleImageModel.fromJson(Map<String, dynamic> json) =>
