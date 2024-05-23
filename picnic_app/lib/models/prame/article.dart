@@ -32,7 +32,7 @@ class ArticleModel {
   final String title_en;
   final String content;
   final GalleryModel? gallery;
-  final List<ArticleImageModel>? images;
+  final List<ArticleImageModel>? article_image;
   final DateTime created_at;
   final int? comment_count;
   final CommentModel? comment;
@@ -44,7 +44,7 @@ class ArticleModel {
     required this.title_en,
     required this.content,
     required this.gallery,
-    required this.images,
+    required this.article_image,
     required this.created_at,
     required this.comment_count,
     required this.comment,

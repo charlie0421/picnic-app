@@ -1,8 +1,9 @@
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:picnic_app/main.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/prame/comment.dart';
 import 'package:picnic_app/reflector.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
 part 'comment_list_provider.g.dart';
 
@@ -12,12 +13,12 @@ class AsyncCommentList extends _$AsyncCommentList {
   Future<CommentState> build(
       {required int articleId,
       required PagingController<int, CommentModel> pagingController}) async {
-    fetch(1, 10, 'article', 'ASC', articleId: articleId);
+    fetch(1, 10, 'article_comment.id', 'ASC', articleId: articleId);
     return CommentState(
       articleId: articleId,
       page: 1,
       limit: 10,
-      sort: 'article',
+      sort: 'article_comment.id',
       order: 'ASC',
       pagingController: pagingController,
       commentCount: 0,
@@ -31,28 +32,27 @@ class AsyncCommentList extends _$AsyncCommentList {
     String order, {
     required int articleId,
   }) async {
-    final response = await supabase
-        .from('comment')
+    final response = await Supabase.instance.client
+        .from('article_comment')
         .select()
         .eq('article_id', articleId)
-        .range((page - 1) * limit, page * limit - 1)
-        .order(sort, ascending: order == 'ASC');
+        .order('id', ascending: false)
+        .range((page - 1) * limit, page * limit - 1);
 
-    final commentCount = await supabase
-        .from('comment')
-        .select('count(*)')
+    final commentCount = await Supabase.instance.client
+        .from('article_comment')
+        .select()
         .eq('article_id', articleId)
-        .single();
+        .count(CountOption.exact);
 
     return CommentState(
-      articleId: articleId,
-      page: page,
-      limit: limit,
-      sort: sort,
-      order: order,
-      pagingController: pagingController,
-      commentCount: commentCount['count'] as int,
-    );
+        articleId: articleId,
+        page: page,
+        limit: limit,
+        sort: sort,
+        order: order,
+        pagingController: pagingController,
+        commentCount: commentCount.count);
   }
 
   Future<void> submitComment({
@@ -60,11 +60,14 @@ class AsyncCommentList extends _$AsyncCommentList {
     required String content,
     int? parentId,
   }) async {
-    final response = await supabase.from('comment').insert({
+    logger.i('submitComment articleId: $articleId, content: $content');
+    final response =
+        await Supabase.instance.client.from('article_comment').insert({
       'article_id': articleId,
       'content': content,
       'parent_id': parentId,
     });
+    logger.i('submitComment response: $response');
   }
 }
 

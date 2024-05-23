@@ -43,9 +43,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_draw_image":
             MessageLookupByLibrary.simpleMessage("ランダム画像獲得チャンス"),
         "label_find_celeb": MessageLookupByLibrary.simpleMessage("セレブをもっと探す"),
+        "label_gallery_tab_article": MessageLookupByLibrary.simpleMessage("記事"),
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("チャット"),
-        "label_gallery_tab_gallery":
-            MessageLookupByLibrary.simpleMessage("ギャラリー"),
         "label_hint_comment":
             MessageLookupByLibrary.simpleMessage("コメントを残してください。"),
         "label_library_save": MessageLookupByLibrary.simpleMessage("ライブラリ保存"),

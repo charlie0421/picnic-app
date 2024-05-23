@@ -21,20 +21,15 @@ class _LandingPageState extends ConsumerState<LandingPage> {
   @override
   Widget build(BuildContext context) {
     final asyncCelebListState = ref.watch(asyncCelebListProvider);
-    int userId = 2;
+    final asyncMyCelebListState = ref.watch(asyncMyCelebListProvider);
 
     return asyncCelebListState.when(
         data: (data) {
-          final myCelebList = data
-              ?.where((element) => element.users!
-                  .where((element) => element.id == userId)
-                  .isNotEmpty)
-              .toList();
-          final celebList = data
-              ?.where((element) => element.users!
-                  .where((element) => element.id == userId)
-                  .isEmpty)
-              .toList();
+          final myCelebList = asyncMyCelebListState.value;
+
+          final celebList = data?.where((element) {
+            return myCelebList?.map((e) => e.id).contains(element.id) == false;
+          }).toList();
           return _dataView(myCelebList, celebList);
         },
         error: (error, stackTrace) => ErrorView(context,

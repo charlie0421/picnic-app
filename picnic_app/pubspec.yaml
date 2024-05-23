@@ -14,8 +14,10 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.6
   flutter_native_splash: ^2.3.10
+  flutter_launcher_icons: ^0.13.1
   logger: ^2.0.1
   flutter_secure_storage: ^9.0.0
+  supabase_extensions: ^1.0.1
   shared_preferences: ^2.2.2
   riverpod: ^2.5.1
   package_info_plus: ^5.0.1

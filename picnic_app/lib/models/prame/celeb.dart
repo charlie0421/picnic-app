@@ -36,7 +36,7 @@ class CelebModel {
     required this.name_ko,
     required this.name_en,
     this.thumbnail,
-    required this.users,
+    this.users,
   });
 
   factory CelebModel.fromJson(Map<String, dynamic> json) =>

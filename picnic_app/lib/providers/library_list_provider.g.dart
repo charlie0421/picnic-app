@@ -6,7 +6,7 @@ part of 'library_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$asyncLibraryListHash() => r'5501bb3a9e0c19dd29b34eea22490f1fb20e24cd';
+String _$asyncLibraryListHash() => r'b7bc1bde4a21fcc9cf3fa4f26c62f981bb21e084';
 
 /// See also [AsyncLibraryList].
 @ProviderFor(AsyncLibraryList)

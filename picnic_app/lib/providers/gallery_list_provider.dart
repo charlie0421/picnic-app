@@ -1,7 +1,6 @@
-import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/main.dart';
 import 'package:picnic_app/models/prame/gallery.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'gallery_list_provider.g.dart';
 
@@ -13,8 +12,11 @@ class AsyncGalleryList extends _$AsyncGalleryList {
   }
 
   Future<List<GalleryModel>> _fetchGalleryList() async {
-    final response = await supabase.from('gallery').select();
-    logger.w('gallery: $response');
+    final response = await Supabase.instance.client
+        .from('gallery')
+        .select()
+        .order('id', ascending: false);
+
     List<GalleryModel> galleryList =
         List<GalleryModel>.from(response.map((e) => GalleryModel.fromJson(e)));
     galleryList.forEach((element) {
@@ -35,5 +37,29 @@ class SelectedGalleryId extends _$SelectedGalleryId {
   void setSelectedGalleryId(int id) {
     selectedGalleryId = id;
     state = selectedGalleryId;
+  }
+}
+
+@riverpod
+class AsyncCelebGalleryList extends _$AsyncCelebGalleryList {
+  @override
+  Future<List<GalleryModel>> build(int celebId) async {
+    return _fetchGalleryList(celebId);
+  }
+
+  Future<List<GalleryModel>> _fetchGalleryList(celebId) async {
+    final response = await Supabase.instance.client
+        .from('gallery')
+        .select()
+        .eq('celeb_id', celebId)
+        .order('id', ascending: false);
+
+    List<GalleryModel> galleryList =
+        List<GalleryModel>.from(response.map((e) => GalleryModel.fromJson(e)));
+    galleryList.forEach((element) {
+      element.cover =
+          'https://cdn-dev.picnic.fan/gallery/${element.id}/${element.cover}';
+    });
+    return galleryList;
   }
 }

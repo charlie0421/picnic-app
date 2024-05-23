@@ -1,9 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/firebase_options.dart';
 import 'package:picnic_app/main.reflectable.dart';
 import 'package:picnic_app/picnic_app.dart';
@@ -16,12 +16,14 @@ const supabaseUrl = 'https://xtijtefcycoeqludlngc.supabase.co';
 const supabaseKey =
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0aWp0ZWZjeWNvZXFsdWRsbmdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTU4OTEyNzQsImV4cCI6MjAzMTQ2NzI3NH0.k0Viu8kgOnkJ7-tnrDTmqpe6TdtZCYkqmH_5vUvcv_k';
 
-final supabase = Supabase.instance.client;
-
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
 
-  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseKey);
+  await Supabase.initialize(
+    url: supabaseUrl,
+    anonKey: supabaseKey,
+    debug: true,
+  );
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -36,11 +38,6 @@ void main() async {
 
   runApp(
       ProviderScope(observers: [LoggingObserver()], child: const PicnicApp()));
-
-  globalStorage.saveData('ACCESS_TOKEN',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJpcm9ubG92ZTc3QGdtYWlsLmNvbSIsIm5pY2tuYW1lIjoi7JaR7J6s64-Z6rCc67Cc66i47IugIiwicHJvZmlsZUltYWdlIjoiaHR0cHM6Ly9jZG4tZGV2Lmljb25jYXN0aW5nLmlvL3VzZXIvMS9lNDMwMTNjMi0yNzk4LTRhMzEtYTRlZS1lMzJmMjI1OTMwYTMuanBnIiwicm9sZSI6InVzZXIiLCJpc3MiOiJwcmFtZSIsInR5cGUiOiJBQ0NFU1NfVE9LRU4iLCJpYXQiOjE3MTUxNjk2MDQsImV4cCI6MTcxNTI1NjAwNH0.pwU7vcTMli586eLrMjK0AAvmWWWWLAkVW1H4PstFz3o');
-  globalStorage.saveData('REFRESH_TOKEN',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJpcm9ubG92ZTc3QGdtYWlsLmNvbSIsIm5pY2tuYW1lIjoi7JaR7J6s64-Z6rCc67Cc66i47IugIiwicHJvZmlsZUltYWdlIjoiaHR0cHM6Ly9jZG4tZGV2Lmljb25jYXN0aW5nLmlvL3VzZXIvMS9lNDMwMTNjMi0yNzk4LTRhMzEtYTRlZS1lMzJmMjI1OTMwYTMuanBnIiwicm9sZSI6InVzZXIiLCJpc3MiOiJwcmFtZSIsInR5cGUiOiJSRUZSRVNIX1RPS0VOIiwiaWF0IjoxNzE1MTY5NjA0LCJleHAiOjE3NDY3MDU2MDR9.ILGqqrNH6lbdayjLB5GziO0f0toKplaLi2w6utdT2iI');
 
   FlutterNativeSplash.remove();
 }
@@ -93,9 +90,11 @@ class LoggingObserver extends ProviderObserver {
       var oldValue = oldMirror.invokeGetter(field.simpleName);
       var newValue = newMirror.invokeGetter(field.simpleName);
 
-      if (oldValue != newValue) {
-        logger
-            .d('Field ${field.simpleName} changed from $oldValue to $newValue');
+      if (kDebugMode) {
+        if (oldValue != newValue) {
+          print(
+              'Field ${field.simpleName} changed from $oldValue to $newValue');
+        }
       }
     }
   }

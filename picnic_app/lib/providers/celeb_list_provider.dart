@@ -1,6 +1,8 @@
-import 'package:picnic_app/main.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/prame/celeb.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:supabase_extensions/supabase_extensions.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'celeb_list_provider.g.dart';
 
@@ -12,7 +14,12 @@ class AsyncCelebList extends _$AsyncCelebList {
   }
 
   Future<List<CelebModel>?> _fetchCelebList() async {
-    final response = await supabase.from('celeb').select();
+    final response = await Supabase.instance.client
+        .from('celeb')
+        .select()
+        .order('id', ascending: true);
+
+    logger.i('fetchCelebList response: ${response}');
     final List<CelebModel> celebList =
         List<CelebModel>.from(response.map((e) => CelebModel.fromJson(e)));
     celebList.forEach((element) {
@@ -23,7 +30,7 @@ class AsyncCelebList extends _$AsyncCelebList {
   }
 
   Future<void> addBookmark(CelebModel celeb) async {
-    final response = await supabase
+    final response = await Supabase.instance.client
         .from('celeb_bookmark')
         .insert({'celeb_id': celeb.id, 'user_id': 1});
 
@@ -33,7 +40,7 @@ class AsyncCelebList extends _$AsyncCelebList {
   }
 
   Future<void> removeBookmark(CelebModel celeb) async {
-    final response = await supabase
+    final response = await Supabase.instance.client
         .from('celeb_bookmark')
         .delete()
         .eq('celeb_id', celeb.id)
@@ -45,20 +52,38 @@ class AsyncCelebList extends _$AsyncCelebList {
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class AsyncMyCelebList extends _$AsyncMyCelebList {
   @override
   Future<List<CelebModel>?> build() async {
+    logger.i('fetchMyCelebList');
     return fetchMyCelebList();
   }
 
   Future<List<CelebModel>?> fetchMyCelebList() async {
-    final response = await supabase
-        .from('celeb_bookmark')
-        .select('celeb_id')
-        .eq('user_id', 1);
+    try {
+      final response = await Supabase.instance.client
+          .from('celeb_user')
+          .select('celeb(*)')
+          .eq('user_id', Supabase.instance.client.uid.toString())
+          .order('celeb_id', ascending: true);
+      logger.i('fetchMyCelebList response: ${response}');
+      List<CelebModel> celebList = List<CelebModel>.from(
+          response.map((e) => CelebModel.fromJson(e['celeb'])));
+      logger.i('fetchMyCelebList celebList: $celebList');
+      celebList.forEach((element) {
+        element.thumbnail =
+            'https://cdn-dev.picnic.fan/celeb/${element.id}/${element.thumbnail}';
+      });
 
-    return List<CelebModel>.from(response.map((e) => CelebModel.fromJson(e)));
+      state = AsyncValue.data(celebList);
+
+      return celebList;
+    } catch (e, stackTrace) {
+      state = AsyncValue.error(e, stackTrace);
+      logger.i('fetchMyCelebList error: $e');
+      logger.i('fetchMyCelebList stackTrace: $stackTrace');
+    }
   }
 }
 

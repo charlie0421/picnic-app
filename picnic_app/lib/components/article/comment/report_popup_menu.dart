@@ -3,8 +3,8 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/common_dialog.dart';
-import 'package:picnic_app/main.dart';
 import 'package:picnic_app/models/prame/comment.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ReportPopupMenu extends StatelessWidget {
   final BuildContext context;
@@ -56,7 +56,7 @@ class ReportPopupMenu extends StatelessWidget {
   }
 
   Future<void> _reportComment({required int commentId}) async {
-    final response = await supabase.from('comment').update({
+    final response = await Supabase.instance.client.from('comment').update({
       'report': true,
     }).eq('id', commentId);
   }
