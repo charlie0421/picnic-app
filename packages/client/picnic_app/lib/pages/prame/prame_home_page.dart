@@ -135,9 +135,12 @@ class _PrameHomePageState extends ConsumerState<PrameHomePage> {
                             itemBuilder: (BuildContext context, int index) {
                               return ClipRRect(
                                 borderRadius: BorderRadius.circular(16),
-                                child: CachedNetworkImage(
-                                  imageUrl: data[index].thumbnail ?? '',
-                                  fit: BoxFit.cover,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(50),
+                                  child: CachedNetworkImage(
+                                    imageUrl: data[index].thumbnail ?? '',
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               );
                             },
@@ -222,12 +225,9 @@ class _PrameHomePageState extends ConsumerState<PrameHomePage> {
                   SizedBox(
                     height: 215,
                     width: 215,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: CachedNetworkImage(
-                        imageUrl: data[index].cover ?? '',
-                        fit: BoxFit.cover,
-                      ),
+                    child: CachedNetworkImage(
+                      imageUrl: data[index].cover ?? '',
+                      fit: BoxFit.cover,
                     ),
                   ),
                   Positioned(

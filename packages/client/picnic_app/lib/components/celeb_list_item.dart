@@ -50,10 +50,13 @@ class CelebListItem extends ConsumerWidget {
           children: [
             Row(
               children: [
-                CachedNetworkImage(
-                  imageUrl: item.thumbnail ?? '',
-                  width: 60,
-                  height: 60,
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(50),
+                  child: CachedNetworkImage(
+                    imageUrl: item.thumbnail ?? '',
+                    width: 60,
+                    height: 60,
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Text(item.name_ko,
