@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,6 +23,8 @@ class PicnicApp extends ConsumerStatefulWidget {
 
 class _PicnicAppState extends ConsumerState<PicnicApp>
     with WidgetsBindingObserver {
+  late StreamSubscription _sub;
+
   @override
   void initState() {
     super.initState();
@@ -29,6 +33,14 @@ class _PicnicAppState extends ConsumerState<PicnicApp>
       // await ScreenProtector.preventScreenshotOn();
     });
     WidgetsBinding.instance.addObserver(this);
+    // final _appLinks = AppLinks(); // AppLinks is singleton
+    //
+    // _sub = _appLinks.uriLinkStream.listen((Uri uri) {
+    //   logger.i('Incoming link: $uri');
+    // }, onError: (err) {
+    //   Handle error
+    // print('Error: $err');
+    // });
   }
 
   @override
