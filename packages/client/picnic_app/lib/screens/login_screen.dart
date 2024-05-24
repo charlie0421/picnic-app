@@ -68,10 +68,10 @@ class LoginScreen extends ConsumerWidget {
               enableNativeAppleAuth: false,
               socialProviders: const [
                 OAuthProvider.google,
-                // OAuthProvider.apple,
-                // OAuthProvider.kakao
+                OAuthProvider.apple,
+                OAuthProvider.kakao
               ],
-              showSuccessSnackBar: false,
+              redirectUrl: 'fan.picnic.app://login-callback',
               onSuccess: (session) {
                 ref.read(loginedProvider.notifier).setLogined(true);
                 ref

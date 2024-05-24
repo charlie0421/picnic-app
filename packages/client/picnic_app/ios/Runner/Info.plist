@@ -58,11 +58,16 @@
       <dict>
         <key>CFBundleTypeRole</key>
         <string>Editor</string>
+        <key>CFBundleURLName</key>
+        <array>
+            <string>fan.picnic.app</string>
+        </array>
         <key>CFBundleURLSchemes</key>
         <array>
           <!-- TODO Replace this value: -->
           <!-- Copied from GoogleService-Info.plist key REVERSED_CLIENT_ID -->
           <string>com.googleusercontent.apps.853406219989-ntnler0e2qe0gfheh3qdjt3k2h4kpvj4</string>
+          <string>fan.picnic.app</string>
         </array>
       </dict>
     </array>

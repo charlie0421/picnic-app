@@ -5,7 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bea28b15-e62d-4068-89d6-12f56abe1309" name="Changes" comment="chore (api) .gitignore 추가">
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/pages/prame/prame_home_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/pages/prame/prame_home_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/android/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/ios/Podfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/ios/Podfile.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/ios/Runner/Info.plist" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/ios/Runner/Info.plist" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/picnic_app.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/picnic_app.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/screens/login_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/screens/login_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../serverless/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../serverless/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,9 +41,6 @@
   <component name="KubernetesApiProvider">{
   &quot;isMigrated&quot;: true
 }</component>
-  <component name="PerforceDirect.Settings">
-    <option name="CHARSET" value="없음" />
-  </component>
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="/opt/homebrew/Cellar/php/8.2.4/bin/php" />
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
@@ -169,8 +173,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9f38398b9061-39b83d9b5494-intellij.indexing.shared.core-IU-241.15989.150" />
-        <option value="bundled-js-predefined-1d06a55b98c1-91d5c284f522-JavaScript-IU-241.15989.150" />
+        <option value="bundled-jdk-9f38398b9061-39b83d9b5494-intellij.indexing.shared.core-IU-241.17011.79" />
+        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-IU-241.17011.79" />
       </set>
     </attachedChunks>
   </component>
@@ -190,6 +194,7 @@
       <workItem from="1715953305283" duration="1642000" />
       <workItem from="1715958808318" duration="8493000" />
       <workItem from="1716368399923" duration="599000" />
+      <workItem from="1716527983239" duration="46000" />
     </task>
     <task id="LOCAL-00001" summary="feat (api) 프로젝트 분리">
       <option name="closed" value="true" />
