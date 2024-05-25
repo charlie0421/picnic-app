@@ -10,7 +10,9 @@ import 'package:picnic_app/overlays.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/screens/portal.dart';
+import 'package:picnic_app/ui/community_theme.dart';
 import 'package:picnic_app/ui/fan_theme.dart';
+import 'package:picnic_app/ui/novel_theme.dart';
 import 'package:picnic_app/ui/vote_theme.dart';
 import 'package:picnic_app/util.dart';
 
@@ -80,7 +82,6 @@ class _PicnicAppState extends ConsumerState<PicnicApp>
         child: MaterialApp(
             title: 'Picnic App',
             theme: _getCurrentTheme(),
-            darkTheme: voteThemeLight,
             themeMode: appSettingState.themeMode,
             locale: appSettingState.locale,
             localizationsDelegates: const [
@@ -102,6 +103,10 @@ class _PicnicAppState extends ConsumerState<PicnicApp>
       return voteThemeLight;
     } else if (currentPortal.portalString == 'fan') {
       return fanThemeLight;
+    } else if (currentPortal.portalString == 'community') {
+      return communityThemeLight;
+    } else if (currentPortal.portalString == 'novel') {
+      return novelThemeLight;
     } else {
       return fanThemeLight;
     }

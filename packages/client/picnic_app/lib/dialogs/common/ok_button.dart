@@ -4,8 +4,7 @@ import 'package:intl/intl.dart';
 class DialogCommonOkButton extends StatelessWidget {
   final VoidCallback callback;
 
-  const DialogCommonOkButton({required this.callback, Key? key})
-      : super(key: key);
+  const DialogCommonOkButton({required this.callback, super.key});
 
   @override
   Widget build(BuildContext context) {

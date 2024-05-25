@@ -11,7 +11,7 @@ import 'package:picnic_app/ui/style.dart';
 class AlbumList extends ConsumerStatefulWidget {
   final int imageId;
 
-  AlbumList({super.key, required this.imageId});
+  const AlbumList({super.key, required this.imageId});
 
   @override
   ConsumerState<AlbumList> createState() => _LibraryListState();

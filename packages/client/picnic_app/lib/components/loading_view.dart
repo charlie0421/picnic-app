@@ -42,8 +42,8 @@ class _LoadingViewState extends ConsumerState<LoadingView> {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.center,
-      child: CircularProgressIndicator(
-        valueColor: AlwaysStoppedAnimation<Color>(Constants.fanMainColor),
+      child: const CircularProgressIndicator(
+        valueColor: AlwaysStoppedAnimation<Color>(fanMainColor),
       ),
     );
   }

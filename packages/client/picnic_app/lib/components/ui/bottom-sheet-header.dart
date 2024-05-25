@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class BottomSheetHeader extends StatelessWidget {
-  BottomSheetHeader({Key? key, required this.title}) : super(key: key);
+  BottomSheetHeader({super.key, required this.title});
   String title = '';
 
   @override

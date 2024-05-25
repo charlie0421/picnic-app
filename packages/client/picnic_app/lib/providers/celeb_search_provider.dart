@@ -1,4 +1,4 @@
-import 'package:picnic_app/models/prame/celeb.dart';
+import 'package:picnic_app/models/fan/celeb.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -33,6 +33,6 @@ class AsyncCelebSearch extends _$AsyncCelebSearch {
   }
 
   Future<void> reset() async {
-    state = AsyncValue.data([]);
+    state = const AsyncValue.data([]);
   }
 }

@@ -3,17 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/pages/prame/language_page.dart';
-import 'package:picnic_app/pages/prame/prame_home_page.dart';
+import 'package:picnic_app/pages/fan/fan_home_page.dart';
+import 'package:picnic_app/pages/fan/language_page.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 
-import '../../pages/prame/gallery_page.dart';
-import '../../pages/prame/library_page.dart';
+import '../../pages/fan/gallery_page.dart';
+import '../../pages/fan/library_page.dart';
 
-class FanBottomNavigationBar extends ConsumerWidget {
-  const FanBottomNavigationBar({super.key});
+class CommunityBottomNavigationBar extends ConsumerWidget {
+  const CommunityBottomNavigationBar({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -29,7 +29,7 @@ class FanBottomNavigationBar extends ConsumerWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 32).r,
           decoration: ShapeDecoration(
-            color: Constants.fanMainColor,
+            color: communityMainColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(120).r,
             ),
@@ -93,7 +93,7 @@ class Item extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentIndex = ref.watch(navigationInfoProvider
-        .select((value) => value.fanBottomNavigationIndex));
+        .select((value) => value.communityBottomNavigationIndex));
     final navigationNotifier = ref.read(navigationInfoProvider.notifier);
 
     return Padding(
@@ -102,20 +102,20 @@ class Item extends ConsumerWidget {
         onTap: () {
           switch (index) {
             case 0:
-              navigationNotifier.setCurrentPage(const PrameHomePage());
-              navigationNotifier.setState(fanBottomNavigationIndex: 0);
+              navigationNotifier.setCurrentPage(const FanHomePage());
+              navigationNotifier.setState(communityBottomNavigationIndex: 0);
               break;
             case 1:
               navigationNotifier.setCurrentPage(const GalleryPage());
-              navigationNotifier.setState(fanBottomNavigationIndex: 1);
+              navigationNotifier.setState(communityBottomNavigationIndex: 1);
               break;
             case 2:
               navigationNotifier.setCurrentPage(const LibraryPage());
-              navigationNotifier.setState(fanBottomNavigationIndex: 2);
+              navigationNotifier.setState(communityBottomNavigationIndex: 2);
               break;
             case 4:
               navigationNotifier.setCurrentPage(const LanguagePage());
-              navigationNotifier.setState(fanBottomNavigationIndex: 4);
+              navigationNotifier.setState(communityBottomNavigationIndex: 4);
               break;
             default:
           }
@@ -125,7 +125,8 @@ class Item extends ConsumerWidget {
           children: <Widget>[
             Icon(
               icon,
-              color: currentIndex == index ? AppColors.GP00 : AppColors.Gray300,
+              color:
+                  currentIndex == index ? AppColors.Gray00 : AppColors.Gray300,
             ),
             currentIndex == index
                 ? Text(
@@ -133,7 +134,7 @@ class Item extends ConsumerWidget {
                     style: getTextStyle(
                       context,
                       AppTypo.UI12B,
-                      AppColors.GP00,
+                      AppColors.Gray00,
                     ),
                   )
                 : const SizedBox.shrink(),

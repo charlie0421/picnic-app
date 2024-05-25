@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class DialogCommonVerticalDivider extends StatelessWidget {
-  const DialogCommonVerticalDivider({Key? key}) : super(key: key);
+  const DialogCommonVerticalDivider({super.key});
 
   @override
   Widget build(BuildContext context) {

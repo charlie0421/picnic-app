@@ -55,10 +55,9 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Save the library"),
         "label_library_tab_ai_photo":
             MessageLookupByLibrary.simpleMessage("AI Photos"),
+        "label_library_tab_fan": MessageLookupByLibrary.simpleMessage("PRAME"),
         "label_library_tab_library":
             MessageLookupByLibrary.simpleMessage("Libraries"),
-        "label_library_tab_prame":
-            MessageLookupByLibrary.simpleMessage("PRAME"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("Go to the Celebrity Gallery"),
         "label_no_celeb": MessageLookupByLibrary.simpleMessage(
@@ -78,7 +77,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_screen_title": MessageLookupByLibrary.simpleMessage("vote"),
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("birthday vote"),
-        "label_vote_tab_prame":
+        "label_vote_tab_fan":
             MessageLookupByLibrary.simpleMessage("P-RAME Voting"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("My Celeb"),
         "message_report_confirm":

@@ -47,10 +47,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_library_save": MessageLookupByLibrary.simpleMessage("保存图书馆"),
         "label_library_tab_ai_photo":
             MessageLookupByLibrary.simpleMessage("人工智能照片"),
+        "label_library_tab_fan": MessageLookupByLibrary.simpleMessage("PRAME"),
         "label_library_tab_library":
             MessageLookupByLibrary.simpleMessage("图书馆"),
-        "label_library_tab_prame":
-            MessageLookupByLibrary.simpleMessage("PRAME"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("前往名人图库"),
         "label_no_celeb": MessageLookupByLibrary.simpleMessage("您还没有将任何名人加入书签"),
@@ -65,8 +64,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_title_report": MessageLookupByLibrary.simpleMessage("提交报告"),
         "label_vote_screen_title": MessageLookupByLibrary.simpleMessage("投票"),
         "label_vote_tab_birthday": MessageLookupByLibrary.simpleMessage("生日投票"),
-        "label_vote_tab_prame":
-            MessageLookupByLibrary.simpleMessage("P-RAME投票"),
+        "label_vote_tab_fan": MessageLookupByLibrary.simpleMessage("P-RAME投票"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("我的名人"),
         "message_report_confirm":
             MessageLookupByLibrary.simpleMessage("你想报告吗？"),

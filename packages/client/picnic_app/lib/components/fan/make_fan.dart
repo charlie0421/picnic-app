@@ -13,16 +13,18 @@ import 'package:image_picker/image_picker.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/constants.dart';
 
-import '../../providers/prame_provider.dart';
+import '../../providers/fan_provider.dart';
 
-class MakgePrame extends ConsumerStatefulWidget {
+class MakgeFan extends ConsumerStatefulWidget {
+  const MakgeFan({super.key});
+
   @override
-  _MakePrameState createState() => _MakePrameState();
+  _MakeFanState createState() => _MakeFanState();
 }
 
-class _MakePrameState extends ConsumerState<MakgePrame> {
+class _MakeFanState extends ConsumerState<MakgeFan> {
   @override
-  State<MakgePrame> createState() => _MakePrameState();
+  State<MakgeFan> createState() => _MakeFanState();
 
   ui.Image? _overlayImage;
   ui.Image? _convertedUserImage; // 변환된 사용자 이미지
@@ -35,7 +37,7 @@ class _MakePrameState extends ConsumerState<MakgePrame> {
     super.initState();
     ref.read(userImageProvider);
     ref.read(convertedImageProvider);
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadOverlayImage();
       _initializeCameras();
     });
@@ -62,7 +64,7 @@ class _MakePrameState extends ConsumerState<MakgePrame> {
       if (!mounted) {
         return;
       }
-      Future.delayed(Duration(seconds: 1), () {
+      Future.delayed(const Duration(seconds: 1), () {
         setState(() {});
       });
     });
@@ -107,7 +109,7 @@ class _MakePrameState extends ConsumerState<MakgePrame> {
 
   Future<void> _loadOverlayImage() async {
     final ByteData data = await rootBundle.load(
-        'assets/mockup/prame/che${ref.watch(prameSelectedIndexProvider) + 1}.png');
+        'assets/mockup/fan/che${ref.watch(fanSelectedIndexProvider) + 1}.png');
     final Uint8List bytes = data.buffer.asUint8List();
     final img.Image image = img.decodeImage(bytes)!;
     final uiImage = await _convertImage(image);
@@ -143,7 +145,7 @@ class _MakePrameState extends ConsumerState<MakgePrame> {
   @override
   Widget build(BuildContext context) {
     final ref = this.ref;
-    int selectedPrameIndex = ref.watch(prameSelectedIndexProvider);
+    int selectedFanIndex = ref.watch(fanSelectedIndexProvider);
     final userImage = ref.watch(userImageProvider);
     final convertedUserImage = ref.watch(convertedImageProvider);
 
@@ -155,19 +157,19 @@ class _MakePrameState extends ConsumerState<MakgePrame> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Image.asset('assets/mockup/prame/replay.png',
+              Image.asset('assets/mockup/fan/replay.png',
                   width: 24.w, height: 24.h),
               SizedBox(width: 32.w),
-              Image.asset('assets/mockup/prame/reply.png',
+              Image.asset('assets/mockup/fan/reply.png',
                   width: 24.w, height: 24.h),
               SizedBox(width: 32.w),
-              Image.asset('assets/mockup/prame/prompt_suggestion.png',
+              Image.asset('assets/mockup/fan/prompt_suggestion.png',
                   width: 24.w, height: 24.h),
               SizedBox(width: 32.w),
-              Image.asset('assets/mockup/prame/delete.png',
+              Image.asset('assets/mockup/fan/delete.png',
                   width: 24.w, height: 24.h),
               SizedBox(width: 32.w),
-              Image.asset('assets/mockup/prame/more_vert.png',
+              Image.asset('assets/mockup/fan/more_vert.png',
                   width: 24.w, height: 24.h),
             ],
           ),
@@ -176,9 +178,9 @@ class _MakePrameState extends ConsumerState<MakgePrame> {
           child: Container(
             height: double.infinity,
             width: double.infinity,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/mockup/prame/프레임 배경 1.png'),
+                image: AssetImage('assets/mockup/fan/프레임 배경 1.png'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -190,9 +192,9 @@ class _MakePrameState extends ConsumerState<MakgePrame> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Image.asset('assets/mockup/prame/help.png',
+                    Image.asset('assets/mockup/fan/help.png',
                         width: 54.w, height: 54.h),
-                    Image.asset('assets/mockup/prame/save.png',
+                    Image.asset('assets/mockup/fan/save.png',
                         width: 54.w, height: 54.h),
                   ],
                 ),
@@ -221,9 +223,9 @@ class _MakePrameState extends ConsumerState<MakgePrame> {
                             : Colors.transparent,
                       ),
                       child: Hero(
-                        tag: 'prame',
+                        tag: 'fan',
                         child: Image.asset(
-                            'assets/mockup/prame/che${selectedPrameIndex + 1}.png'),
+                            'assets/mockup/fan/che${selectedFanIndex + 1}.png'),
                       )),
                 ],
               ),
@@ -234,16 +236,16 @@ class _MakePrameState extends ConsumerState<MakgePrame> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Image.asset('assets/mockup/prame/background.png'),
+                    Image.asset('assets/mockup/fan/background.png'),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ElevatedButton(
                           onPressed: getImage,
-                          child: Text('사진첩'),
+                          child: const Text('사진첩'),
                         ),
                         if (cameras != null && cameras!.isNotEmpty)
-                          SizedBox(width: 16),
+                          const SizedBox(width: 16),
                         if (cameras != null && cameras!.isNotEmpty)
                           ElevatedButton(
                             onPressed: () {
@@ -307,22 +309,22 @@ class _MakePrameState extends ConsumerState<MakgePrame> {
                                                         .stop();
                                                     Navigator.pop(context);
                                                   },
-                                                  child: Text('사진 찍기'),
+                                                  child: const Text('사진 찍기'),
                                                 ),
-                                                SizedBox(width: 16),
+                                                const SizedBox(width: 16),
                                                 if (cameras != null &&
                                                     cameras!.isNotEmpty)
                                                   ElevatedButton(
                                                     onPressed: () async {
                                                       _toggleCamera();
                                                       Future.delayed(
-                                                          Duration(
+                                                          const Duration(
                                                               milliseconds:
                                                                   1000), () {
                                                         setState(() {});
                                                       });
                                                     },
-                                                    child: Text('카메라 전환'),
+                                                    child: const Text('카메라 전환'),
                                                   ),
                                               ],
                                             ),
@@ -334,11 +336,11 @@ class _MakePrameState extends ConsumerState<MakgePrame> {
                                 },
                               );
                             },
-                            child: Text('카메라'),
+                            child: const Text('카메라'),
                           ),
                       ],
                     ),
-                    Image.asset('assets/mockup/prame/decoration.png',
+                    Image.asset('assets/mockup/fan/decoration.png',
                         width: 54.w, height: 54.h),
                   ],
                 ),

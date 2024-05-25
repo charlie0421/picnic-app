@@ -5,7 +5,7 @@ import 'package:picnic_app/constants.dart';
 OverlaySupportEntry? blackScreenOverlaySupport;
 OverlaySupportEntry? lockScreenOverlaySupport;
 OverlaySupportEntry? onlyAdultOverlay;
-Color blackScreenColor = Constants.fanMainColor;
+Color blackScreenColor = voteMainColor;
 DateTime? lastAuthenticationTime;
 
 void clearLockScreenOverlay() {

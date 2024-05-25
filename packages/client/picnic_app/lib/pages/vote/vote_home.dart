@@ -45,7 +45,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
           itemCount: 10,
           itemHeight: 200.0,
           autoplay: true,
-          pagination: SwiperPagination(),
+          pagination: const SwiperPagination(),
           layout: SwiperLayout.DEFAULT,
         ),
       ),
@@ -53,8 +53,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         height: 130,
         child: Column(
           children: [
-            Text('리워드 LIST'),
-            Container(
+            const Text('리워드 LIST'),
+            SizedBox(
               height: 100,
               width: 400,
               child: ListView.builder(
@@ -65,7 +65,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                       width: 100,
                       height: 40,
                       color: Colors.blue,
-                      margin: EdgeInsets.all(8),
+                      margin: const EdgeInsets.all(8),
                     );
                   }),
             ),

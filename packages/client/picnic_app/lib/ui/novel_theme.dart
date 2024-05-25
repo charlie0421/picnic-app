@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_app/constants.dart';
 
-ThemeData voteThemeLight = ThemeData.light().copyWith(
+ThemeData novelThemeLight = ThemeData.light().copyWith(
   textTheme: const TextTheme(
     displayLarge: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
     displayMedium: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
@@ -18,21 +18,18 @@ ThemeData voteThemeLight = ThemeData.light().copyWith(
     labelSmall: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
   ),
   appBarTheme: const AppBarTheme(
-    backgroundColor: voteMainColor,
+    backgroundColor: novelMainColor,
     foregroundColor: Colors.white,
   ),
-  bottomAppBarTheme: const BottomAppBarTheme(
-    color: Colors.transparent,
+  bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+    backgroundColor: novelMainColor,
+    selectedIconTheme: IconThemeData(color: Colors.black),
+    unselectedIconTheme: IconThemeData(color: Colors.black54),
+    selectedItemColor: Colors.black,
+    unselectedItemColor: Colors.black54,
+    selectedLabelStyle: TextStyle(color: Colors.black),
+    unselectedLabelStyle: TextStyle(color: Colors.black54),
   ),
-  // bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-  //   backgroundColor: voteMainColorLight,
-  //   selectedIconTheme: IconThemeData(color: Colors.black),
-  //   unselectedIconTheme: IconThemeData(color: Colors.black54),
-  //   selectedItemColor: Colors.black,
-  //   unselectedItemColor: Colors.black54,
-  //   selectedLabelStyle: TextStyle(color: Colors.black),
-  //   unselectedLabelStyle: TextStyle(color: Colors.black54),
-  // ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
       padding: WidgetStateProperty.all(const EdgeInsets.all(4)),
@@ -51,7 +48,7 @@ ThemeData voteThemeLight = ThemeData.light().copyWith(
   ),
   bottomSheetTheme: const BottomSheetThemeData(
     showDragHandle: true,
-    dragHandleColor: voteMainColor,
+    dragHandleColor: novelMainColor,
     dragHandleSize: Size(200, 2),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.only(

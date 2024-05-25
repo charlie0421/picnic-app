@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/models/prame/comment.dart';
+import 'package:picnic_app/models/fan/comment.dart';
 import 'package:picnic_app/providers/article_list_provider.dart';
 import 'package:picnic_app/providers/comment_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -80,7 +80,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
           ),
           IconButton(
             onPressed: () => _commitComment(),
-            icon: Icon(Icons.send, color: Constants.fanMainColor),
+            icon: const Icon(Icons.send, color: fanMainColor),
           ),
         ],
       ),

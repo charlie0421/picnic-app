@@ -1,8 +1,8 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:picnic_app/models/meta.dart';
-import 'package:picnic_app/models/prame/article_image.dart';
-import 'package:picnic_app/models/prame/comment.dart';
-import 'package:picnic_app/models/prame/gallery.dart';
+import 'package:picnic_app/models/fan/article_image.dart';
+import 'package:picnic_app/models/fan/comment.dart';
+import 'package:picnic_app/models/fan/gallery.dart';
 import 'package:picnic_app/reflector.dart';
 
 part 'article.g.dart';

@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:picnic_app/models/meta.dart';
-import 'package:picnic_app/models/prame/celeb.dart';
+import 'package:picnic_app/models/fan/celeb.dart';
 import 'package:picnic_app/reflector.dart';
 
 part 'gallery.g.dart';

@@ -3,16 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:picnic_app/providers/celeb_list_provider.dart';
-import 'package:picnic_app/providers/prame_provider.dart';
+import 'package:picnic_app/providers/fan_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class SelectArtist extends ConsumerStatefulWidget {
+  const SelectArtist({super.key});
+
   @override
   createState() => _SelectArtistState();
 }
 
 class _SelectArtistState extends ConsumerState<SelectArtist> {
-  int selectedPrameIndex = 0;
+  int selectedFanIndex = 0;
 
   @override
   void initState() {
@@ -34,9 +36,9 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
             child: _buildSelectArtist()),
         Expanded(
           child: Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/mockup/prame/프레임 배경 1.png'),
+                image: AssetImage('assets/mockup/fan/프레임 배경 1.png'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -55,7 +57,7 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
                       separatorBuilder: (context, index) =>
                           SizedBox(width: 16.w),
                       itemBuilder: (context, index) {
-                        return _buildSelectPrame(index);
+                        return _buildSelectFan(index);
                       },
                     ),
                   );
@@ -69,9 +71,9 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
                       color: Colors.white,
                     ),
                     child: Hero(
-                      tag: 'prame',
+                      tag: 'fan',
                       child: Image.asset(
-                          'assets/mockup/prame/che${selectedPrameIndex + 1}.png'),
+                          'assets/mockup/fan/che${selectedFanIndex + 1}.png'),
                     )),
                 SizedBox(height: 10.h),
                 ElevatedButton(
@@ -86,7 +88,7 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
                     ref.read(parmePageIndexProvider.notifier).state = 1;
                   },
                   child: Text(
-                    'Go Prame!',
+                    'Go Fan!',
                     style: Theme.of(context)
                         .textTheme
                         .titleLarge
@@ -101,12 +103,12 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
     );
   }
 
-  _buildSelectPrame(int index) {
+  _buildSelectFan(int index) {
     return InkWell(
       onTap: () {
         setState(() {
-          selectedPrameIndex = index;
-          ref.read(prameSelectedIndexProvider.notifier).state = index;
+          selectedFanIndex = index;
+          ref.read(fanSelectedIndexProvider.notifier).state = index;
         });
       },
       child: Container(
@@ -115,9 +117,9 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
             color: Colors.white,
           ),
           child: Opacity(
-              opacity: selectedPrameIndex == index ? 1 : 0.2,
+              opacity: selectedFanIndex == index ? 1 : 0.2,
               child: Image.asset(
-                'assets/mockup/prame/che${index + 1}.png',
+                'assets/mockup/fan/che${index + 1}.png',
                 width: 71.w,
                 height: 110.h,
               ))),
@@ -168,8 +170,8 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
           ),
         );
       },
-      loading: () => CircularProgressIndicator(),
-      error: (error, stackTrace) => Text('error'),
+      loading: () => const CircularProgressIndicator(),
+      error: (error, stackTrace) => const Text('error'),
     );
   }
 }

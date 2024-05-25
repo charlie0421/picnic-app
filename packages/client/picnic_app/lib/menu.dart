@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_app/components/appinfo.dart';
-import 'package:picnic_app/pages/prame/gallery_page.dart';
-import 'package:picnic_app/pages/prame/landing_page.dart';
-import 'package:picnic_app/pages/prame/prame_home_page.dart';
+import 'package:picnic_app/pages/fan/fan_home_page.dart';
+import 'package:picnic_app/pages/fan/gallery_page.dart';
+import 'package:picnic_app/pages/fan/landing_page.dart';
 import 'package:picnic_app/pages/vote/vote_home.dart';
-import 'package:picnic_app/screens/prame/prame_screen.dart';
+import 'package:picnic_app/screens/fan/fan_screen.dart';
 
 List<Widget> voteScreens = [
   const VoteHomePage(),
@@ -13,14 +12,24 @@ List<Widget> voteScreens = [
   Container(),
 ];
 
-List<Widget> prameScreens = [
-  const PrameHomePage(),
+List<Widget> fanScreens = [
+  const FanHomePage(),
   const GalleryPage(),
-  const PrameScreen(),
+  const FanScreen(),
   Container(),
   const LandingPage(),
 ];
 
-List<Widget> developerScreens = [
-  const AppInfo(),
+List<Widget> communityScreens = [
+  Container(),
+  Container(),
+  Container(),
+  Container(),
+];
+
+List<Widget> novelScreens = [
+  Container(),
+  Container(),
+  Container(),
+  Container(),
 ];

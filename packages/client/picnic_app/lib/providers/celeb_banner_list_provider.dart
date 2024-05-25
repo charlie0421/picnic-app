@@ -1,4 +1,4 @@
-import 'package:picnic_app/models/prame/celeb_banner.dart';
+import 'package:picnic_app/models/fan/celeb_banner.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -19,10 +19,10 @@ class AsyncCelebBannerList extends _$AsyncCelebBannerList {
         .eq('celeb_id', celebId);
     List<CelebBannerModel> celebList = List<CelebBannerModel>.from(
         response.map((e) => CelebBannerModel.fromJson(e)));
-    celebList.forEach((element) {
+    for (var element in celebList) {
       element.thumbnail =
           'https://cdn-dev.picnic.fan/celeb_banner/${element.id}/${element.thumbnail}';
-    });
+    }
     return celebList;
   }
 }

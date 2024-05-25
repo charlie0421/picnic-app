@@ -7,28 +7,28 @@ import 'package:intl/intl.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/no_bookmark_celeb.dart';
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/models/prame/celeb.dart';
-import 'package:picnic_app/models/prame/gallery.dart';
-import 'package:picnic_app/pages/prame/gallery_detail_page.dart';
-import 'package:picnic_app/pages/prame/landing_page.dart';
+import 'package:picnic_app/models/fan/celeb.dart';
+import 'package:picnic_app/models/fan/gallery.dart';
+import 'package:picnic_app/pages/fan/gallery_detail_page.dart';
+import 'package:picnic_app/pages/fan/landing_page.dart';
 import 'package:picnic_app/providers/celeb_banner_list_provider.dart';
 import 'package:picnic_app/providers/gallery_list_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
-import 'package:picnic_app/screens/prame/draw_image_screen.dart';
+import 'package:picnic_app/screens/fan/draw_image_screen.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
 
 import '../../components/celeb_list_item.dart';
 import '../../providers/celeb_list_provider.dart';
 
-class PrameHomePage extends ConsumerStatefulWidget {
-  const PrameHomePage({super.key});
+class FanHomePage extends ConsumerStatefulWidget {
+  const FanHomePage({super.key});
 
   @override
-  ConsumerState<PrameHomePage> createState() => _PrameHomePageState();
+  ConsumerState<FanHomePage> createState() => _FanHomePageState();
 }
 
-class _PrameHomePageState extends ConsumerState<PrameHomePage> {
+class _FanHomePageState extends ConsumerState<FanHomePage> {
   @override
   Widget build(BuildContext context) {
     final asyncMyCelebListState = ref.watch(asyncMyCelebListProvider);
@@ -38,9 +38,8 @@ class _PrameHomePageState extends ConsumerState<PrameHomePage> {
 
     return asyncMyCelebListState.when(
         data: (data) {
-          logger.w('selectedCelebState: ${data}');
           if (selectedCelebState == null) {
-            WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+            WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
               selectedCelebNotifier
                   .setSelectedCeleb(asyncCelebListState.value?.first);
 
@@ -292,13 +291,13 @@ class _PrameHomePageState extends ConsumerState<PrameHomePage> {
               if (selectedCelebState != null)
                 ...asyncMyCelebListState.when(
                     data: (data) {
-                      logger.w('data: ${data}');
+                      logger.w('data: $data');
                       if (data == null) {
                         return [const SizedBox()];
                       }
                       logger.w('data.items.length: ${data.length}');
                       return data.isNotEmpty
-                          ? _buildSearchList(context, data, selectedCelebState!)
+                          ? _buildSearchList(context, data, selectedCelebState)
                           : [const NoBookmarkCeleb()];
                     },
                     loading: () => [buildLoadingOverlay()],
@@ -330,14 +329,12 @@ class _PrameHomePageState extends ConsumerState<PrameHomePage> {
 
   List<Widget> _buildSearchList(
       BuildContext context, List<CelebModel> data, CelebModel selectedCeleb) {
-    logger.w('selectedCeleb: ${selectedCeleb}');
-    logger.w('selectedCeleb: ${selectedCeleb?.name_ko}');
+    logger.w('selectedCeleb: $selectedCeleb');
+    logger.w('selectedCeleb: ${selectedCeleb.name_ko}');
     logger.w('CelebListModel: ${data.length}');
 
-    if (selectedCeleb != null) {
-      data.removeWhere((item) => item.id == selectedCeleb.id);
-      data.insert(0, selectedCeleb);
-    }
+    data.removeWhere((item) => item.id == selectedCeleb.id);
+    data.insert(0, selectedCeleb);
     return selectedCeleb != null
         ? data
             .map((e) => Container(
@@ -345,7 +342,7 @@ class _PrameHomePageState extends ConsumerState<PrameHomePage> {
                 margin: const EdgeInsets.symmetric(horizontal: 32, vertical: 4),
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 decoration: BoxDecoration(
-                  color: e.id == selectedCeleb?.id
+                  color: e.id == selectedCeleb.id
                       ? const Color(0xFF47E89B)
                       : AppColors.Gray00,
                   border: Border.all(

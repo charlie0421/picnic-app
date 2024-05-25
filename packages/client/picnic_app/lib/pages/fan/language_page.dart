@@ -49,7 +49,7 @@ class LanguagePage extends ConsumerWidget {
                   height: 50,
                   color: appSettingState.locale.languageCode ==
                           languageMap.keys.elementAt(index)
-                      ? Constants.fanMainColor
+                      ? fanMainColor
                       : null,
                   child: Text(
                     '${countryMap[countryMap.keys.elementAt(index)]!}, ${languageMap[languageMap.keys.elementAt(index)]!}',

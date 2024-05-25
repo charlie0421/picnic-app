@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_app/models/prame/comment.dart';
+import 'package:picnic_app/models/fan/comment.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class CommentContents extends StatelessWidget {
@@ -12,7 +12,7 @@ class CommentContents extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
         width: double.infinity,
         child: Text(
           item.content,

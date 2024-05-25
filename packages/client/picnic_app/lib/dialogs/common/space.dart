@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class DialogCommonSpace extends StatelessWidget {
-  const DialogCommonSpace({Key? key}) : super(key: key);
+  const DialogCommonSpace({super.key});
 
   @override
   Widget build(BuildContext context) {

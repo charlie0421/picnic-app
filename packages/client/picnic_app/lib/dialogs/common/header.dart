@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class DialogCommonHeader extends StatelessWidget {
   final String title;
 
-  const DialogCommonHeader({Key? key, required this.title}) : super(key: key);
+  const DialogCommonHeader({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {

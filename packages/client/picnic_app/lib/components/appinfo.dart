@@ -10,7 +10,7 @@ import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
 class AppInfo extends ConsumerWidget {
-  const AppInfo({Key? key}) : super(key: key);
+  const AppInfo({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

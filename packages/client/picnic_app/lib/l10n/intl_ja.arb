@@ -40,7 +40,7 @@
   "button_ok": "確認",
   "button_cancel": "キャンセル",
   "label_library_tab_library": "ライブラリ",
-  "label_library_tab_prame": "PRAME",
+  "label_library_tab_fan": "PRAME",
   "label_library_tab_ai_photo": "AIフォト",
   "label_article_comment_empty": "最初のコメントの主人公になりましょう！",
   "label_library_save": "ライブラリ保存",
@@ -50,6 +50,6 @@
   "button_complete": "完了",
   "label_vote_screen_title": "投票",
   "label_vote_tab_birthday": "誕生日投票",
-  "label_vote_tab_prame": "P-RAME投票",
+  "label_vote_tab_fan": "P-RAME投票",
   "nav_setting": "設定"
 }

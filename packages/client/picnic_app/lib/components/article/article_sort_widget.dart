@@ -98,7 +98,7 @@ class ArticleSortWidget extends ConsumerWidget {
                                                         ? getTextStyle(
                                                             context,
                                                             AppTypo.UI16B,
-                                                            AppColors.GP400)
+                                                            AppColors.Gray500)
                                                         : getTextStyle(
                                                             context,
                                                             AppTypo.UI16M,
@@ -144,7 +144,7 @@ class ArticleSortWidget extends ConsumerWidget {
                                                     ? getTextStyle(
                                                         context,
                                                         AppTypo.UI16B,
-                                                        AppColors.GP400)
+                                                        AppColors.Gray500)
                                                     : getTextStyle(
                                                         context,
                                                         AppTypo.UI16M,
@@ -190,7 +190,7 @@ class ArticleSortWidget extends ConsumerWidget {
                                                     ? getTextStyle(
                                                         context,
                                                         AppTypo.UI16B,
-                                                        AppColors.GP400)
+                                                        AppColors.Gray500)
                                                     : getTextStyle(
                                                         context,
                                                         AppTypo.UI16M,

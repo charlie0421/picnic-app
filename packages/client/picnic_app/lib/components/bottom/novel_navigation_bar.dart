@@ -3,13 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/pages/vote/vote_home.dart';
+import 'package:picnic_app/pages/fan/fan_home_page.dart';
+import 'package:picnic_app/pages/fan/language_page.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 
-class VoteBottomNavigationBar extends ConsumerWidget {
-  const VoteBottomNavigationBar({super.key});
+import '../../pages/fan/gallery_page.dart';
+import '../../pages/fan/library_page.dart';
+
+class NovelBottomNavigationBar extends ConsumerWidget {
+  const NovelBottomNavigationBar({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -18,13 +22,14 @@ class VoteBottomNavigationBar extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 0).r,
       child: BottomAppBar(
+        color: Colors.transparent,
         elevation: 0,
         padding: EdgeInsets.zero,
         height: 60.h,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 32).r,
           decoration: ShapeDecoration(
-            color: voteMainColor,
+            color: novelMainColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(120).r,
             ),
@@ -46,19 +51,24 @@ class VoteBottomNavigationBar extends ConsumerWidget {
                 index: 0,
               ),
               Item(
-                title: Intl.message('투표'),
-                icon: Icons.how_to_vote_sharp,
+                title: Intl.message('nav_gallery'),
+                icon: Icons.photo,
                 index: 1,
               ),
               Item(
-                title: Intl.message('상점'),
-                icon: Icons.storefront,
+                title: Intl.message('nav_library'),
+                icon: Icons.library_books,
                 index: 2,
               ),
               Item(
-                title: Intl.message('미디어'),
-                icon: Icons.tv,
+                title: Intl.message('nav_purchases'),
+                icon: Icons.wallet,
                 index: 3,
+              ),
+              Item(
+                title: Intl.message('nav_setting'),
+                icon: Icons.settings,
+                index: 4,
               ),
             ],
           ),
@@ -83,7 +93,7 @@ class Item extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentIndex = ref.watch(navigationInfoProvider
-        .select((value) => value.voteBottomNavigationIndex));
+        .select((value) => value.novelBottomNavigationIndex));
     final navigationNotifier = ref.read(navigationInfoProvider.notifier);
 
     return Padding(
@@ -92,16 +102,20 @@ class Item extends ConsumerWidget {
         onTap: () {
           switch (index) {
             case 0:
-              navigationNotifier.setCurrentPage(const VoteHomePage());
-              navigationNotifier.setState(voteBottomNavigationIndex: 0);
+              navigationNotifier.setCurrentPage(const FanHomePage());
+              navigationNotifier.setState(novelBottomNavigationIndex: 0);
               break;
             case 1:
-              navigationNotifier.setCurrentPage(const VoteHomePage());
-              navigationNotifier.setState(voteBottomNavigationIndex: 1);
+              navigationNotifier.setCurrentPage(const GalleryPage());
+              navigationNotifier.setState(novelBottomNavigationIndex: 1);
               break;
             case 2:
-              navigationNotifier.setCurrentPage(const VoteHomePage());
-              navigationNotifier.setState(voteBottomNavigationIndex: 2);
+              navigationNotifier.setCurrentPage(const LibraryPage());
+              navigationNotifier.setState(novelBottomNavigationIndex: 2);
+              break;
+            case 4:
+              navigationNotifier.setCurrentPage(const LanguagePage());
+              navigationNotifier.setState(novelBottomNavigationIndex: 4);
               break;
             default:
           }
