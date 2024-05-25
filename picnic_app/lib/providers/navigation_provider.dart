@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_app/components/appinfo.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/menu.dart';
-import 'package:picnic_app/pages/prame/prame_home_page.dart';
+import 'package:picnic_app/pages/vote/vote_home.dart';
 import 'package:picnic_app/reflector.dart';
-import 'package:picnic_app/screens/login_screen.dart';
-import 'package:picnic_app/screens/prame/prame_home_screen.dart';
-import 'package:picnic_app/screens/vote/home_screen.dart';
+import 'package:picnic_app/screens/community/community_home_screen.dart';
+import 'package:picnic_app/screens/fan/fan_home_screen.dart';
+import 'package:picnic_app/screens/novel/novel_home_screen.dart';
+import 'package:picnic_app/screens/vote/vote_home_screen.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:supabase_auth_ui/supabase_auth_ui.dart';
-import 'package:supabase_extensions/supabase_extensions.dart';
 
 part 'navigation_provider.g.dart';
 
@@ -25,17 +23,14 @@ class NavigationInfo extends _$NavigationInfo {
 
   Future<void> loadSettings() async {
     setting = await Navigation.load();
-    state = state.copyWith(
-        portalString: setting.portalString,
-        fanBottomNavigationIndex: setting.fanBottomNavigationIndex,
-        voteBottomNavigationIndex: setting.voteBottomNavigationIndex);
   }
 
   setState({
     String? portalString,
     int? fanBottomNavigationIndex,
     int? voteBottomNavigationIndex,
-    int? developerBottomNavigationIndex,
+    int? communityBottomNavigationIndex,
+    int? novelBottomNavigationIndex,
     Widget? currentPage,
   }) {
     state = state.copyWith(
@@ -44,8 +39,10 @@ class NavigationInfo extends _$NavigationInfo {
           fanBottomNavigationIndex ?? state.fanBottomNavigationIndex,
       voteBottomNavigationIndex:
           voteBottomNavigationIndex ?? state.voteBottomNavigationIndex,
-      developerBottomNavigationIndex: developerBottomNavigationIndex ??
-          state.developerBottomNavigationIndex,
+      communityBottomNavigationIndex: communityBottomNavigationIndex ??
+          state.communityBottomNavigationIndex,
+      novelBottomNavigationIndex:
+          novelBottomNavigationIndex ?? state.novelBottomNavigationIndex,
       currentPage: currentPage ?? state.currentPage,
     );
   }
@@ -53,30 +50,21 @@ class NavigationInfo extends _$NavigationInfo {
   setPortalString(String portalString) {
     logger.d('setPortalString: $portalString');
 
-    Widget currentScreen;
-    if (portalString == 'vote') {
-      currentScreen = const VoteHomeScreen();
-    } else if (portalString == 'fan') {
-      currentScreen = const PrameHomeScreen();
-    } else {
-      return const PrameHomeScreen();
-    }
-
     Widget currentPage;
     if (portalString == 'vote') {
       currentPage = voteScreens[state.voteBottomNavigationIndex];
     } else if (portalString == 'fan') {
-      currentPage = prameScreens[state.fanBottomNavigationIndex];
-    } else if (portalString == 'developer') {
-      currentPage =
-          Supabase.instance.client.isLogged ? AppInfo() : const LoginScreen();
+      currentPage = fanScreens[state.fanBottomNavigationIndex];
+    } else if (portalString == 'community') {
+      currentPage = communityScreens[state.fanBottomNavigationIndex];
+    } else if (portalString == 'novel') {
+      currentPage = novelScreens[state.fanBottomNavigationIndex];
     } else {
       return const SizedBox.shrink();
     }
 
     state = state.copyWith(
       portalString: portalString,
-      currentScreen: currentScreen,
       currentPage: currentPage,
     );
     globalStorage.saveData('portalString', portalString);
@@ -90,11 +78,6 @@ class NavigationInfo extends _$NavigationInfo {
   setVoteBottomNavigationIndex(int index) {
     state = state.copyWith(voteBottomNavigationIndex: index);
     globalStorage.saveData('voteBottomNavigationIndex', index.toString());
-  }
-
-  setDeveloperBottomNavigationIndex(int index) {
-    state = state.copyWith(developerBottomNavigationIndex: index);
-    globalStorage.saveData('developerBottomNavigationIndex', index.toString());
   }
 
   setCurrentPage(Widget page) {
@@ -123,32 +106,64 @@ class Navigation {
   String portalString = 'vote';
   int fanBottomNavigationIndex = 0;
   int voteBottomNavigationIndex = 0;
-  int developerBottomNavigationIndex = 0;
-  Widget? currentScreen = const PrameHomeScreen();
-  Widget? currentPage = const PrameHomePage();
-  Widget? previousPage;
+  int communityBottomNavigationIndex = 0;
+  int novelBottomNavigationIndex = 0;
+  Widget currentScreen = const VoteHomeScreen();
+  Widget currentPage = const VoteHomePage();
+  Widget previousPage = Container();
 
   Navigation();
 
   static Future<Navigation> load() async {
     String? portalString = await globalStorage.loadData('portalString', 'vote');
-    String? bottomNavigationIndex =
-        await globalStorage.loadData('bottomNavigationIndex', '0');
+    String? fanBottomNavigationIndex =
+        await globalStorage.loadData('fanBottomNavigationIndex', '0');
+    String? voteBottomNavigationIndex =
+        await globalStorage.loadData('voteBottomNavigationIndex', '0');
+    String? communityBottomNavigationIndex =
+        await globalStorage.loadData('communityBottomNavigationIndex', '0');
+    String? novelBottomNavigationIndex =
+        await globalStorage.loadData('novelBottomNavigationIndex', '0');
 
     logger.d('portalString: $portalString');
-    logger.d('bottomNavigationIndex: $bottomNavigationIndex');
+
+    Widget currentScreen = Container();
+    Widget currentPage = Container();
+
+    if (portalString == 'vote') {
+      currentScreen = const VoteHomeScreen();
+      currentPage = voteScreens[int.parse(voteBottomNavigationIndex!)];
+    } else if (portalString == 'fan') {
+      currentScreen = const FanHomeScreen();
+      currentPage = fanScreens[int.parse(fanBottomNavigationIndex!)];
+    } else if (portalString == 'community') {
+      currentScreen = const CommunityHomeScreen();
+      currentPage =
+          communityScreens[int.parse(communityBottomNavigationIndex!)];
+    } else if (portalString == 'novel') {
+      currentScreen = const NovelHomeScreen();
+      currentPage = novelScreens[int.parse(novelBottomNavigationIndex!)];
+    }
+
+    logger.d('currentScreen: $currentScreen');
+    logger.d('currentPage: $currentPage');
     return Navigation()
       ..portalString = portalString!
-      ..fanBottomNavigationIndex = int.parse(bottomNavigationIndex!)
-      ..voteBottomNavigationIndex = int.parse(bottomNavigationIndex!)
-      ..developerBottomNavigationIndex = int.parse(bottomNavigationIndex!);
+      ..fanBottomNavigationIndex = int.parse(fanBottomNavigationIndex!)
+      ..voteBottomNavigationIndex = int.parse(voteBottomNavigationIndex!)
+      ..communityBottomNavigationIndex =
+          int.parse(communityBottomNavigationIndex!)
+      ..novelBottomNavigationIndex = int.parse(novelBottomNavigationIndex!)
+      ..currentScreen = currentScreen
+      ..currentPage = currentPage;
   }
 
   Navigation copyWith({
     String? portalString,
     int? fanBottomNavigationIndex,
     int? voteBottomNavigationIndex,
-    int? developerBottomNavigationIndex,
+    int? communityBottomNavigationIndex,
+    int? novelBottomNavigationIndex,
     Widget? currentScreen,
     Widget? previousPage,
     Widget? currentPage,
@@ -159,8 +174,10 @@ class Navigation {
           fanBottomNavigationIndex ?? this.fanBottomNavigationIndex
       ..voteBottomNavigationIndex =
           voteBottomNavigationIndex ?? this.voteBottomNavigationIndex
-      ..developerBottomNavigationIndex =
-          developerBottomNavigationIndex ?? this.developerBottomNavigationIndex
+      ..communityBottomNavigationIndex =
+          communityBottomNavigationIndex ?? this.communityBottomNavigationIndex
+      ..novelBottomNavigationIndex =
+          novelBottomNavigationIndex ?? this.novelBottomNavigationIndex
       ..currentScreen = currentScreen ?? this.currentScreen
       ..previousPage = previousPage ?? this.previousPage
       ..currentPage = currentPage ?? this.currentPage;

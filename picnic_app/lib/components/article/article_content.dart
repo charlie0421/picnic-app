@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_app/models/prame/article.dart';
+import 'package:picnic_app/models/fan/article.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class ArticleContent extends StatelessWidget {

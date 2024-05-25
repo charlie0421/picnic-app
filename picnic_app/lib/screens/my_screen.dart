@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../pages/prame/my_page.dart';
+import '../pages/fan/my_page.dart';
 
 class MyScreen extends ConsumerWidget {
   static const String routeName = '/my';
@@ -14,7 +14,7 @@ class MyScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('My'),
       ),
-      body: MyPage(),
+      body: const MyPage(),
     );
   }
 }

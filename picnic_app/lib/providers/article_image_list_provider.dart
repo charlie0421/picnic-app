@@ -1,4 +1,4 @@
-import 'package:picnic_app/models/prame/article_image.dart';
+import 'package:picnic_app/models/fan/article_image.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -20,10 +20,10 @@ class AsyncArticleImageList extends _$AsyncArticleImageList {
     final List<ArticleImageModel> articleImageList =
         List<ArticleImageModel>.from(
             response.map((e) => ArticleImageModel.fromJson(e)));
-    articleImageList.forEach((element) {
+    for (var element in articleImageList) {
       element.image =
           'https://cdn-dev.picnic.fan/article/${element.id}/${element.image}';
-    });
+    }
 
     return articleImageList;
   }

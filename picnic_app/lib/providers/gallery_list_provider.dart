@@ -1,4 +1,4 @@
-import 'package:picnic_app/models/prame/gallery.dart';
+import 'package:picnic_app/models/fan/gallery.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -19,10 +19,10 @@ class AsyncGalleryList extends _$AsyncGalleryList {
 
     List<GalleryModel> galleryList =
         List<GalleryModel>.from(response.map((e) => GalleryModel.fromJson(e)));
-    galleryList.forEach((element) {
+    for (var element in galleryList) {
       element.cover =
           'https://cdn-dev.picnic.fan/gallery/${element.id}/${element.cover}';
-    });
+    }
     return galleryList;
   }
 }
@@ -56,10 +56,10 @@ class AsyncCelebGalleryList extends _$AsyncCelebGalleryList {
 
     List<GalleryModel> galleryList =
         List<GalleryModel>.from(response.map((e) => GalleryModel.fromJson(e)));
-    galleryList.forEach((element) {
+    for (var element in galleryList) {
       element.cover =
           'https://cdn-dev.picnic.fan/gallery/${element.id}/${element.cover}';
-    });
+    }
     return galleryList;
   }
 }

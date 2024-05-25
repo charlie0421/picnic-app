@@ -1,5 +1,5 @@
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/models/prame/celeb.dart';
+import 'package:picnic_app/models/fan/celeb.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -19,13 +19,12 @@ class AsyncCelebList extends _$AsyncCelebList {
         .select()
         .order('id', ascending: true);
 
-    logger.i('fetchCelebList response: ${response}');
     final List<CelebModel> celebList =
         List<CelebModel>.from(response.map((e) => CelebModel.fromJson(e)));
-    celebList.forEach((element) {
+    for (var element in celebList) {
       element.thumbnail =
           'https://cdn-dev.picnic.fan/celeb/${element.id}/${element.thumbnail}';
-    });
+    }
     return celebList;
   }
 
@@ -67,14 +66,12 @@ class AsyncMyCelebList extends _$AsyncMyCelebList {
           .select('celeb(*)')
           .eq('user_id', Supabase.instance.client.uid.toString())
           .order('celeb_id', ascending: true);
-      logger.i('fetchMyCelebList response: ${response}');
       List<CelebModel> celebList = List<CelebModel>.from(
           response.map((e) => CelebModel.fromJson(e['celeb'])));
-      logger.i('fetchMyCelebList celebList: $celebList');
-      celebList.forEach((element) {
+      for (var element in celebList) {
         element.thumbnail =
             'https://cdn-dev.picnic.fan/celeb/${element.id}/${element.thumbnail}';
-      });
+      }
 
       state = AsyncValue.data(celebList);
 
@@ -84,6 +81,7 @@ class AsyncMyCelebList extends _$AsyncMyCelebList {
       logger.i('fetchMyCelebList error: $e');
       logger.i('fetchMyCelebList stackTrace: $stackTrace');
     }
+    return null;
   }
 }
 

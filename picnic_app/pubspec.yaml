@@ -54,6 +54,11 @@ dependencies:
   kakao_flutter_sdk: ^1.9.1+2
   firebase_core: ^2.27.0
   firebase_auth: ^4.17.8
+  flutter_chat_types: any
+  http: any
+  mime: any
+  uuid: any
+  image: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -65,6 +70,7 @@ dev_dependencies:
   custom_lint: ^0.6.4
   riverpod_lint: ^2.3.10
   change_app_package_name: ^1.1.0
+  prame_app: any
 flutter_intl:
   enabled: true
 
@@ -78,7 +84,7 @@ flutter:
     - assets/mockup/
     - assets/mockup/my/
     - assets/mockup/gallery/
-    - assets/mockup/prame/
+    - assets/mockup/fan/
     - assets/landing/
   fonts:
     - family: NotoSansCJKKr

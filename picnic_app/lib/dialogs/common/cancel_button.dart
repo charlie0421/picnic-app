@@ -4,8 +4,7 @@ import 'package:intl/intl.dart';
 class DialogCommonCancelButton extends StatelessWidget {
   final VoidCallback callback;
 
-  const DialogCommonCancelButton({required this.callback, Key? key})
-      : super(key: key);
+  const DialogCommonCancelButton({required this.callback, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,8 +14,8 @@ class DialogCommonCancelButton extends StatelessWidget {
       child: ElevatedButton(
           style: ButtonStyle(
               backgroundColor:
-                  MaterialStateProperty.all<Color>(const Color(0xff8A8A8A)),
-              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  WidgetStateProperty.all<Color>(const Color(0xff8A8A8A)),
+              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18),
                       side: const BorderSide(color: Colors.grey)))),

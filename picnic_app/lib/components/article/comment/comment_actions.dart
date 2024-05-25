@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/article/comment/like_button.dart';
-import 'package:picnic_app/models/prame/comment.dart';
+import 'package:picnic_app/models/fan/comment.dart';
 import 'package:picnic_app/providers/comment_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 

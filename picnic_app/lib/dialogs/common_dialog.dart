@@ -30,12 +30,11 @@ class CommonDialog extends StatefulWidget {
   final VoidCallback? cancelBtnFn;
 
   const CommonDialog(
-      {Key? key,
+      {super.key,
       required this.title,
       required this.contents,
       required this.okBtnFn,
-      this.cancelBtnFn})
-      : super(key: key);
+      this.cancelBtnFn});
 
   @override
   State<CommonDialog> createState() => _CommonDialog();
@@ -54,7 +53,7 @@ class _CommonDialog extends State<CommonDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             DialogCommonHeader(title: widget.title),
-            Divider(
+            const Divider(
               thickness: 0.3,
             ),
             Container(

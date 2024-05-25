@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:picnic_app/components/appinfo.dart';
 
 class AppInfoPage extends StatefulWidget {
-  const AppInfoPage({Key? key}) : super(key: key);
+  const AppInfoPage({super.key});
 
   @override
   State<AppInfoPage> createState() => _AppInfoPageState();
@@ -11,6 +11,6 @@ class AppInfoPage extends StatefulWidget {
 class _AppInfoPageState extends State<AppInfoPage> {
   @override
   Widget build(BuildContext context) {
-    return AppInfo();
+    return const AppInfo();
   }
 }

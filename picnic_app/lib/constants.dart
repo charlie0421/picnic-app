@@ -1,20 +1,17 @@
-import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:picnic_app/storage/local_storage.dart';
+import 'package:picnic_app/ui/style.dart';
 
-const fanMainColorLight = Color(0xFF07E88F);
-const famMainColorDark = Color(0xFF08C97E);
-const voteMainColorLight = Colors.pink;
-const voteMainColorDark = Colors.pinkAccent;
+const voteMainColor = AppColors.Mint500;
+const fanMainColor = AppColors.Primary500;
+const communityMainColor = AppColors.Sub500;
+const novelMainColor = AppColors.Point500;
 
 const kAccessTokenKey = 'ACCESS_TOKEN';
 
 class Constants {
   static const double webMaxWidth = 600.0;
   static const int snackBarDuration = 3;
-  static const Color fanMainColor = Color(0xFF47E89B);
-  static const Color voteMainColor = Color(0xFFE84747);
-  static const Color developerMainColor = Colors.grey;
 }
 
 var logger = Logger();

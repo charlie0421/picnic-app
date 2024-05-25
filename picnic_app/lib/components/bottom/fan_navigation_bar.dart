@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_app/components/appinfo.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/pages/fan/fan_home_page.dart';
+import 'package:picnic_app/pages/fan/language_page.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
-import 'package:picnic_app/screens/login_screen.dart';
 import 'package:picnic_app/ui/style.dart';
 
-class DeveloperBottomNavigationBar extends ConsumerWidget {
-  const DeveloperBottomNavigationBar({super.key});
+import '../../pages/fan/gallery_page.dart';
+import '../../pages/fan/library_page.dart';
+
+class FanBottomNavigationBar extends ConsumerWidget {
+  const FanBottomNavigationBar({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,7 +29,7 @@ class DeveloperBottomNavigationBar extends ConsumerWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 32).r,
           decoration: ShapeDecoration(
-            color: Constants.developerMainColor,
+            color: fanMainColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(120).r,
             ),
@@ -43,15 +46,30 @@ class DeveloperBottomNavigationBar extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
               Item(
-                title: Intl.message('nav_app_info'),
-                icon: Icons.app_settings_alt,
+                title: Intl.message('nav_home'),
+                icon: Icons.home,
                 index: 0,
               ),
-              // Item(
-              //   title: Intl.message('nav_login'),
-              //   icon: Icons.app_settings_alt,
-              //   index: 1,
-              // ),
+              Item(
+                title: Intl.message('nav_gallery'),
+                icon: Icons.photo,
+                index: 1,
+              ),
+              Item(
+                title: Intl.message('nav_library'),
+                icon: Icons.library_books,
+                index: 2,
+              ),
+              Item(
+                title: Intl.message('nav_purchases'),
+                icon: Icons.wallet,
+                index: 3,
+              ),
+              Item(
+                title: Intl.message('nav_setting'),
+                icon: Icons.settings,
+                index: 4,
+              ),
             ],
           ),
         ),
@@ -84,15 +102,21 @@ class Item extends ConsumerWidget {
         onTap: () {
           switch (index) {
             case 0:
-              navigationNotifier.setCurrentPage(const AppInfo());
+              navigationNotifier.setCurrentPage(const FanHomePage());
               navigationNotifier.setState(fanBottomNavigationIndex: 0);
               break;
-
             case 1:
-              navigationNotifier.setCurrentPage(const LoginScreen());
+              navigationNotifier.setCurrentPage(const GalleryPage());
               navigationNotifier.setState(fanBottomNavigationIndex: 1);
               break;
-
+            case 2:
+              navigationNotifier.setCurrentPage(const LibraryPage());
+              navigationNotifier.setState(fanBottomNavigationIndex: 2);
+              break;
+            case 4:
+              navigationNotifier.setCurrentPage(const LanguagePage());
+              navigationNotifier.setState(fanBottomNavigationIndex: 4);
+              break;
             default:
           }
         },
@@ -101,7 +125,8 @@ class Item extends ConsumerWidget {
           children: <Widget>[
             Icon(
               icon,
-              color: currentIndex == index ? AppColors.GP00 : AppColors.Gray300,
+              color:
+                  currentIndex == index ? AppColors.Gray00 : AppColors.Gray300,
             ),
             currentIndex == index
                 ? Text(
@@ -109,7 +134,7 @@ class Item extends ConsumerWidget {
                     style: getTextStyle(
                       context,
                       AppTypo.UI12B,
-                      AppColors.GP00,
+                      AppColors.Gray00,
                     ),
                   )
                 : const SizedBox.shrink(),

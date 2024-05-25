@@ -49,10 +49,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_library_save": MessageLookupByLibrary.simpleMessage("라이브러리 저장"),
         "label_library_tab_ai_photo":
             MessageLookupByLibrary.simpleMessage("AI 포토"),
+        "label_library_tab_fan": MessageLookupByLibrary.simpleMessage("PRAME"),
         "label_library_tab_library":
             MessageLookupByLibrary.simpleMessage("라이브러리"),
-        "label_library_tab_prame":
-            MessageLookupByLibrary.simpleMessage("PRAME"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("셀러브리티 갤러리로 이동"),
         "label_no_celeb":
@@ -70,8 +69,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_screen_title": MessageLookupByLibrary.simpleMessage("투표"),
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("생일 투표"),
-        "label_vote_tab_prame":
-            MessageLookupByLibrary.simpleMessage("P-RAME 투표"),
+        "label_vote_tab_fan": MessageLookupByLibrary.simpleMessage("P-RAME 투표"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("내 셀럽"),
         "message_report_confirm":
             MessageLookupByLibrary.simpleMessage("신고하시겠습니까?"),

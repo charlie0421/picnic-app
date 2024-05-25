@@ -15,7 +15,7 @@ Widget ErrorView(final BuildContext context,
       children: <Widget>[
         const Icon(Icons.error_outline, color: Colors.red, size: 60),
         Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0),
             child: Text(
                 '${Intl.message('message_error_occurred')}\n ${error.toString()}',
                 textAlign: TextAlign.center,
@@ -25,7 +25,7 @@ Widget ErrorView(final BuildContext context,
             width: 200,
             child: ElevatedButton(
               onPressed: retryFunction,
-              child: Text('${Intl.message('message_retry')}'),
+              child: Text(Intl.message('message_retry')),
             ),
           ),
       ],

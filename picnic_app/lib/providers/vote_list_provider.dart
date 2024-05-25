@@ -34,12 +34,12 @@ class AsyncVoteList extends _$AsyncVoteList {
       final List<VoteModel> voteList =
           List<VoteModel>.from(response.data.map((e) => VoteModel.fromJson(e)));
 
-      voteList.forEach((element) {
-        element.vote_item.forEach((element) {
+      for (var element in voteList) {
+        for (var element in element.vote_item) {
           element.mystar_member.image =
               'https://cdn-dev.picnic.fan/mystar/member/${element.mystar_member.id}/${element.mystar_member.image}';
-        });
-      });
+        }
+      }
 
       VoteListState voteListState = VoteListState(
         category: category,

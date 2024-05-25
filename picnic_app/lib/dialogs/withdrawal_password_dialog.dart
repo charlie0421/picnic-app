@@ -33,12 +33,11 @@ class CommonDialog extends StatefulWidget {
   final VoidCallback? cancelBtnFn;
 
   const CommonDialog(
-      {Key? key,
+      {super.key,
       required this.title,
       required this.contents,
       required this.okBtnFn,
-      this.cancelBtnFn})
-      : super(key: key);
+      this.cancelBtnFn});
 
   @override
   State<CommonDialog> createState() => _CommonDialog();
@@ -69,8 +68,7 @@ class _CommonDialog extends State<CommonDialog> {
                       controller: _controller,
                       decoration: InputDecoration(
                         hintText: Intl.message('password'),
-                        hintStyle: TextStyle(
-                            color: Constants.fanMainColor, fontSize: 30),
+                        hintStyle: const TextStyle(color: fanMainColor, fontSize: 30),
                         errorStyle: const TextStyle(
                             color: Colors.redAccent, fontSize: 15),
                         errorMaxLines: 2,
@@ -82,8 +80,7 @@ class _CommonDialog extends State<CommonDialog> {
                         ),
                       ),
                       obscureText: true,
-                      style: TextStyle(
-                          color: Constants.fanMainColor, fontSize: 30),
+                      style: const TextStyle(color: fanMainColor, fontSize: 30),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return Intl.message('label_input_password_error');
