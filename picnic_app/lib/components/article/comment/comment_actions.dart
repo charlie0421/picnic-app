@@ -40,7 +40,7 @@ class CommentActions extends ConsumerWidget {
                       ),
                       child: Text(Intl.message('label_reply'),
                           style: getTextStyle(
-                              context, AppTypo.UI16B, AppColors.Gray900)),
+                              context, AppTypo.BODY16B, AppColors.Gray900)),
                     ),
                   ),
                   LikeButton(

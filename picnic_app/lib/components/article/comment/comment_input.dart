@@ -68,13 +68,14 @@ class _CommentInputState extends ConsumerState<CommentInput> {
                       child: Text(
                         '${_textEditingController.text.length}/100',
                         style: getTextStyle(
-                            context, AppTypo.UI11, AppColors.Gray400),
+                            context, AppTypo.CAPTION12R, AppColors.Gray400),
                       ),
                     ),
                   ),
                   maxLength: 100,
                   textInputAction: TextInputAction.done,
-                  style: getTextStyle(context, AppTypo.UI16, AppColors.Gray900),
+                  style:
+                      getTextStyle(context, AppTypo.BODY16R, AppColors.Gray900),
                   onFieldSubmitted: (value) => _commitComment()),
             ),
           ),

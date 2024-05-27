@@ -16,7 +16,7 @@ class CommentContents extends StatelessWidget {
         width: double.infinity,
         child: Text(
           item.content,
-          style: getTextStyle(context, AppTypo.UI14, AppColors.Gray900),
+          style: getTextStyle(context, AppTypo.BODY14R, AppColors.Gray900),
         ));
   }
 }

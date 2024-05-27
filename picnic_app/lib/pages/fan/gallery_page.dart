@@ -53,7 +53,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
               Intl.message('label_celeb_gallery'),
               style: getTextStyle(
                 context,
-                AppTypo.UI24B,
+                AppTypo.TITLE18B,
                 AppColors.Gray900,
               ),
             ),
@@ -103,7 +103,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
                             gallery.title_en,
                             style: getTextStyle(
                               context,
-                              AppTypo.UI20B,
+                              AppTypo.TITLE18B,
                               AppColors.Gray00,
                             ),
                           ),

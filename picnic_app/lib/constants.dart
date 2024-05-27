@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:picnic_app/storage/local_storage.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -6,6 +7,11 @@ const voteMainColor = AppColors.Mint500;
 const fanMainColor = AppColors.Primary500;
 const communityMainColor = AppColors.Sub500;
 const novelMainColor = AppColors.Point500;
+
+const Gradient commonGradient = LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [AppColors.Mint500, AppColors.Primary500]);
 
 const kAccessTokenKey = 'ACCESS_TOKEN';
 

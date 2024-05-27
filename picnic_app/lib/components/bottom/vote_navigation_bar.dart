@@ -119,7 +119,7 @@ class Item extends ConsumerWidget {
                     title,
                     style: getTextStyle(
                       context,
-                      AppTypo.UI12B,
+                      AppTypo.CAPTION12M,
                       AppColors.Gray00,
                     ),
                   )

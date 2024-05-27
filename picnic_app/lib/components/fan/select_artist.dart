@@ -162,7 +162,7 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
                     SizedBox(height: 4.h),
                     Text(data?[index].name_ko ?? '',
                         style: getTextStyle(
-                            context, AppTypo.UI16B, AppColors.Gray900))
+                            context, AppTypo.BODY16B, AppColors.Gray900))
                   ],
                 ),
               );

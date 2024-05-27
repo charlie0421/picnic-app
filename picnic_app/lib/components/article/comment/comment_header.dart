@@ -25,12 +25,12 @@ class CommentHeader extends StatelessWidget {
             TextSpan(children: <TextSpan>[
               TextSpan(
                   text: '${item.user?.nickname} ',
-                  style:
-                      getTextStyle(context, AppTypo.UI16B, AppColors.Gray900)),
+                  style: getTextStyle(
+                      context, AppTypo.BODY16B, AppColors.Gray900)),
               TextSpan(
                   text: formatTimeAgo(item.created_at),
-                  style:
-                      getTextStyle(context, AppTypo.UI14M, AppColors.Gray900)),
+                  style: getTextStyle(
+                      context, AppTypo.BODY14M, AppColors.Gray900)),
             ]),
           ),
         ],

@@ -72,7 +72,7 @@ class _FanHomePageState extends ConsumerState<FanHomePage> {
                       Text(
                         selectedCelebState.name_ko,
                         style: getTextStyle(
-                            context, AppTypo.UI16B, AppColors.Gray900),
+                            context, AppTypo.BODY16B, AppColors.Gray900),
                       ),
                       const SizedBox(width: 8),
                       GestureDetector(
@@ -113,11 +113,11 @@ class _FanHomePageState extends ConsumerState<FanHomePage> {
                           mainAxisSize: MainAxisSize.max,
                           children: [
                             Text(Intl.message('text_ads_random'),
-                                style: getTextStyle(
-                                    context, AppTypo.UI18M, AppColors.Gray900)),
+                                style: getTextStyle(context, AppTypo.TITLE18M,
+                                    AppColors.Gray900)),
                             Text('01:00:00',
-                                style: getTextStyle(
-                                    context, AppTypo.UI18M, AppColors.Gray900)),
+                                style: getTextStyle(context, AppTypo.TITLE18M,
+                                    AppColors.Gray900)),
                           ],
                         ),
                       ),
@@ -166,7 +166,7 @@ class _FanHomePageState extends ConsumerState<FanHomePage> {
                       child: Text(
                         Intl.message('label_celeb_gallery'),
                         style: getTextStyle(
-                            context, AppTypo.UI24B, AppColors.Gray900),
+                            context, AppTypo.TITLE18B, AppColors.Gray900),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -240,7 +240,7 @@ class _FanHomePageState extends ConsumerState<FanHomePage> {
                         child: Text(
                           data[index].title_en,
                           style: getTextStyle(
-                              context, AppTypo.UI16B, AppColors.Gray00),
+                              context, AppTypo.BODY16B, AppColors.Gray00),
                         ),
                       ),
                     ),
@@ -281,11 +281,13 @@ class _FanHomePageState extends ConsumerState<FanHomePage> {
               const SizedBox(height: 20),
               Text(
                 Intl.message('label_moveto_celeb_gallery'),
-                style: getTextStyle(context, AppTypo.UI20B, AppColors.Gray900),
+                style:
+                    getTextStyle(context, AppTypo.TITLE18B, AppColors.Gray900),
               ),
               Text(
                 Intl.message('text_moveto_celeb_gallery'),
-                style: getTextStyle(context, AppTypo.UI16, AppColors.Gray900),
+                style:
+                    getTextStyle(context, AppTypo.BODY16R, AppColors.Gray900),
               ),
               const SizedBox(height: 16),
               if (selectedCelebState != null)

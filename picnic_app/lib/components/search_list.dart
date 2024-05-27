@@ -40,7 +40,7 @@ class _SearchListState extends ConsumerState<SearchList> {
               decoration: InputDecoration(
                 hintText: Intl.message('text_hint_search'),
                 hintStyle:
-                    getTextStyle(context, AppTypo.UI14B, AppColors.Gray300),
+                    getTextStyle(context, AppTypo.BODY14B, AppColors.Gray300),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                 suffixIcon: IconButton(

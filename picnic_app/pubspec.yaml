@@ -79,6 +79,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/icons/header/
     - assets/icons/line_arrow/
     - assets/mockup/
     - assets/mockup/my/
@@ -86,11 +87,24 @@ flutter:
     - assets/mockup/fan/
     - assets/landing/
   fonts:
-    - family: NotoSansCJKKr
+    - family: Pretendard
       fonts:
-        - asset: assets/fonts/NotoSansCJKKr/NotoSansCJKkr-Regular.otf
+        - asset: assets/fonts/Pretendard/Pretendard-ExtraLight.otf
+          weight: 100
+        - asset: assets/fonts/Pretendard/Pretendard-Thin.otf
+          weight: 200
+        - asset: assets/fonts/Pretendard/Pretendard-Light.otf
+          weight: 300
+        - asset: assets/fonts/Pretendard/Pretendard-Regular.otf
           weight: 400
-        - asset: assets/fonts/NotoSansCJKKr/NotoSansCJKkr-Medium.otf
+        - asset: assets/fonts/Pretendard/Pretendard-Medium.otf
           weight: 500
-        - asset: assets/fonts/NotoSansCJKKr/NotoSansCJKkr-Bold.otf
+        - asset: assets/fonts/Pretendard/Pretendard-SemiBold.otf
+          weight: 600
+        - asset: assets/fonts/Pretendard/Pretendard-Bold.otf
+          weight: 700
+        - asset: assets/fonts/Pretendard/Pretendard-ExtraBold.otf
           weight: 800
+        - asset: assets/fonts/Pretendard/Pretendard-Black.otf
+          weight: 900
+
