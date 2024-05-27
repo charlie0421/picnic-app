@@ -33,7 +33,7 @@ class _ArticleBestCommentState extends State<ArticleBestComment> {
                           : '',
                       style: getTextStyle(
                         context,
-                        AppTypo.UI14B,
+                        AppTypo.BODY14B,
                         AppColors.Gray900,
                       ),
                     ),
@@ -41,7 +41,7 @@ class _ArticleBestCommentState extends State<ArticleBestComment> {
                       text: ' ',
                       style: getTextStyle(
                         context,
-                        AppTypo.UI14M,
+                        AppTypo.BODY14M,
                         AppColors.Gray900,
                       ),
                     ),
@@ -52,7 +52,7 @@ class _ArticleBestCommentState extends State<ArticleBestComment> {
                           : '',
                       style: getTextStyle(
                         context,
-                        AppTypo.UI12M,
+                        AppTypo.BODY14R,
                         AppColors.Gray900,
                       ),
                     ),

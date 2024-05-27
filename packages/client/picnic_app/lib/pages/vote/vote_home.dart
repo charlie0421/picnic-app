@@ -22,17 +22,6 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   @override
   Widget build(BuildContext context) {
     return ListView(children: [
-      Container(
-        height: 40.h,
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Icon(Icons.menu),
-            Icon(Icons.calendar_month),
-          ],
-        ),
-      ),
       SizedBox(
         height: 200,
         child: Swiper(
