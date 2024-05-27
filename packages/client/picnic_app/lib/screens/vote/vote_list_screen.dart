@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_app/components/bottom/vote_navigation_bar.dart';
 import 'package:picnic_app/pages/vote/vote_list_page.dart';
 import 'package:picnic_app/ui/style.dart';
 
@@ -31,7 +30,6 @@ class _VoteListScreenState extends ConsumerState<VoteListScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       body: _buildPage(ref),
-      bottomNavigationBar: const VoteBottomNavigationBar(),
     );
   }
 

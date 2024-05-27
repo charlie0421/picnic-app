@@ -52,13 +52,13 @@ class NavigationInfo extends _$NavigationInfo {
 
     Widget currentPage;
     if (portalString == 'vote') {
-      currentPage = voteScreens[state.voteBottomNavigationIndex];
+      currentPage = votePages[state.voteBottomNavigationIndex].pageWidget;
     } else if (portalString == 'fan') {
-      currentPage = fanScreens[state.fanBottomNavigationIndex];
+      currentPage = fanPages[state.fanBottomNavigationIndex].pageWidget;
     } else if (portalString == 'community') {
-      currentPage = communityScreens[state.fanBottomNavigationIndex];
+      currentPage = communityPages[state.fanBottomNavigationIndex].pageWidget;
     } else if (portalString == 'novel') {
-      currentPage = novelScreens[state.fanBottomNavigationIndex];
+      currentPage = novelPages[state.fanBottomNavigationIndex].pageWidget;
     } else {
       return const SizedBox.shrink();
     }
@@ -72,12 +72,26 @@ class NavigationInfo extends _$NavigationInfo {
 
   setFanBottomNavigationIndex(int index) {
     state = state.copyWith(fanBottomNavigationIndex: index);
+    state.currentScreen = fanPages[index].pageWidget;
     globalStorage.saveData('fanBottomNavigationIndex', index.toString());
   }
 
   setVoteBottomNavigationIndex(int index) {
     state = state.copyWith(voteBottomNavigationIndex: index);
+    state.currentScreen = votePages[index].pageWidget;
     globalStorage.saveData('voteBottomNavigationIndex', index.toString());
+  }
+
+  setCommunityBottomNavigationIndex(int index) {
+    state = state.copyWith(communityBottomNavigationIndex: index);
+    state.currentScreen = communityPages[index].pageWidget;
+    globalStorage.saveData('communityBottomNavigationIndex', index.toString());
+  }
+
+  setNovelBottomNavigationIndex(int index) {
+    state = state.copyWith(novelBottomNavigationIndex: index);
+    state.currentScreen = novelPages[index].pageWidget;
+    globalStorage.saveData('novelBottomNavigationIndex', index.toString());
   }
 
   setCurrentPage(Widget page) {
@@ -132,17 +146,18 @@ class Navigation {
 
     if (portalString == 'vote') {
       currentScreen = const VoteHomeScreen();
-      currentPage = voteScreens[int.parse(voteBottomNavigationIndex!)];
+      currentPage = votePages[int.parse(voteBottomNavigationIndex!)].pageWidget;
     } else if (portalString == 'fan') {
       currentScreen = const FanHomeScreen();
-      currentPage = fanScreens[int.parse(fanBottomNavigationIndex!)];
+      currentPage = fanPages[int.parse(fanBottomNavigationIndex!)].pageWidget;
     } else if (portalString == 'community') {
       currentScreen = const CommunityHomeScreen();
       currentPage =
-          communityScreens[int.parse(communityBottomNavigationIndex!)];
+          communityPages[int.parse(communityBottomNavigationIndex!)].pageWidget;
     } else if (portalString == 'novel') {
       currentScreen = const NovelHomeScreen();
-      currentPage = novelScreens[int.parse(novelBottomNavigationIndex!)];
+      currentPage =
+          novelPages[int.parse(novelBottomNavigationIndex!)].pageWidget;
     }
 
     logger.d('currentScreen: $currentScreen');
