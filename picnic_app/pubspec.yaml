@@ -80,6 +80,7 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/icons/header/
+    - assets/icons/bottom/
     - assets/icons/line_arrow/
     - assets/mockup/
     - assets/mockup/my/

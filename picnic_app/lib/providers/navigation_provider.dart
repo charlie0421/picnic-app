@@ -71,26 +71,30 @@ class NavigationInfo extends _$NavigationInfo {
   }
 
   setFanBottomNavigationIndex(int index) {
-    state = state.copyWith(fanBottomNavigationIndex: index);
-    state.currentScreen = fanPages[index].pageWidget;
+    state = state.copyWith(
+        fanBottomNavigationIndex: index,
+        currentPage: fanPages[index].pageWidget);
     globalStorage.saveData('fanBottomNavigationIndex', index.toString());
   }
 
   setVoteBottomNavigationIndex(int index) {
-    state = state.copyWith(voteBottomNavigationIndex: index);
-    state.currentScreen = votePages[index].pageWidget;
+    state = state.copyWith(
+        voteBottomNavigationIndex: index,
+        currentPage: votePages[index].pageWidget);
     globalStorage.saveData('voteBottomNavigationIndex', index.toString());
   }
 
   setCommunityBottomNavigationIndex(int index) {
-    state = state.copyWith(communityBottomNavigationIndex: index);
-    state.currentScreen = communityPages[index].pageWidget;
+    state = state.copyWith(
+        communityBottomNavigationIndex: index,
+        currentPage: communityPages[index].pageWidget);
     globalStorage.saveData('communityBottomNavigationIndex', index.toString());
   }
 
   setNovelBottomNavigationIndex(int index) {
-    state = state.copyWith(novelBottomNavigationIndex: index);
-    state.currentScreen = novelPages[index].pageWidget;
+    state = state.copyWith(
+        novelBottomNavigationIndex: index,
+        currentPage: novelPages[index].pageWidget);
     globalStorage.saveData('novelBottomNavigationIndex', index.toString());
   }
 

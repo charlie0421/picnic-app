@@ -30,102 +30,102 @@ ScreenInfo novelScreenInfo = ScreenInfo(
   pages: novelPages,
 );
 
-class ScreenInfo {
-  String type;
-  Color color;
-  List<BottomNavigationItem> pages;
-
-  ScreenInfo({required this.type, required this.color, required this.pages});
-}
-
 List<BottomNavigationItem> votePages = [
-  const BottomNavigationItem(
-    title: 'nav_home',
-    icon: Icons.home,
+  BottomNavigationItem(
+    title: '투표',
+    assetPath: 'assets/icons/bottom/media.svg',
     index: 0,
     pageWidget: VoteHomePage(),
   ),
-  const BottomNavigationItem(
-    title: '투표',
-    icon: Icons.how_to_vote_sharp,
+  BottomNavigationItem(
+    title: '픽차트',
+    assetPath: 'assets/icons/bottom/pic-chart.svg',
     index: 1,
-    pageWidget: SizedBox.shrink(),
+    pageWidget: Container(),
   ),
-  const BottomNavigationItem(
-    title: '상점',
-    icon: Icons.storefront,
-    index: 2,
-    pageWidget: SizedBox.shrink(),
-  ),
-  const BottomNavigationItem(
+  BottomNavigationItem(
     title: '미디어',
-    icon: Icons.photo,
-    index: 3,
-    pageWidget: SizedBox.shrink(),
+    assetPath: 'assets/icons/bottom/media.svg',
+    index: 2,
+    pageWidget: Container(),
+  ),
+  BottomNavigationItem(
+    title: '상점',
+    assetPath: 'assets/icons/bottom/store.svg',
+    index: 4,
+    pageWidget: Container(),
   ),
 ];
 
 List<BottomNavigationItem> fanPages = [
   const BottomNavigationItem(
     title: 'nav_home',
-    icon: Icons.home,
+    assetPath: 'assets/icons/bottom/media.svg',
     index: 0,
     pageWidget: FanHomePage(),
   ),
   const BottomNavigationItem(
     title: 'nav_gallery',
-    icon: Icons.photo,
+    assetPath: 'assets/icons/bottom/media.svg',
     index: 1,
     pageWidget: GalleryPage(),
   ),
   const BottomNavigationItem(
     title: 'nav_library',
-    icon: Icons.library_books,
+    assetPath: 'assets/icons/bottom/media.svg',
     index: 2,
     pageWidget: FanScreen(),
   ),
-  const BottomNavigationItem(
+  BottomNavigationItem(
     title: 'nav_purchases',
-    icon: Icons.wallet,
+    assetPath: 'assets/icons/bottom/media.svg',
     index: 3,
-    pageWidget: SizedBox.shrink(),
+    pageWidget: Container(),
   ),
   const BottomNavigationItem(
     title: 'nav_setting',
-    icon: Icons.settings,
+    assetPath: 'assets/icons/bottom/media.svg',
     index: 4,
     pageWidget: const LandingPage(),
   ),
 ];
 
 List<BottomNavigationItem> communityPages = [
-  const BottomNavigationItem(
+  BottomNavigationItem(
     title: 'nav_home',
-    icon: Icons.home,
+    assetPath: 'assets/icons/bottom/media.svg',
     index: 0,
-    pageWidget: SizedBox.shrink(),
+    pageWidget: Container(),
   ),
 ];
 
 List<BottomNavigationItem> novelPages = [
-  const BottomNavigationItem(
+  BottomNavigationItem(
     title: 'nav_home',
-    icon: Icons.home,
+    assetPath: 'assets/icons/bottom/media.svg',
     index: 0,
-    pageWidget: SizedBox.shrink(),
+    pageWidget: Container(),
   ),
 ];
 
 class BottomNavigationItem {
   final String title;
-  final IconData icon;
+  final String assetPath;
   final int index;
   final Widget pageWidget;
 
   const BottomNavigationItem({
     required this.title,
-    required this.icon,
+    required this.assetPath,
     required this.index,
     required this.pageWidget,
   });
+}
+
+class ScreenInfo {
+  String type;
+  Color color;
+  List<BottomNavigationItem> pages;
+
+  ScreenInfo({required this.type, required this.color, required this.pages});
 }
