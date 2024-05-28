@@ -11,7 +11,7 @@ import 'package:picnic_app/models/fan/celeb.dart';
 import 'package:picnic_app/models/fan/gallery.dart';
 import 'package:picnic_app/pages/fan/gallery_detail_page.dart';
 import 'package:picnic_app/pages/fan/landing_page.dart';
-import 'package:picnic_app/providers/celeb_banner_list_provider.dart';
+import 'package:picnic_app/providers/banner_list_provider.dart';
 import 'package:picnic_app/providers/gallery_list_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/screens/fan/draw_image_screen.dart';
@@ -48,8 +48,8 @@ class _FanHomePageState extends ConsumerState<FanHomePage> {
             return const SizedBox.shrink();
           }
 
-          final celebBannerListState = ref.watch(
-              asyncCelebBannerListProvider(celebId: selectedCelebState.id));
+          final asyncBannerListState =
+              ref.watch(asyncBannerListProvider(location: 'fan_home'));
           final asyncGalleryListState =
               ref.watch(asyncCelebGalleryListProvider(selectedCelebState.id));
           return Column(
@@ -125,7 +125,7 @@ class _FanHomePageState extends ConsumerState<FanHomePage> {
                     const SizedBox(
                       height: 20,
                     ),
-                    celebBannerListState.when(
+                    asyncBannerListState.when(
                       data: (data) {
                         return SizedBox(
                           height: 236,
@@ -153,8 +153,8 @@ class _FanHomePageState extends ConsumerState<FanHomePage> {
                       error: (error, stackTrace) => ErrorView(
                         context,
                         retryFunction: () {
-                          ref.refresh(asyncCelebBannerListProvider(
-                              celebId: selectedCelebState.id));
+                          ref.refresh(
+                              asyncBannerListProvider(location: 'fan_home'));
                         },
                         error: error,
                         stackTrace: stackTrace,
@@ -357,7 +357,7 @@ class _FanHomePageState extends ConsumerState<FanHomePage> {
                     ref
                         .read(selectedCelebProvider.notifier)
                         .setSelectedCeleb(e);
-                    ref.read(asyncCelebBannerListProvider(celebId: e.id));
+                    ref.read(asyncBannerListProvider(location: 'fan_home'));
                     Navigator.pop(context);
                   },
                   child: CelebListItem(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/menu.dart';
-import 'package:picnic_app/pages/vote/vote_home.dart';
+import 'package:picnic_app/pages/vote/vote_home_page.dart';
 import 'package:picnic_app/reflector.dart';
 import 'package:picnic_app/screens/community/community_home_screen.dart';
 import 'package:picnic_app/screens/fan/fan_home_screen.dart';

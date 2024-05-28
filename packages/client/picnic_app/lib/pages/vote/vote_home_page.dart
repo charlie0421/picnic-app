@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,7 +9,9 @@ import 'package:picnic_app/components/vote/list/vote_artists.dart';
 import 'package:picnic_app/components/vote/list/vote_image.dart';
 import 'package:picnic_app/components/vote/list/vote_title.dart';
 import 'package:picnic_app/models/vote/vote.dart';
+import 'package:picnic_app/providers/banner_list_provider.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
+import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
 
 class VoteHomePage extends ConsumerStatefulWidget {
@@ -21,21 +24,58 @@ class VoteHomePage extends ConsumerStatefulWidget {
 class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   @override
   Widget build(BuildContext context) {
+    final asyncBannerListState =
+        ref.watch(asyncBannerListProvider(location: 'vote_home'));
+
     return ListView(children: [
       SizedBox(
-        height: 200,
-        child: Swiper(
-          itemBuilder: (BuildContext context, int index) {
-            return Image.network(
-              'https://picsum.photos/250?image=$index',
-              fit: BoxFit.fill,
-            );
-          },
-          itemCount: 10,
-          itemHeight: 200.0,
-          autoplay: true,
-          pagination: const SwiperPagination(),
-          layout: SwiperLayout.DEFAULT,
+        height: 250.h,
+        child: asyncBannerListState.when(
+          data: (data) => Swiper(
+            itemBuilder: (BuildContext context, int index) {
+              return Stack(
+                children: [
+                  Container(
+                    alignment: Alignment.center,
+                    height: 200.h,
+                    child: CachedNetworkImage(
+                        imageUrl: '${data[index].thumbnail}' ?? '',
+                        // imageUrl: '${data[index].thumbnail}?h=400' ?? '',
+                        height: 200.h,
+                        fit: BoxFit.cover),
+                  ),
+                  Positioned(
+                    bottom: 29,
+                    child: Container(
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 21, vertical: 4),
+                      color: Colors.black.withOpacity(0.5),
+                      child: Text(
+                        data[index].title_ko,
+                        style:
+                            getTextStyle(context, AppTypo.BODY14R, Colors.white)
+                                .copyWith(overflow: TextOverflow.ellipsis),
+                      ),
+                    ),
+                  )
+                ],
+              );
+            },
+            itemCount: data.length,
+            containerHeight: 300.h,
+            itemHeight: 200.0.h,
+            autoplay: true,
+            pagination: const SwiperPagination(
+                builder: DotSwiperPaginationBuilder(
+                    size: 8,
+                    color: AppColors.Gray200,
+                    activeColor: AppColors.Gray500)),
+            layout: SwiperLayout.DEFAULT,
+          ),
+          loading: () => buildLoadingOverlay(),
+          error: (error, stackTrace) => ErrorView(context,
+              error: error.toString(), stackTrace: stackTrace),
         ),
       ),
       SizedBox(

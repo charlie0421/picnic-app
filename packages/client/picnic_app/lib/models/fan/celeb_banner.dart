@@ -22,20 +22,20 @@ part 'celeb_banner.g.dart';
 
 @reflector
 @JsonSerializable()
-class CelebBannerModel {
+class BannerModel {
   final int id;
   final String title_ko;
   final String title_en;
   String? thumbnail;
 
-  CelebBannerModel({
+  BannerModel({
     required this.id,
     required this.title_ko,
     required this.title_en,
     this.thumbnail,
   });
 
-  factory CelebBannerModel.fromJson(Map<String, dynamic> json) =>
+  factory BannerModel.fromJson(Map<String, dynamic> json) =>
       _$CelebBannerModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$CelebBannerModelToJson(this);
