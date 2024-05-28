@@ -66,7 +66,7 @@ class _PortalState extends ConsumerState<Portal> {
                 child: Container(
                   padding: EdgeInsets.all(16.w),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(24.r),
+                    borderRadius: BorderRadius.circular(8.r),
                     child: CachedNetworkImage(
                       imageUrl: Supabase.instance.client.auth.currentUser
                           ?.userMetadata?['avatar_url'],
