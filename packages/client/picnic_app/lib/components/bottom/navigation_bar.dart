@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/menu.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -14,42 +16,9 @@ class CommonBottomNavigationBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(appSettingProvider.select((value) => value.locale));
-    int currentIndex;
-    if (screenInfo.type == 'vote') {
-      currentIndex = ref.watch(navigationInfoProvider
-          .select((value) => value.voteBottomNavigationIndex));
-    } else if (screenInfo.type == 'fan') {
-      currentIndex = ref.watch(navigationInfoProvider
-          .select((value) => value.fanBottomNavigationIndex));
-    } else if (screenInfo.type == 'community') {
-      currentIndex = ref.watch(navigationInfoProvider
-          .select((value) => value.communityBottomNavigationIndex));
-    } else if (screenInfo.type == 'novel') {
-      currentIndex = ref.watch(navigationInfoProvider
-          .select((value) => value.novelBottomNavigationIndex));
-    } else {
-      currentIndex = 0;
-    }
 
-    var setter;
-    if (screenInfo.type == 'vote') {
-      setter = ref
-          .read(navigationInfoProvider.notifier)
-          .setVoteBottomNavigationIndex;
-    } else if (screenInfo.type == 'fan') {
-      setter =
-          ref.read(navigationInfoProvider.notifier).setFanBottomNavigationIndex;
-    } else if (screenInfo.type == 'community') {
-      setter = ref
-          .read(navigationInfoProvider.notifier)
-          .setCommunityBottomNavigationIndex;
-    } else if (screenInfo.type == 'novel') {
-      setter = ref
-          .read(navigationInfoProvider.notifier)
-          .setNovelBottomNavigationIndex;
-    } else {
-      setter = () {};
-    }
+    int navigationIndex = getCurrentIndex(screenInfo.type, ref);
+    Function navigationIndexSetter = getIndexSetter(screenInfo.type, ref);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 0).r,
@@ -77,12 +46,12 @@ class CommonBottomNavigationBar extends ConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: screenInfo.pages
-                .map((e) => Item(
+                .map((e) => MenuItem(
                       title: e.title,
-                      icon: e.icon,
+                      assetPath: e.assetPath,
                       index: e.index,
-                      isSelected: e.index == currentIndex,
-                      setter: setter,
+                      isSelected: e.index == navigationIndex,
+                      indexSetter: navigationIndexSetter,
                     ))
                 .toList(),
           ),
@@ -90,22 +59,49 @@ class CommonBottomNavigationBar extends ConsumerWidget {
       ),
     );
   }
+
+  int getCurrentIndex(String type, WidgetRef ref) {
+    final provider = navigationInfoProvider.select((value) => type == 'vote'
+        ? value.voteBottomNavigationIndex
+        : type == 'fan'
+            ? value.fanBottomNavigationIndex
+            : type == 'community'
+                ? value.communityBottomNavigationIndex
+                : type == 'novel'
+                    ? value.novelBottomNavigationIndex
+                    : 0);
+    return ref.watch(provider);
+  }
+
+  Function getIndexSetter(String type, WidgetRef ref) {
+    var notifier = ref.read(navigationInfoProvider.notifier);
+
+    return type == 'vote'
+        ? notifier.setVoteBottomNavigationIndex
+        : type == 'fan'
+            ? notifier.setFanBottomNavigationIndex
+            : type == 'community'
+                ? notifier.setCommunityBottomNavigationIndex
+                : type == 'novel'
+                    ? notifier.setNovelBottomNavigationIndex
+                    : () {};
+  }
 }
 
-class Item extends ConsumerWidget {
+class MenuItem extends ConsumerWidget {
   final String title;
-  final IconData icon;
+  final String assetPath;
   final int index;
   bool isSelected = false;
-  Function setter;
+  Function indexSetter;
 
-  Item({
+  MenuItem({
     super.key,
     required this.title,
-    required this.icon,
+    required this.assetPath,
     required this.index,
     required this.isSelected,
-    required this.setter,
+    required this.indexSetter,
   });
 
   @override
@@ -114,25 +110,23 @@ class Item extends ConsumerWidget {
 
     return Container(
       height: 52.h,
-      padding: const EdgeInsets.all(8.0),
       child: InkWell(
         onTap: () => WidgetsBinding.instance.addPostFrameCallback((_) {
-          setter(index);
+          indexSetter(index);
         }),
         child: Column(
           mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             SizedBox(
-              width: 24.w,
-              height: 24.h,
-              child: Icon(
-                icon,
-                size: 24.w,
-                color: isSelected ? AppColors.Gray900 : AppColors.Gray400,
-              ),
-            ),
+                width: 24.w,
+                height: 24.h,
+                child: SvgPicture.asset(
+                  assetPath,
+                  color: isSelected ? AppColors.Gray900 : AppColors.Gray400,
+                )),
             Text(
-              title,
+              Intl.message(title),
               style: getTextStyle(
                 context,
                 AppTypo.CAPTION12R,
