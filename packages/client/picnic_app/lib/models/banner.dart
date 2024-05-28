@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:picnic_app/reflector.dart';
 
-part 'celeb_banner.g.dart';
+part 'banner.g.dart';
 
 // @reflector
 // @JsonSerializable()
@@ -36,7 +36,7 @@ class BannerModel {
   });
 
   factory BannerModel.fromJson(Map<String, dynamic> json) =>
-      _$CelebBannerModelFromJson(json);
+      _$BannerModelFromJson(json);
 
-  Map<String, dynamic> toJson() => _$CelebBannerModelToJson(this);
+  Map<String, dynamic> toJson() => _$BannerModelToJson(this);
 }

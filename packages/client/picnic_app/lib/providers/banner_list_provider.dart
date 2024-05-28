@@ -1,9 +1,9 @@
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/models/fan/celeb_banner.dart';
+import 'package:picnic_app/models/fan/banner.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-part 'celeb_banner_list_provider.g.dart';
+part 'banner_list_provider.g.dart';
 
 @riverpod
 class AsyncBannerList extends _$AsyncBannerList {

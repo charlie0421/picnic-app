@@ -1,0 +1,22 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'banner.dart';
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+BannerModel _$BannerModelFromJson(Map<String, dynamic> json) => BannerModel(
+      id: (json['id'] as num).toInt(),
+      title_ko: json['title_ko'] as String,
+      title_en: json['title_en'] as String,
+      thumbnail: json['thumbnail'] as String?,
+    );
+
+Map<String, dynamic> _$BannerModelToJson(BannerModel instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'title_ko': instance.title_ko,
+      'title_en': instance.title_en,
+      'thumbnail': instance.thumbnail,
+    };
