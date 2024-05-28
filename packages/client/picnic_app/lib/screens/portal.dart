@@ -130,7 +130,7 @@ class _PortalState extends ConsumerState<Portal> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  offset: const Offset(0, 10),
+                  offset: const Offset(0, 2),
                   color: AppColors.Gray500.withOpacity(0.1),
                   blurRadius: 4,
                 ),
@@ -139,106 +139,81 @@ class _PortalState extends ConsumerState<Portal> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(21.r),
-                    boxShadow: [
-                      BoxShadow(
-                        offset: const Offset(0, 2),
-                        color: AppColors.Gray500.withOpacity(0.1),
-                        blurRadius: 4,
-                      ),
-                    ],
-                  ),
-                  child: CustomPaint(
-                    painter: GradientBorderPainter(
-                        borderRadius: 21.r,
-                        borderWidth: 1.r,
-                        gradient: commonGradient),
-                    child: Container(
-                        padding: EdgeInsets.all(6.w),
-                        decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          boxShadow: [
-                            BoxShadow(
-                              offset: const Offset(0, 20),
-                              color: AppColors.Gray500.withOpacity(0.1),
-                              spreadRadius: 5,
-                              blurRadius: 4,
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              'assets/icons/header/star.png',
-                              width: 20.w,
-                              height: 20.h,
-                            ),
-                            Stack(
-                              children: [
-                                Container(
-                                  constraints: BoxConstraints(minWidth: 80.w),
-                                  child: Text('12,000',
-                                      textAlign: TextAlign.right,
-                                      style: getTextStyle(
-                                              context,
-                                              AppTypo.CAPTION12B,
-                                              AppColors.Primary500)
-                                          .copyWith(
-                                        foreground: Paint()
-                                          ..style = PaintingStyle.stroke
-                                          ..strokeWidth = 1
-                                          ..color = AppColors.Gray900,
-                                      )),
-                                ),
-                                Positioned(
-                                  right: 0,
-                                  child: Text("12,000",
-                                      style: getTextStyle(
-                                              context,
-                                              AppTypo.CAPTION12B,
-                                              AppColors.Primary500)
-                                          .copyWith(shadows: [
-                                        Shadow(
-                                            color:
-                                                AppColors.Gray900.withOpacity(
-                                                    .5),
-                                            offset: const Offset(0, 4),
-                                            blurRadius: 10)
-                                      ])),
+                CustomPaint(
+                  painter: GradientBorderPainter(
+                      borderRadius: 21.r,
+                      borderWidth: 1.r,
+                      gradient: commonGradient),
+                  child: Container(
+                      padding: EdgeInsets.all(6.w),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'assets/icons/header/star.png',
+                            width: 20.w,
+                            height: 20.h,
+                          ),
+                          Stack(
+                            children: [
+                              Container(
+                                constraints: BoxConstraints(minWidth: 80.w),
+                                child: Text('12,000',
+                                    textAlign: TextAlign.right,
+                                    style: getTextStyle(
+                                            context,
+                                            AppTypo.CAPTION12B,
+                                            AppColors.Primary500)
+                                        .copyWith(
+                                      foreground: Paint()
+                                        ..style = PaintingStyle.stroke
+                                        ..strokeWidth = .5
+                                        ..color = AppColors.Gray900,
+                                    )),
+                              ),
+                              Positioned(
+                                right: 0,
+                                child: Text("12,000",
+                                    style: getTextStyle(
+                                            context,
+                                            AppTypo.CAPTION12B,
+                                            AppColors.Primary500)
+                                        .copyWith(shadows: [
+                                      Shadow(
+                                          color:
+                                              AppColors.Gray900.withOpacity(.5),
+                                          offset: const Offset(0, 5),
+                                          blurRadius: 10)
+                                    ])),
+                              ),
+                            ],
+                          ),
+                          Divider(
+                            color: AppColors.Gray900,
+                            thickness: 1.r,
+                            indent: 8.w,
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: AppColors.Gray00,
+                              borderRadius: BorderRadius.circular(20.r),
+                              boxShadow: [
+                                BoxShadow(
+                                  offset: const Offset(0, 4),
+                                  color: AppColors.Gray500.withOpacity(0.5),
+                                  blurRadius: 2,
                                 ),
                               ],
                             ),
-                            Divider(
-                              color: AppColors.Gray900,
-                              thickness: 1.r,
-                              indent: 8.w,
+                            child: Image.asset(
+                              'assets/icons/header/plus.png',
+                              width: 20.w,
+                              height: 20.h,
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: AppColors.Gray00,
-                                borderRadius: BorderRadius.circular(20.r),
-                                boxShadow: [
-                                  BoxShadow(
-                                    offset: const Offset(0, 4),
-                                    color: AppColors.Gray500.withOpacity(0.5),
-                                    blurRadius: 2,
-                                  ),
-                                ],
-                              ),
-                              child: Image.asset(
-                                'assets/icons/header/plus.png',
-                                width: 20.w,
-                                height: 20.h,
-                              ),
-                            ),
-                          ],
-                        )),
-                  ),
+                          ),
+                        ],
+                      )),
                 ),
                 Row(
                   children: [
