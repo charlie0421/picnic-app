@@ -1,20 +1,19 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'celeb_banner.dart';
+part of 'reward.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-BannerModel _$CelebBannerModelFromJson(Map<String, dynamic> json) =>
-    BannerModel(
+RewardModel _$RewardModelFromJson(Map<String, dynamic> json) => RewardModel(
       id: (json['id'] as num).toInt(),
       title_ko: json['title_ko'] as String,
       title_en: json['title_en'] as String,
       thumbnail: json['thumbnail'] as String?,
     );
 
-Map<String, dynamic> _$CelebBannerModelToJson(BannerModel instance) =>
+Map<String, dynamic> _$RewardModelToJson(RewardModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'title_ko': instance.title_ko,

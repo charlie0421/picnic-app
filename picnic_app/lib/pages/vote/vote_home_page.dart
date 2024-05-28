@@ -10,6 +10,7 @@ import 'package:picnic_app/components/vote/list/vote_image.dart';
 import 'package:picnic_app/components/vote/list/vote_title.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/banner_list_provider.dart';
+import 'package:picnic_app/providers/reward_list_provider.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
@@ -24,84 +25,11 @@ class VoteHomePage extends ConsumerStatefulWidget {
 class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   @override
   Widget build(BuildContext context) {
-    final asyncBannerListState =
-        ref.watch(asyncBannerListProvider(location: 'vote_home'));
-
     return ListView(children: [
-      SizedBox(
-        height: 250.h,
-        child: asyncBannerListState.when(
-          data: (data) => Swiper(
-            itemBuilder: (BuildContext context, int index) {
-              return Stack(
-                children: [
-                  Container(
-                    alignment: Alignment.center,
-                    height: 200.h,
-                    child: CachedNetworkImage(
-                        imageUrl: '${data[index].thumbnail}' ?? '',
-                        // imageUrl: '${data[index].thumbnail}?h=400' ?? '',
-                        height: 200.h,
-                        fit: BoxFit.cover),
-                  ),
-                  Positioned(
-                    bottom: 29,
-                    child: Container(
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 21, vertical: 4),
-                      color: Colors.black.withOpacity(0.5),
-                      child: Text(
-                        data[index].title_ko,
-                        style:
-                            getTextStyle(context, AppTypo.BODY14R, Colors.white)
-                                .copyWith(overflow: TextOverflow.ellipsis),
-                      ),
-                    ),
-                  )
-                ],
-              );
-            },
-            itemCount: data.length,
-            containerHeight: 300.h,
-            itemHeight: 200.0.h,
-            autoplay: true,
-            pagination: const SwiperPagination(
-                builder: DotSwiperPaginationBuilder(
-                    size: 8,
-                    color: AppColors.Gray200,
-                    activeColor: AppColors.Gray500)),
-            layout: SwiperLayout.DEFAULT,
-          ),
-          loading: () => buildLoadingOverlay(),
-          error: (error, stackTrace) => ErrorView(context,
-              error: error.toString(), stackTrace: stackTrace),
-        ),
-      ),
-      SizedBox(
-        height: 130,
-        child: Column(
-          children: [
-            const Text('리워드 LIST'),
-            SizedBox(
-              height: 100,
-              width: 400,
-              child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 10,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Container(
-                      width: 100,
-                      height: 40,
-                      color: Colors.blue,
-                      margin: const EdgeInsets.all(8),
-                    );
-                  }),
-            ),
-          ],
-        ),
-      ),
-      const Divider(thickness: 0.5, color: Colors.grey),
+      _buildVoteBanner(context),
+      SizedBox(height: 44.h),
+      _buildReward(context),
+      SizedBox(height: 44.h),
       ref.watch(asyncVoteListProvider(category: 'all')).when(
             data: (pagingController) => Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -132,6 +60,131 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                 error: error.toString(), stackTrace: stackTrace),
           ),
     ]);
+  }
+
+  Widget _buildReward(BuildContext context) {
+    final asyncRewardListState = ref.watch(asyncRewardListProvider);
+
+    return Column(children: [
+      Container(
+        padding: const EdgeInsets.only(left: 16),
+        alignment: Alignment.centerLeft,
+        child: Text('리워드 LIST',
+            style: getTextStyle(context, AppTypo.TITLE18B, AppColors.Gray900)),
+      ),
+      SizedBox(height: 16.h),
+      asyncRewardListState.when(
+          data: (data) => Container(
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.only(left: 16),
+                height: 100.h,
+                child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: data.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Container(
+                        margin: const EdgeInsets.only(right: 16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        child: Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8.r),
+                              child: CachedNetworkImage(
+                                  imageUrl: '${data[index].thumbnail}' ?? '',
+                                  width: 120.w,
+                                  height: 100.h,
+                                  fit: BoxFit.cover),
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              child: Container(
+                                width: 120.w,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.only(
+                                      bottomLeft: Radius.circular(8.r),
+                                      bottomRight: Radius.circular(8.r)),
+                                  color: Colors.black.withOpacity(0.5),
+                                ),
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 4, horizontal: 8),
+                                child: Text(
+                                  data[index].title_ko,
+                                  style: getTextStyle(context, AppTypo.BODY14R,
+                                          Colors.white)
+                                      .copyWith(
+                                          overflow: TextOverflow.ellipsis),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      );
+                    }),
+              ),
+          loading: () => buildLoadingOverlay(),
+          error: (error, stackTrace) => ErrorView(context,
+              error: error.toString(), stackTrace: stackTrace)),
+    ]);
+  }
+
+  SizedBox _buildVoteBanner(BuildContext context) {
+    final asyncBannerListState =
+        ref.watch(asyncBannerListProvider(location: 'vote_home'));
+
+    return SizedBox(
+      height: 230.h,
+      child: asyncBannerListState.when(
+        data: (data) => Swiper(
+          itemBuilder: (BuildContext context, int index) {
+            return Stack(
+              children: [
+                Container(
+                  alignment: Alignment.center,
+                  height: 200.h,
+                  child: CachedNetworkImage(
+                      imageUrl: '${data[index].thumbnail}' ?? '',
+                      // imageUrl: '${data[index].thumbnail}?h=400' ?? '',
+                      height: 200.h,
+                      fit: BoxFit.cover),
+                ),
+                Positioned(
+                  bottom: 30,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    alignment: Alignment.center,
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                    color: Colors.black.withOpacity(0.5),
+                    child: Text(
+                      data[index].title_ko,
+                      style:
+                          getTextStyle(context, AppTypo.BODY14R, Colors.white)
+                              .copyWith(overflow: TextOverflow.ellipsis),
+                    ),
+                  ),
+                )
+              ],
+            );
+          },
+          itemCount: data.length,
+          containerHeight: 230.h,
+          itemHeight: 200.0.h,
+          autoplay: true,
+          pagination: const SwiperPagination(
+              builder: DotSwiperPaginationBuilder(
+                  size: 8,
+                  color: AppColors.Gray200,
+                  activeColor: AppColors.Gray500)),
+          layout: SwiperLayout.DEFAULT,
+        ),
+        loading: () => buildLoadingOverlay(),
+        error: (error, stackTrace) =>
+            ErrorView(context, error: error.toString(), stackTrace: stackTrace),
+      ),
+    );
   }
 
   Widget _buildVote(BuildContext context, WidgetRef ref, VoteModel vote) {

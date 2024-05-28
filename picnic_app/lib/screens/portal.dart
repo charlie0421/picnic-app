@@ -123,121 +123,125 @@ class _PortalState extends ConsumerState<Portal> {
       ),
       body: Column(
         children: [
-          Container(
-            height: 54.h,
-            padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 16.w),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  offset: const Offset(0, 2),
-                  color: AppColors.Gray500.withOpacity(0.1),
-                  blurRadius: 4,
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CustomPaint(
-                  painter: GradientBorderPainter(
-                      borderRadius: 21.r,
-                      borderWidth: 1.r,
-                      gradient: commonGradient),
-                  child: Container(
-                      padding: EdgeInsets.all(6.w),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            'assets/icons/header/star.png',
-                            width: 20.w,
-                            height: 20.h,
-                          ),
-                          Stack(
-                            children: [
-                              Container(
-                                constraints: BoxConstraints(minWidth: 80.w),
-                                child: Text('12,000',
-                                    textAlign: TextAlign.right,
-                                    style: getTextStyle(
-                                            context,
-                                            AppTypo.CAPTION12B,
-                                            AppColors.Primary500)
-                                        .copyWith(
-                                      foreground: Paint()
-                                        ..style = PaintingStyle.stroke
-                                        ..strokeWidth = .5
-                                        ..color = AppColors.Gray900,
-                                    )),
-                              ),
-                              Positioned(
-                                right: 0,
-                                child: Text("12,000",
-                                    style: getTextStyle(
-                                            context,
-                                            AppTypo.CAPTION12B,
-                                            AppColors.Primary500)
-                                        .copyWith(shadows: [
-                                      Shadow(
-                                          color:
-                                              AppColors.Gray900.withOpacity(.5),
-                                          offset: const Offset(0, 5),
-                                          blurRadius: 10)
-                                    ])),
-                              ),
-                            ],
-                          ),
-                          Divider(
-                            color: AppColors.Gray900,
-                            thickness: 1.r,
-                            indent: 8.w,
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: AppColors.Gray00,
-                              borderRadius: BorderRadius.circular(20.r),
-                              boxShadow: [
-                                BoxShadow(
-                                  offset: const Offset(0, 4),
-                                  color: AppColors.Gray500.withOpacity(0.5),
-                                  blurRadius: 2,
-                                ),
-                              ],
-                            ),
-                            child: Image.asset(
-                              'assets/icons/header/plus.png',
-                              width: 20.w,
-                              height: 20.h,
-                            ),
-                          ),
-                        ],
-                      )),
-                ),
-                Row(
+          const Top(),
+          Expanded(child: currentScreen),
+        ],
+      ),
+    );
+  }
+}
+
+class Top extends StatelessWidget {
+  const Top({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 54.h,
+      padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 16.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            offset: const Offset(0, 2),
+            color: AppColors.Gray500.withOpacity(0.1),
+            blurRadius: 4,
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          CustomPaint(
+            painter: GradientBorderPainter(
+                borderRadius: 21.r, borderWidth: 1.r, gradient: commonGradient),
+            child: Container(
+                padding: EdgeInsets.all(6.w),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SvgPicture.asset(
-                      'assets/icons/header/daily_check.svg',
-                      width: 24.w,
-                      height: 24.h,
+                    Image.asset(
+                      'assets/icons/header/star.png',
+                      width: 20.w,
+                      height: 20.h,
+                    ),
+                    Stack(
+                      children: [
+                        Container(
+                          constraints: BoxConstraints(minWidth: 80.w),
+                          child: Text('12,000',
+                              textAlign: TextAlign.right,
+                              style: getTextStyle(context, AppTypo.CAPTION12B,
+                                      AppColors.Primary500)
+                                  .copyWith(
+                                foreground: Paint()
+                                  ..style = PaintingStyle.stroke
+                                  ..strokeWidth = .5
+                                  ..color = AppColors.Gray900,
+                              )),
+                        ),
+                        Positioned(
+                          right: 0,
+                          child: Text("12,000",
+                              style: getTextStyle(context, AppTypo.CAPTION12B,
+                                      AppColors.Primary500)
+                                  .copyWith(shadows: [
+                                Shadow(
+                                    color: AppColors.Gray900.withOpacity(.5),
+                                    offset: const Offset(0, 5),
+                                    blurRadius: 10)
+                              ])),
+                        ),
+                      ],
                     ),
                     Divider(
                       color: AppColors.Gray900,
                       thickness: 1.r,
-                      indent: 16.w,
+                      indent: 8.w,
                     ),
-                    SvgPicture.asset(
-                      'assets/icons/header/alarm.svg',
-                      width: 24.w,
-                      height: 24.h,
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.Gray00,
+                        borderRadius: BorderRadius.circular(20.r),
+                        boxShadow: [
+                          BoxShadow(
+                            offset: const Offset(0, 4),
+                            color: AppColors.Gray500.withOpacity(0.5),
+                            blurRadius: 2,
+                          ),
+                        ],
+                      ),
+                      child: Image.asset(
+                        'assets/icons/header/plus.png',
+                        width: 20.w,
+                        height: 20.h,
+                      ),
                     ),
                   ],
-                ),
-              ],
-            ),
+                )),
           ),
-          Expanded(child: currentScreen),
+          Row(
+            children: [
+              SvgPicture.asset(
+                'assets/icons/header/daily_check.svg',
+                width: 24.w,
+                height: 24.h,
+              ),
+              Divider(
+                color: AppColors.Gray900,
+                thickness: 1.r,
+                indent: 16.w,
+              ),
+              SvgPicture.asset(
+                'assets/icons/header/alarm.svg',
+                width: 24.w,
+                height: 24.h,
+              ),
+            ],
+          ),
         ],
       ),
     );
