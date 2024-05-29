@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/ui/style.dart';
 
 ThemeData communityThemeLight = ThemeData.light().copyWith(
   textTheme: const TextTheme(
@@ -30,6 +31,7 @@ ThemeData communityThemeLight = ThemeData.light().copyWith(
     selectedLabelStyle: TextStyle(color: Colors.black),
     unselectedLabelStyle: TextStyle(color: Colors.black54),
   ),
+  scaffoldBackgroundColor: AppColors.Gray00,
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
       padding: WidgetStateProperty.all(const EdgeInsets.all(4)),

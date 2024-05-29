@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/ui/style.dart';
 
 ThemeData voteThemeLight = ThemeData.light().copyWith(
   textTheme: const TextTheme(
@@ -24,6 +25,7 @@ ThemeData voteThemeLight = ThemeData.light().copyWith(
   bottomAppBarTheme: const BottomAppBarTheme(
     color: Colors.transparent,
   ),
+  scaffoldBackgroundColor: AppColors.Gray00,
   // bottomNavigationBarTheme: const BottomNavigationBarThemeData(
   //   backgroundColor: voteMainColorLight,
   //   selectedIconTheme: IconThemeData(color: Colors.black),

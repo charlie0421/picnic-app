@@ -13,6 +13,11 @@ const Gradient commonGradient = LinearGradient(
     end: Alignment.centerRight,
     colors: [AppColors.Mint500, AppColors.Primary500]);
 
+const Gradient voteGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xFFE3B847), AppColors.Gray00]);
+
 const kAccessTokenKey = 'ACCESS_TOKEN';
 
 class Constants {

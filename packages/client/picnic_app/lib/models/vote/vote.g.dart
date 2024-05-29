@@ -74,6 +74,10 @@ MyStarMemberModel _$MyStarMemberModelFromJson(Map<String, dynamic> json) =>
       name_en: json['name_en'] as String,
       gender: json['gender'] as String,
       image: json['image'] as String?,
+      mystar_group: json['mystar_group'] == null
+          ? null
+          : MyStarGroupModel.fromJson(
+              json['mystar_group'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$MyStarMemberModelToJson(MyStarMemberModel instance) =>
@@ -82,5 +86,22 @@ Map<String, dynamic> _$MyStarMemberModelToJson(MyStarMemberModel instance) =>
       'name_ko': instance.name_ko,
       'name_en': instance.name_en,
       'gender': instance.gender,
+      'image': instance.image,
+      'mystar_group': instance.mystar_group,
+    };
+
+MyStarGroupModel _$MyStarGroupModelFromJson(Map<String, dynamic> json) =>
+    MyStarGroupModel(
+      id: (json['id'] as num).toInt(),
+      name_ko: json['name_ko'] as String,
+      name_en: json['name_en'] as String,
+      image: json['image'] as String?,
+    );
+
+Map<String, dynamic> _$MyStarGroupModelToJson(MyStarGroupModel instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name_ko': instance.name_ko,
+      'name_en': instance.name_en,
       'image': instance.image,
     };

@@ -87,6 +87,7 @@ class MyStarMemberModel {
   final String name_en;
   final String gender;
   String? image;
+  final MyStarGroupModel? mystar_group;
 
   MyStarMemberModel({
     required this.id,
@@ -94,10 +95,32 @@ class MyStarMemberModel {
     required this.name_en,
     required this.gender,
     this.image,
+    required this.mystar_group,
   });
 
   factory MyStarMemberModel.fromJson(Map<String, dynamic> json) =>
       _$MyStarMemberModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$MyStarMemberModelToJson(this);
+}
+
+@reflector
+@JsonSerializable()
+class MyStarGroupModel {
+  final int id;
+  final String name_ko;
+  final String name_en;
+  String? image;
+
+  MyStarGroupModel({
+    required this.id,
+    required this.name_ko,
+    required this.name_en,
+    this.image,
+  });
+
+  factory MyStarGroupModel.fromJson(Map<String, dynamic> json) =>
+      _$MyStarGroupModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$MyStarGroupModelToJson(this);
 }
