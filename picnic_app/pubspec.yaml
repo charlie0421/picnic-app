@@ -79,6 +79,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/icons/vote/
     - assets/icons/header/
     - assets/icons/bottom/
     - assets/icons/line_arrow/

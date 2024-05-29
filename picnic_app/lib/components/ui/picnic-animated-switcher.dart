@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 
 class PicnicAnimatedSwitcher extends ConsumerWidget {
@@ -21,6 +22,8 @@ class PicnicAnimatedSwitcher extends ConsumerWidget {
         layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
           return currentChild ?? Container();
         },
-        child: navigationInfo.currentPage);
+        child: Container(
+            margin: const EdgeInsets.only(bottom: 60).r,
+            child: navigationInfo.currentPage));
   }
 }

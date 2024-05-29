@@ -6,6 +6,7 @@ class AppColors {
   static const Color Primary500 = Color(0xFF9374FF);
   static const Color Sub500 = Color(0xFFCDFB5D);
   static const Color Point500 = Color(0xFFFFA9BD);
+  static const Color Point900 = Color(0xFFEB4A71);
 
   static const Color Gray900 = Color(0xFF000000);
 
