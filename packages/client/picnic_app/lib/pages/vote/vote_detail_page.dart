@@ -20,14 +20,38 @@ class VoteDetailPage extends ConsumerStatefulWidget {
 }
 
 class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
+  late ScrollController _scrollController;
+  late TextEditingController _textEditingController;
+  late FocusNode _focusNode;
+  bool _hasFocus = false;
+
   @override
   initState() {
     super.initState();
+    _scrollController = ScrollController();
+    _textEditingController = TextEditingController();
+    _focusNode = FocusNode();
+
+    _focusNode.addListener(() {
+      setState(() {
+        _hasFocus = _focusNode.hasFocus;
+      });
+
+      if (!_focusNode.hasFocus) {
+        _scrollController.animateTo(
+          _scrollController.position.minScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
     super.dispose();
+    _scrollController.dispose();
+    _focusNode.dispose();
   }
 
   @override
@@ -95,7 +119,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                       SvgPicture.asset(
                         'assets/icons/vote/vote-title-right.svg',
                         width: 16.w,
-                        height: 16.h,
+                        height: 16.w,
                       ),
                     ],
                   )),
@@ -167,7 +191,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 decoration: BoxDecoration(
                     border: Border.all(
                       color: AppColors.Primary500,
-                      width: 1,
+                      width: 1.r,
                     ),
                     borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(70.r),
@@ -175,7 +199,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                         bottomLeft: Radius.circular(40.r),
                         bottomRight: Radius.circular(40.r))),
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 56),
+                  padding: const EdgeInsets.only(top: 56).h,
                   child: Column(
                     children: data.map((item) {
                       int index = data.indexOf(item);
@@ -183,7 +207,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                       return Container(
                         height: 45.h,
                         margin: const EdgeInsets.only(
-                            left: 16, right: 16, bottom: 36),
+                                left: 16, right: 16, bottom: 36)
+                            .r,
                         child: Row(
                           children: [
                             SizedBox(
@@ -213,7 +238,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                               ),
                               padding: const EdgeInsets.all(3),
                               width: 45.w,
-                              height: 45.h,
+                              height: 45.w,
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(22.5.r),
                                 child: CachedNetworkImage(
@@ -282,7 +307,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                             ),
                             SizedBox(
                               width: 24.w,
-                              height: 24.h,
+                              height: 24.w,
                               child: SvgPicture.asset(
                                   'assets/icons/vote/vote-button.svg'),
                             ),
@@ -306,10 +331,60 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                     decoration: BoxDecoration(
                       border: Border.all(
                         color: AppColors.Primary500,
-                        width: 1,
+                        width: 1.r,
                       ),
                       borderRadius: BorderRadius.circular(24.r),
                       color: AppColors.Gray00,
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16).w,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SvgPicture.asset(
+                            'assets/icons/vote/search-icon.svg',
+                            width: 20.w,
+                            height: 20.w,
+                          ),
+                          SizedBox(
+                            width: 8.w,
+                          ),
+                          Expanded(
+                            child: SizedBox(
+                              height: 36.h,
+                              child: TextFormField(
+                                cursorHeight: 16.h,
+                                cursorColor: AppColors.Primary500,
+                                focusNode: _focusNode,
+                                controller: _textEditingController,
+                                decoration: InputDecoration(
+                                  hintText: '나의 최애는 어디에?',
+                                  hintStyle: getTextStyle(context,
+                                      AppTypo.BODY16R, AppColors.Gray300),
+                                  border: InputBorder.none,
+                                  focusColor: AppColors.Primary500,
+                                  fillColor: AppColors.Gray900,
+                                ),
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              _textEditingController.clear();
+                            },
+                            child: SvgPicture.asset(
+                              'assets/icons/vote/cancel.svg',
+                              width: 20.w,
+                              height: 20.w,
+                              colorFilter: ColorFilter.mode(
+                                  _hasFocus
+                                      ? AppColors.Gray700
+                                      : AppColors.Gray200,
+                                  BlendMode.srcIn),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
