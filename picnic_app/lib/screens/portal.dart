@@ -54,6 +54,7 @@ class _PortalState extends ConsumerState<Portal> {
     final bool logined = ref.watch(loginedProvider);
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         leading: logined
             ? GestureDetector(
