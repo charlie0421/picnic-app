@@ -29,7 +29,7 @@ VoteModel _$VoteModelFromJson(Map<String, dynamic> json) => VoteModel(
       result_image: json['result_image'] as String,
       vote_content: json['vote_content'] as String,
       vote_item: (json['vote_item'] as List<dynamic>)
-          .map((e) => VoteItem.fromJson(e as Map<String, dynamic>))
+          .map((e) => VoteItemModel.fromJson(e as Map<String, dynamic>))
           .toList(),
       visible_at: DateTime.parse(json['visible_at'] as String),
       stop_at: DateTime.parse(json['stop_at'] as String),
@@ -52,7 +52,7 @@ Map<String, dynamic> _$VoteModelToJson(VoteModel instance) => <String, dynamic>{
       'start_at': instance.start_at.toIso8601String(),
     };
 
-VoteItem _$VoteItemFromJson(Map<String, dynamic> json) => VoteItem(
+VoteItemModel _$VoteItemFromJson(Map<String, dynamic> json) => VoteItemModel(
       id: (json['id'] as num).toInt(),
       vote_total: (json['vote_total'] as num).toInt(),
       vote_id: (json['vote_id'] as num).toInt(),
@@ -60,7 +60,8 @@ VoteItem _$VoteItemFromJson(Map<String, dynamic> json) => VoteItem(
           json['mystar_member'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$VoteItemToJson(VoteItem instance) => <String, dynamic>{
+Map<String, dynamic> _$VoteItemToJson(VoteItemModel instance) =>
+    <String, dynamic>{
       'id': instance.id,
       'vote_total': instance.vote_total,
       'vote_id': instance.vote_id,

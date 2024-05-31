@@ -2,6 +2,7 @@
 // https://github.com/dart-lang/reflectable.
 
 import 'dart:core';
+
 import 'package:picnic_app/models/fan/article.dart' as prefix11;
 import 'package:picnic_app/models/fan/article_image.dart' as prefix15;
 import 'package:picnic_app/models/fan/banner.dart' as prefix8;
@@ -20,7 +21,6 @@ import 'package:picnic_app/providers/comment_list_provider.dart' as prefix14;
 import 'package:picnic_app/providers/navigation_provider.dart' as prefix2;
 import 'package:picnic_app/providers/vote_list_provider.dart' as prefix4;
 import 'package:picnic_app/reflector.dart' as prefix0;
-
 // ignore_for_file: camel_case_types
 // ignore_for_file: implementation_imports
 // ignore_for_file: prefer_adjacent_string_concatenation
@@ -29,8 +29,8 @@ import 'package:picnic_app/reflector.dart' as prefix0;
 // ignore_for_file: unused_import
 
 import 'package:reflectable/mirrors.dart' as m;
-import 'package:reflectable/src/reflectable_builder_based.dart' as r;
 import 'package:reflectable/reflectable.dart' as r show Reflectable;
+import 'package:reflectable/src/reflectable_builder_based.dart' as r;
 
 final _data = <r.Reflectable, r.ReflectorData>{
   const prefix0.Reflector(): r.ReflectorData(
@@ -215,14 +215,14 @@ final _data = <r.Reflectable, r.ReflectorData>{
             {},
             {
               r'': (bool b) => ({id, vote_total, vote_id, mystar_member}) => b
-                  ? prefix3.VoteItem(
+                  ? prefix3.VoteItemModel(
                       id: id,
                       mystar_member: mystar_member,
                       vote_id: vote_id,
                       vote_total: vote_total)
                   : null,
               r'fromJson': (bool b) =>
-                  (json) => b ? prefix3.VoteItem.fromJson(json) : null
+                  (json) => b ? prefix3.VoteItemModel.fromJson(json) : null
             },
             -1,
             -1,
@@ -2524,7 +2524,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
         prefix2.Navigation,
         prefix3.VoteListModel,
         prefix3.VoteModel,
-        prefix3.VoteItem,
+        prefix3.VoteItemModel,
         prefix3.MyStarMemberModel,
         prefix3.MyStarGroupModel,
         prefix4.SortOptionType,
