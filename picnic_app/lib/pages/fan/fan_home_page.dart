@@ -52,7 +52,7 @@ class _FanHomePageState extends ConsumerState<FanHomePage> {
               ref.watch(asyncBannerListProvider(location: 'fan_home'));
           final asyncGalleryListState =
               ref.watch(asyncCelebGalleryListProvider(selectedCelebState.id));
-          return Column(
+          return ListView(
             children: [
               Container(
                   padding:

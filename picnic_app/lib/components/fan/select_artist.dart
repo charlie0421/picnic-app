@@ -34,69 +34,66 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
               top: 16.h,
             ),
             child: _buildSelectArtist()),
-        Expanded(
-          child: Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/mockup/fan/프레임 배경 1.png'),
-                fit: BoxFit.cover,
-              ),
+        Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/mockup/fan/프레임 배경 1.png'),
+              fit: BoxFit.cover,
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                SizedBox(height: 20.h),
-                Consumer(builder:
-                    (BuildContext context, WidgetRef ref, Widget? child) {
-                  return Container(
-                    height: 110.h,
-                    padding: EdgeInsets.only(left: 36.w),
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: 3,
-                      separatorBuilder: (context, index) =>
-                          SizedBox(width: 16.w),
-                      itemBuilder: (context, index) {
-                        return _buildSelectFan(index);
-                      },
-                    ),
-                  );
-                }),
-                SizedBox(height: 10.h),
-                Container(
-                    width: 180.w,
-                    height: 277.h,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.white,
-                    ),
-                    child: Hero(
-                      tag: 'fan',
-                      child: Image.asset(
-                          'assets/mockup/fan/che${selectedFanIndex + 1}.png'),
-                    )),
-                SizedBox(height: 10.h),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    minimumSize: Size(180.w, 49.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              SizedBox(height: 20.h),
+              Consumer(builder:
+                  (BuildContext context, WidgetRef ref, Widget? child) {
+                return Container(
+                  height: 110.h,
+                  padding: EdgeInsets.only(left: 36.w),
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: 3,
+                    separatorBuilder: (context, index) => SizedBox(width: 16.w),
+                    itemBuilder: (context, index) {
+                      return _buildSelectFan(index);
+                    },
                   ),
-                  onPressed: () {
-                    ref.read(parmePageIndexProvider.notifier).state = 1;
-                  },
-                  child: Text(
-                    'Go Fan!',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleLarge
-                        ?.copyWith(fontWeight: FontWeight.w700),
+                );
+              }),
+              SizedBox(height: 10.h),
+              Container(
+                  width: 180.w,
+                  height: 277.h,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white,
+                  ),
+                  child: Hero(
+                    tag: 'fan',
+                    child: Image.asset(
+                        'assets/mockup/fan/che${selectedFanIndex + 1}.png'),
+                  )),
+              SizedBox(height: 10.h),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  minimumSize: Size(180.w, 49.h),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-              ],
-            ),
+                onPressed: () {
+                  ref.read(parmePageIndexProvider.notifier).state = 1;
+                },
+                child: Text(
+                  'Go Fan!',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
+              ),
+            ],
           ),
         ),
       ],
