@@ -31,7 +31,7 @@ class VoteModel {
   final String wait_image;
   final String result_image;
   final String vote_content;
-  final List<VoteItem> vote_item;
+  final List<VoteItemModel> vote_item;
   final DateTime created_at;
   final DateTime visible_at;
   final DateTime stop_at;
@@ -60,20 +60,20 @@ class VoteModel {
 
 @reflector
 @JsonSerializable()
-class VoteItem {
+class VoteItemModel {
   final int id;
   final int vote_total;
   final int vote_id;
   final MyStarMemberModel mystar_member;
 
-  VoteItem({
+  VoteItemModel({
     required this.id,
     required this.vote_total,
     required this.vote_id,
     required this.mystar_member,
   });
 
-  factory VoteItem.fromJson(Map<String, dynamic> json) =>
+  factory VoteItemModel.fromJson(Map<String, dynamic> json) =>
       _$VoteItemFromJson(json);
 
   Map<String, dynamic> toJson() => _$VoteItemToJson(this);

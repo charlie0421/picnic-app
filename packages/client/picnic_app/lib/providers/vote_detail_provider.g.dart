@@ -174,10 +174,10 @@ class _AsyncVoteDetailProviderElement
 String _$asyncVoteItemListHash() => r'209f9157f1384a6840614a270f8d1410fc5e3a52';
 
 abstract class _$AsyncVoteItemList
-    extends BuildlessAutoDisposeAsyncNotifier<List<VoteItem?>> {
+    extends BuildlessAutoDisposeAsyncNotifier<List<VoteItemModel?>> {
   late final int voteId;
 
-  FutureOr<List<VoteItem?>> build({
+  FutureOr<List<VoteItemModel?>> build({
     required int voteId,
   });
 }
@@ -187,7 +187,7 @@ abstract class _$AsyncVoteItemList
 const asyncVoteItemListProvider = AsyncVoteItemListFamily();
 
 /// See also [AsyncVoteItemList].
-class AsyncVoteItemListFamily extends Family<AsyncValue<List<VoteItem?>>> {
+class AsyncVoteItemListFamily extends Family<AsyncValue<List<VoteItemModel?>>> {
   /// See also [AsyncVoteItemList].
   const AsyncVoteItemListFamily();
 
@@ -226,7 +226,7 @@ class AsyncVoteItemListFamily extends Family<AsyncValue<List<VoteItem?>>> {
 
 /// See also [AsyncVoteItemList].
 class AsyncVoteItemListProvider extends AutoDisposeAsyncNotifierProviderImpl<
-    AsyncVoteItemList, List<VoteItem?>> {
+    AsyncVoteItemList, List<VoteItemModel?>> {
   /// See also [AsyncVoteItemList].
   AsyncVoteItemListProvider({
     required int voteId,
@@ -257,7 +257,7 @@ class AsyncVoteItemListProvider extends AutoDisposeAsyncNotifierProviderImpl<
   final int voteId;
 
   @override
-  FutureOr<List<VoteItem?>> runNotifierBuild(
+  FutureOr<List<VoteItemModel?>> runNotifierBuild(
     covariant AsyncVoteItemList notifier,
   ) {
     return notifier.build(
@@ -282,8 +282,8 @@ class AsyncVoteItemListProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<AsyncVoteItemList, List<VoteItem?>>
-      createElement() {
+  AutoDisposeAsyncNotifierProviderElement<AsyncVoteItemList,
+      List<VoteItemModel?>> createElement() {
     return _AsyncVoteItemListProviderElement(this);
   }
 
@@ -302,14 +302,14 @@ class AsyncVoteItemListProvider extends AutoDisposeAsyncNotifierProviderImpl<
 }
 
 mixin AsyncVoteItemListRef
-    on AutoDisposeAsyncNotifierProviderRef<List<VoteItem?>> {
+    on AutoDisposeAsyncNotifierProviderRef<List<VoteItemModel?>> {
   /// The parameter `voteId` of this provider.
   int get voteId;
 }
 
 class _AsyncVoteItemListProviderElement
     extends AutoDisposeAsyncNotifierProviderElement<AsyncVoteItemList,
-        List<VoteItem?>> with AsyncVoteItemListRef {
+        List<VoteItemModel?>> with AsyncVoteItemListRef {
   _AsyncVoteItemListProviderElement(super.provider);
 
   @override

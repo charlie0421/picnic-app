@@ -30,11 +30,11 @@ class AsyncVoteDetail extends _$AsyncVoteDetail {
 @riverpod
 class AsyncVoteItemList extends _$AsyncVoteItemList {
   @override
-  FutureOr<List<VoteItem?>> build({required int voteId}) async {
+  FutureOr<List<VoteItemModel?>> build({required int voteId}) async {
     return fetch(voteId: voteId);
   }
 
-  FutureOr<List<VoteItem?>> fetch({required int voteId}) async {
+  FutureOr<List<VoteItemModel?>> fetch({required int voteId}) async {
     try {
       final response = await Supabase.instance.client
           .from('vote_item')
@@ -43,8 +43,8 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
 
       logger.i('response.data: ${response}');
 
-      List<VoteItem> voteItemList =
-          List<VoteItem>.from(response.map((e) => VoteItem.fromJson(e)));
+      List<VoteItemModel> voteItemList = List<VoteItemModel>.from(
+          response.map((e) => VoteItemModel.fromJson(e)));
 
       for (var element in voteItemList) {
         element.mystar_member.image =

@@ -5,6 +5,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/error.dart';
+import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
+import 'package:picnic_app/components/vote/list/voting_dialog.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -75,54 +77,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
               SizedBox(
                 height: 36.h,
               ),
-              Container(
-                  height: 48.h,
-                  width: 280.w,
-                  padding: const EdgeInsets.symmetric(horizontal: 16).r,
-                  decoration: BoxDecoration(
-                      color: AppColors.Mint500,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: AppColors.Primary500,
-                        width: 1.5,
-                      )),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SvgPicture.asset(
-                        'assets/icons/vote/vote-title-left.svg',
-                        width: 16.w,
-                        height: 16.h,
-                      ),
-                      Center(
-                        child: SizedBox(
-                          height: 24.h,
-                          child: Stack(
-                            children: [
-                              Text(voteModel?.vote_title ?? '',
-                                  style: getTextStyle(context, AppTypo.BODY16M,
-                                          AppColors.Primary500)
-                                      .copyWith(
-                                          foreground: Paint()
-                                            ..style = PaintingStyle.stroke
-                                            ..strokeWidth = 1
-                                            ..color = AppColors.Primary500
-                                            ..strokeJoin = StrokeJoin.miter
-                                            ..strokeMiterLimit = 28.96)),
-                              Text(voteModel?.vote_title ?? '',
-                                  style: getTextStyle(context, AppTypo.BODY16M,
-                                      AppColors.Gray00)),
-                            ],
-                          ),
-                        ),
-                      ),
-                      SvgPicture.asset(
-                        'assets/icons/vote/vote-title-right.svg',
-                        width: 16.w,
-                        height: 16.w,
-                      ),
-                    ],
-                  )),
+              VoteDetailTitle(voteModel: voteModel!),
               SizedBox(
                 height: 12.h,
               ),
@@ -308,8 +263,19 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                             SizedBox(
                               width: 24.w,
                               height: 24.w,
-                              child: SvgPicture.asset(
-                                  'assets/icons/vote/vote-button.svg'),
+                              child: GestureDetector(
+                                onTap: () {
+                                  showVotingDialog(
+                                      context: context,
+                                      voteModel: ref
+                                          .watch(asyncVoteDetailProvider(
+                                              voteId: widget.voteId))
+                                          .value!,
+                                      voteItemModel: data[index]!);
+                                },
+                                child: SvgPicture.asset(
+                                    'assets/icons/vote/vote-button.svg'),
+                              ),
                             ),
                           ],
                         ),
