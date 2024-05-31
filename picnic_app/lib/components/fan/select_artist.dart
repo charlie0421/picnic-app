@@ -25,7 +25,7 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
   Widget build(BuildContext context) {
     final ref = this.ref;
 
-    return Column(
+    return ListView(
       children: [
         Container(
             height: 116,
