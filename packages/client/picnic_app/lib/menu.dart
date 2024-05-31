@@ -3,8 +3,8 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/pages/fan/fan_home_page.dart';
 import 'package:picnic_app/pages/fan/gallery_page.dart';
 import 'package:picnic_app/pages/fan/landing_page.dart';
+import 'package:picnic_app/pages/fan/library_page.dart';
 import 'package:picnic_app/pages/vote/vote_home_page.dart';
-import 'package:picnic_app/screens/fan/fan_screen.dart';
 
 ScreenInfo voteScreenInfo = ScreenInfo(
   type: 'vote',
@@ -74,7 +74,7 @@ List<BottomNavigationItem> fanPages = [
     title: 'nav_library',
     assetPath: 'assets/icons/bottom/media.svg',
     index: 2,
-    pageWidget: FanScreen(),
+    pageWidget: LibraryPage(),
   ),
   BottomNavigationItem(
     title: 'nav_purchases',
