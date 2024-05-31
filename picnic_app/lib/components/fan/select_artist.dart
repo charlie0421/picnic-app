@@ -127,9 +127,9 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
   }
 
   _buildSelectArtist() {
-    final asyncMyCelebListState = ref.watch(asyncMyCelebListProvider);
+    final asyncCelebListState = ref.watch(asyncCelebListProvider);
 
-    return asyncMyCelebListState.when(
+    return asyncCelebListState.when(
       data: (data) {
         return Container(
           height: 84,
