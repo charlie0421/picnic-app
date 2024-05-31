@@ -70,12 +70,21 @@ class VotingDialog extends Dialog {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(100.r),
-                        child: CachedNetworkImage(
-                          imageUrl: voteItemModel.mystar_member.image ?? '',
-                          width: 100.w,
-                          height: 100.w,
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100.r),
+                          border: Border.all(
+                            color: AppColors.Primary500,
+                            width: 1.5.r,
+                          ),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(100.r),
+                          child: CachedNetworkImage(
+                            imageUrl: voteItemModel.mystar_member.image ?? '',
+                            width: 100.w,
+                            height: 100.w,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 10),

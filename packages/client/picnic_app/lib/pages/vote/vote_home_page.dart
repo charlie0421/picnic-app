@@ -197,7 +197,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         navigationInfoNotifier.setCurrentPage(VoteDetailPage(voteId: vote.id));
       },
       child: Container(
-        margin: const EdgeInsets.only(bottom: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 16).r,
         child: Column(
           children: [
             VoteTitle(vote: vote),

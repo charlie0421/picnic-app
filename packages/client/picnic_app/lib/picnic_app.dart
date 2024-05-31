@@ -77,7 +77,7 @@ class _PicnicAppState extends ConsumerState<PicnicApp>
   Widget build(BuildContext context) {
     final appSettingState = ref.watch(appSettingProvider);
     return ScreenUtilInit(
-      designSize: const Size(430, 932),
+      designSize: const Size(393, 852),
       child: OverlaySupport.global(
         child: MaterialApp(
             title: 'Picnic App',

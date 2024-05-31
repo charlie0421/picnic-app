@@ -46,10 +46,12 @@ class VoteDetailTitle extends StatelessWidget {
                                   ..strokeWidth = 1
                                   ..color = AppColors.Primary500
                                   ..strokeJoin = StrokeJoin.miter
-                                  ..strokeMiterLimit = 28.96)),
-                    Text(voteModel?.vote_title ?? '',
+                                  ..strokeMiterLimit = 28.96),
+                        overflow: TextOverflow.ellipsis),
+                    Text(voteModel.vote_title ?? '',
                         style: getTextStyle(
-                            context, AppTypo.BODY16M, AppColors.Gray00)),
+                            context, AppTypo.BODY16M, AppColors.Gray00),
+                        overflow: TextOverflow.ellipsis),
                   ],
                 ),
               ),
