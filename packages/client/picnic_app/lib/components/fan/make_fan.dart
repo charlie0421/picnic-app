@@ -54,7 +54,7 @@ class _MakeFanState extends ConsumerState<MakgeFan> {
     logger.i('cameraDescription: $cameraDescription');
     final CameraController cameraController = CameraController(
       cameraDescription,
-      ResolutionPreset.medium,
+      ResolutionPreset.max,
     );
 
     await controller?.dispose();
@@ -95,7 +95,7 @@ class _MakeFanState extends ConsumerState<MakgeFan> {
     // 새 카메라 컨트롤러 설정
     CameraController newController = CameraController(
       newCameraDescription,
-      ResolutionPreset.medium,
+      ResolutionPreset.max,
     );
 
     // 새 컨트롤러로 초기화
@@ -149,7 +149,7 @@ class _MakeFanState extends ConsumerState<MakgeFan> {
     final userImage = ref.watch(userImageProvider);
     final convertedUserImage = ref.watch(convertedImageProvider);
 
-    return Column(
+    return ListView(
       children: [
         Container(
           height: 58,
@@ -174,180 +174,188 @@ class _MakeFanState extends ConsumerState<MakgeFan> {
             ],
           ),
         ),
-        Expanded(
-          child: Container(
-            height: double.infinity,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/mockup/fan/프레임 배경 1.png'),
-                fit: BoxFit.cover,
-              ),
+        Container(
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/mockup/fan/프레임 배경 1.png'),
+              fit: BoxFit.cover,
             ),
-            child: Column(mainAxisSize: MainAxisSize.max, children: [
-              SizedBox(height: 10.h),
-              Container(
-                height: 54.h,
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Image.asset('assets/mockup/fan/help.png',
-                        width: 54.w, height: 54.h),
-                    Image.asset('assets/mockup/fan/save.png',
-                        width: 54.w, height: 54.h),
-                  ],
-                ),
-              ),
-              SizedBox(height: 10.h),
-              Stack(
+          ),
+          child: Column(mainAxisSize: MainAxisSize.max, children: [
+            SizedBox(height: 10.h),
+            Container(
+              height: 54.h,
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  if (ref.watch(userImageProvider.notifier).state != null)
-                    Container(
-                      width: 250.w,
-                      height: 386.h,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: FileImage(userImage!),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                  Container(
-                      width: 250.w,
-                      height: 386.h,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: userImage == null
-                            ? Colors.white
-                            : Colors.transparent,
-                      ),
-                      child: Hero(
-                        tag: 'fan',
-                        child: Image.asset(
-                            'assets/mockup/fan/che${selectedFanIndex + 1}.png'),
-                      )),
+                  Image.asset('assets/mockup/fan/help.png',
+                      width: 54.w, height: 54.h),
+                  Image.asset('assets/mockup/fan/save.png',
+                      width: 54.w, height: 54.h),
                 ],
               ),
-              SizedBox(height: 34.h),
-              Container(
-                height: 54.h,
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Image.asset('assets/mockup/fan/background.png'),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
-                          onPressed: getImage,
-                          child: const Text('사진첩'),
-                        ),
-                        if (cameras != null && cameras!.isNotEmpty)
-                          const SizedBox(width: 16),
-                        if (cameras != null && cameras!.isNotEmpty)
-                          ElevatedButton(
-                            onPressed: () {
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                builder: (BuildContext context) {
-                                  return StatefulBuilder(builder:
-                                      (BuildContext context,
-                                          StateSetter setState) {
-                                    return SizedBox(
-                                      height: MediaQuery.of(context)
-                                          .size
-                                          .height, // 전체 화면 높이를 사용
-                                      child: Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          CameraPreview(
-                                            controller!,
-                                            child: CustomPaint(
-                                              size: Size.infinite,
-                                              painter: OverlayImagePainter(
-                                                  overlayImage: _overlayImage),
-                                            ),
-                                          ),
-                                          Container(
-                                            width: double.infinity,
-                                            alignment: Alignment.bottomCenter,
-                                            padding: const EdgeInsets.only(
-                                                bottom: 100),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                ElevatedButton(
-                                                  onPressed: () async {
-                                                    OverlayLoadingProgress
-                                                        .start(context);
-
-                                                    final XFile file =
-                                                        await controller!
-                                                            .takePicture();
-                                                    final img.Image image = img
-                                                        .decodeImage(await file
-                                                            .readAsBytes())!;
-                                                    final uiImage =
-                                                        await _convertImage(
-                                                            image);
-                                                    ref
-                                                        .read(userImageProvider
-                                                            .notifier)
-                                                        .state = File(file.path);
-                                                    ref
-                                                        .read(
-                                                            convertedImageProvider
-                                                                .notifier)
-                                                        .state = File(file.path);
-                                                    // _userImage = File(file.path);
-                                                    // _convertedUserImage = uiImage;
-                                                    OverlayLoadingProgress
-                                                        .stop();
-                                                    Navigator.pop(context);
-                                                  },
-                                                  child: const Text('사진 찍기'),
-                                                ),
-                                                const SizedBox(width: 16),
-                                                if (cameras != null &&
-                                                    cameras!.isNotEmpty)
-                                                  ElevatedButton(
-                                                    onPressed: () async {
-                                                      _toggleCamera();
-                                                      Future.delayed(
-                                                          const Duration(
-                                                              milliseconds:
-                                                                  1000), () {
-                                                        setState(() {});
-                                                      });
-                                                    },
-                                                    child: const Text('카메라 전환'),
-                                                  ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  });
-                                },
-                              );
-                            },
-                            child: const Text('카메라'),
-                          ),
-                      ],
+            ),
+            SizedBox(height: 10.h),
+            Stack(
+              children: [
+                if (ref.watch(userImageProvider.notifier).state != null)
+                  Container(
+                    width: 250.w,
+                    height: 386.h,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: FileImage(userImage!),
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                    Image.asset('assets/mockup/fan/decoration.png',
-                        width: 54.w, height: 54.h),
-                  ],
-                ),
+                  ),
+                Container(
+                    width: 250.w,
+                    height: 386.h,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color:
+                          userImage == null ? Colors.white : Colors.transparent,
+                    ),
+                    child: Hero(
+                      tag: 'fan',
+                      child: Image.asset(
+                          'assets/mockup/fan/che${selectedFanIndex + 1}.png'),
+                    )),
+              ],
+            ),
+            SizedBox(height: 34.h),
+            Container(
+              height: 54.h,
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Image.asset('assets/mockup/fan/background.png'),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: getImage,
+                        child: const Text('사진첩'),
+                      ),
+                      if (cameras != null && cameras!.isNotEmpty)
+                        const SizedBox(width: 16),
+                      if (cameras != null && cameras!.isNotEmpty)
+                        ElevatedButton(
+                          onPressed: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              builder: (BuildContext context) {
+                                return StatefulBuilder(builder:
+                                    (BuildContext context,
+                                        StateSetter setState) {
+                                  return Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      CameraPreview(
+                                        controller!,
+                                        child: CustomPaint(
+                                          painter: OverlayImagePainter(
+                                              overlayImage: _overlayImage),
+                                        ),
+                                      ),
+                                      Container(
+                                        width: double.infinity,
+                                        alignment: Alignment.bottomRight,
+                                        padding:
+                                            const EdgeInsets.only(bottom: 80).r,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 24.w,
+                                                    vertical: 12.h),
+                                              ),
+                                              onPressed: () async {
+                                                OverlayLoadingProgress.start(
+                                                    context);
+
+                                                final XFile file =
+                                                    await controller!
+                                                        .takePicture();
+                                                final img.Image image =
+                                                    img.decodeImage(await file
+                                                        .readAsBytes())!;
+                                                final uiImage =
+                                                    await _convertImage(image);
+                                                ref
+                                                    .read(userImageProvider
+                                                        .notifier)
+                                                    .state = File(file.path);
+                                                ref
+                                                    .read(convertedImageProvider
+                                                        .notifier)
+                                                    .state = File(file.path);
+                                                // _userImage = File(file.path);
+                                                // _convertedUserImage = uiImage;
+                                                OverlayLoadingProgress.stop();
+                                                Navigator.pop(context);
+                                              },
+                                              child: const Text('사진 찍기'),
+                                            ),
+                                            const SizedBox(width: 16),
+                                            if (cameras != null &&
+                                                cameras!.isNotEmpty)
+                                              ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 24.w,
+                                                      vertical: 12.h),
+                                                ),
+                                                onPressed: () async {
+                                                  _toggleCamera();
+                                                  Future.delayed(
+                                                      const Duration(
+                                                          milliseconds: 1000),
+                                                      () {
+                                                    setState(() {});
+                                                  });
+                                                },
+                                                child: const Text('카메라 전환'),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: 0,
+                                        right: 20.w,
+                                        child: IconButton(
+                                          icon:
+                                              const Icon(Icons.close, size: 36),
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                });
+                              },
+                            );
+                          },
+                          child: const Text('카메라'),
+                        ),
+                    ],
+                  ),
+                  Image.asset('assets/mockup/fan/decoration.png',
+                      width: 54.w, height: 54.h),
+                ],
               ),
-              SizedBox(height: 34.h),
-            ]),
-          ),
+            ),
+            SizedBox(height: 34.h),
+          ]),
         ),
       ],
     );

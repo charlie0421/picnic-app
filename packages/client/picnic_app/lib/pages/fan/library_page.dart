@@ -82,6 +82,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         ),
         Expanded(
           child: TabBarView(
+            physics: const NeverScrollableScrollPhysics(),
             controller: _tabController,
             children: [
               _buildGalleryTab(ref),
