@@ -21,9 +21,10 @@ class AsyncVoteDetail extends _$AsyncVoteDetail {
           .single();
 
       return VoteModel.fromJson(response);
-    } catch (e, stackTrace) {
+    } catch (e) {
       logger.e('Failed to load vote detail: $e');
     }
+    return null;
   }
 }
 
@@ -41,7 +42,7 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
           .select('*, mystar_member!left(*,mystar_group(*))')
           .eq('vote_id', voteId);
 
-      logger.i('response.data: ${response}');
+      logger.i('response.data: $response');
 
       List<VoteItemModel> voteItemList = List<VoteItemModel>.from(
           response.map((e) => VoteItemModel.fromJson(e)));

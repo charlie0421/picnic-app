@@ -110,8 +110,7 @@ class NavigationInfo extends _$NavigationInfo {
   }
 
   goBack() {
-    if (setting.previousPage != null &&
-        setting.currentPage != setting.previousPage) {
+    if (setting.currentPage != setting.previousPage) {
       setting.currentPage = setting.previousPage;
       state = state.copyWith(
           previousPage: setting.previousPage, currentPage: setting.currentPage);

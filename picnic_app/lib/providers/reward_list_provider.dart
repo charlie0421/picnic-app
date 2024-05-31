@@ -17,7 +17,7 @@ class AsyncRewardList extends _$AsyncRewardList {
         .from('reward')
         .select()
         .order('start_at', ascending: false);
-    logger.i('response.data: ${response}');
+    logger.i('response.data: $response');
     List<RewardModel> rewardList =
         List<RewardModel>.from(response.map((e) => RewardModel.fromJson(e)));
     for (var element in rewardList) {

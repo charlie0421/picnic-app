@@ -11,7 +11,7 @@ class NovelHomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Stack(
       children: [
-        PicnicAnimatedSwitcher(),
+        const PicnicAnimatedSwitcher(),
         Positioned(
             bottom: 0,
             left: 0,

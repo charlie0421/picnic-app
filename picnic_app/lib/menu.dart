@@ -31,7 +31,7 @@ ScreenInfo novelScreenInfo = ScreenInfo(
 );
 
 List<BottomNavigationItem> votePages = [
-  BottomNavigationItem(
+  const BottomNavigationItem(
     title: '투표',
     assetPath: 'assets/icons/bottom/media.svg',
     index: 0,
@@ -86,7 +86,7 @@ List<BottomNavigationItem> fanPages = [
     title: 'nav_setting',
     assetPath: 'assets/icons/bottom/media.svg',
     index: 4,
-    pageWidget: const LandingPage(),
+    pageWidget: LandingPage(),
   ),
 ];
 

@@ -108,7 +108,7 @@ class MenuItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final navigationNotifier = ref.read(navigationInfoProvider.notifier);
 
-    return Container(
+    return SizedBox(
       height: 52.h,
       child: InkWell(
         onTap: () => WidgetsBinding.instance.addPostFrameCallback((_) {
