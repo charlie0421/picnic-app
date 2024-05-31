@@ -18,7 +18,7 @@ class AsyncBannerList extends _$AsyncBannerList {
         .select()
         .eq('location', location)
         .order('start_at', ascending: false);
-    logger.i('response.data: ${response}');
+    logger.i('response.data: $response');
     List<BannerModel> bannerList =
         List<BannerModel>.from(response.map((e) => BannerModel.fromJson(e)));
     for (var element in bannerList) {
