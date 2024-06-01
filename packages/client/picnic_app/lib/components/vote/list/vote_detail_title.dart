@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/ui/style.dart';
 
-class VoteDetailTitle extends StatelessWidget {
-  final VoteModel voteModel;
+class VoteCommonTitle extends StatelessWidget {
+  final String title;
 
-  const VoteDetailTitle({
+  const VoteCommonTitle({
     super.key,
-    required this.voteModel,
+    required this.title,
   });
 
   @override
@@ -37,7 +36,7 @@ class VoteDetailTitle extends StatelessWidget {
                 height: 24.h,
                 child: Stack(
                   children: [
-                    Text(voteModel.vote_title ?? '',
+                    Text(title,
                         style: getTextStyle(
                                 context, AppTypo.BODY16M, AppColors.Primary500)
                             .copyWith(
@@ -48,7 +47,7 @@ class VoteDetailTitle extends StatelessWidget {
                                   ..strokeJoin = StrokeJoin.miter
                                   ..strokeMiterLimit = 28.96),
                         overflow: TextOverflow.ellipsis),
-                    Text(voteModel.vote_title ?? '',
+                    Text(title,
                         style: getTextStyle(
                             context, AppTypo.BODY16M, AppColors.Gray00),
                         overflow: TextOverflow.ellipsis),
