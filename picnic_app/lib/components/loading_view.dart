@@ -43,7 +43,7 @@ class _LoadingViewState extends ConsumerState<LoadingView> {
     return Container(
       alignment: Alignment.center,
       child: const CircularProgressIndicator(
-        valueColor: AlwaysStoppedAnimation<Color>(fanMainColor),
+        valueColor: AlwaysStoppedAnimation<Color>(picMainColor),
       ),
     );
   }

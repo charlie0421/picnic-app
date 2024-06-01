@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_app/models/fan/celeb.dart';
+import 'package:picnic_app/models/pic/celeb.dart';
 import 'package:picnic_app/providers/celeb_list_provider.dart';
 import 'package:picnic_app/providers/celeb_search_provider.dart';
 import 'package:picnic_app/ui/style.dart';

@@ -14,8 +14,8 @@ import 'package:picnic_app/ui/style.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
 import 'community/community_home_screen.dart';
-import 'fan/fan_home_screen.dart';
 import 'novel/novel_home_screen.dart';
+import 'pic/pic_home_screen.dart';
 
 class Portal extends ConsumerStatefulWidget {
   static const String routeName = '/landing';
@@ -42,7 +42,7 @@ class _PortalState extends ConsumerState<Portal> {
     if (navigationInfo.portalString == 'vote') {
       currentScreen = const VoteHomeScreen();
     } else if (navigationInfo.portalString == 'pic') {
-      currentScreen = const FanHomeScreen();
+      currentScreen = const PicHomeScreen();
     } else if (navigationInfo.portalString == 'community') {
       currentScreen = const CommunityHomeScreen();
     } else if (navigationInfo.portalString == 'novel') {

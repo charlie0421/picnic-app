@@ -3,7 +3,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/common_dialog.dart';
-import 'package:picnic_app/models/fan/comment.dart';
+import 'package:picnic_app/models/pic/comment.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ReportPopupMenu extends StatelessWidget {
@@ -45,7 +45,7 @@ class ReportPopupMenu extends StatelessWidget {
               children: [
                 const Icon(
                   Icons.flag,
-                  color: fanMainColor,
+                  color: picMainColor,
                 ),
                 const SizedBox(width: 5),
                 Text(Intl.message('label_title_report'))

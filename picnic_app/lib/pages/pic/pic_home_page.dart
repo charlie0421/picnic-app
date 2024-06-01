@@ -7,28 +7,28 @@ import 'package:intl/intl.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/no_bookmark_celeb.dart';
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/models/fan/celeb.dart';
-import 'package:picnic_app/models/fan/gallery.dart';
-import 'package:picnic_app/pages/fan/gallery_detail_page.dart';
-import 'package:picnic_app/pages/fan/landing_page.dart';
+import 'package:picnic_app/models/pic/celeb.dart';
+import 'package:picnic_app/models/pic/gallery.dart';
+import 'package:picnic_app/pages/pic/gallery_detail_page.dart';
+import 'package:picnic_app/pages/pic/landing_page.dart';
 import 'package:picnic_app/providers/banner_list_provider.dart';
 import 'package:picnic_app/providers/gallery_list_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
-import 'package:picnic_app/screens/fan/draw_image_screen.dart';
+import 'package:picnic_app/screens/pic/draw_image_screen.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
 
 import '../../components/celeb_list_item.dart';
 import '../../providers/celeb_list_provider.dart';
 
-class FanHomePage extends ConsumerStatefulWidget {
-  const FanHomePage({super.key});
+class PicHomePage extends ConsumerStatefulWidget {
+  const PicHomePage({super.key});
 
   @override
-  ConsumerState<FanHomePage> createState() => _FanHomePageState();
+  ConsumerState<PicHomePage> createState() => _PicHomePageState();
 }
 
-class _FanHomePageState extends ConsumerState<FanHomePage> {
+class _PicHomePageState extends ConsumerState<PicHomePage> {
   @override
   Widget build(BuildContext context) {
     final asyncMyCelebListState = ref.watch(asyncMyCelebListProvider);
@@ -49,7 +49,7 @@ class _FanHomePageState extends ConsumerState<FanHomePage> {
           }
 
           final asyncBannerListState =
-              ref.watch(asyncBannerListProvider(location: 'fan_home'));
+              ref.watch(asyncBannerListProvider(location: 'pic_home'));
           final asyncGalleryListState =
               ref.watch(asyncCelebGalleryListProvider(selectedCelebState.id));
           return ListView(
@@ -154,7 +154,7 @@ class _FanHomePageState extends ConsumerState<FanHomePage> {
                         context,
                         retryFunction: () {
                           ref.refresh(
-                              asyncBannerListProvider(location: 'fan_home'));
+                              asyncBannerListProvider(location: 'pic_home'));
                         },
                         error: error,
                         stackTrace: stackTrace,
@@ -357,7 +357,7 @@ class _FanHomePageState extends ConsumerState<FanHomePage> {
                     ref
                         .read(selectedCelebProvider.notifier)
                         .setSelectedCeleb(e);
-                    ref.read(asyncBannerListProvider(location: 'fan_home'));
+                    ref.read(asyncBannerListProvider(location: 'pic_home'));
                     Navigator.pop(context);
                   },
                   child: CelebListItem(

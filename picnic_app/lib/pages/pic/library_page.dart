@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_app/pages/fan/fan_make_page.dart';
-import 'package:picnic_app/pages/fan/fan_page.dart';
-import 'package:picnic_app/providers/fan_provider.dart';
+import 'package:picnic_app/pages/pic/pic_make_page.dart';
+import 'package:picnic_app/pages/pic/pic_page.dart';
+import 'package:picnic_app/providers/pic_provider.dart';
 
 class LibraryPage extends ConsumerStatefulWidget {
   static const String routeName = '/gallery_detail_screen';
@@ -67,7 +67,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                       ))),
               Align(
                   alignment: Alignment.center,
-                  child: Text(Intl.message('label_library_tab_fan'),
+                  child: Text(Intl.message('label_library_tab_pic'),
                       style: const TextStyle(
                         fontSize: 16,
                       ))),
@@ -86,7 +86,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
             controller: _tabController,
             children: [
               _buildGalleryTab(ref),
-              _buildFanTab(ref),
+              _buildPicTab(ref),
               _buildChatTab(ref),
             ],
           ),
@@ -99,16 +99,22 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     return Container();
   }
 
-  Widget _buildFanTab(ref) {
-    int fanPageIndex = ref.watch(parmePageIndexProvider);
-    Widget widget = fanPageIndex == 0 ? const FanPage() : const FanMakePage();
+  Widget _buildPicTab(ref) {
+    int picPageIndex = ref.watch(parmePageIndexProvider);
+    Widget widget = picPageIndex == 0 ? const PicPage() : const PicMakePage();
 
     return WillPopScope(
       onWillPop: () async {
-        if (ref.watch(parmePageIndexProvider.notifier).state == 1) {
-          ref.read(parmePageIndexProvider.notifier).state = 0;
+        if (ref
+            .watch(parmePageIndexProvider.notifier)
+            .state == 1) {
+          ref
+              .read(parmePageIndexProvider.notifier)
+              .state = 0;
           return false;
-        } else if (ref.watch(fanSelectedIndexProvider.notifier).state == 0) {
+        } else if (ref
+            .watch(picSelectedIndexProvider.notifier)
+            .state == 0) {
           return true;
         }
         return true;

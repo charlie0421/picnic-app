@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_app/models/fan/comment.dart';
+import 'package:picnic_app/models/pic/comment.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class CommentContents extends StatelessWidget {

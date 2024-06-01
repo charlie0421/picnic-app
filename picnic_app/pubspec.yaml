@@ -87,7 +87,7 @@ flutter:
     - assets/mockup/
     - assets/mockup/my/
     - assets/mockup/gallery/
-    - assets/mockup/fan/
+    - assets/mockup/pic/
     - assets/landing/
   fonts:
     - family: Pretendard

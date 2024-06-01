@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:picnic_app/models/meta.dart';
-import 'package:picnic_app/models/fan/comment_like.dart';
+import 'package:picnic_app/models/pic/comment_like.dart';
 import 'package:picnic_app/models/user.dart';
 import 'package:picnic_app/reflector.dart';
 

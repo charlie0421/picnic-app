@@ -13,7 +13,7 @@ import 'package:image/image.dart' as img;
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/celeb_list_provider.dart';
-import 'package:picnic_app/providers/fan_provider.dart';
+import 'package:picnic_app/providers/pic_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class SelectArtist extends ConsumerStatefulWidget {
@@ -24,7 +24,7 @@ class SelectArtist extends ConsumerStatefulWidget {
 }
 
 class _SelectArtistState extends ConsumerState<SelectArtist> {
-  int selectedFanIndex = 0;
+  int selectedPicIndex = 0;
 
   ui.Image? _overlayImage;
   ui.Image? _convertedUserImage; // 변환된 사용자 이미지
@@ -42,7 +42,7 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
 
   Future<void> _loadOverlayImage() async {
     final ByteData data = await rootBundle.load(
-        'assets/mockup/fan/che${ref.watch(fanSelectedIndexProvider) + 1}.png');
+        'assets/mockup/pic/che${ref.watch(picSelectedIndexProvider) + 1}.png');
     final Uint8List bytes = data.buffer.asUint8List();
     final img.Image image = img.decodeImage(bytes)!;
     final uiImage = await _convertImage(image);
@@ -132,7 +132,7 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
         Container(
           decoration: const BoxDecoration(
             image: DecorationImage(
-              image: AssetImage('assets/mockup/fan/프레임 배경 1.png'),
+              image: AssetImage('assets/mockup/pic/프레임 배경 1.png'),
               fit: BoxFit.cover,
             ),
           ),
@@ -151,7 +151,7 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
                       separatorBuilder: (context, index) =>
                           SizedBox(width: 16.w),
                       itemBuilder: (context, index) {
-                        return _buildSelectFan(index);
+                        return _buildSelectPic(index);
                       },
                     ),
                   );
@@ -167,7 +167,7 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
                     child: Hero(
                       tag: 'pic',
                       child: Image.asset(
-                          'assets/mockup/fan/che${selectedFanIndex + 1}.png'),
+                          'assets/mockup/pic/che${selectedPicIndex + 1}.png'),
                     )),
                 SizedBox(height: 10.h),
                 ElevatedButton(
@@ -197,12 +197,12 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
     );
   }
 
-  _buildSelectFan(int index) {
+  _buildSelectPic(int index) {
     return InkWell(
       onTap: () {
         setState(() {
-          selectedFanIndex = index;
-          ref.read(fanSelectedIndexProvider.notifier).state = index;
+          selectedPicIndex = index;
+          ref.read(picSelectedIndexProvider.notifier).state = index;
         });
       },
       child: Container(
@@ -211,9 +211,9 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
             color: Colors.white,
           ),
           child: Opacity(
-              opacity: selectedFanIndex == index ? 1 : 0.2,
+              opacity: selectedPicIndex == index ? 1 : 0.2,
               child: Image.asset(
-                'assets/mockup/fan/che${index + 1}.png',
+                'assets/mockup/pic/che${index + 1}.png',
                 width: 71.w,
                 height: 110.h,
               ))),

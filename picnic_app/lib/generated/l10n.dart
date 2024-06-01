@@ -451,10 +451,10 @@ class S {
   }
 
   /// `PRAME`
-  String get label_library_tab_fan {
+  String get label_library_tab_pic {
     return Intl.message(
       'PRAME',
-      name: 'label_library_tab_fan',
+      name: 'label_library_tab_pic',
       desc: '',
       args: [],
     );
@@ -551,10 +551,10 @@ class S {
   }
 
   /// `P-RAME Voting`
-  String get label_vote_tab_fan {
+  String get label_vote_tab_pic {
     return Intl.message(
       'P-RAME Voting',
-      name: 'label_vote_tab_fan',
+      name: 'label_vote_tab_pic',
       desc: '',
       args: [],
     );

@@ -5,17 +5,17 @@ import 'package:picnic_app/components/bottom/navigation_bar.dart';
 import 'package:picnic_app/components/ui/picnic-animated-switcher.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/menu.dart';
-import 'package:picnic_app/pages/fan/landing_page.dart';
+import 'package:picnic_app/pages/pic/landing_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 
-class FanHomeScreen extends ConsumerStatefulWidget {
-  const FanHomeScreen({super.key});
+class PicHomeScreen extends ConsumerStatefulWidget {
+  const PicHomeScreen({super.key});
 
   @override
-  ConsumerState<FanHomeScreen> createState() => _FanHomeScreenState();
+  ConsumerState<PicHomeScreen> createState() => _PicHomeScreenState();
 }
 
-class _FanHomeScreenState extends ConsumerState<FanHomeScreen> {
+class _PicHomeScreenState extends ConsumerState<PicHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final navigationInfo = ref.watch(navigationInfoProvider);
@@ -28,15 +28,15 @@ class _FanHomeScreenState extends ConsumerState<FanHomeScreen> {
             left: 0,
             right: 0,
             child: CommonBottomNavigationBar(
-              screenInfo: fanScreenInfo,
+              screenInfo: picScreenInfo,
             )),
-        if (navigationInfo.fanBottomNavigationIndex == 0)
+        if (navigationInfo.picBottomNavigationIndex == 0)
           Positioned(
               right: 20.w,
               bottom: 120.h,
               child: FloatingActionButton(
                 onPressed: _buildFloating,
-                backgroundColor: fanMainColor,
+                backgroundColor: picMainColor,
                 child: const Icon(Icons.bookmarks),
               )),
       ],

@@ -64,9 +64,11 @@ class DefaultFirebaseOptions {
     messagingSenderId: '853406219989',
     projectId: 'picnic-423500',
     storageBucket: 'picnic-423500.appspot.com',
-    androidClientId: '853406219989-8ji54q3mci0tqvin09aigsghk5vo4t0i.apps.googleusercontent.com',
-    iosClientId: '853406219989-ntnler0e2qe0gfheh3qdjt3k2h4kpvj4.apps.googleusercontent.com',
-    iosBundleId: 'fan.picnic.app',
+    androidClientId:
+        '853406219989-8ji54q3mci0tqvin09aigsghk5vo4t0i.apps.googleusercontent.com',
+    iosClientId:
+        '853406219989-ntnler0e2qe0gfheh3qdjt3k2h4kpvj4.apps.googleusercontent.com',
+    iosBundleId: 'pic.picnic.app',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -75,8 +77,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '853406219989',
     projectId: 'picnic-423500',
     storageBucket: 'picnic-423500.appspot.com',
-    androidClientId: '853406219989-8ji54q3mci0tqvin09aigsghk5vo4t0i.apps.googleusercontent.com',
-    iosClientId: '853406219989-qqbcgraqv8kste50lbb18vdi28hkqknl.apps.googleusercontent.com',
+    androidClientId:
+        '853406219989-8ji54q3mci0tqvin09aigsghk5vo4t0i.apps.googleusercontent.com',
+    iosClientId:
+        '853406219989-qqbcgraqv8kste50lbb18vdi28hkqknl.apps.googleusercontent.com',
     iosBundleId: 'com.example.celabApp',
   );
 
@@ -89,5 +93,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'picnic-423500.appspot.com',
     measurementId: 'G-GWP6Z8F6GM',
   );
-
 }

@@ -11,7 +11,7 @@ import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/screens/portal.dart';
 import 'package:picnic_app/ui/community_theme.dart';
-import 'package:picnic_app/ui/fan_theme.dart';
+import 'package:picnic_app/ui/pic_theme.dart';
 import 'package:picnic_app/ui/novel_theme.dart';
 import 'package:picnic_app/ui/vote_theme.dart';
 import 'package:picnic_app/util.dart';
@@ -102,13 +102,13 @@ class _PicnicAppState extends ConsumerState<PicnicApp>
     if (currentPortal.portalString == 'vote') {
       return voteThemeLight;
     } else if (currentPortal.portalString == 'pic') {
-      return fanThemeLight;
+      return picThemeLight;
     } else if (currentPortal.portalString == 'community') {
       return communityThemeLight;
     } else if (currentPortal.portalString == 'novel') {
       return novelThemeLight;
     } else {
-      return fanThemeLight;
+      return picThemeLight;
     }
   }
 }

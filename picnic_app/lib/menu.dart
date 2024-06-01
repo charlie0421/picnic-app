@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/pages/fan/fan_home_page.dart';
-import 'package:picnic_app/pages/fan/gallery_page.dart';
-import 'package:picnic_app/pages/fan/landing_page.dart';
-import 'package:picnic_app/pages/fan/library_page.dart';
+import 'package:picnic_app/pages/pic/gallery_page.dart';
+import 'package:picnic_app/pages/pic/landing_page.dart';
+import 'package:picnic_app/pages/pic/library_page.dart';
+import 'package:picnic_app/pages/pic/pic_home_page.dart';
 import 'package:picnic_app/pages/vote/pick-chart-page.dart';
 import 'package:picnic_app/pages/vote/vote_home_page.dart';
 
@@ -13,10 +13,10 @@ ScreenInfo voteScreenInfo = ScreenInfo(
   pages: votePages,
 );
 
-ScreenInfo fanScreenInfo = ScreenInfo(
+ScreenInfo picScreenInfo = ScreenInfo(
   type: 'pic',
-  color: fanMainColor,
-  pages: fanPages,
+  color: picMainColor,
+  pages: picPages,
 );
 
 ScreenInfo communityScreenInfo = ScreenInfo(
@@ -58,12 +58,12 @@ List<BottomNavigationItem> votePages = [
   ),
 ];
 
-List<BottomNavigationItem> fanPages = [
+List<BottomNavigationItem> picPages = [
   const BottomNavigationItem(
     title: 'nav_home',
     assetPath: 'assets/icons/bottom/media.svg',
     index: 0,
-    pageWidget: FanHomePage(),
+    pageWidget: PicHomePage(),
   ),
   const BottomNavigationItem(
     title: 'nav_gallery',

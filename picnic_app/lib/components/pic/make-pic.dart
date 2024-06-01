@@ -14,18 +14,18 @@ import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/ui/style.dart';
 
-import '../../providers/fan_provider.dart';
+import '../../providers/pic_provider.dart';
 
-class MakgeFan extends ConsumerStatefulWidget {
-  const MakgeFan({super.key});
+class MakgePic extends ConsumerStatefulWidget {
+  const MakgePic({super.key});
 
   @override
-  _MakeFanState createState() => _MakeFanState();
+  _MakePicState createState() => _MakePicState();
 }
 
-class _MakeFanState extends ConsumerState<MakgeFan> {
+class _MakePicState extends ConsumerState<MakgePic> {
   @override
-  State<MakgeFan> createState() => _MakeFanState();
+  State<MakgePic> createState() => _MakePicState();
 
   ui.Image? _overlayImage;
   ui.Image? _convertedUserImage; // 변환된 사용자 이미지
@@ -111,7 +111,7 @@ class _MakeFanState extends ConsumerState<MakgeFan> {
 
   Future<void> _loadOverlayImage() async {
     final ByteData data = await rootBundle.load(
-        'assets/mockup/fan/che${ref.watch(fanSelectedIndexProvider) + 1}.png');
+        'assets/mockup/pic/che${ref.watch(picSelectedIndexProvider) + 1}.png');
     final Uint8List bytes = data.buffer.asUint8List();
     final img.Image image = img.decodeImage(bytes)!;
     final uiImage = await _convertImage(image);
@@ -147,7 +147,7 @@ class _MakeFanState extends ConsumerState<MakgeFan> {
   @override
   Widget build(BuildContext context) {
     final ref = this.ref;
-    int selectedFanIndex = ref.watch(fanSelectedIndexProvider);
+    int selectedPicIndex = ref.watch(picSelectedIndexProvider);
     final userImage = ref.watch(userImageProvider);
     final convertedUserImage = ref.watch(convertedImageProvider);
 
@@ -157,7 +157,7 @@ class _MakeFanState extends ConsumerState<MakgeFan> {
           width: double.infinity,
           decoration: const BoxDecoration(
             image: DecorationImage(
-              image: AssetImage('assets/mockup/fan/프레임 배경 1.png'),
+              image: AssetImage('assets/mockup/pic/프레임 배경 1.png'),
               fit: BoxFit.cover,
             ),
           ),
@@ -186,7 +186,7 @@ class _MakeFanState extends ConsumerState<MakgeFan> {
                     child: Hero(
                       tag: 'pic',
                       child: Image.asset(
-                          'assets/mockup/fan/che${selectedFanIndex + 1}.png'),
+                          'assets/mockup/pic/che${selectedPicIndex + 1}.png'),
                     )),
               ],
             ),
@@ -196,7 +196,7 @@ class _MakeFanState extends ConsumerState<MakgeFan> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset('assets/mockup/fan/background.png'),
+                  Image.asset('assets/mockup/pic/background.png'),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

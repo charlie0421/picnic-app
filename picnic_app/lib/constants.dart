@@ -4,7 +4,7 @@ import 'package:picnic_app/storage/local_storage.dart';
 import 'package:picnic_app/ui/style.dart';
 
 const voteMainColor = AppColors.Mint500;
-const fanMainColor = AppColors.Primary500;
+const picMainColor = AppColors.Primary500;
 const communityMainColor = AppColors.Sub500;
 const novelMainColor = AppColors.Point500;
 
