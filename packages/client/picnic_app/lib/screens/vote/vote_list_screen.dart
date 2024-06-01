@@ -96,7 +96,7 @@ class _VoteListScreenState extends ConsumerState<VoteListScreen>
 
   Widget _buildFanTab(ref) {
     return const VoteListPage(
-      category: 'fan',
+      category: 'pic',
     );
   }
 }

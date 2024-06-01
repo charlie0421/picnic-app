@@ -220,7 +220,7 @@ class _MakeFanState extends ConsumerState<MakgeFan> {
                           userImage == null ? Colors.white : Colors.transparent,
                     ),
                     child: Hero(
-                      tag: 'fan',
+                      tag: 'pic',
                       child: Image.asset(
                           'assets/mockup/fan/che${selectedFanIndex + 1}.png'),
                     )),

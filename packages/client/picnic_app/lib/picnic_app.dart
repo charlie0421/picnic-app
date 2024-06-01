@@ -101,7 +101,7 @@ class _PicnicAppState extends ConsumerState<PicnicApp>
 
     if (currentPortal.portalString == 'vote') {
       return voteThemeLight;
-    } else if (currentPortal.portalString == 'fan') {
+    } else if (currentPortal.portalString == 'pic') {
       return fanThemeLight;
     } else if (currentPortal.portalString == 'community') {
       return communityThemeLight;
