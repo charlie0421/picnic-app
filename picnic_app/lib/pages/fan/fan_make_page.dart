@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:picnic_app/components/fan/make_fan.dart';
+import 'package:picnic_app/components/fan/make-pic.dart';
 
 class FanMakePage extends ConsumerWidget {
   const FanMakePage({super.key});
