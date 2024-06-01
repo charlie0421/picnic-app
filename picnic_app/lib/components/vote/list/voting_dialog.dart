@@ -2,9 +2,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/ui/large-popup.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
 Future showVotingDialog({
   required BuildContext context,
@@ -249,8 +252,29 @@ class VotingDialog extends Dialog {
                   ),
                   alignment: Alignment.center,
                   child: GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
+                    onTap: () async {
+                      OverlayLoadingProgress.start(context,
+                          barrierDismissible: false);
+                      try {
+                        logger.i('투표 아이템: ${voteItemModel.id}');
+                        logger.i('투표 아이템: ${voteItemModel.vote_total}');
+                        logger.i('투표 수량: ${_textEditingController.text}');
+                        logger.i(
+                            'voteItemModel.vote_total + int.parse(_textEditingController.text): ${voteItemModel.vote_total + int.parse(_textEditingController.text)}');
+                        final response = await Supabase.instance.client
+                            .from('vote_item')
+                            .update({
+                          'vote_total': voteItemModel.vote_total +
+                              int.parse(_textEditingController.text),
+                        }).eq('id', voteItemModel.id);
+
+                        logger.i('투표 완료');
+                      } catch (e, stackTrace) {
+                        logger.e('투표 실패: $e, $stackTrace');
+                      } finally {
+                        OverlayLoadingProgress.stop();
+                        Navigator.pop(context);
+                      }
                     },
                     child: Text('투표하기',
                         style: getTextStyle(
