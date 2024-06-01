@@ -1,6 +1,6 @@
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/models/fan/article.dart';
+import 'package:picnic_app/models/pic/article.dart';
 import 'package:picnic_app/reflector.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

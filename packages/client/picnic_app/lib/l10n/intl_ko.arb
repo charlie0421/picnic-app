@@ -40,7 +40,7 @@
   "button_ok": "확인",
   "button_cancel": "취소",
   "label_library_tab_library": "라이브러리",
-  "label_library_tab_fan": "PRAME",
+  "label_library_tab_pic": "PRAME",
   "label_library_tab_ai_photo": "AI 포토",
   "label_article_comment_empty": "첫 댓글의 주인공이 되세요!",
   "label_library_save": "라이브러리 저장",
@@ -50,6 +50,6 @@
   "button_complete": "완료",
   "label_vote_screen_title": "투표",
   "label_vote_tab_birthday": "생일 투표",
-  "label_vote_tab_fan": "P-RAME 투표",
+  "label_vote_tab_pic": "P-RAME 투표",
   "nav_setting": "설정"
 }

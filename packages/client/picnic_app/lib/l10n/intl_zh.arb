@@ -40,7 +40,7 @@
   "button_ok": "确认",
   "button_cancel": "取消",
   "label_library_tab_library": "图书馆",
-  "label_library_tab_fan": "PRAME",
+  "label_library_tab_pic": "PRAME",
   "label_library_tab_ai_photo": "人工智能照片",
   "label_article_comment_empty": "成为第一个发表评论的人！",
   "label_library_save": "保存图书馆",
@@ -50,6 +50,6 @@
   "button_complete": "完成",
   "label_vote_screen_title": "投票",
   "label_vote_tab_birthday": "生日投票",
-  "label_vote_tab_fan": "P-RAME投票",
+  "label_vote_tab_pic": "P-RAME投票",
   "nav_setting": "设置"
 }

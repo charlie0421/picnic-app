@@ -56,7 +56,7 @@ class VoteArtists extends StatelessWidget {
                               width: 18.w,
                               height: 18.h,
                               decoration: BoxDecoration(
-                                color: fanMainColor,
+                                color: picMainColor,
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Center(

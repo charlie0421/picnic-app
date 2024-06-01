@@ -8,8 +8,8 @@ import 'package:picnic_app/components/article/comment/comment_item.dart';
 import 'package:picnic_app/components/article/comment/comment_reply_layer.dart';
 import 'package:picnic_app/components/ui/bottom-sheet-header.dart';
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/models/fan/article.dart';
-import 'package:picnic_app/models/fan/comment.dart';
+import 'package:picnic_app/models/pic/article.dart';
+import 'package:picnic_app/models/pic/comment.dart';
 import 'package:picnic_app/providers/article_list_provider.dart';
 import 'package:picnic_app/providers/comment_list_provider.dart';
 

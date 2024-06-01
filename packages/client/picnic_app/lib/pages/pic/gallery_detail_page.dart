@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/chat/rooms.dart';
-import 'package:picnic_app/pages/fan/article_page.dart';
+import 'package:picnic_app/pages/pic/article_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 

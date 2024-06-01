@@ -64,7 +64,7 @@ class CommonBottomNavigationBar extends ConsumerWidget {
     final provider = navigationInfoProvider.select((value) => type == 'vote'
         ? value.voteBottomNavigationIndex
         : type == 'pic'
-            ? value.fanBottomNavigationIndex
+            ? value.picBottomNavigationIndex
             : type == 'community'
                 ? value.communityBottomNavigationIndex
                 : type == 'novel'
@@ -79,7 +79,7 @@ class CommonBottomNavigationBar extends ConsumerWidget {
     return type == 'vote'
         ? notifier.setVoteBottomNavigationIndex
         : type == 'pic'
-            ? notifier.setFanBottomNavigationIndex
+            ? notifier.setPicBottomNavigationIndex
             : type == 'community'
                 ? notifier.setCommunityBottomNavigationIndex
                 : type == 'novel'

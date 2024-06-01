@@ -50,9 +50,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_library_save": MessageLookupByLibrary.simpleMessage("ライブラリ保存"),
         "label_library_tab_ai_photo":
             MessageLookupByLibrary.simpleMessage("AIフォト"),
-        "label_library_tab_fan": MessageLookupByLibrary.simpleMessage("PRAME"),
         "label_library_tab_library":
             MessageLookupByLibrary.simpleMessage("ライブラリ"),
+        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("PRAME"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("セレブリティ・ギャラリーへ"),
         "label_no_celeb":
@@ -69,7 +69,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_screen_title": MessageLookupByLibrary.simpleMessage("投票"),
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("誕生日投票"),
-        "label_vote_tab_fan": MessageLookupByLibrary.simpleMessage("P-RAME投票"),
+        "label_vote_tab_pic": MessageLookupByLibrary.simpleMessage("P-RAME投票"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("マイ・セレブ"),
         "message_report_confirm":
             MessageLookupByLibrary.simpleMessage("申告しますか？"),

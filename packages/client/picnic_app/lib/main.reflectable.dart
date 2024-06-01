@@ -3,14 +3,14 @@
 
 import 'dart:core';
 
-import 'package:picnic_app/models/fan/article.dart' as prefix11;
-import 'package:picnic_app/models/fan/article_image.dart' as prefix15;
-import 'package:picnic_app/models/fan/banner.dart' as prefix8;
-import 'package:picnic_app/models/fan/celeb.dart' as prefix5;
-import 'package:picnic_app/models/fan/comment.dart' as prefix13;
-import 'package:picnic_app/models/fan/comment_like.dart' as prefix16;
-import 'package:picnic_app/models/fan/gallery.dart' as prefix6;
-import 'package:picnic_app/models/fan/library.dart' as prefix17;
+import 'package:picnic_app/models/pic/article.dart' as prefix11;
+import 'package:picnic_app/models/pic/article_image.dart' as prefix15;
+import 'package:picnic_app/models/pic/banner.dart' as prefix8;
+import 'package:picnic_app/models/pic/celeb.dart' as prefix5;
+import 'package:picnic_app/models/pic/comment.dart' as prefix13;
+import 'package:picnic_app/models/pic/comment_like.dart' as prefix16;
+import 'package:picnic_app/models/pic/gallery.dart' as prefix6;
+import 'package:picnic_app/models/pic/library.dart' as prefix17;
 import 'package:picnic_app/models/meta.dart' as prefix7;
 import 'package:picnic_app/models/reward.dart' as prefix9;
 import 'package:picnic_app/models/user.dart' as prefix10;
@@ -21,6 +21,7 @@ import 'package:picnic_app/providers/comment_list_provider.dart' as prefix14;
 import 'package:picnic_app/providers/navigation_provider.dart' as prefix2;
 import 'package:picnic_app/providers/vote_list_provider.dart' as prefix4;
 import 'package:picnic_app/reflector.dart' as prefix0;
+
 // ignore_for_file: camel_case_types
 // ignore_for_file: implementation_imports
 // ignore_for_file: prefer_adjacent_string_concatenation
@@ -1058,7 +1059,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
             -1, -1, -1, null, null),
         r.VariableMirrorImpl(r'portalString', 134348805, 1,
             const prefix0.Reflector(), -1, -1, -1, null, null),
-        r.VariableMirrorImpl(r'fanBottomNavigationIndex', 134348805, 1,
+        r.VariableMirrorImpl(r'picBottomNavigationIndex', 134348805, 1,
             const prefix0.Reflector(), -1, -1, -1, null, null),
         r.VariableMirrorImpl(r'voteBottomNavigationIndex', 134348805, 1,
             const prefix0.Reflector(), -1, -1, -1, null, null),
@@ -1747,7 +1748,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
             null,
             #portalString),
         r.ParameterMirrorImpl(
-            r'fanBottomNavigationIndex',
+            r'picBottomNavigationIndex',
             67252230,
             143,
             const prefix0.Reflector(),
@@ -1757,7 +1758,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
             null,
             null,
             null,
-            #fanBottomNavigationIndex),
+            #picBottomNavigationIndex),
         r.ParameterMirrorImpl(
             r'voteBottomNavigationIndex',
             67252230,
@@ -1832,7 +1833,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
             #currentPage),
         r.ParameterMirrorImpl(r'_portalString', 134348902, 145,
             const prefix0.Reflector(), -1, -1, -1, null, null, null, null),
-        r.ParameterMirrorImpl(r'_fanBottomNavigationIndex', 134348902, 147,
+        r.ParameterMirrorImpl(r'_picBottomNavigationIndex', 134348902, 147,
             const prefix0.Reflector(), -1, -1, -1, null, null, null, null),
         r.ParameterMirrorImpl(r'_voteBottomNavigationIndex', 134348902, 149,
             const prefix0.Reflector(), -1, -1, -1, null, null, null, null),
@@ -2562,8 +2563,8 @@ final _data = <r.Reflectable, r.ReflectorData>{
         r'themeMode': (dynamic instance) => instance.themeMode,
         r'locale': (dynamic instance) => instance.locale,
         r'portalString': (dynamic instance) => instance.portalString,
-        r'fanBottomNavigationIndex': (dynamic instance) =>
-            instance.fanBottomNavigationIndex,
+        r'picBottomNavigationIndex': (dynamic instance) =>
+            instance.picBottomNavigationIndex,
         r'voteBottomNavigationIndex': (dynamic instance) =>
             instance.voteBottomNavigationIndex,
         r'communityBottomNavigationIndex': (dynamic instance) =>
@@ -2641,8 +2642,8 @@ final _data = <r.Reflectable, r.ReflectorData>{
         r'locale=': (dynamic instance, value) => instance.locale = value,
         r'portalString=': (dynamic instance, value) =>
             instance.portalString = value,
-        r'fanBottomNavigationIndex=': (dynamic instance, value) =>
-            instance.fanBottomNavigationIndex = value,
+        r'picBottomNavigationIndex=': (dynamic instance, value) =>
+            instance.picBottomNavigationIndex = value,
         r'voteBottomNavigationIndex=': (dynamic instance, value) =>
             instance.voteBottomNavigationIndex = value,
         r'communityBottomNavigationIndex=': (dynamic instance, value) =>

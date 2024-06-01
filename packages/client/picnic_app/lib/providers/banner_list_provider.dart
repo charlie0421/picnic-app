@@ -1,5 +1,5 @@
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/models/fan/banner.dart';
+import 'package:picnic_app/models/pic/banner.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

@@ -68,7 +68,7 @@ class _VoteListScreenState extends ConsumerState<VoteListScreen>
                       ))),
               Align(
                   alignment: Alignment.center,
-                  child: Text(Intl.message('label_vote_tab_fan'),
+                  child: Text(Intl.message('label_vote_tab_pic'),
                       style: const TextStyle(
                         fontSize: 16,
                       ))),
@@ -80,7 +80,7 @@ class _VoteListScreenState extends ConsumerState<VoteListScreen>
             controller: _tabController,
             children: [
               _buildBirthdayTab(),
-              _buildFanTab(ref),
+              _buildPicTab(ref),
             ],
           ),
         )
@@ -94,7 +94,7 @@ class _VoteListScreenState extends ConsumerState<VoteListScreen>
     );
   }
 
-  Widget _buildFanTab(ref) {
+  Widget _buildPicTab(ref) {
     return const VoteListPage(
       category: 'pic',
     );

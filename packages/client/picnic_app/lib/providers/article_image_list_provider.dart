@@ -1,4 +1,4 @@
-import 'package:picnic_app/models/fan/article_image.dart';
+import 'package:picnic_app/models/pic/article_image.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

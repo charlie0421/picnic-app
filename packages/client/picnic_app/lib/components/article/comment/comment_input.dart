@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/models/fan/comment.dart';
+import 'package:picnic_app/models/pic/comment.dart';
 import 'package:picnic_app/providers/article_list_provider.dart';
 import 'package:picnic_app/providers/comment_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -29,7 +29,10 @@ class _CommentInputState extends ConsumerState<CommentInput> {
     return Container(
       height: 60,
       padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-      width: kIsWeb ? Constants.webMaxWidth : MediaQuery.of(context).size.width,
+      width: kIsWeb ? Constants.webMaxWidth : MediaQuery
+          .of(context)
+          .size
+          .width,
       decoration: BoxDecoration(
         border: Border(
           top: BorderSide(
@@ -75,13 +78,13 @@ class _CommentInputState extends ConsumerState<CommentInput> {
                   maxLength: 100,
                   textInputAction: TextInputAction.done,
                   style:
-                      getTextStyle(context, AppTypo.BODY16R, AppColors.Gray900),
+                  getTextStyle(context, AppTypo.BODY16R, AppColors.Gray900),
                   onFieldSubmitted: (value) => _commitComment()),
             ),
           ),
           IconButton(
             onPressed: () => _commitComment(),
-            icon: const Icon(Icons.send, color: fanMainColor),
+            icon: const Icon(Icons.send, color: picMainColor),
           ),
         ],
       ),
@@ -92,13 +95,13 @@ class _CommentInputState extends ConsumerState<CommentInput> {
     final parentItemState = ref.watch(parentItemProvider);
     ref
         .read(asyncCommentListProvider(
-          articleId: widget.articleId,
-          pagingController: widget.pagingController,
-        ).notifier)
+      articleId: widget.articleId,
+      pagingController: widget.pagingController,
+    ).notifier)
         .submitComment(
-            articleId: widget.articleId,
-            content: _textEditingController.text,
-            parentId: parentItemState?.id)
+        articleId: widget.articleId,
+        content: _textEditingController.text,
+        parentId: parentItemState?.id)
         .then((value) {
       ref.read(parentItemProvider.notifier).setParentItem(null);
       ref.read(commentCountProvider(widget.articleId).notifier).increment();

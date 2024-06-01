@@ -32,7 +32,7 @@ class LoginScreen extends ConsumerWidget {
           children: [
             /*
             SupaEmailAuth(
-              redirectTo: kIsWeb ? null : 'fan.picnic/app://home',
+              redirectTo: kIsWeb ? null : 'pic.picnic/app://home',
               onSignInComplete: (response) {
                 Navigator.of(context).pushReplacementNamed('/home');
               },
@@ -71,7 +71,7 @@ class LoginScreen extends ConsumerWidget {
                 OAuthProvider.apple,
                 OAuthProvider.kakao
               ],
-              redirectUrl: 'fan.picnic.app://login-callback',
+              redirectUrl: 'pic.picnic.app://login-callback',
               onSuccess: (session) {
                 ref.read(loginedProvider.notifier).setLogined(true);
                 ref

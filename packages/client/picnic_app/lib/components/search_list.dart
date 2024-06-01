@@ -4,7 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/celeb_list_item.dart';
 import 'package:picnic_app/components/error.dart';
-import 'package:picnic_app/models/fan/celeb.dart';
+import 'package:picnic_app/models/pic/celeb.dart';
 import 'package:picnic_app/providers/celeb_search_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';

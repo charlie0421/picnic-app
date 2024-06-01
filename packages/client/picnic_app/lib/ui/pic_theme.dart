@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/ui/style.dart';
 
-ThemeData fanThemeLight = ThemeData.light().copyWith(
+ThemeData picThemeLight = ThemeData.light().copyWith(
   textTheme: const TextTheme(
     displayLarge: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
     displayMedium: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
@@ -19,11 +19,11 @@ ThemeData fanThemeLight = ThemeData.light().copyWith(
     labelSmall: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
   ),
   appBarTheme: const AppBarTheme(
-    backgroundColor: fanMainColor,
+    backgroundColor: picMainColor,
     foregroundColor: Colors.white,
   ),
   bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-    backgroundColor: fanMainColor,
+    backgroundColor: picMainColor,
     selectedIconTheme: IconThemeData(color: Colors.black),
     unselectedIconTheme: IconThemeData(color: Colors.black54),
     selectedItemColor: Colors.black,
@@ -50,7 +50,7 @@ ThemeData fanThemeLight = ThemeData.light().copyWith(
   ),
   bottomSheetTheme: const BottomSheetThemeData(
     showDragHandle: true,
-    dragHandleColor: fanMainColor,
+    dragHandleColor: picMainColor,
     dragHandleSize: Size(200, 2),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.only(

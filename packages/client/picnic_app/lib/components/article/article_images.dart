@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/library/library_list.dart';
-import 'package:picnic_app/models/fan/article.dart';
+import 'package:picnic_app/models/pic/article.dart';
 
 import '../../constants.dart';
 
@@ -45,7 +45,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
               itemCount: widget.article.article_image!.length,
               pagination: const SwiperPagination(
                 builder: DotSwiperPaginationBuilder(
-                    color: Colors.grey, activeColor: fanMainColor),
+                    color: Colors.grey, activeColor: picMainColor),
               ),
             )
           : SizedBox(
@@ -63,14 +63,14 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
           ? IconButton(
               icon: const Icon(
                 Icons.bookmark,
-                color: fanMainColor,
+                color: picMainColor,
               ),
               onPressed: () {},
             )
           : IconButton(
               icon: const Icon(
                 Icons.bookmark_border,
-                color: fanMainColor,
+                color: picMainColor,
               ),
               onPressed: () {
                 showModalBottomSheet(

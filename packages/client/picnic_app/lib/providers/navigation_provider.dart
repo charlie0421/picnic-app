@@ -4,8 +4,8 @@ import 'package:picnic_app/menu.dart';
 import 'package:picnic_app/pages/vote/vote_home_page.dart';
 import 'package:picnic_app/reflector.dart';
 import 'package:picnic_app/screens/community/community_home_screen.dart';
-import 'package:picnic_app/screens/fan/fan_home_screen.dart';
 import 'package:picnic_app/screens/novel/novel_home_screen.dart';
+import 'package:picnic_app/screens/pic/pic_home_screen.dart';
 import 'package:picnic_app/screens/vote/vote_home_screen.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -27,7 +27,7 @@ class NavigationInfo extends _$NavigationInfo {
 
   setState({
     String? portalString,
-    int? fanBottomNavigationIndex,
+    int? picBottomNavigationIndex,
     int? voteBottomNavigationIndex,
     int? communityBottomNavigationIndex,
     int? novelBottomNavigationIndex,
@@ -35,8 +35,8 @@ class NavigationInfo extends _$NavigationInfo {
   }) {
     state = state.copyWith(
       portalString: portalString ?? state.portalString,
-      fanBottomNavigationIndex:
-          fanBottomNavigationIndex ?? state.fanBottomNavigationIndex,
+      picBottomNavigationIndex:
+          picBottomNavigationIndex ?? state.picBottomNavigationIndex,
       voteBottomNavigationIndex:
           voteBottomNavigationIndex ?? state.voteBottomNavigationIndex,
       communityBottomNavigationIndex: communityBottomNavigationIndex ??
@@ -54,11 +54,11 @@ class NavigationInfo extends _$NavigationInfo {
     if (portalString == 'vote') {
       currentPage = votePages[state.voteBottomNavigationIndex].pageWidget;
     } else if (portalString == 'pic') {
-      currentPage = fanPages[state.fanBottomNavigationIndex].pageWidget;
+      currentPage = picPages[state.picBottomNavigationIndex].pageWidget;
     } else if (portalString == 'community') {
-      currentPage = communityPages[state.fanBottomNavigationIndex].pageWidget;
+      currentPage = communityPages[state.picBottomNavigationIndex].pageWidget;
     } else if (portalString == 'novel') {
-      currentPage = novelPages[state.fanBottomNavigationIndex].pageWidget;
+      currentPage = novelPages[state.picBottomNavigationIndex].pageWidget;
     } else {
       return const SizedBox.shrink();
     }
@@ -70,11 +70,11 @@ class NavigationInfo extends _$NavigationInfo {
     globalStorage.saveData('portalString', portalString);
   }
 
-  setFanBottomNavigationIndex(int index) {
+  setPicBottomNavigationIndex(int index) {
     state = state.copyWith(
-        fanBottomNavigationIndex: index,
-        currentPage: fanPages[index].pageWidget);
-    globalStorage.saveData('fanBottomNavigationIndex', index.toString());
+        picBottomNavigationIndex: index,
+        currentPage: picPages[index].pageWidget);
+    globalStorage.saveData('picBottomNavigationIndex', index.toString());
   }
 
   setVoteBottomNavigationIndex(int index) {
@@ -121,7 +121,7 @@ class NavigationInfo extends _$NavigationInfo {
 @reflector
 class Navigation {
   String portalString = 'vote';
-  int fanBottomNavigationIndex = 0;
+  int picBottomNavigationIndex = 0;
   int voteBottomNavigationIndex = 0;
   int communityBottomNavigationIndex = 0;
   int novelBottomNavigationIndex = 0;
@@ -133,8 +133,8 @@ class Navigation {
 
   static Future<Navigation> load() async {
     String? portalString = await globalStorage.loadData('portalString', 'vote');
-    String? fanBottomNavigationIndex =
-        await globalStorage.loadData('fanBottomNavigationIndex', '0');
+    String? picBottomNavigationIndex =
+        await globalStorage.loadData('picBottomNavigationIndex', '0');
     String? voteBottomNavigationIndex =
         await globalStorage.loadData('voteBottomNavigationIndex', '0');
     String? communityBottomNavigationIndex =
@@ -151,8 +151,8 @@ class Navigation {
       currentScreen = const VoteHomeScreen();
       currentPage = votePages[int.parse(voteBottomNavigationIndex!)].pageWidget;
     } else if (portalString == 'pic') {
-      currentScreen = const FanHomeScreen();
-      currentPage = fanPages[int.parse(fanBottomNavigationIndex!)].pageWidget;
+      currentScreen = const PicHomeScreen();
+      currentPage = picPages[int.parse(picBottomNavigationIndex!)].pageWidget;
     } else if (portalString == 'community') {
       currentScreen = const CommunityHomeScreen();
       currentPage =
@@ -167,7 +167,7 @@ class Navigation {
     logger.d('currentPage: $currentPage');
     return Navigation()
       ..portalString = portalString!
-      ..fanBottomNavigationIndex = int.parse(fanBottomNavigationIndex!)
+      ..picBottomNavigationIndex = int.parse(picBottomNavigationIndex!)
       ..voteBottomNavigationIndex = int.parse(voteBottomNavigationIndex!)
       ..communityBottomNavigationIndex =
           int.parse(communityBottomNavigationIndex!)
@@ -178,7 +178,7 @@ class Navigation {
 
   Navigation copyWith({
     String? portalString,
-    int? fanBottomNavigationIndex,
+    int? picBottomNavigationIndex,
     int? voteBottomNavigationIndex,
     int? communityBottomNavigationIndex,
     int? novelBottomNavigationIndex,
@@ -188,8 +188,8 @@ class Navigation {
   }) {
     return Navigation()
       ..portalString = portalString ?? this.portalString
-      ..fanBottomNavigationIndex =
-          fanBottomNavigationIndex ?? this.fanBottomNavigationIndex
+      ..picBottomNavigationIndex =
+          picBottomNavigationIndex ?? this.picBottomNavigationIndex
       ..voteBottomNavigationIndex =
           voteBottomNavigationIndex ?? this.voteBottomNavigationIndex
       ..communityBottomNavigationIndex =
