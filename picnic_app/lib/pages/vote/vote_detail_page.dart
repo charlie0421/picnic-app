@@ -79,7 +79,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 57).r,
-                child: VoteDetailTitle(voteModel: voteModel!),
+                child: VoteCommonTitle(title: voteModel?.vote_title ?? ''),
               ),
               SizedBox(
                 height: 12.h,
@@ -90,14 +90,14 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   TextSpan(children: [
                     TextSpan(
                       text: DateFormat('yyyy.MM.dd HH:mm')
-                          .format(voteModel.start_at ?? DateTime.now()),
+                          .format(voteModel?.start_at ?? DateTime.now()),
                       style: getTextStyle(
                           context, AppTypo.CAPTION12R, AppColors.Gray900),
                     ),
                     const TextSpan(text: ' ~ '),
                     TextSpan(
                       text: DateFormat('yyyy.MM.dd HH:mm')
-                          .format(voteModel.start_at ?? DateTime.now()),
+                          .format(voteModel?.start_at ?? DateTime.now()),
                       style: getTextStyle(
                           context, AppTypo.CAPTION12R, AppColors.Gray900),
                     ),
