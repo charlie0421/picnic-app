@@ -77,6 +77,20 @@ class VoteItemModel {
       _$VoteItemFromJson(json);
 
   Map<String, dynamic> toJson() => _$VoteItemToJson(this);
+
+  copyWith({
+    int? id,
+    int? vote_total,
+    int? vote_id,
+    MyStarMemberModel? mystar_member,
+  }) {
+    return VoteItemModel(
+      id: id ?? this.id,
+      vote_total: vote_total ?? this.vote_total,
+      vote_id: vote_id ?? this.vote_id,
+      mystar_member: mystar_member ?? this.mystar_member,
+    );
+  }
 }
 
 @reflector

@@ -1,3 +1,4 @@
+import 'package:animated_digit/animated_digit.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +12,7 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
+import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
 class VoteDetailPage extends ConsumerStatefulWidget {
   final int voteId;
@@ -47,6 +49,29 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         );
       }
     });
+
+    _setupRealtime();
+  }
+
+  void handleInserts(PostgresChangePayload payload) {
+    logger.d('Change received! $payload');
+    final asyncVoteIgemListNotifier =
+        ref.read(asyncVoteItemListProvider(voteId: widget.voteId).notifier);
+    asyncVoteIgemListNotifier.setVoteItem(
+        id: payload.newRecord['id'],
+        voteTotal: payload.newRecord['vote_total']);
+  }
+
+  void _setupRealtime() {
+    logger.d('Setting up realtime');
+    final subscription = Supabase.instance.client
+        .channel('realtime')
+        .onPostgresChanges(
+            event: PostgresChangeEvent.update,
+            schema: 'public',
+            table: 'vote_item',
+            callback: handleInserts)
+        .subscribe();
   }
 
   @override
@@ -162,125 +187,150 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                     children: data.map((item) {
                       int index = data.indexOf(item);
 
-                      return Container(
-                        height: 45.h,
-                        margin: const EdgeInsets.only(
-                                left: 16, right: 16, bottom: 36)
-                            .r,
-                        child: Row(
-                          children: [
-                            SizedBox(
-                              width: 35.w,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  if (index < 3)
-                                    SvgPicture.asset(
-                                        'assets/icons/vote/crown${index + 1}.svg'),
-                                  Text(
-                                    '${index + 1}위',
-                                    style: getTextStyle(context,
-                                        AppTypo.CAPTION12B, AppColors.Point900),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              width: 16.w,
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                gradient: voteGradient,
-                                borderRadius: BorderRadius.circular(22.5.r),
-                              ),
-                              padding: const EdgeInsets.all(3),
-                              width: 45.w,
-                              height: 45.w,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(22.5.r),
-                                child: CachedNetworkImage(
-                                  imageUrl:
-                                      data[index]!.mystar_member.image ?? '',
-                                  fit: BoxFit.cover,
-                                  width: 39.w,
-                                  height: 39.w,
+                      return AnimatedSwitcher(
+                        duration: Duration(milliseconds: 300),
+                        transitionBuilder:
+                            (Widget child, Animation<double> animation) {
+                          return ScaleTransition(
+                            scale: animation,
+                            child: child,
+                          );
+                        },
+                        child: Container(
+                          key: ValueKey<int>(index), // 각 아이템에 고유한 키를 할당
+                          height: 45.h,
+                          margin: const EdgeInsets.only(
+                                  left: 16, right: 16, bottom: 36)
+                              .r,
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 35.w,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    if (index < 3)
+                                      SvgPicture.asset(
+                                          'assets/icons/vote/crown${index + 1}.svg'),
+                                    Text(
+                                      '${index + 1}위',
+                                      style: getTextStyle(
+                                          context,
+                                          AppTypo.CAPTION12B,
+                                          AppColors.Point900),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ),
-                            SizedBox(
-                              width: 8.w,
-                            ),
-                            Expanded(
-                              child: Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(children: [
-                                    Text(
-                                      data[index]!.mystar_member.name_ko,
-                                      style: getTextStyle(context,
-                                          AppTypo.BODY14B, AppColors.Gray900),
-                                    ),
-                                    SizedBox(
-                                      width: 8.w,
-                                    ),
-                                    Text(
-                                      data[index]!
-                                              .mystar_member
-                                              .mystar_group
-                                              ?.name_ko ??
-                                          '',
-                                      style: getTextStyle(
-                                          context,
-                                          AppTypo.CAPTION10SB,
-                                          AppColors.Gray600),
-                                    ),
-                                  ]),
-                                  Container(
-                                    width: double.infinity,
-                                    height: 20.h,
-                                    padding: const EdgeInsets.only(right: 16),
-                                    decoration: BoxDecoration(
-                                      gradient: commonGradient,
-                                      color: AppColors.Gray100,
-                                      borderRadius: BorderRadius.circular(10.r),
-                                    ),
-                                    alignment: Alignment.centerRight,
-                                    child: Text(
-                                      NumberFormat()
-                                          .format(data[index]!.vote_total),
-                                      style: getTextStyle(
-                                          context,
-                                          AppTypo.CAPTION10SB,
-                                          AppColors.Gray00),
-                                    ),
+                              SizedBox(
+                                width: 16.w,
+                              ),
+                              Container(
+                                decoration: BoxDecoration(
+                                  gradient: voteGradient,
+                                  borderRadius: BorderRadius.circular(22.5.r),
+                                ),
+                                padding: const EdgeInsets.all(3),
+                                width: 45.w,
+                                height: 45.w,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(22.5.r),
+                                  child: CachedNetworkImage(
+                                    imageUrl:
+                                        data[index]!.mystar_member.image ?? '',
+                                    fit: BoxFit.cover,
+                                    width: 39.w,
+                                    height: 39.w,
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
-                            SizedBox(
-                              width: 16.w,
-                            ),
-                            SizedBox(
-                              width: 24.w,
-                              height: 24.w,
-                              child: GestureDetector(
-                                onTap: () {
-                                  showVotingDialog(
-                                      context: context,
-                                      voteModel: ref
-                                          .watch(asyncVoteDetailProvider(
-                                              voteId: widget.voteId))
-                                          .value!,
-                                      voteItemModel: data[index]!);
-                                },
-                                child: SvgPicture.asset(
-                                    'assets/icons/vote/vote-button.svg'),
+                              SizedBox(
+                                width: 8.w,
                               ),
-                            ),
-                          ],
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(children: [
+                                      Text(
+                                        data[index]!.mystar_member.name_ko,
+                                        style: getTextStyle(context,
+                                            AppTypo.BODY14B, AppColors.Gray900),
+                                      ),
+                                      SizedBox(
+                                        width: 8.w,
+                                      ),
+                                      Text(
+                                        data[index]!
+                                                .mystar_member
+                                                .mystar_group
+                                                ?.name_ko ??
+                                            '',
+                                        style: getTextStyle(
+                                            context,
+                                            AppTypo.CAPTION10SB,
+                                            AppColors.Gray600),
+                                      ),
+                                    ]),
+                                    Container(
+                                      width: double.infinity,
+                                      height: 20.h,
+                                      padding: const EdgeInsets.only(right: 16),
+                                      decoration: BoxDecoration(
+                                        gradient: commonGradient,
+                                        color: AppColors.Gray100,
+                                        borderRadius:
+                                            BorderRadius.circular(10.r),
+                                      ),
+                                      alignment: Alignment.centerRight,
+                                      child: AnimatedDigitWidget(
+                                        value: data[index]!.vote_total,
+                                        duration:
+                                            const Duration(microseconds: 300),
+                                        curve: Curves.fastOutSlowIn,
+                                        enableSeparator: true,
+                                        textStyle: getTextStyle(
+                                            context,
+                                            AppTypo.CAPTION10SB,
+                                            AppColors.Gray00),
+                                      ),
+                                      // child: Text(
+                                      //   NumberFormat()
+                                      //       .format(data[index]!.vote_total),
+                                      //   style: getTextStyle(
+                                      //       context,
+                                      //       AppTypo.CAPTION10SB,
+                                      //       AppColors.Gray00),
+                                      // ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                width: 16.w,
+                              ),
+                              SizedBox(
+                                width: 24.w,
+                                height: 24.w,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    showVotingDialog(
+                                        context: context,
+                                        voteModel: ref
+                                            .watch(asyncVoteDetailProvider(
+                                                voteId: widget.voteId))
+                                            .value!,
+                                        voteItemModel: data[index]!);
+                                  },
+                                  child: SvgPicture.asset(
+                                      'assets/icons/vote/vote-button.svg'),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     }).toList(),

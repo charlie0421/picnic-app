@@ -40,7 +40,8 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
       final response = await Supabase.instance.client
           .from('vote_item')
           .select('*, mystar_member!left(*,mystar_group(*))')
-          .eq('vote_id', voteId);
+          .eq('vote_id', voteId)
+          .order('vote_total', ascending: false);
 
       logger.i('response.data: $response');
 
@@ -56,6 +57,30 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
       logger.e('Failed to load vote item list: $e');
       logger.e('Failed to load vote item list: $stackTrace');
       return [];
+    }
+  }
+
+  setVoteItem({required int id, required int voteTotal}) async {
+    try {
+      if (state.value != null) {
+        final updatedList = state.value!.map<VoteItemModel>((item) {
+          if (item?.id == id) {
+            return item?.copyWith(vote_total: voteTotal);
+          }
+          return item!;
+        }).toList();
+
+        state = AsyncValue.data(updatedList);
+
+        //sort by total_vote
+        state = AsyncValue.data(state.value!.toList()
+          ..sort((a, b) => b!.vote_total.compareTo(a!.vote_total)));
+
+        logger.i('Updated vote item in state: $id with voteTotal: $voteTotal');
+      }
+    } catch (e, stackTrace) {
+      logger.e('Failed to set vote item: $e');
+      logger.e('Failed to set vote item: $stackTrace');
     }
   }
 }
