@@ -14,7 +14,7 @@ ScreenInfo voteScreenInfo = ScreenInfo(
 );
 
 ScreenInfo fanScreenInfo = ScreenInfo(
-  type: 'fan',
+  type: 'pic',
   color: fanMainColor,
   pages: fanPages,
 );

@@ -63,7 +63,7 @@ class CommonBottomNavigationBar extends ConsumerWidget {
   int getCurrentIndex(String type, WidgetRef ref) {
     final provider = navigationInfoProvider.select((value) => type == 'vote'
         ? value.voteBottomNavigationIndex
-        : type == 'fan'
+        : type == 'pic'
             ? value.fanBottomNavigationIndex
             : type == 'community'
                 ? value.communityBottomNavigationIndex
@@ -78,7 +78,7 @@ class CommonBottomNavigationBar extends ConsumerWidget {
 
     return type == 'vote'
         ? notifier.setVoteBottomNavigationIndex
-        : type == 'fan'
+        : type == 'pic'
             ? notifier.setFanBottomNavigationIndex
             : type == 'community'
                 ? notifier.setCommunityBottomNavigationIndex

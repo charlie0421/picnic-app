@@ -53,7 +53,7 @@ class NavigationInfo extends _$NavigationInfo {
     Widget currentPage;
     if (portalString == 'vote') {
       currentPage = votePages[state.voteBottomNavigationIndex].pageWidget;
-    } else if (portalString == 'fan') {
+    } else if (portalString == 'pic') {
       currentPage = fanPages[state.fanBottomNavigationIndex].pageWidget;
     } else if (portalString == 'community') {
       currentPage = communityPages[state.fanBottomNavigationIndex].pageWidget;
@@ -150,7 +150,7 @@ class Navigation {
     if (portalString == 'vote') {
       currentScreen = const VoteHomeScreen();
       currentPage = votePages[int.parse(voteBottomNavigationIndex!)].pageWidget;
-    } else if (portalString == 'fan') {
+    } else if (portalString == 'pic') {
       currentScreen = const FanHomeScreen();
       currentPage = fanPages[int.parse(fanBottomNavigationIndex!)].pageWidget;
     } else if (portalString == 'community') {

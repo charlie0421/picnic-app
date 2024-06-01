@@ -41,7 +41,7 @@ class _PortalState extends ConsumerState<Portal> {
 
     if (navigationInfo.portalString == 'vote') {
       currentScreen = const VoteHomeScreen();
-    } else if (navigationInfo.portalString == 'fan') {
+    } else if (navigationInfo.portalString == 'pic') {
       currentScreen = const FanHomeScreen();
     } else if (navigationInfo.portalString == 'community') {
       currentScreen = const CommunityHomeScreen();
@@ -102,7 +102,7 @@ class _PortalState extends ConsumerState<Portal> {
                       PortalMenuItem(
                           navigationInfoNotifier: navigationInfoNotifier,
                           navigationInfo: navigationInfo,
-                          portalString: 'fan'),
+                          portalString: 'pic'),
                       SizedBox(width: 20.w),
                       PortalMenuItem(
                           navigationInfoNotifier: navigationInfoNotifier,

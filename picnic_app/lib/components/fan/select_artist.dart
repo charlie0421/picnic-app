@@ -69,7 +69,7 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
                     color: Colors.white,
                   ),
                   child: Hero(
-                    tag: 'fan',
+                    tag: 'pic',
                     child: Image.asset(
                         'assets/mockup/fan/che${selectedFanIndex + 1}.png'),
                   )),
