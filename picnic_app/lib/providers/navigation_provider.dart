@@ -142,8 +142,6 @@ class Navigation {
     String? novelBottomNavigationIndex =
         await globalStorage.loadData('novelBottomNavigationIndex', '0');
 
-    logger.d('portalString: $portalString');
-
     Widget currentScreen = Container();
     Widget currentPage = Container();
 
@@ -163,8 +161,6 @@ class Navigation {
           novelPages[int.parse(novelBottomNavigationIndex!)].pageWidget;
     }
 
-    logger.d('currentScreen: $currentScreen');
-    logger.d('currentPage: $currentPage');
     return Navigation()
       ..portalString = portalString!
       ..picBottomNavigationIndex = int.parse(picBottomNavigationIndex!)

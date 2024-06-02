@@ -23,7 +23,8 @@ class VoteImage extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8.r),
         child: CachedNetworkImage(
-          imageUrl: '${vote.main_image}?w=800',
+          imageUrl:
+              'https://cdn-dev.picnic.fan/vote/${vote.id}/${vote.main_image}?w=800',
           fit: BoxFit.cover,
           placeholder: (context, url) => const LoadingView(),
           errorWidget: (context, url, error) => const Icon(Icons.error),
