@@ -71,8 +71,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                       const SizedBox(width: 8),
                       Text(
                         selectedCelebState.name_ko,
-                        style: getTextStyle(
-                            context, AppTypo.BODY16B, AppColors.Gray900),
+                        style: getTextStyle(AppTypo.BODY16B, AppColors.Gray900),
                       ),
                       const SizedBox(width: 8),
                       GestureDetector(
@@ -113,11 +112,11 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                           mainAxisSize: MainAxisSize.max,
                           children: [
                             Text(Intl.message('text_ads_random'),
-                                style: getTextStyle(context, AppTypo.TITLE18M,
-                                    AppColors.Gray900)),
+                                style: getTextStyle(
+                                    AppTypo.TITLE18M, AppColors.Gray900)),
                             Text('01:00:00',
-                                style: getTextStyle(context, AppTypo.TITLE18M,
-                                    AppColors.Gray900)),
+                                style: getTextStyle(
+                                    AppTypo.TITLE18M, AppColors.Gray900)),
                           ],
                         ),
                       ),
@@ -165,8 +164,8 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                       alignment: Alignment.centerLeft,
                       child: Text(
                         Intl.message('label_celeb_gallery'),
-                        style: getTextStyle(
-                            context, AppTypo.TITLE18B, AppColors.Gray900),
+                        style:
+                            getTextStyle(AppTypo.TITLE18B, AppColors.Gray900),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -239,8 +238,8 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                       child: Center(
                         child: Text(
                           data[index].title_en,
-                          style: getTextStyle(
-                              context, AppTypo.BODY16B, AppColors.Gray00),
+                          style:
+                              getTextStyle(AppTypo.BODY16B, AppColors.Gray00),
                         ),
                       ),
                     ),
@@ -281,13 +280,11 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
               const SizedBox(height: 20),
               Text(
                 Intl.message('label_moveto_celeb_gallery'),
-                style:
-                    getTextStyle(context, AppTypo.TITLE18B, AppColors.Gray900),
+                style: getTextStyle(AppTypo.TITLE18B, AppColors.Gray900),
               ),
               Text(
                 Intl.message('text_moveto_celeb_gallery'),
-                style:
-                    getTextStyle(context, AppTypo.BODY16R, AppColors.Gray900),
+                style: getTextStyle(AppTypo.BODY16R, AppColors.Gray900),
               ),
               const SizedBox(height: 16),
               if (selectedCelebState != null)

@@ -20,7 +20,6 @@ class VoteTitle extends StatelessWidget {
             child: Text(
               vote.vote_title,
               style: getTextStyle(
-                context,
                 AppTypo.TITLE18B,
                 AppColors.Gray900,
               ),
@@ -36,7 +35,6 @@ class VoteTitle extends StatelessWidget {
               Text(
                 DateFormat('yyyy-MM-dd hh:mm:ss').format(vote.start_at),
                 style: getTextStyle(
-                  context,
                   AppTypo.CAPTION12M,
                   AppColors.Gray900,
                 ).copyWith(
@@ -46,7 +44,6 @@ class VoteTitle extends StatelessWidget {
               Text(
                 DateFormat('yyyy-MM-dd hh:mm:ss').format(vote.stop_at),
                 style: getTextStyle(
-                  context,
                   AppTypo.CAPTION12M,
                   AppColors.Gray900,
                 ).copyWith(

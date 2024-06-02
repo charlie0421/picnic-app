@@ -63,7 +63,7 @@ class VoteArtists extends StatelessWidget {
                                 child: Text(
                                   (artist.key + 1).toString(),
                                   style: getTextStyle(
-                                      context, AppTypo.BODY14R, Colors.white),
+                                      AppTypo.BODY14R, Colors.white),
                                 ),
                               ),
                             ),
@@ -75,7 +75,7 @@ class VoteArtists extends StatelessWidget {
                       ),
                       Text(
                         artist.value.mystar_member.name_ko,
-                        style: getTextStyle(context, AppTypo.BODY14R),
+                        style: getTextStyle(AppTypo.BODY14R),
                       ),
                     ],
                   ),

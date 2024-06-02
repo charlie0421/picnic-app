@@ -98,9 +98,7 @@ class CelebListItem extends ConsumerWidget {
                                   showOverlayToast(
                                       context,
                                       Text(Intl.message('toast_max_5_celeb'),
-                                          style: getTextStyle(
-                                              context,
-                                              AppTypo.BODY16M,
+                                          style: getTextStyle(AppTypo.BODY16M,
                                               AppColors.Gray900)));
 
                                   return;

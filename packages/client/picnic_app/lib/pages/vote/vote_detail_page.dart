@@ -116,20 +116,20 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                     TextSpan(
                       text: DateFormat('yyyy.MM.dd HH:mm')
                           .format(voteModel?.start_at ?? DateTime.now()),
-                      style: getTextStyle(
-                          context, AppTypo.CAPTION12R, AppColors.Gray900),
+                      style:
+                          getTextStyle(AppTypo.CAPTION12R, AppColors.Gray900),
                     ),
                     const TextSpan(text: ' ~ '),
                     TextSpan(
                       text: DateFormat('yyyy.MM.dd HH:mm')
                           .format(voteModel?.start_at ?? DateTime.now()),
-                      style: getTextStyle(
-                          context, AppTypo.CAPTION12R, AppColors.Gray900),
+                      style:
+                          getTextStyle(AppTypo.CAPTION12R, AppColors.Gray900),
                     ),
                     TextSpan(
                       text: '(KST)',
-                      style: getTextStyle(
-                          context, AppTypo.CAPTION12R, AppColors.Gray900),
+                      style:
+                          getTextStyle(AppTypo.CAPTION12R, AppColors.Gray900),
                     )
                   ]),
                 ),
@@ -141,8 +141,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   height: 21.h,
                   child: Text(
                     '랭크 인 리워드',
-                    style: getTextStyle(
-                        context, AppTypo.BODY14B, AppColors.Primary500),
+                    style: getTextStyle(AppTypo.BODY14B, AppColors.Primary500),
                   )),
               SizedBox(
                 height: 4.h,
@@ -151,8 +150,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   height: 24.h,
                   child: Text(
                     '홍대, 강남역 라이트박스(30일)',
-                    style: getTextStyle(
-                        context, AppTypo.BODY16B, AppColors.Gray900),
+                    style: getTextStyle(AppTypo.BODY16B, AppColors.Gray900),
                   )),
               SizedBox(
                 height: 16.h,
@@ -215,9 +213,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                           'assets/icons/vote/crown${index + 1}.svg'),
                                     Text(
                                       '${index + 1}위',
-                                      style: getTextStyle(
-                                          context,
-                                          AppTypo.CAPTION12B,
+                                      style: getTextStyle(AppTypo.CAPTION12B,
                                           AppColors.Point900),
                                     ),
                                   ],
@@ -257,7 +253,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                     Row(children: [
                                       Text(
                                         data[index]!.mystar_member.name_ko,
-                                        style: getTextStyle(context,
+                                        style: getTextStyle(
                                             AppTypo.BODY14B, AppColors.Gray900),
                                       ),
                                       SizedBox(
@@ -269,9 +265,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                                 .mystar_group
                                                 ?.name_ko ??
                                             '',
-                                        style: getTextStyle(
-                                            context,
-                                            AppTypo.CAPTION10SB,
+                                        style: getTextStyle(AppTypo.CAPTION10SB,
                                             AppColors.Gray600),
                                       ),
                                     ]),
@@ -293,7 +287,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                         curve: Curves.fastOutSlowIn,
                                         enableSeparator: true,
                                         textStyle: getTextStyle(
-                                            context,
                                             AppTypo.CAPTION10SB,
                                             AppColors.Gray00),
                                       ),
@@ -378,7 +371,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                 controller: _textEditingController,
                                 decoration: InputDecoration(
                                   hintText: '나의 최애는 어디에?',
-                                  hintStyle: getTextStyle(context,
+                                  hintStyle: getTextStyle(
                                       AppTypo.BODY16R, AppColors.Gray300),
                                   border: InputBorder.none,
                                   focusColor: AppColors.Primary500,

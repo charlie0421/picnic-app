@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:picnic_app/firebase_options.dart';
 import 'package:picnic_app/main.reflectable.dart';
 import 'package:picnic_app/picnic_app.dart';
@@ -35,6 +36,8 @@ void main() async {
   }
 
   initializeReflectable();
+
+  MobileAds.instance.initialize();
 
   runApp(
       ProviderScope(observers: [LoggingObserver()], child: const PicnicApp()));

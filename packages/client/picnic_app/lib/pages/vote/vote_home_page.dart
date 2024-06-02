@@ -72,7 +72,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         padding: const EdgeInsets.only(left: 16),
         alignment: Alignment.centerLeft,
         child: Text('리워드 LIST',
-            style: getTextStyle(context, AppTypo.TITLE18B, AppColors.Gray900)),
+            style: getTextStyle(AppTypo.TITLE18B, AppColors.Gray900)),
       ),
       SizedBox(height: 16.h),
       asyncRewardListState.when(
@@ -114,8 +114,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                                     vertical: 4, horizontal: 8),
                                 child: Text(
                                   data[index].title_ko,
-                                  style: getTextStyle(context, AppTypo.BODY14R,
-                                          Colors.white)
+                                  style: getTextStyle(
+                                          AppTypo.BODY14R, Colors.white)
                                       .copyWith(
                                           overflow: TextOverflow.ellipsis),
                                 ),
@@ -162,9 +162,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                     color: Colors.black.withOpacity(0.5),
                     child: Text(
                       data[index].title_ko,
-                      style:
-                          getTextStyle(context, AppTypo.BODY14R, Colors.white)
-                              .copyWith(overflow: TextOverflow.ellipsis),
+                      style: getTextStyle(AppTypo.BODY14R, Colors.white)
+                          .copyWith(overflow: TextOverflow.ellipsis),
                     ),
                   ),
                 )
