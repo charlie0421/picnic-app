@@ -23,6 +23,12 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
   static final AdRequest request = AdRequest();
 
   @override
+  void initState() {
+    super.initState();
+    _createRewardedAd();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -45,8 +51,11 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
               ),
             ),
             buttonText: '시청하기',
-            buttonOnPressed: () {
-              _createRewardedAd();
+            buttonOnPressed: () async {
+              if (_rewardedAd == null) {
+                await _createRewardedAd();
+              }
+
               _showRewardedAd();
             },
           ),
@@ -56,10 +65,10 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
     );
   }
 
-  void _createRewardedAd() {
-    RewardedAd.load(
+  Future<void> _createRewardedAd() async {
+    await RewardedAd.load(
         adUnitId: Platform.isAndroid
-            ? 'ca-app-pub-7319269804560504/6645907620'
+            ? 'ca-app-pub-3940256099942544/5224354917'
             : 'ca-app-pub-3940256099942544/1712485313',
         request: request,
         rewardedAdLoadCallback: RewardedAdLoadCallback(
