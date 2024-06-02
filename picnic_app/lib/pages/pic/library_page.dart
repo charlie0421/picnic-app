@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_app/pages/pic/pic_make_page.dart';
 import 'package:picnic_app/pages/pic/pic_page.dart';
 import 'package:picnic_app/providers/pic_provider.dart';
 
@@ -101,20 +100,14 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
 
   Widget _buildPicTab(ref) {
     int picPageIndex = ref.watch(parmePageIndexProvider);
-    Widget widget = picPageIndex == 0 ? const PicPage() : const PicMakePage();
+    Widget widget = const PicPage();
 
     return WillPopScope(
       onWillPop: () async {
-        if (ref
-            .watch(parmePageIndexProvider.notifier)
-            .state == 1) {
-          ref
-              .read(parmePageIndexProvider.notifier)
-              .state = 0;
+        if (ref.watch(parmePageIndexProvider.notifier).state == 1) {
+          ref.read(parmePageIndexProvider.notifier).state = 0;
           return false;
-        } else if (ref
-            .watch(picSelectedIndexProvider.notifier)
-            .state == 0) {
+        } else if (ref.watch(picSelectedIndexProvider.notifier).state == 0) {
           return true;
         }
         return true;
