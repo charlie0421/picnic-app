@@ -15,6 +15,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   flutter_native_splash: ^2.3.10
   flutter_launcher_icons: ^0.13.1
+  google_mobile_ads: ^5.1.0
   logger: ^2.0.1
   flutter_supabase_chat_core: ^0.10.0
   flutter_secure_storage: ^9.0.0

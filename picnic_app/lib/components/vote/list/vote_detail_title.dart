@@ -37,19 +37,18 @@ class VoteCommonTitle extends StatelessWidget {
                 child: Stack(
                   children: [
                     Text(title,
-                        style: getTextStyle(
-                                context, AppTypo.BODY16M, AppColors.Primary500)
-                            .copyWith(
-                                foreground: Paint()
-                                  ..style = PaintingStyle.stroke
-                                  ..strokeWidth = 1
-                                  ..color = AppColors.Primary500
-                                  ..strokeJoin = StrokeJoin.miter
-                                  ..strokeMiterLimit = 28.96),
+                        style:
+                            getTextStyle(AppTypo.BODY16M, AppColors.Primary500)
+                                .copyWith(
+                                    foreground: Paint()
+                                      ..style = PaintingStyle.stroke
+                                      ..strokeWidth = 1
+                                      ..color = AppColors.Primary500
+                                      ..strokeJoin = StrokeJoin.miter
+                                      ..strokeMiterLimit = 28.96),
                         overflow: TextOverflow.ellipsis),
                     Text(title,
-                        style: getTextStyle(
-                            context, AppTypo.BODY16M, AppColors.Gray00),
+                        style: getTextStyle(AppTypo.BODY16M, AppColors.Gray00),
                         overflow: TextOverflow.ellipsis),
                   ],
                 ),

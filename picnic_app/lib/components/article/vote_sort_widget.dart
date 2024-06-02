@@ -39,7 +39,7 @@ class VoteSortWidget extends ConsumerWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text('정렬 방식 선택',
-                                    style: getTextStyle(context,
+                                    style: getTextStyle(
                                         AppTypo.BODY16B, AppColors.Gray900)),
                                 IconButton(
                                     onPressed: () {
@@ -96,11 +96,9 @@ class VoteSortWidget extends ConsumerWidget {
                                                 style:
                                                     sortOptionState.sort == 'id'
                                                         ? getTextStyle(
-                                                            context,
                                                             AppTypo.BODY16B,
                                                             AppColors.Gray500)
                                                         : getTextStyle(
-                                                            context,
                                                             AppTypo.BODY16M,
                                                             AppColors.Gray900)),
                                           ],
@@ -142,11 +140,9 @@ class VoteSortWidget extends ConsumerWidget {
                                                 style: sortOptionState.sort ==
                                                         'viewCount'
                                                     ? getTextStyle(
-                                                        context,
                                                         AppTypo.BODY16B,
                                                         AppColors.Gray500)
                                                     : getTextStyle(
-                                                        context,
                                                         AppTypo.BODY16M,
                                                         AppColors.Gray900)),
                                           ],
@@ -188,11 +184,9 @@ class VoteSortWidget extends ConsumerWidget {
                                                 style: sortOptionState.sort ==
                                                         'commentCount'
                                                     ? getTextStyle(
-                                                        context,
                                                         AppTypo.BODY16B,
                                                         AppColors.Gray500)
                                                     : getTextStyle(
-                                                        context,
                                                         AppTypo.BODY16M,
                                                         AppColors.Gray900)),
                                           ],
@@ -235,8 +229,7 @@ class VoteSortWidget extends ConsumerWidget {
                             : sortOptionState.sort == 'commentCount'
                                 ? '댓글순'
                                 : '',
-                    style: getTextStyle(
-                        context, AppTypo.BODY14M, AppColors.Gray600),
+                    style: getTextStyle(AppTypo.BODY14M, AppColors.Gray600),
                   ),
                 ),
               ),

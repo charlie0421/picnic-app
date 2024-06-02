@@ -3,21 +3,6 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/ui/style.dart';
 
 ThemeData voteThemeLight = ThemeData.light().copyWith(
-  textTheme: const TextTheme(
-    displayLarge: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
-    displayMedium: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
-    displaySmall: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
-    headlineMedium: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
-    headlineSmall: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
-    titleLarge: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
-    titleMedium: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
-    titleSmall: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
-    bodyLarge: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
-    bodyMedium: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
-    bodySmall: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
-    labelLarge: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
-    labelSmall: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
-  ),
   appBarTheme: const AppBarTheme(
     backgroundColor: voteMainColor,
     foregroundColor: Colors.white,
@@ -37,7 +22,23 @@ ThemeData voteThemeLight = ThemeData.light().copyWith(
   // ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
-      padding: WidgetStateProperty.all(const EdgeInsets.all(4)),
+      padding: WidgetStateProperty.all(
+          const EdgeInsets.symmetric(vertical: 16, horizontal: 32)),
+      backgroundColor: WidgetStateProperty.all(AppColors.Mint500),
+      shape: WidgetStateProperty.all(
+        RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: AppColors.Primary500),
+        ),
+      ),
+      foregroundColor: WidgetStateProperty.all(AppColors.Primary500),
+      textStyle: WidgetStateProperty.all(
+        getTextStyle(
+          AppTypo.BODY14B,
+          AppColors.Primary500,
+        ),
+      ),
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     ),
   ),
   colorScheme: const ColorScheme(

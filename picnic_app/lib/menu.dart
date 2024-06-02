@@ -5,6 +5,7 @@ import 'package:picnic_app/pages/pic/landing_page.dart';
 import 'package:picnic_app/pages/pic/library_page.dart';
 import 'package:picnic_app/pages/pic/pic_home_page.dart';
 import 'package:picnic_app/pages/vote/pick-chart-page.dart';
+import 'package:picnic_app/pages/vote/store-page.dart';
 import 'package:picnic_app/pages/vote/vote_home_page.dart';
 
 ScreenInfo voteScreenInfo = ScreenInfo(
@@ -53,8 +54,8 @@ List<BottomNavigationItem> votePages = [
   BottomNavigationItem(
     title: '상점',
     assetPath: 'assets/icons/bottom/store.svg',
-    index: 4,
-    pageWidget: Container(),
+    index: 3,
+    pageWidget: StorePage(),
   ),
 ];
 

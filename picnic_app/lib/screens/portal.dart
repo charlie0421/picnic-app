@@ -58,32 +58,32 @@ class _PortalState extends ConsumerState<Portal> {
       appBar: AppBar(
         leading: logined
             ? GestureDetector(
-                onTap: () =>
-                    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                      navigationInfoNotifier.setCurrentPage(
-                        const AppInfo(),
-                      );
-                    }),
-                child: Container(
-                  padding: EdgeInsets.all(16.w),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8.r),
-                    child: CachedNetworkImage(
-                      imageUrl: Supabase.instance.client.auth.currentUser
-                          ?.userMetadata?['avatar_url'],
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ))
-            : GestureDetector(
-                onTap: () =>
-                    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+            onTap: () =>
+                WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                   navigationInfoNotifier.setCurrentPage(
-                    const LoginScreen(),
+                    const AppInfo(),
                   );
                 }),
-                child: const Icon(Icons.person),
+            child: Container(
+              padding: EdgeInsets.all(16.w),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8.r),
+                child: CachedNetworkImage(
+                  imageUrl: Supabase.instance.client.auth.currentUser
+                      ?.userMetadata?['avatar_url'],
+                  fit: BoxFit.cover,
+                ),
               ),
+            ))
+            : GestureDetector(
+          onTap: () =>
+              WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                navigationInfoNotifier.setCurrentPage(
+                  const LoginScreen(),
+                );
+              }),
+          child: const Icon(Icons.person),
+        ),
         title: SizedBox(
           width: double.infinity,
           child: SizedBox(
@@ -175,8 +175,8 @@ class Top extends StatelessWidget {
                           constraints: BoxConstraints(minWidth: 80.w),
                           child: Text('12,000',
                               textAlign: TextAlign.right,
-                              style: getTextStyle(context, AppTypo.CAPTION12B,
-                                      AppColors.Primary500)
+                              style: getTextStyle(AppTypo.CAPTION12B,
+                                  AppColors.Primary500)
                                   .copyWith(
                                 foreground: Paint()
                                   ..style = PaintingStyle.stroke
@@ -187,8 +187,8 @@ class Top extends StatelessWidget {
                         Positioned(
                           right: 0,
                           child: Text("12,000",
-                              style: getTextStyle(context, AppTypo.CAPTION12B,
-                                      AppColors.Primary500)
+                              style: getTextStyle(AppTypo.CAPTION12B,
+                                  AppColors.Primary500)
                                   .copyWith(shadows: [
                                 Shadow(
                                     color: AppColors.Gray900.withOpacity(.5),
@@ -285,8 +285,8 @@ class PortalMenuItem extends StatelessWidget {
           child: Text(
             portalString.toUpperCase(),
             style: navigationInfo.portalString == portalString
-                ? getTextStyle(context, AppTypo.BODY14B, AppColors.Gray900)
-                : getTextStyle(context, AppTypo.BODY14R, AppColors.Gray900),
+                ? getTextStyle(AppTypo.BODY14B, AppColors.Gray900)
+                : getTextStyle(AppTypo.BODY14R, AppColors.Gray900),
           ),
         ),
       ),

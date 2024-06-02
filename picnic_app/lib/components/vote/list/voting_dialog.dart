@@ -89,8 +89,7 @@ class VotingDialog extends Dialog {
                     children: [
                       Text(
                         voteItemModel.mystar_member.name_ko ?? '',
-                        style: getTextStyle(
-                            context, AppTypo.BODY16B, AppColors.Gray900),
+                        style: getTextStyle(AppTypo.BODY16B, AppColors.Gray900),
                       ),
                       SizedBox(
                         width: 8.w,
@@ -101,7 +100,7 @@ class VotingDialog extends Dialog {
                           voteItemModel.mystar_member.mystar_group?.name_ko ??
                               '',
                           style: getTextStyle(
-                              context, AppTypo.CAPTION12R, AppColors.Gray600),
+                              AppTypo.CAPTION12R, AppColors.Gray600),
                         ),
                       ),
                     ],
@@ -129,8 +128,8 @@ class VotingDialog extends Dialog {
                       ),
                       Expanded(
                         child: Text('12,000',
-                            style: getTextStyle(context, AppTypo.BODY16B,
-                                    AppColors.Primary500)
+                            style: getTextStyle(
+                                    AppTypo.BODY16B, AppColors.Primary500)
                                 .copyWith(
                               fontSize: 20.sp,
                             )),
@@ -148,8 +147,8 @@ class VotingDialog extends Dialog {
                         child: Row(
                           children: [
                             Text('충전하기',
-                                style: getTextStyle(context, AppTypo.BODY14B,
-                                    AppColors.Primary500)),
+                                style: getTextStyle(
+                                    AppTypo.BODY14B, AppColors.Primary500)),
                             SvgPicture.asset(
                               'assets/icons/vote/recharge-plus.svg',
                               width: 16.w,
@@ -189,8 +188,8 @@ class VotingDialog extends Dialog {
                     ),
                     SizedBox(width: 4.w),
                     Text('전체사용',
-                        style: getTextStyle(
-                            context, AppTypo.BODY14M, AppColors.Gray400)),
+                        style:
+                            getTextStyle(AppTypo.BODY14M, AppColors.Gray400)),
                   ],
                 ),
                 SizedBox(height: 8.h),
@@ -218,7 +217,7 @@ class VotingDialog extends Dialog {
                             decoration: InputDecoration(
                               hintText: '입력',
                               hintStyle: getTextStyle(
-                                  context, AppTypo.BODY16R, AppColors.Gray300),
+                                  AppTypo.BODY16R, AppColors.Gray300),
                               border: InputBorder.none,
                               focusColor: AppColors.Primary500,
                               fillColor: AppColors.Gray900,
@@ -277,8 +276,8 @@ class VotingDialog extends Dialog {
                       }
                     },
                     child: Text('투표하기',
-                        style: getTextStyle(
-                            context, AppTypo.TITLE18SB, AppColors.Gray00)),
+                        style:
+                            getTextStyle(AppTypo.TITLE18SB, AppColors.Gray00)),
                   ),
                 ),
               ],

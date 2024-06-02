@@ -37,7 +37,7 @@ class _VoteListScreenState extends ConsumerState<VoteListScreen>
     return AppBar(
       title: Text(
         Intl.message('label_vote_screen_title'),
-        style: getTextStyle(context, AppTypo.TITLE18B, AppColors.Gray900),
+        style: getTextStyle(AppTypo.TITLE18B, AppColors.Gray900),
       ),
     );
   }

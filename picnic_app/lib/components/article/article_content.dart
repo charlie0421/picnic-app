@@ -14,7 +14,6 @@ class ArticleContent extends StatelessWidget {
         child: Text(
           article.content,
           style: getTextStyle(
-            context,
             AppTypo.BODY14M,
             AppColors.Gray900,
           ),

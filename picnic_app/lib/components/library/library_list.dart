@@ -34,7 +34,7 @@ class _LibraryListState extends ConsumerState<AlbumList> {
                     children: [
                       Text(
                         Intl.message('label_library_save'),
-                        style: getTextStyle(context, AppTypo.BODY16B),
+                        style: getTextStyle(AppTypo.BODY16B),
                       ),
                       GestureDetector(
                         onTap: () {
@@ -42,7 +42,7 @@ class _LibraryListState extends ConsumerState<AlbumList> {
                         },
                         child: Text(
                           Intl.message('label_album_add'),
-                          style: getTextStyle(context, AppTypo.BODY14R),
+                          style: getTextStyle(AppTypo.BODY14R),
                         ),
                       ),
                     ],

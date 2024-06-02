@@ -128,7 +128,6 @@ class MenuItem extends ConsumerWidget {
             Text(
               Intl.message(title),
               style: getTextStyle(
-                context,
                 AppTypo.CAPTION12R,
                 isSelected ? AppColors.Gray900 : AppColors.Gray400,
               ),

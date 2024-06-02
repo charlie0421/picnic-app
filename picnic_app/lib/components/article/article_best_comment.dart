@@ -32,7 +32,6 @@ class _ArticleBestCommentState extends State<ArticleBestComment> {
                           ? widget.article.most_liked_comment!.user?.nickname
                           : '',
                       style: getTextStyle(
-                        context,
                         AppTypo.BODY14B,
                         AppColors.Gray900,
                       ),
@@ -40,7 +39,6 @@ class _ArticleBestCommentState extends State<ArticleBestComment> {
                     TextSpan(
                       text: ' ',
                       style: getTextStyle(
-                        context,
                         AppTypo.BODY14M,
                         AppColors.Gray900,
                       ),
@@ -51,7 +49,6 @@ class _ArticleBestCommentState extends State<ArticleBestComment> {
                               .toString()
                           : '',
                       style: getTextStyle(
-                        context,
                         AppTypo.BODY14R,
                         AppColors.Gray900,
                       ),

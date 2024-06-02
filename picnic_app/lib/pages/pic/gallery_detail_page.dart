@@ -47,7 +47,7 @@ class _GalleryDetailScreenState extends ConsumerState<GalleryDetailPage>
                       alignment: Alignment.center,
                       child: Text(widget.galleryName,
                           style: getTextStyle(
-                              context, AppTypo.TITLE18B, AppColors.Gray900)),
+                              AppTypo.TITLE18B, AppColors.Gray900)),
                     ),
                     Positioned(
                       left: 0,
@@ -64,8 +64,7 @@ class _GalleryDetailScreenState extends ConsumerState<GalleryDetailPage>
                 ),
               )
             : Text(widget.galleryName,
-                style:
-                    getTextStyle(context, AppTypo.TITLE18B, AppColors.Gray900)),
+                style: getTextStyle(AppTypo.TITLE18B, AppColors.Gray900)),
         SizedBox(
           height: 50,
           child: TabBar(

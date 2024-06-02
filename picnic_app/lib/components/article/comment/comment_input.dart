@@ -29,10 +29,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
     return Container(
       height: 60,
       padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-      width: kIsWeb ? Constants.webMaxWidth : MediaQuery
-          .of(context)
-          .size
-          .width,
+      width: kIsWeb ? Constants.webMaxWidth : MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
         border: Border(
           top: BorderSide(
@@ -70,15 +67,14 @@ class _CommentInputState extends ConsumerState<CommentInput> {
                       padding: EdgeInsets.only(top: 30.h),
                       child: Text(
                         '${_textEditingController.text.length}/100',
-                        style: getTextStyle(
-                            context, AppTypo.CAPTION12R, AppColors.Gray400),
+                        style:
+                            getTextStyle(AppTypo.CAPTION12R, AppColors.Gray400),
                       ),
                     ),
                   ),
                   maxLength: 100,
                   textInputAction: TextInputAction.done,
-                  style:
-                  getTextStyle(context, AppTypo.BODY16R, AppColors.Gray900),
+                  style: getTextStyle(AppTypo.BODY16R, AppColors.Gray900),
                   onFieldSubmitted: (value) => _commitComment()),
             ),
           ),
@@ -95,13 +91,13 @@ class _CommentInputState extends ConsumerState<CommentInput> {
     final parentItemState = ref.watch(parentItemProvider);
     ref
         .read(asyncCommentListProvider(
-      articleId: widget.articleId,
-      pagingController: widget.pagingController,
-    ).notifier)
+          articleId: widget.articleId,
+          pagingController: widget.pagingController,
+        ).notifier)
         .submitComment(
-        articleId: widget.articleId,
-        content: _textEditingController.text,
-        parentId: parentItemState?.id)
+            articleId: widget.articleId,
+            content: _textEditingController.text,
+            parentId: parentItemState?.id)
         .then((value) {
       ref.read(parentItemProvider.notifier).setParentItem(null);
       ref.read(commentCountProvider(widget.articleId).notifier).increment();
