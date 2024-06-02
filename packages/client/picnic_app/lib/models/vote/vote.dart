@@ -52,6 +52,36 @@ class VoteModel {
     required this.created_at,
   });
 
+  copyWith({
+    int? id,
+    String? vote_title,
+    String? vote_category,
+    String? main_image,
+    String? wait_image,
+    String? result_image,
+    String? vote_content,
+    List<VoteItemModel>? vote_item,
+    DateTime? created_at,
+    DateTime? visible_at,
+    DateTime? stop_at,
+    DateTime? start_at,
+  }) {
+    return VoteModel(
+      id: id ?? this.id,
+      vote_title: vote_title ?? this.vote_title,
+      vote_category: vote_category ?? this.vote_category,
+      main_image: main_image ?? this.main_image,
+      wait_image: wait_image ?? this.wait_image,
+      result_image: result_image ?? this.result_image,
+      vote_content: vote_content ?? this.vote_content,
+      vote_item: vote_item ?? this.vote_item,
+      created_at: created_at ?? this.created_at,
+      visible_at: visible_at ?? this.visible_at,
+      stop_at: stop_at ?? this.stop_at,
+      start_at: start_at ?? this.start_at,
+    );
+  }
+
   factory VoteModel.fromJson(Map<String, dynamic> json) =>
       _$VoteModelFromJson(json);
 

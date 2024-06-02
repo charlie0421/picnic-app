@@ -48,7 +48,8 @@ class VoteArtists extends StatelessWidget {
                       Stack(
                         children: [
                           Image.network(
-                              '${artist.value.mystar_member.image}?w=100'),
+                            '${artist.value.mystar_member.image}?w=100',
+                          ),
                           Positioned(
                             left: 0,
                             top: 0,
@@ -75,7 +76,7 @@ class VoteArtists extends StatelessWidget {
                       ),
                       Text(
                         artist.value.mystar_member.name_ko,
-                        style: getTextStyle(AppTypo.BODY14R),
+                        style: getTextStyle(AppTypo.CAPTION12B),
                       ),
                     ],
                   ),

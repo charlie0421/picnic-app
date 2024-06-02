@@ -34,7 +34,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
       SizedBox(height: 44.h),
       ref.watch(asyncVoteListProvider(category: 'all')).when(
             data: (pagingController) => Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
                 child: PagedListView<int, VoteModel>(
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
