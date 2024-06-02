@@ -108,6 +108,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraView> {
                   ),
                 ),
                 Positioned(
+                  left: 16.w,
                   top: 16.h,
                   bottom: 16.h,
                   child: Column(
@@ -194,7 +195,8 @@ class _PicCameraViewState extends ConsumerState<PicCameraView> {
           ),
         ),
         Container(
-          alignment: Alignment.topCenter,
+          alignment: Alignment.center,
+          padding: EdgeInsets.symmetric(vertical: 16.h),
           child: GestureDetector(
             onTap: () async {
               setState(() {
@@ -214,7 +216,6 @@ class _PicCameraViewState extends ConsumerState<PicCameraView> {
               });
             },
             child: const CircleAvatar(
-              radius: 36,
               backgroundColor: AppColors.Mint500,
             ),
           ),
