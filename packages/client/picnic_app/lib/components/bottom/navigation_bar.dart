@@ -119,11 +119,13 @@ class MenuItem extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             SizedBox(
-                width: 24.w,
-                height: 24.h,
+                width: 20.w,
+                height: 20.h,
                 child: SvgPicture.asset(
                   assetPath,
-                  color: isSelected ? AppColors.Gray900 : AppColors.Gray400,
+                  colorFilter: ColorFilter.mode(
+                      isSelected ? AppColors.Gray900 : AppColors.Gray400,
+                      BlendMode.srcIn),
                 )),
             Text(
               Intl.message(title),

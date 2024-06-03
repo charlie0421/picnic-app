@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/pages/pic/gallery_page.dart';
-import 'package:picnic_app/pages/pic/landing_page.dart';
 import 'package:picnic_app/pages/pic/library_page.dart';
 import 'package:picnic_app/pages/pic/pic_home_page.dart';
 import 'package:picnic_app/pages/vote/pick-chart-page.dart';
@@ -39,7 +38,7 @@ List<BottomNavigationItem> votePages = [
     index: 0,
     pageWidget: VoteHomePage(),
   ),
-  BottomNavigationItem(
+  const BottomNavigationItem(
     title: '픽차트',
     assetPath: 'assets/icons/bottom/pic-chart.svg',
     index: 1,
@@ -51,7 +50,7 @@ List<BottomNavigationItem> votePages = [
     index: 2,
     pageWidget: Container(),
   ),
-  BottomNavigationItem(
+  const BottomNavigationItem(
     title: '상점',
     assetPath: 'assets/icons/bottom/store.svg',
     index: 3,
@@ -62,33 +61,27 @@ List<BottomNavigationItem> votePages = [
 List<BottomNavigationItem> picPages = [
   const BottomNavigationItem(
     title: 'nav_home',
-    assetPath: 'assets/icons/bottom/media.svg',
+    assetPath: 'assets/icons/bottom/home.svg',
     index: 0,
     pageWidget: PicHomePage(),
   ),
   const BottomNavigationItem(
     title: 'nav_gallery',
-    assetPath: 'assets/icons/bottom/media.svg',
+    assetPath: 'assets/icons/bottom/gallery.svg',
     index: 1,
     pageWidget: GalleryPage(),
   ),
-  const BottomNavigationItem(
-    title: 'nav_library',
-    assetPath: 'assets/icons/bottom/media.svg',
-    index: 2,
-    pageWidget: LibraryPage(),
-  ),
   BottomNavigationItem(
-    title: 'nav_purchases',
-    assetPath: 'assets/icons/bottom/media.svg',
-    index: 3,
+    title: 'nav_subscription',
+    assetPath: 'assets/icons/bottom/subscription.svg',
+    index: 2,
     pageWidget: Container(),
   ),
   const BottomNavigationItem(
-    title: 'nav_setting',
-    assetPath: 'assets/icons/bottom/media.svg',
-    index: 4,
-    pageWidget: LandingPage(),
+    title: 'nav_library',
+    assetPath: 'assets/icons/bottom/library.svg',
+    index: 3,
+    pageWidget: LibraryPage(),
   ),
 ];
 

@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:picnic_app/components/loading_view.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/ui/style.dart';
 
@@ -32,6 +33,8 @@ class _PicCameraViewState extends ConsumerState<PicCameraView> {
   Timer? _timer;
   Uint8List? _capturedImageBytes;
   Color _previewBackgroundColor = Colors.transparent;
+  bool _cameraInitialized = false;
+  bool _saving = false;
 
   @override
   void initState() {
@@ -39,7 +42,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraView> {
 
     ref.read(userImageProvider);
     ref.read(convertedImageProvider);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    Future.delayed(const Duration(milliseconds: 300), () {
       _initializeCameras();
     });
   }
@@ -68,7 +71,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraView> {
                 key: _repaintBoundaryKey,
                 child: Stack(
                   children: [
-                    if (controller != null)
+                    if (_cameraInitialized)
                       AnimatedContainer(
                         duration: const Duration(seconds: 1),
                         color: _previewBackgroundColor,
@@ -85,106 +88,124 @@ class _PicCameraViewState extends ConsumerState<PicCameraView> {
                       )
                     else
                       Container(
-                        color: Colors.black,
-                        child: CustomPaint(
-                          size: Size.infinite,
-                          painter:
-                              OverlayImagePainter(overlayImage: _overlayImage),
+                        color: AppColors.Gray00,
+                        child: const Center(
+                          child: LoadingView(),
                         ),
                       ),
+
+                    // Container(
+                    //   color: AppColors.Gray00,
+                    //   child: CustomPaint(
+                    //     size: Size.infinite,
+                    //     painter:
+                    //         OverlayImagePainter(overlayImage: _overlayImage),
+                    //   ),
+                    // ),
                     Container(
                       alignment: Alignment.center,
                       child: Text(
                         remainTime == 0 ? '' : '$remainTime',
                         style: TextStyle(
-                          color: AppColors.Gray00,
-                          fontSize: 80.sp,
+                          color: AppColors.Primary500,
+                          fontSize: 100.sp,
                         ),
                       ),
                     ),
-                    Positioned(
-                      left: 16.w,
-                      top: 16.h,
-                      bottom: 16.h,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              IconButton(
-                                icon: flashMode == FlashMode.auto
-                                    ? const Icon(Icons.flash_auto,
-                                        color: AppColors.Gray00)
-                                    : flashMode == FlashMode.torch
-                                        ? const Icon(Icons.flash_on,
-                                            color: AppColors.Gray00)
-                                        : const Icon(Icons.flash_off,
-                                            color: AppColors.Gray00),
-                                iconSize: 24,
-                                color: AppColors.Gray00,
-                                onPressed: () {
-                                  if (flashMode == FlashMode.auto) {
-                                    _setFlashMode(FlashMode.torch);
-                                  } else if (flashMode == FlashMode.torch) {
-                                    _setFlashMode(FlashMode.off);
-                                  } else {
-                                    _setFlashMode(FlashMode.auto);
-                                  }
-                                },
-                              ),
-                              Text('플래시',
-                                  style: getTextStyle(
-                                      AppTypo.BODY14R, AppColors.Gray00),
-                                  textAlign: TextAlign.center),
-                            ],
-                          ),
-                          SizedBox(height: 16.h),
-                          GestureDetector(
-                            onTap: () {
-                              if (setTimer == 3) {
-                                setState(() {
-                                  setTimer = 7;
-                                });
-                              } else if (setTimer == 7) {
-                                setState(() {
-                                  setTimer = 10;
-                                });
-                              } else {
-                                setState(() {
-                                  setTimer = 3;
-                                });
-                              }
-                            },
-                            child: Column(
+                    if (!_saving)
+                      Positioned(
+                        left: 16.w,
+                        top: 16.h,
+                        bottom: 16.h,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text('${setTimer}s',
+                                IconButton(
+                                  icon: flashMode == FlashMode.auto
+                                      ? const Icon(Icons.flash_auto,
+                                          color: AppColors.Primary500)
+                                      : flashMode == FlashMode.torch
+                                          ? const Icon(Icons.flash_on,
+                                              color: AppColors.Primary500)
+                                          : const Icon(
+                                              Icons.flash_off,
+                                              color: AppColors.Primary500,
+                                            ),
+                                  iconSize: 24,
+                                  color: AppColors.Primary500,
+                                  onPressed: () {
+                                    if (flashMode == FlashMode.auto) {
+                                      _setFlashMode(FlashMode.torch);
+                                    } else if (flashMode == FlashMode.torch) {
+                                      _setFlashMode(FlashMode.off);
+                                    } else {
+                                      _setFlashMode(FlashMode.auto);
+                                    }
+                                  },
+                                ),
+                                Text('플래시',
                                     style: getTextStyle(
-                                        AppTypo.TITLE18B, AppColors.Gray00),
-                                    textAlign: TextAlign.center),
-                                Text('타이머',
-                                    style: getTextStyle(
-                                        AppTypo.BODY14R, AppColors.Gray00),
+                                        AppTypo.BODY14B, AppColors.Primary500),
                                     textAlign: TextAlign.center),
                               ],
                             ),
-                          ),
-                          SizedBox(height: 16.h),
-                          IconButton(
-                            icon: const Icon(Icons.change_circle,
-                                color: AppColors.Gray00),
-                            iconSize: 36,
-                            color: AppColors.Gray00,
-                            onPressed: () async {
-                              _toggleCamera();
-                            },
-                          ),
-                        ],
+                            SizedBox(height: 16.h),
+                            GestureDetector(
+                              onTap: () {
+                                if (setTimer == 3) {
+                                  setState(() {
+                                    setTimer = 7;
+                                  });
+                                } else if (setTimer == 7) {
+                                  setState(() {
+                                    setTimer = 10;
+                                  });
+                                } else {
+                                  setState(() {
+                                    setTimer = 3;
+                                  });
+                                }
+                              },
+                              child: Column(
+                                children: [
+                                  Text('${setTimer}s',
+                                      style: getTextStyle(AppTypo.TITLE18B,
+                                          AppColors.Primary500),
+                                      textAlign: TextAlign.center),
+                                  Text('타이머',
+                                      style: getTextStyle(AppTypo.BODY14B,
+                                          AppColors.Primary500),
+                                      textAlign: TextAlign.center),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 16.h),
+                            Column(
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.change_circle,
+                                      color: AppColors.Primary500),
+                                  iconSize: 36,
+                                  color: AppColors.Primary500,
+                                  onPressed: () async {
+                                    _toggleCamera();
+                                  },
+                                ),
+                                Text('카메라\n전환',
+                                    style: getTextStyle(
+                                        AppTypo.BODY14B, AppColors.Primary500),
+                                    textAlign: TextAlign.center),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),
@@ -200,9 +221,11 @@ class _PicCameraViewState extends ConsumerState<PicCameraView> {
             onTap: () async {
               setState(() {
                 remainTime = setTimer;
+                _saving = true;
               });
 
-              _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+              _timer =
+                  Timer.periodic(const Duration(seconds: 1), (timer) async {
                 if (remainTime > 0) {
                   setState(() {
                     remainTime--;
@@ -213,10 +236,16 @@ class _PicCameraViewState extends ConsumerState<PicCameraView> {
                   });
                 } else {
                   timer.cancel();
-                  _captureImage();
+
                   if (controller != null) {
                     controller!.pausePreview();
                   }
+
+                  await _captureImage();
+                  setState(() {
+                    _previewBackgroundColor = Colors.transparent;
+                    _saving = false;
+                  });
                 }
               });
             },
@@ -262,6 +291,11 @@ class _PicCameraViewState extends ConsumerState<PicCameraView> {
     if (cameras != null && cameras!.isNotEmpty) {
       await _setCamera(cameras!.first);
     }
+
+    setState(() {
+      _cameraInitialized = true;
+    });
+
     await _loadOverlayImage(); // 오버레이 이미지를 항상 로드
   }
 
@@ -390,6 +424,9 @@ class _PicCameraViewState extends ConsumerState<PicCameraView> {
           );
         }
 
+        setState(() {
+          _saving = false;
+        });
         Navigator.pop(context);
       }
     } catch (e) {
