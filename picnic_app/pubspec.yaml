@@ -61,6 +61,7 @@ dependencies:
   mime: any
   uuid: any
   image: any
+  image_gallery_saver: ^2.0.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
