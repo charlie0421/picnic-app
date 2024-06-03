@@ -104,9 +104,9 @@ class VoteItemModel {
   });
 
   factory VoteItemModel.fromJson(Map<String, dynamic> json) =>
-      _$VoteItemFromJson(json);
+      _$VoteItemModelFromJson(json);
 
-  Map<String, dynamic> toJson() => _$VoteItemToJson(this);
+  Map<String, dynamic> toJson() => _$VoteItemModelToJson(this);
 
   copyWith({
     int? id,

@@ -80,6 +80,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_library": MessageLookupByLibrary.simpleMessage("图书馆"),
         "nav_purchases": MessageLookupByLibrary.simpleMessage("购买"),
         "nav_setting": MessageLookupByLibrary.simpleMessage("设置"),
+        "nav_subscription": MessageLookupByLibrary.simpleMessage("구독"),
         "text_ads_random": MessageLookupByLibrary.simpleMessage("查看广告并收集随机图片。"),
         "text_draw_image":
             MessageLookupByLibrary.simpleMessage("来自整个画廊的 1 张图片已确认收藏"),

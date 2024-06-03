@@ -86,6 +86,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_library": MessageLookupByLibrary.simpleMessage("라이브러리"),
         "nav_purchases": MessageLookupByLibrary.simpleMessage("구매"),
         "nav_setting": MessageLookupByLibrary.simpleMessage("설정"),
+        "nav_subscription": MessageLookupByLibrary.simpleMessage("구독"),
         "text_ads_random":
             MessageLookupByLibrary.simpleMessage("광고 보기 및 무작위 이미지 수집."),
         "text_draw_image":

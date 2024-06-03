@@ -100,6 +100,16 @@ class S {
     );
   }
 
+  /// `구독`
+  String get nav_subscription {
+    return Intl.message(
+      '구독',
+      name: 'nav_subscription',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `My Purchases`
   String get mypage_purchases {
     return Intl.message(
