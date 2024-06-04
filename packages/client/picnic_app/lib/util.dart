@@ -141,3 +141,18 @@ Widget buildLoadingOverlay() {
     ), // 로딩바
   );
 }
+//
+// Future<String?> getRecentImagePath() async {
+//   final externalStorageDirectory = await getExternalStorageDirectory();
+//   final directory = Directory('${externalStorageDirectory?.path}/DCIM/Camera');
+//   final files = directory.listSync();
+//   final sortedFiles = files
+//       .sort((a, b) => b.lastModifiedSync().compareTo(a.lastModifiedSync()));
+//   final recentFile = sortedFiles.first;
+//
+//   if (recentFile is File) {
+//     return recentFile.path;
+//   } else {
+//     return null;
+//   }
+// }

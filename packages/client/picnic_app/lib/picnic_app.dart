@@ -9,6 +9,7 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/overlays.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/screens/pic/pic_camera_screen.dart';
 import 'package:picnic_app/screens/portal.dart';
 import 'package:picnic_app/ui/community_theme.dart';
 import 'package:picnic_app/ui/pic_theme.dart';
@@ -91,6 +92,9 @@ class _PicnicAppState extends ConsumerState<PicnicApp>
               GlobalCupertinoLocalizations.delegate,
             ],
             supportedLocales: S.delegate.supportedLocales,
+            routes: {
+              '/pic-camera': (context) => const PicCameraScreen(),
+            },
             home: const Portal()),
       ),
     );

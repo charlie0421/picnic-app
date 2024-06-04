@@ -18,19 +18,25 @@ class PicHomeScreen extends ConsumerStatefulWidget {
 class _PicHomeScreenState extends ConsumerState<PicHomeScreen> {
   @override
   Widget build(BuildContext context) {
-    final navigationInfo = ref.watch(navigationInfoProvider);
+    final showBottomNavigation = ref.watch(
+        navigationInfoProvider.select((value) => value.showBottomNavigation));
+    final picBottomNavigationIndex = ref.watch(navigationInfoProvider
+        .select((value) => value.picBottomNavigationIndex));
+    logger.d('showBottomNavigation: $showBottomNavigation');
+    logger.d('picBottomNavigationIndex: $picBottomNavigationIndex');
 
     return Stack(
       children: [
         const PicnicAnimatedSwitcher(),
-        Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: CommonBottomNavigationBar(
-              screenInfo: picScreenInfo,
-            )),
-        if (navigationInfo.picBottomNavigationIndex == 0)
+        if (showBottomNavigation == true)
+          Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: CommonBottomNavigationBar(
+                screenInfo: picScreenInfo,
+              )),
+        if (picBottomNavigationIndex == 0)
           Positioned(
               right: 20.w,
               bottom: 120.h,

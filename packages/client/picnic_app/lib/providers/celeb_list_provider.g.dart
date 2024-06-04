@@ -22,7 +22,7 @@ final asyncCelebListProvider = AutoDisposeAsyncNotifierProvider<AsyncCelebList,
 );
 
 typedef _$AsyncCelebList = AutoDisposeAsyncNotifier<List<CelebModel>?>;
-String _$asyncMyCelebListHash() => r'358d03035ce2b67e012195e1a2137d3baa66da29';
+String _$asyncMyCelebListHash() => r'4eae8cd9cd78044bac2f62230c12c7001c0b641a';
 
 /// See also [AsyncMyCelebList].
 @ProviderFor(AsyncMyCelebList)

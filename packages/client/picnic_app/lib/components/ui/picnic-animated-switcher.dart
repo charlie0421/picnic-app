@@ -23,7 +23,9 @@ class PicnicAnimatedSwitcher extends ConsumerWidget {
           return currentChild ?? Container();
         },
         child: Container(
-            margin: const EdgeInsets.only(bottom: 60).r,
+            margin: navigationInfo.showBottomNavigation
+                ? const EdgeInsets.only(bottom: 60).r
+                : null,
             child: navigationInfo.currentPage));
   }
 }

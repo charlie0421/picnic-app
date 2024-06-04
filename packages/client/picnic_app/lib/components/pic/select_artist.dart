@@ -8,7 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image/image.dart' as img;
-import 'package:picnic_app/components/pic/camera-view.dart';
 import 'package:picnic_app/providers/celeb_list_provider.dart';
 import 'package:picnic_app/providers/pic_provider.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -186,15 +185,20 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
   }
 
   void _showCameraView() {
-    showModalBottomSheet(
-        context: context,
-        useSafeArea: true,
-        isScrollControlled: true,
-        useRootNavigator: true,
-        showDragHandle: false,
-        builder: (BuildContext context) {
-          return PicCameraView();
-        });
+    Navigator.pushNamed(context, '/pic-camera');
+    // ref.read(navigationInfoProvider.notifier).setCurrentPage(
+    //     PicCameraViewPage(),
+    //     showTopMenu: false,
+    //     showBottomNavigation: false);
+    // showModalBottomSheet(
+    //     context: context,
+    //     useSafeArea: true,
+    //     isScrollControlled: true,
+    //     useRootNavigator: true,
+    //     showDragHandle: false,
+    //     builder: (BuildContext context) {
+    //       return PicCameraViewPage();
+    //     });
   }
 
   Future<ui.Image> _convertImage(img.Image image) async {

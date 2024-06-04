@@ -11,7 +11,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'navigation_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class NavigationInfo extends _$NavigationInfo {
   Navigation setting = Navigation(); // 초기 값이 필요하다면 임시로 할당
 
@@ -25,27 +25,27 @@ class NavigationInfo extends _$NavigationInfo {
     setting = await Navigation.load();
   }
 
-  setState({
-    String? portalString,
-    int? picBottomNavigationIndex,
-    int? voteBottomNavigationIndex,
-    int? communityBottomNavigationIndex,
-    int? novelBottomNavigationIndex,
-    Widget? currentPage,
-  }) {
-    state = state.copyWith(
-      portalString: portalString ?? state.portalString,
-      picBottomNavigationIndex:
-          picBottomNavigationIndex ?? state.picBottomNavigationIndex,
-      voteBottomNavigationIndex:
-          voteBottomNavigationIndex ?? state.voteBottomNavigationIndex,
-      communityBottomNavigationIndex: communityBottomNavigationIndex ??
-          state.communityBottomNavigationIndex,
-      novelBottomNavigationIndex:
-          novelBottomNavigationIndex ?? state.novelBottomNavigationIndex,
-      currentPage: currentPage ?? state.currentPage,
-    );
-  }
+  // setState({
+  //   String? portalString,
+  //   int? picBottomNavigationIndex,
+  //   int? voteBottomNavigationIndex,
+  //   int? communityBottomNavigationIndex,
+  //   int? novelBottomNavigationIndex,
+  //   Widget? currentPage,
+  // }) {
+  //   state = state.copyWith(
+  //     portalString: portalString ?? state.portalString,
+  //     picBottomNavigationIndex:
+  //         picBottomNavigationIndex ?? state.picBottomNavigationIndex,
+  //     voteBottomNavigationIndex:
+  //         voteBottomNavigationIndex ?? state.voteBottomNavigationIndex,
+  //     communityBottomNavigationIndex: communityBottomNavigationIndex ??
+  //         state.communityBottomNavigationIndex,
+  //     novelBottomNavigationIndex:
+  //         novelBottomNavigationIndex ?? state.novelBottomNavigationIndex,
+  //     currentPage: currentPage ?? state.currentPage,
+  //   );
+  // }
 
   setPortalString(String portalString) {
     logger.d('setPortalString: $portalString');
@@ -98,11 +98,14 @@ class NavigationInfo extends _$NavigationInfo {
     globalStorage.saveData('novelBottomNavigationIndex', index.toString());
   }
 
-  setCurrentPage(Widget page) {
-    setting.previousPage = setting.currentPage;
-    setting.currentPage = page;
+  setCurrentPage(Widget page,
+      {bool showTopMenu = true, bool showBottomNavigation = true}) {
+    logger.d('showBottomNavigation: $showBottomNavigation');
     state = state.copyWith(
-        previousPage: setting.previousPage, currentPage: setting.currentPage);
+        previousPage: setting.currentPage,
+        currentPage: page,
+        showTopMenu: showTopMenu,
+        showBottomNavigation: showBottomNavigation);
   }
 
   bool canBack() {
@@ -128,6 +131,8 @@ class Navigation {
   Widget currentScreen = const VoteHomeScreen();
   Widget currentPage = const VoteHomePage();
   Widget previousPage = Container();
+  bool showTopMenu = true;
+  bool showBottomNavigation = true;
 
   Navigation();
 
@@ -181,6 +186,8 @@ class Navigation {
     Widget? currentScreen,
     Widget? previousPage,
     Widget? currentPage,
+    bool? showTopMenu,
+    bool? showBottomNavigation,
   }) {
     return Navigation()
       ..portalString = portalString ?? this.portalString
@@ -194,6 +201,9 @@ class Navigation {
           novelBottomNavigationIndex ?? this.novelBottomNavigationIndex
       ..currentScreen = currentScreen ?? this.currentScreen
       ..previousPage = previousPage ?? this.previousPage
-      ..currentPage = currentPage ?? this.currentPage;
+      ..currentPage = currentPage ?? this.currentPage
+      ..showTopMenu = showTopMenu ?? this.showTopMenu
+      ..showBottomNavigation =
+          showBottomNavigation ?? this.showBottomNavigation;
   }
 }
