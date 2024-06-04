@@ -25,11 +25,11 @@ class PicCameraView extends ConsumerStatefulWidget {
 class _PicCameraViewState extends ConsumerState<PicCameraView> {
   ui.Image? _overlayImage;
   final GlobalKey _repaintBoundaryKey = GlobalKey();
-  List<CameraDescription>? cameras;
-  CameraController? controller;
-  FlashMode flashMode = FlashMode.auto;
-  int setTimer = 3;
-  int remainTime = 0;
+  List<CameraDescription>? _cameras;
+  CameraController? _controller;
+  FlashMode _flashMode = FlashMode.auto;
+  int _setTimer = 3;
+  int _remainTime = 0;
   Timer? _timer;
   Uint8List? _capturedImageBytes;
   Color _previewBackgroundColor = Colors.transparent;
@@ -71,14 +71,14 @@ class _PicCameraViewState extends ConsumerState<PicCameraView> {
                 key: _repaintBoundaryKey,
                 child: Stack(
                   children: [
-                    if (_cameraInitialized)
+                    if (_cameraInitialized && _controller != null)
                       AnimatedContainer(
                         duration: const Duration(seconds: 1),
                         color: _previewBackgroundColor,
                         child: AspectRatio(
                           aspectRatio: 5.5 / 8.5,
                           child: CameraPreview(
-                            controller!,
+                            _controller!,
                             child: CustomPaint(
                               painter: OverlayImagePainter(
                                   overlayImage: _overlayImage),
@@ -105,7 +105,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraView> {
                     Container(
                       alignment: Alignment.center,
                       child: Text(
-                        remainTime == 0 ? '' : '$remainTime',
+                        _remainTime == 0 ? '' : '$_remainTime',
                         style: TextStyle(
                           color: AppColors.Primary500,
                           fontSize: 100.sp,
@@ -127,10 +127,10 @@ class _PicCameraViewState extends ConsumerState<PicCameraView> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 IconButton(
-                                  icon: flashMode == FlashMode.auto
+                                  icon: _flashMode == FlashMode.auto
                                       ? const Icon(Icons.flash_auto,
                                           color: AppColors.Primary500)
-                                      : flashMode == FlashMode.torch
+                                      : _flashMode == FlashMode.torch
                                           ? const Icon(Icons.flash_on,
                                               color: AppColors.Primary500)
                                           : const Icon(
@@ -140,9 +140,9 @@ class _PicCameraViewState extends ConsumerState<PicCameraView> {
                                   iconSize: 24,
                                   color: AppColors.Primary500,
                                   onPressed: () {
-                                    if (flashMode == FlashMode.auto) {
+                                    if (_flashMode == FlashMode.auto) {
                                       _setFlashMode(FlashMode.torch);
-                                    } else if (flashMode == FlashMode.torch) {
+                                    } else if (_flashMode == FlashMode.torch) {
                                       _setFlashMode(FlashMode.off);
                                     } else {
                                       _setFlashMode(FlashMode.auto);
@@ -158,23 +158,23 @@ class _PicCameraViewState extends ConsumerState<PicCameraView> {
                             SizedBox(height: 16.h),
                             GestureDetector(
                               onTap: () {
-                                if (setTimer == 3) {
+                                if (_setTimer == 3) {
                                   setState(() {
-                                    setTimer = 7;
+                                    _setTimer = 7;
                                   });
-                                } else if (setTimer == 7) {
+                                } else if (_setTimer == 7) {
                                   setState(() {
-                                    setTimer = 10;
+                                    _setTimer = 10;
                                   });
                                 } else {
                                   setState(() {
-                                    setTimer = 3;
+                                    _setTimer = 3;
                                   });
                                 }
                               },
                               child: Column(
                                 children: [
-                                  Text('${setTimer}s',
+                                  Text('${_setTimer}s',
                                       style: getTextStyle(AppTypo.TITLE18B,
                                           AppColors.Primary500),
                                       textAlign: TextAlign.center),
@@ -220,15 +220,15 @@ class _PicCameraViewState extends ConsumerState<PicCameraView> {
           child: GestureDetector(
             onTap: () async {
               setState(() {
-                remainTime = setTimer;
+                _remainTime = _setTimer;
                 _saving = true;
               });
 
               _timer =
                   Timer.periodic(const Duration(seconds: 1), (timer) async {
-                if (remainTime > 0) {
+                if (_remainTime > 0) {
                   setState(() {
-                    remainTime--;
+                    _remainTime--;
                     _previewBackgroundColor =
                         _previewBackgroundColor == Colors.transparent
                             ? Colors.white
@@ -237,8 +237,8 @@ class _PicCameraViewState extends ConsumerState<PicCameraView> {
                 } else {
                   timer.cancel();
 
-                  if (controller != null) {
-                    controller!.pausePreview();
+                  if (_controller != null) {
+                    _controller!.pausePreview();
                   }
 
                   await _captureImage();
@@ -287,9 +287,9 @@ class _PicCameraViewState extends ConsumerState<PicCameraView> {
   }
 
   Future<void> _initializeCameras() async {
-    cameras = await availableCameras();
-    if (cameras != null && cameras!.isNotEmpty) {
-      await _setCamera(cameras!.first);
+    _cameras = await availableCameras();
+    if (_cameras != null && _cameras!.isNotEmpty) {
+      await _setCamera(_cameras!.first);
     }
 
     setState(() {
@@ -300,26 +300,26 @@ class _PicCameraViewState extends ConsumerState<PicCameraView> {
   }
 
   void _toggleCamera() async {
-    if (cameras == null || cameras!.isEmpty) return;
+    if (_cameras == null || _cameras!.isEmpty) return;
 
-    final currentDirection = controller!.description.lensDirection;
+    final currentDirection = _controller!.description.lensDirection;
     CameraDescription? newCameraDescription;
 
     // 현재 카메라와 반대 방향의 카메라를 찾습니다.
     if (currentDirection == CameraLensDirection.back) {
-      newCameraDescription = cameras!.firstWhere(
+      newCameraDescription = _cameras!.firstWhere(
         (camera) => camera.lensDirection == CameraLensDirection.front,
-        orElse: () => cameras!.first,
+        orElse: () => _cameras!.first,
       );
     } else {
-      newCameraDescription = cameras!.firstWhere(
+      newCameraDescription = _cameras!.firstWhere(
         (camera) => camera.lensDirection == CameraLensDirection.back,
-        orElse: () => cameras!.first,
+        orElse: () => _cameras!.first,
       );
     }
 
     // 현재 카메라 컨트롤러 해제
-    await controller?.dispose();
+    await _controller?.dispose();
 
     // 새 카메라 컨트롤러 설정
     CameraController newController = CameraController(
@@ -332,16 +332,16 @@ class _PicCameraViewState extends ConsumerState<PicCameraView> {
 
     // 상태 업데이트
     setState(() {
-      controller = newController;
+      _controller = newController;
     });
   }
 
   void _setFlashMode(FlashMode mode) {
-    if (controller != null) {
-      controller!.setFlashMode(mode);
+    if (_controller != null) {
+      _controller!.setFlashMode(mode);
     }
     setState(() {
-      flashMode = mode;
+      _flashMode = mode;
     });
   }
 
@@ -352,11 +352,11 @@ class _PicCameraViewState extends ConsumerState<PicCameraView> {
       ResolutionPreset.max,
     );
 
-    await controller?.dispose();
+    await _controller?.dispose();
 
-    controller = cameraController;
+    _controller = cameraController;
 
-    controller!.initialize().then((_) {
+    _controller!.initialize().then((_) {
       if (!mounted) {
         return;
       }
