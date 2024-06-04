@@ -61,6 +61,10 @@ class AsyncMyCelebList extends _$AsyncMyCelebList {
 
   Future<List<CelebModel>?> fetchMyCelebList() async {
     try {
+      if (Supabase.instance.client.auth.currentUser == null) {
+        return null;
+      }
+
       final response = await Supabase.instance.client
           .from('celeb_user')
           .select('celeb(*)')
