@@ -46,8 +46,8 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
 
     ref.read(userImageProvider);
     ref.read(convertedImageProvider);
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      _initializeCameras();
+    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+      await _initializeCameras();
       _fetchRecentImage();
     });
   }
@@ -74,132 +74,129 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
             Expanded(
               child: Container(
                 alignment: Alignment.center,
-                child: AspectRatio(
-                  aspectRatio: 5.5 / 8.5,
-                  child: RepaintBoundary(
-                    key: _repaintBoundaryKey,
-                    child: Stack(
-                      children: [
-                        if (_cameraInitialized && _controller != null)
-                          AnimatedContainer(
-                            duration: const Duration(seconds: 1),
-                            color: _previewBackgroundColor,
-                            child: AspectRatio(
-                              aspectRatio: 5.5 / 8.5,
-                              child: CameraPreview(
-                                _controller!,
-                                child: CustomPaint(
-                                  painter: OverlayImagePainter(
-                                      overlayImage: _overlayImage),
-                                ),
-                              ),
-                            ),
-                          )
-                        else
-                          Container(
-                            color: AppColors.Gray00,
-                            child: const Center(
-                              child: LoadingView(),
+                child: RepaintBoundary(
+                  key: _repaintBoundaryKey,
+                  child: Stack(
+                    children: [
+                      if (_cameraInitialized && _controller != null)
+                        AnimatedContainer(
+                          alignment: Alignment.center,
+                          duration: const Duration(seconds: 1),
+                          color: _previewBackgroundColor,
+                          child: CameraPreview(
+                            _controller!,
+                            child: CustomPaint(
+                              painter: OverlayImagePainter(
+                                  overlayImage: _overlayImage),
                             ),
                           ),
-
-                        // Container(
-                        //   color: AppColors.Gray00,
-                        //   child: CustomPaint(
-                        //     size: Size.infinite,
-                        //     painter:
-                        //         OverlayImagePainter(overlayImage: _overlayImage),
-                        //   ),
-                        // ),
+                        )
+                      else
                         Container(
-                          alignment: Alignment.center,
-                          child: Text(
-                            _remainTime == 0 ? '' : '$_remainTime',
-                            style: TextStyle(
-                              color: AppColors.Primary500,
-                              fontSize: 100.sp,
-                            ),
+                          color: AppColors.Gray00,
+                          child: const Center(
+                              child: Text('카메라 초기화중...',
+                                  style: TextStyle(color: AppColors.Gray900))),
+                        ),
+
+                      // Container(
+                      //   color: AppColors.Gray00,
+                      //   child: CustomPaint(
+                      //     size: Size.infinite,
+                      //     painter:
+                      //         OverlayImagePainter(overlayImage: _overlayImage),
+                      //   ),
+                      // ),
+                      Container(
+                        alignment: Alignment.center,
+                        child: Text(
+                          _remainTime == 0 ? '' : '$_remainTime',
+                          style: TextStyle(
+                            color: AppColors.Primary500,
+                            fontSize: 100.sp,
                           ),
                         ),
-                        if (!_saving)
-                          Positioned(
-                            left: 16.w,
-                            top: 16.h,
-                            bottom: 16.h,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    IconButton(
-                                      icon: _flashMode == FlashMode.auto
-                                          ? const Icon(Icons.flash_auto,
-                                              color: AppColors.Primary500)
-                                          : _flashMode == FlashMode.torch
-                                              ? const Icon(Icons.flash_on,
-                                                  color: AppColors.Primary500)
-                                              : const Icon(
-                                                  Icons.flash_off,
-                                                  color: AppColors.Primary500,
-                                                ),
-                                      iconSize: 24,
-                                      color: AppColors.Primary500,
-                                      onPressed: () {
-                                        if (_flashMode == FlashMode.auto) {
-                                          _setFlashMode(FlashMode.torch);
-                                        } else if (_flashMode ==
-                                            FlashMode.torch) {
-                                          _setFlashMode(FlashMode.off);
-                                        } else {
-                                          _setFlashMode(FlashMode.auto);
-                                        }
-                                      },
-                                    ),
-                                    Text('플래시',
-                                        style: getTextStyle(AppTypo.BODY14B,
-                                            AppColors.Primary500),
-                                        textAlign: TextAlign.center),
-                                  ],
-                                ),
-                                SizedBox(height: 16.h),
-                                GestureDetector(
-                                  onTap: () {
-                                    if (_setTimer == 3) {
-                                      setState(() {
-                                        _setTimer = 7;
-                                      });
-                                    } else if (_setTimer == 7) {
-                                      setState(() {
-                                        _setTimer = 10;
-                                      });
-                                    } else {
-                                      setState(() {
-                                        _setTimer = 3;
-                                      });
-                                    }
-                                  },
-                                  child: Column(
+                      ),
+                      _saving
+                          ? LoadingView()
+                          : Positioned(
+                              left: 16.w,
+                              top: 16.h,
+                              bottom: 16.h,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Text('${_setTimer}s',
-                                          style: getTextStyle(AppTypo.TITLE18B,
-                                              AppColors.Primary500),
-                                          textAlign: TextAlign.center),
-                                      Text('타이머',
+                                      IconButton(
+                                        icon: _flashMode == FlashMode.auto
+                                            ? const Icon(Icons.flash_auto,
+                                                color: AppColors.Primary500)
+                                            : _flashMode == FlashMode.torch
+                                                ? const Icon(Icons.flash_on,
+                                                    color: AppColors.Primary500)
+                                                : const Icon(
+                                                    Icons.flash_off,
+                                                    color: AppColors.Primary500,
+                                                  ),
+                                        iconSize: 24,
+                                        color: AppColors.Primary500,
+                                        onPressed: () {
+                                          if (_flashMode == FlashMode.auto) {
+                                            _setFlashMode(FlashMode.torch);
+                                          } else if (_flashMode ==
+                                              FlashMode.torch) {
+                                            _setFlashMode(FlashMode.off);
+                                          } else {
+                                            _setFlashMode(FlashMode.auto);
+                                          }
+                                        },
+                                      ),
+                                      Text('플래시',
                                           style: getTextStyle(AppTypo.BODY14B,
                                               AppColors.Primary500),
                                           textAlign: TextAlign.center),
                                     ],
                                   ),
-                                ),
-                              ],
+                                  SizedBox(height: 16.h),
+                                  GestureDetector(
+                                    onTap: () {
+                                      if (_setTimer == 3) {
+                                        setState(() {
+                                          _setTimer = 7;
+                                        });
+                                      } else if (_setTimer == 7) {
+                                        setState(() {
+                                          _setTimer = 10;
+                                        });
+                                      } else {
+                                        setState(() {
+                                          _setTimer = 3;
+                                        });
+                                      }
+                                    },
+                                    child: Column(
+                                      children: [
+                                        Text('${_setTimer}s',
+                                            style: getTextStyle(
+                                                AppTypo.TITLE18B,
+                                                AppColors.Primary500),
+                                            textAlign: TextAlign.center),
+                                        Text('타이머',
+                                            style: getTextStyle(AppTypo.BODY14B,
+                                                AppColors.Primary500),
+                                            textAlign: TextAlign.center),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                      ],
-                    ),
+                    ],
                   ),
                 ),
               ),
@@ -224,7 +221,6 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                     onTap: () async {
                       setState(() {
                         _remainTime = _setTimer;
-                        _saving = true;
                       });
 
                       _timer = Timer.periodic(const Duration(seconds: 1),
@@ -243,6 +239,10 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                           if (_controller != null) {
                             _controller!.pausePreview();
                           }
+                          setState(() {
+                            _previewBackgroundColor = Colors.transparent;
+                            _saving = true;
+                          });
 
                           await _captureImage();
                           setState(() {
@@ -354,11 +354,11 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
       await _setCamera(_cameras!.first);
     }
 
+    await _loadOverlayImage(); // 오버레이 이미지를 항상 로드
+
     setState(() {
       _cameraInitialized = true;
     });
-
-    await _loadOverlayImage(); // 오버레이 이미지를 항상 로드
   }
 
   void _toggleCamera() async {
@@ -447,6 +447,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
             actions: [
               TextButton(
                 onPressed: () {
+                  _controller!.resumePreview();
                   Navigator.of(context).pop();
                 },
                 child: const Text('Cancel'),
@@ -454,6 +455,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
               TextButton(
                 onPressed: () async {
                   await _saveImage();
+                  _controller!.resumePreview();
                   Navigator.of(context).pop();
                 },
                 child: const Text('Save'),
