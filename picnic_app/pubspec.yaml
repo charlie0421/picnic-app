@@ -60,8 +60,10 @@ dependencies:
   http: any
   mime: any
   uuid: any
-  image: any
+  image: ^4.2.0
   image_gallery_saver: ^2.0.3
+  photo_manager: ^3.1.1
+  permission_handler: ^11.3.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
