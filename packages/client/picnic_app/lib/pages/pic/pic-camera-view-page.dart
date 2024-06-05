@@ -8,15 +8,20 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:picnic_app/components/loading_view.dart';
+import 'package:picnic_app/components/ui/large-popup.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/ui/style.dart';
 
 import '../../providers/pic_provider.dart';
+
+enum Source { camera, gallery }
+
+enum ViewMode { loading, ready, saving, timer }
 
 class PicCameraViewPage extends ConsumerStatefulWidget {
   const PicCameraViewPage({super.key});
@@ -37,8 +42,10 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
   Uint8List? _capturedImageBytes;
   Color _previewBackgroundColor = Colors.transparent;
   bool _cameraInitialized = false;
-  bool _saving = false;
   File? _recentImage;
+
+  ViewMode _viewMode = ViewMode.loading;
+  Source _source = Source.camera;
 
   @override
   void initState() {
@@ -46,10 +53,9 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
 
     ref.read(userImageProvider);
     ref.read(convertedImageProvider);
-    WidgetsBinding.instance!.addPostFrameCallback((_) async {
-      await _initializeCameras();
-      _fetchRecentImage();
-    });
+    _initializeCameras();
+    _fetchRecentImage();
+    _viewMode = ViewMode.ready;
   }
 
   @override
@@ -78,124 +84,53 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                   key: _repaintBoundaryKey,
                   child: Stack(
                     children: [
-                      if (_cameraInitialized && _controller != null)
+                      // 하단 레이어
+                      if (_viewMode == ViewMode.ready ||
+                          _viewMode == ViewMode.loading ||
+                          _viewMode == ViewMode.saving ||
+                          _viewMode == ViewMode.timer)
+                        if (_cameraInitialized)
+                          Container(
+                            alignment: Alignment.center,
+                            child: CameraPreview(
+                              _controller!,
+                              child: CustomPaint(
+                                painter: OverlayImagePainter(
+                                    overlayImage: _overlayImage),
+                              ),
+                            ),
+                          ),
+                      // 상단 레이어
+                      if (_viewMode == ViewMode.loading)
+                        Container(
+                          color: Colors.transparent,
+                          child: const Center(
+                              child: Text('카메라 초기화중...',
+                                  style: TextStyle(
+                                      fontSize: 30,
+                                      color: AppColors.Primary500))),
+                        )
+                      else if (_viewMode == ViewMode.timer)
                         AnimatedContainer(
                           alignment: Alignment.center,
-                          duration: const Duration(seconds: 1),
+                          duration: const Duration(milliseconds: 100),
                           color: _previewBackgroundColor,
-                          child: CameraPreview(
-                            _controller!,
-                            child: CustomPaint(
-                              painter: OverlayImagePainter(
-                                  overlayImage: _overlayImage),
+                          child: Text(
+                            _remainTime <= 300 ? '' : '${_remainTime ~/ 1000}',
+                            style: TextStyle(
+                              color: AppColors.Primary500,
+                              fontSize: 100.sp,
                             ),
                           ),
                         )
-                      else
+                      else if (_viewMode == ViewMode.saving)
                         Container(
-                          color: AppColors.Gray00,
-                          child: const Center(
-                              child: Text('카메라 초기화중...',
-                                  style: TextStyle(color: AppColors.Gray900))),
-                        ),
-
-                      // Container(
-                      //   color: AppColors.Gray00,
-                      //   child: CustomPaint(
-                      //     size: Size.infinite,
-                      //     painter:
-                      //         OverlayImagePainter(overlayImage: _overlayImage),
-                      //   ),
-                      // ),
-                      Container(
-                        alignment: Alignment.center,
-                        child: Text(
-                          _remainTime == 0 ? '' : '$_remainTime',
-                          style: TextStyle(
-                            color: AppColors.Primary500,
-                            fontSize: 100.sp,
-                          ),
-                        ),
-                      ),
-                      _saving
-                          ? LoadingView()
-                          : Positioned(
-                              left: 16.w,
-                              top: 16.h,
-                              bottom: 16.h,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      IconButton(
-                                        icon: _flashMode == FlashMode.auto
-                                            ? const Icon(Icons.flash_auto,
-                                                color: AppColors.Primary500)
-                                            : _flashMode == FlashMode.torch
-                                                ? const Icon(Icons.flash_on,
-                                                    color: AppColors.Primary500)
-                                                : const Icon(
-                                                    Icons.flash_off,
-                                                    color: AppColors.Primary500,
-                                                  ),
-                                        iconSize: 24,
-                                        color: AppColors.Primary500,
-                                        onPressed: () {
-                                          if (_flashMode == FlashMode.auto) {
-                                            _setFlashMode(FlashMode.torch);
-                                          } else if (_flashMode ==
-                                              FlashMode.torch) {
-                                            _setFlashMode(FlashMode.off);
-                                          } else {
-                                            _setFlashMode(FlashMode.auto);
-                                          }
-                                        },
-                                      ),
-                                      Text('플래시',
-                                          style: getTextStyle(AppTypo.BODY14B,
-                                              AppColors.Primary500),
-                                          textAlign: TextAlign.center),
-                                    ],
-                                  ),
-                                  SizedBox(height: 16.h),
-                                  GestureDetector(
-                                    onTap: () {
-                                      if (_setTimer == 3) {
-                                        setState(() {
-                                          _setTimer = 7;
-                                        });
-                                      } else if (_setTimer == 7) {
-                                        setState(() {
-                                          _setTimer = 10;
-                                        });
-                                      } else {
-                                        setState(() {
-                                          _setTimer = 3;
-                                        });
-                                      }
-                                    },
-                                    child: Column(
-                                      children: [
-                                        Text('${_setTimer}s',
-                                            style: getTextStyle(
-                                                AppTypo.TITLE18B,
-                                                AppColors.Primary500),
-                                            textAlign: TextAlign.center),
-                                        Text('타이머',
-                                            style: getTextStyle(AppTypo.BODY14B,
-                                                AppColors.Primary500),
-                                            textAlign: TextAlign.center),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            color: Colors.transparent,
+                            child: const Center(
+                                child: Text('사진 합성중...',
+                                    style: TextStyle(
+                                        fontSize: 30,
+                                        color: AppColors.Primary500))))
                     ],
                   ),
                 ),
@@ -218,37 +153,73 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                                   width: 50.w, height: 50.w, fit: BoxFit.cover),
                             )),
                   GestureDetector(
+                    onTap: () {
+                      if (_flashMode == FlashMode.auto) {
+                        _setFlashMode(FlashMode.torch);
+                      } else if (_flashMode == FlashMode.torch) {
+                        _setFlashMode(FlashMode.off);
+                      } else {
+                        _setFlashMode(FlashMode.auto);
+                      }
+                    },
+                    child: Container(
+                      width: 40.w,
+                      height: 40.w,
+                      decoration: BoxDecoration(
+                        color: AppColors.Gray500,
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      child: Icon(
+                        _flashMode == FlashMode.auto
+                            ? Icons.flash_auto
+                            : _flashMode == FlashMode.torch
+                                ? Icons.flash_on
+                                : Icons.flash_off,
+                        color: AppColors.Gray00,
+                        size: 25,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
                     onTap: () async {
+                      if (_viewMode == ViewMode.saving) return;
+
+                      if (_viewMode == ViewMode.timer ||
+                          _viewMode == ViewMode.saving) {
+                        _timer?.cancel();
+                        setState(() {
+                          _viewMode = ViewMode.ready;
+                        });
+                        return;
+                      }
+
                       setState(() {
-                        _remainTime = _setTimer;
+                        _viewMode = ViewMode.timer;
+                        _remainTime = _setTimer * 1000;
                       });
 
-                      _timer = Timer.periodic(const Duration(seconds: 1),
+                      _timer = Timer.periodic(const Duration(milliseconds: 500),
                           (timer) async {
                         if (_remainTime > 0) {
                           setState(() {
-                            _remainTime--;
+                            _remainTime -= 500;
                             _previewBackgroundColor =
                                 _previewBackgroundColor == Colors.transparent
-                                    ? Colors.white
+                                    ? AppColors.Gray900.withOpacity(0.2)
                                     : Colors.transparent;
                           });
                         } else {
-                          timer.cancel();
-
                           if (_controller != null) {
                             _controller!.pausePreview();
                           }
+
                           setState(() {
                             _previewBackgroundColor = Colors.transparent;
-                            _saving = true;
+                            _viewMode = ViewMode.saving;
                           });
 
+                          timer.cancel();
                           await _captureImage();
-                          setState(() {
-                            _previewBackgroundColor = Colors.transparent;
-                            _saving = false;
-                          });
                         }
                       });
                     },
@@ -259,9 +230,55 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                         shape: BoxShape.circle,
                         color: AppColors.Gray00,
                         border: Border.all(
-                          color: AppColors.Mint500,
+                          color: _viewMode == ViewMode.timer ||
+                                  _viewMode == ViewMode.saving ||
+                                  _viewMode == ViewMode.loading
+                              ? AppColors.Gray500
+                              : AppColors.Mint500,
                           width: 10.w,
                         ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      if (_setTimer == 0) {
+                        setState(() {
+                          _setTimer = 3;
+                        });
+                      } else if (_setTimer == 3) {
+                        setState(() {
+                          _setTimer = 7;
+                        });
+                      } else if (_setTimer == 7) {
+                        setState(() {
+                          _setTimer = 10;
+                        });
+                      } else {
+                        setState(() {
+                          _setTimer = 0;
+                        });
+                      }
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.Gray500,
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      width: 45.w,
+                      height: 45.w,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(_setTimer == 0 ? 'off' : '${_setTimer}s',
+                              style: getTextStyle(
+                                      AppTypo.TITLE18B, AppColors.Gray00)
+                                  .copyWith(
+                                fontSize: 18.sp,
+                              ),
+                              textAlign: TextAlign.center),
+                        ],
                       ),
                     ),
                   ),
@@ -292,10 +309,12 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
         List<AssetPathEntity> paths = await PhotoManager.getAssetPathList(
           type: RequestType.image,
           filterOption: FilterOptionGroup(
-            orders: [OrderOption(type: OrderOptionType.createDate, asc: false)],
+            orders: [
+              const OrderOption(type: OrderOptionType.createDate, asc: false)
+            ],
             // Limit the results to speed up the process
             containsPathModified: true,
-            imageOption: FilterOption(
+            imageOption: const FilterOption(
               sizeConstraint: SizeConstraint(
                 minHeight: 100,
                 minWidth: 100,
@@ -330,6 +349,10 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
   }
 
   Future<void> _loadOverlayImage() async {
+    setState(() {
+      _viewMode = ViewMode.loading;
+    });
+
     final ByteData data = await rootBundle.load(
         'assets/mockup/pic/che${ref.watch(picSelectedIndexProvider) + 1}.png');
     final Uint8List bytes = data.buffer.asUint8List();
@@ -337,6 +360,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
     final uiImage = await _convertImage(image);
     setState(() {
       _overlayImage = uiImage;
+      _viewMode = ViewMode.ready;
     });
   }
 
@@ -349,16 +373,20 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
   }
 
   Future<void> _initializeCameras() async {
+    setState(() {
+      _viewMode = ViewMode.loading;
+    });
+
     _cameras = await availableCameras();
     if (_cameras != null && _cameras!.isNotEmpty) {
       await _setCamera(_cameras!.first);
     }
 
-    await _loadOverlayImage(); // 오버레이 이미지를 항상 로드
-
     setState(() {
       _cameraInitialized = true;
+      _viewMode = ViewMode.ready;
     });
+    await _loadOverlayImage(); // 오버레이 이미지를 항상 로드
   }
 
   void _toggleCamera() async {
@@ -418,14 +446,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
 
     _controller = cameraController;
 
-    _controller!.initialize().then((_) {
-      if (!mounted) {
-        return;
-      }
-      Future.delayed(const Duration(seconds: 1), () {
-        setState(() {});
-      });
-    });
+    await _controller!.initialize();
   }
 
   Future<void> _captureImage() async {
@@ -437,30 +458,55 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
           await image.toByteData(format: ui.ImageByteFormat.png);
       _capturedImageBytes = byteData!.buffer.asUint8List();
 
+      setState(() {
+        _viewMode = ViewMode.ready;
+      });
+
       showDialog(
         context: context,
+        barrierDismissible: true,
         builder: (BuildContext context) {
-          return AlertDialog(
-            content: _capturedImageBytes != null
-                ? Image.memory(_capturedImageBytes!)
-                : Container(),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  _controller!.resumePreview();
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  await _saveImage();
-                  _controller!.resumePreview();
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Save'),
-              ),
-            ],
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            child: LargePopupWidget(
+                title: '갤러리에 저장하기',
+                closeButton: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _viewMode = ViewMode.ready;
+                    });
+                    _controller!.resumePreview();
+                    Navigator.pop(context);
+                  },
+                  child: SvgPicture.asset(
+                    'assets/icons/vote/close.svg',
+                    width: 24.w,
+                    height: 24.w,
+                  ),
+                ),
+                content: _capturedImageBytes != null
+                    ? Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.memory(_capturedImageBytes!),
+                          SizedBox(
+                            width: 200.w,
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                await _saveImage();
+                                setState(() {
+                                  _viewMode = ViewMode.ready;
+                                });
+
+                                _controller!.resumePreview();
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('저장하기'),
+                            ),
+                          ),
+                        ],
+                      )
+                    : Container()),
           );
         },
       );
@@ -488,9 +534,6 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
           );
         }
 
-        setState(() {
-          _saving = false;
-        });
         Navigator.pop(context);
       }
     } catch (e) {
