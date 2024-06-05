@@ -29,7 +29,7 @@ ArticleImageModel _$ArticleImageModelFromJson(Map<String, dynamic> json) =>
       title_en: json['title_en'] as String,
       image: json['image'] as String?,
       article_image_user: (json['article_image_user'] as List<dynamic>?)
-          ?.map((e) => UserModel.fromJson(e as Map<String, dynamic>))
+          ?.map((e) => UserProfilesModel.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 

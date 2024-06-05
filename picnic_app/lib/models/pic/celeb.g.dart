@@ -26,7 +26,7 @@ CelebModel _$CelebModelFromJson(Map<String, dynamic> json) => CelebModel(
       name_en: json['name_en'] as String,
       thumbnail: json['thumbnail'] as String?,
       users: (json['users'] as List<dynamic>?)
-          ?.map((e) => UserModel.fromJson(e as Map<String, dynamic>))
+          ?.map((e) => UserProfilesModel.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 

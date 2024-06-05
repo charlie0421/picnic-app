@@ -27,7 +27,7 @@ CommentModel _$CommentModelFromJson(Map<String, dynamic> json) => CommentModel(
           .toList(),
       user: json['user'] == null
           ? null
-          : UserModel.fromJson(json['user'] as Map<String, dynamic>),
+          : UserProfilesModel.fromJson(json['user'] as Map<String, dynamic>),
       myLike: json['myLike'] == null
           ? null
           : UserCommentLikeModel.fromJson(

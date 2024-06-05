@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:picnic_app/models/meta.dart';
-import 'package:picnic_app/models/user.dart';
+import 'package:picnic_app/models/user-profiles.dart';
 import 'package:picnic_app/reflector.dart';
 
 part 'article_image.g.dart';
@@ -29,7 +29,7 @@ class ArticleImageModel {
   final String title_ko;
   final String title_en;
   String? image;
-  final List<UserModel>? article_image_user;
+  final List<UserProfilesModel>? article_image_user;
 
   ArticleImageModel({
     required this.id,

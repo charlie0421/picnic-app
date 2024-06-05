@@ -1,3 +1,4 @@
+import 'package:animated_digit/animated_digit.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +9,7 @@ import 'package:picnic_app/components/ui/gradient-border-painter.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/logined_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/providers/user-info-provider.dart';
 import 'package:picnic_app/screens/login_screen.dart';
 import 'package:picnic_app/screens/vote/vote_home_screen.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -134,13 +136,25 @@ class _PortalState extends ConsumerState<Portal> {
   }
 }
 
-class Top extends StatelessWidget {
+class Top extends ConsumerStatefulWidget {
   const Top({
     super.key,
   });
 
   @override
+  ConsumerState<Top> createState() => _TopState();
+}
+
+class _TopState extends ConsumerState<Top> {
+  @override
+  void initState() {
+    super.initState();
+    _setupRealtime();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final userInfo = ref.watch(userInfoProvider);
     return Container(
       height: 54.h,
       padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 16.w),
@@ -161,7 +175,8 @@ class Top extends StatelessWidget {
             painter: GradientBorderPainter(
                 borderRadius: 21.r, borderWidth: 1.r, gradient: commonGradient),
             child: Container(
-                padding: EdgeInsets.all(6.w),
+                alignment: Alignment.center,
+                padding: EdgeInsets.symmetric(horizontal: 6.w),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -174,53 +189,64 @@ class Top extends StatelessWidget {
                     Stack(
                       children: [
                         Container(
+                          height: 20.h,
                           constraints: BoxConstraints(minWidth: 80.w),
-                          child: Text('12,000',
-                              textAlign: TextAlign.right,
-                              style: getTextStyle(
-                                      AppTypo.CAPTION12B, AppColors.Primary500)
-                                  .copyWith(
-                                foreground: Paint()
-                                  ..style = PaintingStyle.stroke
-                                  ..strokeWidth = .5
-                                  ..color = AppColors.Gray900,
-                              )),
+                          alignment: Alignment.topRight,
+                          child: AnimatedDigitWidget(
+                              value: userInfo.value?.star_candy ?? 0,
+                              duration: const Duration(milliseconds: 500),
+                              enableSeparator: true,
+                              curve: Curves.easeInOut,
+                              textStyle: getTextStyle(
+                                  AppTypo.CAPTION12B, AppColors.Primary500)
+                              // .copyWith(
+                              // foreground: Paint()
+                              //   ..style = PaintingStyle.stroke
+                              //   ..strokeWidth = .3
+                              //   ..color = AppColors.Gray900,
+                              // )
+                              ),
                         ),
-                        Positioned(
-                          right: 0,
-                          child: Text("12,000",
-                              style: getTextStyle(
-                                      AppTypo.CAPTION12B, AppColors.Primary500)
-                                  .copyWith(shadows: [
-                                Shadow(
-                                    color: AppColors.Gray900.withOpacity(.5),
-                                    offset: const Offset(0, 5),
-                                    blurRadius: 10)
-                              ])),
-                        ),
+                        // Positioned(
+                        //   right: 0,
+                        //   child: AnimatedDigitWidget(
+                        //     value: userInfo.value?.star_candy ?? 0,
+                        //     duration: const Duration(milliseconds: 500),
+                        //     curve: Curves.easeInOut,
+                        //     textStyle: getTextStyle(
+                        //             AppTypo.CAPTION12B, AppColors.Primary500)
+                        //         .copyWith(shadows: [
+                        //       Shadow(
+                        //           color: AppColors.Gray900.withOpacity(.5),
+                        //           offset: const Offset(0, 5),
+                        //           blurRadius: 10)
+                        //     ]),
+                        //   ),
+                        // ),
                       ],
                     ),
                     Divider(
                       color: AppColors.Gray900,
                       thickness: 1.r,
-                      indent: 8.w,
+                      indent: 6.w,
                     ),
                     Container(
+                      height: 18.h,
                       decoration: BoxDecoration(
                         color: AppColors.Gray00,
                         borderRadius: BorderRadius.circular(20.r),
-                        boxShadow: [
-                          BoxShadow(
-                            offset: const Offset(0, 4),
-                            color: AppColors.Gray500.withOpacity(0.5),
-                            blurRadius: 2,
-                          ),
-                        ],
+                        // boxShadow: [
+                        //   BoxShadow(
+                        //     offset: const Offset(0, 4),
+                        //     color: AppColors.Gray500.withOpacity(0.5),
+                        //     blurRadius: 2,
+                        //   ),
+                        // ],
                       ),
                       child: Image.asset(
                         'assets/icons/header/plus.png',
-                        width: 20.w,
-                        height: 20.h,
+                        width: 16.67.w,
+                        height: 16.67.h,
                       ),
                     ),
                   ],
@@ -248,6 +274,31 @@ class Top extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void handleUserInfo(PostgresChangePayload payload) {
+    logger.d('Change received! $payload');
+    int starCandy = payload.newRecord['star_candy'];
+    logger.d('Star candy: $starCandy');
+    ref.read(userInfoProvider.notifier).setStarCandy(starCandy);
+  }
+
+  void _setupRealtime() {
+    logger.d('Setting up realtime for profiles');
+    final subscription = Supabase.instance.client
+        .channel('realtime')
+        .onPostgresChanges(
+            event: PostgresChangeEvent.update,
+            schema: 'public',
+            table: 'user_profiles',
+            callback: handleUserInfo)
+        .subscribe((status, payload) {
+      logger.d(status);
+    }, Duration(seconds: 1));
+
+    logger.d(Supabase.instance.client.auth.currentUser?.id);
+
+    logger.d('Realtime setup complete');
   }
 }
 

@@ -1,4 +1,3 @@
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/pic/banner.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -18,7 +17,6 @@ class AsyncBannerList extends _$AsyncBannerList {
         .select()
         .eq('location', location)
         .order('start_at', ascending: false);
-    logger.i('response.data: $response');
     List<BannerModel> bannerList =
         List<BannerModel>.from(response.map((e) => BannerModel.fromJson(e)));
     for (var element in bannerList) {
