@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/models/pic/comment_like.dart';
-import 'package:picnic_app/models/user.dart';
+import 'package:picnic_app/models/user-profiles.dart';
 import 'package:picnic_app/reflector.dart';
 
 part 'comment.g.dart';
@@ -29,7 +29,7 @@ class CommentModel {
   final int id;
   final List<CommentModel>? children; // 자식 댓글 목록
   final UserCommentLikeModel? myLike;
-  final UserModel? user;
+  final UserProfilesModel? user;
   final int likes;
   final String content; // 댓글 내용
   final int? parentId;

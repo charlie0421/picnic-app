@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:picnic_app/models/meta.dart';
-import 'package:picnic_app/models/user.dart';
+import 'package:picnic_app/models/user-profiles.dart';
 import 'package:picnic_app/reflector.dart';
 
 part 'celeb.g.dart';
@@ -29,7 +29,7 @@ class CelebModel {
   final String name_ko;
   final String name_en;
   String? thumbnail;
-  final List<UserModel>? users;
+  final List<UserProfilesModel>? users;
 
   CelebModel({
     required this.id,

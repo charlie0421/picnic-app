@@ -1,4 +1,3 @@
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/reward.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -17,7 +16,6 @@ class AsyncRewardList extends _$AsyncRewardList {
         .from('reward')
         .select()
         .order('start_at', ascending: false);
-    logger.i('response.data: $response');
     List<RewardModel> rewardList =
         List<RewardModel>.from(response.map((e) => RewardModel.fromJson(e)));
     for (var element in rewardList) {

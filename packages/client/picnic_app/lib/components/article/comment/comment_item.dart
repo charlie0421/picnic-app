@@ -104,7 +104,8 @@ class _CommentItemState extends ConsumerState<CommentItem>
             children: [
               CommentUser(
                 nickname: widget.commentModel.user?.nickname ?? '',
-                profileImage: widget.commentModel.user?.profileImage ?? '',
+                profileImage: '',
+                // profileImage: widget.commentModel.user?.profileImage ?? '',
               ),
               const SizedBox(width: 10),
               Expanded(

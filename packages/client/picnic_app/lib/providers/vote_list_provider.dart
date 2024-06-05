@@ -31,8 +31,6 @@ class AsyncVoteList extends _$AsyncVoteList {
           .eq('vote_category', 'birthday')
           .count();
 
-      logger.i('response.data: $response');
-
       final List<VoteModel> voteList =
           List<VoteModel>.from(response.data.map((e) => VoteModel.fromJson(e)));
 
@@ -41,8 +39,6 @@ class AsyncVoteList extends _$AsyncVoteList {
           element.mystar_member.image =
               'https://cdn-dev.picnic.fan/mystar/member/${element.mystar_member.id}/${element.mystar_member.image}';
         }
-
-        logger.i('element: ${element.toJson()}');
       }
 
       VoteListState voteListState = VoteListState(
