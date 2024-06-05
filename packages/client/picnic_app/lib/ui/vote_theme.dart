@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/ui/common_theme.dart';
 import 'package:picnic_app/ui/style.dart';
 
 ThemeData voteThemeLight = ThemeData.light().copyWith(
@@ -41,6 +42,7 @@ ThemeData voteThemeLight = ThemeData.light().copyWith(
       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     ),
   ),
+  tabBarTheme: commonTabBarTheme,
   colorScheme: const ColorScheme(
     primary: Colors.black,
     onPrimary: Colors.white,

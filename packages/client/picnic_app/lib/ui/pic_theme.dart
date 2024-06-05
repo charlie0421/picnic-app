@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/ui/common_theme.dart';
 import 'package:picnic_app/ui/style.dart';
 
 ThemeData picThemeLight = ThemeData.light().copyWith(
@@ -37,6 +38,7 @@ ThemeData picThemeLight = ThemeData.light().copyWith(
       padding: WidgetStateProperty.all(const EdgeInsets.all(4)),
     ),
   ),
+  tabBarTheme: commonTabBarTheme,
   colorScheme: const ColorScheme(
     primary: Colors.black,
     onPrimary: Colors.white,
