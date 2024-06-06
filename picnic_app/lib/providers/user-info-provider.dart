@@ -1,6 +1,7 @@
 import 'package:picnic_app/models/user-profiles.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
+import 'package:supabase_extensions/supabase_extensions.dart';
 
 part 'user-info-provider.g.dart';
 
@@ -8,6 +9,10 @@ part 'user-info-provider.g.dart';
 class UserInfo extends _$UserInfo {
   @override
   Future<UserProfilesModel?> build() async {
+    if (!Supabase.instance.client.isLogged) {
+      return null;
+    }
+
     final response =
         await Supabase.instance.client.from('user_profiles').select().single();
     if (response != null && response is Map<String, dynamic>) {
