@@ -45,7 +45,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
   File? _recentImage;
 
   ViewMode _viewMode = ViewMode.loading;
-  Source _source = Source.camera;
+  final Source _source = Source.camera;
 
   @override
   void initState() {
@@ -558,7 +558,7 @@ class OverlayImagePainter extends CustomPainter {
       final targetWidth =
           size.height * overlayImage!.width / overlayImage!.height;
       final offsetX = (size.width - targetWidth) / 2; // 이미지를 중앙으로 이동
-      final offsetY = 0.0; // 이미지를 상단으로 이동
+      const offsetY = 0.0; // 이미지를 상단으로 이동
       final dstRect = Rect.fromLTWH(offsetX, offsetY, targetWidth, size.height);
 
       // 원본 이미지의 전체 영역을 목표 영역에 그립니다.
