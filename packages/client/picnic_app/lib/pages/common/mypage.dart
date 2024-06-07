@@ -56,6 +56,7 @@ class _MyPageState extends ConsumerState<MyPage> {
               onTap: () {}),
           const Divider(color: AppColors.Gray200),
           _builMyStar('VOTE'),
+          const Divider(color: AppColors.Gray200),
           ListItem(
               title: '별사탕 투표내역',
               assetPath: 'assets/icons/mypage/right.svg',
