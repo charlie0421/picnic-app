@@ -47,10 +47,9 @@ class _PortalState extends ConsumerState<Portal> {
       appBar: AppBar(
         leading: logined
             ? GestureDetector(
-                onTap: () =>
-                    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                onTap: () => WidgetsBinding.instance.addPostFrameCallback((_) {
                       navigationInfoNotifier.setCurrentPage(
-                        MyPage(),
+                        const MyPage(),
                       );
                     }),
                 child: Container(
