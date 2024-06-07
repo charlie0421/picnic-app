@@ -2,7 +2,7 @@ name: picnic_app
 description: "Picnic App"
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.0+55
+version: 1.0.0+56
 
 environment:
   sdk: '>=3.3.1 <4.0.0'
@@ -76,6 +76,7 @@ dev_dependencies:
   custom_lint: ^0.6.4
   riverpod_lint: ^2.3.10
   change_app_package_name: ^1.1.0
+  prame_app: any
 flutter_intl:
   enabled: true
 
