@@ -186,7 +186,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                       int index = data.indexOf(item);
 
                       return AnimatedSwitcher(
-                        duration: Duration(milliseconds: 300),
+                        duration: const Duration(milliseconds: 300),
                         transitionBuilder:
                             (Widget child, Animation<double> animation) {
                           return ScaleTransition(

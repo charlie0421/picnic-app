@@ -16,7 +16,7 @@ class UserInfo extends _$UserInfo {
 
     final response =
         await Supabase.instance.client.from('user_profiles').select().single();
-    logger.i('response.data: ${response}');
+    logger.i('response.data: $response');
     return UserProfilesModel.fromJson(response);
   }
 

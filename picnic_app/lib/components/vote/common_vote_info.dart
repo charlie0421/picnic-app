@@ -42,7 +42,7 @@ class CommonPointInfo extends StatelessWidget {
             child: Container(
                 alignment: Alignment.topCenter,
                 padding: const EdgeInsets.symmetric(horizontal: 57).w,
-                child: VoteCommonTitle(title: '별사탕 주머니'))),
+                child: const VoteCommonTitle(title: '별사탕 주머니'))),
       ],
     );
   }

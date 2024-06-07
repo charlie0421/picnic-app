@@ -29,13 +29,13 @@ class _StorePageState extends State<StorePage>
       children: [
         TabBar(
           controller: _tabController,
-          tabs: [
+          tabs: const [
             Tab(text: '별사탕 구매'),
             Tab(text: '무료 충전소'),
           ],
         ),
         Expanded(
-            child: TabBarView(controller: _tabController, children: [
+            child: TabBarView(controller: _tabController, children: const [
           PurchaseStarCandy(),
           FreeChargeStation(),
         ])),

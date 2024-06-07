@@ -10,7 +10,7 @@ class PurchaseStarCandy extends StatelessWidget {
     return ListView(
       children: [
         SizedBox(height: 36.h),
-        CommonPointInfo(point: 100),
+        const CommonPointInfo(point: 100),
         SizedBox(height: 36.h),
       ],
     );

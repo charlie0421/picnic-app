@@ -137,7 +137,7 @@ class _PicChartPageState extends State<PicChartPage>
       children: [
         SizedBox(
           height: 50,
-          child: TabBar(controller: _tabController, tabs: [
+          child: TabBar(controller: _tabController, tabs: const [
             Tab(text: '일간차트'),
             Tab(text: '주간차트'),
             Tab(text: '월간차트'),
@@ -146,17 +146,17 @@ class _PicChartPageState extends State<PicChartPage>
         Expanded(
             child: TabBarView(controller: _tabController, children: [
           Container(
-            child: Center(
+            child: const Center(
               child: Text('일간차트'),
             ),
           ),
           Container(
-            child: Center(
+            child: const Center(
               child: Text('주간차트'),
             ),
           ),
           Container(
-            child: Center(
+            child: const Center(
               child: Text('월간차트'),
             ),
           ),
