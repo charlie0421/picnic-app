@@ -13,6 +13,7 @@ import 'package:picnic_app/providers/user-info-provider.dart';
 import 'package:picnic_app/screens/login_screen.dart';
 import 'package:picnic_app/screens/vote/vote_home_screen.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
 import 'community/community_home_screen.dart';
@@ -73,6 +74,7 @@ class _PortalState extends ConsumerState<Portal> {
                     child: CachedNetworkImage(
                       imageUrl: Supabase.instance.client.auth.currentUser
                           ?.userMetadata?['avatar_url'],
+                      placeholder: (context, url) => buildPlaceholderImage(),
                       fit: BoxFit.cover,
                     ),
                   ),

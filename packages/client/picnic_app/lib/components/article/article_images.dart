@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/library/library_list.dart';
 import 'package:picnic_app/models/pic/article.dart';
+import 'package:picnic_app/util.dart';
 
 import '../../constants.dart';
 
@@ -36,6 +37,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
                         imageUrl:
                             widget.article.article_image![index].image ?? '',
                         fit: BoxFit.fitHeight,
+                        placeholder: (context, url) => buildPlaceholderImage(),
                       ),
                       _buildBookmark(widget.article, index),
                     ],

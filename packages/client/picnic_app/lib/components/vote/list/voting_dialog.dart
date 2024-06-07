@@ -7,6 +7,7 @@ import 'package:picnic_app/components/ui/large-popup.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
 Future showVotingDialog({
@@ -78,6 +79,7 @@ class VotingDialog extends Dialog {
                       imageUrl: voteItemModel.mystar_member.image ?? '',
                       width: 100.w,
                       height: 100.w,
+                      placeholder: (context, url) => buildPlaceholderImage(),
                     ),
                   ),
                 ),

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:shimmer/shimmer.dart';
 
 String formatCount(int number, String labelName) {
   final String viewString = Intl.getCurrentLocale() == 'ko'
@@ -133,8 +134,26 @@ void showOverlayToast(BuildContext context, Widget child) {
   });
 }
 
+Widget buildPlaceholderImage() {
+  return Shimmer.fromColors(
+    baseColor: AppColors.Gray200,
+    highlightColor: AppColors.Gray100,
+    child: Container(
+      color: AppColors.Gray00,
+    ),
+  );
+}
+
 Widget buildLoadingOverlay() {
-  return Container(
+  return Shimmer.fromColors(
+    baseColor: AppColors.Gray300,
+    highlightColor: AppColors.Gray100,
+    child: Container(
+      color: AppColors.Gray00,
+    ),
+  );
+
+  Container(
     alignment: Alignment.center,
     child: const CircularProgressIndicator(
       color: Colors.green,

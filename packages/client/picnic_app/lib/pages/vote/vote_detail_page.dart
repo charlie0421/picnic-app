@@ -238,6 +238,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                     fit: BoxFit.cover,
                                     width: 39.w,
                                     height: 39.w,
+                                    placeholder: (context, url) =>
+                                        buildPlaceholderImage(),
                                   ),
                                 ),
                               ),

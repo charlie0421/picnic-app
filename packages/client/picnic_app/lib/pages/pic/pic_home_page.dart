@@ -64,9 +64,12 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(50),
                         child: CachedNetworkImage(
-                            imageUrl: selectedCelebState.thumbnail ?? '',
-                            width: 38,
-                            height: 38),
+                          imageUrl: selectedCelebState.thumbnail ?? '',
+                          width: 38,
+                          height: 38,
+                          placeholder: (context, url) =>
+                              buildPlaceholderImage(),
+                        ),
                       ),
                       const SizedBox(width: 8),
                       Text(
@@ -137,6 +140,8 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                                   borderRadius: BorderRadius.circular(50),
                                   child: CachedNetworkImage(
                                     imageUrl: data[index].thumbnail ?? '',
+                                    placeholder: (context, url) =>
+                                        buildPlaceholderImage(),
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -225,6 +230,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                     width: 215,
                     child: CachedNetworkImage(
                       imageUrl: data[index].cover ?? '',
+                      placeholder: (context, url) => buildPlaceholderImage(),
                       fit: BoxFit.cover,
                     ),
                   ),

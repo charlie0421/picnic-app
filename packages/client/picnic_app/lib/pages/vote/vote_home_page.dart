@@ -16,6 +16,7 @@ import 'package:picnic_app/providers/reward_list_provider.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
+import 'package:shimmer/shimmer.dart';
 
 class VoteHomePage extends ConsumerStatefulWidget {
   const VoteHomePage({super.key});
@@ -97,6 +98,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                                   imageUrl: '${data[index].thumbnail}' ?? '',
                                   width: 120.w,
                                   height: 100.h,
+                                  placeholder: (context, url) =>
+                                      buildPlaceholderImage(),
                                   fit: BoxFit.cover),
                             ),
                             Positioned(
@@ -126,7 +129,29 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                       );
                     }),
               ),
-          loading: () => buildLoadingOverlay(),
+          loading: () => Container(
+                width: double.infinity,
+                height: 100.h,
+                margin: const EdgeInsets.only(left: 16),
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: 5,
+                  itemBuilder: (BuildContext context, int index) =>
+                      Shimmer.fromColors(
+                    baseColor: AppColors.Gray300,
+                    highlightColor: AppColors.Gray100,
+                    child: Container(
+                      width: 120.w,
+                      height: 120.h,
+                      margin: const EdgeInsets.only(right: 16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.r),
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
           error: (error, stackTrace) => ErrorView(context,
               error: error.toString(), stackTrace: stackTrace)),
     ]);
@@ -148,8 +173,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                   height: 200.h,
                   child: CachedNetworkImage(
                       imageUrl: '${data[index].thumbnail}' ?? '',
-                      // imageUrl: '${data[index].thumbnail}?h=400' ?? '',
                       height: 200.h,
+                      placeholder: (context, url) => buildPlaceholderImage(),
                       fit: BoxFit.cover),
                 ),
                 Positioned(
