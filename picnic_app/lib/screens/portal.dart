@@ -2,10 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_app/components/appinfo.dart';
 import 'package:picnic_app/components/common/portal_menu_item.dart';
 import 'package:picnic_app/components/common/screen_top.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/pages/common/mypage.dart';
 import 'package:picnic_app/providers/logined_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/screens/login_screen.dart';
@@ -50,7 +50,7 @@ class _PortalState extends ConsumerState<Portal> {
                 onTap: () =>
                     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                       navigationInfoNotifier.setCurrentPage(
-                        const AppInfo(),
+                        MyPage(),
                       );
                     }),
                 child: Container(
