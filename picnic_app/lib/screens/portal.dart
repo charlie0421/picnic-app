@@ -8,9 +8,9 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/pages/common/mypage.dart';
 import 'package:picnic_app/providers/logined_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/providers/user-info-provider.dart';
 import 'package:picnic_app/screens/login_screen.dart';
 import 'package:picnic_app/util.dart';
-import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
 class Portal extends ConsumerStatefulWidget {
   static const String routeName = '/landing';
@@ -31,14 +31,9 @@ class _PortalState extends ConsumerState<Portal> {
   Widget build(BuildContext context) {
     final navigationInfo = ref.watch(navigationInfoProvider);
     final navigationInfoNotifier = ref.read(navigationInfoProvider.notifier);
+    final userInfo = ref.watch(userInfoProvider);
 
     Widget currentScreen = navigationInfo.currentScreen;
-
-    logger.d('Portal type: ${navigationInfo.portalType}');
-
-    logger.d('Current screen: $currentScreen');
-    logger
-        .d('navigationInfo.navigationStack: ${navigationInfo.navigationStack}');
 
     final bool logined = ref.watch(loginedProvider);
 
@@ -46,24 +41,43 @@ class _PortalState extends ConsumerState<Portal> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         leading: logined
-            ? GestureDetector(
-                onTap: () => WidgetsBinding.instance.addPostFrameCallback((_) {
-                      navigationInfoNotifier.setCurrentPage(
-                        const MyPage(),
-                      );
-                    }),
-                child: Container(
+            ? userInfo.when(
+                data: (data) => data != null
+                    ? GestureDetector(
+                        onTap: () =>
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                          navigationInfoNotifier.setCurrentPage(
+                            const MyPage(),
+                          );
+                        }),
+                        child: Container(
+                          width: 40.w,
+                          height: 40.w,
+                          padding: EdgeInsets.all(16.w),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8.r),
+                            child: CachedNetworkImage(
+                              imageUrl: data.avatar_url ?? '',
+                              placeholder: (context, url) =>
+                                  buildPlaceholderImage(),
+                              width: 40.w,
+                              height: 40.w,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      )
+                    : const Icon(Icons.person),
+                error: (error, stackTrace) => const Icon(Icons.error),
+                loading: () => Container(
+                  width: 40.w,
+                  height: 40.w,
                   padding: EdgeInsets.all(16.w),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8.r),
-                    child: CachedNetworkImage(
-                      imageUrl: Supabase.instance.client.auth.currentUser
-                          ?.userMetadata?['avatar_url'],
-                      placeholder: (context, url) => buildPlaceholderImage(),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ))
+                      borderRadius: BorderRadius.circular(8.r),
+                      child: buildPlaceholderImage()),
+                ),
+              )
             : GestureDetector(
                 onTap: () =>
                     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {

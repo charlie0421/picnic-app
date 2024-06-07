@@ -1,3 +1,4 @@
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/user-profiles.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
@@ -15,10 +16,8 @@ class UserInfo extends _$UserInfo {
 
     final response =
         await Supabase.instance.client.from('user_profiles').select().single();
-    if (response != null && response is Map<String, dynamic>) {
-      return UserProfilesModel.fromJson(response as Map<String, dynamic>);
-    }
-    return null;
+    logger.i('response.data: ${response}');
+    return UserProfilesModel.fromJson(response);
   }
 
   void setStarCandy(int starCandy) {

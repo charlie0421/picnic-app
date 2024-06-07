@@ -28,12 +28,14 @@ UserProfilesModel _$UserProfilesModelFromJson(Map<String, dynamic> json) =>
       nickname: json['nickname'] as String?,
       country_code: json['country_code'] as String?,
       star_candy: (json['star_candy'] as num?)?.toInt(),
+      avatar_url: json['avatar_url'] as String?,
     );
 
 Map<String, dynamic> _$UserProfilesModelToJson(UserProfilesModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'nickname': instance.nickname,
+      'avatar_url': instance.avatar_url,
       'country_code': instance.country_code,
       'star_candy': instance.star_candy,
     };

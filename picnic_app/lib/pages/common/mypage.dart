@@ -4,9 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/common/common_my_point_info.dart';
+import 'package:picnic_app/providers/user-info-provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MyPage extends ConsumerStatefulWidget {
   const MyPage({super.key});
@@ -74,37 +74,43 @@ class _MyPageState extends ConsumerState<MyPage> {
   }
 
   Widget _buildProfile() {
+    final userInfo = ref.watch(userInfoProvider);
     return Container(
       padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(80),
-            child: CachedNetworkImage(
-              imageUrl: Supabase.instance.client.auth.currentUser
-                  ?.userMetadata?['avatar_url'],
-              placeholder: (context, url) => buildPlaceholderImage(),
-              width: 80.w,
-              height: 80.w,
-              fit: BoxFit.cover,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Text(
-            Supabase.instance.client.auth.currentUser
-                    ?.userMetadata?['full_name'] ??
-                '',
-            style: getTextStyle(AppTypo.TITLE18B, AppColors.Gray900),
-          ),
-          SizedBox(width: 8.w),
-          SvgPicture.asset('assets/icons/mypage/setting.svg',
-              width: 20.w,
-              height: 20.w,
-              colorFilter: const ColorFilter.mode(
-                AppColors.Gray900,
-                BlendMode.srcIn,
-              )),
-        ],
+      child: userInfo.when(
+        data: (data) {
+          return Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(80),
+                child: CachedNetworkImage(
+                  imageUrl: data?.avatar_url ?? '',
+                  placeholder: (context, url) => buildPlaceholderImage(),
+                  width: 80.w,
+                  height: 80.w,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Text(
+                data?.nickname ?? '',
+                style: getTextStyle(AppTypo.TITLE18B, AppColors.Gray900),
+              ),
+              SizedBox(width: 8.w),
+              SvgPicture.asset('assets/icons/mypage/setting.svg',
+                  width: 20.w,
+                  height: 20.w,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.Gray900,
+                    BlendMode.srcIn,
+                  )),
+            ],
+          );
+        },
+        loading: () => const CircularProgressIndicator(),
+        error: (error, stack) {
+          return Text('Error: $error');
+        },
       ),
     );
   }

@@ -26,11 +26,16 @@ class UserProfilesListModel {
 class UserProfilesModel {
   final String? id;
   final String? nickname;
+  final String? avatar_url;
   final String? country_code;
   final int? star_candy;
 
   UserProfilesModel(
-      {this.id, this.nickname, this.country_code, this.star_candy});
+      {this.id,
+      this.nickname,
+      this.country_code,
+      this.star_candy,
+      this.avatar_url});
 
   UserProfilesModel copyWith({int? star_candy}) {
     return UserProfilesModel(
