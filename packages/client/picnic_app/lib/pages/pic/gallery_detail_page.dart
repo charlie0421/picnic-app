@@ -37,7 +37,7 @@ class _GalleryDetailScreenState extends ConsumerState<GalleryDetailPage>
   Widget build(BuildContext context) {
     return Column(
       children: [
-        ref.read(navigationInfoProvider.notifier).canBack()
+        ref.watch(navigationInfoProvider).canBack
             ? SizedBox(
                 width: double.infinity,
                 height: 50.h,

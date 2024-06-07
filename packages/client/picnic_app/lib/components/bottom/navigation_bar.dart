@@ -8,17 +8,24 @@ import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 
-class CommonBottomNavigationBar extends ConsumerWidget {
+class CommonBottomNavigationBar extends ConsumerStatefulWidget {
   final ScreenInfo screenInfo;
 
   const CommonBottomNavigationBar({super.key, required this.screenInfo});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(appSettingProvider.select((value) => value.locale));
+  ConsumerState<CommonBottomNavigationBar> createState() =>
+      _CommonBottomNavigationBarState();
+}
 
-    int navigationIndex = getCurrentIndex(screenInfo.type, ref);
-    Function navigationIndexSetter = getIndexSetter(screenInfo.type, ref);
+class _CommonBottomNavigationBarState
+    extends ConsumerState<CommonBottomNavigationBar> {
+  @override
+  Widget build(BuildContext context) {
+    ref.watch(appSettingProvider.select((value) => value.locale));
+    var notifier = ref.read(navigationInfoProvider.notifier);
+
+    int navigationIndex = getCurrentIndex();
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 0).r,
@@ -30,7 +37,7 @@ class CommonBottomNavigationBar extends ConsumerWidget {
           height: 42.h,
           padding: const EdgeInsets.symmetric(horizontal: 32).r,
           decoration: ShapeDecoration(
-            color: screenInfo.color,
+            color: widget.screenInfo.color,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20).r,
             ),
@@ -45,13 +52,11 @@ class CommonBottomNavigationBar extends ConsumerWidget {
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: screenInfo.pages
+            children: widget.screenInfo.pages
                 .map((e) => MenuItem(
                       title: e.title,
                       assetPath: e.assetPath,
                       index: e.index,
-                      isSelected: e.index == navigationIndex,
-                      indexSetter: navigationIndexSetter,
                     ))
                 .toList(),
           ),
@@ -60,60 +65,45 @@ class CommonBottomNavigationBar extends ConsumerWidget {
     );
   }
 
-  int getCurrentIndex(String type, WidgetRef ref) {
-    final provider = navigationInfoProvider.select((value) => type == 'vote'
-        ? value.voteBottomNavigationIndex
-        : type == 'pic'
-            ? value.picBottomNavigationIndex
-            : type == 'community'
-                ? value.communityBottomNavigationIndex
-                : type == 'novel'
-                    ? value.novelBottomNavigationIndex
-                    : 0);
-    return ref.watch(provider);
+  int getCurrentIndex() {
+    final navigationInfo = ref.watch(navigationInfoProvider);
+    final navigationInfoNotifier = ref.read(navigationInfoProvider.notifier);
+
+    return navigationInfoNotifier.getBottomNavigationIndex();
   }
 
-  Function getIndexSetter(String type, WidgetRef ref) {
-    var notifier = ref.read(navigationInfoProvider.notifier);
-
-    return type == 'vote'
-        ? notifier.setVoteBottomNavigationIndex
-        : type == 'pic'
-            ? notifier.setPicBottomNavigationIndex
-            : type == 'community'
-                ? notifier.setCommunityBottomNavigationIndex
-                : type == 'novel'
-                    ? notifier.setNovelBottomNavigationIndex
-                    : () {};
-  }
+// Function setIndexSetter(int index) {
+//   var notifier = ref.read(navigationInfoProvider.notifier);
+//
+//   return notifier.setBottomNavigationIndex(index);
+// }
 }
 
 class MenuItem extends ConsumerWidget {
   final String title;
   final String assetPath;
   final int index;
-  bool isSelected = false;
-  Function indexSetter;
 
-  MenuItem({
+  const MenuItem({
     super.key,
     required this.title,
     required this.assetPath,
     required this.index,
-    required this.isSelected,
-    required this.indexSetter,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final navigationInfo = ref.watch(navigationInfoProvider);
     final navigationNotifier = ref.read(navigationInfoProvider.notifier);
+
+    final index = navigationNotifier.getBottomNavigationIndex();
+    final bool isSelected = index == this.index;
 
     return SizedBox(
       height: 52.h,
       child: InkWell(
-        onTap: () => WidgetsBinding.instance.addPostFrameCallback((_) {
-          indexSetter(index);
-        }),
+        onTap: () => WidgetsBinding.instance.addPostFrameCallback(
+            (_) => navigationNotifier.setBottomNavigationIndex(this.index)),
         child: Column(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.center,

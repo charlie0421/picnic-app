@@ -8,25 +8,25 @@ import 'package:picnic_app/pages/vote/store-page.dart';
 import 'package:picnic_app/pages/vote/vote_home_page.dart';
 
 ScreenInfo voteScreenInfo = ScreenInfo(
-  type: 'vote',
+  type: PortalType.vote,
   color: voteMainColor,
   pages: votePages,
 );
 
 ScreenInfo picScreenInfo = ScreenInfo(
-  type: 'pic',
+  type: PortalType.pic,
   color: picMainColor,
   pages: picPages,
 );
 
 ScreenInfo communityScreenInfo = ScreenInfo(
-  type: 'community',
+  type: PortalType.community,
   color: communityMainColor,
   pages: communityPages,
 );
 
 ScreenInfo novelScreenInfo = ScreenInfo(
-  type: 'novel',
+  type: PortalType.novel,
   color: novelMainColor,
   pages: novelPages,
 );
@@ -118,7 +118,7 @@ class BottomNavigationItem {
 }
 
 class ScreenInfo {
-  String type;
+  PortalType type;
   Color color;
   List<BottomNavigationItem> pages;
 

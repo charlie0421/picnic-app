@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:overlay_support/overlay_support.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/overlays.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
@@ -12,8 +13,8 @@ import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/screens/pic/pic_camera_screen.dart';
 import 'package:picnic_app/screens/portal.dart';
 import 'package:picnic_app/ui/community_theme.dart';
-import 'package:picnic_app/ui/pic_theme.dart';
 import 'package:picnic_app/ui/novel_theme.dart';
+import 'package:picnic_app/ui/pic_theme.dart';
 import 'package:picnic_app/ui/vote_theme.dart';
 import 'package:picnic_app/util.dart';
 
@@ -103,13 +104,13 @@ class _PicnicAppState extends ConsumerState<PicnicApp>
   _getCurrentTheme() {
     final currentPortal = ref.watch(navigationInfoProvider);
 
-    if (currentPortal.portalString == 'vote') {
+    if (currentPortal.portalType == PortalType.vote) {
       return voteThemeLight;
-    } else if (currentPortal.portalString == 'pic') {
+    } else if (currentPortal.portalType == PortalType.pic) {
       return picThemeLight;
-    } else if (currentPortal.portalString == 'community') {
+    } else if (currentPortal.portalType == PortalType.community) {
       return communityThemeLight;
-    } else if (currentPortal.portalString == 'novel') {
+    } else if (currentPortal.portalType == PortalType.novel) {
       return novelThemeLight;
     } else {
       return picThemeLight;

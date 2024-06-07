@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/menu.dart';
-import 'package:picnic_app/pages/vote/vote_home_page.dart';
+import 'package:picnic_app/navigation-stack.dart';
 import 'package:picnic_app/reflector.dart';
 import 'package:picnic_app/screens/community/community_home_screen.dart';
 import 'package:picnic_app/screens/novel/novel_home_screen.dart';
@@ -13,184 +13,201 @@ part 'navigation_provider.g.dart';
 
 @Riverpod(keepAlive: true)
 class NavigationInfo extends _$NavigationInfo {
-  Navigation setting = Navigation(); // 초기 값이 필요하다면 임시로 할당
+  Navigation setting = Navigation()..load();
 
   @override
   Navigation build() {
-    loadSettings();
     return setting;
   }
 
-  Future<void> loadSettings() async {
-    setting = await Navigation.load();
-  }
-
-  // setState({
-  //   String? portalString,
-  //   int? picBottomNavigationIndex,
-  //   int? voteBottomNavigationIndex,
-  //   int? communityBottomNavigationIndex,
-  //   int? novelBottomNavigationIndex,
-  //   Widget? currentPage,
-  // }) {
-  //   state = state.copyWith(
-  //     portalString: portalString ?? state.portalString,
-  //     picBottomNavigationIndex:
-  //         picBottomNavigationIndex ?? state.picBottomNavigationIndex,
-  //     voteBottomNavigationIndex:
-  //         voteBottomNavigationIndex ?? state.voteBottomNavigationIndex,
-  //     communityBottomNavigationIndex: communityBottomNavigationIndex ??
-  //         state.communityBottomNavigationIndex,
-  //     novelBottomNavigationIndex:
-  //         novelBottomNavigationIndex ?? state.novelBottomNavigationIndex,
-  //     currentPage: currentPage ?? state.currentPage,
-  //   );
-  // }
-
-  setPortalString(String portalString) {
-    logger.d('setPortalString: $portalString');
-
+  setPortal(PortalType portalType) {
+    Widget currentScreen;
     Widget currentPage;
-    if (portalString == 'vote') {
+    if (portalType == PortalType.vote) {
+      currentScreen = const VoteHomeScreen();
       currentPage = votePages[state.voteBottomNavigationIndex].pageWidget;
-    } else if (portalString == 'pic') {
+    } else if (portalType == PortalType.pic) {
+      currentScreen = const PicHomeScreen();
       currentPage = picPages[state.picBottomNavigationIndex].pageWidget;
-    } else if (portalString == 'community') {
+    } else if (portalType == PortalType.community) {
+      currentScreen = const CommunityHomeScreen();
       currentPage = communityPages[state.picBottomNavigationIndex].pageWidget;
-    } else if (portalString == 'novel') {
+    } else if (portalType == PortalType.novel) {
+      currentScreen = const NovelHomeScreen();
       currentPage = novelPages[state.picBottomNavigationIndex].pageWidget;
     } else {
-      return const SizedBox.shrink();
+      currentScreen = const VoteHomeScreen();
+      currentPage = votePages[state.voteBottomNavigationIndex].pageWidget;
     }
 
     state = state.copyWith(
-      portalString: portalString,
-      currentPage: currentPage,
+      portalType: portalType,
+      currentScreen: currentScreen,
+      navigationStack: NavigationStack()..push(currentPage),
     );
-    globalStorage.saveData('portalString', portalString);
+    globalStorage.saveData('portalString', portalType.name.toString());
+  }
+
+  getBottomNavigationIndex() {
+    if (state.portalType == PortalType.vote) {
+      return state.voteBottomNavigationIndex;
+    } else if (state.portalType == PortalType.pic) {
+      return state.picBottomNavigationIndex;
+    } else if (state.portalType == PortalType.community) {
+      return state.communityBottomNavigationIndex;
+    } else if (state.portalType == PortalType.novel) {
+      return state.novelBottomNavigationIndex;
+    }
+  }
+
+  setBottomNavigationIndex(int index) {
+    logger.d('setBottomNavigationIndex: $index');
+    if (state.portalType == PortalType.vote) {
+      setVoteBottomNavigationIndex(index);
+    } else if (state.portalType == PortalType.pic) {
+      setPicBottomNavigationIndex(index);
+    } else if (state.portalType == PortalType.community) {
+      setCommunityBottomNavigationIndex(index);
+    } else if (state.portalType == PortalType.novel) {
+      setNovelBottomNavigationIndex(index);
+    }
   }
 
   setPicBottomNavigationIndex(int index) {
     state = state.copyWith(
-        picBottomNavigationIndex: index,
-        currentPage: picPages[index].pageWidget);
+      picBottomNavigationIndex: index,
+    );
+    state = state.copyWith(
+      navigationStack: NavigationStack()..push(picPages[index].pageWidget),
+    );
     globalStorage.saveData('picBottomNavigationIndex', index.toString());
   }
 
   setVoteBottomNavigationIndex(int index) {
     state = state.copyWith(
         voteBottomNavigationIndex: index,
-        currentPage: votePages[index].pageWidget);
+        navigationStack: NavigationStack()..push(votePages[index].pageWidget));
     globalStorage.saveData('voteBottomNavigationIndex', index.toString());
   }
 
   setCommunityBottomNavigationIndex(int index) {
     state = state.copyWith(
         communityBottomNavigationIndex: index,
-        currentPage: communityPages[index].pageWidget);
+        navigationStack: NavigationStack()
+          ..push(communityPages[index].pageWidget));
     globalStorage.saveData('communityBottomNavigationIndex', index.toString());
   }
 
   setNovelBottomNavigationIndex(int index) {
     state = state.copyWith(
         novelBottomNavigationIndex: index,
-        currentPage: novelPages[index].pageWidget);
+        navigationStack: NavigationStack()..push(novelPages[index].pageWidget));
     globalStorage.saveData('novelBottomNavigationIndex', index.toString());
   }
 
   setCurrentPage(Widget page,
       {bool showTopMenu = true, bool showBottomNavigation = true}) {
-    logger.d('showBottomNavigation: $showBottomNavigation');
-    state = state.copyWith(
-        previousPage: setting.currentPage,
-        currentPage: page,
-        showTopMenu: showTopMenu,
-        showBottomNavigation: showBottomNavigation);
-  }
+    final NavigationStack navigationStack = state.navigationStack;
 
-  bool canBack() {
-    return setting.previousPage != null;
+    if (navigationStack.peek() == page) {
+      return;
+    }
+
+    navigationStack.push(page);
+    state = state.copyWith(
+      navigationStack: navigationStack,
+      showTopMenu: showTopMenu,
+      showBottomNavigation: showBottomNavigation,
+    );
   }
 
   goBack() {
-    if (setting.currentPage != setting.previousPage) {
-      setting.currentPage = setting.previousPage;
-      state = state.copyWith(
-          previousPage: setting.previousPage, currentPage: setting.currentPage);
-    }
+    final NavigationStack navigationStack = state.navigationStack;
+    navigationStack.pop();
+
+    state = state.copyWith(navigationStack: navigationStack);
   }
 }
 
 @reflector
 class Navigation {
-  String portalString = 'vote';
+  PortalType portalType = PortalType.vote;
   int picBottomNavigationIndex = 0;
   int voteBottomNavigationIndex = 0;
   int communityBottomNavigationIndex = 0;
   int novelBottomNavigationIndex = 0;
   Widget currentScreen = const VoteHomeScreen();
-  Widget currentPage = const VoteHomePage();
-  Widget previousPage = Container();
   bool showTopMenu = true;
   bool showBottomNavigation = true;
+  bool canBack = false;
+  NavigationStack navigationStack = NavigationStack();
 
   Navigation();
 
-  static Future<Navigation> load() async {
+  Future<Navigation> load() async {
     String? portalString = await globalStorage.loadData('portalString', 'vote');
-    String? picBottomNavigationIndex =
-        await globalStorage.loadData('picBottomNavigationIndex', '0');
     String? voteBottomNavigationIndex =
         await globalStorage.loadData('voteBottomNavigationIndex', '0');
+    String? picBottomNavigationIndex =
+        await globalStorage.loadData('picBottomNavigationIndex', '0');
     String? communityBottomNavigationIndex =
         await globalStorage.loadData('communityBottomNavigationIndex', '0');
     String? novelBottomNavigationIndex =
         await globalStorage.loadData('novelBottomNavigationIndex', '0');
 
     Widget currentScreen = Container();
-    Widget currentPage = Container();
 
-    if (portalString == 'vote') {
+    logger.d('portalString: $portalString');
+    if (portalString == PortalType.vote.name.toString()) {
       currentScreen = const VoteHomeScreen();
-      currentPage = votePages[int.parse(voteBottomNavigationIndex!)].pageWidget;
-    } else if (portalString == 'pic') {
+      navigationStack = NavigationStack()
+        ..push(votePages[int.parse(voteBottomNavigationIndex!)].pageWidget);
+    } else if (portalString == PortalType.pic.name.toString()) {
       currentScreen = const PicHomeScreen();
-      currentPage = picPages[int.parse(picBottomNavigationIndex!)].pageWidget;
-    } else if (portalString == 'community') {
+      navigationStack = NavigationStack()
+        ..push(picPages[int.parse(picBottomNavigationIndex!)].pageWidget);
+    } else if (portalString == PortalType.community.name.toString()) {
       currentScreen = const CommunityHomeScreen();
-      currentPage =
-          communityPages[int.parse(communityBottomNavigationIndex!)].pageWidget;
-    } else if (portalString == 'novel') {
+      navigationStack = NavigationStack()
+        ..push(communityPages[int.parse(communityBottomNavigationIndex!)]
+            .pageWidget);
+    } else if (portalString == PortalType.novel.name.toString()) {
       currentScreen = const NovelHomeScreen();
-      currentPage =
-          novelPages[int.parse(novelBottomNavigationIndex!)].pageWidget;
+      navigationStack = NavigationStack()
+        ..push(novelPages[int.parse(novelBottomNavigationIndex!)].pageWidget);
     }
 
     return Navigation()
-      ..portalString = portalString!
-      ..picBottomNavigationIndex = int.parse(picBottomNavigationIndex!)
+      ..portalType = getPortalTypeByString(portalString!)
       ..voteBottomNavigationIndex = int.parse(voteBottomNavigationIndex!)
+      ..picBottomNavigationIndex = int.parse(picBottomNavigationIndex!)
       ..communityBottomNavigationIndex =
           int.parse(communityBottomNavigationIndex!)
       ..novelBottomNavigationIndex = int.parse(novelBottomNavigationIndex!)
       ..currentScreen = currentScreen
-      ..currentPage = currentPage;
+      ..navigationStack = navigationStack;
+  }
+
+  getPortalTypeByString(String portalString) {
+    return PortalType.values.firstWhere((e) {
+      return e.name == portalString;
+    }, orElse: () => PortalType.vote);
   }
 
   Navigation copyWith({
-    String? portalString,
+    PortalType? portalType,
     int? picBottomNavigationIndex,
     int? voteBottomNavigationIndex,
     int? communityBottomNavigationIndex,
     int? novelBottomNavigationIndex,
     Widget? currentScreen,
-    Widget? previousPage,
-    Widget? currentPage,
     bool? showTopMenu,
     bool? showBottomNavigation,
+    bool? canBack,
+    NavigationStack? navigationStack,
   }) {
     return Navigation()
-      ..portalString = portalString ?? this.portalString
+      ..portalType = portalType ?? this.portalType
       ..picBottomNavigationIndex =
           picBottomNavigationIndex ?? this.picBottomNavigationIndex
       ..voteBottomNavigationIndex =
@@ -200,10 +217,9 @@ class Navigation {
       ..novelBottomNavigationIndex =
           novelBottomNavigationIndex ?? this.novelBottomNavigationIndex
       ..currentScreen = currentScreen ?? this.currentScreen
-      ..previousPage = previousPage ?? this.previousPage
-      ..currentPage = currentPage ?? this.currentPage
       ..showTopMenu = showTopMenu ?? this.showTopMenu
-      ..showBottomNavigation =
-          showBottomNavigation ?? this.showBottomNavigation;
+      ..showBottomNavigation = showBottomNavigation ?? this.showBottomNavigation
+      ..canBack = canBack ?? this.canBack
+      ..navigationStack = navigationStack ?? this.navigationStack;
   }
 }
