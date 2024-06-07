@@ -37,34 +37,6 @@ class _GalleryDetailScreenState extends ConsumerState<GalleryDetailPage>
   Widget build(BuildContext context) {
     return Column(
       children: [
-        ref.watch(navigationInfoProvider).canBack
-            ? SizedBox(
-                width: double.infinity,
-                height: 50.h,
-                child: Stack(
-                  children: [
-                    Align(
-                      alignment: Alignment.center,
-                      child: Text(widget.galleryName,
-                          style: getTextStyle(
-                              AppTypo.TITLE18B, AppColors.Gray900)),
-                    ),
-                    Positioned(
-                      left: 0,
-                      top: 0,
-                      bottom: 0,
-                      child: IconButton(
-                        icon: const Icon(Icons.arrow_back),
-                        onPressed: () {
-                          ref.read(navigationInfoProvider.notifier).goBack();
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            : Text(widget.galleryName,
-                style: getTextStyle(AppTypo.TITLE18B, AppColors.Gray900)),
         SizedBox(
           height: 50,
           child: TabBar(
