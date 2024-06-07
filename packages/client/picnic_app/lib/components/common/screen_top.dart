@@ -45,7 +45,8 @@ class _TopState extends ConsumerState<ScreenTop> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          navigationInfo.navigationStack.length > 1
+          navigationInfo.navigationStack != null &&
+                  navigationInfo.navigationStack!.length > 1
               ? GestureDetector(
                   onTap: () {
                     navigationInfoNotifier.goBack();

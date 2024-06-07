@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/menu.dart';
 import 'package:picnic_app/navigation-stack.dart';
+import 'package:picnic_app/pages/vote/vote_home_page.dart';
 import 'package:picnic_app/reflector.dart';
 import 'package:picnic_app/screens/community/community_home_screen.dart';
 import 'package:picnic_app/screens/novel/novel_home_screen.dart';
@@ -107,13 +108,13 @@ class NavigationInfo extends _$NavigationInfo {
 
   setCurrentPage(Widget page,
       {bool showTopMenu = true, bool showBottomNavigation = true}) {
-    final NavigationStack navigationStack = state.navigationStack;
+    final NavigationStack? navigationStack = state.navigationStack;
 
-    if (navigationStack.peek() == page) {
+    if (navigationStack?.peek() == page) {
       return;
     }
 
-    navigationStack.push(page);
+    navigationStack?.push(page);
     state = state.copyWith(
       navigationStack: navigationStack,
       showTopMenu: showTopMenu,
@@ -122,8 +123,8 @@ class NavigationInfo extends _$NavigationInfo {
   }
 
   goBack() {
-    final NavigationStack navigationStack = state.navigationStack;
-    navigationStack.pop();
+    final NavigationStack? navigationStack = state.navigationStack;
+    navigationStack?.pop();
 
     state = state.copyWith(navigationStack: navigationStack);
   }
@@ -139,8 +140,8 @@ class Navigation {
   Widget currentScreen = const VoteHomeScreen();
   bool showTopMenu = true;
   bool showBottomNavigation = true;
-  bool canBack = false;
-  NavigationStack navigationStack = NavigationStack();
+  NavigationStack? navigationStack = NavigationStack()
+    ..push(const VoteHomePage());
 
   Navigation();
 
@@ -203,7 +204,6 @@ class Navigation {
     Widget? currentScreen,
     bool? showTopMenu,
     bool? showBottomNavigation,
-    bool? canBack,
     NavigationStack? navigationStack,
   }) {
     return Navigation()
@@ -219,7 +219,6 @@ class Navigation {
       ..currentScreen = currentScreen ?? this.currentScreen
       ..showTopMenu = showTopMenu ?? this.showTopMenu
       ..showBottomNavigation = showBottomNavigation ?? this.showBottomNavigation
-      ..canBack = canBack ?? this.canBack
       ..navigationStack = navigationStack ?? this.navigationStack;
   }
 }
