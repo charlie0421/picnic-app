@@ -12,7 +12,7 @@ import 'package:picnic_app/models/pic/comment_like.dart' as prefix16;
 import 'package:picnic_app/models/pic/gallery.dart' as prefix6;
 import 'package:picnic_app/models/pic/library.dart' as prefix17;
 import 'package:picnic_app/models/reward.dart' as prefix10;
-import 'package:picnic_app/models/user-profiles.dart' as prefix5;
+import 'package:picnic_app/models/user_profiles.dart' as prefix5;
 import 'package:picnic_app/models/vote/vote.dart' as prefix3;
 import 'package:picnic_app/providers/app_setting_provider.dart' as prefix1;
 import 'package:picnic_app/providers/article_list_provider.dart' as prefix12;

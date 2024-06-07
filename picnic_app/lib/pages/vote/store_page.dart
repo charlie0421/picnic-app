@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_app/components/vote/store/free-charge-station.dart';
-import 'package:picnic_app/components/vote/store/purchase-star-candy.dart';
+import 'package:picnic_app/components/vote/store/free_charge_station.dart';
+import 'package:picnic_app/components/vote/store/purchase_star_candy.dart';
 
 class StorePage extends StatefulWidget {
   const StorePage({super.key});

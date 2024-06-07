@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
-import 'package:picnic_app/components/ui/large-popup.dart';
+import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -152,7 +152,7 @@ class VotingDialog extends Dialog {
                                 style: getTextStyle(
                                     AppTypo.BODY14B, AppColors.Primary500)),
                             SvgPicture.asset(
-                              'assets/icons/vote/recharge-plus.svg',
+                              'assets/icons/vote/recharge_plus.svg',
                               width: 16.w,
                               height: 16.h,
                             ),

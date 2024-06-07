@@ -6,7 +6,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/article/comment/comment_item.dart';
 import 'package:picnic_app/components/article/comment/comment_reply_layer.dart';
-import 'package:picnic_app/components/ui/bottom-sheet-header.dart';
+import 'package:picnic_app/components/ui/bottom_sheet_header.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/pic/article.dart';
 import 'package:picnic_app/models/pic/comment.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/bottom/navigation_bar.dart';
-import 'package:picnic_app/components/ui/picnic-animated-switcher.dart';
+import 'package:picnic_app/components/ui/picnic_animated_switcher.dart';
 import 'package:picnic_app/menu.dart';
 
 class CommunityHomeScreen extends ConsumerWidget {

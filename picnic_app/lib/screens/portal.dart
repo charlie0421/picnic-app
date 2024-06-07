@@ -8,7 +8,7 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/pages/common/mypage.dart';
 import 'package:picnic_app/providers/logined_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
-import 'package:picnic_app/providers/user-info-provider.dart';
+import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/screens/login_screen.dart';
 import 'package:picnic_app/util.dart';
 
