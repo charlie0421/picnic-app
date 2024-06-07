@@ -6,6 +6,7 @@ import 'package:picnic_app/providers/logined_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/platform_info_provider.dart';
 import 'package:picnic_app/screens/login_screen.dart';
+import 'package:picnic_app/util.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
@@ -29,6 +30,7 @@ class AppInfo extends ConsumerWidget {
               height: MediaQuery.of(context).size.width / 2,
               child: CachedNetworkImage(
                 imageUrl: user?.userMetadata?['avatar_url'] ?? '',
+                placeholder: (context, url) => buildPlaceholderImage(),
               ),
             ),
             Card(

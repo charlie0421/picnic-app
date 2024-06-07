@@ -56,6 +56,7 @@ class CelebListItem extends ConsumerWidget {
                     imageUrl: item.thumbnail ?? '',
                     width: 60,
                     height: 60,
+                    placeholder: (context, url) => buildPlaceholderImage(),
                   ),
                 ),
                 const SizedBox(width: 16),

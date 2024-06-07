@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:picnic_app/util.dart';
 
 class CommentUser extends StatelessWidget {
   final String nickname;
@@ -22,6 +23,7 @@ class CommentUser extends StatelessWidget {
                   imageUrl: profileImage,
                   width: 40,
                   height: 40,
+                  placeholder: (context, url) => buildPlaceholderImage(),
                   fit: BoxFit.cover,
                 ),
               )

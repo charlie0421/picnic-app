@@ -91,6 +91,8 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
                             imageUrl: gallery.cover ?? '',
                             width: 361.w,
                             height: 215.h,
+                            placeholder: (context, url) =>
+                                buildPlaceholderImage(),
                             fit: BoxFit.cover,
                           )),
                       Positioned(
