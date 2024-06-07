@@ -3,8 +3,8 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/pages/pic/gallery_page.dart';
 import 'package:picnic_app/pages/pic/library_page.dart';
 import 'package:picnic_app/pages/pic/pic_home_page.dart';
-import 'package:picnic_app/pages/vote/pick-chart-page.dart';
-import 'package:picnic_app/pages/vote/store-page.dart';
+import 'package:picnic_app/pages/vote/pick_chart_page.dart';
+import 'package:picnic_app/pages/vote/store_page.dart';
 import 'package:picnic_app/pages/vote/vote_home_page.dart';
 
 ScreenInfo voteScreenInfo = ScreenInfo(
@@ -40,7 +40,7 @@ List<BottomNavigationItem> votePages = [
   ),
   const BottomNavigationItem(
     title: '픽차트',
-    assetPath: 'assets/icons/bottom/pic-chart.svg',
+    assetPath: 'assets/icons/bottom/pic_chart.svg',
     index: 1,
     pageWidget: PicChartPage(),
   ),

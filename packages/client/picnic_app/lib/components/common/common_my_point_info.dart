@@ -2,9 +2,9 @@ import 'package:animated_digit/animated_digit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_app/components/ui/gradient-border-painter.dart';
+import 'package:picnic_app/components/ui/gradient_border_painter.dart';
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/providers/user-info-provider.dart';
+import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class CommonMyPoint extends ConsumerStatefulWidget {

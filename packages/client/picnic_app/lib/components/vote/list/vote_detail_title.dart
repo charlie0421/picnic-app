@@ -27,7 +27,7 @@ class VoteCommonTitle extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SvgPicture.asset(
-              'assets/icons/vote/vote-title-left.svg',
+              'assets/icons/vote/vote_title_left.svg',
               width: 16.w,
               height: 16.h,
             ),
@@ -55,7 +55,7 @@ class VoteCommonTitle extends StatelessWidget {
               ),
             ),
             SvgPicture.asset(
-              'assets/icons/vote/vote-title-right.svg',
+              'assets/icons/vote/vote_title_right.svg',
               width: 16.w,
               height: 16.w,
             ),

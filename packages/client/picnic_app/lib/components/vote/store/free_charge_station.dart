@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:picnic_app/components/vote/common-vote-info.dart';
+import 'package:picnic_app/components/vote/common_vote_info.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class FreeChargeStation extends ConsumerStatefulWidget {

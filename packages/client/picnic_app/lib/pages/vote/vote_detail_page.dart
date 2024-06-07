@@ -321,7 +321,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                         voteItemModel: data[index]!);
                                   },
                                   child: SvgPicture.asset(
-                                      'assets/icons/vote/vote-button.svg'),
+                                      'assets/icons/vote/vote_button.svg'),
                                 ),
                               ),
                             ],
@@ -356,7 +356,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           SvgPicture.asset(
-                            'assets/icons/vote/search-icon.svg',
+                            'assets/icons/vote/search_icon.svg',
                             width: 20.w,
                             height: 20.w,
                           ),
