@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/logined_provider.dart';
-import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
 const optionText = Text(
@@ -74,9 +73,6 @@ class LoginScreen extends ConsumerWidget {
               redirectUrl: 'pic.picnic.app://login-callback',
               onSuccess: (session) {
                 ref.read(loginedProvider.notifier).setLogined(true);
-                ref
-                    .read(navigationInfoProvider.notifier)
-                    .setPortalString('vote');
               },
               onError: (error) {
                 logger.e('onError: $error');
