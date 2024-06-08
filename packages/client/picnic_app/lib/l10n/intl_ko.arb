@@ -52,5 +52,7 @@
   "label_vote_screen_title": "투표",
   "label_vote_tab_birthday": "생일 투표",
   "label_vote_tab_pic": "P-RAME 투표",
-  "nav_setting": "설정"
+  "nav_setting": "설정",
+  "page_title_vote_detail": "투표하기",
+  "page_title_mypage": "마이페이지"
 }

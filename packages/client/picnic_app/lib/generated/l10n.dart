@@ -579,6 +579,26 @@ class S {
       args: [],
     );
   }
+
+  /// `투표하기`
+  String get page_title_vote_detail {
+    return Intl.message(
+      '투표하기',
+      name: 'page_title_vote_detail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `마이페이지`
+  String get page_title_mypage {
+    return Intl.message(
+      '마이페이지',
+      name: 'page_title_mypage',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
