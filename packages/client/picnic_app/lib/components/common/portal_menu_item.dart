@@ -18,26 +18,23 @@ class PortalMenuItem extends ConsumerWidget {
     final navigationInfo = ref.watch(navigationInfoProvider);
     final navigationInfoNotifier = ref.read(navigationInfoProvider.notifier);
 
-    // logger.d('Portal type: $portalType');
-    // logger.d('Current portal type: ${navigationInfo.portalType}');
-    // logger.d(
-    //     'navigationInfo.portalType == portalType: ${navigationInfo.portalType == portalType} ');
-
     final bool isSelected = navigationInfo.portalType == portalType;
 
     return InkWell(
-      borderRadius: BorderRadius.circular(20.r),
+      borderRadius: BorderRadius.circular(13.r),
       onTap: () {
         navigationInfoNotifier.setPortal(portalType);
       },
       child: Container(
-        height: 24.h,
-        padding: EdgeInsets.symmetric(horizontal: 10.w),
+        height: 26.h,
+        alignment: Alignment.center,
+        margin: EdgeInsets.only(left: 16.w),
+        padding: EdgeInsets.symmetric(horizontal: 12.w),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20.r),
+          borderRadius: BorderRadius.circular(13.r),
           border: Border.all(
             color: AppColors.Gray900,
-            width: 0.5.r,
+            width: 1.r,
           ),
           color: isSelected ? AppColors.Gray00 : Colors.transparent,
         ),
