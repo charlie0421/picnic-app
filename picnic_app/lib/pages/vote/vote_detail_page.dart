@@ -15,9 +15,10 @@ import 'package:picnic_app/util.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
 class VoteDetailPage extends ConsumerStatefulWidget {
+  String pageName = Intl.message('page_title_vote_detail');
   final int voteId;
 
-  const VoteDetailPage({super.key, required this.voteId});
+  VoteDetailPage({super.key, required this.voteId});
 
   @override
   ConsumerState<VoteDetailPage> createState() => _VoteDetailPageState();

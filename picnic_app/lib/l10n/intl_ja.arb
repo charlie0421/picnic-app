@@ -52,5 +52,7 @@
   "label_vote_screen_title": "投票",
   "label_vote_tab_birthday": "誕生日投票",
   "label_vote_tab_pic": "P-RAME投票",
-  "nav_setting": "設定"
+  "nav_setting": "設定",
+  "page_title_vote_detail": "투표하기",
+  "page_title_mypage": "마이페이지"
 }

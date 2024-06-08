@@ -29,6 +29,17 @@ class _TopState extends ConsumerState<ScreenTop> {
   Widget build(BuildContext context) {
     final navigationInfo = ref.watch(navigationInfoProvider);
     final navigationInfoNotifier = ref.watch(navigationInfoProvider.notifier);
+
+    String pageName;
+    try {
+      pageName = (navigationInfo.navigationStack!.peek() as dynamic).pageName;
+    } catch (e) {
+      if (e is NoSuchMethodError) {
+        pageName = '';
+      } else {
+        rethrow;
+      }
+    }
     return Container(
       height: 54.h,
       padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 16.w),
@@ -54,6 +65,13 @@ class _TopState extends ConsumerState<ScreenTop> {
                   child: const Icon(Icons.arrow_back_ios),
                 )
               : const CommonMyPoint(),
+          navigationInfo.navigationStack != null &&
+                  navigationInfo.navigationStack!.length > 1
+              ? Text(
+                  pageName,
+                  style: getTextStyle(AppTypo.BODY16B, AppColors.Gray900),
+                )
+              : const SizedBox(),
           Row(
             children: [
               SvgPicture.asset(

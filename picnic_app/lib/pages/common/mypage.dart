@@ -3,13 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/common_my_point_info.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
 
 class MyPage extends ConsumerStatefulWidget {
-  const MyPage({super.key});
+  String pageName = Intl.message('page_title_mypage');
+
+  MyPage({super.key});
 
   @override
   ConsumerState<MyPage> createState() => _MyPageState();
@@ -19,7 +22,6 @@ class _MyPageState extends ConsumerState<MyPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: ListView(
         children: [
@@ -55,14 +57,14 @@ class _MyPageState extends ConsumerState<MyPage> {
               assetPath: 'assets/icons/mypage/right.svg',
               onTap: () {}),
           const Divider(color: AppColors.Gray200),
-          _builMyStar('VOTE'),
+          _buildMyStar('VOTE'),
           const Divider(color: AppColors.Gray200),
           ListItem(
               title: '별사탕 투표내역',
               assetPath: 'assets/icons/mypage/right.svg',
               onTap: () {}),
           const Divider(color: AppColors.Gray200),
-          _builMyStar('P-RAME'),
+          _buildMyStar('P-RAME'),
           const Divider(color: AppColors.Gray200),
           ListItem(
               title: '맴버십 결제내역',
@@ -115,7 +117,7 @@ class _MyPageState extends ConsumerState<MyPage> {
     );
   }
 
-  Widget _builMyStar(String categoryText) {
+  Widget _buildMyStar(String categoryText) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

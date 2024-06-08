@@ -44,12 +44,9 @@ class _PortalState extends ConsumerState<Portal> {
             ? userInfo.when(
                 data: (data) => data != null
                     ? GestureDetector(
-                        onTap: () =>
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                          navigationInfoNotifier.setCurrentPage(
-                            const MyPage(),
-                          );
-                        }),
+                        onTap: () => navigationInfoNotifier.setCurrentPage(
+                          MyPage(),
+                        ),
                         child: Container(
                           width: 40.w,
                           height: 40.w,
