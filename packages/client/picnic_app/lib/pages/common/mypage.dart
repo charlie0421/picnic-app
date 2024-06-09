@@ -41,22 +41,22 @@ class _MyPageState extends ConsumerState<MyPage> {
           SizedBox(height: 24.h),
           const Divider(color: AppColors.Gray200),
           ListItem(
-              leading: '공지사항',
+              leading: Intl.message('label_mypage_notice'),
               assetPath: 'assets/icons/right_arrow.svg',
               onTap: () {}),
           const Divider(color: AppColors.Gray200),
           ListItem(
-              leading: '충전내역',
+              leading: Intl.message('label_mypage_charge_history'),
               assetPath: 'assets/icons/right_arrow.svg',
               onTap: () {}),
           const Divider(color: AppColors.Gray200),
           ListItem(
-              leading: '고객센터',
+              leading: Intl.message('label_mypage_customer_center'),
               assetPath: 'assets/icons/right_arrow.svg',
               onTap: () {}),
           const Divider(color: AppColors.Gray200),
           ListItem(
-              leading: '환경설정',
+              leading: Intl.message('label_mypage_setting'),
               assetPath: 'assets/icons/right_arrow.svg',
               onTap: () => ref
                   .read(navigationInfoProvider.notifier)
@@ -65,14 +65,14 @@ class _MyPageState extends ConsumerState<MyPage> {
           _buildMyStar('VOTE'),
           const Divider(color: AppColors.Gray200),
           ListItem(
-              leading: '별사탕 투표내역',
+              leading: Intl.message('label_mypage_vote_history'),
               assetPath: 'assets/icons/right_arrow.svg',
               onTap: () {}),
           const Divider(color: AppColors.Gray200),
           _buildMyStar('P-RAME'),
           const Divider(color: AppColors.Gray200),
           ListItem(
-              leading: '맴버십 결제내역',
+              leading: Intl.message('label_mypage_membership_history'),
               assetPath: 'assets/icons/right_arrow.svg',
               onTap: () {}),
         ],
@@ -136,7 +136,8 @@ class _MyPageState extends ConsumerState<MyPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(categoryText, style: getTextStyle(AppTypo.BODY14B)),
-                  Text('마이스타', style: getTextStyle(AppTypo.BODY16M)),
+                  Text(Intl.message('label_mypage_mystar'),
+                      style: getTextStyle(AppTypo.BODY16M)),
                 ],
               ),
               SvgPicture.asset('assets/icons/right_arrow.svg',

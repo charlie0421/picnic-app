@@ -45,10 +45,11 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       child: ListView(
         children: [
           SizedBox(height: 16.h),
-          Text('알림', style: getTextStyle(AppTypo.BODY14B, AppColors.Gray600)),
+          Text(Intl.message('label_setting_alarm'),
+              style: getTextStyle(AppTypo.BODY14B, AppColors.Gray600)),
           SizedBox(height: 4.h),
           ListItem(
-            leading: '푸시알림',
+            leading: Intl.message('label_setting_push_alarm'),
             assetPath: 'assets/icons/right_arrow.svg',
             onTap: () {},
             tailing: LoadSwitch(
@@ -85,11 +86,11 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           ),
           const Divider(color: AppColors.Gray200),
           ListItem(
-            leading: '이벤트알림',
+            leading: Intl.message('label_setting_event_alarm'),
             title: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                '각종 이벤트나 행사를 안내드려요.',
+                Intl.message('label_setting_event_alarm_desc'),
                 style: getTextStyle(AppTypo.CAPTION12R, AppColors.Gray600),
                 textAlign: TextAlign.start,
               ),
@@ -130,7 +131,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           ),
           const Divider(color: AppColors.Gray200),
           SizedBox(height: 48.h),
-          Text('언어설정', style: getTextStyle(AppTypo.BODY14B, AppColors.Gray600)),
+          Text(Intl.message('label_setting_language'),
+              style: getTextStyle(AppTypo.BODY14B, AppColors.Gray600)),
           DropdownButtonFormField(
             value: appSettingState.locale.languageCode,
             icon: SvgPicture.asset('assets/icons/down_arrow.svg'),
@@ -161,41 +163,27 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               ));
             },
           ),
-          // [
-          //   DropdownMenuItem(
-          //     alignment: Alignment.center,
-          //     value: 'ko',
-          //     child: Text(
-          //       '한국어',
-          //       style: getTextStyle(AppTypo.BODY16M, AppColors.Gray900),
-          //     ),
-          //   ),
-          //   DropdownMenuItem(
-          //     alignment: Alignment.center,
-          //     value: 'en',
-          //     child: Text('English',
-          //         style: getTextStyle(AppTypo.BODY16M, AppColors.Gray900)),
-          //   ),
-          // ],
           const Divider(color: AppColors.Gray200),
           SizedBox(height: 48.h),
-          Text('저장공간 관리',
+          Text(Intl.message('label_setting_storage'),
               style: getTextStyle(AppTypo.BODY14B, AppColors.Gray600)),
           ListItem(
-              leading: '캐시메모리 삭제',
+              leading: Intl.message('label_setting_remove_cache'),
               assetPath: 'assets/icons/right_arrow.svg',
               onTap: () {}),
           const Divider(color: AppColors.Gray200),
           SizedBox(height: 48.h),
-          Text('앱 정보', style: getTextStyle(AppTypo.BODY14B, AppColors.Gray600)),
+          Text(Intl.message('label_setting_appinfo'),
+              style: getTextStyle(AppTypo.BODY14B, AppColors.Gray600)),
           const Divider(color: AppColors.Gray200),
           ListItem(
               leading:
-                  '현재 버전 ${asyncPlatformInfoState.value?.version ?? ''}(${asyncPlatformInfoState.value?.buildNumber ?? ''})',
+                  '${Intl.message('label_setting_current_version')} ${asyncPlatformInfoState.value?.version ?? ''}(${asyncPlatformInfoState.value?.buildNumber ?? ''})',
               title: Align(
                 alignment: Alignment.centerRight,
                 child: Text(
-                  '업데이트',
+                  Intl.message('label_setting_update'),
+                  // Intl.message('label_setting_recent_version'),
                   style: getTextStyle(AppTypo.CAPTION12B, AppColors.Primary500),
                   textAlign: TextAlign.start,
                 ),
