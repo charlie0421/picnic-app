@@ -67,6 +67,7 @@ dependencies:
   image_gallery_saver: ^2.0.3
   photo_manager: ^3.1.1
   permission_handler: ^11.3.1
+  audioplayers: ^6.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -97,6 +98,7 @@ flutter:
     - assets/mockup/gallery/
     - assets/mockup/pic/
     - assets/landing/
+    - assets/sounds/
   fonts:
     - family: Pretendard
       fonts:
