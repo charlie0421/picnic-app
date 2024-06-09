@@ -609,6 +609,196 @@ class S {
       args: [],
     );
   }
+
+  /// `투표`
+  String get nav_vote {
+    return Intl.message(
+      '투표',
+      name: 'nav_vote',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `픽차트`
+  String get nav_picchart {
+    return Intl.message(
+      '픽차트',
+      name: 'nav_picchart',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `미디어`
+  String get nav_media {
+    return Intl.message(
+      '미디어',
+      name: 'nav_media',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `상점`
+  String get nav_store {
+    return Intl.message(
+      '상점',
+      name: 'nav_store',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `충전내역`
+  String get label_mypage_charge_history {
+    return Intl.message(
+      '충전내역',
+      name: 'label_mypage_charge_history',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `고객센터`
+  String get label_mypage_customer_center {
+    return Intl.message(
+      '고객센터',
+      name: 'label_mypage_customer_center',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `설정`
+  String get label_mypage_setting {
+    return Intl.message(
+      '설정',
+      name: 'label_mypage_setting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `투표내역`
+  String get label_mypage_vote_history {
+    return Intl.message(
+      '투표내역',
+      name: 'label_mypage_vote_history',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `멤버십 내역`
+  String get label_mypage_membership_history {
+    return Intl.message(
+      '멤버십 내역',
+      name: 'label_mypage_membership_history',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `알림`
+  String get label_setting_alarm {
+    return Intl.message(
+      '알림',
+      name: 'label_setting_alarm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `푸시알림`
+  String get label_setting_push_alarm {
+    return Intl.message(
+      '푸시알림',
+      name: 'label_setting_push_alarm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `이벤트알림`
+  String get label_setting_event_alarm {
+    return Intl.message(
+      '이벤트알림',
+      name: 'label_setting_event_alarm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `각종 이벤트와 행사를 안내드려요.`
+  String get label_setting_event_alarm_desc {
+    return Intl.message(
+      '각종 이벤트와 행사를 안내드려요.',
+      name: 'label_setting_event_alarm_desc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `언어설정`
+  String get label_setting_language {
+    return Intl.message(
+      '언어설정',
+      name: 'label_setting_language',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `저장공간 관리`
+  String get label_setting_storage {
+    return Intl.message(
+      '저장공간 관리',
+      name: 'label_setting_storage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `캐시삭제`
+  String get label_setting_remove_cache {
+    return Intl.message(
+      '캐시삭제',
+      name: 'label_setting_remove_cache',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `앱정보`
+  String get label_setting_appinfo {
+    return Intl.message(
+      '앱정보',
+      name: 'label_setting_appinfo',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `현재버전`
+  String get label_setting_current_version {
+    return Intl.message(
+      '현재버전',
+      name: 'label_setting_current_version',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `업데이트`
+  String get label_setting_update {
+    return Intl.message(
+      '업데이트',
+      name: 'label_setting_update',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

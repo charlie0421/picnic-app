@@ -33,25 +33,25 @@ ScreenInfo novelScreenInfo = ScreenInfo(
 
 List<BottomNavigationItem> votePages = [
   const BottomNavigationItem(
-    title: '투표',
+    title: 'nav_vote',
     assetPath: 'assets/icons/bottom/media.svg',
     index: 0,
     pageWidget: VoteHomePage(),
   ),
   const BottomNavigationItem(
-    title: '픽차트',
+    title: 'nav_picchart',
     assetPath: 'assets/icons/bottom/pic_chart.svg',
     index: 1,
     pageWidget: PicChartPage(),
   ),
   BottomNavigationItem(
-    title: '미디어',
+    title: 'nav_media',
     assetPath: 'assets/icons/bottom/media.svg',
     index: 2,
     pageWidget: Container(),
   ),
   const BottomNavigationItem(
-    title: '상점',
+    title: 'nav_store',
     assetPath: 'assets/icons/bottom/store.svg',
     index: 3,
     pageWidget: StorePage(),
