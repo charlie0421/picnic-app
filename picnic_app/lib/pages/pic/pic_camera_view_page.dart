@@ -169,7 +169,8 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
           child: Stack(
             children: [
               if (_cameraInitialized)
-                Positioned.fill(
+                Container(
+                  alignment: Alignment.center,
                   child: CameraPreview(
                     _controller!,
                     child: CustomPaint(
@@ -379,11 +380,11 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
           if (countdownIndex >= 0 &&
               countdownIndex < countdownSounds.length - 1) {
             logger.i('Playing sound: ${countdownSounds[countdownIndex]}');
-            _audioPlayer.play(AssetSource(countdownSounds[countdownIndex]));
+            // _audioPlayer.play(AssetSource(countdownSounds[countdownIndex]));
           }
           if (_remainTime <= 0) {
             timer.cancel();
-            _audioPlayer.play(AssetSource(countdownSounds.last));
+            // _audioPlayer.play(AssetSource(countdownSounds.last));
             _captureImage();
           } else {
             setState(() {
