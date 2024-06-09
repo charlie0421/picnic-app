@@ -61,6 +61,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("カスタマーセンター"),
         "label_mypage_membership_history":
             MessageLookupByLibrary.simpleMessage("メンバーシップ履歴"),
+        "label_mypage_mystar": MessageLookupByLibrary.simpleMessage("マイスター"),
+        "label_mypage_notice": MessageLookupByLibrary.simpleMessage("お知らせ"),
         "label_mypage_setting": MessageLookupByLibrary.simpleMessage("設定"),
         "label_mypage_vote_history":
             MessageLookupByLibrary.simpleMessage("投票履歴"),

@@ -60,6 +60,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("고객센터"),
         "label_mypage_membership_history":
             MessageLookupByLibrary.simpleMessage("멤버십 내역"),
+        "label_mypage_mystar": MessageLookupByLibrary.simpleMessage("마이 스타"),
+        "label_mypage_notice": MessageLookupByLibrary.simpleMessage("공지사항"),
         "label_mypage_setting": MessageLookupByLibrary.simpleMessage("설정"),
         "label_mypage_vote_history":
             MessageLookupByLibrary.simpleMessage("투표내역"),

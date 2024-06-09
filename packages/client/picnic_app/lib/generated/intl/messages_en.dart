@@ -66,6 +66,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Customer Center"),
         "label_mypage_membership_history":
             MessageLookupByLibrary.simpleMessage("Membership History"),
+        "label_mypage_mystar": MessageLookupByLibrary.simpleMessage("My Star"),
+        "label_mypage_notice": MessageLookupByLibrary.simpleMessage("Notice"),
         "label_mypage_setting":
             MessageLookupByLibrary.simpleMessage("Settings"),
         "label_mypage_vote_history":

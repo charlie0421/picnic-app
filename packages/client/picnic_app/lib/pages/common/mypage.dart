@@ -13,9 +13,9 @@ import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
 
 class MyPage extends ConsumerStatefulWidget {
-  String pageName = Intl.message('page_title_mypage');
+  final String pageName = 'page_title_mypage';
 
-  MyPage({super.key});
+  const MyPage({super.key});
 
   @override
   ConsumerState<MyPage> createState() => _MyPageState();
