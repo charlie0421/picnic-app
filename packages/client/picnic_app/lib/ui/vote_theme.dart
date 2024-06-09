@@ -43,6 +43,7 @@ ThemeData voteThemeLight = ThemeData.light().copyWith(
     ),
   ),
   tabBarTheme: commonTabBarTheme,
+  switchTheme: commonSwitchTheme,
   colorScheme: const ColorScheme(
     primary: Colors.black,
     onPrimary: Colors.white,

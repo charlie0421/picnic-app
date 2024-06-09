@@ -599,6 +599,16 @@ class S {
       args: [],
     );
   }
+
+  /// `환경설정`
+  String get page_title_setting {
+    return Intl.message(
+      '환경설정',
+      name: 'page_title_setting',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
