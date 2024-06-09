@@ -51,7 +51,6 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           ListItem(
             leading: Intl.message('label_setting_push_alarm'),
             assetPath: 'assets/icons/right_arrow.svg',
-            onTap: () {},
             tailing: LoadSwitch(
               width: 48.w,
               height: 28.h,
@@ -87,7 +86,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           const Divider(color: AppColors.Gray200),
           ListItem(
             leading: Intl.message('label_setting_event_alarm'),
-            title: Align(
+            title: Container(
+              margin: EdgeInsets.only(left: 8.w),
               alignment: Alignment.centerLeft,
               child: Text(
                 Intl.message('label_setting_event_alarm_desc'),
@@ -96,7 +96,6 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               ),
             ),
             assetPath: 'assets/icons/right_arrow.svg',
-            onTap: () {},
             tailing: LoadSwitch(
               width: 48.w,
               height: 28.h,
