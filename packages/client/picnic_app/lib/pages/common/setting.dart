@@ -157,7 +157,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               );
             }).toList(),
             onChanged: (value) {
-              logger.d('value: $value');
+              if (appSettingState.locale.languageCode == value) return;
               appSettingNotifier.setLocale(Locale(
                 value!,
                 countryMap[value] ?? '',
