@@ -26,12 +26,16 @@ class RewardModel {
   final int id;
   final String title_ko;
   final String title_en;
+  final String title_ja;
+  final String title_zh;
   String? thumbnail;
 
   RewardModel({
     required this.id,
     required this.title_ko,
     required this.title_en,
+    required this.title_ja,
+    required this.title_zh,
     this.thumbnail,
   });
 

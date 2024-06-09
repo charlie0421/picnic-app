@@ -1,0 +1,48 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
+
+class ImagePickerWidget extends StatelessWidget {
+  final Function(File) onImagePicked;
+
+  const ImagePickerWidget({Key? key, required this.onImagePicked})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        final ImagePicker _picker = ImagePicker();
+        final XFile? image = await _picker.pickImage(
+            source: ImageSource.gallery);
+        if (image != null) {
+          final croppedFile = await ImageCropper().cropImage(
+            sourcePath: image.path,
+            aspectRatio: const CropAspectRatio(ratioX: 5.5, ratioY: 8.5),
+            uiSettings: [
+              AndroidUiSettings(
+                  toolbarTitle: 'Cropping',
+                  toolbarColor: AppColors.primaryColor,
+                  toolbarWidgetColor: Colors.white,
+                  initAspectRatio: CropAspectRatioPreset.original,
+                  lockAspectRatio: true),
+              IOSUiSettings(
+                title: 'Cropping',
+                aspectRatioPickerButtonHidden: true,
+                aspectRatioLockEnabled: true,
+              ),
+              WebUiSettings(
+                context: context,
+              )
+            ],
+          );
+          if (croppedFile != null) {
+            onImagePicked(File(croppedFile.path));
+          }
+        }
+      },
+      child: Container(),
+    );
+  }
+}

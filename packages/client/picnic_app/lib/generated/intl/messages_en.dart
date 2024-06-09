@@ -31,6 +31,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "button_complete": MessageLookupByLibrary.simpleMessage("Done"),
         "button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
+        "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("Save"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("Album name"),
         "label_album_add":
             MessageLookupByLibrary.simpleMessage("Add a new album"),
@@ -57,7 +58,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("AI Photos"),
         "label_library_tab_library":
             MessageLookupByLibrary.simpleMessage("Libraries"),
-        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("PRAME"),
+        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("Frame"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("Go to the Celebrity Gallery"),
         "label_mypage_charge_history":
@@ -74,6 +75,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Vote History"),
         "label_no_celeb": MessageLookupByLibrary.simpleMessage(
             "You don\'t have any celebrities bookmarked yet!."),
+        "label_pic_pic_initializing_camera":
+            MessageLookupByLibrary.simpleMessage("Initializing camera..."),
+        "label_pic_pic_save_gallery":
+            MessageLookupByLibrary.simpleMessage("Save to Gallery"),
+        "label_pic_pic_synthesizing_image":
+            MessageLookupByLibrary.simpleMessage("Synthesizing image..."),
         "label_read_more_comment":
             MessageLookupByLibrary.simpleMessage("More comments"),
         "label_reply":
@@ -110,12 +117,18 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_title_comment": MessageLookupByLibrary.simpleMessage("Comments"),
         "label_title_report":
             MessageLookupByLibrary.simpleMessage("Make a report"),
+        "label_vote_reward_list":
+            MessageLookupByLibrary.simpleMessage("Reward List"),
         "label_vote_screen_title": MessageLookupByLibrary.simpleMessage("vote"),
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("birthday vote"),
         "label_vote_tab_pic":
             MessageLookupByLibrary.simpleMessage("P-RAME Voting"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("My Celeb"),
+        "message_pic_pic_save_fail":
+            MessageLookupByLibrary.simpleMessage("Failed to save."),
+        "message_pic_pic_save_success":
+            MessageLookupByLibrary.simpleMessage("Saved successfully."),
         "message_report_confirm":
             MessageLookupByLibrary.simpleMessage("Want to report?"),
         "message_report_ok":
@@ -138,7 +151,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_purchases": MessageLookupByLibrary.simpleMessage("Purchases"),
         "nav_setting": MessageLookupByLibrary.simpleMessage("Settings"),
         "nav_store": MessageLookupByLibrary.simpleMessage("Store"),
-        "nav_subscription": MessageLookupByLibrary.simpleMessage("구독"),
+        "nav_subscription":
+            MessageLookupByLibrary.simpleMessage("Subscription"),
         "nav_vote": MessageLookupByLibrary.simpleMessage("Vote"),
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("My Page"),
         "page_title_setting": MessageLookupByLibrary.simpleMessage("Settings"),

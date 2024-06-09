@@ -10,6 +10,8 @@ RewardModel _$RewardModelFromJson(Map<String, dynamic> json) => RewardModel(
       id: (json['id'] as num).toInt(),
       title_ko: json['title_ko'] as String,
       title_en: json['title_en'] as String,
+      title_ja: json['title_ja'] as String,
+      title_zh: json['title_zh'] as String,
       thumbnail: json['thumbnail'] as String?,
     );
 
@@ -18,5 +20,7 @@ Map<String, dynamic> _$RewardModelToJson(RewardModel instance) =>
       'id': instance.id,
       'title_ko': instance.title_ko,
       'title_en': instance.title_en,
+      'title_ja': instance.title_ja,
+      'title_zh': instance.title_zh,
       'thumbnail': instance.thumbnail,
     };
