@@ -580,220 +580,220 @@ class S {
     );
   }
 
-  /// `투표하기`
+  /// `Vote`
   String get page_title_vote_detail {
     return Intl.message(
-      '투표하기',
+      'Vote',
       name: 'page_title_vote_detail',
       desc: '',
       args: [],
     );
   }
 
-  /// `마이페이지`
+  /// `My Page`
   String get page_title_mypage {
     return Intl.message(
-      '마이페이지',
+      'My Page',
       name: 'page_title_mypage',
       desc: '',
       args: [],
     );
   }
 
-  /// `환경설정`
+  /// `Settings`
   String get page_title_setting {
     return Intl.message(
-      '환경설정',
+      'Settings',
       name: 'page_title_setting',
       desc: '',
       args: [],
     );
   }
 
-  /// `투표`
+  /// `Vote`
   String get nav_vote {
     return Intl.message(
-      '투표',
+      'Vote',
       name: 'nav_vote',
       desc: '',
       args: [],
     );
   }
 
-  /// `픽차트`
+  /// `PicChart`
   String get nav_picchart {
     return Intl.message(
-      '픽차트',
+      'PicChart',
       name: 'nav_picchart',
       desc: '',
       args: [],
     );
   }
 
-  /// `미디어`
+  /// `Media`
   String get nav_media {
     return Intl.message(
-      '미디어',
+      'Media',
       name: 'nav_media',
       desc: '',
       args: [],
     );
   }
 
-  /// `상점`
+  /// `Store`
   String get nav_store {
     return Intl.message(
-      '상점',
+      'Store',
       name: 'nav_store',
       desc: '',
       args: [],
     );
   }
 
-  /// `충전내역`
+  /// `Charge History`
   String get label_mypage_charge_history {
     return Intl.message(
-      '충전내역',
+      'Charge History',
       name: 'label_mypage_charge_history',
       desc: '',
       args: [],
     );
   }
 
-  /// `고객센터`
+  /// `Customer Center`
   String get label_mypage_customer_center {
     return Intl.message(
-      '고객센터',
+      'Customer Center',
       name: 'label_mypage_customer_center',
       desc: '',
       args: [],
     );
   }
 
-  /// `설정`
+  /// `Settings`
   String get label_mypage_setting {
     return Intl.message(
-      '설정',
+      'Settings',
       name: 'label_mypage_setting',
       desc: '',
       args: [],
     );
   }
 
-  /// `투표내역`
+  /// `Vote History`
   String get label_mypage_vote_history {
     return Intl.message(
-      '투표내역',
+      'Vote History',
       name: 'label_mypage_vote_history',
       desc: '',
       args: [],
     );
   }
 
-  /// `멤버십 내역`
+  /// `Membership History`
   String get label_mypage_membership_history {
     return Intl.message(
-      '멤버십 내역',
+      'Membership History',
       name: 'label_mypage_membership_history',
       desc: '',
       args: [],
     );
   }
 
-  /// `알림`
+  /// `Alarm`
   String get label_setting_alarm {
     return Intl.message(
-      '알림',
+      'Alarm',
       name: 'label_setting_alarm',
       desc: '',
       args: [],
     );
   }
 
-  /// `푸시알림`
+  /// `Push Notifications`
   String get label_setting_push_alarm {
     return Intl.message(
-      '푸시알림',
+      'Push Notifications',
       name: 'label_setting_push_alarm',
       desc: '',
       args: [],
     );
   }
 
-  /// `이벤트알림`
+  /// `Event Notifications`
   String get label_setting_event_alarm {
     return Intl.message(
-      '이벤트알림',
+      'Event Notifications',
       name: 'label_setting_event_alarm',
       desc: '',
       args: [],
     );
   }
 
-  /// `각종 이벤트와 행사를 안내드려요.`
+  /// `We inform you about various events and activities.`
   String get label_setting_event_alarm_desc {
     return Intl.message(
-      '각종 이벤트와 행사를 안내드려요.',
+      'We inform you about various events and activities.',
       name: 'label_setting_event_alarm_desc',
       desc: '',
       args: [],
     );
   }
 
-  /// `언어설정`
+  /// `Language Settings`
   String get label_setting_language {
     return Intl.message(
-      '언어설정',
+      'Language Settings',
       name: 'label_setting_language',
       desc: '',
       args: [],
     );
   }
 
-  /// `저장공간 관리`
+  /// `Manage Storage`
   String get label_setting_storage {
     return Intl.message(
-      '저장공간 관리',
+      'Manage Storage',
       name: 'label_setting_storage',
       desc: '',
       args: [],
     );
   }
 
-  /// `캐시삭제`
+  /// `Clear Cache`
   String get label_setting_remove_cache {
     return Intl.message(
-      '캐시삭제',
+      'Clear Cache',
       name: 'label_setting_remove_cache',
       desc: '',
       args: [],
     );
   }
 
-  /// `앱정보`
+  /// `App Info`
   String get label_setting_appinfo {
     return Intl.message(
-      '앱정보',
+      'App Info',
       name: 'label_setting_appinfo',
       desc: '',
       args: [],
     );
   }
 
-  /// `현재버전`
+  /// `Current Version`
   String get label_setting_current_version {
     return Intl.message(
-      '현재버전',
+      'Current Version',
       name: 'label_setting_current_version',
       desc: '',
       args: [],
     );
   }
 
-  /// `업데이트`
+  /// `Update`
   String get label_setting_update {
     return Intl.message(
-      '업데이트',
+      'Update',
       name: 'label_setting_update',
       desc: '',
       args: [],
@@ -809,7 +809,7 @@ class AppLocalizationDelegate extends LocalizationsDelegate<S> {
       Locale.fromSubtags(languageCode: 'en'),
       Locale.fromSubtags(languageCode: 'ja'),
       Locale.fromSubtags(languageCode: 'ko'),
-      Locale.fromSubtags(languageCode: 'zh'),
+      Locale.fromSubtags(languageCode: 'zh', countryCode: 'CN'),
     ];
   }
 

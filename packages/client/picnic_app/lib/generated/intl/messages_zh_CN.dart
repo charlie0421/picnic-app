@@ -1,5 +1,5 @@
 // DO NOT EDIT. This is code generated via package:intl/generate_localized.dart
-// This is a library that provides messages for a zh_Hans locale. All the
+// This is a library that provides messages for a zh_CN locale. All the
 // messages from the main program should be duplicated here with the same
 // function name.
 
@@ -18,7 +18,7 @@ final messages = new MessageLookup();
 typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 
 class MessageLookup extends MessageLookupByLibrary {
-  String get localeName => 'zh_Hans';
+  String get localeName => 'zh_CN';
 
   static String m0(day) => "${day}前";
 
@@ -53,33 +53,32 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("前往名人图库"),
         "label_mypage_charge_history":
-            MessageLookupByLibrary.simpleMessage("충전내역"),
+            MessageLookupByLibrary.simpleMessage("充值记录"),
         "label_mypage_customer_center":
-            MessageLookupByLibrary.simpleMessage("고객센터"),
+            MessageLookupByLibrary.simpleMessage("客服中心"),
         "label_mypage_membership_history":
-            MessageLookupByLibrary.simpleMessage("멤버십 내역"),
-        "label_mypage_setting": MessageLookupByLibrary.simpleMessage("설정"),
+            MessageLookupByLibrary.simpleMessage("会员记录"),
+        "label_mypage_setting": MessageLookupByLibrary.simpleMessage("设置"),
         "label_mypage_vote_history":
-            MessageLookupByLibrary.simpleMessage("투표내역"),
+            MessageLookupByLibrary.simpleMessage("投票记录"),
         "label_no_celeb": MessageLookupByLibrary.simpleMessage("您还没有将任何名人加入书签"),
         "label_read_more_comment": MessageLookupByLibrary.simpleMessage("更多评论"),
         "label_reply": MessageLookupByLibrary.simpleMessage("答复"),
-        "label_setting_alarm": MessageLookupByLibrary.simpleMessage("알림"),
-        "label_setting_appinfo": MessageLookupByLibrary.simpleMessage("앱정보"),
+        "label_setting_alarm": MessageLookupByLibrary.simpleMessage("闹钟"),
+        "label_setting_appinfo": MessageLookupByLibrary.simpleMessage("应用信息"),
         "label_setting_current_version":
-            MessageLookupByLibrary.simpleMessage("현재버전"),
+            MessageLookupByLibrary.simpleMessage("当前版本"),
         "label_setting_event_alarm":
-            MessageLookupByLibrary.simpleMessage("이벤트알림"),
+            MessageLookupByLibrary.simpleMessage("活动通知"),
         "label_setting_event_alarm_desc":
-            MessageLookupByLibrary.simpleMessage("각종 이벤트와 행사를 안내드려요."),
-        "label_setting_language": MessageLookupByLibrary.simpleMessage("언어설정"),
+            MessageLookupByLibrary.simpleMessage("我们会通知您各种活动和活动。"),
+        "label_setting_language": MessageLookupByLibrary.simpleMessage("语言设置"),
         "label_setting_push_alarm":
-            MessageLookupByLibrary.simpleMessage("푸시알림"),
+            MessageLookupByLibrary.simpleMessage("推送通知"),
         "label_setting_remove_cache":
-            MessageLookupByLibrary.simpleMessage("캐시삭제"),
-        "label_setting_storage":
-            MessageLookupByLibrary.simpleMessage("저장공간 관리"),
-        "label_setting_update": MessageLookupByLibrary.simpleMessage("업데이트"),
+            MessageLookupByLibrary.simpleMessage("清除缓存"),
+        "label_setting_storage": MessageLookupByLibrary.simpleMessage("存储管理"),
+        "label_setting_update": MessageLookupByLibrary.simpleMessage("更新"),
         "label_time_ago_day": m0,
         "label_time_ago_hour": m1,
         "label_time_ago_minute": m2,
@@ -103,16 +102,16 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_gallery": MessageLookupByLibrary.simpleMessage("画廊"),
         "nav_home": MessageLookupByLibrary.simpleMessage("首页"),
         "nav_library": MessageLookupByLibrary.simpleMessage("图书馆"),
-        "nav_media": MessageLookupByLibrary.simpleMessage("미디어"),
-        "nav_picchart": MessageLookupByLibrary.simpleMessage("픽차트"),
+        "nav_media": MessageLookupByLibrary.simpleMessage("媒体"),
+        "nav_picchart": MessageLookupByLibrary.simpleMessage("图片图表"),
         "nav_purchases": MessageLookupByLibrary.simpleMessage("购买"),
         "nav_setting": MessageLookupByLibrary.simpleMessage("设置"),
-        "nav_store": MessageLookupByLibrary.simpleMessage("상점"),
+        "nav_store": MessageLookupByLibrary.simpleMessage("商店"),
         "nav_subscription": MessageLookupByLibrary.simpleMessage("구독"),
-        "nav_vote": MessageLookupByLibrary.simpleMessage("투표"),
-        "page_title_mypage": MessageLookupByLibrary.simpleMessage("마이페이지"),
-        "page_title_setting": MessageLookupByLibrary.simpleMessage("환경설정"),
-        "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("투표하기"),
+        "nav_vote": MessageLookupByLibrary.simpleMessage("投票"),
+        "page_title_mypage": MessageLookupByLibrary.simpleMessage("我的页面"),
+        "page_title_setting": MessageLookupByLibrary.simpleMessage("设置"),
+        "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("投票"),
         "text_ads_random": MessageLookupByLibrary.simpleMessage("查看广告并收集随机图片。"),
         "text_draw_image":
             MessageLookupByLibrary.simpleMessage("来自整个画廊的 1 张图片已确认收藏"),
