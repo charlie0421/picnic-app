@@ -70,7 +70,7 @@
   "label_setting_alarm": "Alarm",
   "label_setting_push_alarm": "Push Notifications",
   "label_setting_event_alarm": "Event Notifications",
-  "label_setting_event_alarm_desc": "We inform you about various events and activities.",
+  "label_setting_event_alarm_desc": "Events & activities",
   "label_setting_language": "Language Settings",
   "label_setting_storage": "Manage Storage",
   "label_setting_remove_cache": "Clear Cache",

@@ -6,7 +6,7 @@ import 'package:picnic_app/ui/style.dart';
 class ListItem extends StatelessWidget {
   final String leading;
   final String assetPath;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final Widget? tailing;
   final Widget? title;
 
@@ -14,7 +14,7 @@ class ListItem extends StatelessWidget {
     super.key,
     required this.leading,
     required this.assetPath,
-    required this.onTap,
+    this.onTap,
     this.tailing,
     this.title,
   });

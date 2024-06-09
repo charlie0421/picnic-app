@@ -78,7 +78,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_setting_event_alarm":
             MessageLookupByLibrary.simpleMessage("イベント通知"),
         "label_setting_event_alarm_desc":
-            MessageLookupByLibrary.simpleMessage("様々なイベントと行事を案内します。"),
+            MessageLookupByLibrary.simpleMessage("イベント＆アクティビティ"),
         "label_setting_language": MessageLookupByLibrary.simpleMessage("言語設定"),
         "label_setting_push_alarm":
             MessageLookupByLibrary.simpleMessage("プッシュ通知"),

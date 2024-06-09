@@ -70,7 +70,7 @@
   "label_setting_alarm": "闹钟",
   "label_setting_push_alarm": "推送通知",
   "label_setting_event_alarm": "活动通知",
-  "label_setting_event_alarm_desc": "我们会通知您各种活动和活动。",
+  "label_setting_event_alarm_desc": "事件与活动",
   "label_setting_language": "语言设置",
   "label_setting_storage": "存储管理",
   "label_setting_remove_cache": "清除缓存",

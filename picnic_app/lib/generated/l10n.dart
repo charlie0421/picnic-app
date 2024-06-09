@@ -750,10 +750,10 @@ class S {
     );
   }
 
-  /// `We inform you about various events and activities.`
+  /// `Events & activities`
   String get label_setting_event_alarm_desc {
     return Intl.message(
-      'We inform you about various events and activities.',
+      'Events & activities',
       name: 'label_setting_event_alarm_desc',
       desc: '',
       args: [],

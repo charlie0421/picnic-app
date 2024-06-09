@@ -85,8 +85,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Current Version"),
         "label_setting_event_alarm":
             MessageLookupByLibrary.simpleMessage("Event Notifications"),
-        "label_setting_event_alarm_desc": MessageLookupByLibrary.simpleMessage(
-            "We inform you about various events and activities."),
+        "label_setting_event_alarm_desc":
+            MessageLookupByLibrary.simpleMessage("Events & activities"),
         "label_setting_language":
             MessageLookupByLibrary.simpleMessage("Language Settings"),
         "label_setting_push_alarm":
