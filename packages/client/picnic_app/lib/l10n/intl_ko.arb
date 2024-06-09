@@ -77,5 +77,8 @@
   "label_setting_appinfo": "앱정보",
   "label_setting_current_version": "현재버전",
   "label_setting_update": "업데이트",
-  "label_setting_recent_version": "최신버전"
+  "label_setting_recent_version": "최신버전",
+  "label_tabbar_picchart_daily": "일간차트",
+  "label_tabbar_picchart_weekly": "주간차트",
+  "label_tabbar_picchart_monthly": "월간차트"
 }

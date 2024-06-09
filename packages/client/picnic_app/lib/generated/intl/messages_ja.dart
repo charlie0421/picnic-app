@@ -87,6 +87,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_setting_storage":
             MessageLookupByLibrary.simpleMessage("ストレージ管理"),
         "label_setting_update": MessageLookupByLibrary.simpleMessage("アップデート"),
+        "label_tabbar_picchart_daily":
+            MessageLookupByLibrary.simpleMessage("デイリー"),
+        "label_tabbar_picchart_monthly":
+            MessageLookupByLibrary.simpleMessage("マンスリー"),
+        "label_tabbar_picchart_weekly":
+            MessageLookupByLibrary.simpleMessage("ウィークリー"),
         "label_time_ago_day": m0,
         "label_time_ago_hour": m1,
         "label_time_ago_minute": m2,

@@ -81,6 +81,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("清除缓存"),
         "label_setting_storage": MessageLookupByLibrary.simpleMessage("存储管理"),
         "label_setting_update": MessageLookupByLibrary.simpleMessage("更新"),
+        "label_tabbar_picchart_daily":
+            MessageLookupByLibrary.simpleMessage("每日"),
+        "label_tabbar_picchart_monthly":
+            MessageLookupByLibrary.simpleMessage("每月"),
+        "label_tabbar_picchart_weekly":
+            MessageLookupByLibrary.simpleMessage("每周"),
         "label_time_ago_day": m0,
         "label_time_ago_hour": m1,
         "label_time_ago_minute": m2,

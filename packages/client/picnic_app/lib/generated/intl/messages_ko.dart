@@ -86,6 +86,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_setting_storage":
             MessageLookupByLibrary.simpleMessage("저장공간 관리"),
         "label_setting_update": MessageLookupByLibrary.simpleMessage("업데이트"),
+        "label_tabbar_picchart_daily":
+            MessageLookupByLibrary.simpleMessage("일간차트"),
+        "label_tabbar_picchart_monthly":
+            MessageLookupByLibrary.simpleMessage("월간차트"),
+        "label_tabbar_picchart_weekly":
+            MessageLookupByLibrary.simpleMessage("주간차트"),
         "label_time_ago_day": m0,
         "label_time_ago_hour": m1,
         "label_time_ago_minute": m2,

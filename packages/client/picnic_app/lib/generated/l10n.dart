@@ -819,6 +819,36 @@ class S {
       args: [],
     );
   }
+
+  /// `Daily`
+  String get label_tabbar_picchart_daily {
+    return Intl.message(
+      'Daily',
+      name: 'label_tabbar_picchart_daily',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Weekly`
+  String get label_tabbar_picchart_weekly {
+    return Intl.message(
+      'Weekly',
+      name: 'label_tabbar_picchart_weekly',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Monthly`
+  String get label_tabbar_picchart_monthly {
+    return Intl.message(
+      'Monthly',
+      name: 'label_tabbar_picchart_monthly',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
