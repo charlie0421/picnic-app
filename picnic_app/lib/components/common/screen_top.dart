@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/common_my_point_info.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -29,6 +31,7 @@ class _TopState extends ConsumerState<ScreenTop> {
   Widget build(BuildContext context) {
     final navigationInfo = ref.watch(navigationInfoProvider);
     final navigationInfoNotifier = ref.watch(navigationInfoProvider.notifier);
+    final appSetting = ref.watch(appSettingProvider);
 
     String pageName;
     try {
@@ -68,7 +71,7 @@ class _TopState extends ConsumerState<ScreenTop> {
           navigationInfo.navigationStack != null &&
                   navigationInfo.navigationStack!.length > 1
               ? Text(
-                  pageName,
+                  Intl.message(pageName),
                   style: getTextStyle(AppTypo.BODY16B, AppColors.Gray900),
                 )
               : const SizedBox(),

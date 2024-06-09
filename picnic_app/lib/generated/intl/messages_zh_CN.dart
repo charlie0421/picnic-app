@@ -58,6 +58,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("客服中心"),
         "label_mypage_membership_history":
             MessageLookupByLibrary.simpleMessage("会员记录"),
+        "label_mypage_mystar": MessageLookupByLibrary.simpleMessage("我的明星"),
+        "label_mypage_notice": MessageLookupByLibrary.simpleMessage("通知"),
         "label_mypage_setting": MessageLookupByLibrary.simpleMessage("设置"),
         "label_mypage_vote_history":
             MessageLookupByLibrary.simpleMessage("投票记录"),

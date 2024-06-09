@@ -650,6 +650,16 @@ class S {
     );
   }
 
+  /// `Notice`
+  String get label_mypage_notice {
+    return Intl.message(
+      'Notice',
+      name: 'label_mypage_notice',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Charge History`
   String get label_mypage_charge_history {
     return Intl.message(
@@ -685,6 +695,16 @@ class S {
     return Intl.message(
       'Vote History',
       name: 'label_mypage_vote_history',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `My Star`
+  String get label_mypage_mystar {
+    return Intl.message(
+      'My Star',
+      name: 'label_mypage_mystar',
       desc: '',
       args: [],
     );

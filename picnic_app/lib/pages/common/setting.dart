@@ -12,9 +12,9 @@ import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class SettingPage extends ConsumerStatefulWidget {
-  String pageName = Intl.message('page_title_setting');
+  final String pageName = 'page_title_setting';
 
-  SettingPage({super.key});
+  const SettingPage({super.key});
 
   @override
   ConsumerState<SettingPage> createState() => _SettingPageState();
