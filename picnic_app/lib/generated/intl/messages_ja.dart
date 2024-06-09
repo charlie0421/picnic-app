@@ -56,35 +56,35 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("セレブリティ・ギャラリーへ"),
         "label_mypage_charge_history":
-            MessageLookupByLibrary.simpleMessage("충전내역"),
+            MessageLookupByLibrary.simpleMessage("チャージ履歴"),
         "label_mypage_customer_center":
-            MessageLookupByLibrary.simpleMessage("고객센터"),
+            MessageLookupByLibrary.simpleMessage("カスタマーセンター"),
         "label_mypage_membership_history":
-            MessageLookupByLibrary.simpleMessage("멤버십 내역"),
-        "label_mypage_setting": MessageLookupByLibrary.simpleMessage("설정"),
+            MessageLookupByLibrary.simpleMessage("メンバーシップ履歴"),
+        "label_mypage_setting": MessageLookupByLibrary.simpleMessage("設定"),
         "label_mypage_vote_history":
-            MessageLookupByLibrary.simpleMessage("투표내역"),
+            MessageLookupByLibrary.simpleMessage("投票履歴"),
         "label_no_celeb":
             MessageLookupByLibrary.simpleMessage("あなたはまだ有名人をブックマークしていない!"),
         "label_read_more_comment":
             MessageLookupByLibrary.simpleMessage("コメントをもっと見る"),
         "label_reply": MessageLookupByLibrary.simpleMessage("返信する"),
-        "label_setting_alarm": MessageLookupByLibrary.simpleMessage("알림"),
-        "label_setting_appinfo": MessageLookupByLibrary.simpleMessage("앱정보"),
+        "label_setting_alarm": MessageLookupByLibrary.simpleMessage("アラーム"),
+        "label_setting_appinfo": MessageLookupByLibrary.simpleMessage("アプリ情報"),
         "label_setting_current_version":
-            MessageLookupByLibrary.simpleMessage("현재버전"),
+            MessageLookupByLibrary.simpleMessage("現在のバージョン"),
         "label_setting_event_alarm":
-            MessageLookupByLibrary.simpleMessage("이벤트알림"),
+            MessageLookupByLibrary.simpleMessage("イベント通知"),
         "label_setting_event_alarm_desc":
-            MessageLookupByLibrary.simpleMessage("각종 이벤트와 행사를 안내드려요."),
-        "label_setting_language": MessageLookupByLibrary.simpleMessage("언어설정"),
+            MessageLookupByLibrary.simpleMessage("様々なイベントと行事を案内します。"),
+        "label_setting_language": MessageLookupByLibrary.simpleMessage("言語設定"),
         "label_setting_push_alarm":
-            MessageLookupByLibrary.simpleMessage("푸시알림"),
+            MessageLookupByLibrary.simpleMessage("プッシュ通知"),
         "label_setting_remove_cache":
-            MessageLookupByLibrary.simpleMessage("캐시삭제"),
+            MessageLookupByLibrary.simpleMessage("キャッシュ削除"),
         "label_setting_storage":
-            MessageLookupByLibrary.simpleMessage("저장공간 관리"),
-        "label_setting_update": MessageLookupByLibrary.simpleMessage("업데이트"),
+            MessageLookupByLibrary.simpleMessage("ストレージ管理"),
+        "label_setting_update": MessageLookupByLibrary.simpleMessage("アップデート"),
         "label_time_ago_day": m0,
         "label_time_ago_hour": m1,
         "label_time_ago_minute": m2,
@@ -108,16 +108,16 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_gallery": MessageLookupByLibrary.simpleMessage("ギャラリー"),
         "nav_home": MessageLookupByLibrary.simpleMessage("ホーム"),
         "nav_library": MessageLookupByLibrary.simpleMessage("ライブラリ"),
-        "nav_media": MessageLookupByLibrary.simpleMessage("미디어"),
-        "nav_picchart": MessageLookupByLibrary.simpleMessage("픽차트"),
+        "nav_media": MessageLookupByLibrary.simpleMessage("メディア"),
+        "nav_picchart": MessageLookupByLibrary.simpleMessage("ピクチャート"),
         "nav_purchases": MessageLookupByLibrary.simpleMessage("購入"),
         "nav_setting": MessageLookupByLibrary.simpleMessage("設定"),
-        "nav_store": MessageLookupByLibrary.simpleMessage("상점"),
+        "nav_store": MessageLookupByLibrary.simpleMessage("ストア"),
         "nav_subscription": MessageLookupByLibrary.simpleMessage("구독"),
-        "nav_vote": MessageLookupByLibrary.simpleMessage("투표"),
-        "page_title_mypage": MessageLookupByLibrary.simpleMessage("마이페이지"),
-        "page_title_setting": MessageLookupByLibrary.simpleMessage("환경설정"),
-        "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("투표하기"),
+        "nav_vote": MessageLookupByLibrary.simpleMessage("投票"),
+        "page_title_mypage": MessageLookupByLibrary.simpleMessage("マイページ"),
+        "page_title_setting": MessageLookupByLibrary.simpleMessage("設定"),
+        "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("投票する"),
         "text_ads_random":
             MessageLookupByLibrary.simpleMessage("広告を見て、ランダムな画像を集める。"),
         "text_draw_image":

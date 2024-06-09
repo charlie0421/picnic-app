@@ -20,10 +20,10 @@ var logger = Logger();
 LocalStorage globalStorage = LocalStorage();
 
 Map<String, String> countryMap = {
-  'KR': 'South Korea',
-  'US': 'United States',
-  'JP': 'Japan',
-  'CN': 'China',
+  'en': 'US',
+  'ko': 'KR',
+  'ja': 'JP',
+  'zh': 'CN',
 };
 
 Map<String, String> languageMap = {

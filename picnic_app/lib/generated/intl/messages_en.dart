@@ -61,36 +61,39 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("Go to the Celebrity Gallery"),
         "label_mypage_charge_history":
-            MessageLookupByLibrary.simpleMessage("충전내역"),
+            MessageLookupByLibrary.simpleMessage("Charge History"),
         "label_mypage_customer_center":
-            MessageLookupByLibrary.simpleMessage("고객센터"),
+            MessageLookupByLibrary.simpleMessage("Customer Center"),
         "label_mypage_membership_history":
-            MessageLookupByLibrary.simpleMessage("멤버십 내역"),
-        "label_mypage_setting": MessageLookupByLibrary.simpleMessage("설정"),
+            MessageLookupByLibrary.simpleMessage("Membership History"),
+        "label_mypage_setting":
+            MessageLookupByLibrary.simpleMessage("Settings"),
         "label_mypage_vote_history":
-            MessageLookupByLibrary.simpleMessage("투표내역"),
+            MessageLookupByLibrary.simpleMessage("Vote History"),
         "label_no_celeb": MessageLookupByLibrary.simpleMessage(
             "You don\'t have any celebrities bookmarked yet!."),
         "label_read_more_comment":
             MessageLookupByLibrary.simpleMessage("More comments"),
         "label_reply":
             MessageLookupByLibrary.simpleMessage("Replying to a reply"),
-        "label_setting_alarm": MessageLookupByLibrary.simpleMessage("알림"),
-        "label_setting_appinfo": MessageLookupByLibrary.simpleMessage("앱정보"),
+        "label_setting_alarm": MessageLookupByLibrary.simpleMessage("Alarm"),
+        "label_setting_appinfo":
+            MessageLookupByLibrary.simpleMessage("App Info"),
         "label_setting_current_version":
-            MessageLookupByLibrary.simpleMessage("현재버전"),
+            MessageLookupByLibrary.simpleMessage("Current Version"),
         "label_setting_event_alarm":
-            MessageLookupByLibrary.simpleMessage("이벤트알림"),
-        "label_setting_event_alarm_desc":
-            MessageLookupByLibrary.simpleMessage("각종 이벤트와 행사를 안내드려요."),
-        "label_setting_language": MessageLookupByLibrary.simpleMessage("언어설정"),
+            MessageLookupByLibrary.simpleMessage("Event Notifications"),
+        "label_setting_event_alarm_desc": MessageLookupByLibrary.simpleMessage(
+            "We inform you about various events and activities."),
+        "label_setting_language":
+            MessageLookupByLibrary.simpleMessage("Language Settings"),
         "label_setting_push_alarm":
-            MessageLookupByLibrary.simpleMessage("푸시알림"),
+            MessageLookupByLibrary.simpleMessage("Push Notifications"),
         "label_setting_remove_cache":
-            MessageLookupByLibrary.simpleMessage("캐시삭제"),
+            MessageLookupByLibrary.simpleMessage("Clear Cache"),
         "label_setting_storage":
-            MessageLookupByLibrary.simpleMessage("저장공간 관리"),
-        "label_setting_update": MessageLookupByLibrary.simpleMessage("업데이트"),
+            MessageLookupByLibrary.simpleMessage("Manage Storage"),
+        "label_setting_update": MessageLookupByLibrary.simpleMessage("Update"),
         "label_time_ago_day": m0,
         "label_time_ago_hour": m1,
         "label_time_ago_minute": m2,
@@ -122,16 +125,16 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_gallery": MessageLookupByLibrary.simpleMessage("Gallery"),
         "nav_home": MessageLookupByLibrary.simpleMessage("Home"),
         "nav_library": MessageLookupByLibrary.simpleMessage("Library"),
-        "nav_media": MessageLookupByLibrary.simpleMessage("미디어"),
-        "nav_picchart": MessageLookupByLibrary.simpleMessage("픽차트"),
+        "nav_media": MessageLookupByLibrary.simpleMessage("Media"),
+        "nav_picchart": MessageLookupByLibrary.simpleMessage("PicChart"),
         "nav_purchases": MessageLookupByLibrary.simpleMessage("Purchases"),
         "nav_setting": MessageLookupByLibrary.simpleMessage("Settings"),
-        "nav_store": MessageLookupByLibrary.simpleMessage("상점"),
+        "nav_store": MessageLookupByLibrary.simpleMessage("Store"),
         "nav_subscription": MessageLookupByLibrary.simpleMessage("구독"),
-        "nav_vote": MessageLookupByLibrary.simpleMessage("투표"),
-        "page_title_mypage": MessageLookupByLibrary.simpleMessage("마이페이지"),
-        "page_title_setting": MessageLookupByLibrary.simpleMessage("환경설정"),
-        "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("투표하기"),
+        "nav_vote": MessageLookupByLibrary.simpleMessage("Vote"),
+        "page_title_mypage": MessageLookupByLibrary.simpleMessage("My Page"),
+        "page_title_setting": MessageLookupByLibrary.simpleMessage("Settings"),
+        "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("Vote"),
         "text_ads_random": MessageLookupByLibrary.simpleMessage(
             "Viewing ads and collecting random images."),
         "text_draw_image": MessageLookupByLibrary.simpleMessage(

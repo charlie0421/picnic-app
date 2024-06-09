@@ -160,6 +160,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               logger.d('value: $value');
               appSettingNotifier.setLocale(Locale(
                 value!,
+                countryMap[value] ?? '',
               ));
             },
           ),
