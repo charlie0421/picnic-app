@@ -41,7 +41,7 @@
   "button_ok": "확인",
   "button_cancel": "취소",
   "label_library_tab_library": "라이브러리",
-  "label_library_tab_pic": "PRAME",
+  "label_library_tab_pic": "Frame",
   "label_library_tab_ai_photo": "AI 포토",
   "label_article_comment_empty": "첫 댓글의 주인공이 되세요!",
   "label_library_save": "라이브러리 저장",
@@ -80,5 +80,12 @@
   "label_setting_recent_version": "최신버전",
   "label_tabbar_picchart_daily": "일간차트",
   "label_tabbar_picchart_weekly": "주간차트",
-  "label_tabbar_picchart_monthly": "월간차트"
+  "label_tabbar_picchart_monthly": "월간차트",
+  "label_vote_reward_list": "리워드 리스트",
+  "label_pic_pic_save_gallery": "갤러리에 저장",
+  "button_pic_pic_save": "저장하기",
+  "label_pic_pic_initializing_camera": "카메라 초기화중...",
+  "label_pic_pic_synthesizing_image": "이미지 합성중...",
+  "message_pic_pic_save_success": "이미지가 저장되었습니다.",
+  "message_pic_pic_save_fail": "이미지 저장에 실패했습니다."
 }

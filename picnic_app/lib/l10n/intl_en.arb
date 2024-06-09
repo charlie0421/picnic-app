@@ -5,7 +5,7 @@
   "nav_library": "Library",
   "nav_purchases": "Purchases",
   "nav_ads": "Ads",
-  "nav_subscription": "구독",
+  "nav_subscription": "Subscription",
   "mypage_purchases": "My Purchases",
   "mypage_setting": "Settings",
   "mypage_subscription": "Subscription Info",
@@ -41,7 +41,7 @@
   "button_ok": "Confirm",
   "button_cancel": "Cancel",
   "label_library_tab_library": "Libraries",
-  "label_library_tab_pic": "PRAME",
+  "label_library_tab_pic": "Frame",
   "label_library_tab_ai_photo": "AI Photos",
   "label_article_comment_empty": "Be the first to comment!",
   "label_library_save": "Save the library",
@@ -79,5 +79,12 @@
   "label_setting_update": "Update",
   "label_tabbar_picchart_daily": "Daily",
   "label_tabbar_picchart_weekly": "Weekly",
-  "label_tabbar_picchart_monthly": "Monthly"
+  "label_tabbar_picchart_monthly": "Monthly",
+  "label_vote_reward_list": "Reward List",
+  "label_pic_pic_save_gallery": "Save to Gallery",
+  "button_pic_pic_save": "Save",
+  "label_pic_pic_initializing_camera": "Initializing camera...",
+  "label_pic_pic_synthesizing_image": "Synthesizing image...",
+  "message_pic_pic_save_success": "Saved successfully.",
+  "message_pic_pic_save_fail": "Failed to save."
 }

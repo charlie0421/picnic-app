@@ -31,6 +31,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_cancel": MessageLookupByLibrary.simpleMessage("취소"),
         "button_complete": MessageLookupByLibrary.simpleMessage("완료"),
         "button_ok": MessageLookupByLibrary.simpleMessage("확인"),
+        "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("저장하기"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("앨범명"),
         "label_album_add": MessageLookupByLibrary.simpleMessage("새로운 앨범 추가"),
         "label_article_comment_empty":
@@ -51,7 +52,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("AI 포토"),
         "label_library_tab_library":
             MessageLookupByLibrary.simpleMessage("라이브러리"),
-        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("PRAME"),
+        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("Frame"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("셀러브리티 갤러리로 이동"),
         "label_mypage_charge_history":
@@ -67,6 +68,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("투표내역"),
         "label_no_celeb":
             MessageLookupByLibrary.simpleMessage("아직 북마크한 유명인이 없습니다!"),
+        "label_pic_pic_initializing_camera":
+            MessageLookupByLibrary.simpleMessage("카메라 초기화중..."),
+        "label_pic_pic_save_gallery":
+            MessageLookupByLibrary.simpleMessage("갤러리에 저장"),
+        "label_pic_pic_synthesizing_image":
+            MessageLookupByLibrary.simpleMessage("이미지 합성중..."),
         "label_read_more_comment":
             MessageLookupByLibrary.simpleMessage("댓글 더보기"),
         "label_reply": MessageLookupByLibrary.simpleMessage("답글 달기"),
@@ -99,11 +106,17 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("방금 전"),
         "label_title_comment": MessageLookupByLibrary.simpleMessage("댓글"),
         "label_title_report": MessageLookupByLibrary.simpleMessage("신고하기"),
+        "label_vote_reward_list":
+            MessageLookupByLibrary.simpleMessage("리워드 리스트"),
         "label_vote_screen_title": MessageLookupByLibrary.simpleMessage("투표"),
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("생일 투표"),
         "label_vote_tab_pic": MessageLookupByLibrary.simpleMessage("P-RAME 투표"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("내 셀럽"),
+        "message_pic_pic_save_fail":
+            MessageLookupByLibrary.simpleMessage("이미지 저장에 실패했습니다."),
+        "message_pic_pic_save_success":
+            MessageLookupByLibrary.simpleMessage("이미지가 저장되었습니다."),
         "message_report_confirm":
             MessageLookupByLibrary.simpleMessage("신고하시겠습니까?"),
         "message_report_ok":

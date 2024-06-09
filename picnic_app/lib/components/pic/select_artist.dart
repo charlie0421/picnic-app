@@ -11,6 +11,7 @@ import 'package:image/image.dart' as img;
 import 'package:picnic_app/providers/celeb_list_provider.dart';
 import 'package:picnic_app/providers/pic_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util.dart';
 
 class SelectArtist extends ConsumerStatefulWidget {
   const SelectArtist({super.key});
@@ -179,7 +180,7 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
           ),
         );
       },
-      loading: () => const CircularProgressIndicator(),
+      loading: () => buildLoadingOverlay(),
       error: (error, stackTrace) => const Text('error'),
     );
   }

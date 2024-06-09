@@ -100,10 +100,10 @@ class S {
     );
   }
 
-  /// `구독`
+  /// `Subscription`
   String get nav_subscription {
     return Intl.message(
-      '구독',
+      'Subscription',
       name: 'nav_subscription',
       desc: '',
       args: [],
@@ -460,10 +460,10 @@ class S {
     );
   }
 
-  /// `PRAME`
+  /// `Frame`
   String get label_library_tab_pic {
     return Intl.message(
-      'PRAME',
+      'Frame',
       name: 'label_library_tab_pic',
       desc: '',
       args: [],
@@ -845,6 +845,76 @@ class S {
     return Intl.message(
       'Monthly',
       name: 'label_tabbar_picchart_monthly',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reward List`
+  String get label_vote_reward_list {
+    return Intl.message(
+      'Reward List',
+      name: 'label_vote_reward_list',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save to Gallery`
+  String get label_pic_pic_save_gallery {
+    return Intl.message(
+      'Save to Gallery',
+      name: 'label_pic_pic_save_gallery',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save`
+  String get button_pic_pic_save {
+    return Intl.message(
+      'Save',
+      name: 'button_pic_pic_save',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Initializing camera...`
+  String get label_pic_pic_initializing_camera {
+    return Intl.message(
+      'Initializing camera...',
+      name: 'label_pic_pic_initializing_camera',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Synthesizing image...`
+  String get label_pic_pic_synthesizing_image {
+    return Intl.message(
+      'Synthesizing image...',
+      name: 'label_pic_pic_synthesizing_image',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Saved successfully.`
+  String get message_pic_pic_save_success {
+    return Intl.message(
+      'Saved successfully.',
+      name: 'message_pic_pic_save_success',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Failed to save.`
+  String get message_pic_pic_save_fail {
+    return Intl.message(
+      'Failed to save.',
+      name: 'message_pic_pic_save_fail',
       desc: '',
       args: [],
     );

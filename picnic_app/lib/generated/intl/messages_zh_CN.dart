@@ -31,6 +31,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_cancel": MessageLookupByLibrary.simpleMessage("取消"),
         "button_complete": MessageLookupByLibrary.simpleMessage("完成"),
         "button_ok": MessageLookupByLibrary.simpleMessage("确认"),
+        "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("保存"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("专辑名称"),
         "label_album_add": MessageLookupByLibrary.simpleMessage("添加新相册"),
         "label_article_comment_empty":
@@ -49,7 +50,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("人工智能照片"),
         "label_library_tab_library":
             MessageLookupByLibrary.simpleMessage("图书馆"),
-        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("PRAME"),
+        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("Frame"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("前往名人图库"),
         "label_mypage_charge_history":
@@ -64,6 +65,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_mypage_vote_history":
             MessageLookupByLibrary.simpleMessage("投票记录"),
         "label_no_celeb": MessageLookupByLibrary.simpleMessage("您还没有将任何名人加入书签"),
+        "label_pic_pic_initializing_camera":
+            MessageLookupByLibrary.simpleMessage("初始化相机..."),
+        "label_pic_pic_save_gallery":
+            MessageLookupByLibrary.simpleMessage("保存到图库"),
+        "label_pic_pic_synthesizing_image":
+            MessageLookupByLibrary.simpleMessage("合成图像..."),
         "label_read_more_comment": MessageLookupByLibrary.simpleMessage("更多评论"),
         "label_reply": MessageLookupByLibrary.simpleMessage("答复"),
         "label_setting_alarm": MessageLookupByLibrary.simpleMessage("闹钟"),
@@ -94,10 +101,15 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("就在刚才"),
         "label_title_comment": MessageLookupByLibrary.simpleMessage("评论"),
         "label_title_report": MessageLookupByLibrary.simpleMessage("提交报告"),
+        "label_vote_reward_list": MessageLookupByLibrary.simpleMessage("奖励名单"),
         "label_vote_screen_title": MessageLookupByLibrary.simpleMessage("投票"),
         "label_vote_tab_birthday": MessageLookupByLibrary.simpleMessage("生日投票"),
         "label_vote_tab_pic": MessageLookupByLibrary.simpleMessage("P-RAME投票"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("我的名人"),
+        "message_pic_pic_save_fail":
+            MessageLookupByLibrary.simpleMessage("保存失败。"),
+        "message_pic_pic_save_success":
+            MessageLookupByLibrary.simpleMessage("保存成功。"),
         "message_report_confirm":
             MessageLookupByLibrary.simpleMessage("你想报告吗？"),
         "message_report_ok": MessageLookupByLibrary.simpleMessage("报告已完成。"),
@@ -115,7 +127,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_purchases": MessageLookupByLibrary.simpleMessage("购买"),
         "nav_setting": MessageLookupByLibrary.simpleMessage("设置"),
         "nav_store": MessageLookupByLibrary.simpleMessage("商店"),
-        "nav_subscription": MessageLookupByLibrary.simpleMessage("구독"),
+        "nav_subscription": MessageLookupByLibrary.simpleMessage("订阅"),
         "nav_vote": MessageLookupByLibrary.simpleMessage("投票"),
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("我的页面"),
         "page_title_setting": MessageLookupByLibrary.simpleMessage("设置"),

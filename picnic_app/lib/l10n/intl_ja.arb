@@ -5,7 +5,7 @@
   "nav_library": "ライブラリ",
   "nav_purchases": "購入",
   "nav_ads": "広告",
-  "nav_subscription": "구독",
+  "nav_subscription": "購読",
   "mypage_purchases": "私の購入",
   "mypage_setting": "設定",
   "mypage_subscription": "購読情報",
@@ -41,7 +41,7 @@
   "button_ok": "確認",
   "button_cancel": "キャンセル",
   "label_library_tab_library": "ライブラリ",
-  "label_library_tab_pic": "PRAME",
+  "label_library_tab_pic": "Frame",
   "label_library_tab_ai_photo": "AIフォト",
   "label_article_comment_empty": "最初のコメントの主人公になりましょう！",
   "label_library_save": "ライブラリ保存",
@@ -79,5 +79,12 @@
   "label_setting_update": "アップデート",
   "label_tabbar_picchart_daily": "デイリー",
   "label_tabbar_picchart_weekly": "ウィークリー",
-  "label_tabbar_picchart_monthly": "マンスリー"
+  "label_tabbar_picchart_monthly": "マンスリー",
+  "label_vote_reward_list": "報酬リスト",
+  "label_pic_pic_save_gallery": "ギャラリーに保存",
+  "button_pic_pic_save": "保存",
+  "label_pic_pic_initializing_camera": "カメラ初期化中...",
+  "label_pic_pic_synthesizing_image": "画像合成中...",
+  "message_pic_pic_save_success": "保存しました。",
+  "message_pic_pic_save_fail": "保存に失敗しました。"
 }

@@ -114,7 +114,7 @@ class _MyPageState extends ConsumerState<MyPage> {
             ],
           );
         },
-        loading: () => const CircularProgressIndicator(),
+        loading: () => buildLoadingOverlay(),
         error: (error, stack) {
           return Text('Error: $error');
         },

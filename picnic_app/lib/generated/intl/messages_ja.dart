@@ -31,6 +31,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_cancel": MessageLookupByLibrary.simpleMessage("キャンセル"),
         "button_complete": MessageLookupByLibrary.simpleMessage("完了"),
         "button_ok": MessageLookupByLibrary.simpleMessage("確認"),
+        "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("保存"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("アルバム名"),
         "label_album_add": MessageLookupByLibrary.simpleMessage("新しいアルバムを追加"),
         "label_article_comment_empty":
@@ -52,7 +53,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("AIフォト"),
         "label_library_tab_library":
             MessageLookupByLibrary.simpleMessage("ライブラリ"),
-        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("PRAME"),
+        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("Frame"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("セレブリティ・ギャラリーへ"),
         "label_mypage_charge_history":
@@ -68,6 +69,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("投票履歴"),
         "label_no_celeb":
             MessageLookupByLibrary.simpleMessage("あなたはまだ有名人をブックマークしていない!"),
+        "label_pic_pic_initializing_camera":
+            MessageLookupByLibrary.simpleMessage("カメラ初期化中..."),
+        "label_pic_pic_save_gallery":
+            MessageLookupByLibrary.simpleMessage("ギャラリーに保存"),
+        "label_pic_pic_synthesizing_image":
+            MessageLookupByLibrary.simpleMessage("画像合成中..."),
         "label_read_more_comment":
             MessageLookupByLibrary.simpleMessage("コメントをもっと見る"),
         "label_reply": MessageLookupByLibrary.simpleMessage("返信する"),
@@ -99,11 +106,16 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_time_ago_right_now": MessageLookupByLibrary.simpleMessage("先ほど"),
         "label_title_comment": MessageLookupByLibrary.simpleMessage("コメント"),
         "label_title_report": MessageLookupByLibrary.simpleMessage("報告する"),
+        "label_vote_reward_list": MessageLookupByLibrary.simpleMessage("報酬リスト"),
         "label_vote_screen_title": MessageLookupByLibrary.simpleMessage("投票"),
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("誕生日投票"),
         "label_vote_tab_pic": MessageLookupByLibrary.simpleMessage("P-RAME投票"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("マイ・セレブ"),
+        "message_pic_pic_save_fail":
+            MessageLookupByLibrary.simpleMessage("保存に失敗しました。"),
+        "message_pic_pic_save_success":
+            MessageLookupByLibrary.simpleMessage("保存しました。"),
         "message_report_confirm":
             MessageLookupByLibrary.simpleMessage("申告しますか？"),
         "message_report_ok": MessageLookupByLibrary.simpleMessage("申告が完了しました。"),
@@ -121,7 +133,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_purchases": MessageLookupByLibrary.simpleMessage("購入"),
         "nav_setting": MessageLookupByLibrary.simpleMessage("設定"),
         "nav_store": MessageLookupByLibrary.simpleMessage("ストア"),
-        "nav_subscription": MessageLookupByLibrary.simpleMessage("구독"),
+        "nav_subscription": MessageLookupByLibrary.simpleMessage("購読"),
         "nav_vote": MessageLookupByLibrary.simpleMessage("投票"),
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("マイページ"),
         "page_title_setting": MessageLookupByLibrary.simpleMessage("設定"),

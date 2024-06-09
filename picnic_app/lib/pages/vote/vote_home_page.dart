@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/list/vote_artists.dart';
 import 'package:picnic_app/components/vote/list/vote_image.dart';
@@ -67,12 +68,11 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
 
   Widget _buildReward(BuildContext context) {
     final asyncRewardListState = ref.watch(asyncRewardListProvider);
-
     return Column(children: [
       Container(
         padding: const EdgeInsets.only(left: 16),
         alignment: Alignment.centerLeft,
-        child: Text('리워드 LIST',
+        child: Text(Intl.message('label_vote_reward_list'),
             style: getTextStyle(AppTypo.TITLE18B, AppColors.Gray900)),
       ),
       SizedBox(height: 16.h),
@@ -85,6 +85,16 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                     scrollDirection: Axis.horizontal,
                     itemCount: data.length,
                     itemBuilder: (BuildContext context, int index) {
+                      String title = '';
+                      if (Intl.getCurrentLocale() == 'ko')
+                        title = data[index].title_ko;
+                      else if (Intl.getCurrentLocale() == 'en')
+                        title = data[index].title_en;
+                      else if (Intl.getCurrentLocale() == 'ja')
+                        title = data[index].title_ja;
+                      else if (Intl.getCurrentLocale() == 'zh')
+                        title = data[index].title_zh;
+
                       return Container(
                         margin: const EdgeInsets.only(right: 16),
                         decoration: BoxDecoration(
@@ -116,7 +126,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                                 padding: const EdgeInsets.symmetric(
                                     vertical: 4, horizontal: 8),
                                 child: Text(
-                                  data[index].title_ko,
+                                  title,
                                   style: getTextStyle(
                                           AppTypo.BODY14R, Colors.white)
                                       .copyWith(
@@ -166,6 +176,15 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
       child: asyncBannerListState.when(
         data: (data) => Swiper(
           itemBuilder: (BuildContext context, int index) {
+            String title = '';
+            if (Intl.getCurrentLocale() == 'ko')
+              title = data[index].title_ko;
+            else if (Intl.getCurrentLocale() == 'en')
+              title = data[index].title_en;
+            else if (Intl.getCurrentLocale() == 'ja')
+              title = data[index].title_ja;
+            else if (Intl.getCurrentLocale() == 'zh')
+              title = data[index].title_zh;
             return Stack(
               children: [
                 Container(
@@ -186,7 +205,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                         const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                     color: Colors.black.withOpacity(0.5),
                     child: Text(
-                      data[index].title_ko,
+                      title,
                       style: getTextStyle(AppTypo.BODY14R, Colors.white)
                           .copyWith(overflow: TextOverflow.ellipsis),
                     ),
