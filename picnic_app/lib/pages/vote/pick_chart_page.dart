@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/ui/style.dart';
 
@@ -137,10 +138,10 @@ class _PicChartPageState extends State<PicChartPage>
       children: [
         SizedBox(
           height: 50,
-          child: TabBar(controller: _tabController, tabs: const [
-            Tab(text: '일간차트'),
-            Tab(text: '주간차트'),
-            Tab(text: '월간차트'),
+          child: TabBar(controller: _tabController, tabs: [
+            Tab(text: Intl.message('label_tabbar_picchart_daily')),
+            Tab(text: Intl.message('label_tabbar_picchart_weekly')),
+            Tab(text: Intl.message('label_tabbar_picchart_monthly')),
           ]),
         ),
         Expanded(

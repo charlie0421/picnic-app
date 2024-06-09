@@ -96,6 +96,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_setting_storage":
             MessageLookupByLibrary.simpleMessage("Manage Storage"),
         "label_setting_update": MessageLookupByLibrary.simpleMessage("Update"),
+        "label_tabbar_picchart_daily":
+            MessageLookupByLibrary.simpleMessage("Daily"),
+        "label_tabbar_picchart_monthly":
+            MessageLookupByLibrary.simpleMessage("Monthly"),
+        "label_tabbar_picchart_weekly":
+            MessageLookupByLibrary.simpleMessage("Weekly"),
         "label_time_ago_day": m0,
         "label_time_ago_hour": m1,
         "label_time_ago_minute": m2,

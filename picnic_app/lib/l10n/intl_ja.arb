@@ -76,5 +76,8 @@
   "label_setting_remove_cache": "キャッシュ削除",
   "label_setting_appinfo": "アプリ情報",
   "label_setting_current_version": "現在のバージョン",
-  "label_setting_update": "アップデート"
+  "label_setting_update": "アップデート",
+  "label_tabbar_picchart_daily": "デイリー",
+  "label_tabbar_picchart_weekly": "ウィークリー",
+  "label_tabbar_picchart_monthly": "マンスリー"
 }

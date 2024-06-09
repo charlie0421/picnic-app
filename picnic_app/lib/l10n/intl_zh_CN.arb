@@ -76,5 +76,8 @@
   "label_setting_remove_cache": "清除缓存",
   "label_setting_appinfo": "应用信息",
   "label_setting_current_version": "当前版本",
-  "label_setting_update": "更新"
+  "label_setting_update": "更新",
+  "label_tabbar_picchart_daily": "每日",
+  "label_tabbar_picchart_weekly": "每周",
+  "label_tabbar_picchart_monthly": "每月"
 }

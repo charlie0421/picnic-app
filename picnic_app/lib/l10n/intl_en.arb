@@ -76,5 +76,8 @@
   "label_setting_remove_cache": "Clear Cache",
   "label_setting_appinfo": "App Info",
   "label_setting_current_version": "Current Version",
-  "label_setting_update": "Update"
+  "label_setting_update": "Update",
+  "label_tabbar_picchart_daily": "Daily",
+  "label_tabbar_picchart_weekly": "Weekly",
+  "label_tabbar_picchart_monthly": "Monthly"
 }
