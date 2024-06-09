@@ -12,3 +12,9 @@ TabBarTheme commonTabBarTheme = TabBarTheme(
   ),
   indicatorSize: TabBarIndicatorSize.tab,
 );
+
+SwitchThemeData commonSwitchTheme = SwitchThemeData(
+  trackColor: WidgetStateProperty.all(AppColors.Primary500),
+  trackOutlineWidth: const WidgetStatePropertyAll(0),
+  trackOutlineColor: WidgetStateProperty.all(AppColors.Gray00),
+);

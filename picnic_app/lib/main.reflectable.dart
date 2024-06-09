@@ -2,6 +2,7 @@
 // https://github.com/dart-lang/reflectable.
 
 import 'dart:core';
+
 import 'package:picnic_app/models/meta.dart' as prefix8;
 import 'package:picnic_app/models/pic/article.dart' as prefix11;
 import 'package:picnic_app/models/pic/article_image.dart' as prefix15;
@@ -20,7 +21,6 @@ import 'package:picnic_app/providers/comment_list_provider.dart' as prefix14;
 import 'package:picnic_app/providers/navigation_provider.dart' as prefix2;
 import 'package:picnic_app/providers/vote_list_provider.dart' as prefix4;
 import 'package:picnic_app/reflector.dart' as prefix0;
-
 // ignore_for_file: camel_case_types
 // ignore_for_file: implementation_imports
 // ignore_for_file: prefer_adjacent_string_concatenation
@@ -29,8 +29,8 @@ import 'package:picnic_app/reflector.dart' as prefix0;
 // ignore_for_file: unused_import
 
 import 'package:reflectable/mirrors.dart' as m;
-import 'package:reflectable/src/reflectable_builder_based.dart' as r;
 import 'package:reflectable/reflectable.dart' as r show Reflectable;
+import 'package:reflectable/src/reflectable_builder_based.dart' as r;
 
 final _data = <r.Reflectable, r.ReflectorData>{
   const prefix0.Reflector(): r.ReflectorData(
@@ -2895,7 +2895,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
         r'article_image_user': (dynamic instance) =>
             instance.article_image_user,
         r'user_id': (dynamic instance) => instance.user_id,
-        r'title': (dynamic instance) => instance.title,
+        r'title': (dynamic instance) => instance.leading,
         r'images': (dynamic instance) => instance.images
       },
       {

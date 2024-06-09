@@ -10,6 +10,7 @@ import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
 import 'package:picnic_app/components/vote/list/voting_dialog.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';
+import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';

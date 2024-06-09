@@ -54,5 +54,6 @@
   "label_vote_tab_pic": "P-RAME投票",
   "nav_setting": "設定",
   "page_title_vote_detail": "투표하기",
-  "page_title_mypage": "마이페이지"
+  "page_title_mypage": "마이페이지",
+  "page_title_setting": "환경설정"
 }
