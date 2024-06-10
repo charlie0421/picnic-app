@@ -7,7 +7,6 @@ import 'package:picnic_app/components/library/library_list.dart';
 import 'package:picnic_app/models/pic/article.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/util.dart';
-import 'package:vector_math/vector_math_64.dart' as vector;
 
 import '../../constants.dart';
 
@@ -106,12 +105,32 @@ class FullScreenImageViewer extends StatefulWidget {
   _FullScreenImageViewerState createState() => _FullScreenImageViewerState();
 }
 
-class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
-  final TransformationController _controller = TransformationController();
+class _FullScreenImageViewerState extends State<FullScreenImageViewer>
+    with SingleTickerProviderStateMixin {
+  late TransformationController _controller;
+  late AnimationController _animationController;
+  late Animation<Matrix4> _animation;
   final double minScale = 1.0;
   final double maxScale = 4.0;
 
   Size? imageSize;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = TransformationController();
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration:
+          Duration(milliseconds: 300), // Define the duration of the animation
+    );
+
+    _animationController.addListener(() {
+      _controller.value = _animation.value; // Update the transformation value
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -182,31 +201,32 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
     final position = details.localPosition;
     final screenSize = MediaQuery.of(context).size;
     final currentScale = _controller.value.getMaxScaleOnAxis();
-    final currentMatrix = _controller.value.clone();
+    double targetScale;
 
-    double newScale;
     if (currentScale < 2.0) {
-      newScale = 2.0;
+      targetScale = 2.0;
     } else if (currentScale < 3.0) {
-      newScale = 3.0;
+      targetScale = 3.0;
     } else if (currentScale < 4.0) {
-      newScale = 4.0;
+      targetScale = 4.0;
     } else {
-      newScale = 1.0; // Reset to original scale if already at max scale
+      targetScale = 1.0;
     }
 
-    vector.Vector4 focalPoint =
-        vector.Vector4(position.dx, position.dy, 0.0, 1.0);
-    vector.Vector4 transformedFocalPoint =
-        currentMatrix.transformed(focalPoint);
+    final offset = _controller.toScene(position);
+    final zoomed = Matrix4.identity()
+      ..translate(
+          -offset.dx * (targetScale - 1), -offset.dy * (targetScale - 1))
+      ..scale(targetScale);
 
-    final matrix = Matrix4.identity()
-      ..translate(transformedFocalPoint.x - position.dx * newScale,
-          transformedFocalPoint.y - position.dy * newScale)
-      ..scale(newScale);
+    _animation = Matrix4Tween(
+      begin: _controller.value,
+      end: zoomed,
+    ).animate(CurvedAnimation(
+      parent: _animationController!,
+      curve: Curves.easeInOut,
+    ));
 
-    setState(() {
-      _controller.value = matrix;
-    });
+    _animationController!.forward(from: 0.0);
   }
 }

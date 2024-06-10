@@ -92,5 +92,6 @@
   "label_vote_vote_gather": "Collecting votes",
   "label_tabbar_vote_active": "In Progress",
   "label_tabbar_vote_end": "End",
-  "page_title_vote_gather": "Collecting votes"
+  "page_title_vote_gather": "Collecting votes",
+  "label_pic_image_cropping": "Image cropping"
 }
