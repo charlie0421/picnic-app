@@ -246,7 +246,15 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                               ),
                               Container(
                                 decoration: BoxDecoration(
-                                  gradient: voteGradient,
+                                  gradient: index + 1 == 1
+                                      ? goldGradient
+                                      : index + 1 == 2
+                                          ? silverGradient
+                                          : index + 1 == 3
+                                              ? bronzeGradient
+                                              : null,
+                                  color:
+                                      index + 1 > 3 ? AppColors.Gray200 : null,
                                   borderRadius: BorderRadius.circular(22.5.r),
                                 ),
                                 padding: const EdgeInsets.all(3),
