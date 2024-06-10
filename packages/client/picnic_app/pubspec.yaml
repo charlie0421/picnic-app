@@ -68,6 +68,7 @@ dependencies:
   photo_manager: ^3.1.1
   permission_handler: ^11.3.1
   audioplayers: ^6.0.0
+  vector_math: ^2.1.4
 dev_dependencies:
   flutter_test:
     sdk: flutter
