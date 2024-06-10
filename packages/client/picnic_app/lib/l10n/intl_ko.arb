@@ -93,5 +93,6 @@
   "label_vote_vote_gather": "투표 모아보기",
   "label_tabbar_vote_active": "진행중",
   "label_tabbar_vote_end": "종료",
-  "page_title_vote_gather": "투표 모아보기"
+  "page_title_vote_gather": "투표 모아보기",
+  "label_pic_image_cropping": "이미지 자르기"
 }

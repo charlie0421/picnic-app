@@ -65,6 +65,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_mypage_vote_history":
             MessageLookupByLibrary.simpleMessage("投票记录"),
         "label_no_celeb": MessageLookupByLibrary.simpleMessage("您还没有将任何名人加入书签"),
+        "label_pic_image_cropping":
+            MessageLookupByLibrary.simpleMessage("裁剪图像..."),
         "label_pic_pic_initializing_camera":
             MessageLookupByLibrary.simpleMessage("初始化相机..."),
         "label_pic_pic_save_gallery":

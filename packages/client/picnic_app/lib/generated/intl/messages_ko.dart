@@ -68,6 +68,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("투표내역"),
         "label_no_celeb":
             MessageLookupByLibrary.simpleMessage("아직 북마크한 유명인이 없습니다!"),
+        "label_pic_image_cropping":
+            MessageLookupByLibrary.simpleMessage("이미지 자르기"),
         "label_pic_pic_initializing_camera":
             MessageLookupByLibrary.simpleMessage("카메라 초기화중..."),
         "label_pic_pic_save_gallery":

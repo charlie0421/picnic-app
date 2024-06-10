@@ -75,6 +75,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Vote History"),
         "label_no_celeb": MessageLookupByLibrary.simpleMessage(
             "You don\'t have any celebrities bookmarked yet!."),
+        "label_pic_image_cropping":
+            MessageLookupByLibrary.simpleMessage("Image cropping"),
         "label_pic_pic_initializing_camera":
             MessageLookupByLibrary.simpleMessage("Initializing camera..."),
         "label_pic_pic_save_gallery":

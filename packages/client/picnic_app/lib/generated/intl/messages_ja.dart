@@ -69,6 +69,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("投票履歴"),
         "label_no_celeb":
             MessageLookupByLibrary.simpleMessage("あなたはまだ有名人をブックマークしていない!"),
+        "label_pic_image_cropping":
+            MessageLookupByLibrary.simpleMessage("画像を切り取る"),
         "label_pic_pic_initializing_camera":
             MessageLookupByLibrary.simpleMessage("カメラ初期化中..."),
         "label_pic_pic_save_gallery":

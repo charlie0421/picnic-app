@@ -979,6 +979,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Image cropping`
+  String get label_pic_image_cropping {
+    return Intl.message(
+      'Image cropping',
+      name: 'label_pic_image_cropping',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
