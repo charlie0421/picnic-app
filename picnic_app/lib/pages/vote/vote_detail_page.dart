@@ -324,7 +324,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                             .watch(asyncVoteDetailProvider(
                                                 voteId: widget.voteId))
                                             .value!,
-                                        voteItemModel: data[index]!);
+                                        voteItemModel: data[index]!,
+                                        ref: ref);
                                   },
                                   child: SvgPicture.asset(
                                       'assets/icons/vote/vote_button.svg'),

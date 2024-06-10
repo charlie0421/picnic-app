@@ -1,11 +1,14 @@
+import 'package:animated_digit/animated_digit.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/vote/vote.dart';
+import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
@@ -14,6 +17,7 @@ Future showVotingDialog({
   required BuildContext context,
   required VoteModel voteModel,
   required VoteItemModel voteItemModel,
+  required WidgetRef ref,
 }) {
   return showDialog(
       context: context,
@@ -22,6 +26,7 @@ Future showVotingDialog({
         return VotingDialog(
           voteModel: voteModel,
           voteItemModel: voteItemModel,
+          ref: ref,
         );
       });
 }
@@ -29,9 +34,13 @@ Future showVotingDialog({
 class VotingDialog extends Dialog {
   final VoteModel voteModel;
   final VoteItemModel voteItemModel;
+  final WidgetRef ref;
 
   VotingDialog(
-      {super.key, required this.voteModel, required this.voteItemModel}) {
+      {super.key,
+      required this.voteModel,
+      required this.voteItemModel,
+      required this.ref}) {
     _textEditingController = TextEditingController();
     _focusNode = FocusNode();
     _focusNode.addListener(() {
@@ -129,12 +138,23 @@ class VotingDialog extends Dialog {
                         width: 12.w,
                       ),
                       Expanded(
-                        child: Text('12,000',
-                            style: getTextStyle(
-                                    AppTypo.BODY16B, AppColors.Primary500)
+                        child: Container(
+                          height: 32.h,
+                          alignment: Alignment.centerLeft,
+                          child: AnimatedDigitWidget(
+                            value:
+                                ref.watch(userInfoProvider).value?.star_candy ??
+                                    0,
+                            duration: const Duration(milliseconds: 500),
+                            enableSeparator: true,
+                            curve: Curves.easeInOut,
+                            textStyle: getTextStyle(
+                                    AppTypo.CAPTION12B, AppColors.Primary500)
                                 .copyWith(
                               fontSize: 20.sp,
-                            )),
+                            ),
+                          ),
+                        ),
                       ),
                       Container(
                         height: 32.h,
