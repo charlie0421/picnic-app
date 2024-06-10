@@ -88,5 +88,9 @@
   "message_pic_pic_save_success": "Saved successfully.",
   "message_pic_pic_save_fail": "Failed to save.",
   "text_vote_rank_in_reward": "Rank in the reward",
-  "text_vote_where_is_my_bias": "Where is my bias?"
+  "text_vote_where_is_my_bias": "Where is my bias?",
+  "label_vote_vote_gather": "Collecting votes",
+  "label_tabbar_vote_active": "In Progress",
+  "label_tabbar_vote_end": "End",
+  "page_title_vote_gather": "Collecting votes"
 }

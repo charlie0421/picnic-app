@@ -100,6 +100,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("マンスリー"),
         "label_tabbar_picchart_weekly":
             MessageLookupByLibrary.simpleMessage("ウィークリー"),
+        "label_tabbar_vote_active": MessageLookupByLibrary.simpleMessage("進行中"),
+        "label_tabbar_vote_end": MessageLookupByLibrary.simpleMessage("終了"),
         "label_time_ago_day": m0,
         "label_time_ago_hour": m1,
         "label_time_ago_minute": m2,
@@ -111,6 +113,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("誕生日投票"),
         "label_vote_tab_pic": MessageLookupByLibrary.simpleMessage("P-RAME投票"),
+        "label_vote_vote_gather":
+            MessageLookupByLibrary.simpleMessage("投票集を見る"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("マイ・セレブ"),
         "message_pic_pic_save_fail":
             MessageLookupByLibrary.simpleMessage("保存に失敗しました。"),
@@ -138,6 +142,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("マイページ"),
         "page_title_setting": MessageLookupByLibrary.simpleMessage("設定"),
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("投票する"),
+        "page_title_vote_gather":
+            MessageLookupByLibrary.simpleMessage("投票集を見る"),
         "text_ads_random":
             MessageLookupByLibrary.simpleMessage("広告を見て、ランダムな画像を集める。"),
         "text_draw_image":

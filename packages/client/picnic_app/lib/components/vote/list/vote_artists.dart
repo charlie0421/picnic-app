@@ -75,7 +75,7 @@ class VoteArtists extends StatelessWidget {
                         height: 2.h,
                       ),
                       Text(
-                        artist.value.mystar_member.name_ko,
+                        artist.value.mystar_member.getTitle(),
                         style: getTextStyle(AppTypo.CAPTION12B),
                       ),
                     ],

@@ -88,5 +88,9 @@
   "message_pic_pic_save_success": "保存成功。",
   "message_pic_pic_save_fail": "保存失败。",
   "text_vote_rank_in_reward": "奖励排名",
-  "text_vote_where_is_my_bias": "我最爱的成员是？"
+  "text_vote_where_is_my_bias": "我最爱的成员是？",
+  "label_vote_vote_gather": "收集选票",
+  "label_tabbar_vote_active": "进行中",
+  "label_tabbar_vote_end": "已结束",
+  "page_title_vote_gather": "收集选票"
 }

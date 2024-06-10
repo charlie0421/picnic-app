@@ -99,6 +99,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("월간차트"),
         "label_tabbar_picchart_weekly":
             MessageLookupByLibrary.simpleMessage("주간차트"),
+        "label_tabbar_vote_active": MessageLookupByLibrary.simpleMessage("진행중"),
+        "label_tabbar_vote_end": MessageLookupByLibrary.simpleMessage("종료"),
         "label_time_ago_day": m0,
         "label_time_ago_hour": m1,
         "label_time_ago_minute": m2,
@@ -112,6 +114,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("생일 투표"),
         "label_vote_tab_pic": MessageLookupByLibrary.simpleMessage("P-RAME 투표"),
+        "label_vote_vote_gather":
+            MessageLookupByLibrary.simpleMessage("투표 모아보기"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("내 셀럽"),
         "message_pic_pic_save_fail":
             MessageLookupByLibrary.simpleMessage("이미지 저장에 실패했습니다."),
@@ -140,6 +144,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("마이페이지"),
         "page_title_setting": MessageLookupByLibrary.simpleMessage("환경설정"),
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("투표하기"),
+        "page_title_vote_gather":
+            MessageLookupByLibrary.simpleMessage("투표 모아보기"),
         "text_ads_random":
             MessageLookupByLibrary.simpleMessage("광고 보기 및 무작위 이미지 수집."),
         "text_draw_image":

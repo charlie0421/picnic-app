@@ -94,6 +94,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("每月"),
         "label_tabbar_picchart_weekly":
             MessageLookupByLibrary.simpleMessage("每周"),
+        "label_tabbar_vote_active": MessageLookupByLibrary.simpleMessage("进行中"),
+        "label_tabbar_vote_end": MessageLookupByLibrary.simpleMessage("已结束"),
         "label_time_ago_day": m0,
         "label_time_ago_hour": m1,
         "label_time_ago_minute": m2,
@@ -105,6 +107,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_screen_title": MessageLookupByLibrary.simpleMessage("投票"),
         "label_vote_tab_birthday": MessageLookupByLibrary.simpleMessage("生日投票"),
         "label_vote_tab_pic": MessageLookupByLibrary.simpleMessage("P-RAME投票"),
+        "label_vote_vote_gather": MessageLookupByLibrary.simpleMessage("收集选票"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("我的名人"),
         "message_pic_pic_save_fail":
             MessageLookupByLibrary.simpleMessage("保存失败。"),
@@ -132,6 +135,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("我的页面"),
         "page_title_setting": MessageLookupByLibrary.simpleMessage("设置"),
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("投票"),
+        "page_title_vote_gather": MessageLookupByLibrary.simpleMessage("收集选票"),
         "text_ads_random": MessageLookupByLibrary.simpleMessage("查看广告并收集随机图片。"),
         "text_draw_image":
             MessageLookupByLibrary.simpleMessage("来自整个画廊的 1 张图片已确认收藏"),
