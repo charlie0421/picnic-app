@@ -31,17 +31,24 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
                       widget.article.article_image![index].image ?? ''),
                   child: Hero(
                     tag: 'imageHero${widget.article.article_image![index].id}',
-                    child: CachedNetworkImage(
-                      imageUrl:
-                          widget.article.article_image![index].image ?? '',
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => buildPlaceholderImage(),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        CachedNetworkImage(
+                          imageUrl:
+                              widget.article.article_image![index].image ?? '',
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) =>
+                              buildPlaceholderImage(),
+                        ),
+                        _buildBookmark(widget.article, index),
+                      ],
                     ),
                   ),
                 );
               },
               itemCount: widget.article.article_image!.length,
-              pagination: const SwiperPagination(
+              pagination: SwiperPagination(
                 builder: DotSwiperPaginationBuilder(
                     color: Colors.grey, activeColor: picMainColor),
               ),
@@ -103,6 +110,8 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
   final double minScale = 1.0;
   final double maxScale = 4.0;
 
+  Size? imageSize;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -128,6 +137,28 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                       fit: BoxFit.contain,
                       placeholder: (context, url) =>
                           CircularProgressIndicator(),
+                      imageBuilder: (context, imageProvider) {
+                        return Image(
+                          image: imageProvider,
+                          fit: BoxFit.contain,
+                          frameBuilder:
+                              (context, child, frame, wasSynchronouslyLoaded) {
+                            if (frame == null) {
+                              return child; // Placeholder
+                            } else {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                final RenderBox box =
+                                    context.findRenderObject() as RenderBox;
+                                setState(() {
+                                  imageSize = box.size; // 이미지 사이즈 업데이트
+                                });
+                                print('Image size: $imageSize'); // 디버그 출력
+                              });
+                              return child;
+                            }
+                          },
+                        );
+                      },
                     ),
                   ),
                 ),
