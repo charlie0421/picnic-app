@@ -17,6 +17,7 @@ import 'package:picnic_app/ui/novel_theme.dart';
 import 'package:picnic_app/ui/pic_theme.dart';
 import 'package:picnic_app/ui/vote_theme.dart';
 import 'package:picnic_app/util.dart';
+import 'package:screen_protector/screen_protector.dart';
 
 class PicnicApp extends ConsumerStatefulWidget {
   const PicnicApp({super.key});
@@ -34,7 +35,7 @@ class _PicnicAppState extends ConsumerState<PicnicApp>
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref.read(appSettingProvider.notifier).loadSettings();
-      // await ScreenProtector.preventScreenshotOn();
+      await ScreenProtector.preventScreenshotOn();
     });
     WidgetsBinding.instance.addObserver(this);
     // final _appLinks = AppLinks(); // AppLinks is singleton
@@ -49,7 +50,7 @@ class _PicnicAppState extends ConsumerState<PicnicApp>
 
   @override
   void dispose() {
-    // ScreenProtector.preventScreenshotOff();
+    ScreenProtector.preventScreenshotOff();
 
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
