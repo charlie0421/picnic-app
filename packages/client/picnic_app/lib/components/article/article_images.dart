@@ -7,6 +7,7 @@ import 'package:picnic_app/components/library/library_list.dart';
 import 'package:picnic_app/models/pic/article.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/util.dart';
+import 'package:vector_math/vector_math_64.dart' as vector;
 
 import '../../constants.dart';
 
@@ -180,10 +181,11 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
 
   void _handleDoubleTap(TapDownDetails details) {
     final position = details.localPosition;
+    final screenSize = MediaQuery.of(context).size;
     final currentScale = _controller.value.getMaxScaleOnAxis();
-    double newScale;
+    final currentMatrix = _controller.value.clone();
 
-    // Define scale steps
+    double newScale;
     if (currentScale < 2.0) {
       newScale = 2.0;
     } else if (currentScale < 3.0) {
@@ -191,17 +193,20 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
     } else if (currentScale < 4.0) {
       newScale = 4.0;
     } else {
-      newScale = 1.0;
+      newScale = 1.0; // Reset to original scale if already at max scale
     }
 
-    final x = -position.dx * (newScale - 1);
-    final y = -position.dy * (newScale - 1);
-    final Matrix4 newMatrix = Matrix4.identity()
-      ..translate(x, y)
+    vector.Vector4 focalPoint = vector.Vector4(position.dx, position.dy, 0.0);
+    vector.Vector4 transformedFocalPoint =
+        currentMatrix.transformed(focalPoint);
+
+    final matrix = Matrix4.identity()
+      ..translate(transformedFocalPoint.x - position.dx * newScale,
+          transformedFocalPoint.y - position.dy * newScale)
       ..scale(newScale);
 
     setState(() {
-      _controller.value = newMatrix;
+      _controller.value = matrix;
     });
   }
 }
