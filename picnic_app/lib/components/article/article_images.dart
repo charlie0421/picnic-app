@@ -25,35 +25,36 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
       child: widget.article.article_image != null
           ? Swiper(
               itemBuilder: (BuildContext context, int index) {
-                return ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(5),
-                    topRight: Radius.circular(5),
-                  ),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      CachedNetworkImage(
-                        imageUrl:
-                            widget.article.article_image![index].image ?? '',
-                        fit: BoxFit.fitHeight,
-                        placeholder: (context, url) => buildPlaceholderImage(),
-                      ),
-                      _buildBookmark(widget.article, index),
-                    ],
+                return GestureDetector(
+                  onTap: () => _showFullScreenImage(context,
+                      widget.article.article_image![index].image ?? ''),
+                  child: Hero(
+                    tag: 'imageHero${widget.article.article_image![index].id}',
+                    child: CachedNetworkImage(
+                      imageUrl:
+                          widget.article.article_image![index].image ?? '',
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => buildPlaceholderImage(),
+                    ),
                   ),
                 );
               },
               itemCount: widget.article.article_image!.length,
-              pagination: const SwiperPagination(
+              pagination: SwiperPagination(
                 builder: DotSwiperPaginationBuilder(
                     color: Colors.grey, activeColor: picMainColor),
               ),
             )
-          : SizedBox(
-              width: 300.w,
-              height: 300.h,
-            ),
+          : SizedBox(width: 300.w, height: 300.h),
+    );
+  }
+
+  void _showFullScreenImage(BuildContext context, String imageUrl) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        opaque: false, // set to false
+        pageBuilder: (_, __, ___) => FullScreenImageViewer(imageUrl: imageUrl),
+      ),
     );
   }
 
@@ -83,6 +84,38 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
                     builder: (BuildContext context) =>
                         AlbumList(imageId: article.article_image![index].id));
               }),
+    );
+  }
+}
+
+class FullScreenImageViewer extends StatelessWidget {
+  final String imageUrl;
+
+  FullScreenImageViewer({required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: GestureDetector(
+        onTap: () => Navigator.of(context).pop(),
+        child: Center(
+          child: Hero(
+            tag: 'imageHero$imageUrl',
+            child: InteractiveViewer(
+              panEnabled: true,
+              boundaryMargin: EdgeInsets.all(20),
+              minScale: 0.5,
+              maxScale: 4,
+              child: CachedNetworkImage(
+                imageUrl: imageUrl,
+                fit: BoxFit.contain,
+                placeholder: (context, url) => buildPlaceholderImage(),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

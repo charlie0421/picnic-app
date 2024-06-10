@@ -55,7 +55,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     _setupRealtime();
   }
 
-  void handleInserts(PostgresChangePayload payload) {
+  void handleVoteChanes(PostgresChangePayload payload) {
     logger.d('Change received! $payload');
     final asyncVoteIgemListNotifier =
         ref.read(asyncVoteItemListProvider(voteId: widget.voteId).notifier);
@@ -72,7 +72,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             event: PostgresChangeEvent.update,
             schema: 'public',
             table: 'vote_item',
-            callback: handleInserts)
+            filter: PostgresChangeFilter(
+                type: PostgresChangeFilterType.eq,
+                column: 'vote_id',
+                value: widget.voteId),
+            callback: handleVoteChanes)
         .subscribe();
   }
 
