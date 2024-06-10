@@ -196,7 +196,8 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
       newScale = 1.0; // Reset to original scale if already at max scale
     }
 
-    vector.Vector4 focalPoint = vector.Vector4(position.dx, position.dy, 0.0);
+    vector.Vector4 focalPoint =
+        vector.Vector4(position.dx, position.dy, 0.0, 1.0);
     vector.Vector4 transformedFocalPoint =
         currentMatrix.transformed(focalPoint);
 

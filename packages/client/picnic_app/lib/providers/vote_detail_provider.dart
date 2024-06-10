@@ -16,18 +16,21 @@ class AsyncVoteDetail extends _$AsyncVoteDetail {
     try {
       final response = await Supabase.instance.client
           .from('vote')
-          .select('*, vote_item(*, mystar_member(*))')
+          .select('*, vote_item(*, mystar_member(*)), reward(*))')
           .eq('id', voteId)
           .single();
 
-      logger.i('response.data: $response');
-
+      logger.i('Vote detail response: $response');
       final voteModel = VoteModel.fromJson(response).copyWith(
           main_image:
               'https://cdn-dev.picnic.fan/vote/$voteId/${response['main_image']}');
+
+      logger.i('Vote detail: $voteModel');
+
       return voteModel;
-    } catch (e) {
+    } catch (e, s) {
       logger.e('Failed to load vote detail: $e');
+      logger.e('Failed to load vote detail: $s');
     }
     return null;
   }
@@ -47,8 +50,6 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
           .select('*, mystar_member!left(*,mystar_group(*))')
           .eq('vote_id', voteId)
           .order('vote_total', ascending: false);
-
-      logger.i('response.data: $response');
 
       List<VoteItemModel> voteItemList = List<VoteItemModel>.from(
           response.map((e) => VoteItemModel.fromJson(e)));

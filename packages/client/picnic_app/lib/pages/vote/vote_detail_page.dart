@@ -99,70 +99,87 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
 
   Widget _buildVoteInfo(BuildContext context) {
     return ref.watch(asyncVoteDetailProvider(voteId: widget.voteId)).when(
-          data: (voteModel) => Column(
-            children: [
-              Container(
-                height: 200.h,
-                color: AppColors.Gray200,
-              ),
-              SizedBox(
-                height: 36.h,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 57).r,
-                child: VoteCommonTitle(title: voteModel?.vote_title ?? ''),
-              ),
-              SizedBox(
-                height: 12.h,
-              ),
-              SizedBox(
-                height: 18.h,
-                child: Text.rich(
-                  TextSpan(children: [
-                    TextSpan(
-                      text: DateFormat('yyyy.MM.dd HH:mm')
-                          .format(voteModel?.start_at ?? DateTime.now()),
-                      style:
-                          getTextStyle(AppTypo.CAPTION12R, AppColors.Gray900),
-                    ),
-                    const TextSpan(text: ' ~ '),
-                    TextSpan(
-                      text: DateFormat('yyyy.MM.dd HH:mm')
-                          .format(voteModel?.start_at ?? DateTime.now()),
-                      style:
-                          getTextStyle(AppTypo.CAPTION12R, AppColors.Gray900),
-                    ),
-                    TextSpan(
-                      text: '(KST)',
-                      style:
-                          getTextStyle(AppTypo.CAPTION12R, AppColors.Gray900),
-                    )
-                  ]),
+          data: (voteModel) {
+            logger.i('voteModel?.reward: ${voteModel?.reward}');
+            return Column(
+              children: [
+                Container(
+                  height: 200.h,
+                  color: AppColors.Gray200,
                 ),
-              ),
-              SizedBox(
-                height: 26.h,
-              ),
-              SizedBox(
-                  height: 21.h,
-                  child: Text(
-                    '랭크 인 리워드',
-                    style: getTextStyle(AppTypo.BODY14B, AppColors.Primary500),
-                  )),
-              SizedBox(
-                height: 4.h,
-              ),
-              SizedBox(
-                  height: 24.h,
-                  child: Text(
-                    '홍대, 강남역 라이트박스(30일)',
-                    style: getTextStyle(AppTypo.BODY16B, AppColors.Gray900),
-                  )),
-              SizedBox(
-                height: 16.h,
-              ),
-            ],
-          ),
+                SizedBox(
+                  height: 36.h,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 57).r,
+                  child: VoteCommonTitle(title: voteModel?.getTitle() ?? ''),
+                ),
+                SizedBox(
+                  height: 12.h,
+                ),
+                SizedBox(
+                  height: 18.h,
+                  child: Text.rich(
+                    TextSpan(children: [
+                      TextSpan(
+                        text: DateFormat('yyyy.MM.dd HH:mm')
+                            .format(voteModel?.start_at ?? DateTime.now()),
+                        style:
+                            getTextStyle(AppTypo.CAPTION12R, AppColors.Gray900),
+                      ),
+                      const TextSpan(text: ' ~ '),
+                      TextSpan(
+                        text: DateFormat('yyyy.MM.dd HH:mm')
+                            .format(voteModel?.start_at ?? DateTime.now()),
+                        style:
+                            getTextStyle(AppTypo.CAPTION12R, AppColors.Gray900),
+                      ),
+                      TextSpan(
+                        text: '(KST)',
+                        style:
+                            getTextStyle(AppTypo.CAPTION12R, AppColors.Gray900),
+                      )
+                    ]),
+                  ),
+                ),
+                SizedBox(
+                  height: 26.h,
+                ),
+                SizedBox(
+                    height: 21.h,
+                    child: Text(
+                      Intl.message('text_vote_rank_in_reward'),
+                      style:
+                          getTextStyle(AppTypo.BODY14B, AppColors.Primary500),
+                    )),
+                SizedBox(
+                  height: 4.h,
+                ),
+
+                voteModel!.reward != null
+                    ? Column(
+                        children: voteModel.reward!
+                            .map((rewardModel) => Text(rewardModel.getTitle(),
+                                style: getTextStyle(
+                                    AppTypo.CAPTION12R, AppColors.Gray900)))
+                            .toList(),
+                      )
+                    : SizedBox.shrink(),
+                // SizedBox(
+                //     height: 24.h,
+                //     child:
+                //     voteModel.vote_reward.map((e) => Text(e)).toList()),
+                //     Text(
+                //       '홍대, 강남역 라이트박스(30일)',
+                //       style: getTextStyle(AppTypo.BODY16B, AppColors.Gray900),
+                //     )),
+
+                SizedBox(
+                  height: 16.h,
+                ),
+              ],
+            );
+          },
           loading: () => buildLoadingOverlay(),
           error: (error, stackTrace) => ErrorView(context,
               error: error.toString(), stackTrace: stackTrace),
@@ -379,7 +396,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                 focusNode: _focusNode,
                                 controller: _textEditingController,
                                 decoration: InputDecoration(
-                                  hintText: '나의 최애는 어디에?',
+                                  hintText: Intl.message(
+                                      'text_vote_where_is_my_bias'),
                                   hintStyle: getTextStyle(
                                       AppTypo.BODY16R, AppColors.Gray300),
                                   border: InputBorder.none,

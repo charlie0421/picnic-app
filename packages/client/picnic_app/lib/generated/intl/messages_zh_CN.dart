@@ -138,6 +138,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_hint_search": MessageLookupByLibrary.simpleMessage("搜索名人。"),
         "text_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("导航至所选名人的主页。"),
+        "text_vote_rank_in_reward":
+            MessageLookupByLibrary.simpleMessage("奖励排名"),
+        "text_vote_where_is_my_bias":
+            MessageLookupByLibrary.simpleMessage("我最爱的成员是？"),
         "title_dialog_library_add":
             MessageLookupByLibrary.simpleMessage("添加新相册"),
         "title_select_language": MessageLookupByLibrary.simpleMessage("语言选择"),

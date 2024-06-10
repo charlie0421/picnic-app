@@ -86,5 +86,7 @@
   "label_pic_pic_initializing_camera": "Initializing camera...",
   "label_pic_pic_synthesizing_image": "Synthesizing image...",
   "message_pic_pic_save_success": "Saved successfully.",
-  "message_pic_pic_save_fail": "Failed to save."
+  "message_pic_pic_save_fail": "Failed to save.",
+  "text_vote_rank_in_reward": "Rank in the reward",
+  "text_vote_where_is_my_bias": "Where is my bias?"
 }

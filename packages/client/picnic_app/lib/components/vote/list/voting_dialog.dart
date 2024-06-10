@@ -60,7 +60,7 @@ class VotingDialog extends Dialog {
         backgroundColor: Colors.transparent,
         child: StatefulBuilder(
           builder: (context, setState) => LargePopupWidget(
-            title: voteModel.vote_title ?? '',
+            title: voteModel.getTitle() ?? '',
             closeButton: GestureDetector(
               onTap: () {
                 Navigator.pop(context);
