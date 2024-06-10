@@ -89,5 +89,9 @@
   "message_pic_pic_save_success": "이미지가 저장되었습니다.",
   "message_pic_pic_save_fail": "이미지 저장에 실패했습니다.",
   "text_vote_rank_in_reward": "랭크 인 리워드",
-  "text_vote_where_is_my_bias": "나의 최애는 어디에?"
+  "text_vote_where_is_my_bias": "나의 최애는 어디에?",
+  "label_vote_vote_gather": "투표 모아보기",
+  "label_tabbar_vote_active": "진행중",
+  "label_tabbar_vote_end": "종료",
+  "page_title_vote_gather": "투표 모아보기"
 }

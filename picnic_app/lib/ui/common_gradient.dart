@@ -11,6 +11,21 @@ const Gradient voteGradient = LinearGradient(
     end: Alignment.bottomCenter,
     colors: [Color(0xFFE3B847), AppColors.Gray00]);
 
+const Gradient goldGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xFFE3B847), Color(0xFFFFFFFF)]);
+
+const Gradient silverGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xFFA6A8AF), Color(0xFFFFFFFF)]);
+
+const Gradient bronzeGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xFFA17C1E), Color(0xFFFFFFFF)]);
+
 const Gradient switchThumbGradient = RadialGradient(
   colors: [
     Color(0xFFFFFFFF),

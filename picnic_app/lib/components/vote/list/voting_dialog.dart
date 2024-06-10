@@ -99,7 +99,7 @@ class VotingDialog extends Dialog {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        voteItemModel.mystar_member.name_ko ?? '',
+                        voteItemModel.mystar_member.getTitle() ?? '',
                         style: getTextStyle(AppTypo.BODY16B, AppColors.Gray900),
                       ),
                       SizedBox(
@@ -108,8 +108,7 @@ class VotingDialog extends Dialog {
                       Align(
                         alignment: Alignment.topCenter,
                         child: Text(
-                          voteItemModel.mystar_member.mystar_group?.name_ko ??
-                              '',
+                          voteItemModel.mystar_member.getGroupTitle(),
                           style: getTextStyle(
                               AppTypo.CAPTION12R, AppColors.Gray600),
                         ),

@@ -6,7 +6,7 @@ part of 'vote_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$asyncVoteListHash() => r'65f3bcf08963b25e2c054ebd560b35c852b118be';
+String _$asyncVoteListHash() => r'fad10debe95a73539a971a448f5537b941458801';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -31,10 +31,12 @@ class _SystemHash {
 
 abstract class _$AsyncVoteList extends BuildlessAutoDisposeAsyncNotifier<
     PagingController<int, VoteModel>> {
-  late final String category;
+  late final VoteCategory category;
+  late final VoteStatus status;
 
   FutureOr<PagingController<int, VoteModel>> build({
-    required String category,
+    required VoteCategory category,
+    required VoteStatus status,
   });
 }
 
@@ -50,10 +52,12 @@ class AsyncVoteListFamily
 
   /// See also [AsyncVoteList].
   AsyncVoteListProvider call({
-    required String category,
+    required VoteCategory category,
+    required VoteStatus status,
   }) {
     return AsyncVoteListProvider(
       category: category,
+      status: status,
     );
   }
 
@@ -63,6 +67,7 @@ class AsyncVoteListFamily
   ) {
     return call(
       category: provider.category,
+      status: provider.status,
     );
   }
 
@@ -86,9 +91,12 @@ class AsyncVoteListProvider extends AutoDisposeAsyncNotifierProviderImpl<
     AsyncVoteList, PagingController<int, VoteModel>> {
   /// See also [AsyncVoteList].
   AsyncVoteListProvider({
-    required String category,
+    required VoteCategory category,
+    required VoteStatus status,
   }) : this._internal(
-          () => AsyncVoteList()..category = category,
+          () => AsyncVoteList()
+            ..category = category
+            ..status = status,
           from: asyncVoteListProvider,
           name: r'asyncVoteListProvider',
           debugGetCreateSourceHash:
@@ -99,6 +107,7 @@ class AsyncVoteListProvider extends AutoDisposeAsyncNotifierProviderImpl<
           allTransitiveDependencies:
               AsyncVoteListFamily._allTransitiveDependencies,
           category: category,
+          status: status,
         );
 
   AsyncVoteListProvider._internal(
@@ -109,9 +118,11 @@ class AsyncVoteListProvider extends AutoDisposeAsyncNotifierProviderImpl<
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.category,
+    required this.status,
   }) : super.internal();
 
-  final String category;
+  final VoteCategory category;
+  final VoteStatus status;
 
   @override
   FutureOr<PagingController<int, VoteModel>> runNotifierBuild(
@@ -119,6 +130,7 @@ class AsyncVoteListProvider extends AutoDisposeAsyncNotifierProviderImpl<
   ) {
     return notifier.build(
       category: category,
+      status: status,
     );
   }
 
@@ -127,13 +139,16 @@ class AsyncVoteListProvider extends AutoDisposeAsyncNotifierProviderImpl<
     return ProviderOverride(
       origin: this,
       override: AsyncVoteListProvider._internal(
-        () => create()..category = category,
+        () => create()
+          ..category = category
+          ..status = status,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         category: category,
+        status: status,
       ),
     );
   }
@@ -146,13 +161,16 @@ class AsyncVoteListProvider extends AutoDisposeAsyncNotifierProviderImpl<
 
   @override
   bool operator ==(Object other) {
-    return other is AsyncVoteListProvider && other.category == category;
+    return other is AsyncVoteListProvider &&
+        other.category == category &&
+        other.status == status;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, category.hashCode);
+    hash = _SystemHash.combine(hash, status.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -161,7 +179,10 @@ class AsyncVoteListProvider extends AutoDisposeAsyncNotifierProviderImpl<
 mixin AsyncVoteListRef
     on AutoDisposeAsyncNotifierProviderRef<PagingController<int, VoteModel>> {
   /// The parameter `category` of this provider.
-  String get category;
+  VoteCategory get category;
+
+  /// The parameter `status` of this provider.
+  VoteStatus get status;
 }
 
 class _AsyncVoteListProviderElement
@@ -170,7 +191,9 @@ class _AsyncVoteListProviderElement
   _AsyncVoteListProviderElement(super.provider);
 
   @override
-  String get category => (origin as AsyncVoteListProvider).category;
+  VoteCategory get category => (origin as AsyncVoteListProvider).category;
+  @override
+  VoteStatus get status => (origin as AsyncVoteListProvider).status;
 }
 
 String _$sortOptionHash() => r'8d0e51b1242be85e0437cebf8d5053fbce6dd7fe';

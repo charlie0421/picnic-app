@@ -88,5 +88,9 @@
   "message_pic_pic_save_success": "保存しました。",
   "message_pic_pic_save_fail": "保存に失敗しました。",
   "text_vote_rank_in_reward": "報酬ランクイン",
-  "text_vote_where_is_my_bias": "一番好きなメンバーは?"
+  "text_vote_where_is_my_bias": "一番好きなメンバーは?",
+  "label_vote_vote_gather": "投票集を見る",
+  "label_tabbar_vote_active": "進行中",
+  "label_tabbar_vote_end": "終了",
+  "page_title_vote_gather": "投票集を見る"
 }

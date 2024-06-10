@@ -109,6 +109,9 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Monthly"),
         "label_tabbar_picchart_weekly":
             MessageLookupByLibrary.simpleMessage("Weekly"),
+        "label_tabbar_vote_active":
+            MessageLookupByLibrary.simpleMessage("In Progress"),
+        "label_tabbar_vote_end": MessageLookupByLibrary.simpleMessage("End"),
         "label_time_ago_day": m0,
         "label_time_ago_hour": m1,
         "label_time_ago_minute": m2,
@@ -124,6 +127,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("birthday vote"),
         "label_vote_tab_pic":
             MessageLookupByLibrary.simpleMessage("P-RAME Voting"),
+        "label_vote_vote_gather":
+            MessageLookupByLibrary.simpleMessage("Collecting votes"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("My Celeb"),
         "message_pic_pic_save_fail":
             MessageLookupByLibrary.simpleMessage("Failed to save."),
@@ -157,6 +162,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("My Page"),
         "page_title_setting": MessageLookupByLibrary.simpleMessage("Settings"),
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("Vote"),
+        "page_title_vote_gather":
+            MessageLookupByLibrary.simpleMessage("Collecting votes"),
         "text_ads_random": MessageLookupByLibrary.simpleMessage(
             "Viewing ads and collecting random images."),
         "text_draw_image": MessageLookupByLibrary.simpleMessage(

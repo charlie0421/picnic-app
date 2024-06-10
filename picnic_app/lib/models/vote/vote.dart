@@ -161,6 +161,7 @@ class VoteItemModel {
 @JsonSerializable()
 class MyStarMemberModel {
   final int id;
+
   final String name_ko;
   final String name_en;
   final String gender;
@@ -175,6 +176,20 @@ class MyStarMemberModel {
     this.image,
     required this.mystar_group,
   });
+
+  getTitle() {
+    String title = '';
+    if (Intl.getCurrentLocale() == 'ko') {
+      title = name_ko;
+    } else {
+      title = name_en;
+    }
+    return title;
+  }
+
+  getGroupTitle() {
+    return mystar_group?.getTitle() ?? '';
+  }
 
   factory MyStarMemberModel.fromJson(Map<String, dynamic> json) =>
       _$MyStarMemberModelFromJson(json);
@@ -196,6 +211,16 @@ class MyStarGroupModel {
     required this.name_en,
     this.image,
   });
+
+  String getTitle() {
+    String title = '';
+    if (Intl.getCurrentLocale() == 'ko') {
+      title = name_ko;
+    } else {
+      title = name_en;
+    }
+    return title;
+  }
 
   factory MyStarGroupModel.fromJson(Map<String, dynamic> json) =>
       _$MyStarGroupModelFromJson(json);

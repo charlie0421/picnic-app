@@ -1,28 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:picnic_app/components/error.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/components/vote/list/vote_artists.dart';
+import 'package:picnic_app/components/vote/list/vote_header.dart';
 import 'package:picnic_app/components/vote/list/vote_image.dart';
-import 'package:picnic_app/components/vote/list/vote_title.dart';
+import 'package:picnic_app/components/vote/list/vote_list.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
-import 'package:picnic_app/util.dart';
 
 class VoteListPage extends ConsumerStatefulWidget {
-  final String category;
+  final String pageName = 'page_title_vote_gather';
 
-  const VoteListPage({super.key, required this.category});
+  const VoteListPage({super.key});
 
   @override
   ConsumerState<VoteListPage> createState() => _VoteListPageState();
 }
 
-class _VoteListPageState extends ConsumerState<VoteListPage> {
+class _VoteListPageState extends ConsumerState<VoteListPage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
   @override
   initState() {
     super.initState();
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+    );
   }
 
   @override
@@ -34,47 +40,21 @@ class _VoteListPageState extends ConsumerState<VoteListPage> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Align(
-        //   alignment: Alignment.centerRight,
-        //   child: VoteSortWidget(
-        //     category: widget.category,
-        //   ),
-        // ),
         SizedBox(
-          height: 20.h,
+          height: 50,
+          child: TabBar(controller: _tabController, tabs: [
+            Tab(text: Intl.message('label_tabbar_vote_active')),
+            Tab(text: Intl.message('label_tabbar_vote_end')),
+          ]),
+        ),
+        SizedBox(
+          height: 36.h,
         ),
         Expanded(
-            child: ref
-                .watch(asyncVoteListProvider(category: widget.category))
-                .when(
-                  data: (pagingController) => Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                      child: PagedListView<int, VoteModel>(
-                        pagingController: pagingController,
-                        scrollDirection: Axis.vertical,
-                        builderDelegate: PagedChildBuilderDelegate<VoteModel>(
-                            firstPageErrorIndicatorBuilder: (context) {
-                              return ErrorView(context,
-                                  error: pagingController.error.toString(),
-                                  retryFunction: () =>
-                                      pagingController.refresh(),
-                                  stackTrace:
-                                      pagingController.error.stackTrace);
-                            },
-                            firstPageProgressIndicatorBuilder: (context) {
-                              return buildLoadingOverlay();
-                            },
-                            noItemsFoundIndicatorBuilder: (context) {
-                              return ErrorView(context,
-                                  error: 'No Items Found', stackTrace: null);
-                            },
-                            itemBuilder: (context, item, index) =>
-                                _buildVote(context, ref, item)),
-                      )),
-                  loading: () => buildLoadingOverlay(),
-                  error: (error, stackTrace) => ErrorView(context,
-                      error: error.toString(), stackTrace: stackTrace),
-                )),
+            child: TabBarView(controller: _tabController, children: const [
+          VoteList(VoteStatus.active, VoteCategory.all),
+          VoteList(VoteStatus.end, VoteCategory.all),
+        ]))
       ],
     );
   }
@@ -85,7 +65,7 @@ Widget _buildVote(BuildContext context, WidgetRef ref, VoteModel vote) {
     margin: const EdgeInsets.only(bottom: 20),
     child: Column(
       children: [
-        VoteTitle(vote: vote),
+        VoteHeader(vote: vote),
         SizedBox(
           height: 10.h,
         ),

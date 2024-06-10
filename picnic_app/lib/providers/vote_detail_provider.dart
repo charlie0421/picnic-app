@@ -20,12 +20,9 @@ class AsyncVoteDetail extends _$AsyncVoteDetail {
           .eq('id', voteId)
           .single();
 
-      logger.i('Vote detail response: $response');
       final voteModel = VoteModel.fromJson(response).copyWith(
           main_image:
               'https://cdn-dev.picnic.fan/vote/$voteId/${response['main_image']}');
-
-      logger.i('Vote detail: $voteModel');
 
       return voteModel;
     } catch (e, s) {

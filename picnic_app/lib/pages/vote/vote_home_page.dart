@@ -3,14 +3,13 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/error.dart';
-import 'package:picnic_app/components/vote/list/vote_artists.dart';
-import 'package:picnic_app/components/vote/list/vote_image.dart';
-import 'package:picnic_app/components/vote/list/vote_title.dart';
+import 'package:picnic_app/components/vote/list/vote_info_card.dart';
 import 'package:picnic_app/models/vote/vote.dart';
-import 'package:picnic_app/pages/vote/vote_detail_page.dart';
+import 'package:picnic_app/pages/vote/vote_list_page.dart';
 import 'package:picnic_app/providers/banner_list_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/reward_list_provider.dart';
@@ -33,8 +32,36 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
       _buildVoteBanner(context),
       SizedBox(height: 44.h),
       _buildReward(context),
-      SizedBox(height: 44.h),
-      ref.watch(asyncVoteListProvider(category: 'all')).when(
+      SizedBox(height: 48.h),
+      GestureDetector(
+        onTap: () {
+          ref
+              .read(navigationInfoProvider.notifier)
+              .setCurrentPage(VoteListPage());
+        },
+        child: Container(
+          padding: const EdgeInsets.only(left: 16),
+          alignment: Alignment.centerLeft,
+          child: Row(
+            children: [
+              Text(Intl.message('label_vote_vote_gather'),
+                  style: getTextStyle(AppTypo.TITLE18B, AppColors.Gray900)),
+              SvgPicture.asset(
+                'assets/icons/right_arrow.svg',
+                width: 8.w,
+                height: 15.h,
+                colorFilter:
+                    const ColorFilter.mode(AppColors.Gray900, BlendMode.srcIn),
+              ),
+            ],
+          ),
+        ),
+      ),
+      SizedBox(height: 24.h),
+      ref
+          .watch(asyncVoteListProvider(
+              status: VoteStatus.active, category: VoteCategory.all))
+          .when(
             data: (pagingController) => Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
                 child: PagedListView<int, VoteModel>(
@@ -57,7 +84,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                             error: 'No Items Found', stackTrace: null);
                       },
                       itemBuilder: (context, item, index) =>
-                          _buildVote(context, ref, item)),
+                          VoteInfoCard(context: context, ref: ref, vote: item)),
                 )),
             loading: () => buildLoadingOverlay(),
             error: (error, stackTrace) => ErrorView(context,
@@ -228,58 +255,6 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         loading: () => buildLoadingOverlay(),
         error: (error, stackTrace) =>
             ErrorView(context, error: error.toString(), stackTrace: stackTrace),
-      ),
-    );
-  }
-
-  Widget _buildVote(BuildContext context, WidgetRef ref, VoteModel vote) {
-    return GestureDetector(
-      onTap: () {
-        final navigationInfoNotifier =
-            ref.read(navigationInfoProvider.notifier);
-        navigationInfoNotifier.setCurrentPage(VoteDetailPage(voteId: vote.id));
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16).r,
-        child: Column(
-          children: [
-            VoteTitle(vote: vote),
-            SizedBox(
-              height: 10.h,
-            ),
-            Container(
-              padding: const EdgeInsets.only(bottom: 10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: Colors.grey.withOpacity(1),
-                  width: 2,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.5),
-                    spreadRadius: 1,
-                    blurRadius: 7,
-                    offset: const Offset(2, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  VoteImage(vote: vote),
-                  VoteArtists(vote: vote),
-                  // VoteContent(vote: vote),
-                  // VoteBestComment(
-                  //     vote: vote, showComments: _showComments),
-                  // VoteCommentInfo(
-                  //     vote: vote, showComments: _showComments)
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

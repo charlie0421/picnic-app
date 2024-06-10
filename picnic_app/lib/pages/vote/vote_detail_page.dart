@@ -100,7 +100,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   Widget _buildVoteInfo(BuildContext context) {
     return ref.watch(asyncVoteDetailProvider(voteId: widget.voteId)).when(
           data: (voteModel) {
-            logger.i('voteModel?.reward: ${voteModel?.reward}');
             return Column(
               children: [
                 Container(
@@ -277,7 +276,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                   children: [
                                     Row(children: [
                                       Text(
-                                        data[index]!.mystar_member.name_ko,
+                                        data[index]!.mystar_member.getTitle(),
                                         style: getTextStyle(
                                             AppTypo.BODY14B, AppColors.Gray900),
                                       ),
@@ -286,10 +285,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                       ),
                                       Text(
                                         data[index]!
-                                                .mystar_member
-                                                .mystar_group
-                                                ?.name_ko ??
-                                            '',
+                                            .mystar_member
+                                            .getGroupTitle(),
                                         style: getTextStyle(AppTypo.CAPTION10SB,
                                             AppColors.Gray600),
                                       ),

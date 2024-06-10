@@ -153,7 +153,6 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                                 setState(() {
                                   imageSize = box.size; // 이미지 사이즈 업데이트
                                 });
-                                print('Image size: $imageSize'); // 디버그 출력
                               });
                               return child;
                             }
