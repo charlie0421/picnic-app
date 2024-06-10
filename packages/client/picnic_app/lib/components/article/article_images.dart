@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/library/library_list.dart';
 import 'package:picnic_app/models/pic/article.dart';
+import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/util.dart';
 
 import '../../constants.dart';
@@ -40,7 +41,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
                 );
               },
               itemCount: widget.article.article_image!.length,
-              pagination: SwiperPagination(
+              pagination: const SwiperPagination(
                 builder: DotSwiperPaginationBuilder(
                     color: Colors.grey, activeColor: picMainColor),
               ),
@@ -88,34 +89,88 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
   }
 }
 
-class FullScreenImageViewer extends StatelessWidget {
+class FullScreenImageViewer extends StatefulWidget {
   final String imageUrl;
 
   FullScreenImageViewer({required this.imageUrl});
 
   @override
+  _FullScreenImageViewerState createState() => _FullScreenImageViewerState();
+}
+
+class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
+  final TransformationController _controller = TransformationController();
+  final double minScale = 1.0;
+  final double maxScale = 4.0;
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: GestureDetector(
-        onTap: () => Navigator.of(context).pop(),
-        child: Center(
-          child: Hero(
-            tag: 'imageHero$imageUrl',
-            child: InteractiveViewer(
-              panEnabled: true,
-              boundaryMargin: EdgeInsets.all(20),
-              minScale: 0.5,
-              maxScale: 4,
-              child: CachedNetworkImage(
-                imageUrl: imageUrl,
-                fit: BoxFit.contain,
-                placeholder: (context, url) => buildPlaceholderImage(),
+      backgroundColor: Colors.transparent,
+      body: Container(
+        padding: MediaQuery.of(context).padding,
+        decoration: const BoxDecoration(gradient: commonGradient),
+        child: Stack(
+          children: [
+            Center(
+              child: GestureDetector(
+                onDoubleTapDown: (details) => _handleDoubleTap(details),
+                child: InteractiveViewer(
+                  transformationController: _controller,
+                  panEnabled: true,
+                  // Disable panning
+                  minScale: minScale,
+                  maxScale: maxScale,
+                  child: Hero(
+                    tag: 'imageHero${widget.imageUrl}',
+                    child: CachedNetworkImage(
+                      imageUrl: widget.imageUrl,
+                      fit: BoxFit.contain,
+                      placeholder: (context, url) =>
+                          CircularProgressIndicator(),
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
+            Positioned(
+              right: 10,
+              top: 40,
+              child: IconButton(
+                icon: Icon(Icons.close, color: Colors.white, size: 30),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  void _handleDoubleTap(TapDownDetails details) {
+    final position = details.localPosition;
+    final currentScale = _controller.value.getMaxScaleOnAxis();
+    double newScale;
+
+    // Define scale steps
+    if (currentScale < 2.0) {
+      newScale = 2.0;
+    } else if (currentScale < 3.0) {
+      newScale = 3.0;
+    } else if (currentScale < 4.0) {
+      newScale = 4.0;
+    } else {
+      newScale = 1.0;
+    }
+
+    final x = -position.dx * (newScale - 1);
+    final y = -position.dy * (newScale - 1);
+    final Matrix4 newMatrix = Matrix4.identity()
+      ..translate(x, y)
+      ..scale(newScale);
+
+    setState(() {
+      _controller.value = newMatrix;
+    });
   }
 }
