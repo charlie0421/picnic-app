@@ -86,5 +86,7 @@
   "label_pic_pic_initializing_camera": "カメラ初期化中...",
   "label_pic_pic_synthesizing_image": "画像合成中...",
   "message_pic_pic_save_success": "保存しました。",
-  "message_pic_pic_save_fail": "保存に失敗しました。"
+  "message_pic_pic_save_fail": "保存に失敗しました。",
+  "text_vote_rank_in_reward": "報酬ランクイン",
+  "text_vote_where_is_my_bias": "一番好きなメンバーは?"
 }

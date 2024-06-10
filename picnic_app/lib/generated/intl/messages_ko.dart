@@ -147,6 +147,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_hint_search": MessageLookupByLibrary.simpleMessage("유명인을 검색하세요."),
         "text_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("선택한 셀러브리티의 집으로 이동합니다."),
+        "text_vote_rank_in_reward":
+            MessageLookupByLibrary.simpleMessage("랭크 인 리워드"),
+        "text_vote_where_is_my_bias":
+            MessageLookupByLibrary.simpleMessage("나의 최애는 어디에?"),
         "title_dialog_library_add":
             MessageLookupByLibrary.simpleMessage("새로운 앨범 추가"),
         "title_select_language": MessageLookupByLibrary.simpleMessage("언어 선택"),

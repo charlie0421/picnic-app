@@ -86,5 +86,7 @@
   "label_pic_pic_initializing_camera": "初始化相机...",
   "label_pic_pic_synthesizing_image": "合成图像...",
   "message_pic_pic_save_success": "保存成功。",
-  "message_pic_pic_save_fail": "保存失败。"
+  "message_pic_pic_save_fail": "保存失败。",
+  "text_vote_rank_in_reward": "奖励排名",
+  "text_vote_where_is_my_bias": "我最爱的成员是？"
 }

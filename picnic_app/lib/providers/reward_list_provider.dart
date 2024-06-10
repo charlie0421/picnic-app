@@ -12,10 +12,7 @@ class AsyncRewardList extends _$AsyncRewardList {
   }
 
   Future<List<RewardModel>> _fetchRewardList() async {
-    final response = await Supabase.instance.client
-        .from('reward')
-        .select()
-        .order('start_at', ascending: false);
+    final response = await Supabase.instance.client.from('reward').select();
     List<RewardModel> rewardList =
         List<RewardModel>.from(response.map((e) => RewardModel.fromJson(e)));
     for (var element in rewardList) {

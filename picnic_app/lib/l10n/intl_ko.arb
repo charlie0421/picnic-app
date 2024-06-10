@@ -87,5 +87,7 @@
   "label_pic_pic_initializing_camera": "카메라 초기화중...",
   "label_pic_pic_synthesizing_image": "이미지 합성중...",
   "message_pic_pic_save_success": "이미지가 저장되었습니다.",
-  "message_pic_pic_save_fail": "이미지 저장에 실패했습니다."
+  "message_pic_pic_save_fail": "이미지 저장에 실패했습니다.",
+  "text_vote_rank_in_reward": "랭크 인 리워드",
+  "text_vote_where_is_my_bias": "나의 최애는 어디에?"
 }

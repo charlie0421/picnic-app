@@ -22,7 +22,10 @@ Map<String, dynamic> _$VoteListModelToJson(VoteListModel instance) =>
 
 VoteModel _$VoteModelFromJson(Map<String, dynamic> json) => VoteModel(
       id: (json['id'] as num).toInt(),
-      vote_title: json['vote_title'] as String,
+      title_ko: json['title_ko'] as String,
+      title_en: json['title_en'] as String,
+      title_ja: json['title_ja'] as String,
+      title_zh: json['title_zh'] as String,
       vote_category: json['vote_category'] as String,
       main_image: json['main_image'] as String,
       wait_image: json['wait_image'] as String,
@@ -35,11 +38,17 @@ VoteModel _$VoteModelFromJson(Map<String, dynamic> json) => VoteModel(
       stop_at: DateTime.parse(json['stop_at'] as String),
       start_at: DateTime.parse(json['start_at'] as String),
       created_at: DateTime.parse(json['created_at'] as String),
+      reward: (json['reward'] as List<dynamic>?)
+          ?.map((e) => RewardModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$VoteModelToJson(VoteModel instance) => <String, dynamic>{
       'id': instance.id,
-      'vote_title': instance.vote_title,
+      'title_ko': instance.title_ko,
+      'title_en': instance.title_en,
+      'title_ja': instance.title_ja,
+      'title_zh': instance.title_zh,
       'vote_category': instance.vote_category,
       'main_image': instance.main_image,
       'wait_image': instance.wait_image,
@@ -50,6 +59,7 @@ Map<String, dynamic> _$VoteModelToJson(VoteModel instance) => <String, dynamic>{
       'visible_at': instance.visible_at.toIso8601String(),
       'stop_at': instance.stop_at.toIso8601String(),
       'start_at': instance.start_at.toIso8601String(),
+      'reward': instance.reward,
     };
 
 VoteItemModel _$VoteItemModelFromJson(Map<String, dynamic> json) =>

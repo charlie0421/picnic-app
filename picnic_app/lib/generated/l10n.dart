@@ -919,6 +919,26 @@ class S {
       args: [],
     );
   }
+
+  /// `Rank in the reward`
+  String get text_vote_rank_in_reward {
+    return Intl.message(
+      'Rank in the reward',
+      name: 'text_vote_rank_in_reward',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Where is my bias?`
+  String get text_vote_where_is_my_bias {
+    return Intl.message(
+      'Where is my bias?',
+      name: 'text_vote_where_is_my_bias',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

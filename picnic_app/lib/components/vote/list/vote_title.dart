@@ -18,7 +18,7 @@ class VoteTitle extends StatelessWidget {
           Align(
             alignment: Alignment.bottomCenter,
             child: Text(
-              vote.vote_title,
+              vote.getTitle(),
               style: getTextStyle(
                 AppTypo.TITLE18B,
                 AppColors.Gray900,

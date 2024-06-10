@@ -1,24 +1,9 @@
+import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/reflector.dart';
 
 part 'reward.g.dart';
-
-// @reflector
-// @JsonSerializable()
-// class CelebRewardListModel {
-//   final List<CelebRewardModel> items;
-//   final MetaModel meta;
-//
-//   CelebRewardListModel({
-//     required this.items,
-//     required this.meta,
-//   });
-//
-//   factory CelebRewardListModel.fromJson(Map<String, dynamic> json) =>
-//       _$CelebRewardListModelFromJson(json);
-//
-//   Map<String, dynamic> toJson() => _$CelebRewardListModelToJson(this);
-// }
 
 @reflector
 @JsonSerializable()
@@ -39,8 +24,21 @@ class RewardModel {
     this.thumbnail,
   });
 
-  factory RewardModel.fromJson(Map<String, dynamic> json) =>
-      _$RewardModelFromJson(json);
+  String getTitle() {
+    if (Intl.getCurrentLocale() == 'ko') {
+      return title_ko;
+    } else if (Intl.getCurrentLocale() == 'en') {
+      return title_en;
+    } else if (Intl.getCurrentLocale() == 'ja') {
+      return title_ja;
+    } else {
+      return title_zh;
+    }
+  }
+
+  factory RewardModel.fromJson(Map<String, dynamic> json) {
+    return _$RewardModelFromJson(json);
+  }
 
   Map<String, dynamic> toJson() => _$RewardModelToJson(this);
 }
