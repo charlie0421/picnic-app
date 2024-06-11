@@ -29,7 +29,7 @@ class _VoteInfoCardState extends State<VoteInfoCard>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<Offset> _offsetAnimation;
-  late final Animation<double> _textOpacityAnimation; // 텍스트 위젯용 페이드 애니메이션
+  late final Animation<double> _opacityAnimation; // 텍스트 위젯용 페이드 애니메이션
 
   void _restartAnimation() {
     _controller.reset();
@@ -51,18 +51,18 @@ class _VoteInfoCardState extends State<VoteInfoCard>
     ).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.0, .5, curve: Curves.easeIn),
+        curve: const Interval(0.0, .5, curve: Curves.easeOut),
       ),
     );
 
     // 텍스트에만 적용할 페이드 애니메이션
-    _textOpacityAnimation = Tween<double>(
+    _opacityAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
     ).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.5, 1.0, curve: Curves.easeIn),
+        curve: const Interval(0.5, 1.0, curve: Curves.easeOut),
       ),
     );
   }
@@ -125,15 +125,15 @@ class _VoteInfoCardState extends State<VoteInfoCard>
                       VoteCardColumn(
                           rank: 2,
                           voteItem: no2,
-                          textOpacityAnimation: _textOpacityAnimation),
+                          opacityAnimation: _opacityAnimation),
                       VoteCardColumn(
                           rank: 1,
                           voteItem: no1,
-                          textOpacityAnimation: _textOpacityAnimation),
+                          opacityAnimation: _opacityAnimation),
                       VoteCardColumn(
                           rank: 3,
                           voteItem: no3,
-                          textOpacityAnimation: _textOpacityAnimation),
+                          opacityAnimation: _opacityAnimation),
                     ],
                   ),
                 ),
@@ -154,12 +154,12 @@ class VoteCardColumn extends StatelessWidget {
     super.key,
     required this.voteItem,
     required this.rank,
-    required this.textOpacityAnimation,
+    required this.opacityAnimation,
   });
 
   final VoteItemModel voteItem;
   final int rank;
-  final Animation<double> textOpacityAnimation;
+  final Animation<double> opacityAnimation;
 
   @override
   Widget build(
@@ -189,7 +189,7 @@ class VoteCardColumn extends StatelessWidget {
         Positioned(
           bottom: barHeight.h + 50,
           child: FadeTransition(
-            opacity: textOpacityAnimation,
+            opacity: opacityAnimation,
             child: Text(
               '${rank}위',
               style: getTextStyle(AppTypo.CAPTION12B, AppColors.Point900),
@@ -221,12 +221,15 @@ class VoteCardColumn extends StatelessWidget {
                   width: 1.w,
                 ),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(50),
-                child: CachedNetworkImage(
-                    imageUrl: voteItem.mystar_member.image ?? '',
-                    width: 72.w,
-                    height: 72.w),
+              child: FadeTransition(
+                opacity: opacityAnimation,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(50),
+                  child: CachedNetworkImage(
+                      imageUrl: voteItem.mystar_member.image ?? '',
+                      width: 72.w,
+                      height: 72.w),
+                ),
               ),
             ),
           ),
@@ -234,7 +237,7 @@ class VoteCardColumn extends StatelessWidget {
         Positioned(
           bottom: imageBottomMargin.h - 40.h,
           child: FadeTransition(
-            opacity: textOpacityAnimation,
+            opacity: opacityAnimation,
             child: Column(
               children: [
                 Text(
