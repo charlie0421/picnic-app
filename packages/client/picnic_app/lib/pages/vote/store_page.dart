@@ -30,6 +30,7 @@ class _StorePageState extends State<StorePage>
         TabBar(
           controller: _tabController,
           tabs: const [
+            // TODO i18n
             Tab(text: '별사탕 구매'),
             Tab(text: '무료 충전소'),
           ],
