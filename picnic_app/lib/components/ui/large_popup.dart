@@ -21,42 +21,58 @@ class LargePopupWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Container(
-            width: double.infinity,
-            margin: footer != null ? const EdgeInsets.only(bottom: 24).r : null,
-            padding:
-                const EdgeInsets.only(top: 64, left: 24, right: 24, bottom: 36)
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+                width: double.infinity,
+                margin:
+                    footer != null ? const EdgeInsets.only(bottom: 24).r : null,
+                padding: const EdgeInsets.only(
+                        top: 64, left: 24, right: 24, bottom: 36)
                     .r,
-            decoration: BoxDecoration(
-                color: AppColors.Gray00,
-                border: Border.all(
-                  color: AppColors.Mint500,
-                  width: 2.r,
-                ),
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(120.r),
-                    topRight: Radius.circular(120.r),
-                    bottomLeft: Radius.circular(120.r),
-                    bottomRight: Radius.circular(120.r))),
-            child: content),
+                decoration: BoxDecoration(
+                    color: AppColors.Gray00,
+                    border: Border.all(
+                      color: AppColors.Mint500,
+                      width: 2.r,
+                    ),
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(120.r),
+                        topRight: Radius.circular(120.r),
+                        bottomLeft: Radius.circular(120.r),
+                        bottomRight: Radius.circular(120.r))),
+                child: content),
+            if (closeButton != null)
+              Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          //TODO i18n
+                          Text('닫기',
+                              style: getTextStyle(
+                                  AppTypo.BODY14B, AppColors.Gray00)),
+                          SizedBox(width: 4.w),
+                          SvgPicture.asset(
+                            'assets/icons/vote/close.svg',
+                            width: 24.w,
+                            height: 24.w,
+                          ),
+                        ],
+                      ))),
+          ],
+        ),
         Positioned.fill(
             child: Container(
                 alignment: Alignment.topCenter,
                 padding: const EdgeInsets.symmetric(horizontal: 32).w,
                 child: VoteCommonTitle(title: title))),
-        if (closeButton != null)
-          Positioned.fill(
-              child: Align(
-                  alignment: Alignment.topRight,
-                  child: GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: SvgPicture.asset(
-                        'assets/icons/vote/close.svg',
-                        width: 24.w,
-                        height: 24.w,
-                      )))),
         Positioned.fill(
             child: Container(
                 alignment: Alignment.bottomCenter,

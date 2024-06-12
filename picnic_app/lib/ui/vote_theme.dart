@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/ui/common_theme.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -23,24 +24,25 @@ ThemeData voteThemeLight = ThemeData.light().copyWith(
   // ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
-      padding: WidgetStateProperty.all(
-          const EdgeInsets.symmetric(vertical: 16, horizontal: 32)),
-      backgroundColor: WidgetStateProperty.all(AppColors.Mint500),
-      shape: WidgetStateProperty.all(
-        RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: AppColors.Primary500),
+        padding: WidgetStateProperty.all(
+            const EdgeInsets.symmetric(vertical: 16, horizontal: 32).r),
+        backgroundColor: WidgetStateProperty.all(AppColors.Mint500),
+        shape: WidgetStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: const BorderSide(
+                color: AppColors.Primary500,
+                width: 1,
+                strokeAlign: BorderSide.strokeAlignInside),
+          ),
         ),
-      ),
-      foregroundColor: WidgetStateProperty.all(AppColors.Primary500),
-      textStyle: WidgetStateProperty.all(
-        getTextStyle(
-          AppTypo.BODY14B,
-          AppColors.Primary500,
+        textStyle: WidgetStateProperty.all(
+          getTextStyle(
+            AppTypo.BODY14B,
+            AppColors.Primary500,
+          ),
         ),
-      ),
-      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-    ),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap),
   ),
   tabBarTheme: commonTabBarTheme,
   switchTheme: commonSwitchTheme,

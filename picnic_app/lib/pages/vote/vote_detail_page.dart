@@ -393,8 +393,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                             width: 8.w,
                           ),
                           Expanded(
-                            child: SizedBox(
-                              height: 36.h,
+                            child: Container(
+                              alignment: Alignment.center,
+                              height: 48.h,
                               child: TextFormField(
                                 cursorHeight: 16.h,
                                 cursorColor: AppColors.Primary500,
