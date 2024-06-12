@@ -35,7 +35,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
       child: ListView(
         children: [
           SizedBox(height: 36.h),
-          const CommonPointInfo(point: 100),
+          const CommonPointInfo(),
           SizedBox(height: 36.h),
           CommonListTile(
             title: Text('광고 시청하고 충전하기',

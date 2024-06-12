@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
+import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util.dart';
 
-class CommonPointInfo extends StatelessWidget {
-  const CommonPointInfo({super.key, required this.point});
-
-  final int point;
+class CommonPointInfo extends ConsumerWidget {
+  const CommonPointInfo({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final starCandy = ref.watch(
+        userInfoProvider.select((value) => value.value?.star_candy ?? 0));
+
     return Stack(
       children: [
         Container(
@@ -32,7 +36,7 @@ class CommonPointInfo extends StatelessWidget {
               children: [
                 Image.asset('assets/icons/header/star.png',
                     width: 48.w, height: 48.w),
-                Text('$point',
+                Text(formatNumberWithComma(starCandy),
                     style: getTextStyle(AppTypo.BODY16B, AppColors.Gray900)),
               ],
             ),
