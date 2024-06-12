@@ -58,7 +58,6 @@ dependencies:
   sign_in_with_apple: ^5.0.0
   kakao_flutter_sdk: ^1.9.1+2
   firebase_core: ^2.27.0
-  firebase_auth: ^4.17.8
   flutter_chat_types: any
   http: any
   mime: any
