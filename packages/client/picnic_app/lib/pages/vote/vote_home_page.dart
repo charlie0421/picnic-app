@@ -34,6 +34,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
       _buildReward(context),
       SizedBox(height: 48.h),
       GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () {
           ref
               .read(navigationInfoProvider.notifier)

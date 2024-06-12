@@ -5,6 +5,7 @@ Future<void> showCustomTrackingDialog(BuildContext context) async =>
     showCupertinoModalPopup(
       context: context,
       builder: (context) => GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () {
           Navigator.pop(context);
         },

@@ -50,6 +50,7 @@ class _PortalState extends ConsumerState<Portal> {
                   ? userInfo.when(
                       data: (data) => data != null
                           ? GestureDetector(
+                              behavior: HitTestBehavior.opaque,
                               onTap: () =>
                                   navigationInfoNotifier.setCurrentPage(
                                 MyPage(),
@@ -95,6 +96,7 @@ class _PortalState extends ConsumerState<Portal> {
                       ),
                     )
                   : GestureDetector(
+                      behavior: HitTestBehavior.opaque,
                       onTap: () => navigationInfoNotifier.setCurrentPage(
                         const LoginScreen(),
                       ),

@@ -14,7 +14,6 @@ class VoteCommonTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        height: 48.h,
         padding: const EdgeInsets.symmetric(horizontal: 16).r,
         decoration: BoxDecoration(
             color: AppColors.Mint500,
@@ -29,29 +28,30 @@ class VoteCommonTitle extends StatelessWidget {
             SvgPicture.asset(
               'assets/icons/vote/vote_title_left.svg',
               width: 16.w,
-              height: 16.h,
+              height: 16.w,
             ),
-            Center(
-              child: SizedBox(
-                height: 24.h,
-                child: Stack(
-                  children: [
-                    Text(title,
-                        style:
-                            getTextStyle(AppTypo.BODY16M, AppColors.Primary500)
-                                .copyWith(
-                                    foreground: Paint()
-                                      ..style = PaintingStyle.stroke
-                                      ..strokeWidth = 1
-                                      ..color = AppColors.Primary500
-                                      ..strokeJoin = StrokeJoin.miter
-                                      ..strokeMiterLimit = 28.96),
-                        overflow: TextOverflow.ellipsis),
-                    Text(title,
-                        style: getTextStyle(AppTypo.BODY16M, AppColors.Gray00),
-                        overflow: TextOverflow.ellipsis),
-                  ],
-                ),
+            Container(
+              height: 48.h,
+              alignment: Alignment.center,
+              child: Stack(
+                children: [
+                  Text(title,
+                      style: getTextStyle(AppTypo.BODY16M, AppColors.Primary500)
+                          .copyWith(
+                              foreground: Paint()
+                                ..style = PaintingStyle.stroke
+                                ..strokeWidth = 1
+                                ..color = AppColors.Primary500
+                                ..strokeJoin = StrokeJoin.miter
+                                ..strokeMiterLimit = 28.96),
+                      overflow: TextOverflow.ellipsis),
+                  Text(
+                    title,
+                    style: getTextStyle(AppTypo.BODY16M, AppColors.Gray00),
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
             ),
             SvgPicture.asset(

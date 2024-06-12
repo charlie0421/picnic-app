@@ -62,6 +62,7 @@ class _TopState extends ConsumerState<ScreenTop> {
           navigationInfo.navigationStack != null &&
                   navigationInfo.navigationStack!.length > 1
               ? GestureDetector(
+                  behavior: HitTestBehavior.opaque,
                   onTap: () {
                     navigationInfoNotifier.goBack();
                   },

@@ -106,6 +106,7 @@ class _PicChartPageState extends State<PicChartPage>
                       ],
                     ),
                     GestureDetector(
+                      behavior: HitTestBehavior.opaque,
                       onTap: () {
                         Navigator.pop(context);
                       },

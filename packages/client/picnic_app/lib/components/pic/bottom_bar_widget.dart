@@ -50,6 +50,7 @@ class BottomBarWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () async {
               final ImagePicker _picker = ImagePicker();
               final XFile? image =
@@ -92,6 +93,7 @@ class BottomBarWidget extends StatelessWidget {
                   ),
           ),
           GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: viewType == ViewType.image ||
                     viewMode == ViewMode.saving ||
                     viewMode == ViewMode.timer ||
@@ -130,6 +132,7 @@ class BottomBarWidget extends StatelessWidget {
             ),
           ),
           GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: viewMode == ViewMode.ready ? onCapture : null,
             child: Container(
               width: 70.w,
@@ -155,6 +158,7 @@ class BottomBarWidget extends StatelessWidget {
             ),
           ),
           GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: viewType == ViewType.image ||
                     viewMode == ViewMode.saving ||
                     viewMode == ViewMode.timer ||
@@ -190,6 +194,7 @@ class BottomBarWidget extends StatelessWidget {
             ),
           ),
           GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: cameraInitialized ? onCameraToggle : null,
             child: Icon(
               Icons.change_circle,

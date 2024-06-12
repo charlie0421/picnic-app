@@ -78,6 +78,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                       ),
                       const SizedBox(width: 8),
                       GestureDetector(
+                        behavior: HitTestBehavior.opaque,
                         onTap: () => _buildSelectCelebBottomSheet(),
                         child: SvgPicture.asset(
                           'assets/icons/dropdown.svg',
@@ -105,6 +106,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                       height: 80,
                       width: double.infinity,
                       child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
                         onTap: () {
                           Navigator.pushNamed(
                               context, DrawImageScreen.routeName);
@@ -215,6 +217,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
           scrollDirection: Axis.horizontal,
           itemBuilder: (context, index) {
             return GestureDetector(
+              behavior: HitTestBehavior.opaque,
               onTap: () {
                 ref
                     .read(navigationInfoProvider.notifier)
@@ -320,6 +323,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                 height: 20,
               ),
               GestureDetector(
+                  behavior: HitTestBehavior.opaque,
                   onTap: () {
                     _buildFloating(context);
                   },
