@@ -34,6 +34,11 @@ String formatViewCountNumberEn(int number) {
   }
 }
 
+String formatNumberWithComma(String number) {
+  final numberFormat = NumberFormat("#,###");
+  return numberFormat.format(int.parse(number.replaceAll(',', '')));
+}
+
 String formatTimeAgo(DateTime timestamp) {
   final now = DateTime.now().toUtc();
   final difference = now.difference(timestamp);

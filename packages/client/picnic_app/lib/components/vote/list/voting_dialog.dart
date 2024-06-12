@@ -1,6 +1,7 @@
 import 'package:animated_digit/animated_digit.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -8,6 +9,8 @@ import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/vote/vote.dart';
+import 'package:picnic_app/pages/vote/store_page.dart';
+import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
@@ -106,7 +109,7 @@ class VotingDialog extends Dialog {
                         width: 8.w,
                       ),
                       Align(
-                        alignment: Alignment.topCenter,
+                        alignment: Alignment.center,
                         child: Text(
                           voteItemModel.mystar_member.getGroupTitle(),
                           style: getTextStyle(
@@ -139,7 +142,7 @@ class VotingDialog extends Dialog {
                       Expanded(
                         child: Container(
                           height: 32.h,
-                          alignment: Alignment.centerLeft,
+                          alignment: Alignment.topLeft,
                           child: AnimatedDigitWidget(
                             value:
                                 ref.watch(userInfoProvider).value?.star_candy ??
@@ -147,35 +150,50 @@ class VotingDialog extends Dialog {
                             duration: const Duration(milliseconds: 500),
                             enableSeparator: true,
                             curve: Curves.easeInOut,
-                            textStyle: getTextStyle(
-                                    AppTypo.CAPTION12B, AppColors.Primary500)
-                                .copyWith(
+                            textStyle: TextStyle(
                               fontSize: 20.sp,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.Primary500,
                             ),
                           ),
                         ),
                       ),
-                      Container(
-                        height: 32.h,
-                        padding: EdgeInsets.only(
-                          left: 20.w,
-                          right: 18.w,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.Mint500,
-                          borderRadius: BorderRadius.circular(20.r),
-                        ),
-                        child: Row(
-                          children: [
-                            Text('충전하기',
-                                style: getTextStyle(
-                                    AppTypo.BODY14B, AppColors.Primary500)),
-                            SvgPicture.asset(
-                              'assets/icons/vote/recharge_plus.svg',
-                              width: 16.w,
-                              height: 16.h,
+                      GestureDetector(
+                        onTap: () {
+                          ref
+                              .read(navigationInfoProvider.notifier)
+                              .setCurrentPage(const StorePage());
+                          ref
+                              .read(navigationInfoProvider.notifier)
+                              .setVoteBottomNavigationIndex(3);
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          height: 32.h,
+                          width: 107.w,
+                          decoration: BoxDecoration(
+                            color: AppColors.Mint500,
+                            borderRadius: BorderRadius.circular(20.r),
+                            border: Border.all(
+                              color: AppColors.Primary500,
+                              width: 1,
                             ),
-                          ],
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            //TODO i18n
+                            children: [
+                              Text('충전하기',
+                                  style: getTextStyle(
+                                      AppTypo.BODY14B, AppColors.Primary500)),
+                              SizedBox(width: 4.w),
+                              SvgPicture.asset(
+                                'assets/icons/vote/recharge_plus.svg',
+                                width: 16.w,
+                                height: 16.h,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -208,6 +226,7 @@ class VotingDialog extends Dialog {
                             ),
                     ),
                     SizedBox(width: 4.w),
+                    //TODO i18n
                     Text('전체사용',
                         style:
                             getTextStyle(AppTypo.BODY14M, AppColors.Gray400)),
@@ -227,8 +246,9 @@ class VotingDialog extends Dialog {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Expanded(
-                        child: SizedBox(
-                          height: 36.h,
+                        child: Container(
+                          alignment: Alignment.center,
+                          height: 48.h,
                           child: TextFormField(
                             cursorHeight: 16.h,
                             cursorColor: AppColors.Primary500,
@@ -243,6 +263,11 @@ class VotingDialog extends Dialog {
                               focusColor: AppColors.Primary500,
                               fillColor: AppColors.Gray900,
                             ),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
+                            style: getTextStyle(
+                                AppTypo.BODY16B, AppColors.Gray900),
                           ),
                         ),
                       ),
@@ -296,6 +321,7 @@ class VotingDialog extends Dialog {
                         Navigator.pop(context);
                       }
                     },
+                    //TODO i18n
                     child: Text('투표하기',
                         style:
                             getTextStyle(AppTypo.TITLE18SB, AppColors.Gray00)),
