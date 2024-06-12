@@ -26,36 +26,72 @@ Future showVotingDialog({
       context: context,
       barrierDismissible: true,
       builder: (context) {
-        return VotingDialog(
-          voteModel: voteModel,
-          voteItemModel: voteItemModel,
-          ref: ref,
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return VotingDialog(
+              voteModel: voteModel,
+              voteItemModel: voteItemModel,
+              ref: ref,
+              setState: setState,
+            );
+          },
         );
       });
 }
 
-class VotingDialog extends Dialog {
+class VotingDialog extends ConsumerStatefulWidget {
   final VoteModel voteModel;
   final VoteItemModel voteItemModel;
   final WidgetRef ref;
+  final void Function(void Function()) setState;
 
   VotingDialog(
       {super.key,
       required this.voteModel,
       required this.voteItemModel,
-      required this.ref}) {
-    _textEditingController = TextEditingController();
+      required this.ref,
+      required this.setState}) {}
+
+  @override
+  ConsumerState<VotingDialog> createState() => _VotingDialogState();
+}
+
+class _VotingDialogState extends ConsumerState<VotingDialog> {
+  late TextEditingController _textEditingController;
+  late FocusNode _focusNode;
+  late bool _hasFocus = false;
+  late bool _checkAll = false;
+  late bool _hasValue = false;
+  late bool _isOver = false;
+
+  @override
+  void initState() {
+    super.initState();
     _focusNode = FocusNode();
     _focusNode.addListener(() {
       _hasFocus = _focusNode.hasFocus;
     });
+
+    _textEditingController = TextEditingController();
+    _textEditingController.addListener(() {
+      setState(() {
+        if (_textEditingController.text.isNotEmpty) {
+          final int voteAmount =
+              int.parse(_textEditingController.text.replaceAll(',', ''));
+          final int myStarCandy =
+              widget.ref.read(userInfoProvider).value?.star_candy ?? 0;
+
+          _isOver = voteAmount > myStarCandy;
+
+          _textEditingController.text = formatNumberWithComma(
+              _textEditingController.text.replaceAll(',', ''));
+          _hasValue = true;
+        } else {
+          _hasValue = false;
+        }
+      });
+    });
   }
-
-  late TextEditingController _textEditingController;
-  late FocusNode _focusNode;
-  bool _hasFocus = false;
-
-  bool _checkAll = false;
 
   @override
   Widget build(BuildContext context) {
@@ -63,8 +99,9 @@ class VotingDialog extends Dialog {
         backgroundColor: Colors.transparent,
         child: StatefulBuilder(
           builder: (context, setState) => LargePopupWidget(
-            title: voteModel.getTitle() ?? '',
+            title: widget.voteModel.getTitle() ?? '',
             closeButton: GestureDetector(
+              behavior: HitTestBehavior.opaque,
               onTap: () {
                 Navigator.pop(context);
               },
@@ -77,6 +114,7 @@ class VotingDialog extends Dialog {
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                SizedBox(height: 24.w),
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(100.r),
@@ -88,21 +126,21 @@ class VotingDialog extends Dialog {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(100.r),
                     child: CachedNetworkImage(
-                      imageUrl: voteItemModel.mystar_member.image ?? '',
+                      imageUrl: widget.voteItemModel.mystar_member.image ?? '',
                       width: 100.w,
                       height: 100.w,
                       placeholder: (context, url) => buildPlaceholderImage(),
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 16.w),
                 SizedBox(
-                  height: 24.h,
+                  height: 24.w,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        voteItemModel.mystar_member.getTitle() ?? '',
+                        widget.voteItemModel.mystar_member.getTitle() ?? '',
                         style: getTextStyle(AppTypo.BODY16B, AppColors.Gray900),
                       ),
                       SizedBox(
@@ -111,7 +149,7 @@ class VotingDialog extends Dialog {
                       Align(
                         alignment: Alignment.center,
                         child: Text(
-                          voteItemModel.mystar_member.getGroupTitle(),
+                          widget.voteItemModel.mystar_member.getGroupTitle(),
                           style: getTextStyle(
                               AppTypo.CAPTION12R, AppColors.Gray600),
                         ),
@@ -119,14 +157,13 @@ class VotingDialog extends Dialog {
                     ],
                   ),
                 ),
-                SizedBox(height: 24.h),
                 const Divider(
                   color: AppColors.Gray300,
-                  height: 1,
+                  thickness: 1,
+                  height: 48,
                 ),
-                const SizedBox(height: 25),
                 SizedBox(
-                  height: 32.h,
+                  height: 32.w,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -144,9 +181,11 @@ class VotingDialog extends Dialog {
                           height: 32.h,
                           alignment: Alignment.topLeft,
                           child: AnimatedDigitWidget(
-                            value:
-                                ref.watch(userInfoProvider).value?.star_candy ??
-                                    0,
+                            value: widget.ref
+                                    .watch(userInfoProvider)
+                                    .value
+                                    ?.star_candy ??
+                                0,
                             duration: const Duration(milliseconds: 500),
                             enableSeparator: true,
                             curve: Curves.easeInOut,
@@ -159,11 +198,12 @@ class VotingDialog extends Dialog {
                         ),
                       ),
                       GestureDetector(
+                        behavior: HitTestBehavior.opaque,
                         onTap: () {
-                          ref
+                          widget.ref
                               .read(navigationInfoProvider.notifier)
                               .setCurrentPage(const StorePage());
-                          ref
+                          widget.ref
                               .read(navigationInfoProvider.notifier)
                               .setVoteBottomNavigationIndex(3);
                           Navigator.pop(context);
@@ -199,49 +239,63 @@ class VotingDialog extends Dialog {
                     ],
                   ),
                 ),
-                SizedBox(height: 16.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _checkAll = !_checkAll;
-                        });
-                      },
-                      child: _checkAll
-                          ? SvgPicture.asset(
-                              'assets/icons/vote/checkbox.svg',
-                              width: 24.w,
-                              height: 24.w,
-                              colorFilter: const ColorFilter.mode(
-                                  AppColors.Gray300, BlendMode.srcIn),
-                            )
-                          : SvgPicture.asset(
-                              'assets/icons/vote/checkbox.svg',
-                              width: 24.w,
-                              height: 24.w,
-                              colorFilter: const ColorFilter.mode(
-                                  AppColors.Primary500, BlendMode.srcIn),
-                            ),
+                SizedBox(height: 16.w),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    setState(() {
+                      _checkAll = !_checkAll;
+                      _hasValue = _checkAll;
+                    });
+                    _textEditingController.text = _checkAll || _hasValue
+                        ? formatNumberWithComma(widget.ref
+                                .watch(userInfoProvider)
+                                .value!
+                                .star_candy
+                                .toString()) ??
+                            ''
+                        : '';
+                  },
+                  child: SizedBox(
+                    height: 21.w,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/vote/checkbox.svg',
+                          width: 24.w,
+                          height: 24.w,
+                          colorFilter: ColorFilter.mode(
+                              _checkAll
+                                  ? AppColors.Primary500
+                                  : AppColors.Gray300,
+                              BlendMode.srcIn),
+                        ),
+                        SizedBox(width: 4.w),
+                        //TODO i18n
+                        Text('전체사용',
+                            style: getTextStyle(
+                                AppTypo.BODY14M,
+                                _checkAll
+                                    ? AppColors.Primary500
+                                    : AppColors.Gray300)),
+                      ],
                     ),
-                    SizedBox(width: 4.w),
-                    //TODO i18n
-                    Text('전체사용',
-                        style:
-                            getTextStyle(AppTypo.BODY14M, AppColors.Gray400)),
-                  ],
+                  ),
                 ),
                 SizedBox(height: 8.h),
                 Container(
+                  height: 48.w,
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: AppColors.Primary500,
+                      color: _isOver
+                          ? AppColors.StatusError
+                          : AppColors.Primary500,
                       width: 1,
                     ),
                     borderRadius: BorderRadius.circular(24).r,
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 16).w,
+                  padding: EdgeInsets.only(left: 24.w, right: 16.w),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -262,66 +316,93 @@ class VotingDialog extends Dialog {
                               border: InputBorder.none,
                               focusColor: AppColors.Primary500,
                               fillColor: AppColors.Gray900,
+                              suffixIcon: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () {
+                                  _textEditingController.clear();
+                                  _hasValue = false;
+                                  _checkAll = false;
+                                },
+                                child: SvgPicture.asset(
+                                    'assets/icons/vote/cancel.svg',
+                                    colorFilter: ColorFilter.mode(
+                                        _hasValue
+                                            ? AppColors.Gray700
+                                            : AppColors.Gray200,
+                                        BlendMode.srcIn),
+                                    width: 20.w,
+                                    height: 20.w),
+                              ),
+                              suffixIconConstraints: BoxConstraints(
+                                minWidth: 20.w,
+                                minHeight: 20.w,
+                              ),
                             ),
                             inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly
+                              FilteringTextInputFormatter.digitsOnly,
                             ],
                             style: getTextStyle(
                                 AppTypo.BODY16B, AppColors.Gray900),
                           ),
                         ),
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          _textEditingController.clear();
-                        },
-                        child: SvgPicture.asset(
-                          'assets/icons/vote/cancel.svg',
-                          width: 20.w,
-                          height: 20.w,
-                          colorFilter: ColorFilter.mode(
-                              _hasFocus ? AppColors.Gray700 : AppColors.Gray200,
-                              BlendMode.srcIn),
-                        ),
-                      ),
                     ],
                   ),
                 ),
-                SizedBox(height: 28.h),
                 Container(
-                  width: 172.w,
-                  height: 52.h,
-                  decoration: BoxDecoration(
-                    color: AppColors.Primary500,
-                    borderRadius: BorderRadius.circular(24).r,
+                  height: 28.w,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      if (_isOver)
+                        Container(
+                          padding: EdgeInsets.only(left: 24.w, top: 4.w),
+                          width: double.infinity,
+                          height: 15.w,
+                          child: Text(
+                            '충전이 필요합니다.',
+                            style: getTextStyle(
+                                AppTypo.CAPTION10SB, AppColors.StatusError),
+                            textAlign: TextAlign.left,
+                          ),
+                        ),
+                    ],
                   ),
-                  alignment: Alignment.center,
-                  child: GestureDetector(
-                    onTap: () async {
-                      OverlayLoadingProgress.start(context,
-                          barrierDismissible: false);
-                      try {
-                        logger.i('투표 아이템: ${voteItemModel.id}');
-                        logger.i('투표 아이템: ${voteItemModel.vote_total}');
-                        logger.i('투표 수량: ${_textEditingController.text}');
-                        logger.i(
-                            'voteItemModel.vote_total + int.parse(_textEditingController.text): ${voteItemModel.vote_total + int.parse(_textEditingController.text)}');
-                        final response = await Supabase.instance.client
-                            .from('vote_item')
-                            .update({
-                          'vote_total': voteItemModel.vote_total +
-                              int.parse(_textEditingController.text),
-                        }).eq('id', voteItemModel.id);
+                ),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () async {
+                    OverlayLoadingProgress.start(context,
+                        barrierDismissible: false);
+                    try {
+                      logger.i('투표 아이템: ${widget.voteItemModel.id}');
+                      logger.i('투표 아이템: ${widget.voteItemModel.vote_total}');
+                      logger.i('투표 수량: ${_textEditingController.text}');
+                      logger.i(
+                          'voteItemModel.vote_total + int.parse(_textEditingController.text): ${widget.voteItemModel.vote_total + int.parse(_textEditingController.text)}');
+                      final response = await Supabase.instance.client
+                          .from('vote_item')
+                          .update({
+                        'vote_total': widget.voteItemModel.vote_total +
+                            int.parse(_textEditingController.text),
+                      }).eq('id', widget.voteItemModel.id);
 
-                        logger.i('투표 완료');
-                      } catch (e, stackTrace) {
-                        logger.e('투표 실패: $e, $stackTrace');
-                      } finally {
-                        OverlayLoadingProgress.stop();
-                        Navigator.pop(context);
-                      }
-                    },
-                    //TODO i18n
+                      logger.i('투표 완료');
+                    } catch (e, stackTrace) {
+                      logger.e('투표 실패: $e, $stackTrace');
+                    } finally {
+                      OverlayLoadingProgress.stop();
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: Container(
+                    width: 172.w,
+                    height: 52.w,
+                    decoration: BoxDecoration(
+                      color: AppColors.Primary500,
+                      borderRadius: BorderRadius.circular(24).r,
+                    ),
+                    alignment: Alignment.center,
                     child: Text('투표하기',
                         style:
                             getTextStyle(AppTypo.TITLE18SB, AppColors.Gray00)),

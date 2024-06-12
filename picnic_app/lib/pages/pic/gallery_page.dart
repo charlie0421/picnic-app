@@ -73,6 +73,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
               itemBuilder: (context, index) {
                 final gallery = galleryList[index];
                 return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
                   onTap: () {
                     ref
                         .read(navigationInfoProvider.notifier)

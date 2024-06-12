@@ -68,6 +68,7 @@ class CelebListItem extends ConsumerWidget {
                 ? Container()
                 : type == 'my'
                     ? GestureDetector(
+                        behavior: HitTestBehavior.opaque,
                         onTap: enableBookmark != null && enableBookmark!
                             ? () async {
                                 await asyncCelebListNotifier

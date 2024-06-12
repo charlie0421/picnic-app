@@ -18,6 +18,7 @@ class _ArticleBestCommentState extends State<ArticleBestComment> {
   Widget build(BuildContext context) {
     return widget.article.most_liked_comment != null
         ? GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () => widget.showComments(context, widget.article,
                 commentId: widget.article.most_liked_comment?.id),
             child: Container(

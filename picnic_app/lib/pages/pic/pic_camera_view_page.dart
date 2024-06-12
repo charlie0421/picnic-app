@@ -437,6 +437,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
           child: LargePopupWidget(
             title: Intl.message('label_pic_pic_save_gallery'),
             closeButton: GestureDetector(
+              behavior: HitTestBehavior.opaque,
               onTap: () {
                 _controller!.resumePreview(); // Resume the camera preview
                 Navigator.pop(context);

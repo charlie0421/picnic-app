@@ -82,6 +82,7 @@ class _VoteInfoCardState extends State<VoteInfoCard>
     final no3 = items[2];
 
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () {
         final navigationInfoNotifier =
             widget.ref.read(navigationInfoProvider.notifier);

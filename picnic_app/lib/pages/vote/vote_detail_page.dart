@@ -216,144 +216,143 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                             child: child,
                           );
                         },
-                        child: Container(
-                          key: ValueKey<int>(index), // 각 아이템에 고유한 키를 할당
-                          height: 45.h,
-                          margin: const EdgeInsets.only(
-                                  left: 16, right: 16, bottom: 36)
-                              .r,
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 35.w,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    if (index < 3)
-                                      SvgPicture.asset(
-                                          'assets/icons/vote/crown${index + 1}.svg'),
-                                    Text(
-                                      '${index + 1}위',
-                                      style: getTextStyle(AppTypo.CAPTION12B,
-                                          AppColors.Point900),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(
-                                width: 16.w,
-                              ),
-                              Container(
-                                decoration: BoxDecoration(
-                                  gradient: index + 1 == 1
-                                      ? goldGradient
-                                      : index + 1 == 2
-                                          ? silverGradient
-                                          : index + 1 == 3
-                                              ? bronzeGradient
-                                              : null,
-                                  color:
-                                      index + 1 > 3 ? AppColors.Gray200 : null,
-                                  borderRadius: BorderRadius.circular(22.5.r),
-                                ),
-                                padding: const EdgeInsets.all(3),
-                                width: 45.w,
-                                height: 45.w,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(22.5.r),
-                                  child: CachedNetworkImage(
-                                    imageUrl:
-                                        data[index]!.mystar_member.image ?? '',
-                                    fit: BoxFit.cover,
-                                    width: 39.w,
-                                    height: 39.w,
-                                    placeholder: (context, url) =>
-                                        buildPlaceholderImage(),
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            showVotingDialog(
+                                context: context,
+                                voteModel: ref
+                                    .watch(asyncVoteDetailProvider(
+                                        voteId: widget.voteId))
+                                    .value!,
+                                voteItemModel: data[index]!,
+                                ref: ref);
+                          },
+                          child: Container(
+                            key: ValueKey<int>(index), // 각 아이템에 고유한 키를 할당
+                            height: 45.h,
+                            margin: const EdgeInsets.only(
+                                    left: 16, right: 16, bottom: 36)
+                                .r,
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 35.w,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      if (index < 3)
+                                        SvgPicture.asset(
+                                            'assets/icons/vote/crown${index + 1}.svg'),
+                                      Text(
+                                        '${index + 1}위',
+                                        style: getTextStyle(AppTypo.CAPTION12B,
+                                            AppColors.Point900),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ),
-                              SizedBox(
-                                width: 8.w,
-                              ),
-                              Expanded(
-                                child: Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(children: [
-                                      Text(
-                                        data[index]!.mystar_member.getTitle(),
-                                        style: getTextStyle(
-                                            AppTypo.BODY14B, AppColors.Gray900),
-                                      ),
-                                      SizedBox(
-                                        width: 8.w,
-                                      ),
-                                      Text(
-                                        data[index]!
-                                            .mystar_member
-                                            .getGroupTitle(),
-                                        style: getTextStyle(AppTypo.CAPTION10SB,
-                                            AppColors.Gray600),
-                                      ),
-                                    ]),
-                                    Container(
-                                      width: double.infinity,
-                                      height: 20.h,
-                                      padding: const EdgeInsets.only(right: 16),
-                                      decoration: BoxDecoration(
-                                        gradient: commonGradient,
-                                        color: AppColors.Gray100,
-                                        borderRadius:
-                                            BorderRadius.circular(10.r),
-                                      ),
-                                      alignment: Alignment.centerRight,
-                                      child: AnimatedDigitWidget(
-                                        value: data[index]!.vote_total,
-                                        duration:
-                                            const Duration(microseconds: 300),
-                                        curve: Curves.fastOutSlowIn,
-                                        enableSeparator: true,
-                                        textStyle: getTextStyle(
-                                            AppTypo.CAPTION10SB,
-                                            AppColors.Gray00),
-                                      ),
-                                      // child: Text(
-                                      //   NumberFormat()
-                                      //       .format(data[index]!.vote_total),
-                                      //   style: getTextStyle(
-                                      //       context,
-                                      //       AppTypo.CAPTION10SB,
-                                      //       AppColors.Gray00),
-                                      // ),
-                                    ),
-                                  ],
+                                SizedBox(
+                                  width: 16.w,
                                 ),
-                              ),
-                              SizedBox(
-                                width: 16.w,
-                              ),
-                              SizedBox(
-                                width: 24.w,
-                                height: 24.w,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    showVotingDialog(
-                                        context: context,
-                                        voteModel: ref
-                                            .watch(asyncVoteDetailProvider(
-                                                voteId: widget.voteId))
-                                            .value!,
-                                        voteItemModel: data[index]!,
-                                        ref: ref);
-                                  },
+                                Container(
+                                  decoration: BoxDecoration(
+                                    gradient: index + 1 == 1
+                                        ? goldGradient
+                                        : index + 1 == 2
+                                            ? silverGradient
+                                            : index + 1 == 3
+                                                ? bronzeGradient
+                                                : null,
+                                    color: index + 1 > 3
+                                        ? AppColors.Gray200
+                                        : null,
+                                    borderRadius: BorderRadius.circular(22.5.r),
+                                  ),
+                                  padding: const EdgeInsets.all(3),
+                                  width: 45.w,
+                                  height: 45.w,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(22.5.r),
+                                    child: CachedNetworkImage(
+                                      imageUrl:
+                                          data[index]!.mystar_member.image ??
+                                              '',
+                                      fit: BoxFit.cover,
+                                      width: 39.w,
+                                      height: 39.w,
+                                      placeholder: (context, url) =>
+                                          buildPlaceholderImage(),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 8.w,
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(children: [
+                                        Text(
+                                          data[index]!.mystar_member.getTitle(),
+                                          style: getTextStyle(AppTypo.BODY14B,
+                                              AppColors.Gray900),
+                                        ),
+                                        SizedBox(
+                                          width: 8.w,
+                                        ),
+                                        Text(
+                                          data[index]!
+                                              .mystar_member
+                                              .getGroupTitle(),
+                                          style: getTextStyle(
+                                              AppTypo.CAPTION10SB,
+                                              AppColors.Gray600),
+                                        ),
+                                      ]),
+                                      Container(
+                                        width: double.infinity,
+                                        height: 20.h,
+                                        padding:
+                                            const EdgeInsets.only(right: 16),
+                                        decoration: BoxDecoration(
+                                          gradient: commonGradient,
+                                          color: AppColors.Gray100,
+                                          borderRadius:
+                                              BorderRadius.circular(10.r),
+                                        ),
+                                        alignment: Alignment.centerRight,
+                                        child: AnimatedDigitWidget(
+                                          value: data[index]!.vote_total,
+                                          duration:
+                                              const Duration(microseconds: 300),
+                                          curve: Curves.fastOutSlowIn,
+                                          enableSeparator: true,
+                                          textStyle: getTextStyle(
+                                              AppTypo.CAPTION10SB,
+                                              AppColors.Gray00),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 16.w,
+                                ),
+                                SizedBox(
+                                  width: 24.w,
+                                  height: 24.w,
                                   child: SvgPicture.asset(
                                       'assets/icons/vote/vote_button.svg'),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       );
@@ -414,6 +413,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                             ),
                           ),
                           GestureDetector(
+                            behavior: HitTestBehavior.opaque,
                             onTap: () {
                               _textEditingController.clear();
                             },

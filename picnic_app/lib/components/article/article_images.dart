@@ -27,6 +27,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
           ? Swiper(
               itemBuilder: (BuildContext context, int index) {
                 return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
                   onTap: () => _showFullScreenImage(context,
                       widget.article.article_image![index].image ?? ''),
                   child: Hero(
@@ -143,6 +144,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
           children: [
             Center(
               child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
                 onDoubleTapDown: (details) => _handleDoubleTap(details),
                 child: InteractiveViewer(
                   transformationController: _controller,

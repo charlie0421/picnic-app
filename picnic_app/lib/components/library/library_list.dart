@@ -37,6 +37,7 @@ class _LibraryListState extends ConsumerState<AlbumList> {
                         style: getTextStyle(AppTypo.BODY16B),
                       ),
                       GestureDetector(
+                        behavior: HitTestBehavior.opaque,
                         onTap: () {
                           _showAddAlbum();
                         },

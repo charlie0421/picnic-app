@@ -8,6 +8,8 @@ class AppColors {
   static const Color Point500 = Color(0xFFFFA9BD);
   static const Color Point900 = Color(0xFFEB4A71);
 
+  static const Color StatusError = Color(0xFFFF4242);
+
   static const Color Gray900 = Color(0xFF000000);
 
   static const Color Gray800 = Color(0xFF252528);

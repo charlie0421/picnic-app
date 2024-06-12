@@ -20,63 +20,59 @@ class LargePopupWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
+      alignment: Alignment.center,
       children: [
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-                width: double.infinity,
-                margin:
-                    footer != null ? const EdgeInsets.only(bottom: 24).r : null,
-                padding: const EdgeInsets.only(
-                        top: 64, left: 24, right: 24, bottom: 36)
-                    .r,
-                decoration: BoxDecoration(
-                    color: AppColors.Gray00,
-                    border: Border.all(
-                      color: AppColors.Mint500,
-                      width: 2.r,
-                    ),
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(120.r),
-                        topRight: Radius.circular(120.r),
-                        bottomLeft: Radius.circular(120.r),
-                        bottomRight: Radius.circular(120.r))),
-                child: content),
-            if (closeButton != null)
-              Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          //TODO i18n
-                          Text('닫기',
-                              style: getTextStyle(
-                                  AppTypo.BODY14B, AppColors.Gray00)),
-                          SizedBox(width: 4.w),
-                          SvgPicture.asset(
-                            'assets/icons/vote/close.svg',
-                            width: 24.w,
-                            height: 24.w,
-                          ),
-                        ],
-                      ))),
-          ],
+        Container(
+            width: double.infinity,
+            margin: closeButton != null ? EdgeInsets.only(bottom: 32.w) : null,
+            padding: EdgeInsets.only(
+                top: 40.w, left: 24.w, right: 24.w, bottom: 36.w),
+            decoration: BoxDecoration(
+                color: AppColors.Gray00,
+                border: Border.all(
+                  color: AppColors.Mint500,
+                  width: 2.r,
+                ),
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(120.r),
+                    topRight: Radius.circular(120.r),
+                    bottomLeft: Radius.circular(120.r),
+                    bottomRight: Radius.circular(120.r))),
+            child: content),
+        if (closeButton != null)
+          Positioned(
+              bottom: 0,
+              right: 0,
+              child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      //TODO i18n
+                      Text('닫기',
+                          style:
+                              getTextStyle(AppTypo.BODY14B, AppColors.Gray00)),
+                      SizedBox(width: 4.w),
+                      SvgPicture.asset(
+                        'assets/icons/vote/close.svg',
+                        width: 24.w,
+                        height: 24.w,
+                      ),
+                    ],
+                  ))),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: Container(
+              height: 48.w,
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(horizontal: 33).w,
+              child: VoteCommonTitle(title: title)),
         ),
-        Positioned.fill(
-            child: Container(
-                alignment: Alignment.topCenter,
-                padding: const EdgeInsets.symmetric(horizontal: 32).w,
-                child: VoteCommonTitle(title: title))),
-        Positioned.fill(
-            child: Container(
-                alignment: Alignment.bottomCenter,
-                child: footer ?? Container())),
       ],
     );
   }
