@@ -88,8 +88,7 @@ flutter:
     - assets/icons/vote/
     - assets/icons/header/
     - assets/icons/bottom/
-    - assets/icons/mypage/
-    - assets/icons/line_arrow/
+    #    - assets/icons/mypage/
     - assets/mockup/
     - assets/mockup/my/
     - assets/mockup/gallery/

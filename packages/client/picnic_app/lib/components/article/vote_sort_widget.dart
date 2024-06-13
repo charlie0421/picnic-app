@@ -234,7 +234,7 @@ class VoteSortWidget extends ConsumerWidget {
                 ),
               ),
               SvgPicture.asset(
-                'assets/icons/line_arrow/state=down_arrow.svg',
+                'assets/icons/arrow_down_style=line.svg',
                 width: 18.w,
                 height: 18.h,
               )

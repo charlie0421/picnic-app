@@ -62,9 +62,11 @@ class LargePopupWidget extends StatelessWidget {
                                   AppTypo.BODY14B, AppColors.Grey00)),
                           SizedBox(width: 4.w),
                           SvgPicture.asset(
-                            'assets/icons/vote/close.svg',
+                            'assets/icons/cancle_style=line.svg',
                             width: 24.w,
                             height: 24.w,
+                            colorFilter: const ColorFilter.mode(
+                                AppColors.Grey00, BlendMode.srcIn),
                           ),
                         ],
                       ))),
