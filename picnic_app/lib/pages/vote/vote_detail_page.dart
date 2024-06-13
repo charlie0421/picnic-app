@@ -104,7 +104,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
               children: [
                 Container(
                   height: 200.h,
-                  color: AppColors.Gray200,
+                  color: AppColors.Grey200,
                 ),
                 SizedBox(
                   height: 36.h,
@@ -124,19 +124,19 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                         text: DateFormat('yyyy.MM.dd HH:mm')
                             .format(voteModel?.start_at ?? DateTime.now()),
                         style:
-                            getTextStyle(AppTypo.CAPTION12R, AppColors.Gray900),
+                            getTextStyle(AppTypo.CAPTION12R, AppColors.Grey900),
                       ),
                       const TextSpan(text: ' ~ '),
                       TextSpan(
                         text: DateFormat('yyyy.MM.dd HH:mm')
                             .format(voteModel?.start_at ?? DateTime.now()),
                         style:
-                            getTextStyle(AppTypo.CAPTION12R, AppColors.Gray900),
+                            getTextStyle(AppTypo.CAPTION12R, AppColors.Grey900),
                       ),
                       TextSpan(
                         text: '(KST)',
                         style:
-                            getTextStyle(AppTypo.CAPTION12R, AppColors.Gray900),
+                            getTextStyle(AppTypo.CAPTION12R, AppColors.Grey900),
                       )
                     ]),
                   ),
@@ -160,7 +160,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                         children: voteModel.reward!
                             .map((rewardModel) => Text(rewardModel.getTitle(),
                                 style: getTextStyle(
-                                    AppTypo.CAPTION12R, AppColors.Gray900)))
+                                    AppTypo.CAPTION12R, AppColors.Grey900)))
                             .toList(),
                       )
                     : SizedBox.shrink(),
@@ -170,7 +170,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 //     voteModel.vote_reward.map((e) => Text(e)).toList()),
                 //     Text(
                 //       '홍대, 강남역 라이트박스(30일)',
-                //       style: getTextStyle(AppTypo.BODY16B, AppColors.Gray900),
+                //       style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
                 //     )),
 
                 SizedBox(
@@ -267,7 +267,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                                 ? bronzeGradient
                                                 : null,
                                     color: index + 1 > 3
-                                        ? AppColors.Gray200
+                                        ? AppColors.Grey200
                                         : null,
                                     borderRadius: BorderRadius.circular(22.5.r),
                                   ),
@@ -302,7 +302,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                         Text(
                                           data[index]!.mystar_member.getTitle(),
                                           style: getTextStyle(AppTypo.BODY14B,
-                                              AppColors.Gray900),
+                                              AppColors.Grey900),
                                         ),
                                         SizedBox(
                                           width: 8.w,
@@ -313,7 +313,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                               .getGroupTitle(),
                                           style: getTextStyle(
                                               AppTypo.CAPTION10SB,
-                                              AppColors.Gray600),
+                                              AppColors.Grey600),
                                         ),
                                       ]),
                                       Container(
@@ -323,7 +323,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                             const EdgeInsets.only(right: 16),
                                         decoration: BoxDecoration(
                                           gradient: commonGradient,
-                                          color: AppColors.Gray100,
+                                          color: AppColors.Grey100,
                                           borderRadius:
                                               BorderRadius.circular(10.r),
                                         ),
@@ -336,7 +336,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                           enableSeparator: true,
                                           textStyle: getTextStyle(
                                               AppTypo.CAPTION10SB,
-                                              AppColors.Gray00),
+                                              AppColors.Grey00),
                                         ),
                                       ),
                                     ],
@@ -376,7 +376,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                         width: 1.r,
                       ),
                       borderRadius: BorderRadius.circular(24.r),
-                      color: AppColors.Gray00,
+                      color: AppColors.Grey00,
                     ),
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16).w,
@@ -404,10 +404,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                   hintText: Intl.message(
                                       'text_vote_where_is_my_bias'),
                                   hintStyle: getTextStyle(
-                                      AppTypo.BODY16R, AppColors.Gray300),
+                                      AppTypo.BODY16R, AppColors.Grey300),
                                   border: InputBorder.none,
                                   focusColor: AppColors.Primary500,
-                                  fillColor: AppColors.Gray900,
+                                  fillColor: AppColors.Grey900,
                                 ),
                               ),
                             ),
@@ -423,8 +423,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                               height: 20.w,
                               colorFilter: ColorFilter.mode(
                                   _hasFocus
-                                      ? AppColors.Gray700
-                                      : AppColors.Gray200,
+                                      ? AppColors.Grey700
+                                      : AppColors.Grey200,
                                   BlendMode.srcIn),
                             ),
                           ),

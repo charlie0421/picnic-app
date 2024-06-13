@@ -74,7 +74,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                       const SizedBox(width: 8),
                       Text(
                         selectedCelebState.name_ko,
-                        style: getTextStyle(AppTypo.BODY16B, AppColors.Gray900),
+                        style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
                       ),
                       const SizedBox(width: 8),
                       GestureDetector(
@@ -100,7 +100,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                     ),
                     Container(
                       decoration: BoxDecoration(
-                        color: AppColors.Gray100,
+                        color: AppColors.Grey100,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       height: 80,
@@ -118,10 +118,10 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                           children: [
                             Text(Intl.message('text_ads_random'),
                                 style: getTextStyle(
-                                    AppTypo.TITLE18M, AppColors.Gray900)),
+                                    AppTypo.TITLE18M, AppColors.Grey900)),
                             Text('01:00:00',
                                 style: getTextStyle(
-                                    AppTypo.TITLE18M, AppColors.Gray900)),
+                                    AppTypo.TITLE18M, AppColors.Grey900)),
                           ],
                         ),
                       ),
@@ -172,7 +172,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                       child: Text(
                         Intl.message('label_celeb_gallery'),
                         style:
-                            getTextStyle(AppTypo.TITLE18B, AppColors.Gray900),
+                            getTextStyle(AppTypo.TITLE18B, AppColors.Grey900),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -243,12 +243,12 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                     right: 0,
                     child: Container(
                       height: 40,
-                      color: AppColors.Gray900.withOpacity(0.5),
+                      color: AppColors.Grey900.withOpacity(0.5),
                       child: Center(
                         child: Text(
                           data[index].title_en,
                           style:
-                              getTextStyle(AppTypo.BODY16B, AppColors.Gray00),
+                              getTextStyle(AppTypo.BODY16B, AppColors.Grey00),
                         ),
                       ),
                     ),
@@ -260,7 +260,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
           separatorBuilder: (context, index) => const VerticalDivider(
                 width: 20,
                 thickness: 0,
-                color: AppColors.Gray00,
+                color: AppColors.Grey00,
               ),
           itemCount: data.length),
     );
@@ -289,11 +289,11 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
               const SizedBox(height: 20),
               Text(
                 Intl.message('label_moveto_celeb_gallery'),
-                style: getTextStyle(AppTypo.TITLE18B, AppColors.Gray900),
+                style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900),
               ),
               Text(
                 Intl.message('text_moveto_celeb_gallery'),
-                style: getTextStyle(AppTypo.BODY16R, AppColors.Gray900),
+                style: getTextStyle(AppTypo.BODY16R, AppColors.Grey900),
               ),
               const SizedBox(height: 16),
               if (selectedCelebState != null)
@@ -353,9 +353,9 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                 decoration: BoxDecoration(
                   color: e.id == selectedCeleb.id
                       ? const Color(0xFF47E89B)
-                      : AppColors.Gray00,
+                      : AppColors.Grey00,
                   border: Border.all(
-                    color: AppColors.Gray100,
+                    color: AppColors.Grey100,
                     width: 1,
                   ),
                 ),

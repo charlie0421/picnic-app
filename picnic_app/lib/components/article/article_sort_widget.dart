@@ -40,7 +40,7 @@ class ArticleSortWidget extends ConsumerWidget {
                               children: [
                                 Text('정렬 방식 선택',
                                     style: getTextStyle(
-                                        AppTypo.BODY16B, AppColors.Gray900)),
+                                        AppTypo.BODY16B, AppColors.Grey900)),
                                 IconButton(
                                     onPressed: () {
                                       Navigator.pop(context);
@@ -58,7 +58,7 @@ class ArticleSortWidget extends ConsumerWidget {
                               separatorBuilder: (context, index) =>
                                   const Divider(
                                 height: 1,
-                                color: AppColors.Gray100,
+                                color: AppColors.Grey100,
                               ),
                               itemBuilder: (context, index) {
                                 switch (index) {
@@ -97,10 +97,10 @@ class ArticleSortWidget extends ConsumerWidget {
                                                     sortOptionState.sort == 'id'
                                                         ? getTextStyle(
                                                             AppTypo.BODY16B,
-                                                            AppColors.Gray500)
+                                                            AppColors.Grey500)
                                                         : getTextStyle(
                                                             AppTypo.BODY16M,
-                                                            AppColors.Gray900)),
+                                                            AppColors.Grey900)),
                                           ],
                                         ),
                                       ),
@@ -141,10 +141,10 @@ class ArticleSortWidget extends ConsumerWidget {
                                                         'viewCount'
                                                     ? getTextStyle(
                                                         AppTypo.BODY16B,
-                                                        AppColors.Gray500)
+                                                        AppColors.Grey500)
                                                     : getTextStyle(
                                                         AppTypo.BODY16M,
-                                                        AppColors.Gray900)),
+                                                        AppColors.Grey900)),
                                           ],
                                         ),
                                       ),
@@ -185,10 +185,10 @@ class ArticleSortWidget extends ConsumerWidget {
                                                         'commentCount'
                                                     ? getTextStyle(
                                                         AppTypo.BODY16B,
-                                                        AppColors.Gray500)
+                                                        AppColors.Grey500)
                                                     : getTextStyle(
                                                         AppTypo.BODY16M,
-                                                        AppColors.Gray900)),
+                                                        AppColors.Grey900)),
                                           ],
                                         ),
                                       ),
@@ -210,7 +210,7 @@ class ArticleSortWidget extends ConsumerWidget {
           height: 30.h,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8).r,
-            border: Border.all(color: AppColors.Gray100),
+            border: Border.all(color: AppColors.Grey100),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 4).w,
           margin: const EdgeInsets.only(right: 16),
@@ -229,7 +229,7 @@ class ArticleSortWidget extends ConsumerWidget {
                             : sortOptionState.sort == 'commentCount'
                                 ? '댓글순'
                                 : '',
-                    style: getTextStyle(AppTypo.BODY14M, AppColors.Gray600),
+                    style: getTextStyle(AppTypo.BODY14M, AppColors.Grey600),
                   ),
                 ),
               ),

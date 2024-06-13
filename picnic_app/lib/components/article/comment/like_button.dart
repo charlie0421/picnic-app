@@ -81,7 +81,7 @@ class LikeButtonState extends State<LikeButton> {
               ),
               SizedBox(width: 16.w),
               Text('$likes',
-                  style: getTextStyle(AppTypo.BODY16M, AppColors.Gray900))
+                  style: getTextStyle(AppTypo.BODY16M, AppColors.Grey900))
             ],
           ),
         ),

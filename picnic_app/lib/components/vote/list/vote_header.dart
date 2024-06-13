@@ -25,7 +25,7 @@ class VoteHeader extends StatelessWidget {
                   vote.getTitle(),
                   style: getTextStyle(
                     AppTypo.BODY16B,
-                    AppColors.Gray900,
+                    AppColors.Grey900,
                   ),
                 ),
               ),

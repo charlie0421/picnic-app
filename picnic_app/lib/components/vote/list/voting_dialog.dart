@@ -138,7 +138,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                   children: [
                     Text(
                       widget.voteItemModel.mystar_member.getTitle() ?? '',
-                      style: getTextStyle(AppTypo.BODY16B, AppColors.Gray900),
+                      style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
                     ),
                     SizedBox(width: 8.w),
                     Align(
@@ -146,14 +146,14 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                       child: Text(
                         widget.voteItemModel.mystar_member.getGroupTitle(),
                         style:
-                            getTextStyle(AppTypo.CAPTION12R, AppColors.Gray600),
+                            getTextStyle(AppTypo.CAPTION12R, AppColors.Grey600),
                       ),
                     ),
                   ],
                 ),
               ),
               Divider(
-                color: AppColors.Gray300,
+                color: AppColors.Grey300,
                 thickness: 1,
                 height: 48.0 * resizeFactor,
               ),
@@ -262,7 +262,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                         width: 24.w,
                         height: 24.w,
                         colorFilter: ColorFilter.mode(
-                          _checkAll ? AppColors.Primary500 : AppColors.Gray300,
+                          _checkAll ? AppColors.Primary500 : AppColors.Grey300,
                           BlendMode.srcIn,
                         ),
                       ),
@@ -271,7 +271,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                         '전체사용',
                         style: getTextStyle(
                           AppTypo.BODY14M,
-                          _checkAll ? AppColors.Primary500 : AppColors.Gray300,
+                          _checkAll ? AppColors.Primary500 : AppColors.Grey300,
                         ),
                       ),
                     ],
@@ -306,10 +306,10 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                           decoration: InputDecoration(
                             hintText: '입력',
                             hintStyle: getTextStyle(
-                                AppTypo.BODY16R, AppColors.Gray300),
+                                AppTypo.BODY16R, AppColors.Grey300),
                             border: InputBorder.none,
                             focusColor: AppColors.Primary500,
-                            fillColor: AppColors.Gray900,
+                            fillColor: AppColors.Grey900,
                             suffixIcon: GestureDetector(
                               behavior: HitTestBehavior.opaque,
                               onTap: () {
@@ -323,8 +323,8 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                                 'assets/icons/vote/cancel.svg',
                                 colorFilter: ColorFilter.mode(
                                   _hasValue
-                                      ? AppColors.Gray700
-                                      : AppColors.Gray200,
+                                      ? AppColors.Grey700
+                                      : AppColors.Grey200,
                                   BlendMode.srcIn,
                                 ),
                                 width: 20.w,
@@ -358,7 +358,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                             }),
                           ],
                           style:
-                              getTextStyle(AppTypo.BODY16B, AppColors.Gray900),
+                              getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
                         ),
                       ),
                     ),
@@ -417,7 +417,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                   alignment: Alignment.center,
                   child: Text(
                     '투표하기',
-                    style: getTextStyle(AppTypo.TITLE18SB, AppColors.Gray00),
+                    style: getTextStyle(AppTypo.TITLE18SB, AppColors.Grey00),
                   ),
                 ),
               ),

@@ -44,12 +44,12 @@ class _PicChartPageState extends State<PicChartPage>
                     Text(
                       '무슨 차트로,\n무슨 지표를 어떻게 하는 차트입니다.\n픽차트는 이렇게 저렇게 쓰입니당',
                       textAlign: TextAlign.center,
-                      style: getTextStyle(AppTypo.BODY14M, AppColors.Gray900),
+                      style: getTextStyle(AppTypo.BODY14M, AppColors.Grey900),
                     ),
                     Divider(
                       height: 72.h,
                       thickness: 1,
-                      color: AppColors.Gray300,
+                      color: AppColors.Grey300,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -75,14 +75,14 @@ class _PicChartPageState extends State<PicChartPage>
                     Text(
                       '무슨 차트로,\n무슨 지표를 어떻게 하는 차트입니다.\n픽차트는 이렇게 저렇게 쓰입니당',
                       textAlign: TextAlign.center,
-                      style: getTextStyle(AppTypo.BODY14M, AppColors.Gray900),
+                      style: getTextStyle(AppTypo.BODY14M, AppColors.Grey900),
                     ),
                     SizedBox(height: 16.h),
                     Text(
                       '주간 투표 / 각 멤버의 투표 순위 평균 /\n개인의 경우 개인 순위 반영 / 포털 검색량 /\n구글, 네이버, 야후 등 / 스포티파이 순위',
                       textAlign: TextAlign.center,
                       style:
-                          getTextStyle(AppTypo.CAPTION10SB, AppColors.Gray400),
+                          getTextStyle(AppTypo.CAPTION10SB, AppColors.Grey400),
                     ),
                   ],
                 ),
@@ -116,13 +116,13 @@ class _PicChartPageState extends State<PicChartPage>
                         children: [
                           Text('닫기',
                               style: getTextStyle(
-                                  AppTypo.BODY14M, AppColors.Gray00)),
+                                  AppTypo.BODY14M, AppColors.Grey00)),
                           SvgPicture.asset(
                             'assets/icons/vote/close.svg',
                             width: 24.w,
                             height: 24.w,
                             colorFilter: const ColorFilter.mode(
-                                AppColors.Gray00, BlendMode.srcIn),
+                                AppColors.Grey00, BlendMode.srcIn),
                           ),
                         ],
                       ),

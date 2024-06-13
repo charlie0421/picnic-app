@@ -10,17 +10,17 @@ class AppColors {
 
   static const Color StatusError = Color(0xFFFF4242);
 
-  static const Color Gray900 = Color(0xFF000000);
+  static const Color Grey900 = Color(0xFF000000);
 
-  static const Color Gray800 = Color(0xFF252528);
-  static const Color Gray700 = Color(0xFF252528);
-  static const Color Gray600 = Color(0xFF5D5F66);
-  static const Color Gray500 = Color(0xFF878A93);
-  static const Color Gray400 = Color(0xFFA6A8AF);
-  static const Color Gray300 = Color(0xFFD7D7DC);
-  static const Color Gray200 = Color(0xFFEBEBEF);
-  static const Color Gray100 = Color(0xFFF7F7F8);
-  static const Color Gray00 = Colors.white;
+  static const Color Grey800 = Color(0xFF252528);
+  static const Color Grey700 = Color(0xFF252528);
+  static const Color Grey600 = Color(0xFF5D5F66);
+  static const Color Grey500 = Color(0xFF878A93);
+  static const Color Grey400 = Color(0xFFA6A8AF);
+  static const Color Grey300 = Color(0xFFD7D7DC);
+  static const Color Grey200 = Color(0xFFEBEBEF);
+  static const Color Grey100 = Color(0xFFF7F7F8);
+  static const Color Grey00 = Colors.white;
 }
 
 enum AppTypo {

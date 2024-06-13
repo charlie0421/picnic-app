@@ -4,11 +4,11 @@ import 'package:picnic_app/ui/style.dart';
 TabBarTheme commonTabBarTheme = TabBarTheme(
   labelStyle: getTextStyle(
     AppTypo.BODY14M,
-    AppColors.Gray900,
+    AppColors.Grey900,
   ),
   unselectedLabelStyle: getTextStyle(
     AppTypo.BODY14R,
-    AppColors.Gray600,
+    AppColors.Grey600,
   ),
   indicatorSize: TabBarIndicatorSize.tab,
 );
@@ -16,5 +16,5 @@ TabBarTheme commonTabBarTheme = TabBarTheme(
 SwitchThemeData commonSwitchTheme = SwitchThemeData(
   trackColor: WidgetStateProperty.all(AppColors.Primary500),
   trackOutlineWidth: const WidgetStatePropertyAll(0),
-  trackOutlineColor: WidgetStateProperty.all(AppColors.Gray00),
+  trackOutlineColor: WidgetStateProperty.all(AppColors.Grey00),
 );

@@ -126,7 +126,7 @@ void showOverlayToast(BuildContext context, Widget child) {
         width: MediaQuery.of(context).size.width * 0.5,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.Gray100,
+          color: AppColors.Grey100,
           borderRadius: BorderRadius.circular(8),
         ),
         child: child,
@@ -143,20 +143,20 @@ void showOverlayToast(BuildContext context, Widget child) {
 
 Widget buildPlaceholderImage() {
   return Shimmer.fromColors(
-    baseColor: AppColors.Gray200,
-    highlightColor: AppColors.Gray100,
+    baseColor: AppColors.Grey200,
+    highlightColor: AppColors.Grey100,
     child: Container(
-      color: AppColors.Gray00,
+      color: AppColors.Grey00,
     ),
   );
 }
 
 Widget buildLoadingOverlay() {
   return Shimmer.fromColors(
-    baseColor: AppColors.Gray300,
-    highlightColor: AppColors.Gray100,
+    baseColor: AppColors.Grey300,
+    highlightColor: AppColors.Grey100,
     child: Container(
-      color: AppColors.Gray00,
+      color: AppColors.Grey00,
     ),
   );
 

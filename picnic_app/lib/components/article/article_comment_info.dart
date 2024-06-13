@@ -29,7 +29,7 @@ class _ArticleCommentInfoState extends ConsumerState<ArticleCommentInfo> {
             '${Intl.message('label_read_more_comment')} ${ref.watch(commentCountProvider(widget.article.id)).value != 0 ? ref.watch(commentCountProvider(widget.article.id)).value : widget.article.comment_count}',
             style: getTextStyle(
               AppTypo.BODY14B,
-              AppColors.Gray900,
+              AppColors.Grey900,
             )),
       ),
     );

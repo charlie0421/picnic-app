@@ -46,13 +46,13 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
           child: Row(
             children: [
               Text(Intl.message('label_vote_vote_gather'),
-                  style: getTextStyle(AppTypo.TITLE18B, AppColors.Gray900)),
+                  style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900)),
               SvgPicture.asset(
                 'assets/icons/right_arrow.svg',
                 width: 8.w,
                 height: 15.h,
                 colorFilter:
-                    const ColorFilter.mode(AppColors.Gray900, BlendMode.srcIn),
+                    const ColorFilter.mode(AppColors.Grey900, BlendMode.srcIn),
               ),
             ],
           ),
@@ -101,7 +101,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         padding: const EdgeInsets.only(left: 16),
         alignment: Alignment.centerLeft,
         child: Text(Intl.message('label_vote_reward_list'),
-            style: getTextStyle(AppTypo.TITLE18B, AppColors.Gray900)),
+            style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900)),
       ),
       SizedBox(height: 16.h),
       asyncRewardListState.when(
@@ -176,8 +176,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                   itemCount: 5,
                   itemBuilder: (BuildContext context, int index) =>
                       Shimmer.fromColors(
-                    baseColor: AppColors.Gray300,
-                    highlightColor: AppColors.Gray100,
+                    baseColor: AppColors.Grey300,
+                    highlightColor: AppColors.Grey100,
                     child: Container(
                       width: 120.w,
                       height: 120.h,
@@ -249,8 +249,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
           pagination: const SwiperPagination(
               builder: DotSwiperPaginationBuilder(
                   size: 8,
-                  color: AppColors.Gray200,
-                  activeColor: AppColors.Gray500)),
+                  color: AppColors.Grey200,
+                  activeColor: AppColors.Grey500)),
           layout: SwiperLayout.DEFAULT,
         ),
         loading: () => buildLoadingOverlay(),

@@ -37,7 +37,7 @@ class ListItem extends StatelessWidget {
                   width: 20.w,
                   height: 20.h,
                   colorFilter: const ColorFilter.mode(
-                    AppColors.Gray900,
+                    AppColors.Grey900,
                     BlendMode.srcIn,
                   ),
                 ),

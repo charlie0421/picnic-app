@@ -52,12 +52,12 @@ class _CommentInputState extends ConsumerState<CommentInput> {
                     hintText: Intl.message('label_hint_comment'),
                     hintStyle: TextStyle(
                       fontSize: 16.sp,
-                      color: AppColors.Gray400,
+                      color: AppColors.Grey400,
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30.0),
                       borderSide: const BorderSide(
-                        color: AppColors.Gray300,
+                        color: AppColors.Grey300,
                         width: 1,
                       ),
                     ),
@@ -68,13 +68,13 @@ class _CommentInputState extends ConsumerState<CommentInput> {
                       child: Text(
                         '${_textEditingController.text.length}/100',
                         style:
-                            getTextStyle(AppTypo.CAPTION12R, AppColors.Gray400),
+                            getTextStyle(AppTypo.CAPTION12R, AppColors.Grey400),
                       ),
                     ),
                   ),
                   maxLength: 100,
                   textInputAction: TextInputAction.done,
-                  style: getTextStyle(AppTypo.BODY16R, AppColors.Gray900),
+                  style: getTextStyle(AppTypo.BODY16R, AppColors.Grey900),
                   onFieldSubmitted: (value) => _commitComment()),
             ),
           ),

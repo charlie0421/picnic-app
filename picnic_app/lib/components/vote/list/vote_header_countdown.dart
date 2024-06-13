@@ -64,7 +64,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
       } else if (_timeLeft.inMinutes > 0) {
         _color = AppColors.Point500;
       } else {
-        _color = AppColors.Gray300;
+        _color = AppColors.Grey300;
       }
     });
 
@@ -75,13 +75,13 @@ class _CountdownTimerState extends State<CountdownTimer> {
         children: <Widget>[
           ..._buildDoubleDigits(days),
           Text(' D ',
-              style: getTextStyle(AppTypo.CAPTION12M, AppColors.Gray900)),
+              style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey900)),
           ..._buildDoubleDigits(hours),
           Text(' : ',
-              style: getTextStyle(AppTypo.CAPTION12M, AppColors.Gray900)),
+              style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey900)),
           ..._buildDoubleDigits(minutes),
           Text(' : ',
-              style: getTextStyle(AppTypo.CAPTION12M, AppColors.Gray900)),
+              style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey900)),
           ..._buildDoubleDigits(seconds),
         ],
       ),
@@ -108,7 +108,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
         borderRadius: BorderRadius.circular(4), // Circular shape
       ),
       child: Text(time,
-          style: getTextStyle(AppTypo.CAPTION12M, AppColors.Gray900)),
+          style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey900)),
     );
   }
 }

@@ -53,11 +53,11 @@ class _DrawImagePageState extends ConsumerState<DrawImagePage>
           const SizedBox(height: 20),
           Text(
             Intl.message('label_draw_image'),
-            style: getTextStyle(AppTypo.TITLE18B, AppColors.Gray900),
+            style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900),
           ),
           Text(
             Intl.message('text_draw_image'),
-            style: getTextStyle(AppTypo.BODY16R, AppColors.Gray900),
+            style: getTextStyle(AppTypo.BODY16R, AppColors.Grey900),
           ),
         ],
       ),
