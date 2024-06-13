@@ -9,6 +9,7 @@ import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
 import 'package:picnic_app/components/vote/list/voting_dialog.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -30,6 +31,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   late TextEditingController _textEditingController;
   late FocusNode _focusNode;
   bool _hasFocus = false;
+  String _searchQuery = '';
 
   @override
   initState() {
@@ -52,14 +54,26 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
       }
     });
 
+    _textEditingController.addListener(() {
+      setState(() {
+        _searchQuery = _textEditingController.text;
+      });
+
+      _scrollController.animateTo(
+        _scrollController.position.minScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    });
+
     _setupRealtime();
   }
 
-  void handleVoteChanes(PostgresChangePayload payload) {
+  void handleVoteChanges(PostgresChangePayload payload) {
     logger.d('Change received! $payload');
-    final asyncVoteIgemListNotifier =
+    final asyncVoteItemListNotifier =
         ref.read(asyncVoteItemListProvider(voteId: widget.voteId).notifier);
-    asyncVoteIgemListNotifier.setVoteItem(
+    asyncVoteItemListNotifier.setVoteItem(
         id: payload.newRecord['id'],
         voteTotal: payload.newRecord['vote_total']);
   }
@@ -76,7 +90,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 type: PostgresChangeFilterType.eq,
                 column: 'vote_id',
                 value: widget.voteId),
-            callback: handleVoteChanes)
+            callback: handleVoteChanges)
         .subscribe();
   }
 
@@ -87,9 +101,66 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     _focusNode.dispose();
   }
 
+  List<int> _getFilteredIndices(List<VoteItemModel?> data) {
+    if (_searchQuery.isEmpty) {
+      return List<int>.generate(data.length, (index) => index);
+    }
+    return List<int>.generate(data.length, (index) => index)
+        .where((index) =>
+            data[index]!
+                .mystar_member
+                .getTitle()
+                .toLowerCase()
+                .contains(_searchQuery.toLowerCase()) ||
+            data[index]!
+                .mystar_member
+                .getGroupTitle()
+                .toLowerCase()
+                .contains(_searchQuery.toLowerCase()))
+        .toList();
+  }
+
+  TextSpan _highlightText(String text, String query) {
+    if (query.isEmpty) {
+      return TextSpan(
+          text: text, style: getTextStyle(AppTypo.BODY14B, AppColors.Grey900));
+    }
+    final matches = query.toLowerCase().allMatches(text.toLowerCase());
+    if (matches.isEmpty) {
+      return TextSpan(
+          text: text, style: getTextStyle(AppTypo.BODY14B, AppColors.Grey900));
+    }
+
+    int start = 0;
+    final List<TextSpan> spans = [];
+
+    for (final match in matches) {
+      if (match.start > start) {
+        spans.add(TextSpan(
+            text: text.substring(start, match.start),
+            style: getTextStyle(AppTypo.BODY14B, AppColors.Grey900)));
+      }
+
+      spans.add(TextSpan(
+          text: text.substring(match.start, match.end),
+          style: getTextStyle(AppTypo.BODY14B, AppColors.Primary500)));
+
+      start = match.end;
+    }
+
+    if (start < text.length) {
+      spans.add(TextSpan(
+          text: text.substring(start),
+          style: getTextStyle(AppTypo.BODY14B, AppColors.Grey900)));
+    }
+
+    return TextSpan(children: spans);
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView(
+      controller: _scrollController,
       children: [
         _buildVoteInfo(context),
         _buildVoteItemList(context),
@@ -129,7 +200,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                       const TextSpan(text: ' ~ '),
                       TextSpan(
                         text: DateFormat('yyyy.MM.dd HH:mm')
-                            .format(voteModel?.start_at ?? DateTime.now()),
+                            .format(voteModel?.stop_at ?? DateTime.now()),
                         style:
                             getTextStyle(AppTypo.CAPTION12R, AppColors.Grey900),
                       ),
@@ -154,7 +225,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 SizedBox(
                   height: 4.h,
                 ),
-
                 voteModel!.reward != null
                     ? Column(
                         children: voteModel.reward!
@@ -164,15 +234,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                             .toList(),
                       )
                     : SizedBox.shrink(),
-                // SizedBox(
-                //     height: 24.h,
-                //     child:
-                //     voteModel.vote_reward.map((e) => Text(e)).toList()),
-                //     Text(
-                //       '홍대, 강남역 라이트박스(30일)',
-                //       style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
-                //     )),
-
                 SizedBox(
                   height: 16.h,
                 ),
@@ -187,256 +248,260 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
 
   Widget _buildVoteItemList(BuildContext context) {
     return ref.watch(asyncVoteItemListProvider(voteId: widget.voteId)).when(
-          data: (data) => Stack(
-            children: [
-              Container(
-                margin: const EdgeInsets.only(top: 24, left: 16, right: 16),
-                decoration: BoxDecoration(
-                    border: Border.all(
-                      color: AppColors.Primary500,
-                      width: 1.r,
-                    ),
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(70.r),
-                        topRight: Radius.circular(70.r),
-                        bottomLeft: Radius.circular(40.r),
-                        bottomRight: Radius.circular(40.r))),
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 56).h,
-                  child: Column(
-                    children: data.map((item) {
-                      int index = data.indexOf(item);
-
-                      return AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        transitionBuilder:
-                            (Widget child, Animation<double> animation) {
-                          return ScaleTransition(
-                            scale: animation,
-                            child: child,
-                          );
-                        },
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () {
-                            showVotingDialog(
-                                context: context,
-                                voteModel: ref
-                                    .watch(asyncVoteDetailProvider(
-                                        voteId: widget.voteId))
-                                    .value!,
-                                voteItemModel: data[index]!,
-                                ref: ref);
-                          },
-                          child: Container(
-                            key: ValueKey<int>(index), // 각 아이템에 고유한 키를 할당
-                            height: 45.h,
-                            margin: const EdgeInsets.only(
-                                    left: 16, right: 16, bottom: 36)
-                                .r,
-                            child: Row(
-                              children: [
-                                SizedBox(
-                                  width: 35.w,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      if (index < 3)
-                                        SvgPicture.asset(
-                                            'assets/icons/vote/crown${index + 1}.svg'),
-                                      Text(
-                                        '${index + 1}위',
-                                        style: getTextStyle(AppTypo.CAPTION12B,
-                                            AppColors.Point900),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 16.w,
-                                ),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    gradient: index + 1 == 1
-                                        ? goldGradient
-                                        : index + 1 == 2
-                                            ? silverGradient
-                                            : index + 1 == 3
-                                                ? bronzeGradient
-                                                : null,
-                                    color: index + 1 > 3
-                                        ? AppColors.Grey200
-                                        : null,
-                                    borderRadius: BorderRadius.circular(22.5.r),
-                                  ),
-                                  padding: const EdgeInsets.all(3),
-                                  width: 45.w,
-                                  height: 45.w,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(22.5.r),
-                                    child: CachedNetworkImage(
-                                      imageUrl:
-                                          data[index]!.mystar_member.image ??
-                                              '',
-                                      fit: BoxFit.cover,
-                                      width: 39.w,
-                                      height: 39.w,
-                                      placeholder: (context, url) =>
-                                          buildPlaceholderImage(),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 8.w,
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(children: [
-                                        Text(
-                                          data[index]!.mystar_member.getTitle(),
-                                          style: getTextStyle(AppTypo.BODY14B,
-                                              AppColors.Grey900),
-                                        ),
-                                        SizedBox(
-                                          width: 8.w,
-                                        ),
-                                        Text(
-                                          data[index]!
-                                              .mystar_member
-                                              .getGroupTitle(),
-                                          style: getTextStyle(
-                                              AppTypo.CAPTION10SB,
-                                              AppColors.Grey600),
-                                        ),
-                                      ]),
-                                      Container(
-                                        width: double.infinity,
-                                        height: 20.h,
-                                        padding: const EdgeInsets.only(
-                                                right: 16, bottom: 3)
-                                            .r,
-                                        decoration: BoxDecoration(
-                                          gradient: commonGradient,
-                                          color: AppColors.Grey100,
-                                          borderRadius:
-                                              BorderRadius.circular(10.r),
-                                        ),
-                                        alignment: Alignment.centerRight,
-                                        child: AnimatedDigitWidget(
-                                          value: data[index]!.vote_total,
-                                          duration:
-                                              const Duration(microseconds: 500),
-                                          curve: Curves.easeInOut,
-                                          enableSeparator: true,
-                                          textStyle: getTextStyle(
-                                              AppTypo.CAPTION10SB,
-                                              AppColors.Grey00),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 16.w,
-                                ),
-                                SizedBox(
-                                  width: 24.w,
-                                  height: 24.w,
-                                  child: SvgPicture.asset(
-                                      'assets/icons/star_candy_icon.svg'),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 0,
-                right: 10.w,
-                left: 10.w,
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    width: 280.w,
-                    height: 48.h,
-                    decoration: BoxDecoration(
+          data: (data) {
+            final filteredIndices = _getFilteredIndices(data);
+            return Stack(
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 24, left: 16, right: 16),
+                  decoration: BoxDecoration(
                       border: Border.all(
                         color: AppColors.Primary500,
                         width: 1.r,
                       ),
-                      borderRadius: BorderRadius.circular(24.r),
-                      color: AppColors.Grey00,
-                    ),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16).w,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SvgPicture.asset(
-                            'assets/icons/vote/search_icon.svg',
-                            width: 20.w,
-                            height: 20.w,
-                          ),
-                          SizedBox(
-                            width: 8.w,
-                          ),
-                          Expanded(
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(70.r),
+                          topRight: Radius.circular(70.r),
+                          bottomLeft: Radius.circular(40.r),
+                          bottomRight: Radius.circular(40.r))),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 56).h,
+                    child: Column(
+                      children: filteredIndices.map((index) {
+                        final item = data[index]!;
+
+                        return AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          transitionBuilder:
+                              (Widget child, Animation<double> animation) {
+                            return ScaleTransition(
+                              scale: animation,
+                              child: child,
+                            );
+                          },
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              showVotingDialog(
+                                  context: context,
+                                  voteModel: ref
+                                      .watch(asyncVoteDetailProvider(
+                                          voteId: widget.voteId))
+                                      .value!,
+                                  voteItemModel: item,
+                                  ref: ref);
+                            },
                             child: Container(
-                              alignment: Alignment.center,
-                              height: 48.h,
-                              child: TextFormField(
-                                cursorHeight: 16.h,
-                                cursorColor: AppColors.Primary500,
-                                focusNode: _focusNode,
-                                controller: _textEditingController,
-                                decoration: InputDecoration(
-                                  hintText: Intl.message(
-                                      'text_vote_where_is_my_bias'),
-                                  hintStyle: getTextStyle(
-                                      AppTypo.BODY16R, AppColors.Grey300),
-                                  border: InputBorder.none,
-                                  focusColor: AppColors.Primary500,
-                                  fillColor: AppColors.Grey900,
-                                ),
+                              key: ValueKey<int>(index),
+                              height: 45.h,
+                              margin: const EdgeInsets.only(
+                                      left: 16, right: 16, bottom: 36)
+                                  .r,
+                              child: Row(
+                                children: [
+                                  SizedBox(
+                                    width: 35.w,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        if (index < 3)
+                                          SvgPicture.asset(
+                                              'assets/icons/vote/crown${index + 1}.svg'),
+                                        Text(
+                                          '${index + 1}위',
+                                          style: getTextStyle(
+                                              AppTypo.CAPTION12B,
+                                              AppColors.Point900),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 16.w,
+                                  ),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      gradient: index + 1 == 1
+                                          ? goldGradient
+                                          : index + 1 == 2
+                                              ? silverGradient
+                                              : index + 1 == 3
+                                                  ? bronzeGradient
+                                                  : null,
+                                      color: index + 1 > 3
+                                          ? AppColors.Grey200
+                                          : null,
+                                      borderRadius:
+                                          BorderRadius.circular(22.5.r),
+                                    ),
+                                    padding: const EdgeInsets.all(3),
+                                    width: 45.w,
+                                    height: 45.w,
+                                    child: ClipRRect(
+                                      borderRadius:
+                                          BorderRadius.circular(22.5.r),
+                                      child: CachedNetworkImage(
+                                        imageUrl:
+                                            item.mystar_member.image ?? '',
+                                        fit: BoxFit.cover,
+                                        width: 39.w,
+                                        height: 39.w,
+                                        placeholder: (context, url) =>
+                                            buildPlaceholderImage(),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 8.w,
+                                  ),
+                                  Expanded(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(children: [
+                                          RichText(
+                                            text: _highlightText(
+                                                item.mystar_member.getTitle(),
+                                                _searchQuery),
+                                          ),
+                                          SizedBox(
+                                            width: 8.w,
+                                          ),
+                                          RichText(
+                                            text: _highlightText(
+                                                item.mystar_member
+                                                    .getGroupTitle(),
+                                                _searchQuery),
+                                          ),
+                                        ]),
+                                        Container(
+                                          width: double.infinity,
+                                          height: 20.h,
+                                          padding: const EdgeInsets.only(
+                                                  right: 16, bottom: 3)
+                                              .r,
+                                          decoration: BoxDecoration(
+                                            gradient: commonGradient,
+                                            color: AppColors.Grey100,
+                                            borderRadius:
+                                                BorderRadius.circular(10.r),
+                                          ),
+                                          alignment: Alignment.centerRight,
+                                          child: AnimatedDigitWidget(
+                                            value: item.vote_total,
+                                            duration: const Duration(
+                                                microseconds: 500),
+                                            curve: Curves.easeInOut,
+                                            enableSeparator: true,
+                                            textStyle: getTextStyle(
+                                                AppTypo.CAPTION10SB,
+                                                AppColors.Grey00),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 16.w,
+                                  ),
+                                  SizedBox(
+                                    width: 24.w,
+                                    height: 24.w,
+                                    child: SvgPicture.asset(
+                                        'assets/icons/star_candy_icon.svg'),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                          GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () {
-                              _textEditingController.clear();
-                            },
-                            child: SvgPicture.asset(
-                              'assets/icons/cancle_style=line.svg',
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 0,
+                  right: 10.w,
+                  left: 10.w,
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      width: 280.w,
+                      height: 48.h,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: AppColors.Primary500,
+                          width: 1.r,
+                        ),
+                        borderRadius: BorderRadius.circular(24.r),
+                        color: AppColors.Grey00,
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16).w,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SvgPicture.asset(
+                              'assets/icons/vote/search_icon.svg',
                               width: 20.w,
                               height: 20.w,
-                              colorFilter: ColorFilter.mode(
-                                  _hasFocus
-                                      ? AppColors.Grey700
-                                      : AppColors.Grey200,
-                                  BlendMode.srcIn),
                             ),
-                          ),
-                        ],
+                            SizedBox(
+                              width: 8.w,
+                            ),
+                            Expanded(
+                              child: Container(
+                                alignment: Alignment.center,
+                                height: 48.h,
+                                child: TextFormField(
+                                  cursorHeight: 16.h,
+                                  cursorColor: AppColors.Primary500,
+                                  focusNode: _focusNode,
+                                  controller: _textEditingController,
+                                  decoration: InputDecoration(
+                                    hintText: Intl.message(
+                                        'text_vote_where_is_my_bias'),
+                                    hintStyle: getTextStyle(
+                                        AppTypo.BODY16R, AppColors.Grey300),
+                                    border: InputBorder.none,
+                                    focusColor: AppColors.Primary500,
+                                    fillColor: AppColors.Grey900,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () {
+                                _textEditingController.clear();
+                              },
+                              child: SvgPicture.asset(
+                                'assets/icons/cancle_style=line.svg',
+                                width: 20.w,
+                                height: 20.w,
+                                colorFilter: ColorFilter.mode(
+                                    _hasFocus
+                                        ? AppColors.Grey700
+                                        : AppColors.Grey200,
+                                    BlendMode.srcIn),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            );
+          },
           loading: () => buildLoadingOverlay(),
           error: (error, stackTrace) => ErrorView(context,
               error: error.toString(), stackTrace: stackTrace),
