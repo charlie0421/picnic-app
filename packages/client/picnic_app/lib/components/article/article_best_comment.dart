@@ -34,14 +34,14 @@ class _ArticleBestCommentState extends State<ArticleBestComment> {
                           : '',
                       style: getTextStyle(
                         AppTypo.BODY14B,
-                        AppColors.Gray900,
+                        AppColors.Grey900,
                       ),
                     ),
                     TextSpan(
                       text: ' ',
                       style: getTextStyle(
                         AppTypo.BODY14M,
-                        AppColors.Gray900,
+                        AppColors.Grey900,
                       ),
                     ),
                     TextSpan(
@@ -51,7 +51,7 @@ class _ArticleBestCommentState extends State<ArticleBestComment> {
                           : '',
                       style: getTextStyle(
                         AppTypo.BODY14R,
-                        AppColors.Gray900,
+                        AppColors.Grey900,
                       ),
                     ),
                   ],

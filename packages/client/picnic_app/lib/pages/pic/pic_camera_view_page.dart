@@ -63,7 +63,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
     return Scaffold(
       body: Container(
         padding: MediaQuery.of(context).padding,
-        color: AppColors.Gray00,
+        color: AppColors.Grey00,
         child: Column(
           children: [
             _buildTopBar(context),
@@ -114,7 +114,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
       alignment: Alignment.centerRight,
       child: IconButton(
         icon: const Icon(Icons.close, size: 36),
-        color: AppColors.Gray900,
+        color: AppColors.Grey900,
         onPressed: () {
           Navigator.pop(context);
         },

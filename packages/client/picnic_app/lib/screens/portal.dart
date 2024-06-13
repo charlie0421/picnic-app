@@ -76,7 +76,7 @@ class _PortalState extends ConsumerState<Portal> {
                               width: 36.w,
                               height: 36.w,
                               decoration: BoxDecoration(
-                                color: AppColors.Gray200,
+                                color: AppColors.Grey200,
                                 borderRadius: BorderRadius.circular(8.r),
                               ),
                               child: SvgPicture.asset(
@@ -104,7 +104,7 @@ class _PortalState extends ConsumerState<Portal> {
                         width: 36.w,
                         height: 36.w,
                         decoration: BoxDecoration(
-                          color: AppColors.Gray200,
+                          color: AppColors.Grey200,
                           borderRadius: BorderRadius.circular(8.r),
                         ),
                         child: SvgPicture.asset(

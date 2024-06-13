@@ -35,17 +35,17 @@ class PortalMenuItem extends ConsumerWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(13.r),
             border: Border.all(
-              color: AppColors.Gray900,
+              color: AppColors.Grey900,
               width: 1.r,
             ),
-            color: isSelected ? AppColors.Gray00 : Colors.transparent,
+            color: isSelected ? AppColors.Grey00 : Colors.transparent,
           ),
           child: Center(
             child: Text(
               portalType.name.toUpperCase(),
               style: isSelected
-                  ? getTextStyle(AppTypo.BODY14B, AppColors.Gray900)
-                  : getTextStyle(AppTypo.BODY14R, AppColors.Gray900),
+                  ? getTextStyle(AppTypo.BODY14B, AppColors.Grey900)
+                  : getTextStyle(AppTypo.BODY14R, AppColors.Grey900),
             ),
           ),
         ),

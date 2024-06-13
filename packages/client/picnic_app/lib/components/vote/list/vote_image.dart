@@ -17,7 +17,7 @@ class VoteImage extends StatelessWidget {
       constraints: BoxConstraints(minHeight: 30.h),
       margin: EdgeInsets.only(left: 16.w, right: 16.w, top: 16.h, bottom: 0.h),
       decoration: BoxDecoration(
-        color: AppColors.Gray600,
+        color: AppColors.Grey600,
         borderRadius: BorderRadius.circular(8.r),
       ),
       child: ClipRRect(

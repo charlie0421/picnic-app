@@ -9,7 +9,7 @@ const Gradient commonGradient = LinearGradient(
 const Gradient voteGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0xFFE3B847), AppColors.Gray00]);
+    colors: [Color(0xFFE3B847), AppColors.Grey00]);
 
 const Gradient goldGradient = LinearGradient(
     begin: Alignment.topCenter,
@@ -37,7 +37,7 @@ const Gradient switchThumbGradient = RadialGradient(
 
 final switchBoxShadow = BoxShadow(
   blurStyle: BlurStyle.inner,
-  color: AppColors.Gray00.withOpacity(0.15),
+  color: AppColors.Grey00.withOpacity(0.15),
   spreadRadius: 0,
   blurRadius: 4,
 );

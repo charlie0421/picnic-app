@@ -98,14 +98,14 @@ class MenuItem extends ConsumerWidget {
                 child: SvgPicture.asset(
                   assetPath,
                   colorFilter: ColorFilter.mode(
-                      isSelected ? AppColors.Gray900 : AppColors.Gray400,
+                      isSelected ? AppColors.Grey900 : AppColors.Grey400,
                       BlendMode.srcIn),
                 )),
             Text(
               Intl.message(title),
               style: getTextStyle(
                 AppTypo.CAPTION12R,
-                isSelected ? AppColors.Gray900 : AppColors.Gray400,
+                isSelected ? AppColors.Grey900 : AppColors.Grey400,
               ),
             )
           ],

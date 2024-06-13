@@ -54,7 +54,7 @@ class _CommonMyPointState extends ConsumerState<CommonMyPoint> {
                           // foreground: Paint()
                           //   ..style = PaintingStyle.stroke
                           //   ..strokeWidth = .3
-                          //   ..color = AppColors.Gray900,
+                          //   ..color = AppColors.Grey900,
                           // )
                           ),
                     ),
@@ -68,7 +68,7 @@ class _CommonMyPointState extends ConsumerState<CommonMyPoint> {
                     //             AppTypo.CAPTION12B, AppColors.Primary500)
                     //         .copyWith(shadows: [
                     //       Shadow(
-                    //           color: AppColors.Gray900.withOpacity(.5),
+                    //           color: AppColors.Grey900.withOpacity(.5),
                     //           offset: const Offset(0, 5),
                     //           blurRadius: 10)
                     //     ]),
@@ -77,19 +77,19 @@ class _CommonMyPointState extends ConsumerState<CommonMyPoint> {
                   ],
                 ),
                 Divider(
-                  color: AppColors.Gray900,
+                  color: AppColors.Grey900,
                   thickness: 1.r,
                   indent: 6.w,
                 ),
                 Container(
                   height: 18.h,
                   decoration: BoxDecoration(
-                    color: AppColors.Gray00,
+                    color: AppColors.Grey00,
                     borderRadius: BorderRadius.circular(20.r),
                     // boxShadow: [
                     //   BoxShadow(
                     //     offset: const Offset(0, 4),
-                    //     color: AppColors.Gray500.withOpacity(0.5),
+                    //     color: AppColors.Grey500.withOpacity(0.5),
                     //     blurRadius: 2,
                     //   ),
                     // ],

@@ -12,7 +12,7 @@ ThemeData voteThemeLight = ThemeData.light().copyWith(
   bottomAppBarTheme: const BottomAppBarTheme(
     color: Colors.transparent,
   ),
-  scaffoldBackgroundColor: AppColors.Gray00,
+  scaffoldBackgroundColor: AppColors.Grey00,
   // bottomNavigationBarTheme: const BottomNavigationBarThemeData(
   //   backgroundColor: voteMainColorLight,
   //   selectedIconTheme: IconThemeData(color: Colors.black),

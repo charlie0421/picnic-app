@@ -39,7 +39,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
           SizedBox(height: 36.h),
           CommonListTile(
             title: Text('광고 시청하고 충전하기',
-                style: getTextStyle(AppTypo.BODY16B, AppColors.Gray900)),
+                style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
             subtitle: Text.rich(
               TextSpan(
                 children: [
@@ -59,7 +59,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
               _showRewardedAd();
             },
           ),
-          Divider(height: 32.h, thickness: 1, color: AppColors.Gray200),
+          Divider(height: 32.h, thickness: 1, color: AppColors.Grey200),
         ],
       ),
     );

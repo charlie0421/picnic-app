@@ -37,7 +37,7 @@ class CommonPointInfo extends ConsumerWidget {
                 Image.asset('assets/icons/header/star.png',
                     width: 48.w, height: 48.w),
                 Text(formatNumberWithComma(starCandy),
-                    style: getTextStyle(AppTypo.BODY16B, AppColors.Gray900)),
+                    style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
               ],
             ),
           ),

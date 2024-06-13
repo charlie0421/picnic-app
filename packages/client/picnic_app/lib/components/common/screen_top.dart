@@ -51,7 +51,7 @@ class _TopState extends ConsumerState<ScreenTop> {
         boxShadow: [
           BoxShadow(
             offset: const Offset(0, 2),
-            color: AppColors.Gray500.withOpacity(0.1),
+            color: AppColors.Grey500.withOpacity(0.1),
             blurRadius: 4,
           ),
         ],
@@ -73,7 +73,7 @@ class _TopState extends ConsumerState<ScreenTop> {
                   navigationInfo.navigationStack!.length > 1
               ? Text(
                   Intl.message(pageName),
-                  style: getTextStyle(AppTypo.BODY16B, AppColors.Gray900),
+                  style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
                 )
               : const SizedBox(),
           Row(
@@ -84,7 +84,7 @@ class _TopState extends ConsumerState<ScreenTop> {
                 height: 24.h,
               ),
               Divider(
-                color: AppColors.Gray900,
+                color: AppColors.Grey900,
                 thickness: 1.r,
                 indent: 16.w,
               ),

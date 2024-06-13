@@ -177,7 +177,7 @@ class VoteCardColumn extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         Container(
-          color: AppColors.Gray100,
+          color: AppColors.Grey100,
           height: barHeight.h,
           child: Container(
             width: 80.w,
@@ -218,7 +218,7 @@ class VoteCardColumn extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(50),
                 border: Border.all(
-                  color: AppColors.Gray00,
+                  color: AppColors.Grey00,
                   width: 1.w,
                 ),
               ),
@@ -245,14 +245,14 @@ class VoteCardColumn extends StatelessWidget {
                   voteItem.mystar_member.getTitle(),
                   style: getTextStyle(
                     AppTypo.BODY14B,
-                    AppColors.Gray900,
+                    AppColors.Grey900,
                   ),
                 ),
                 Text(
                   voteItem.mystar_member.getGroupTitle(),
                   style: getTextStyle(
                     AppTypo.CAPTION10SB,
-                    AppColors.Gray00,
+                    AppColors.Grey00,
                   ),
                 ),
               ],

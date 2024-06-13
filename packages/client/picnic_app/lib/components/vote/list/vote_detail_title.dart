@@ -47,7 +47,7 @@ class VoteCommonTitle extends StatelessWidget {
                       overflow: TextOverflow.ellipsis),
                   Text(
                     title,
-                    style: getTextStyle(AppTypo.BODY16M, AppColors.Gray00),
+                    style: getTextStyle(AppTypo.BODY16M, AppColors.Grey00),
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
                   ),

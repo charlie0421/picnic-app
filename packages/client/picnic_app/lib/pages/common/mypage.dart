@@ -39,38 +39,38 @@ class _MyPageState extends ConsumerState<MyPage> {
             ],
           ),
           SizedBox(height: 24.h),
-          const Divider(color: AppColors.Gray200),
+          const Divider(color: AppColors.Grey200),
           ListItem(
               leading: Intl.message('label_mypage_notice'),
               assetPath: 'assets/icons/right_arrow.svg',
               onTap: () {}),
-          const Divider(color: AppColors.Gray200),
+          const Divider(color: AppColors.Grey200),
           ListItem(
               leading: Intl.message('label_mypage_charge_history'),
               assetPath: 'assets/icons/right_arrow.svg',
               onTap: () {}),
-          const Divider(color: AppColors.Gray200),
+          const Divider(color: AppColors.Grey200),
           ListItem(
               leading: Intl.message('label_mypage_customer_center'),
               assetPath: 'assets/icons/right_arrow.svg',
               onTap: () {}),
-          const Divider(color: AppColors.Gray200),
+          const Divider(color: AppColors.Grey200),
           ListItem(
               leading: Intl.message('label_mypage_setting'),
               assetPath: 'assets/icons/right_arrow.svg',
               onTap: () => ref
                   .read(navigationInfoProvider.notifier)
                   .setCurrentPage(SettingPage())),
-          const Divider(color: AppColors.Gray200),
+          const Divider(color: AppColors.Grey200),
           _buildMyStar('VOTE'),
-          const Divider(color: AppColors.Gray200),
+          const Divider(color: AppColors.Grey200),
           ListItem(
               leading: Intl.message('label_mypage_vote_history'),
               assetPath: 'assets/icons/right_arrow.svg',
               onTap: () {}),
-          const Divider(color: AppColors.Gray200),
+          const Divider(color: AppColors.Grey200),
           _buildMyStar('P-RAME'),
-          const Divider(color: AppColors.Gray200),
+          const Divider(color: AppColors.Grey200),
           ListItem(
               leading: Intl.message('label_mypage_membership_history'),
               assetPath: 'assets/icons/right_arrow.svg',
@@ -101,14 +101,14 @@ class _MyPageState extends ConsumerState<MyPage> {
               const SizedBox(width: 16),
               Text(
                 data?.nickname ?? '',
-                style: getTextStyle(AppTypo.TITLE18B, AppColors.Gray900),
+                style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900),
               ),
               SizedBox(width: 8.w),
               SvgPicture.asset('assets/icons/mypage/setting.svg',
                   width: 20.w,
                   height: 20.w,
                   colorFilter: const ColorFilter.mode(
-                    AppColors.Gray900,
+                    AppColors.Grey900,
                     BlendMode.srcIn,
                   )),
             ],
@@ -144,7 +144,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                   width: 20.w,
                   height: 20.h,
                   colorFilter: const ColorFilter.mode(
-                    AppColors.Gray900,
+                    AppColors.Grey900,
                     BlendMode.srcIn,
                   )),
             ],
@@ -165,7 +165,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                 margin: EdgeInsets.only(right: 14.w),
                 child: CircleAvatar(
                   radius: 30.w,
-                  backgroundColor: AppColors.Gray200,
+                  backgroundColor: AppColors.Grey200,
                 ),
               );
             },

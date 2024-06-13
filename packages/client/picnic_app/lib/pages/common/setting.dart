@@ -46,7 +46,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         children: [
           SizedBox(height: 16.h),
           Text(Intl.message('label_setting_alarm'),
-              style: getTextStyle(AppTypo.BODY14B, AppColors.Gray600)),
+              style: getTextStyle(AppTypo.BODY14B, AppColors.Grey600)),
           SizedBox(height: 4.h),
           ListItem(
             leading: Intl.message('label_setting_push_alarm'),
@@ -69,7 +69,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                 isActive,
               ) =>
                   BoxDecoration(
-                color: value ? AppColors.Primary500 : AppColors.Gray200,
+                color: value ? AppColors.Primary500 : AppColors.Grey200,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [switchBoxShadow],
               ),
@@ -83,7 +83,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               onTap: (v) {},
             ),
           ),
-          const Divider(color: AppColors.Gray200),
+          const Divider(color: AppColors.Grey200),
           ListItem(
             leading: Intl.message('label_setting_event_alarm'),
             title: Container(
@@ -91,7 +91,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               alignment: Alignment.centerLeft,
               child: Text(
                 Intl.message('label_setting_event_alarm_desc'),
-                style: getTextStyle(AppTypo.CAPTION12R, AppColors.Gray600),
+                style: getTextStyle(AppTypo.CAPTION12R, AppColors.Grey600),
                 textAlign: TextAlign.start,
               ),
             ),
@@ -114,7 +114,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                 isActive,
               ) =>
                   BoxDecoration(
-                color: value ? AppColors.Primary500 : AppColors.Gray200,
+                color: value ? AppColors.Primary500 : AppColors.Grey200,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [switchBoxShadow],
               ),
@@ -128,20 +128,20 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               onTap: (v) {},
             ),
           ),
-          const Divider(color: AppColors.Gray200),
+          const Divider(color: AppColors.Grey200),
           SizedBox(height: 48.h),
           Text(Intl.message('label_setting_language'),
-              style: getTextStyle(AppTypo.BODY14B, AppColors.Gray600)),
+              style: getTextStyle(AppTypo.BODY14B, AppColors.Grey600)),
           DropdownButtonFormField(
             value: appSettingState.locale.languageCode,
             icon: SvgPicture.asset('assets/icons/down_arrow.svg'),
             decoration: const InputDecoration(
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: AppColors.Gray00, width: 0),
+                borderSide: BorderSide(color: AppColors.Grey00, width: 0),
               ),
               contentPadding: EdgeInsets.symmetric(horizontal: 0),
             ),
-            dropdownColor: AppColors.Gray00,
+            dropdownColor: AppColors.Grey00,
             borderRadius: BorderRadius.circular(8),
             items: languageMap.entries.map((entry) {
               return DropdownMenuItem(
@@ -150,8 +150,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                 child: Text(
                   entry.value,
                   style: appSettingState.locale.languageCode == entry.key
-                      ? getTextStyle(AppTypo.BODY14B, AppColors.Gray900)
-                      : getTextStyle(AppTypo.BODY14M, AppColors.Gray400),
+                      ? getTextStyle(AppTypo.BODY14B, AppColors.Grey900)
+                      : getTextStyle(AppTypo.BODY14M, AppColors.Grey400),
                 ),
               );
             }).toList(),
@@ -163,19 +163,19 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               ));
             },
           ),
-          const Divider(color: AppColors.Gray200),
+          const Divider(color: AppColors.Grey200),
           SizedBox(height: 48.h),
           Text(Intl.message('label_setting_storage'),
-              style: getTextStyle(AppTypo.BODY14B, AppColors.Gray600)),
+              style: getTextStyle(AppTypo.BODY14B, AppColors.Grey600)),
           ListItem(
               leading: Intl.message('label_setting_remove_cache'),
               assetPath: 'assets/icons/right_arrow.svg',
               onTap: () {}),
-          const Divider(color: AppColors.Gray200),
+          const Divider(color: AppColors.Grey200),
           SizedBox(height: 48.h),
           Text(Intl.message('label_setting_appinfo'),
-              style: getTextStyle(AppTypo.BODY14B, AppColors.Gray600)),
-          const Divider(color: AppColors.Gray200),
+              style: getTextStyle(AppTypo.BODY14B, AppColors.Grey600)),
+          const Divider(color: AppColors.Grey200),
           ListItem(
               leading:
                   '${Intl.message('label_setting_current_version')} ${asyncPlatformInfoState.value?.version ?? ''}(${asyncPlatformInfoState.value?.buildNumber ?? ''})',

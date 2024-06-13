@@ -38,7 +38,7 @@ class LargePopupWidget extends StatelessWidget {
                     : EdgeInsets.only(
                         top: 40.w, left: 24.w, right: 24.w, bottom: 36.w),
                 decoration: BoxDecoration(
-                    color: AppColors.Gray00,
+                    color: AppColors.Grey00,
                     border: Border.all(
                       color: AppColors.Mint500,
                       width: 2.r,
@@ -59,7 +59,7 @@ class LargePopupWidget extends StatelessWidget {
                         children: [
                           Text('닫기',
                               style: getTextStyle(
-                                  AppTypo.BODY14B, AppColors.Gray00)),
+                                  AppTypo.BODY14B, AppColors.Grey00)),
                           SizedBox(width: 4.w),
                           SvgPicture.asset(
                             'assets/icons/vote/close.svg',

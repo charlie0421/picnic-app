@@ -32,7 +32,7 @@ ThemeData picThemeLight = ThemeData.light().copyWith(
     selectedLabelStyle: TextStyle(color: Colors.black),
     unselectedLabelStyle: TextStyle(color: Colors.black54),
   ),
-  scaffoldBackgroundColor: AppColors.Gray00,
+  scaffoldBackgroundColor: AppColors.Grey00,
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
       padding: WidgetStateProperty.all(const EdgeInsets.all(4)),
