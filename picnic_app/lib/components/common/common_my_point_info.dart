@@ -27,7 +27,7 @@ class _CommonMyPointState extends ConsumerState<CommonMyPoint> {
             borderRadius: 21.r, borderWidth: 1.r, gradient: commonGradient),
         child: Container(
             alignment: Alignment.center,
-            padding: EdgeInsets.symmetric(horizontal: 6.w),
+            padding: const EdgeInsets.all(8).r,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -40,9 +40,10 @@ class _CommonMyPointState extends ConsumerState<CommonMyPoint> {
                 Stack(
                   children: [
                     Container(
-                      height: 20.h,
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.only(bottom: 3).r,
+                      height: 18.h,
                       constraints: BoxConstraints(minWidth: 80.w),
-                      alignment: Alignment.topRight,
                       child: AnimatedDigitWidget(
                           value: userInfo.value?.star_candy ?? 0,
                           duration: const Duration(milliseconds: 500),

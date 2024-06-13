@@ -34,7 +34,7 @@ ScreenInfo novelScreenInfo = ScreenInfo(
 List<BottomNavigationItem> votePages = [
   const BottomNavigationItem(
     title: 'nav_vote',
-    assetPath: 'assets/icons/bottom/media.svg',
+    assetPath: 'assets/icons/bottom/vote.svg',
     index: 0,
     pageWidget: VoteHomePage(),
   ),

@@ -118,7 +118,7 @@ class _PicChartPageState extends State<PicChartPage>
                               style: getTextStyle(
                                   AppTypo.BODY14M, AppColors.Grey00)),
                           SvgPicture.asset(
-                            'assets/icons/vote/close.svg',
+                            'assets/icons/cancle_style=fill.svg',
                             width: 24.w,
                             height: 24.w,
                             colorFilter: const ColorFilter.mode(

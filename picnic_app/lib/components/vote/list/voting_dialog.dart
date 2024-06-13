@@ -102,9 +102,11 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
               Navigator.pop(context);
             },
             child: SvgPicture.asset(
-              'assets/icons/vote/close.svg',
+              'assets/icons/cancle_style=line.svg',
               width: 24.w,
               height: 24.w,
+              colorFilter:
+                  const ColorFilter.mode(AppColors.Grey00, BlendMode.srcIn),
             ),
           ),
           content: Column(
@@ -173,6 +175,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                       child: Container(
                         height: 32.h,
                         alignment: Alignment.topLeft,
+                        padding: EdgeInsets.only(bottom: 6.h),
                         child: AnimatedDigitWidget(
                           value: widget.ref
                                   .watch(userInfoProvider)
@@ -222,9 +225,11 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                             ),
                             SizedBox(width: 4.w),
                             SvgPicture.asset(
-                              'assets/icons/vote/recharge_plus.svg',
+                              'assets/icons/plus_style=fill.svg',
                               width: 16.w,
                               height: 16.h,
+                              colorFilter: const ColorFilter.mode(
+                                  AppColors.Primary500, BlendMode.srcIn),
                             ),
                           ],
                         ),
@@ -258,9 +263,9 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       SvgPicture.asset(
-                        'assets/icons/vote/checkbox.svg',
-                        width: 24.w,
-                        height: 24.w,
+                        'assets/icons/check_style=line.svg',
+                        width: 20.w,
+                        height: 20.w,
                         colorFilter: ColorFilter.mode(
                           _checkAll ? AppColors.Primary500 : AppColors.Grey300,
                           BlendMode.srcIn,
@@ -320,7 +325,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                                 });
                               },
                               child: SvgPicture.asset(
-                                'assets/icons/vote/cancel.svg',
+                                'assets/icons/cancle_style=fill.svg',
                                 colorFilter: ColorFilter.mode(
                                   _hasValue
                                       ? AppColors.Grey700
@@ -340,10 +345,21 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                             FilteringTextInputFormatter.digitsOnly,
                             TextInputFormatter.withFunction(
                                 (oldValue, newValue) {
-                              if (newValue.text.isEmpty) {
-                                return newValue;
+                              if (int.parse(
+                                      newValue.text.replaceAll(',', '')) ==
+                                  0) {
+                                return oldValue;
                               }
 
+                              if (newValue.text.isEmpty) {
+                                setState(() {
+                                  _hasValue = false;
+                                });
+                                return newValue;
+                              }
+                              setState(() {
+                                _hasValue = true;
+                              });
                               // 커서 위치를 항상 텍스트 끝에 맞춤
                               final text = newValue.text.replaceAll(',', '');
                               final textWithComma = formatNumberWithComma(text);

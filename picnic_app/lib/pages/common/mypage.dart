@@ -104,7 +104,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                 style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900),
               ),
               SizedBox(width: 8.w),
-              SvgPicture.asset('assets/icons/mypage/setting.svg',
+              SvgPicture.asset('assets/icons/setting_style=line.svg',
                   width: 20.w,
                   height: 20.w,
                   colorFilter: const ColorFilter.mode(

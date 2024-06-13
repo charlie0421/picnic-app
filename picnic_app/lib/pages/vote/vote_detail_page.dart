@@ -319,8 +319,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                       Container(
                                         width: double.infinity,
                                         height: 20.h,
-                                        padding:
-                                            const EdgeInsets.only(right: 16),
+                                        padding: const EdgeInsets.only(
+                                                right: 16, bottom: 3)
+                                            .r,
                                         decoration: BoxDecoration(
                                           gradient: commonGradient,
                                           color: AppColors.Grey100,
@@ -331,8 +332,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                         child: AnimatedDigitWidget(
                                           value: data[index]!.vote_total,
                                           duration:
-                                              const Duration(microseconds: 300),
-                                          curve: Curves.fastOutSlowIn,
+                                              const Duration(microseconds: 500),
+                                          curve: Curves.easeInOut,
                                           enableSeparator: true,
                                           textStyle: getTextStyle(
                                               AppTypo.CAPTION10SB,
@@ -349,7 +350,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                   width: 24.w,
                                   height: 24.w,
                                   child: SvgPicture.asset(
-                                      'assets/icons/vote/vote_button.svg'),
+                                      'assets/icons/star_candy_icon.svg'),
                                 ),
                               ],
                             ),
@@ -418,7 +419,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                               _textEditingController.clear();
                             },
                             child: SvgPicture.asset(
-                              'assets/icons/vote/cancel.svg',
+                              'assets/icons/cancle_style=line.svg',
                               width: 20.w,
                               height: 20.w,
                               colorFilter: ColorFilter.mode(

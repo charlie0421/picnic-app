@@ -36,7 +36,7 @@ class VoteHeader extends StatelessWidget {
                     behavior: HitTestBehavior.opaque,
                     onTap: onRefresh,
                     child: SvgPicture.asset(
-                      'assets/icons/vote/refresh.svg',
+                      'assets/icons/reset_style=line.svg',
                       width: 20.w,
                       height: 20.h,
                     ),

@@ -79,7 +79,7 @@ class _TopState extends ConsumerState<ScreenTop> {
           Row(
             children: [
               SvgPicture.asset(
-                'assets/icons/header/daily_check.svg',
+                'assets/icons/calendar_style=line.svg',
                 width: 24.w,
                 height: 24.h,
               ),
@@ -89,7 +89,7 @@ class _TopState extends ConsumerState<ScreenTop> {
                 indent: 16.w,
               ),
               SvgPicture.asset(
-                'assets/icons/header/alarm.svg',
+                'assets/icons/alarm_style=line.svg',
                 width: 24.w,
                 height: 24.h,
               ),
