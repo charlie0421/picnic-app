@@ -23,12 +23,9 @@ class _CommonBottomNavigationBarState
   @override
   Widget build(BuildContext context) {
     ref.watch(appSettingProvider.select((value) => value.locale));
-    var notifier = ref.read(navigationInfoProvider.notifier);
-
-    int navigationIndex = getCurrentIndex();
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0).r,
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: BottomAppBar(
         elevation: 0,
         padding: EdgeInsets.zero,
@@ -64,19 +61,6 @@ class _CommonBottomNavigationBarState
       ),
     );
   }
-
-  int getCurrentIndex() {
-    final navigationInfo = ref.watch(navigationInfoProvider);
-    final navigationInfoNotifier = ref.read(navigationInfoProvider.notifier);
-
-    return navigationInfoNotifier.getBottomNavigationIndex();
-  }
-
-// Function setIndexSetter(int index) {
-//   var notifier = ref.read(navigationInfoProvider.notifier);
-//
-//   return notifier.setBottomNavigationIndex(index);
-// }
 }
 
 class MenuItem extends ConsumerWidget {
