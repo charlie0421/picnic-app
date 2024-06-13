@@ -62,7 +62,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               animationDuration: const Duration(milliseconds: 500),
               thumbDecoration: (value, isActive) => BoxDecoration(
                 gradient: switchThumbGradient,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(28),
               ),
               switchDecoration: (
                 value,
@@ -107,7 +107,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               animationDuration: const Duration(milliseconds: 500),
               thumbDecoration: (value, isActive) => BoxDecoration(
                 gradient: switchThumbGradient,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(28),
               ),
               switchDecoration: (
                 value,
