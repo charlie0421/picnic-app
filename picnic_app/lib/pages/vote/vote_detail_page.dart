@@ -524,11 +524,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                 _textEditingController.clear();
                               },
                               child: SvgPicture.asset(
-                                'assets/icons/cancle_style=line.svg',
+                                'assets/icons/cancle_style=fill.svg',
                                 width: 20.w,
                                 height: 20.w,
                                 colorFilter: ColorFilter.mode(
-                                    _hasFocus
+                                    _textEditingController.text.isNotEmpty
                                         ? AppColors.Grey700
                                         : AppColors.Grey200,
                                     BlendMode.srcIn),
