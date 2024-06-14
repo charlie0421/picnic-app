@@ -28,6 +28,8 @@ class VoteDetailPage extends ConsumerStatefulWidget {
 
 class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   late ScrollController _scrollController;
+  final GlobalKey _searchBoxKey = GlobalKey();
+
   late TextEditingController _textEditingController;
   late FocusNode _focusNode;
   bool _hasFocus = false;
@@ -41,16 +43,13 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     _focusNode = FocusNode();
 
     _focusNode.addListener(() {
+      logger.d('Focus changed! ${_focusNode.hasFocus}');
       setState(() {
         _hasFocus = _focusNode.hasFocus;
       });
 
-      if (!_focusNode.hasFocus) {
-        _scrollController.animateTo(
-          _scrollController.position.minScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
+      if (_hasFocus) {
+        _scrollToTarget(_searchBoxKey);
       }
     });
 
@@ -59,17 +58,15 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         _searchQuery = _textEditingController.text;
       });
 
-      _scrollController.animateTo(
-        _scrollController.position.minScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
+      if (_hasFocus) {
+        _scrollToTarget(_searchBoxKey);
+      }
     });
 
     _setupRealtime();
   }
 
-  void handleVoteChanges(PostgresChangePayload payload) {
+  void _handleVoteChanges(PostgresChangePayload payload) {
     logger.d('Change received! $payload');
     final asyncVoteItemListNotifier =
         ref.read(asyncVoteItemListProvider(voteId: widget.voteId).notifier);
@@ -78,9 +75,28 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         voteTotal: payload.newRecord['vote_total']);
   }
 
+  void _scrollToTarget(GlobalKey targetKey) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 100), () {
+        final RenderBox renderBox =
+            targetKey.currentContext!.findRenderObject() as RenderBox;
+        final position = renderBox.localToGlobal(Offset.zero).dy;
+        final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+
+        logger.i('Scrolling to $position with keyboard height $keyboardHeight');
+
+        _scrollController.animateTo(
+          400.h,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+        );
+      });
+    });
+  }
+
   void _setupRealtime() {
     logger.d('Setting up realtime');
-    final subscription = Supabase.instance.client
+    Supabase.instance.client
         .channel('realtime')
         .onPostgresChanges(
             event: PostgresChangeEvent.update,
@@ -90,7 +106,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 type: PostgresChangeFilterType.eq,
                 column: 'vote_id',
                 value: widget.voteId),
-            callback: handleVoteChanges)
+            callback: _handleVoteChanges)
         .subscribe();
   }
 
@@ -159,12 +175,16 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      controller: _scrollController,
-      children: [
-        _buildVoteInfo(context),
-        _buildVoteItemList(context),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return ListView(
+          controller: _scrollController,
+          children: [
+            _buildVoteInfo(context),
+            _buildVoteItemList(context, constraints),
+          ],
+        );
+      },
     );
   }
 
@@ -233,7 +253,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                     AppTypo.CAPTION12R, AppColors.Grey900)))
                             .toList(),
                       )
-                    : SizedBox.shrink(),
+                    : const SizedBox.shrink(),
                 SizedBox(
                   height: 16.h,
                 ),
@@ -246,14 +266,18 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         );
   }
 
-  Widget _buildVoteItemList(BuildContext context) {
+  Widget _buildVoteItemList(BuildContext context, BoxConstraints constraints) {
     return ref.watch(asyncVoteItemListProvider(voteId: widget.voteId)).when(
           data: (data) {
             final filteredIndices = _getFilteredIndices(data);
             return Stack(
               children: [
                 Container(
-                  margin: const EdgeInsets.only(top: 24, left: 16, right: 16),
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(top: 24, left: 16, right: 16).r,
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight,
+                  ),
                   decoration: BoxDecoration(
                       border: Border.all(
                         color: AppColors.Primary500,
@@ -426,13 +450,14 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   ),
                 ),
                 Positioned(
+                  key: _searchBoxKey,
                   top: 0,
                   right: 10.w,
                   left: 10.w,
                   child: Align(
                     alignment: Alignment.topCenter,
                     child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      margin: const EdgeInsets.symmetric(horizontal: 16).r,
                       width: 280.w,
                       height: 48.h,
                       decoration: BoxDecoration(

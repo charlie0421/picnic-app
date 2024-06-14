@@ -48,7 +48,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
               Text(Intl.message('label_vote_vote_gather'),
                   style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900)),
               SvgPicture.asset(
-                'assets/icons/right_arrow.svg',
+                'assets/icons/arrow_right_style=line.svg',
                 width: 8.w,
                 height: 15.h,
                 colorFilter:

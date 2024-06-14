@@ -50,7 +50,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           SizedBox(height: 4.h),
           ListItem(
             leading: Intl.message('label_setting_push_alarm'),
-            assetPath: 'assets/icons/right_arrow.svg',
+            assetPath: 'assets/icons/arrow_right_style=line.svg',
             tailing: LoadSwitch(
               width: 48.w,
               height: 28.h,
@@ -95,7 +95,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                 textAlign: TextAlign.start,
               ),
             ),
-            assetPath: 'assets/icons/right_arrow.svg',
+            assetPath: 'assets/icons/arrow_right_style=line.svg',
             tailing: LoadSwitch(
               width: 48.w,
               height: 28.h,
@@ -169,7 +169,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               style: getTextStyle(AppTypo.BODY14B, AppColors.Grey600)),
           ListItem(
               leading: Intl.message('label_setting_remove_cache'),
-              assetPath: 'assets/icons/right_arrow.svg',
+              assetPath: 'assets/icons/arrow_right_style=line.svg',
               onTap: () {}),
           const Divider(color: AppColors.Grey200),
           SizedBox(height: 48.h),
@@ -188,7 +188,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   textAlign: TextAlign.start,
                 ),
               ),
-              assetPath: 'assets/icons/right_arrow.svg',
+              assetPath: 'assets/icons/arrow_right_style=line.svg',
               onTap: () {}),
         ],
       ),
