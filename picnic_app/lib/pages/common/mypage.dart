@@ -42,22 +42,22 @@ class _MyPageState extends ConsumerState<MyPage> {
           const Divider(color: AppColors.Grey200),
           ListItem(
               leading: Intl.message('label_mypage_notice'),
-              assetPath: 'assets/icons/right_arrow.svg',
+              assetPath: 'assets/icons/arrow_right_style=line.svg',
               onTap: () {}),
           const Divider(color: AppColors.Grey200),
           ListItem(
               leading: Intl.message('label_mypage_charge_history'),
-              assetPath: 'assets/icons/right_arrow.svg',
+              assetPath: 'assets/icons/arrow_right_style=line.svg',
               onTap: () {}),
           const Divider(color: AppColors.Grey200),
           ListItem(
               leading: Intl.message('label_mypage_customer_center'),
-              assetPath: 'assets/icons/right_arrow.svg',
+              assetPath: 'assets/icons/arrow_right_style=line.svg',
               onTap: () {}),
           const Divider(color: AppColors.Grey200),
           ListItem(
               leading: Intl.message('label_mypage_setting'),
-              assetPath: 'assets/icons/right_arrow.svg',
+              assetPath: 'assets/icons/arrow_right_style=line.svg',
               onTap: () => ref
                   .read(navigationInfoProvider.notifier)
                   .setCurrentPage(SettingPage())),
@@ -66,14 +66,14 @@ class _MyPageState extends ConsumerState<MyPage> {
           const Divider(color: AppColors.Grey200),
           ListItem(
               leading: Intl.message('label_mypage_vote_history'),
-              assetPath: 'assets/icons/right_arrow.svg',
+              assetPath: 'assets/icons/arrow_right_style=line.svg',
               onTap: () {}),
           const Divider(color: AppColors.Grey200),
           _buildMyStar('P-RAME'),
           const Divider(color: AppColors.Grey200),
           ListItem(
               leading: Intl.message('label_mypage_membership_history'),
-              assetPath: 'assets/icons/right_arrow.svg',
+              assetPath: 'assets/icons/arrow_right_style=line.svg',
               onTap: () {}),
         ],
       ),
@@ -140,7 +140,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                       style: getTextStyle(AppTypo.BODY16M)),
                 ],
               ),
-              SvgPicture.asset('assets/icons/right_arrow.svg',
+              SvgPicture.asset('assets/icons/arrow_right_style=line.svg',
                   width: 20.w,
                   height: 20.h,
                   colorFilter: const ColorFilter.mode(
