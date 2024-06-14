@@ -91,7 +91,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   @override
   Widget build(BuildContext context) {
     return KeyboardVisibilityBuilder(builder: (context, isKeyboardVisible) {
-      double resizeFactor = isKeyboardVisible ? 0.8.h : 1;
+      double resizeFactor = isKeyboardVisible ? 0.5.h : 1;
       return Dialog(
         backgroundColor: Colors.transparent,
         child: LargePopupWidget(
