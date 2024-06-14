@@ -37,10 +37,16 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Add a new album"),
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("Be the first to comment!"),
+        "label_button_clse": MessageLookupByLibrary.simpleMessage("Close"),
+        "label_button_recharge":
+            MessageLookupByLibrary.simpleMessage("Recharge"),
+        "label_button_vote": MessageLookupByLibrary.simpleMessage("Vote"),
         "label_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("Celeb Gallery."),
         "label_celeb_recommend":
             MessageLookupByLibrary.simpleMessage("Celebrity recommendations"),
+        "label_checkbox_entire_use":
+            MessageLookupByLibrary.simpleMessage("Use all"),
         "label_current_language":
             MessageLookupByLibrary.simpleMessage("Current language"),
         "label_draw_image": MessageLookupByLibrary.simpleMessage(
@@ -52,6 +58,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("Chat"),
         "label_hint_comment":
             MessageLookupByLibrary.simpleMessage("Leave a comment."),
+        "label_input_input": MessageLookupByLibrary.simpleMessage("Input"),
         "label_library_save":
             MessageLookupByLibrary.simpleMessage("Save the library"),
         "label_library_tab_ai_photo":
@@ -174,6 +181,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Search for celebrities."),
         "text_moveto_celeb_gallery": MessageLookupByLibrary.simpleMessage(
             "Navigates to the selected celebrity\'s home."),
+        "text_need_recharge":
+            MessageLookupByLibrary.simpleMessage("Need to recharge"),
         "text_vote_1st": MessageLookupByLibrary.simpleMessage("1st"),
         "text_vote_2nd": MessageLookupByLibrary.simpleMessage("2nd"),
         "text_vote_3rd": MessageLookupByLibrary.simpleMessage("3rd"),

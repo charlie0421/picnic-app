@@ -1029,6 +1029,66 @@ class S {
       args: [],
     );
   }
+
+  /// `Recharge`
+  String get label_button_recharge {
+    return Intl.message(
+      'Recharge',
+      name: 'label_button_recharge',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Use all`
+  String get label_checkbox_entire_use {
+    return Intl.message(
+      'Use all',
+      name: 'label_checkbox_entire_use',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Input`
+  String get label_input_input {
+    return Intl.message(
+      'Input',
+      name: 'label_input_input',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Need to recharge`
+  String get text_need_recharge {
+    return Intl.message(
+      'Need to recharge',
+      name: 'text_need_recharge',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Vote`
+  String get label_button_vote {
+    return Intl.message(
+      'Vote',
+      name: 'label_button_vote',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Close`
+  String get label_button_clse {
+    return Intl.message(
+      'Close',
+      name: 'label_button_clse',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

@@ -97,5 +97,11 @@
   "text_vote_rank_surffix": "位",
   "text_vote_1st": "1位",
   "text_vote_2nd": "2位",
-  "text_vote_3rd": "3位"
+  "text_vote_3rd": "3位",
+  "label_button_recharge": "チャージ",
+  "label_checkbox_entire_use": "全額使用",
+  "label_input_input": "入力",
+  "text_need_recharge": "チャージが必要です。",
+  "label_button_vote": "投票",
+  "label_button_clse": "閉じる"
 }

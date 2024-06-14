@@ -36,8 +36,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_album_add": MessageLookupByLibrary.simpleMessage("새로운 앨범 추가"),
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("첫 댓글의 주인공이 되세요!"),
+        "label_button_clse": MessageLookupByLibrary.simpleMessage("닫기"),
+        "label_button_recharge": MessageLookupByLibrary.simpleMessage("충전하기"),
+        "label_button_vote": MessageLookupByLibrary.simpleMessage("투표하기"),
         "label_celeb_gallery": MessageLookupByLibrary.simpleMessage("샐럽 갤러리"),
         "label_celeb_recommend": MessageLookupByLibrary.simpleMessage("유명인 추천"),
+        "label_checkbox_entire_use":
+            MessageLookupByLibrary.simpleMessage("전체사용"),
         "label_current_language": MessageLookupByLibrary.simpleMessage("현재 언어"),
         "label_draw_image":
             MessageLookupByLibrary.simpleMessage("랜덤 이미지 획득 기회"),
@@ -47,6 +52,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("채팅"),
         "label_hint_comment":
             MessageLookupByLibrary.simpleMessage("댓글을 남겨주세요."),
+        "label_input_input": MessageLookupByLibrary.simpleMessage("입력"),
         "label_library_save": MessageLookupByLibrary.simpleMessage("라이브러리 저장"),
         "label_library_tab_ai_photo":
             MessageLookupByLibrary.simpleMessage("AI 포토"),
@@ -155,6 +161,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_hint_search": MessageLookupByLibrary.simpleMessage("유명인을 검색하세요."),
         "text_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("선택한 셀러브리티의 집으로 이동합니다."),
+        "text_need_recharge":
+            MessageLookupByLibrary.simpleMessage("충전이 필요합니다."),
         "text_vote_1st": MessageLookupByLibrary.simpleMessage("1위"),
         "text_vote_2nd": MessageLookupByLibrary.simpleMessage("2위"),
         "text_vote_3rd": MessageLookupByLibrary.simpleMessage("3위"),
