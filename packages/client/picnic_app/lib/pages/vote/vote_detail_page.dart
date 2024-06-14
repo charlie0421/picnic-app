@@ -80,10 +80,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
       Future.delayed(const Duration(milliseconds: 100), () {
         final RenderBox renderBox =
             targetKey.currentContext!.findRenderObject() as RenderBox;
-        final position = renderBox.localToGlobal(Offset.zero).dy;
-        final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-
-        logger.i('Scrolling to $position with keyboard height $keyboardHeight');
 
         _scrollController.animateTo(
           400.h,
@@ -177,12 +173,18 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        return ListView(
+        return SingleChildScrollView(
           controller: _scrollController,
-          children: [
-            _buildVoteInfo(context),
-            _buildVoteItemList(context, constraints),
-          ],
+          child: Padding(
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Column(
+              children: [
+                _buildVoteInfo(context),
+                _buildVoteItemList(context, constraints),
+              ],
+            ),
+          ),
         );
       },
     );
