@@ -1,0 +1,573 @@
+import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui';
+
+import 'package:appinio_social_share/appinio_social_share.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:picnic_app/components/ui/large_popup.dart';
+import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/models/vote/vote.dart';
+import 'package:picnic_app/providers/user_info_provider.dart';
+import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util.dart';
+
+Future showVotingCompleteDialog({
+  required BuildContext context,
+  required VoteModel voteModel,
+  required VoteItemModel voteItemModel,
+  required WidgetRef ref,
+}) {
+  return showDialog(
+    context: context,
+    builder: (context) {
+      return VotingCompleteDialog(
+        voteModel: voteModel,
+        voteItemModel: voteItemModel,
+        ref: ref,
+      );
+    },
+  );
+}
+
+class VotingCompleteDialog extends ConsumerStatefulWidget {
+  final VoteModel voteModel;
+  final VoteItemModel voteItemModel;
+  final WidgetRef ref;
+
+  const VotingCompleteDialog({
+    super.key,
+    required this.voteModel,
+    required this.voteItemModel,
+    required this.ref,
+  });
+
+  @override
+  ConsumerState<VotingCompleteDialog> createState() =>
+      _VotingCompleteDialogState();
+}
+
+class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
+    with SingleTickerProviderStateMixin {
+  bool _isSaving = false;
+  final GlobalKey _globalKey = GlobalKey();
+  AppinioSocialShare appinioSocialShare = AppinioSocialShare();
+
+  Future<void> _captureAndSaveImage() async {
+    try {
+      RenderRepaintBoundary boundary = _globalKey.currentContext!
+          .findRenderObject() as RenderRepaintBoundary;
+      var image = await boundary.toImage();
+      ByteData? byteData = await image.toByteData(format: ImageByteFormat.png);
+      Uint8List pngBytes = byteData!.buffer.asUint8List();
+
+      final directory = (await getApplicationDocumentsDirectory()).path;
+      String path = '$directory/voting_dialog.png';
+      File imgFile = File(path);
+      imgFile.writeAsBytesSync(pngBytes);
+
+      final result = await ImageGallerySaver.saveFile(path);
+      print('이미지 저장됨: $path, 결과: $result');
+    } catch (e) {
+      print('이미지 저장 실패: $e');
+    } finally {
+      setState(() {
+        _isSaving = false;
+      });
+    }
+  }
+
+  Future<void> _saveDialogAsImage() async {
+    setState(() {
+      _isSaving = true;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _captureAndSaveImage());
+  }
+
+  Future<void> _captureAndShareImage() async {
+    try {
+      RenderRepaintBoundary boundary = _globalKey.currentContext!
+          .findRenderObject() as RenderRepaintBoundary;
+      var image = await boundary.toImage();
+      ByteData? byteData = await image.toByteData(format: ImageByteFormat.png);
+      Uint8List pngBytes = byteData!.buffer.asUint8List();
+
+      final directory = (await getApplicationDocumentsDirectory()).path;
+      String path = '$directory/voting_dialog.png';
+      File imgFile = File(path);
+      imgFile.writeAsBytesSync(pngBytes);
+
+      final result = Platform.isIOS
+          ? await appinioSocialShare.iOS.shareToTwitter('트위터 공유', path)
+          : await appinioSocialShare.android.shareToTwitter('트위터 공유', path);
+      logger.d('이미지 공유 결과: $result');
+      if (result == 'ERROR_APP_NOT_AVAILABLE')
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('트위터 앱이 없습니다.')));
+    } catch (e) {
+      print('이미지 공유 실패: $e');
+    } finally {
+      setState(() {
+        _isSaving = false;
+      });
+    }
+  }
+
+  Future<void> _shareDialogImage() async {
+    setState(() {
+      _isSaving = true;
+    });
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _captureAndShareImage());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final userInfo = ref.watch(userInfoProvider);
+
+    return RepaintBoundary(
+      key: _globalKey,
+      child: Dialog(
+        backgroundColor: Colors.transparent,
+        child: LargePopupWidget(
+          backgroundColor: AppColors.Mint500,
+          closeButton: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: SvgPicture.asset(
+              'assets/icons/cancle_style=line.svg',
+              width: 24.w,
+              height: 24.w,
+              colorFilter:
+                  const ColorFilter.mode(AppColors.Grey00, BlendMode.srcIn),
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Container(
+                width: 203.w,
+                height: 51.w,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: AppColors.Grey00,
+                  borderRadius: BorderRadius.circular(26.r),
+                  border: Border.all(
+                      color: AppColors.Primary500,
+                      width: 2.5.r,
+                      strokeAlign: BorderSide.strokeAlignInside),
+                ),
+                child: Container(
+                  alignment: Alignment.center,
+                  width: 195.w,
+                  height: 43.w,
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(26.r),
+                    border: Border.all(
+                        color: AppColors.Mint500,
+                        width: 2.5.r,
+                        strokeAlign: BorderSide.strokeAlignInside),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Image.asset(
+                        'assets/icons/header/star.png',
+                        width: 24.w,
+                        height: 24.w,
+                      ),
+                      Expanded(
+                        child: Text('투표 완료',
+                            style: getTextStyle(
+                                AppTypo.TITLE18B, AppColors.Point900),
+                            textAlign: TextAlign.center),
+                      ),
+                      Image.asset(
+                        'assets/icons/header/star.png',
+                        width: 24.w,
+                        height: 24.w,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 16.w),
+              Container(
+                  width: 291.w,
+                  height: 80.w,
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  decoration: BoxDecoration(
+                    color: AppColors.Grey00,
+                    borderRadius: BorderRadius.circular(20.r),
+                    border: Border.all(
+                      color: AppColors.Primary500,
+                      width: 1.5.r,
+                      strokeAlign: BorderSide.strokeAlignInside,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(48.r),
+                        child: CachedNetworkImage(
+                          imageUrl: userInfo.value?.avatar_url ?? '',
+                          width: 48.w,
+                          height: 48.w,
+                          placeholder: (context, url) =>
+                              buildPlaceholderImage(),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      SizedBox(width: 16.w),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            userInfo.value?.nickname ?? '',
+                            style: getTextStyle(
+                                AppTypo.CAPTION12B, AppColors.Grey900),
+                          ),
+                          SizedBox(height: 2.w),
+                          Text(
+                            '----',
+                            style: getTextStyle(
+                                AppTypo.CAPTION12R, AppColors.Grey600),
+                          ),
+                        ],
+                      ),
+                    ],
+                  )),
+              SizedBox(height: 12.w),
+              Container(
+                width: 291.w,
+                height: 218.w,
+                decoration: BoxDecoration(
+                  color: AppColors.Grey00,
+                  borderRadius: BorderRadius.circular(20.r),
+                  border: Border.all(
+                    color: AppColors.Primary500,
+                    width: 1.5.r,
+                    strokeAlign: BorderSide.strokeAlignInside,
+                  ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.only(
+                          top: 16.w, bottom: 12.w, left: 24.w, right: 24.w),
+                      alignment: Alignment.center,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('이번 투표',
+                              style: getTextStyle(
+                                  AppTypo.CAPTION12M, AppColors.Primary500)),
+                          Text(widget.voteModel.getTitle() ?? '',
+                              style: getTextStyle(
+                                  AppTypo.BODY14B, AppColors.Grey900)),
+                        ],
+                      ),
+                    ),
+                    Divider(
+                      color: AppColors.Grey300,
+                      indent: 13.w,
+                      endIndent: 13.w,
+                      thickness: 1,
+                      height: 1.h,
+                    ),
+                    SizedBox(height: 24.w),
+                    Container(
+                      height: 120.w,
+                      padding: EdgeInsets.symmetric(horizontal: 10.w),
+                      color: AppColors.Grey00,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(64.r),
+                                  child: CachedNetworkImage(
+                                    imageUrl: widget.voteItemModel.mystar_member
+                                            .image ??
+                                        '',
+                                    width: 64.w,
+                                    height: 64.w,
+                                  ),
+                                ),
+                                SizedBox(height: 15.h),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      widget.voteItemModel.mystar_member
+                                              .getTitle() ??
+                                          '',
+                                      style: getTextStyle(
+                                          AppTypo.BODY16B, AppColors.Grey900),
+                                    ),
+                                    Align(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        widget.voteItemModel.mystar_member
+                                            .getGroupTitle(),
+                                        style: getTextStyle(AppTypo.CAPTION12R,
+                                            AppColors.Grey600),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Text('123,445')
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 10.w),
+                          Expanded(
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                Container(
+                                  width: 120.w,
+                                  height: 120.w,
+                                  child: GradientCircularProgressIndicator(
+                                    value: 0.75,
+                                    strokeWidth: 20,
+                                    gradientColors: [
+                                      Color(0xFF9374FF),
+                                      Color(0xFF83FBC8),
+                                    ],
+                                  ),
+                                ),
+                                Positioned(
+                                    child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text('17,754',
+                                        style: getTextStyle(AppTypo.CAPTION12B,
+                                            AppColors.Grey400)),
+                                    Text('+50,000',
+                                        style: getTextStyle(AppTypo.BODY14B,
+                                            AppColors.Primary500)),
+                                  ],
+                                ))
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 16.w),
+              !_isSaving
+                  ? SizedBox(
+                      height: 32.w,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                              onPressed: _saveDialogAsImage,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.Primary500,
+                                shadowColor: AppColors.Primary500,
+                                padding: EdgeInsets.zero,
+                                minimumSize: Size(104.w, 32.h),
+                                maximumSize: Size(104.w, 32.h),
+                              ),
+                              child: Text('투표지 저장',
+                                  style: getTextStyle(
+                                      AppTypo.BODY14B, AppColors.Grey00))),
+                          SizedBox(width: 16.w),
+                          ElevatedButton(
+                              onPressed: _shareDialogImage,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.Primary500,
+                                shadowColor: AppColors.Primary500,
+                                padding: EdgeInsets.zero,
+                                minimumSize: Size(104.w, 32.h),
+                                maximumSize: Size(104.w, 32.h),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text('공유하기',
+                                      style: getTextStyle(
+                                          AppTypo.BODY14B, AppColors.Grey00)),
+                                  SvgPicture.asset(
+                                    'assets/icons/twitter_style=fill.svg',
+                                    width: 16.w,
+                                    height: 16.w,
+                                  ),
+                                ],
+                              )),
+                        ],
+                      ),
+                    )
+                  : Image.asset(
+                      'assets/images/logo.png',
+                      width: 75.w,
+                      height: 57.w,
+                    ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class GradientCircularProgressIndicator extends StatefulWidget {
+  final double value;
+  final double strokeWidth;
+  final List<Color> gradientColors;
+
+  const GradientCircularProgressIndicator({
+    Key? key,
+    required this.value,
+    required this.strokeWidth,
+    required this.gradientColors,
+  }) : super(key: key);
+
+  @override
+  _GradientCircularProgressIndicatorState createState() =>
+      _GradientCircularProgressIndicatorState();
+}
+
+class _GradientCircularProgressIndicatorState
+    extends State<GradientCircularProgressIndicator>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 1),
+    )..forward(); // 진행 후 멈춤
+
+    _animation =
+        Tween<double>(begin: 0, end: widget.value).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return CustomPaint(
+          painter: _GradientCircularProgressPainter(
+            value: _animation.value,
+            strokeWidth: widget.strokeWidth,
+            gradientColors: widget.gradientColors,
+          ),
+          child: SizedBox(
+            width: 100,
+            height: 100,
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _GradientCircularProgressPainter extends CustomPainter {
+  final double value;
+  final double strokeWidth;
+  final List<Color> gradientColors;
+
+  _GradientCircularProgressPainter({
+    required this.value,
+    required this.strokeWidth,
+    required this.gradientColors,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Rect rect = Rect.fromLTWH(0, 0, size.width, size.height);
+    final Gradient gradient = LinearGradient(
+      colors: gradientColors,
+      stops: [0.0, 0.75],
+    );
+
+    final Paint paint = Paint()
+      ..shader = gradient.createShader(rect)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    final Paint backgroundPaint = Paint()
+      ..color = Colors.grey.withOpacity(0.3)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    final Paint endPaint = Paint()
+      ..color = gradientColors.last
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    final double radius = (size.width - strokeWidth) / 2;
+    final Offset center = Offset(size.width / 2, size.height / 2);
+    final double startAngle = -3.14159 / 2;
+    final double sweepAngle = 2 * 3.14159 * value;
+
+    canvas.drawCircle(center, radius, backgroundPaint);
+
+    if (value <= 0.75) {
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        startAngle,
+        sweepAngle,
+        false,
+        paint,
+      );
+    } else {
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        startAngle,
+        2 * 3.14159 * 0.75,
+        false,
+        paint,
+      );
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        startAngle + 2 * 3.14159 * 0.75,
+        sweepAngle - 2 * 3.14159 * 0.75,
+        false,
+        endPaint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
+  }
+}

@@ -103,5 +103,9 @@
   "label_input_input": "入力",
   "text_need_recharge": "チャージが必要です。",
   "label_button_vote": "投票",
-  "label_button_clse": "閉じる"
+  "label_button_clse": "閉じる",
+  "dialog_button_ok": "確認",
+  "dialog_button_cancel": "キャンセル",
+  "dialog_title_vote_fail": "投票失敗",
+  "text_dialog_vote_amount_should_not_zero": "投票数は0より大きい値を入力してください。"
 }

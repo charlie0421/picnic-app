@@ -32,6 +32,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_complete": MessageLookupByLibrary.simpleMessage("Done"),
         "button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("Save"),
+        "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
+        "dialog_button_ok": MessageLookupByLibrary.simpleMessage("OK"),
+        "dialog_title_vote_fail":
+            MessageLookupByLibrary.simpleMessage("Vote failed"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("Album name"),
         "label_album_add":
             MessageLookupByLibrary.simpleMessage("Add a new album"),
@@ -175,6 +179,9 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Collecting votes"),
         "text_ads_random": MessageLookupByLibrary.simpleMessage(
             "Viewing ads and collecting random images."),
+        "text_dialog_vote_amount_should_not_zero":
+            MessageLookupByLibrary.simpleMessage(
+                "The amount of votes should not be 0."),
         "text_draw_image": MessageLookupByLibrary.simpleMessage(
             "Confirmed ownership of 1 image from the entire gallery"),
         "text_hint_search":

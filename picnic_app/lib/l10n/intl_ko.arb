@@ -104,5 +104,9 @@
   "label_input_input": "입력",
   "text_need_recharge": "충전이 필요합니다.",
   "label_button_vote": "투표하기",
-  "label_button_clse": "닫기"
+  "label_button_clse": "닫기",
+  "dialog_button_ok": "확인",
+  "dialog_button_cancel": "취소",
+  "dialog_title_vote_fail": "투표 실패",
+  "text_dialog_vote_amount_should_not_zero": "투표수량은 0이 될 수 없습니다."
 }

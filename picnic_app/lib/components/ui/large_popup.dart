@@ -7,17 +7,19 @@ import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class LargePopupWidget extends StatelessWidget {
-  final String title;
+  final String? title;
   final Widget content;
   final Widget? footer;
   final Widget? closeButton;
+  final Color? backgroundColor;
 
   const LargePopupWidget({
     super.key,
-    required this.title,
+    this.title,
     required this.content,
     this.footer,
     this.closeButton,
+    this.backgroundColor,
   });
 
   @override
@@ -39,12 +41,13 @@ class LargePopupWidget extends StatelessWidget {
                     : EdgeInsets.only(
                         top: 40.w, left: 24.w, right: 24.w, bottom: 36.w),
                 decoration: BoxDecoration(
-                    color: AppColors.Grey00,
-                    border: Border.all(
-                      color: AppColors.Mint500,
-                      width: 2.r,
-                    ),
-                    borderRadius: BorderRadius.circular(120.r)),
+                  color: backgroundColor ?? AppColors.Grey00,
+                  border: Border.all(
+                    color: AppColors.Mint500,
+                    width: 2.r,
+                  ),
+                  borderRadius: BorderRadius.circular(120.r),
+                ),
                 child: content),
             if (closeButton != null && !isKeyboardVisible)
               Positioned(
@@ -71,7 +74,7 @@ class LargePopupWidget extends StatelessWidget {
                           ),
                         ],
                       ))),
-            if (!isKeyboardVisible)
+            if (!isKeyboardVisible && title != null)
               Positioned(
                 top: 0,
                 left: 0,
@@ -80,7 +83,7 @@ class LargePopupWidget extends StatelessWidget {
                     height: 48.w,
                     alignment: Alignment.center,
                     padding: const EdgeInsets.symmetric(horizontal: 33).w,
-                    child: VoteCommonTitle(title: title)),
+                    child: VoteCommonTitle(title: title!)),
               ),
           ],
         ),
