@@ -103,5 +103,9 @@
   "label_input_input": "Input",
   "text_need_recharge": "Need to recharge",
   "label_button_vote": "Vote",
-  "label_button_clse": "Close"
+  "label_button_clse": "Close",
+  "dialog_button_ok": "OK",
+  "dialog_button_cancel": "Cancel",
+  "dialog_title_vote_fail": "Vote failed",
+  "text_dialog_vote_amount_should_not_zero": "The amount of votes should not be 0."
 }

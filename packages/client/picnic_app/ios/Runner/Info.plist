@@ -47,6 +47,10 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+  <key>NSBonjourServices</key>
+  <array>
+  <string>_dartobservatory._tcp</string>
+  </array>
     <key>NSCameraUsageDescription</key>
     <string>프로필 이미지 등록을 위한 카메라 사용에 동의하시겠습니까?</string>
     <key>NSPhotoLibraryUsageDescription</key>
@@ -71,6 +75,21 @@
         </array>
       </dict>
     </array>
+      <key>LSApplicationQueriesSchemes</key>
+      <array>
+      <string>instagram</string>
+      <string>fb</string>
+      <string>fbauth2</string>
+      <string>fbshareextension</string>
+      <string>fbapi</string>
+      <string>facebook-reels</string>
+      <string>facebook-stories</string>
+      <string>fb-messenger-share-api</string>
+      <string>fb-messenger</string>
+      <string>tg</string>
+      <string>whatsapp</string>
+      <string>twitter</string>
+      </array>
     <key>GADApplicationIdentifier</key>
     <string>ca-app-pub-1539304887624918~2126022075</string>
     <key>SKAdNetworkItems</key>

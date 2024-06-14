@@ -1089,6 +1089,46 @@ class S {
       args: [],
     );
   }
+
+  /// `OK`
+  String get dialog_button_ok {
+    return Intl.message(
+      'OK',
+      name: 'dialog_button_ok',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel`
+  String get dialog_button_cancel {
+    return Intl.message(
+      'Cancel',
+      name: 'dialog_button_cancel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Vote failed`
+  String get dialog_title_vote_fail {
+    return Intl.message(
+      'Vote failed',
+      name: 'dialog_title_vote_fail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The amount of votes should not be 0.`
+  String get text_dialog_vote_amount_should_not_zero {
+    return Intl.message(
+      'The amount of votes should not be 0.',
+      name: 'text_dialog_vote_amount_should_not_zero',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

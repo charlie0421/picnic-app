@@ -32,6 +32,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_complete": MessageLookupByLibrary.simpleMessage("完成"),
         "button_ok": MessageLookupByLibrary.simpleMessage("确认"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("保存"),
+        "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("取消"),
+        "dialog_button_ok": MessageLookupByLibrary.simpleMessage("确认"),
+        "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("投票失败"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("专辑名称"),
         "label_album_add": MessageLookupByLibrary.simpleMessage("添加新相册"),
         "label_article_comment_empty":
@@ -145,6 +148,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("投票"),
         "page_title_vote_gather": MessageLookupByLibrary.simpleMessage("收集选票"),
         "text_ads_random": MessageLookupByLibrary.simpleMessage("查看广告并收集随机图片。"),
+        "text_dialog_vote_amount_should_not_zero":
+            MessageLookupByLibrary.simpleMessage("投票数量不能为零。"),
         "text_draw_image":
             MessageLookupByLibrary.simpleMessage("来自整个画廊的 1 张图片已确认收藏"),
         "text_hint_search": MessageLookupByLibrary.simpleMessage("搜索名人。"),

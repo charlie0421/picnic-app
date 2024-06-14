@@ -32,6 +32,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_complete": MessageLookupByLibrary.simpleMessage("완료"),
         "button_ok": MessageLookupByLibrary.simpleMessage("확인"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("저장하기"),
+        "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("취소"),
+        "dialog_button_ok": MessageLookupByLibrary.simpleMessage("확인"),
+        "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("투표 실패"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("앨범명"),
         "label_album_add": MessageLookupByLibrary.simpleMessage("새로운 앨범 추가"),
         "label_article_comment_empty":
@@ -156,6 +159,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("투표 모아보기"),
         "text_ads_random":
             MessageLookupByLibrary.simpleMessage("광고 보기 및 무작위 이미지 수집."),
+        "text_dialog_vote_amount_should_not_zero":
+            MessageLookupByLibrary.simpleMessage("투표수량은 0이 될 수 없습니다."),
         "text_draw_image":
             MessageLookupByLibrary.simpleMessage("전체 갤러리 중 이미지 1개 확정 소장"),
         "text_hint_search": MessageLookupByLibrary.simpleMessage("유명인을 검색하세요."),

@@ -32,6 +32,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_complete": MessageLookupByLibrary.simpleMessage("完了"),
         "button_ok": MessageLookupByLibrary.simpleMessage("確認"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("保存"),
+        "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("キャンセル"),
+        "dialog_button_ok": MessageLookupByLibrary.simpleMessage("確認"),
+        "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("投票失敗"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("アルバム名"),
         "label_album_add": MessageLookupByLibrary.simpleMessage("新しいアルバムを追加"),
         "label_article_comment_empty":
@@ -154,6 +157,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("投票集を見る"),
         "text_ads_random":
             MessageLookupByLibrary.simpleMessage("広告を見て、ランダムな画像を集める。"),
+        "text_dialog_vote_amount_should_not_zero":
+            MessageLookupByLibrary.simpleMessage("投票数は0より大きい値を入力してください。"),
         "text_draw_image":
             MessageLookupByLibrary.simpleMessage("全ギャラリーのうち、1枚の画像を確定的に所蔵"),
         "text_hint_search": MessageLookupByLibrary.simpleMessage("有名人を探す"),
