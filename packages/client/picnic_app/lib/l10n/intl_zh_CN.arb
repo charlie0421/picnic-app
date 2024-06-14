@@ -93,5 +93,9 @@
   "label_tabbar_vote_active": "进行中",
   "label_tabbar_vote_end": "已结束",
   "page_title_vote_gather": "收集选票",
-  "label_pic_image_cropping": "裁剪图像..."
+  "label_pic_image_cropping": "裁剪图像...",
+  "text_vote_rank_surffix": "位",
+  "text_vote_1st": "第一名",
+  "text_vote_2nd": "第二名",
+  "text_vote_3rd": "第三名"
 }

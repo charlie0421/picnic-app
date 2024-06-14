@@ -153,8 +153,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_hint_search": MessageLookupByLibrary.simpleMessage("有名人を探す"),
         "text_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("選択した有名人のホームに移動します。"),
+        "text_vote_1st": MessageLookupByLibrary.simpleMessage("1位"),
+        "text_vote_2nd": MessageLookupByLibrary.simpleMessage("2位"),
+        "text_vote_3rd": MessageLookupByLibrary.simpleMessage("3位"),
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("報酬ランクイン"),
+        "text_vote_rank_surffix": MessageLookupByLibrary.simpleMessage("位"),
         "text_vote_where_is_my_bias":
             MessageLookupByLibrary.simpleMessage("一番好きなメンバーは?"),
         "title_dialog_library_add":

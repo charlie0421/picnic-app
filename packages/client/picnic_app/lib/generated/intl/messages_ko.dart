@@ -155,8 +155,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_hint_search": MessageLookupByLibrary.simpleMessage("유명인을 검색하세요."),
         "text_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("선택한 셀러브리티의 집으로 이동합니다."),
+        "text_vote_1st": MessageLookupByLibrary.simpleMessage("1위"),
+        "text_vote_2nd": MessageLookupByLibrary.simpleMessage("2위"),
+        "text_vote_3rd": MessageLookupByLibrary.simpleMessage("3위"),
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("랭크 인 리워드"),
+        "text_vote_rank_surffix": MessageLookupByLibrary.simpleMessage("위"),
         "text_vote_where_is_my_bias":
             MessageLookupByLibrary.simpleMessage("나의 최애는 어디에?"),
         "title_dialog_library_add":

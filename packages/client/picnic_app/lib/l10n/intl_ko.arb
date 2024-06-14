@@ -94,5 +94,9 @@
   "label_tabbar_vote_active": "진행중",
   "label_tabbar_vote_end": "종료",
   "page_title_vote_gather": "투표 모아보기",
-  "label_pic_image_cropping": "이미지 자르기"
+  "label_pic_image_cropping": "이미지 자르기",
+  "text_vote_rank_surffix": "위",
+  "text_vote_1st": "1위",
+  "text_vote_2nd": "2위",
+  "text_vote_3rd": "3위"
 }
