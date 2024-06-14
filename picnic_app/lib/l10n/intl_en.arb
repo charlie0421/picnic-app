@@ -97,5 +97,11 @@
   "text_vote_rank_surffix": "th",
   "text_vote_1st": "1st",
   "text_vote_2nd": "2nd",
-  "text_vote_3rd": "3rd"
+  "text_vote_3rd": "3rd",
+  "label_button_recharge": "Recharge",
+  "label_checkbox_entire_use": "Use all",
+  "label_input_input": "Input",
+  "text_need_recharge": "Need to recharge",
+  "label_button_vote": "Vote",
+  "label_button_clse": "Close"
 }

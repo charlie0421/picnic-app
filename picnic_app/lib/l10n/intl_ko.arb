@@ -98,5 +98,11 @@
   "text_vote_rank_surffix": "위",
   "text_vote_1st": "1위",
   "text_vote_2nd": "2위",
-  "text_vote_3rd": "3위"
+  "text_vote_3rd": "3위",
+  "label_button_recharge": "충전하기",
+  "label_checkbox_entire_use": "전체사용",
+  "label_input_input": "입력",
+  "text_need_recharge": "충전이 필요합니다.",
+  "label_button_vote": "투표하기",
+  "label_button_clse": "닫기"
 }

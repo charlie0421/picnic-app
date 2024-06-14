@@ -36,8 +36,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_album_add": MessageLookupByLibrary.simpleMessage("添加新相册"),
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("成为第一个发表评论的人！"),
+        "label_button_clse": MessageLookupByLibrary.simpleMessage("关闭"),
+        "label_button_recharge": MessageLookupByLibrary.simpleMessage("充值"),
+        "label_button_vote": MessageLookupByLibrary.simpleMessage("投票"),
         "label_celeb_gallery": MessageLookupByLibrary.simpleMessage("萨洛普画廊"),
         "label_celeb_recommend": MessageLookupByLibrary.simpleMessage("名人推荐"),
+        "label_checkbox_entire_use":
+            MessageLookupByLibrary.simpleMessage("全部使用"),
         "label_current_language": MessageLookupByLibrary.simpleMessage("当前语言"),
         "label_draw_image": MessageLookupByLibrary.simpleMessage("赢取随机图片的机会"),
         "label_find_celeb": MessageLookupByLibrary.simpleMessage("查找更多名人"),
@@ -45,6 +50,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Articles"),
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("聊天"),
         "label_hint_comment": MessageLookupByLibrary.simpleMessage("发表评论。"),
+        "label_input_input": MessageLookupByLibrary.simpleMessage("输入"),
         "label_library_save": MessageLookupByLibrary.simpleMessage("保存图书馆"),
         "label_library_tab_ai_photo":
             MessageLookupByLibrary.simpleMessage("人工智能照片"),

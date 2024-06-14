@@ -36,10 +36,15 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_album_add": MessageLookupByLibrary.simpleMessage("新しいアルバムを追加"),
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("最初のコメントの主人公になりましょう！"),
+        "label_button_clse": MessageLookupByLibrary.simpleMessage("閉じる"),
+        "label_button_recharge": MessageLookupByLibrary.simpleMessage("チャージ"),
+        "label_button_vote": MessageLookupByLibrary.simpleMessage("投票"),
         "label_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("ソラップギャラリー。"),
         "label_celeb_recommend":
             MessageLookupByLibrary.simpleMessage("セレブのおすすめ"),
+        "label_checkbox_entire_use":
+            MessageLookupByLibrary.simpleMessage("全額使用"),
         "label_current_language": MessageLookupByLibrary.simpleMessage("現在の言語"),
         "label_draw_image":
             MessageLookupByLibrary.simpleMessage("ランダム画像獲得チャンス"),
@@ -48,6 +53,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("チャット"),
         "label_hint_comment":
             MessageLookupByLibrary.simpleMessage("コメントを残してください。"),
+        "label_input_input": MessageLookupByLibrary.simpleMessage("入力"),
         "label_library_save": MessageLookupByLibrary.simpleMessage("ライブラリ保存"),
         "label_library_tab_ai_photo":
             MessageLookupByLibrary.simpleMessage("AIフォト"),
@@ -153,6 +159,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_hint_search": MessageLookupByLibrary.simpleMessage("有名人を探す"),
         "text_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("選択した有名人のホームに移動します。"),
+        "text_need_recharge":
+            MessageLookupByLibrary.simpleMessage("チャージが必要です。"),
         "text_vote_1st": MessageLookupByLibrary.simpleMessage("1位"),
         "text_vote_2nd": MessageLookupByLibrary.simpleMessage("2位"),
         "text_vote_3rd": MessageLookupByLibrary.simpleMessage("3位"),

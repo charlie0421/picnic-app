@@ -6,6 +6,7 @@ import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/constants.dart';
@@ -219,7 +220,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              '충전하기',
+                              Intl.message('label_button_recharge'),
                               style: getTextStyle(
                                   AppTypo.BODY14B, AppColors.Primary500),
                             ),
@@ -273,7 +274,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                       ),
                       SizedBox(width: 4.w),
                       Text(
-                        '전체사용',
+                        Intl.message('label_checkbox_entire_use'),
                         style: getTextStyle(
                           AppTypo.BODY14M,
                           _checkAll ? AppColors.Primary500 : AppColors.Grey300,
@@ -309,7 +310,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                           controller: _textEditingController,
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
-                            hintText: '입력',
+                            hintText: Intl.message('label_input_input'),
                             hintStyle: getTextStyle(
                                 AppTypo.BODY16R, AppColors.Grey300),
                             border: InputBorder.none,
@@ -392,7 +393,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                         width: double.infinity,
                         height: 15.w,
                         child: Text(
-                          '충전이 필요합니다.',
+                          Intl.message('text_need_recharge'),
                           style: getTextStyle(
                               AppTypo.CAPTION10SB, AppColors.StatusError),
                           textAlign: TextAlign.left,
@@ -406,6 +407,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                 onTap: () async {
                   OverlayLoadingProgress.start(context,
                       barrierDismissible: false);
+
                   try {
                     final response = await Supabase.instance.client
                         .from('vote_item')
@@ -432,7 +434,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                   ),
                   alignment: Alignment.center,
                   child: Text(
-                    '투표하기',
+                    Intl.message('label_button_vote'),
                     style: getTextStyle(AppTypo.TITLE18SB, AppColors.Grey00),
                   ),
                 ),

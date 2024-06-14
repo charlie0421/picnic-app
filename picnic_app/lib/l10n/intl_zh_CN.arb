@@ -97,5 +97,11 @@
   "text_vote_rank_surffix": "位",
   "text_vote_1st": "第一名",
   "text_vote_2nd": "第二名",
-  "text_vote_3rd": "第三名"
+  "text_vote_3rd": "第三名",
+  "label_button_recharge": "充值",
+  "label_checkbox_entire_use": "全部使用",
+  "label_input_input": "输入",
+  "label_input_input_hint": "请输入",
+  "label_button_vote": "投票",
+  "label_button_clse": "关闭"
 }
