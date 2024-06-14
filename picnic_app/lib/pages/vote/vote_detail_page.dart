@@ -43,7 +43,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     _focusNode = FocusNode();
 
     _focusNode.addListener(() {
-      logger.d('Focus changed! ${_focusNode.hasFocus}');
       setState(() {
         _hasFocus = _focusNode.hasFocus;
       });
@@ -346,12 +345,34 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                               if (index < 3)
                                                 SvgPicture.asset(
                                                     'assets/icons/vote/crown${index + 1}.svg'),
-                                              Text(
-                                                '${index + 1}위',
-                                                style: getTextStyle(
-                                                    AppTypo.CAPTION12B,
-                                                    AppColors.Point900),
-                                              ),
+                                              if (index == 0)
+                                                Text(
+                                                  Intl.message('text_vote_1st'),
+                                                  style: getTextStyle(
+                                                      AppTypo.CAPTION12B,
+                                                      AppColors.Point900),
+                                                )
+                                              else if (index == 1)
+                                                Text(
+                                                  Intl.message('text_vote_2nd'),
+                                                  style: getTextStyle(
+                                                      AppTypo.CAPTION12B,
+                                                      AppColors.Point900),
+                                                )
+                                              else if (index == 2)
+                                                Text(
+                                                  Intl.message('text_vote_3rd'),
+                                                  style: getTextStyle(
+                                                      AppTypo.CAPTION12B,
+                                                      AppColors.Point900),
+                                                )
+                                              else
+                                                Text(
+                                                  '${index + 1}${Intl.message('text_vote_rank_surffix')}',
+                                                  style: getTextStyle(
+                                                      AppTypo.CAPTION12B,
+                                                      AppColors.Point900),
+                                                ),
                                             ],
                                           ),
                                         ),

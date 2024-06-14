@@ -989,6 +989,46 @@ class S {
       args: [],
     );
   }
+
+  /// `th`
+  String get text_vote_rank_surffix {
+    return Intl.message(
+      'th',
+      name: 'text_vote_rank_surffix',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `1st`
+  String get text_vote_1st {
+    return Intl.message(
+      '1st',
+      name: 'text_vote_1st',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `2nd`
+  String get text_vote_2nd {
+    return Intl.message(
+      '2nd',
+      name: 'text_vote_2nd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `3rd`
+  String get text_vote_3rd {
+    return Intl.message(
+      '3rd',
+      name: 'text_vote_3rd',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

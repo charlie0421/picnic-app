@@ -134,7 +134,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               style: getTextStyle(AppTypo.BODY14B, AppColors.Grey600)),
           DropdownButtonFormField(
             value: appSettingState.locale.languageCode,
-            icon: SvgPicture.asset('assets/icons/down_arrow.svg'),
+            icon: SvgPicture.asset('assets/icons/arrow_down_style=line.svg'),
             decoration: const InputDecoration(
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: AppColors.Grey00, width: 0),

@@ -93,5 +93,9 @@
   "label_tabbar_vote_active": "進行中",
   "label_tabbar_vote_end": "終了",
   "page_title_vote_gather": "投票集を見る",
-  "label_pic_image_cropping": "画像を切り取る"
+  "label_pic_image_cropping": "画像を切り取る",
+  "text_vote_rank_surffix": "位",
+  "text_vote_1st": "1位",
+  "text_vote_2nd": "2位",
+  "text_vote_3rd": "3位"
 }

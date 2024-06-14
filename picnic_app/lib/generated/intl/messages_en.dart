@@ -174,8 +174,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Search for celebrities."),
         "text_moveto_celeb_gallery": MessageLookupByLibrary.simpleMessage(
             "Navigates to the selected celebrity\'s home."),
+        "text_vote_1st": MessageLookupByLibrary.simpleMessage("1st"),
+        "text_vote_2nd": MessageLookupByLibrary.simpleMessage("2nd"),
+        "text_vote_3rd": MessageLookupByLibrary.simpleMessage("3rd"),
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("Rank in the reward"),
+        "text_vote_rank_surffix": MessageLookupByLibrary.simpleMessage("th"),
         "text_vote_where_is_my_bias":
             MessageLookupByLibrary.simpleMessage("Where is my bias?"),
         "title_dialog_library_add":
