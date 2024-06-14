@@ -171,22 +171,27 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return SingleChildScrollView(
-          controller: _scrollController,
-          child: Padding(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom),
-            child: Column(
-              children: [
-                _buildVoteInfo(context),
-                _buildVoteItemList(context, constraints),
-              ],
-            ),
-          ),
-        );
+    return GestureDetector(
+      onTap: () {
+        _focusNode.unfocus();
       },
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            controller: _scrollController,
+            child: Padding(
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: Column(
+                children: [
+                  _buildVoteInfo(context),
+                  _buildVoteItemList(context, constraints),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
