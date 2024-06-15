@@ -14,13 +14,20 @@ class UserInfo extends _$UserInfo {
       return null;
     }
 
+    return getUserProfiles();
+  }
+
+  Future<UserProfilesModel?> getUserProfiles() async {
+    if (!Supabase.instance.client.isLogged) {
+      return null;
+    }
+
     final response =
         await Supabase.instance.client.from('user_profiles').select().single();
     logger.i('response.data: $response');
-    return UserProfilesModel.fromJson(response);
-  }
 
-  void setStarCandy(int starCandy) {
-    state = state.whenData((data) => data?.copyWith(star_candy: starCandy));
+    state = AsyncValue.data(UserProfilesModel.fromJson(response));
+
+    return UserProfilesModel.fromJson(response);
   }
 }

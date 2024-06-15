@@ -27,7 +27,7 @@ UserProfilesModel _$UserProfilesModelFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String?,
       nickname: json['nickname'] as String?,
       country_code: json['country_code'] as String?,
-      star_candy: (json['star_candy'] as num?)?.toInt(),
+      star_candy: (json['star_candy'] as num).toInt(),
       avatar_url: json['avatar_url'] as String?,
     );
 

@@ -8,13 +8,11 @@ import 'package:intl/intl.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
 import 'package:picnic_app/components/vote/list/voting_dialog.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
-import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
 class VoteDetailPage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_vote_detail';
@@ -62,17 +60,17 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
       }
     });
 
-    _setupRealtime();
+    // _setupRealtime();
   }
 
-  void _handleVoteChanges(PostgresChangePayload payload) {
-    logger.d('Change received! $payload');
-    final asyncVoteItemListNotifier =
-        ref.read(asyncVoteItemListProvider(voteId: widget.voteId).notifier);
-    asyncVoteItemListNotifier.setVoteItem(
-        id: payload.newRecord['id'],
-        voteTotal: payload.newRecord['vote_total']);
-  }
+  // void _handleVoteChanges(PostgresChangePayload payload) {
+  //   logger.d('Change received! $payload');
+  //   final asyncVoteItemListNotifier =
+  //       ref.read(asyncVoteItemListProvider(voteId: widget.voteId).notifier);
+  //   asyncVoteItemListNotifier.setVoteItem(
+  //       id: payload.newRecord['id'],
+  //       voteTotal: payload.newRecord['vote_total']);
+  // }
 
   void _scrollToTarget(GlobalKey targetKey) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -81,7 +79,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             targetKey.currentContext!.findRenderObject() as RenderBox;
 
         _scrollController.animateTo(
-          400.h,
+          210.w,
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeInOut,
         );
@@ -89,21 +87,21 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     });
   }
 
-  void _setupRealtime() {
-    logger.d('Setting up realtime');
-    Supabase.instance.client
-        .channel('realtime')
-        .onPostgresChanges(
-            event: PostgresChangeEvent.update,
-            schema: 'public',
-            table: 'vote_item',
-            filter: PostgresChangeFilter(
-                type: PostgresChangeFilterType.eq,
-                column: 'vote_id',
-                value: widget.voteId),
-            callback: _handleVoteChanges)
-        .subscribe();
-  }
+  // void _setupRealtime() {
+  //   logger.d('Setting up realtime');
+  //   Supabase.instance.client
+  //       .channel('realtime')
+  //       .onPostgresChanges(
+  //           event: PostgresChangeEvent.update,
+  //           schema: 'public',
+  //           table: 'vote_item',
+  //           filter: PostgresChangeFilter(
+  //               type: PostgresChangeFilterType.eq,
+  //               column: 'vote_id',
+  //               value: widget.voteId),
+  //           callback: _handleVoteChanges)
+  //       .subscribe();
+  // }
 
   @override
   void dispose() {
@@ -200,21 +198,21 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             return Column(
               children: [
                 Container(
-                  height: 200.h,
+                  height: 200.w,
                   color: AppColors.Grey200,
                 ),
                 SizedBox(
-                  height: 36.h,
+                  height: 36.w,
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 57).r,
                   child: VoteCommonTitle(title: voteModel?.getTitle() ?? ''),
                 ),
                 SizedBox(
-                  height: 12.h,
+                  height: 12.w,
                 ),
                 SizedBox(
-                  height: 18.h,
+                  height: 18.w,
                   child: Text.rich(
                     TextSpan(children: [
                       TextSpan(
@@ -239,17 +237,17 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   ),
                 ),
                 SizedBox(
-                  height: 26.h,
+                  height: 26.w,
                 ),
                 SizedBox(
-                    height: 21.h,
+                    height: 21.w,
                     child: Text(
                       Intl.message('text_vote_rank_in_reward'),
                       style:
                           getTextStyle(AppTypo.BODY14B, AppColors.Primary500),
                     )),
                 SizedBox(
-                  height: 4.h,
+                  height: 4.w,
                 ),
                 voteModel!.reward != null
                     ? Column(
@@ -261,7 +259,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                       )
                     : const SizedBox.shrink(),
                 SizedBox(
-                  height: 16.h,
+                  height: 16.w,
                 ),
               ],
             );
@@ -293,10 +291,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                           bottomLeft: Radius.circular(40.r),
                           bottomRight: Radius.circular(40.r))),
                   child: Padding(
-                    padding: const EdgeInsets.only(top: 56).h,
+                    padding: const EdgeInsets.only(top: 56).w,
                     child: filteredIndices.isEmpty
                         ? SizedBox(
-                            height: 200.h,
+                            height: 200.w,
                             child: const Center(
                               child: Text('No data'),
                             ),
@@ -304,7 +302,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                         : Column(
                             children: filteredIndices.map((index) {
                               final item = data[index]!;
-
                               return AnimatedSwitcher(
                                 duration: const Duration(milliseconds: 300),
                                 transitionBuilder: (Widget child,
@@ -318,17 +315,17 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                   behavior: HitTestBehavior.opaque,
                                   onTap: () {
                                     showVotingDialog(
-                                        context: context,
-                                        voteModel: ref
-                                            .watch(asyncVoteDetailProvider(
-                                                voteId: widget.voteId))
-                                            .value!,
-                                        voteItemModel: item,
-                                        ref: ref);
+                                      context: context,
+                                      voteModel: ref
+                                          .watch(asyncVoteDetailProvider(
+                                              voteId: widget.voteId))
+                                          .value!,
+                                      voteItemModel: item,
+                                    );
                                   },
                                   child: Container(
                                     key: ValueKey<int>(index),
-                                    height: 45.h,
+                                    height: 45.w,
                                     margin: const EdgeInsets.only(
                                             left: 16, right: 16, bottom: 36)
                                         .r,
@@ -441,7 +438,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                               ]),
                                               Container(
                                                 width: double.infinity,
-                                                height: 20.h,
+                                                height: 20.w,
                                                 padding: const EdgeInsets.only(
                                                         right: 16, bottom: 3)
                                                     .r,
@@ -496,7 +493,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                     child: Container(
                       margin: const EdgeInsets.symmetric(horizontal: 16).r,
                       width: 280.w,
-                      height: 48.h,
+                      height: 48.w,
                       decoration: BoxDecoration(
                         border: Border.all(
                           color: AppColors.Primary500,
@@ -521,9 +518,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                             Expanded(
                               child: Container(
                                 alignment: Alignment.center,
-                                height: 48.h,
+                                height: 48.w,
                                 child: TextFormField(
-                                  cursorHeight: 16.h,
+                                  cursorHeight: 16.w,
                                   cursorColor: AppColors.Primary500,
                                   focusNode: _focusNode,
                                   controller: _textEditingController,

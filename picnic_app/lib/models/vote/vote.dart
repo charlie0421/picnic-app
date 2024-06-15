@@ -1,6 +1,5 @@
 import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/models/reward.dart';
 import 'package:picnic_app/reflector.dart';
@@ -154,6 +153,10 @@ class VoteItemModel {
       vote_id: vote_id ?? this.vote_id,
       mystar_member: mystar_member ?? this.mystar_member,
     );
+  }
+
+  toString() {
+    return 'id: $id, vote_total: $vote_total, vote_id: $vote_id, mystar_member: $mystar_member';
   }
 }
 
