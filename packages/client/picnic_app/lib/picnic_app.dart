@@ -18,12 +18,28 @@ import 'package:picnic_app/ui/pic_theme.dart';
 import 'package:picnic_app/ui/vote_theme.dart';
 import 'package:picnic_app/util.dart';
 import 'package:screen_protector/screen_protector.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PicnicApp extends ConsumerStatefulWidget {
   const PicnicApp({super.key});
 
   @override
   createState() => _PicnicAppState();
+}
+
+void logJwtToken(String token) {
+  const int chunkSize = 500; // 한 번에 로깅할 토큰의 길이
+  int startIndex = 0;
+
+  while (startIndex < token.length) {
+    int endIndex = startIndex + chunkSize;
+    if (endIndex > token.length) {
+      endIndex = token.length;
+    }
+
+    logger.i(token.substring(startIndex, endIndex));
+    startIndex = endIndex;
+  }
 }
 
 class _PicnicAppState extends ConsumerState<PicnicApp>
@@ -38,6 +54,16 @@ class _PicnicAppState extends ConsumerState<PicnicApp>
       await ScreenProtector.preventScreenshotOn();
     });
     WidgetsBinding.instance.addObserver(this);
+    final _supabaseClient = Supabase.instance.client;
+
+    _supabaseClient.auth.onAuthStateChange.listen((data) {
+      final session = data.session;
+      if (session != null) {
+        final jwtToken = session.accessToken;
+        logJwtToken(jwtToken);
+      }
+    });
+
     // final _appLinks = AppLinks(); // AppLinks is singleton
     //
     // _sub = _appLinks.uriLinkStream.listen((Uri uri) {

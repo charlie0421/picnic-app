@@ -28,22 +28,22 @@ class UserProfilesModel {
   final String? nickname;
   final String? avatar_url;
   final String? country_code;
-  final int? star_candy;
+  final int star_candy;
 
   UserProfilesModel(
       {this.id,
       this.nickname,
       this.country_code,
-      this.star_candy,
+      required this.star_candy,
       this.avatar_url});
 
-  UserProfilesModel copyWith({int? star_candy}) {
+  copyWithStarCandy(int starCandy) {
     return UserProfilesModel(
-      id: id,
-      nickname: nickname,
-      country_code: country_code,
-      star_candy: star_candy,
-    );
+        id: id,
+        nickname: nickname,
+        country_code: country_code,
+        star_candy: starCandy,
+        avatar_url: avatar_url);
   }
 
   factory UserProfilesModel.fromJson(Map<String, dynamic> json) =>

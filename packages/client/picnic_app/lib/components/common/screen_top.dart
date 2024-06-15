@@ -4,12 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/common_my_point_info.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
-import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ScreenTop extends ConsumerStatefulWidget {
   const ScreenTop({
@@ -24,7 +21,7 @@ class _TopState extends ConsumerState<ScreenTop> {
   @override
   void initState() {
     super.initState();
-    _setupRealtime();
+    // _setupRealtime();
   }
 
   @override
@@ -100,23 +97,23 @@ class _TopState extends ConsumerState<ScreenTop> {
     );
   }
 
-  void handleUserInfo(PostgresChangePayload payload) {
-    logger.d('Change received! $payload');
-    int starCandy = payload.newRecord['star_candy'];
-    logger.d('Star candy: $starCandy');
-    ref.read(userInfoProvider.notifier).setStarCandy(starCandy);
-  }
-
-  void _setupRealtime() {
-    final subscription = Supabase.instance.client
-        .channel('realtime')
-        .onPostgresChanges(
-            event: PostgresChangeEvent.update,
-            schema: 'public',
-            table: 'user_profiles',
-            callback: handleUserInfo)
-        .subscribe((status, payload) {
-      logger.d(status);
-    }, const Duration(seconds: 1));
-  }
+// void handleUserInfo(PostgresChangePayload payload) {
+//   logger.d('Change received! $payload');
+//   int starCandy = payload.newRecord['star_candy'];
+//   logger.d('Star candy: $starCandy');
+//   ref.read(userInfoProvider.notifier).setStarCandy(starCandy);
+// }
+//
+// void _setupRealtime() {
+//   final subscription = Supabase.instance.client
+//       .channel('realtime')
+//       .onPostgresChanges(
+//           event: PostgresChangeEvent.update,
+//           schema: 'public',
+//           table: 'user_profiles',
+//           callback: handleUserInfo)
+//       .subscribe((status, payload) {
+//     logger.d(status);
+//   }, const Duration(seconds: 1));
+// }
 }

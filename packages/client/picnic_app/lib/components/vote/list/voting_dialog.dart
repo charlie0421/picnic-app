@@ -16,6 +16,7 @@ import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/pages/vote/store_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
+import 'package:picnic_app/providers/vote_detail_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
@@ -24,7 +25,6 @@ Future showVotingDialog({
   required BuildContext context,
   required VoteModel voteModel,
   required VoteItemModel voteItemModel,
-  required WidgetRef ref,
 }) {
   return showDialog(
     context: context,
@@ -32,7 +32,6 @@ Future showVotingDialog({
       return VotingDialog(
         voteModel: voteModel,
         voteItemModel: voteItemModel,
-        ref: ref,
       );
     },
   );
@@ -41,13 +40,11 @@ Future showVotingDialog({
 class VotingDialog extends ConsumerStatefulWidget {
   final VoteModel voteModel;
   final VoteItemModel voteItemModel;
-  final WidgetRef ref;
 
   const VotingDialog({
     Key? key,
     required this.voteModel,
     required this.voteItemModel,
-    required this.ref,
   }) : super(key: key);
 
   @override
@@ -76,8 +73,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   void _checkOver(String text) {
     String newText = text.replaceAll(',', '');
     final int voteAmount = int.parse(newText.isNotEmpty ? newText : '0');
-    final int myStarCandy =
-        widget.ref.read(userInfoProvider).value?.star_candy ?? 0;
+    final int myStarCandy = ref.watch(userInfoProvider).value?.star_candy ?? 0;
 
     setState(() {
       _isOver = voteAmount > myStarCandy;
@@ -94,6 +90,11 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final int myStarCandy = ref.watch(
+        userInfoProvider.select((value) => value.value?.star_candy ?? 0));
+    final String user_id =
+        ref.watch(userInfoProvider.select((value) => value.value?.id ?? ''));
+
     return KeyboardVisibilityBuilder(builder: (context, isKeyboardVisible) {
       double resizeFactor = isKeyboardVisible ? 0.5.h : 1;
       return Dialog(
@@ -177,15 +178,11 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                     SizedBox(width: 12.w),
                     Expanded(
                       child: Container(
-                        height: 32.h,
+                        height: 32.w,
                         alignment: Alignment.topLeft,
-                        padding: EdgeInsets.only(bottom: 6.h),
+                        padding: EdgeInsets.only(bottom: 6.w),
                         child: AnimatedDigitWidget(
-                          value: widget.ref
-                                  .watch(userInfoProvider)
-                                  .value
-                                  ?.star_candy ??
-                              0,
+                          value: myStarCandy,
                           duration: const Duration(milliseconds: 500),
                           enableSeparator: true,
                           curve: Curves.easeInOut,
@@ -200,16 +197,16 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                     GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onTap: () {
-                        widget.ref
+                        ref
                             .read(navigationInfoProvider.notifier)
                             .setCurrentPage(const StorePage());
-                        widget.ref
+                        ref
                             .read(navigationInfoProvider.notifier)
                             .setVoteBottomNavigationIndex(3);
                         Navigator.pop(context);
                       },
                       child: Container(
-                        height: 32.h,
+                        height: 32.w,
                         width: 107.w,
                         decoration: BoxDecoration(
                           color: AppColors.Mint500,
@@ -231,7 +228,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                             SvgPicture.asset(
                               'assets/icons/plus_style=fill.svg',
                               width: 16.w,
-                              height: 16.h,
+                              height: 16.w,
                               colorFilter: const ColorFilter.mode(
                                   AppColors.Primary500, BlendMode.srcIn),
                             ),
@@ -252,7 +249,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                   });
                   _textEditingController.text = _checkAll || _hasValue
                       ? formatNumberWithComma(
-                          widget.ref
+                          ref
                                   .watch(userInfoProvider)
                                   .value
                                   ?.star_candy
@@ -287,7 +284,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                   ),
                 ),
               ),
-              SizedBox(height: 8.h),
+              SizedBox(height: 8.w),
               Container(
                 height: 48.w,
                 decoration: BoxDecoration(
@@ -305,9 +302,9 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                     Expanded(
                       child: Container(
                         alignment: Alignment.center,
-                        height: 48.h,
+                        height: 48.w,
                         child: TextFormField(
-                          cursorHeight: 16.h,
+                          cursorHeight: 16.w,
                           cursorColor: AppColors.Primary500,
                           focusNode: _focusNode,
                           controller: _textEditingController,
@@ -417,9 +414,6 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                           ? '0'
                           : _textEditingController.text.replaceAll(',', ''));
 
-                  final myStarCandy =
-                      widget.ref.read(userInfoProvider).value?.star_candy ?? 0;
-
                   if (voteAmount == 0) {
                     OverlayLoadingProgress.stop();
                     showSimpleDialog(
@@ -444,23 +438,43 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                   }
 
                   try {
-                    final response = await Supabase.instance.client
-                        .from('vote_item')
-                        .update({
-                      'vote_total': widget.voteItemModel.vote_total + voteAmount
-                    }).eq('id', widget.voteItemModel.id);
+                    final response = await Supabase.instance.client.functions
+                        .invoke('voting', body: {
+                      'vote_id': widget.voteModel.id,
+                      'vote_item_id': widget.voteItemModel.id,
+                      'amount': voteAmount,
+                      'user_id': user_id,
+                    });
 
-                    logger.i('투표 완료: $response');
+                    logger.i('투표 완료: ${response.data}');
+                    logger.i(response.status);
+
+                    ref.read(userInfoProvider.notifier).getUserProfiles();
+                    ref
+                        .read(asyncVoteItemListProvider(
+                                voteId: widget.voteModel.id)
+                            .notifier)
+                        .fetch(voteId: widget.voteModel.id);
+
                     Navigator.pop(context);
                     showVotingCompleteDialog(
-                        context: context,
-                        voteModel: widget.voteModel,
-                        voteItemModel: widget.voteItemModel,
-                        ref: ref);
+                      context: context,
+                      voteModel: widget.voteModel,
+                      voteItemModel: widget.voteItemModel,
+                      result: response.data,
+                    );
 
                     logger.i('투표 완료');
                   } catch (e, stackTrace) {
-                    logger.e('투표 실패: $e, $stackTrace');
+                    FunctionException exception = e as FunctionException;
+                    logger.e('exception.message: ${exception.details}');
+                    logger.e('exception.message: ${exception.reasonPhrase}');
+                    logger.e('투표 실패: $e\n $stackTrace');
+                    showSimpleDialog(
+                      context: context,
+                      title: Intl.message('dialog_title_vote_fail'),
+                      onOk: () => Navigator.pop(context),
+                    );
                   } finally {
                     OverlayLoadingProgress.stop();
                   }

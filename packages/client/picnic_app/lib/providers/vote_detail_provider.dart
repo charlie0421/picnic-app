@@ -55,6 +55,9 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
         element.mystar_member.image =
             'https://cdn-dev.picnic.fan/mystar/member/${element.mystar_member.id}/${element.mystar_member.image}';
       }
+
+      state = AsyncValue.data(voteItemList);
+
       return voteItemList;
     } catch (e, stackTrace) {
       logger.e('Failed to load vote item list: $e');
