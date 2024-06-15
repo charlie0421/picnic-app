@@ -137,19 +137,21 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
         backgroundColor: Colors.transparent,
         child: LargePopupWidget(
           backgroundColor: AppColors.Mint500,
-          closeButton: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: SvgPicture.asset(
-              'assets/icons/cancle_style=line.svg',
-              width: 24.w,
-              height: 24.w,
-              colorFilter:
-                  const ColorFilter.mode(AppColors.Grey00, BlendMode.srcIn),
-            ),
-          ),
+          closeButton: !_isSaving
+              ? GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: SvgPicture.asset(
+                    'assets/icons/cancle_style=line.svg',
+                    width: 24.w,
+                    height: 24.w,
+                    colorFilter: const ColorFilter.mode(
+                        AppColors.Grey00, BlendMode.srcIn),
+                  ),
+                )
+              : null,
           content: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
