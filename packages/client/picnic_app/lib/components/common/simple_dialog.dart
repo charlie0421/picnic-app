@@ -3,12 +3,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/ui/style.dart';
 
-showSimpleDialog(
-    {required BuildContext context,
-    required String title,
-    String? content,
-    Function? onOk,
-    Function? onCancel}) {
+void showSimpleDialog({
+  required BuildContext context,
+  required String title,
+  String? content,
+  Widget? contentWidget,
+  Function? onOk,
+  Function? onCancel,
+}) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -20,7 +22,7 @@ showSimpleDialog(
             minWidth: 151,
           ),
           padding: EdgeInsets.symmetric(
-            vertical: 20.h,
+            vertical: 20.w,
             horizontal: 28.w,
           ),
           child: Column(
@@ -42,6 +44,12 @@ showSimpleDialog(
                     style: getTextStyle(AppTypo.BODY14R, AppColors.Grey900),
                   ),
                 ),
+              if (contentWidget != null)
+                SizedBox(
+                  height: 12.h,
+                ),
+              if (contentWidget != null)
+                Container(height: 200.h, child: contentWidget),
               SizedBox(
                 height: 28.h,
               ),
@@ -67,9 +75,11 @@ showSimpleDialog(
                     SizedBox(
                       width: 100.w,
                       child: TextButton(
-                        child: Text(Intl.message('dialog_button_ok'),
-                            style: getTextStyle(
-                                AppTypo.BODY14B, AppColors.Primary500)),
+                        child: Text(
+                          Intl.message('dialog_button_ok'),
+                          style: getTextStyle(
+                              AppTypo.BODY14B, AppColors.Primary500),
+                        ),
                         onPressed: () {
                           Navigator.of(context).pop();
                           onOk();
