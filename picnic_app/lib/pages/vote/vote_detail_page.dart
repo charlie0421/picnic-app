@@ -13,6 +13,7 @@ import 'package:picnic_app/providers/vote_detail_provider.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
+import 'package:shimmer/shimmer.dart';
 
 class VoteDetailPage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_vote_detail';
@@ -262,7 +263,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
               ],
             );
           },
-          loading: () => buildLoadingOverlay(),
+          loading: () => _buildLoadingShimmer(),
           error: (error, stackTrace) => ErrorView(context,
               error: error.toString(), stackTrace: stackTrace),
         );
@@ -565,9 +566,49 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
               ],
             );
           },
-          loading: () => buildLoadingOverlay(),
+          loading: () => _buildLoadingShimmer(),
           error: (error, stackTrace) => ErrorView(context,
               error: error.toString(), stackTrace: stackTrace),
         );
+  }
+
+  Widget _buildLoadingShimmer() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Column(
+        children: [
+          Container(
+            height: 200.w,
+            color: AppColors.Grey200,
+          ),
+          SizedBox(height: 16.w),
+          Container(
+            height: 20.w,
+            width: 200.w,
+            color: Colors.white,
+          ),
+          SizedBox(height: 8.w),
+          Container(
+            height: 18.w,
+            width: 100.w,
+            color: Colors.white,
+          ),
+          SizedBox(height: 16.w),
+          Container(
+            height: 20.w,
+            width: 200.w,
+            color: Colors.white,
+          ),
+          SizedBox(height: 8.w),
+          Container(
+            height: 18.w,
+            width: 100.w,
+            color: Colors.white,
+          ),
+          SizedBox(height: 16.w),
+        ],
+      ),
+    );
   }
 }
