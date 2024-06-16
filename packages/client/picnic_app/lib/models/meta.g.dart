@@ -6,7 +6,8 @@ part of 'meta.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-MetaModel _$MetaModelFromJson(Map<String, dynamic> json) => MetaModel(
+_$MetaModelImpl _$$MetaModelImplFromJson(Map<String, dynamic> json) =>
+    _$MetaModelImpl(
       currentPage: (json['currentPage'] as num).toInt(),
       itemCount: (json['itemCount'] as num).toInt(),
       itemsPerPage: (json['itemsPerPage'] as num).toInt(),
@@ -14,7 +15,8 @@ MetaModel _$MetaModelFromJson(Map<String, dynamic> json) => MetaModel(
       totalPages: (json['totalPages'] as num).toInt(),
     );
 
-Map<String, dynamic> _$MetaModelToJson(MetaModel instance) => <String, dynamic>{
+Map<String, dynamic> _$$MetaModelImplToJson(_$MetaModelImpl instance) =>
+    <String, dynamic>{
       'currentPage': instance.currentPage,
       'itemCount': instance.itemCount,
       'itemsPerPage': instance.itemsPerPage,

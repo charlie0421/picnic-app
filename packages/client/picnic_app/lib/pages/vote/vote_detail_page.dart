@@ -129,15 +129,13 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         .toList();
   }
 
-  TextSpan _highlightText(String text, String query) {
+  TextSpan _highlightText(String text, String query, TextStyle textStyle) {
     if (query.isEmpty) {
-      return TextSpan(
-          text: text, style: getTextStyle(AppTypo.BODY14B, AppColors.Grey900));
+      return TextSpan(text: text, style: textStyle);
     }
     final matches = query.toLowerCase().allMatches(text.toLowerCase());
     if (matches.isEmpty) {
-      return TextSpan(
-          text: text, style: getTextStyle(AppTypo.BODY14B, AppColors.Grey900));
+      return TextSpan(text: text, style: textStyle);
     }
 
     int start = 0;
@@ -249,9 +247,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 SizedBox(
                   height: 4.w,
                 ),
-                voteModel!.reward != null
+                voteModel?.reward != null
                     ? Column(
-                        children: voteModel.reward!
+                        children: voteModel!.reward!
                             .map((rewardModel) => Text(rewardModel.getTitle(),
                                 style: getTextStyle(
                                     AppTypo.CAPTION12R, AppColors.Grey900)))
@@ -424,7 +422,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                                   text: _highlightText(
                                                       item.mystar_member
                                                           .getTitle(),
-                                                      _searchQuery),
+                                                      _searchQuery,
+                                                      getTextStyle(
+                                                          AppTypo.BODY14B,
+                                                          AppColors.Grey900)),
                                                 ),
                                                 SizedBox(
                                                   width: 8.w,
@@ -433,7 +434,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                                   text: _highlightText(
                                                       item.mystar_member
                                                           .getGroupTitle(),
-                                                      _searchQuery),
+                                                      _searchQuery,
+                                                      getTextStyle(
+                                                          AppTypo.CAPTION10SB,
+                                                          AppColors.Grey500)),
                                                 ),
                                               ]),
                                               Container(

@@ -6,21 +6,24 @@ part of 'gallery.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-GalleryListModel _$GalleryListModelFromJson(Map<String, dynamic> json) =>
-    GalleryListModel(
+_$GalleryListModelImpl _$$GalleryListModelImplFromJson(
+        Map<String, dynamic> json) =>
+    _$GalleryListModelImpl(
       items: (json['items'] as List<dynamic>)
           .map((e) => GalleryModel.fromJson(e as Map<String, dynamic>))
           .toList(),
       meta: MetaModel.fromJson(json['meta'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$GalleryListModelToJson(GalleryListModel instance) =>
+Map<String, dynamic> _$$GalleryListModelImplToJson(
+        _$GalleryListModelImpl instance) =>
     <String, dynamic>{
       'items': instance.items,
       'meta': instance.meta,
     };
 
-GalleryModel _$GalleryModelFromJson(Map<String, dynamic> json) => GalleryModel(
+_$GalleryModelImpl _$$GalleryModelImplFromJson(Map<String, dynamic> json) =>
+    _$GalleryModelImpl(
       id: (json['id'] as num).toInt(),
       title_ko: json['title_ko'] as String,
       title_en: json['title_en'] as String,
@@ -30,7 +33,7 @@ GalleryModel _$GalleryModelFromJson(Map<String, dynamic> json) => GalleryModel(
           : CelebModel.fromJson(json['celeb'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$GalleryModelToJson(GalleryModel instance) =>
+Map<String, dynamic> _$$GalleryModelImplToJson(_$GalleryModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'title_ko': instance.title_ko,

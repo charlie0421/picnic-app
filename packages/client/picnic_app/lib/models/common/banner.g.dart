@@ -6,7 +6,8 @@ part of 'banner.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-BannerModel _$BannerModelFromJson(Map<String, dynamic> json) => BannerModel(
+_$BannerModelImpl _$$BannerModelImplFromJson(Map<String, dynamic> json) =>
+    _$BannerModelImpl(
       id: (json['id'] as num).toInt(),
       title_ko: json['title_ko'] as String,
       title_en: json['title_en'] as String,
@@ -15,7 +16,7 @@ BannerModel _$BannerModelFromJson(Map<String, dynamic> json) => BannerModel(
       thumbnail: json['thumbnail'] as String?,
     );
 
-Map<String, dynamic> _$BannerModelToJson(BannerModel instance) =>
+Map<String, dynamic> _$$BannerModelImplToJson(_$BannerModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'title_ko': instance.title_ko,

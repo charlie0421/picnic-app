@@ -1,58 +1,45 @@
-import 'package:json_annotation/json_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/models/pic/article_image.dart';
 import 'package:picnic_app/models/pic/comment.dart';
 import 'package:picnic_app/models/pic/gallery.dart';
 import 'package:picnic_app/reflector.dart';
 
+part 'article.freezed.dart';
 part 'article.g.dart';
 
 @reflector
-@JsonSerializable()
-class ArticleListModel {
-  final List<ArticleModel> items;
-  final MetaModel meta;
+@freezed
+class ArticleListModel with _$ArticleListModel {
+  const ArticleListModel._();
 
-  ArticleListModel({
-    required this.items,
-    required this.meta,
-  });
+  const factory ArticleListModel({
+    required List<ArticleModel> items,
+    required MetaModel meta,
+  }) = _ArticleListModel;
 
   factory ArticleListModel.fromJson(Map<String, dynamic> json) =>
       _$ArticleListModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ArticleListModelToJson(this);
 }
 
 @reflector
-@JsonSerializable()
-class ArticleModel {
-  final int id;
-  final String title_ko;
-  final String title_en;
-  final String content;
-  final GalleryModel? gallery;
-  final List<ArticleImageModel>? article_image;
-  final DateTime created_at;
-  final int? comment_count;
-  final CommentModel? comment;
-  final CommentModel? most_liked_comment;
+@freezed
+class ArticleModel with _$ArticleModel {
+  const ArticleModel._();
 
-  ArticleModel({
-    required this.id,
-    required this.title_ko,
-    required this.title_en,
-    required this.content,
-    required this.gallery,
-    required this.article_image,
-    required this.created_at,
-    required this.comment_count,
-    required this.comment,
-    required this.most_liked_comment,
-  });
+  const factory ArticleModel({
+    required int id,
+    required String title_ko,
+    required String title_en,
+    required String content,
+    required GalleryModel? gallery,
+    required List<ArticleImageModel>? article_image,
+    required DateTime created_at,
+    required int? comment_count,
+    required CommentModel? comment,
+    required CommentModel? most_liked_comment,
+  }) = _ArticleModel;
 
   factory ArticleModel.fromJson(Map<String, dynamic> json) =>
       _$ArticleModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ArticleModelToJson(this);
 }

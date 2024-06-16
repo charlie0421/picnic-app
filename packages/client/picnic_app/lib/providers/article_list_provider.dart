@@ -1,6 +1,7 @@
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/pic/article.dart';
+import 'package:picnic_app/models/pic/article_image.dart';
 import 'package:picnic_app/reflector.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -56,11 +57,13 @@ class AsyncArticleList extends _$AsyncArticleList {
           .range((page - 1) * limit, page * limit)
           .then((value) => value.map((e) => ArticleModel.fromJson(e)).toList());
 
-      for (var element in response) {
-        element.article_image?.forEach((image) {
-          image.image =
-              'https://cdn-dev.picnic.fan/article/${element.id}/images/${image.id}/${image.image}';
-        });
+      for (var i = 0; i < response.length; i++) {
+        response[i] = response[i].copyWith(
+            article_image: List<ArticleImageModel>.from(response[i]
+                .article_image!
+                .map((e) => e.copyWith(
+                    image:
+                        'https://cdn-dev.picnic.fan/article/${response[i].id}/images/${e.id}/${e.image}'))));
       }
       _pagingController.appendPage(response, page + 1);
       return response;

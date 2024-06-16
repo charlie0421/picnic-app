@@ -51,9 +51,11 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
       List<VoteItemModel> voteItemList = List<VoteItemModel>.from(
           response.map((e) => VoteItemModel.fromJson(e)));
 
-      for (var element in voteItemList) {
-        element.mystar_member.image =
-            'https://cdn-dev.picnic.fan/mystar/member/${element.mystar_member.id}/${element.mystar_member.image}';
+      for (var i = 0; i < voteItemList.length; i++) {
+        voteItemList[i] = voteItemList[i].copyWith(
+            mystar_member: voteItemList[i].mystar_member!.copyWith(
+                image:
+                    'https://cdn-dev.picnic.fan/mystar/member/${voteItemList[i].mystar_member!.id}/${voteItemList[i].mystar_member!.image}'));
       }
 
       state = AsyncValue.data(voteItemList);
@@ -70,8 +72,8 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
     try {
       if (state.value != null) {
         final updatedList = state.value!.map<VoteItemModel>((item) {
-          if (item?.id == id) {
-            return item?.copyWith(vote_total: voteTotal);
+          if (item != null && item.id == id) {
+            item = item.copyWith(vote_total: voteTotal);
           }
           return item!;
         }).toList();

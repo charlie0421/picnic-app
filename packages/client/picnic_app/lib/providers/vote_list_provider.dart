@@ -69,11 +69,15 @@ class AsyncVoteList extends _$AsyncVoteList {
       final List<VoteModel> voteList =
           List<VoteModel>.from(response.data.map((e) => VoteModel.fromJson(e)));
 
-      for (var element in voteList) {
-        for (var element in element.vote_item) {
-          element.mystar_member.image =
-              'https://cdn-dev.picnic.fan/mystar/member/${element.mystar_member.id}/${element.mystar_member.image}';
-        }
+      for (var i = 0; i < voteList.length; i++) {
+        final updatedVoteItems = voteList[i].vote_item.map((item) {
+          return item.copyWith(
+              mystar_member: item.mystar_member.copyWith(
+                  image:
+                      'https://cdn-dev.picnic.fan/mystar/member/${item.mystar_member.id}/${item.mystar_member.image}'));
+        }).toList();
+
+        voteList[i] = voteList[i].copyWith(vote_item: updatedVoteItems);
       }
 
       VoteListState voteListState = VoteListState(

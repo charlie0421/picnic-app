@@ -19,9 +19,10 @@ class AsyncBannerList extends _$AsyncBannerList {
         .order('start_at', ascending: false);
     List<BannerModel> bannerList =
         List<BannerModel>.from(response.map((e) => BannerModel.fromJson(e)));
-    for (var element in bannerList) {
-      element.thumbnail =
-          'https://cdn-dev.picnic.fan/banner/$location/${element.id}/${element.thumbnail}';
+    for (var i = 0; i < bannerList.length; i++) {
+      bannerList[i] = bannerList[i].copyWith(
+          thumbnail:
+              'https://cdn-dev.picnic.fan/banner/$location/${bannerList[i].id}/${bannerList[i].thumbnail}');
     }
     return bannerList;
   }

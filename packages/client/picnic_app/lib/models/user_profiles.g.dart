@@ -6,32 +6,18 @@ part of 'user_profiles.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-UserProfilesListModel _$UserProfilesListModelFromJson(
+_$UserProfilesModelImpl _$$UserProfilesModelImplFromJson(
         Map<String, dynamic> json) =>
-    UserProfilesListModel(
-      items: (json['items'] as List<dynamic>)
-          .map((e) => UserProfilesModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      meta: MetaModel.fromJson(json['meta'] as Map<String, dynamic>),
-    );
-
-Map<String, dynamic> _$UserProfilesListModelToJson(
-        UserProfilesListModel instance) =>
-    <String, dynamic>{
-      'items': instance.items,
-      'meta': instance.meta,
-    };
-
-UserProfilesModel _$UserProfilesModelFromJson(Map<String, dynamic> json) =>
-    UserProfilesModel(
+    _$UserProfilesModelImpl(
       id: json['id'] as String?,
       nickname: json['nickname'] as String?,
+      avatar_url: json['avatar_url'] as String?,
       country_code: json['country_code'] as String?,
       star_candy: (json['star_candy'] as num).toInt(),
-      avatar_url: json['avatar_url'] as String?,
     );
 
-Map<String, dynamic> _$UserProfilesModelToJson(UserProfilesModel instance) =>
+Map<String, dynamic> _$$UserProfilesModelImplToJson(
+        _$UserProfilesModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'nickname': instance.nickname,

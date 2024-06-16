@@ -1,42 +1,36 @@
-import 'package:json_annotation/json_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/models/pic/article_image.dart';
 import 'package:picnic_app/reflector.dart';
 
+part 'library.freezed.dart';
 part 'library.g.dart';
 
 @reflector
-@JsonSerializable()
-class LibraryListModel {
-  final List<LibraryModel> items;
-  final MetaModel meta;
+@freezed
+class LibraryListModel with _$LibraryListModel {
+  const LibraryListModel._();
 
-  LibraryListModel({
-    required this.items,
-    required this.meta,
-  });
+  const factory LibraryListModel({
+    required List<LibraryModel> items,
+    required MetaModel meta,
+  }) = _LibraryListModel;
 
   factory LibraryListModel.fromJson(Map<String, dynamic> json) =>
       _$LibraryListModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$LibraryListModelToJson(this);
 }
 
 @reflector
-@JsonSerializable()
-class LibraryModel {
-  final int id;
-  final String title;
-  final List<ArticleImageModel>? images;
+@freezed
+class LibraryModel with _$LibraryModel {
+  const LibraryModel._();
 
-  LibraryModel({
-    required this.id,
-    required this.title,
-    required this.images,
-  });
+  const factory LibraryModel({
+    required int id,
+    required String title,
+    required List<ArticleImageModel>? images,
+  }) = _LibraryModel;
 
   factory LibraryModel.fromJson(Map<String, dynamic> json) =>
       _$LibraryModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$LibraryModelToJson(this);
 }

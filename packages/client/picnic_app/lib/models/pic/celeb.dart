@@ -1,46 +1,38 @@
-import 'package:json_annotation/json_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/reflector.dart';
 
+part 'celeb.freezed.dart';
 part 'celeb.g.dart';
 
 @reflector
-@JsonSerializable()
-class CelebListModel {
-  final List<CelebModel> items;
-  final MetaModel meta;
+@freezed
+class CelebListModel with _$CelebListModel {
+  const CelebListModel._();
 
-  CelebListModel({
-    required this.items,
-    required this.meta,
-  });
+  const factory CelebListModel({
+    required List<CelebModel> items,
+    required MetaModel meta,
+  }) = _CelebListModel;
 
   factory CelebListModel.fromJson(Map<String, dynamic> json) =>
       _$CelebListModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$CelebListModelToJson(this);
 }
 
 @reflector
-@JsonSerializable()
-class CelebModel {
-  final int id;
-  final String name_ko;
-  final String name_en;
-  String? thumbnail;
-  final List<UserProfilesModel>? users;
+@freezed
+class CelebModel with _$CelebModel {
+  const CelebModel._();
 
-  CelebModel({
-    required this.id,
-    required this.name_ko,
-    required this.name_en,
-    this.thumbnail,
-    this.users,
-  });
+  const factory CelebModel({
+    required int id,
+    required String name_ko,
+    required String name_en,
+    String? thumbnail,
+    List<UserProfilesModel>? users,
+  }) = _CelebModel;
 
   factory CelebModel.fromJson(Map<String, dynamic> json) =>
       _$CelebModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$CelebModelToJson(this);
 }

@@ -6,24 +6,25 @@ part of 'article_image.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-ArticleImageListModel _$ArticleImageListModelFromJson(
+_$ArticleImageListModelImpl _$$ArticleImageListModelImplFromJson(
         Map<String, dynamic> json) =>
-    ArticleImageListModel(
+    _$ArticleImageListModelImpl(
       items: (json['items'] as List<dynamic>)
           .map((e) => ArticleImageModel.fromJson(e as Map<String, dynamic>))
           .toList(),
       meta: MetaModel.fromJson(json['meta'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$ArticleImageListModelToJson(
-        ArticleImageListModel instance) =>
+Map<String, dynamic> _$$ArticleImageListModelImplToJson(
+        _$ArticleImageListModelImpl instance) =>
     <String, dynamic>{
       'items': instance.items,
       'meta': instance.meta,
     };
 
-ArticleImageModel _$ArticleImageModelFromJson(Map<String, dynamic> json) =>
-    ArticleImageModel(
+_$ArticleImageModelImpl _$$ArticleImageModelImplFromJson(
+        Map<String, dynamic> json) =>
+    _$ArticleImageModelImpl(
       id: (json['id'] as num).toInt(),
       title_ko: json['title_ko'] as String,
       title_en: json['title_en'] as String,
@@ -33,7 +34,8 @@ ArticleImageModel _$ArticleImageModelFromJson(Map<String, dynamic> json) =>
           .toList(),
     );
 
-Map<String, dynamic> _$ArticleImageModelToJson(ArticleImageModel instance) =>
+Map<String, dynamic> _$$ArticleImageModelImplToJson(
+        _$ArticleImageModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'title_ko': instance.title_ko,
