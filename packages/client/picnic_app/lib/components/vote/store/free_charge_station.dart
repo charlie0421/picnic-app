@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:picnic_app/components/vote/common_vote_info.dart';
+import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class FreeChargeStation extends ConsumerStatefulWidget {
@@ -34,22 +36,22 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListView(
         children: [
-          SizedBox(height: 36.h),
+          SizedBox(height: 36.w),
           const CommonPointInfo(),
-          SizedBox(height: 36.h),
+          SizedBox(height: 36.w),
           CommonListTile(
             title: Text('광고 시청하고 충전하기',
                 style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
-            subtitle: Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                      text: '+보너스 50',
-                      style:
-                          getTextStyle(AppTypo.CAPTION12B, AppColors.Point900)),
-                ],
-              ),
-            ),
+            // subtitle: Text.rich(
+            //   TextSpan(
+            //     children: [
+            //       TextSpan(
+            //           text: '+보너스 50',
+            //           style:
+            //               getTextStyle(AppTypo.CAPTION12B, AppColors.Point900)),
+            //     ],
+            //   ),
+            // ),
             buttonText: '시청하기',
             buttonOnPressed: () async {
               if (_rewardedAd == null) {
@@ -59,7 +61,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
               _showRewardedAd();
             },
           ),
-          Divider(height: 32.h, thickness: 1, color: AppColors.Grey200),
+          Divider(height: 32.w, thickness: 1, color: AppColors.Grey200),
         ],
       ),
     );
@@ -69,7 +71,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
     await RewardedAd.load(
         adUnitId: Platform.isAndroid
             ? 'ca-app-pub-3940256099942544/5224354917'
-            : 'ca-app-pub-3940256099942544/1712485313',
+            : 'ca-app-pub-1539304887624918/9821126370',
         request: request,
         rewardedAdLoadCallback: RewardedAdLoadCallback(
           onAdLoaded: (RewardedAd ad) {
@@ -99,6 +101,8 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
       onAdDismissedFullScreenContent: (RewardedAd ad) {
         print('$ad onAdDismissedFullScreenContent.');
         ad.dispose();
+        ref.read(userInfoProvider.notifier).getUserProfiles();
+
         _createRewardedAd();
       },
       onAdFailedToShowFullScreenContent: (RewardedAd ad, AdError error) {
@@ -108,10 +112,18 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
       },
     );
 
+    logger.i(ref.read(userInfoProvider).value?.id);
+    ServerSideVerificationOptions options = ServerSideVerificationOptions(
+      userId: ref.watch(userInfoProvider).value?.id.toString(),
+      customData: '{"reward_type":"free_charge_station"}',
+    );
+    _rewardedAd?.setServerSideOptions(options);
+
     _rewardedAd!.setImmersiveMode(true);
     _rewardedAd!.show(
         onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
-      print('$ad with reward $RewardItem(${reward.amount}, ${reward.type})');
+      ref.read(userInfoProvider.notifier).getUserProfiles();
+      print('User earned reward of ${reward.amount} ${reward.type}');
     });
     _rewardedAd = null;
   }
@@ -121,19 +133,19 @@ class CommonListTile extends StatelessWidget {
   const CommonListTile(
       {super.key,
       required this.title,
-      required this.subtitle,
+      this.subtitle,
       required this.buttonText,
       required this.buttonOnPressed});
 
   final Text title;
-  final Text subtitle;
+  final Text? subtitle;
   final String buttonText;
   final Function buttonOnPressed;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 48.h,
+      height: 48.w,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -147,10 +159,7 @@ class CommonListTile extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                title,
-                subtitle,
-              ],
+              children: [title, subtitle ?? Container()],
             ),
           ),
           ElevatedButton(
