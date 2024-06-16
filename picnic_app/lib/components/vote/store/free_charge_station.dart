@@ -52,8 +52,18 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
           const CommonPointInfo(),
           SizedBox(height: 36.w),
           CommonListTile(
-            title: Text('광고 1 시청하고 충전하기',
+            title: Text('시청하고 충전하기',
                 style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
+            subtitle: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                      text: '+보너스 1',
+                      style:
+                          getTextStyle(AppTypo.CAPTION12B, AppColors.Point900)),
+                ],
+              ),
+            ),
             buttonText: '시청하기',
             buttonOnPressed: () async {
               if (_rewardedAds[0] == null) {
@@ -65,8 +75,18 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
           ),
           Divider(height: 32.w, thickness: 1, color: AppColors.Grey200),
           CommonListTile(
-            title: Text('광고 2 시청하고 충전하기',
+            title: Text('시청하고 충전하기',
                 style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
+            subtitle: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                      text: '+보너스 1',
+                      style:
+                          getTextStyle(AppTypo.CAPTION12B, AppColors.Point900)),
+                ],
+              ),
+            ),
             buttonText: '시청하기',
             buttonOnPressed: () async {
               if (_rewardedAds[1] == null) {
