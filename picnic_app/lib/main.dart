@@ -1,3 +1,4 @@
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -34,12 +35,37 @@ void main() async {
 
   initializeReflectable();
 
-  MobileAds.instance.initialize();
+  // MobileAds.instance.initialize();
 
   runApp(
       ProviderScope(observers: [LoggingObserver()], child: const PicnicApp()));
+  requestAppTrackingTransparency();
 
   FlutterNativeSplash.remove();
+}
+
+Future<void> requestAppTrackingTransparency() async {
+  final trackingStatus =
+      await AppTrackingTransparency.trackingAuthorizationStatus;
+
+  if (trackingStatus == TrackingStatus.notDetermined) {
+    final status = await AppTrackingTransparency.requestTrackingAuthorization();
+    if (status == TrackingStatus.authorized) {
+      // IDFA 접근 권한이 부여된 경우 AdMob 초기화
+      MobileAds.instance.initialize();
+    } else {
+      // 권한이 거부된 경우 초기화는 진행하되 비개인화 광고 설정
+      MobileAds.instance.updateRequestConfiguration(
+        RequestConfiguration(
+          tagForChildDirectedTreatment:
+              TagForChildDirectedTreatment.unspecified,
+          tagForUnderAgeOfConsent: TagForUnderAgeOfConsent.unspecified,
+          maxAdContentRating: MaxAdContentRating.g,
+        ),
+      );
+      MobileAds.instance.initialize();
+    }
+  }
 }
 
 Future<void> initializeWidgetsAndDeviceOrientation(
