@@ -48,8 +48,7 @@ void showSimpleDialog({
                 SizedBox(
                   height: 12.h,
                 ),
-              if (contentWidget != null)
-                Container(height: 200.h, child: contentWidget),
+              if (contentWidget != null) contentWidget,
               SizedBox(
                 height: 28.h,
               ),
