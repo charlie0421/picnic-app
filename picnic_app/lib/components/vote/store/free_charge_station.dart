@@ -168,11 +168,25 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
         ad.dispose();
         ref.read(userInfoProvider.notifier).getUserProfiles();
 
+        showSimpleDialog(
+          context: context,
+          title: '별사탕이 지급되었어요!!',
+          onOk: () {},
+        );
+
         _createRewardedAd(index);
       },
       onAdFailedToShowFullScreenContent: (RewardedAd ad, AdError error) {
         logger.i('$ad onAdFailedToShowFullScreenContent: $error');
         ad.dispose();
+
+        showSimpleDialog(
+          context: context,
+          title: '오류 안내',
+          content: '오류가 발생했어요.\n다시 한 번 시도해주세요.',
+          onOk: () {},
+        );
+
         _createRewardedAd(index);
       },
     );
