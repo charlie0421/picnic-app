@@ -1,41 +1,35 @@
-import 'package:json_annotation/json_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/reflector.dart';
 
+part 'comment_like.freezed.dart';
 part 'comment_like.g.dart';
 
 @reflector
-@JsonSerializable()
-class UserCommentLikeListModel {
-  final List<UserCommentLikeModel> items;
-  final MetaModel meta;
+@freezed
+class UserCommentLikeListModel with _$UserCommentLikeListModel {
+  const UserCommentLikeListModel._();
 
-  UserCommentLikeListModel({
-    required this.items,
-    required this.meta,
-  });
+  const factory UserCommentLikeListModel({
+    required List<UserCommentLikeModel> items,
+    required MetaModel meta,
+  }) = _UserCommentLikeListModel;
 
   factory UserCommentLikeListModel.fromJson(Map<String, dynamic> json) =>
       _$UserCommentLikeListModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$UserCommentLikeListModelToJson(this);
 }
 
 @reflector
-@JsonSerializable()
-class UserCommentLikeModel {
-  final int id;
-  final int user_id;
-  final DateTime created_at;
+@freezed
+class UserCommentLikeModel with _$UserCommentLikeModel {
+  const UserCommentLikeModel._();
 
-  UserCommentLikeModel({
-    required this.id,
-    required this.user_id,
-    required this.created_at,
-  });
+  const factory UserCommentLikeModel({
+    required int id,
+    required int user_id,
+    required DateTime created_at,
+  }) = _UserCommentLikeModel;
 
   factory UserCommentLikeModel.fromJson(Map<String, dynamic> json) =>
       _$UserCommentLikeModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$UserCommentLikeModelToJson(this);
 }

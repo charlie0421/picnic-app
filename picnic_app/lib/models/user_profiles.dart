@@ -1,41 +1,33 @@
-import 'package:json_annotation/json_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/reflector.dart';
 
+part 'user_profiles.freezed.dart';
 part 'user_profiles.g.dart';
 
 @reflector
-@JsonSerializable()
-class UserProfilesListModel {
-  final List<UserProfilesModel> items;
-  final MetaModel meta;
+@freezed
+class UserProfilesListModel with _$UserProfilesListModel {
+  const UserProfilesListModel._();
 
-  UserProfilesListModel({
-    required this.items,
-    required this.meta,
-  });
-
-  factory UserProfilesListModel.fromJson(Map<String, dynamic> json) =>
-      _$UserProfilesListModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$UserProfilesListModelToJson(this);
+  const factory UserProfilesListModel({
+    required List<UserProfilesModel> items,
+    required MetaModel meta,
+  }) = _UserProfilesListModel;
 }
 
 @reflector
-@JsonSerializable()
-class UserProfilesModel {
-  final String? id;
-  final String? nickname;
-  final String? avatar_url;
-  final String? country_code;
-  final int star_candy;
+@freezed
+class UserProfilesModel with _$UserProfilesModel {
+  const UserProfilesModel._();
 
-  UserProfilesModel(
-      {this.id,
-      this.nickname,
-      this.country_code,
-      required this.star_candy,
-      this.avatar_url});
+  const factory UserProfilesModel({
+    String? id,
+    String? nickname,
+    String? avatar_url,
+    String? country_code,
+    required int star_candy,
+  }) = _UserProfilesModel;
 
   copyWithStarCandy(int starCandy) {
     return UserProfilesModel(
@@ -48,6 +40,4 @@ class UserProfilesModel {
 
   factory UserProfilesModel.fromJson(Map<String, dynamic> json) =>
       _$UserProfilesModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$UserProfilesModelToJson(this);
 }

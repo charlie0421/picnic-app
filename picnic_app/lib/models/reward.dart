@@ -1,28 +1,23 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intl/intl.dart';
-import 'package:json_annotation/json_annotation.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/reflector.dart';
 
+part 'reward.freezed.dart';
 part 'reward.g.dart';
 
 @reflector
-@JsonSerializable()
-class RewardModel {
-  final int id;
-  final String title_ko;
-  final String title_en;
-  final String title_ja;
-  final String title_zh;
-  String? thumbnail;
+@freezed
+class RewardModel with _$RewardModel {
+  const RewardModel._();
 
-  RewardModel({
-    required this.id,
-    required this.title_ko,
-    required this.title_en,
-    required this.title_ja,
-    required this.title_zh,
-    this.thumbnail,
-  });
+  const factory RewardModel({
+    required int id,
+    required String title_ko,
+    required String title_en,
+    required String title_ja,
+    required String title_zh,
+    String? thumbnail,
+  }) = _RewardModel;
 
   String getTitle() {
     if (Intl.getCurrentLocale() == 'ko') {
@@ -36,9 +31,6 @@ class RewardModel {
     }
   }
 
-  factory RewardModel.fromJson(Map<String, dynamic> json) {
-    return _$RewardModelFromJson(json);
-  }
-
-  Map<String, dynamic> toJson() => _$RewardModelToJson(this);
+  factory RewardModel.fromJson(Map<String, dynamic> json) =>
+      _$RewardModelFromJson(json);
 }

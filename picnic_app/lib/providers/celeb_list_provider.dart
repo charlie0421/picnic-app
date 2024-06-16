@@ -21,11 +21,14 @@ class AsyncCelebList extends _$AsyncCelebList {
 
     final List<CelebModel> celebList =
         List<CelebModel>.from(response.map((e) => CelebModel.fromJson(e)));
-    for (var element in celebList) {
-      element.thumbnail =
-          'https://cdn-dev.picnic.fan/celeb/${element.id}/${element.thumbnail}';
-    }
-    return celebList;
+
+    final updatedCelebList = celebList.map((celeb) {
+      return celeb = celeb.copyWith(
+          thumbnail:
+              'https://cdn-dev.picnic.fan/celeb/${celeb.id}/${celeb.thumbnail}');
+    }).toList();
+
+    return updatedCelebList;
   }
 
   Future<void> addBookmark(CelebModel celeb) async {
@@ -72,14 +75,16 @@ class AsyncMyCelebList extends _$AsyncMyCelebList {
           .order('celeb_id', ascending: true);
       List<CelebModel> celebList = List<CelebModel>.from(
           response.map((e) => CelebModel.fromJson(e['celeb'])));
-      for (var element in celebList) {
-        element.thumbnail =
-            'https://cdn-dev.picnic.fan/celeb/${element.id}/${element.thumbnail}';
-      }
 
-      state = AsyncValue.data(celebList);
+      final updatedCelebList = celebList.map((celeb) {
+        return celeb = celeb.copyWith(
+            thumbnail:
+                'https://cdn-dev.picnic.fan/celeb/${celeb.id}/${celeb.thumbnail}');
+      }).toList();
 
-      return celebList;
+      state = AsyncValue.data(updatedCelebList);
+
+      return updatedCelebList;
     } catch (e, stackTrace) {
       state = AsyncValue.error(e, stackTrace);
       logger.i('fetchMyCelebList error: $e');

@@ -1,0 +1,426 @@
+// coverage:ignore-file
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'celeb.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+T _$identity<T>(T value) => value;
+
+final _privateConstructorUsedError = UnsupportedError(
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+
+CelebListModel _$CelebListModelFromJson(Map<String, dynamic> json) {
+  return _CelebListModel.fromJson(json);
+}
+
+/// @nodoc
+mixin _$CelebListModel {
+  List<CelebModel> get items => throw _privateConstructorUsedError;
+  MetaModel get meta => throw _privateConstructorUsedError;
+
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $CelebListModelCopyWith<CelebListModel> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $CelebListModelCopyWith<$Res> {
+  factory $CelebListModelCopyWith(
+          CelebListModel value, $Res Function(CelebListModel) then) =
+      _$CelebListModelCopyWithImpl<$Res, CelebListModel>;
+  @useResult
+  $Res call({List<CelebModel> items, MetaModel meta});
+
+  $MetaModelCopyWith<$Res> get meta;
+}
+
+/// @nodoc
+class _$CelebListModelCopyWithImpl<$Res, $Val extends CelebListModel>
+    implements $CelebListModelCopyWith<$Res> {
+  _$CelebListModelCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? items = null,
+    Object? meta = null,
+  }) {
+    return _then(_value.copyWith(
+      items: null == items
+          ? _value.items
+          : items // ignore: cast_nullable_to_non_nullable
+              as List<CelebModel>,
+      meta: null == meta
+          ? _value.meta
+          : meta // ignore: cast_nullable_to_non_nullable
+              as MetaModel,
+    ) as $Val);
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $MetaModelCopyWith<$Res> get meta {
+    return $MetaModelCopyWith<$Res>(_value.meta, (value) {
+      return _then(_value.copyWith(meta: value) as $Val);
+    });
+  }
+}
+
+/// @nodoc
+abstract class _$$CelebListModelImplCopyWith<$Res>
+    implements $CelebListModelCopyWith<$Res> {
+  factory _$$CelebListModelImplCopyWith(_$CelebListModelImpl value,
+          $Res Function(_$CelebListModelImpl) then) =
+      __$$CelebListModelImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({List<CelebModel> items, MetaModel meta});
+
+  @override
+  $MetaModelCopyWith<$Res> get meta;
+}
+
+/// @nodoc
+class __$$CelebListModelImplCopyWithImpl<$Res>
+    extends _$CelebListModelCopyWithImpl<$Res, _$CelebListModelImpl>
+    implements _$$CelebListModelImplCopyWith<$Res> {
+  __$$CelebListModelImplCopyWithImpl(
+      _$CelebListModelImpl _value, $Res Function(_$CelebListModelImpl) _then)
+      : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? items = null,
+    Object? meta = null,
+  }) {
+    return _then(_$CelebListModelImpl(
+      items: null == items
+          ? _value._items
+          : items // ignore: cast_nullable_to_non_nullable
+              as List<CelebModel>,
+      meta: null == meta
+          ? _value.meta
+          : meta // ignore: cast_nullable_to_non_nullable
+              as MetaModel,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$CelebListModelImpl extends _CelebListModel {
+  const _$CelebListModelImpl(
+      {required final List<CelebModel> items, required this.meta})
+      : _items = items,
+        super._();
+
+  factory _$CelebListModelImpl.fromJson(Map<String, dynamic> json) =>
+      _$$CelebListModelImplFromJson(json);
+
+  final List<CelebModel> _items;
+  @override
+  List<CelebModel> get items {
+    if (_items is EqualUnmodifiableListView) return _items;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_items);
+  }
+
+  @override
+  final MetaModel meta;
+
+  @override
+  String toString() {
+    return 'CelebListModel(items: $items, meta: $meta)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$CelebListModelImpl &&
+            const DeepCollectionEquality().equals(other._items, _items) &&
+            (identical(other.meta, meta) || other.meta == meta));
+  }
+
+  @JsonKey(ignore: true)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType, const DeepCollectionEquality().hash(_items), meta);
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$CelebListModelImplCopyWith<_$CelebListModelImpl> get copyWith =>
+      __$$CelebListModelImplCopyWithImpl<_$CelebListModelImpl>(
+          this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$CelebListModelImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _CelebListModel extends CelebListModel {
+  const factory _CelebListModel(
+      {required final List<CelebModel> items,
+      required final MetaModel meta}) = _$CelebListModelImpl;
+  const _CelebListModel._() : super._();
+
+  factory _CelebListModel.fromJson(Map<String, dynamic> json) =
+      _$CelebListModelImpl.fromJson;
+
+  @override
+  List<CelebModel> get items;
+  @override
+  MetaModel get meta;
+  @override
+  @JsonKey(ignore: true)
+  _$$CelebListModelImplCopyWith<_$CelebListModelImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+CelebModel _$CelebModelFromJson(Map<String, dynamic> json) {
+  return _CelebModel.fromJson(json);
+}
+
+/// @nodoc
+mixin _$CelebModel {
+  int get id => throw _privateConstructorUsedError;
+  String get name_ko => throw _privateConstructorUsedError;
+  String get name_en => throw _privateConstructorUsedError;
+  String? get thumbnail => throw _privateConstructorUsedError;
+  List<UserProfilesModel>? get users => throw _privateConstructorUsedError;
+
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $CelebModelCopyWith<CelebModel> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $CelebModelCopyWith<$Res> {
+  factory $CelebModelCopyWith(
+          CelebModel value, $Res Function(CelebModel) then) =
+      _$CelebModelCopyWithImpl<$Res, CelebModel>;
+  @useResult
+  $Res call(
+      {int id,
+      String name_ko,
+      String name_en,
+      String? thumbnail,
+      List<UserProfilesModel>? users});
+}
+
+/// @nodoc
+class _$CelebModelCopyWithImpl<$Res, $Val extends CelebModel>
+    implements $CelebModelCopyWith<$Res> {
+  _$CelebModelCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? name_ko = null,
+    Object? name_en = null,
+    Object? thumbnail = freezed,
+    Object? users = freezed,
+  }) {
+    return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int,
+      name_ko: null == name_ko
+          ? _value.name_ko
+          : name_ko // ignore: cast_nullable_to_non_nullable
+              as String,
+      name_en: null == name_en
+          ? _value.name_en
+          : name_en // ignore: cast_nullable_to_non_nullable
+              as String,
+      thumbnail: freezed == thumbnail
+          ? _value.thumbnail
+          : thumbnail // ignore: cast_nullable_to_non_nullable
+              as String?,
+      users: freezed == users
+          ? _value.users
+          : users // ignore: cast_nullable_to_non_nullable
+              as List<UserProfilesModel>?,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$CelebModelImplCopyWith<$Res>
+    implements $CelebModelCopyWith<$Res> {
+  factory _$$CelebModelImplCopyWith(
+          _$CelebModelImpl value, $Res Function(_$CelebModelImpl) then) =
+      __$$CelebModelImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {int id,
+      String name_ko,
+      String name_en,
+      String? thumbnail,
+      List<UserProfilesModel>? users});
+}
+
+/// @nodoc
+class __$$CelebModelImplCopyWithImpl<$Res>
+    extends _$CelebModelCopyWithImpl<$Res, _$CelebModelImpl>
+    implements _$$CelebModelImplCopyWith<$Res> {
+  __$$CelebModelImplCopyWithImpl(
+      _$CelebModelImpl _value, $Res Function(_$CelebModelImpl) _then)
+      : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? name_ko = null,
+    Object? name_en = null,
+    Object? thumbnail = freezed,
+    Object? users = freezed,
+  }) {
+    return _then(_$CelebModelImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int,
+      name_ko: null == name_ko
+          ? _value.name_ko
+          : name_ko // ignore: cast_nullable_to_non_nullable
+              as String,
+      name_en: null == name_en
+          ? _value.name_en
+          : name_en // ignore: cast_nullable_to_non_nullable
+              as String,
+      thumbnail: freezed == thumbnail
+          ? _value.thumbnail
+          : thumbnail // ignore: cast_nullable_to_non_nullable
+              as String?,
+      users: freezed == users
+          ? _value._users
+          : users // ignore: cast_nullable_to_non_nullable
+              as List<UserProfilesModel>?,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$CelebModelImpl extends _CelebModel {
+  const _$CelebModelImpl(
+      {required this.id,
+      required this.name_ko,
+      required this.name_en,
+      this.thumbnail,
+      final List<UserProfilesModel>? users})
+      : _users = users,
+        super._();
+
+  factory _$CelebModelImpl.fromJson(Map<String, dynamic> json) =>
+      _$$CelebModelImplFromJson(json);
+
+  @override
+  final int id;
+  @override
+  final String name_ko;
+  @override
+  final String name_en;
+  @override
+  final String? thumbnail;
+  final List<UserProfilesModel>? _users;
+  @override
+  List<UserProfilesModel>? get users {
+    final value = _users;
+    if (value == null) return null;
+    if (_users is EqualUnmodifiableListView) return _users;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  @override
+  String toString() {
+    return 'CelebModel(id: $id, name_ko: $name_ko, name_en: $name_en, thumbnail: $thumbnail, users: $users)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$CelebModelImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.name_ko, name_ko) || other.name_ko == name_ko) &&
+            (identical(other.name_en, name_en) || other.name_en == name_en) &&
+            (identical(other.thumbnail, thumbnail) ||
+                other.thumbnail == thumbnail) &&
+            const DeepCollectionEquality().equals(other._users, _users));
+  }
+
+  @JsonKey(ignore: true)
+  @override
+  int get hashCode => Object.hash(runtimeType, id, name_ko, name_en, thumbnail,
+      const DeepCollectionEquality().hash(_users));
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$CelebModelImplCopyWith<_$CelebModelImpl> get copyWith =>
+      __$$CelebModelImplCopyWithImpl<_$CelebModelImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$CelebModelImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _CelebModel extends CelebModel {
+  const factory _CelebModel(
+      {required final int id,
+      required final String name_ko,
+      required final String name_en,
+      final String? thumbnail,
+      final List<UserProfilesModel>? users}) = _$CelebModelImpl;
+  const _CelebModel._() : super._();
+
+  factory _CelebModel.fromJson(Map<String, dynamic> json) =
+      _$CelebModelImpl.fromJson;
+
+  @override
+  int get id;
+  @override
+  String get name_ko;
+  @override
+  String get name_en;
+  @override
+  String? get thumbnail;
+  @override
+  List<UserProfilesModel>? get users;
+  @override
+  @JsonKey(ignore: true)
+  _$$CelebModelImplCopyWith<_$CelebModelImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}

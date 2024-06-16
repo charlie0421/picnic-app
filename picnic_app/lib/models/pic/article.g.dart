@@ -6,21 +6,24 @@ part of 'article.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-ArticleListModel _$ArticleListModelFromJson(Map<String, dynamic> json) =>
-    ArticleListModel(
+_$ArticleListModelImpl _$$ArticleListModelImplFromJson(
+        Map<String, dynamic> json) =>
+    _$ArticleListModelImpl(
       items: (json['items'] as List<dynamic>)
           .map((e) => ArticleModel.fromJson(e as Map<String, dynamic>))
           .toList(),
       meta: MetaModel.fromJson(json['meta'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$ArticleListModelToJson(ArticleListModel instance) =>
+Map<String, dynamic> _$$ArticleListModelImplToJson(
+        _$ArticleListModelImpl instance) =>
     <String, dynamic>{
       'items': instance.items,
       'meta': instance.meta,
     };
 
-ArticleModel _$ArticleModelFromJson(Map<String, dynamic> json) => ArticleModel(
+_$ArticleModelImpl _$$ArticleModelImplFromJson(Map<String, dynamic> json) =>
+    _$ArticleModelImpl(
       id: (json['id'] as num).toInt(),
       title_ko: json['title_ko'] as String,
       title_en: json['title_en'] as String,
@@ -42,7 +45,7 @@ ArticleModel _$ArticleModelFromJson(Map<String, dynamic> json) => ArticleModel(
               json['most_liked_comment'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$ArticleModelToJson(ArticleModel instance) =>
+Map<String, dynamic> _$$ArticleModelImplToJson(_$ArticleModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'title_ko': instance.title_ko,

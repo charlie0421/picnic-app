@@ -6,8 +6,8 @@ part of 'user_push_token.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-UserPushToken _$UserPushTokenFromJson(Map<String, dynamic> json) =>
-    UserPushToken(
+_$UserPushTokenImpl _$$UserPushTokenImplFromJson(Map<String, dynamic> json) =>
+    _$UserPushTokenImpl(
       id: (json['id'] as num).toInt(),
       user_id: (json['user_id'] as num).toInt(),
       token_ios: json['token_ios'] as String,
@@ -17,7 +17,7 @@ UserPushToken _$UserPushTokenFromJson(Map<String, dynamic> json) =>
       token_windows: json['token_windows'] as String,
     );
 
-Map<String, dynamic> _$UserPushTokenToJson(UserPushToken instance) =>
+Map<String, dynamic> _$$UserPushTokenImplToJson(_$UserPushTokenImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'user_id': instance.user_id,

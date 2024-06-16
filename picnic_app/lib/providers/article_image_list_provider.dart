@@ -20,11 +20,11 @@ class AsyncArticleImageList extends _$AsyncArticleImageList {
     final List<ArticleImageModel> articleImageList =
         List<ArticleImageModel>.from(
             response.map((e) => ArticleImageModel.fromJson(e)));
-    for (var element in articleImageList) {
-      element.image =
-          'https://cdn-dev.picnic.fan/article/${element.id}/${element.image}';
+    for (var i = 0; i < articleImageList.length; i++) {
+      articleImageList[i] = articleImageList[i].copyWith(
+          image:
+              'https://cdn-dev.picnic.fan/article/${articleImageList[i].id}/${articleImageList[i].image}');
     }
-
     return articleImageList;
   }
 }

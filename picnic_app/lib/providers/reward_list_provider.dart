@@ -15,9 +15,10 @@ class AsyncRewardList extends _$AsyncRewardList {
     final response = await Supabase.instance.client.from('reward').select();
     List<RewardModel> rewardList =
         List<RewardModel>.from(response.map((e) => RewardModel.fromJson(e)));
-    for (var element in rewardList) {
-      element.thumbnail =
-          'https://cdn-dev.picnic.fan/reward/${element.id}/${element.thumbnail}';
+    for (var i = 0; i < rewardList.length; i++) {
+      rewardList[i] = rewardList[i].copyWith(
+          thumbnail:
+              'https://cdn-dev.picnic.fan/reward/${rewardList[i].id}/${rewardList[i].thumbnail}');
     }
     return rewardList;
   }

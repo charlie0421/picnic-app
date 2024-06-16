@@ -1,53 +1,42 @@
-import 'package:json_annotation/json_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/models/pic/comment_like.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/reflector.dart';
 
+part 'comment.freezed.dart';
 part 'comment.g.dart';
 
 @reflector
-@JsonSerializable()
-class CommentListModel {
-  final List<CommentModel> items;
-  final MetaModel meta;
+@freezed
+class CommentListModel with _$CommentListModel {
+  const CommentListModel._();
 
-  CommentListModel({
-    required this.items,
-    required this.meta,
-  });
+  const factory CommentListModel({
+    required List<CommentModel> items,
+    required MetaModel meta,
+  }) = _CommentListModel;
 
   factory CommentListModel.fromJson(Map<String, dynamic> json) =>
       _$CommentListModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$CommentListModelToJson(this);
 }
 
 @reflector
-@JsonSerializable()
-class CommentModel {
-  final int id;
-  final List<CommentModel>? children; // 자식 댓글 목록
-  final UserCommentLikeModel? myLike;
-  final UserProfilesModel? user;
-  final int likes;
-  final String content; // 댓글 내용
-  final int? parentId;
-  final DateTime created_at;
+@freezed
+class CommentModel with _$CommentModel {
+  const CommentModel._();
 
-  CommentModel({
-    required this.id,
-    required this.children,
-    required this.user,
-    required this.myLike,
-    required this.likes,
-    required this.content,
-    required this.parentId,
-    required this.created_at,
-  });
+  const factory CommentModel({
+    required int id,
+    required List<CommentModel>? children,
+    required UserCommentLikeModel? myLike,
+    required UserProfilesModel? user,
+    required int likes,
+    required String content,
+    required int? parentId,
+    required DateTime created_at,
+  }) = _CommentModel;
 
   factory CommentModel.fromJson(Map<String, dynamic> json) =>
       _$CommentModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$CommentModelToJson(this);
 }

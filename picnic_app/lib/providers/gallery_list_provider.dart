@@ -20,8 +20,9 @@ class AsyncGalleryList extends _$AsyncGalleryList {
     List<GalleryModel> galleryList =
         List<GalleryModel>.from(response.map((e) => GalleryModel.fromJson(e)));
     for (var element in galleryList) {
-      element.cover =
-          'https://cdn-dev.picnic.fan/gallery/${element.id}/${element.cover}';
+      element = element.copyWith(
+          cover:
+              'https://cdn-dev.picnic.fan/gallery/${element.id}/${element.cover}');
     }
     return galleryList;
   }
@@ -56,10 +57,12 @@ class AsyncCelebGalleryList extends _$AsyncCelebGalleryList {
 
     List<GalleryModel> galleryList =
         List<GalleryModel>.from(response.map((e) => GalleryModel.fromJson(e)));
-    for (var element in galleryList) {
-      element.cover =
-          'https://cdn-dev.picnic.fan/gallery/${element.id}/${element.cover}';
-    }
-    return galleryList;
+
+    final updatedGalleryList = galleryList.map((gallery) {
+      return gallery.copyWith(
+          cover:
+              'https://cdn-dev.picnic.fan/gallery/${gallery.id}/${gallery.cover}');
+    }).toList();
+    return updatedGalleryList;
   }
 }
