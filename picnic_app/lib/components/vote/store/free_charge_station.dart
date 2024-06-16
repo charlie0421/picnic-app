@@ -42,16 +42,6 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
           CommonListTile(
             title: Text('광고 시청하고 충전하기',
                 style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
-            // subtitle: Text.rich(
-            //   TextSpan(
-            //     children: [
-            //       TextSpan(
-            //           text: '+보너스 50',
-            //           style:
-            //               getTextStyle(AppTypo.CAPTION12B, AppColors.Point900)),
-            //     ],
-            //   ),
-            // ),
             buttonText: '시청하기',
             buttonOnPressed: () async {
               if (_rewardedAd == null) {
@@ -162,9 +152,15 @@ class CommonListTile extends StatelessWidget {
               children: [title, subtitle ?? Container()],
             ),
           ),
-          ElevatedButton(
-            onPressed: () => buttonOnPressed(),
-            child: Text(buttonText),
+          SizedBox(
+            height: 32.w,
+            child: ElevatedButton(
+              onPressed: () => buttonOnPressed(),
+              child: Text(
+                buttonText,
+                style: getTextStyle(AppTypo.BODY14B, AppColors.Primary500),
+              ),
+            ),
           ),
         ],
       ),

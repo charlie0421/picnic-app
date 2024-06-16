@@ -25,7 +25,7 @@ ThemeData voteThemeLight = ThemeData.light().copyWith(
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
         padding: WidgetStateProperty.all(
-            const EdgeInsets.symmetric(vertical: 16, horizontal: 32).r),
+            const EdgeInsets.symmetric(horizontal: 32, vertical: 0).r),
         backgroundColor: WidgetStateProperty.all(AppColors.Mint500),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
