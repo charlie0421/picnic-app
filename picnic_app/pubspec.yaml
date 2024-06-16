@@ -65,6 +65,8 @@ dependencies:
   photo_manager: ^3.1.1
   permission_handler: ^11.3.1
   audioplayers: ^6.0.0
+  flutter_markdown: ^0.7.2
+
   vector_math: ^2.1.4
   flutter_share: ^2.0.0
   path_provider: ^2.1.3
