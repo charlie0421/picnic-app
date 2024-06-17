@@ -54,7 +54,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
                     color: Colors.grey, activeColor: picMainColor),
               ),
             )
-          : SizedBox(width: 300.w, height: 300.h),
+          : SizedBox(width: 300.w, height: 300.w),
     );
   }
 

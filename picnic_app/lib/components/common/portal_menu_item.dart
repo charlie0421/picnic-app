@@ -19,9 +19,9 @@ class PortalMenuItem extends ConsumerWidget {
     final navigationInfoNotifier = ref.read(navigationInfoProvider.notifier);
 
     final bool isSelected = navigationInfo.portalType == portalType;
- 
+
     return Container(
-      height: 26.h,
+      height: 26.w,
       margin: EdgeInsets.only(left: 16.w),
       child: InkWell(
         borderRadius: BorderRadius.circular(13.r),
@@ -29,7 +29,7 @@ class PortalMenuItem extends ConsumerWidget {
           navigationInfoNotifier.setPortal(portalType);
         },
         child: Container(
-          height: 26.h,
+          height: 26.w,
           alignment: Alignment.center,
           padding: EdgeInsets.symmetric(horizontal: 12.w),
           decoration: BoxDecoration(

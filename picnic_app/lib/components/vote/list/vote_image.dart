@@ -14,8 +14,8 @@ class VoteImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      constraints: BoxConstraints(minHeight: 30.h),
-      margin: EdgeInsets.only(left: 16.w, right: 16.w, top: 16.h, bottom: 0.h),
+      constraints: BoxConstraints(minHeight: 30.w),
+      margin: EdgeInsets.only(left: 16.w, right: 16.w, top: 16.w, bottom: 0.w),
       decoration: BoxDecoration(
         color: AppColors.Grey600,
         borderRadius: BorderRadius.circular(8.r),

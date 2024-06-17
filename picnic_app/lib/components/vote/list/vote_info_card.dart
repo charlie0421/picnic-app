@@ -99,11 +99,11 @@ class _VoteInfoCardState extends State<VoteInfoCard>
               onRefresh: _restartAnimation,
             ),
             SizedBox(
-              height: 24.h,
+              height: 24.w,
             ),
             Container(
               width: double.infinity,
-              height: 220.h,
+              height: 220.w,
               padding: const EdgeInsets.only(left: 36, right: 36, top: 16),
               clipBehavior: Clip.hardEdge,
               // 추가
@@ -141,7 +141,7 @@ class _VoteInfoCardState extends State<VoteInfoCard>
               ),
             ),
             SizedBox(
-              height: 10.h,
+              height: 10.w,
             ),
           ],
         ),
@@ -178,17 +178,17 @@ class VoteCardColumn extends StatelessWidget {
       children: [
         Container(
           color: AppColors.Grey100,
-          height: barHeight.h,
+          height: barHeight.w,
           child: Container(
             width: 80.w,
-            height: 100.h,
+            height: 100.w,
             decoration: const BoxDecoration(
               gradient: commonGradient,
             ),
           ),
         ),
         Positioned(
-          bottom: barHeight.h + 50,
+          bottom: barHeight.w + 50,
           child: FadeTransition(
             opacity: opacityAnimation,
             child: Text(
@@ -199,7 +199,7 @@ class VoteCardColumn extends StatelessWidget {
           ),
         ),
         Positioned(
-          bottom: imageBottomMargin.h,
+          bottom: imageBottomMargin.w,
           child: Container(
             width: 80.w,
             height: 80.w,
@@ -236,7 +236,7 @@ class VoteCardColumn extends StatelessWidget {
           ),
         ),
         Positioned(
-          bottom: imageBottomMargin.h - 40.h,
+          bottom: imageBottomMargin.w - 40.w,
           child: FadeTransition(
             opacity: opacityAnimation,
             child: Column(

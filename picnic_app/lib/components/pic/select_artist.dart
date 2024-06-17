@@ -43,10 +43,10 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
     return ListView(
       children: [
         Container(
-            height: 100.h,
+            height: 100.w,
             padding: EdgeInsets.only(
               left: 36.w,
-              top: 8.h,
+              top: 8.w,
             ),
             child: _buildSelectArtist()),
         Container(
@@ -58,11 +58,11 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
           ),
           child: Column(
             children: [
-              SizedBox(height: 10.h),
+              SizedBox(height: 10.w),
               Consumer(builder:
                   (BuildContext context, WidgetRef ref, Widget? child) {
                 return Container(
-                  height: 90.h,
+                  height: 90.w,
                   padding: EdgeInsets.only(left: 36.w),
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
@@ -74,10 +74,10 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
                   ),
                 );
               }),
-              SizedBox(height: 10.h),
+              SizedBox(height: 10.w),
               Container(
                   width: 180.w,
-                  height: 277.h,
+                  height: 277.w,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                     color: Colors.white,
@@ -87,11 +87,11 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
                     child: Image.asset(
                         'assets/mockup/pic/che${selectedPicIndex + 1}.png'),
                   )),
-              SizedBox(height: 10.h),
+              SizedBox(height: 10.w),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
-                  minimumSize: Size(180.w, 49.h),
+                  minimumSize: Size(180.w, 49.w),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -132,7 +132,7 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
               child: Image.asset(
                 'assets/mockup/pic/che${index + 1}.png',
                 width: 71.w,
-                height: 110.h,
+                height: 110.w,
               ))),
     );
   }
@@ -155,7 +155,7 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
             itemBuilder: (BuildContext context, int index) {
               return Container(
                 width: 60.w,
-                height: 60.h,
+                height: 60.w,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
                   color: Colors.white,
@@ -167,10 +167,10 @@ class _SelectArtistState extends ConsumerState<SelectArtist> {
                       child: Image.network(
                         data?[index].thumbnail ?? '',
                         width: 60.w,
-                        height: 60.h,
+                        height: 60.w,
                       ),
                     ),
-                    SizedBox(height: 4.h),
+                    SizedBox(height: 4.w),
                     Text(data?[index].name_ko ?? '',
                         style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900))
                   ],

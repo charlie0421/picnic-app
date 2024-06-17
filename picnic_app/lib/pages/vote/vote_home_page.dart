@@ -30,9 +30,9 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   Widget build(BuildContext context) {
     return ListView(children: [
       _buildVoteBanner(context),
-      SizedBox(height: 44.h),
+      SizedBox(height: 44.w),
       _buildReward(context),
-      SizedBox(height: 48.h),
+      SizedBox(height: 48.w),
       GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
@@ -50,7 +50,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
               SvgPicture.asset(
                 'assets/icons/arrow_right_style=line.svg',
                 width: 8.w,
-                height: 15.h,
+                height: 15.w,
                 colorFilter:
                     const ColorFilter.mode(AppColors.Grey900, BlendMode.srcIn),
               ),
@@ -58,7 +58,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
           ),
         ),
       ),
-      SizedBox(height: 24.h),
+      SizedBox(height: 24.w),
       ref
           .watch(asyncVoteListProvider(
               status: VoteStatus.active, category: VoteCategory.all))
@@ -103,12 +103,12 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         child: Text(Intl.message('label_vote_reward_list'),
             style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900)),
       ),
-      SizedBox(height: 16.h),
+      SizedBox(height: 16.w),
       asyncRewardListState.when(
           data: (data) => Container(
                 alignment: Alignment.centerLeft,
                 padding: const EdgeInsets.only(left: 16),
-                height: 100.h,
+                height: 100.w,
                 child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: data.length,
@@ -135,7 +135,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                               child: CachedNetworkImage(
                                   imageUrl: '${data[index].thumbnail}' ?? '',
                                   width: 120.w,
-                                  height: 100.h,
+                                  height: 100.w,
                                   placeholder: (context, url) =>
                                       buildPlaceholderImage(),
                                   fit: BoxFit.cover),
@@ -169,7 +169,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
               ),
           loading: () => Container(
                 width: double.infinity,
-                height: 100.h,
+                height: 100.w,
                 margin: const EdgeInsets.only(left: 16),
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
@@ -180,7 +180,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                     highlightColor: AppColors.Grey100,
                     child: Container(
                       width: 120.w,
-                      height: 120.h,
+                      height: 120.w,
                       margin: const EdgeInsets.only(right: 16),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8.r),
@@ -200,7 +200,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         ref.watch(asyncBannerListProvider(location: 'vote_home'));
 
     return SizedBox(
-      height: 230.h,
+      height: 230.w,
       child: asyncBannerListState.when(
         data: (data) => Swiper(
           itemBuilder: (BuildContext context, int index) {
@@ -217,10 +217,10 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
               children: [
                 Container(
                   alignment: Alignment.center,
-                  height: 200.h,
+                  height: 200.w,
                   child: CachedNetworkImage(
                       imageUrl: '${data[index].thumbnail}' ?? '',
-                      height: 200.h,
+                      height: 200.w,
                       placeholder: (context, url) => buildPlaceholderImage(),
                       fit: BoxFit.cover),
                 ),
@@ -243,8 +243,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
             );
           },
           itemCount: data.length,
-          containerHeight: 230.h,
-          itemHeight: 200.0.h,
+          containerHeight: 230.w,
+          itemHeight: 200.0.w,
           autoplay: true,
           pagination: const SwiperPagination(
               builder: DotSwiperPaginationBuilder(

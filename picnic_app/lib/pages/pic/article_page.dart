@@ -36,7 +36,7 @@ class _ArticlePageState extends ConsumerState<ArticlePage> {
           ),
         ),
         SizedBox(
-          height: 20.h,
+          height: 20.w,
         ),
         Expanded(child: ArticleList(widget.galleryId)),
       ],

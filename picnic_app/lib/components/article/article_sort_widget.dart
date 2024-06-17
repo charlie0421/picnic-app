@@ -29,7 +29,7 @@ class ArticleSortWidget extends ConsumerWidget {
                   builder: (BuildContext context, StateSetter setState) {
                     return SafeArea(
                       child: Container(
-                        height: 224.h,
+                        height: 224.w,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,14 +81,14 @@ class ArticleSortWidget extends ConsumerWidget {
                                       },
                                       child: Container(
                                         alignment: Alignment.centerLeft,
-                                        height: 56.h,
+                                        height: 56.w,
                                         child: Row(
                                           children: [
                                             sortOptionState.sort == 'id'
                                                 ? SvgPicture.asset(
                                                     'assets/icons/check_green.svg',
                                                     width: 18.w,
-                                                    height: 18.h,
+                                                    height: 18.w,
                                                   )
                                                 : SizedBox(width: 18.w),
                                             SizedBox(width: 8.w),
@@ -125,14 +125,14 @@ class ArticleSortWidget extends ConsumerWidget {
                                       },
                                       child: Container(
                                         alignment: Alignment.centerLeft,
-                                        height: 56.h,
+                                        height: 56.w,
                                         child: Row(
                                           children: [
                                             sortOptionState.sort == 'viewCount'
                                                 ? SvgPicture.asset(
                                                     'assets/icons/check_green.svg',
                                                     width: 18.w,
-                                                    height: 18.h,
+                                                    height: 18.w,
                                                   )
                                                 : SizedBox(width: 18.w),
                                             SizedBox(width: 8.w),
@@ -168,7 +168,7 @@ class ArticleSortWidget extends ConsumerWidget {
                                       },
                                       child: Container(
                                         alignment: Alignment.centerLeft,
-                                        height: 56.h,
+                                        height: 56.w,
                                         child: Row(
                                           children: [
                                             sortOptionState.sort ==
@@ -176,7 +176,7 @@ class ArticleSortWidget extends ConsumerWidget {
                                                 ? SvgPicture.asset(
                                                     'assets/icons/check_green.svg',
                                                     width: 18.w,
-                                                    height: 18.h,
+                                                    height: 18.w,
                                                   )
                                                 : SizedBox(width: 18.w),
                                             SizedBox(width: 8.w),
@@ -207,7 +207,7 @@ class ArticleSortWidget extends ConsumerWidget {
             ),
         child: Container(
           width: 102.w,
-          height: 30.h,
+          height: 30.w,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8).r,
             border: Border.all(color: AppColors.Grey100),
@@ -236,7 +236,7 @@ class ArticleSortWidget extends ConsumerWidget {
               SvgPicture.asset(
                 'assets/icons/arrow_down_style=line.svg',
                 width: 18.w,
-                height: 18.h,
+                height: 18.w,
               )
             ],
           ),

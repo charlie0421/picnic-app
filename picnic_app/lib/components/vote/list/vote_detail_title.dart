@@ -30,29 +30,38 @@ class VoteCommonTitle extends StatelessWidget {
               width: 16.w,
               height: 16.w,
             ),
-            Container(
-              height: 48.h,
-              alignment: Alignment.center,
-              child: Stack(
-                children: [
-                  Text(title,
-                      style: getTextStyle(AppTypo.BODY16M, AppColors.Primary500)
-                          .copyWith(
-                              foreground: Paint()
-                                ..style = PaintingStyle.stroke
-                                ..strokeWidth = 1
-                                ..color = AppColors.Primary500
-                                ..strokeJoin = StrokeJoin.miter
-                                ..strokeMiterLimit = 28.96),
-                      overflow: TextOverflow.ellipsis),
-                  Text(
-                    title,
-                    style: getTextStyle(AppTypo.BODY16M, AppColors.Grey00),
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+            SizedBox(
+              width: 2.w,
+            ),
+            Expanded(
+              child: Container(
+                height: 48.w,
+                alignment: Alignment.center,
+                child: Stack(
+                  children: [
+                    Text(title,
+                        style:
+                            getTextStyle(AppTypo.BODY16M, AppColors.Primary500)
+                                .copyWith(
+                                    foreground: Paint()
+                                      ..style = PaintingStyle.stroke
+                                      ..strokeWidth = 1
+                                      ..color = AppColors.Primary500
+                                      ..strokeJoin = StrokeJoin.miter
+                                      ..strokeMiterLimit = 28.96),
+                        overflow: TextOverflow.ellipsis),
+                    Text(
+                      title,
+                      style: getTextStyle(AppTypo.BODY16M, AppColors.Grey00),
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
+            ),
+            SizedBox(
+              width: 2.w,
             ),
             SvgPicture.asset(
               'assets/icons/vote/vote_title_right.svg',

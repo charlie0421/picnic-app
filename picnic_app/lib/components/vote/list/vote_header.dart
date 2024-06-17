@@ -16,7 +16,7 @@ class VoteHeader extends StatelessWidget {
     return Column(
       children: [
         SizedBox(
-          height: 32.h,
+          height: 32.w,
           child: Stack(
             children: [
               Align(
@@ -38,14 +38,14 @@ class VoteHeader extends StatelessWidget {
                     child: SvgPicture.asset(
                       'assets/icons/reset_style=line.svg',
                       width: 20.w,
-                      height: 20.h,
+                      height: 20.w,
                     ),
                   )),
             ],
           ),
         ),
         SizedBox(
-          width: 4.h,
+          width: 4.w,
         ),
         CountdownTimer(stopAt: vote.stop_at),
       ],
