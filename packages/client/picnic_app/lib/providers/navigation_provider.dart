@@ -3,6 +3,7 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/menu.dart';
 import 'package:picnic_app/navigation_stack.dart';
 import 'package:picnic_app/pages/common/mypage.dart';
+import 'package:picnic_app/pages/vote/vote_home_page.dart';
 import 'package:picnic_app/reflector.dart';
 import 'package:picnic_app/screens/community/community_home_screen.dart';
 import 'package:picnic_app/screens/mypage_screen.dart';
@@ -51,7 +52,7 @@ class NavigationInfo extends _$NavigationInfo {
     state = state.copyWith(
       portalType: portalType,
       currentScreen: currentScreen,
-      navigationStack: NavigationStack()..push(currentPage),
+      topNavigationStack: NavigationStack()..push(currentPage),
     );
     globalStorage.saveData('portalString', portalType.name.toString());
   }
@@ -86,7 +87,7 @@ class NavigationInfo extends _$NavigationInfo {
       picBottomNavigationIndex: index,
     );
     state = state.copyWith(
-      navigationStack: NavigationStack()..push(picPages[index].pageWidget),
+      topNavigationStack: NavigationStack()..push(picPages[index].pageWidget),
     );
     globalStorage.saveData('picBottomNavigationIndex', index.toString());
   }
@@ -94,14 +95,15 @@ class NavigationInfo extends _$NavigationInfo {
   setVoteBottomNavigationIndex(int index) {
     state = state.copyWith(
         voteBottomNavigationIndex: index,
-        navigationStack: NavigationStack()..push(votePages[index].pageWidget));
+        topNavigationStack: NavigationStack()
+          ..push(votePages[index].pageWidget));
     globalStorage.saveData('voteBottomNavigationIndex', index.toString());
   }
 
   setCommunityBottomNavigationIndex(int index) {
     state = state.copyWith(
         communityBottomNavigationIndex: index,
-        navigationStack: NavigationStack()
+        topNavigationStack: NavigationStack()
           ..push(communityPages[index].pageWidget));
     globalStorage.saveData('communityBottomNavigationIndex', index.toString());
   }
@@ -109,13 +111,29 @@ class NavigationInfo extends _$NavigationInfo {
   setNovelBottomNavigationIndex(int index) {
     state = state.copyWith(
         novelBottomNavigationIndex: index,
-        navigationStack: NavigationStack()..push(novelPages[index].pageWidget));
+        topNavigationStack: NavigationStack()
+          ..push(novelPages[index].pageWidget));
     globalStorage.saveData('novelBottomNavigationIndex', index.toString());
   }
 
   setCurrentPage(Widget page,
       {bool showTopMenu = true, bool showBottomNavigation = true}) {
-    final NavigationStack? navigationStack = state.topNavigationStack;
+    final NavigationStack? topNavigationStack = state.topNavigationStack;
+
+    if (topNavigationStack?.peek() == page) {
+      return;
+    }
+
+    topNavigationStack?.push(page);
+    state = state.copyWith(
+      topNavigationStack: topNavigationStack,
+      showTopMenu: showTopMenu,
+      showBottomNavigation: showBottomNavigation,
+    );
+  }
+
+  setCurrentMyPage(Widget page) {
+    final NavigationStack? navigationStack = state.drawerNavigationStack;
 
     if (navigationStack?.peek() == page) {
       return;
@@ -123,28 +141,23 @@ class NavigationInfo extends _$NavigationInfo {
 
     navigationStack?.push(page);
     state = state.copyWith(
-      navigationStack: navigationStack,
-      showTopMenu: showTopMenu,
-      showBottomNavigation: showBottomNavigation,
-    );
-  }
-
-  setCurrentMyPage(Widget page) {
-    final NavigationStack? navigationStack = state.myNavigationStack;
-
-    if (navigationStack?.peek() == page) {
-      return;
-    }
-
-    navigationStack?.push(page);
-    state = state.copyWith(myNavigationStack: navigationStack);
+        drawerNavigationStack: navigationStack,
+        showTopMenu: true,
+        showBottomNavigation: true);
   }
 
   goBack() {
     final NavigationStack? navigationStack = state.topNavigationStack;
     navigationStack?.pop();
 
-    state = state.copyWith(navigationStack: navigationStack);
+    state = state.copyWith(topNavigationStack: navigationStack);
+  }
+
+  goBackMy() {
+    final NavigationStack? navigationStack = state.drawerNavigationStack;
+    navigationStack?.pop();
+
+    state = state.copyWith(drawerNavigationStack: navigationStack);
   }
 }
 
@@ -158,8 +171,10 @@ class Navigation {
   Widget currentScreen = const VoteHomeScreen();
   bool showTopMenu = true;
   bool showBottomNavigation = true;
-  NavigationStack? topNavigationStack = NavigationStack();
-  NavigationStack? myNavigationStack = NavigationStack()..push(const MyPage());
+  NavigationStack? topNavigationStack = NavigationStack()
+    ..push(const VoteHomePage());
+  NavigationStack? drawerNavigationStack = NavigationStack()
+    ..push(const MyPage());
 
   Navigation();
 
@@ -200,7 +215,7 @@ class Navigation {
     }
 
     return Navigation()
-      ..portalType = getPortalTypeByString(portalString!)
+      ..portalType = portalType
       ..voteBottomNavigationIndex = int.parse(voteBottomNavigationIndex!)
       ..picBottomNavigationIndex = int.parse(picBottomNavigationIndex!)
       ..communityBottomNavigationIndex =
@@ -208,13 +223,7 @@ class Navigation {
       ..novelBottomNavigationIndex = int.parse(novelBottomNavigationIndex!)
       ..currentScreen = currentScreen
       ..topNavigationStack = topNavigationStack
-      ..myNavigationStack = myNavigationStack;
-  }
-
-  getPortalTypeByString(String portalString) {
-    return PortalType.values.firstWhere((e) {
-      return e.name == portalString;
-    }, orElse: () => PortalType.vote);
+      ..drawerNavigationStack = drawerNavigationStack;
   }
 
   Navigation copyWith({
@@ -226,8 +235,8 @@ class Navigation {
     Widget? currentScreen,
     bool? showTopMenu,
     bool? showBottomNavigation,
-    NavigationStack? navigationStack,
-    NavigationStack? myNavigationStack,
+    NavigationStack? topNavigationStack,
+    NavigationStack? drawerNavigationStack,
   }) {
     return Navigation()
       ..portalType = portalType ?? this.portalType
@@ -242,7 +251,8 @@ class Navigation {
       ..currentScreen = currentScreen ?? this.currentScreen
       ..showTopMenu = showTopMenu ?? this.showTopMenu
       ..showBottomNavigation = showBottomNavigation ?? this.showBottomNavigation
-      ..topNavigationStack = navigationStack ?? topNavigationStack
-      ..myNavigationStack = myNavigationStack ?? myNavigationStack;
+      ..topNavigationStack = topNavigationStack ?? this.topNavigationStack
+      ..drawerNavigationStack =
+          drawerNavigationStack ?? this.drawerNavigationStack;
   }
 }
