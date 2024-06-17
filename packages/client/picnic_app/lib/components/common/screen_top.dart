@@ -32,7 +32,8 @@ class _TopState extends ConsumerState<ScreenTop> {
 
     String pageName;
     try {
-      pageName = (navigationInfo.navigationStack!.peek() as dynamic).pageName;
+      pageName =
+          (navigationInfo.topNavigationStack!.peek() as dynamic).pageName;
     } catch (e) {
       if (e is NoSuchMethodError) {
         pageName = '';
@@ -56,8 +57,8 @@ class _TopState extends ConsumerState<ScreenTop> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          navigationInfo.navigationStack != null &&
-                  navigationInfo.navigationStack!.length > 1
+          (navigationInfo.topNavigationStack != null &&
+                  navigationInfo.topNavigationStack!.length > 1)
               ? GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () {
@@ -66,32 +67,14 @@ class _TopState extends ConsumerState<ScreenTop> {
                   child: const Icon(Icons.arrow_back_ios),
                 )
               : const CommonMyPoint(),
-          navigationInfo.navigationStack != null &&
-                  navigationInfo.navigationStack!.length > 1
+          navigationInfo.topNavigationStack != null &&
+                  navigationInfo.topNavigationStack!.length > 1
               ? Text(
                   Intl.message(pageName),
                   style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
                 )
               : const SizedBox(),
-          Row(
-            children: [
-              SvgPicture.asset(
-                'assets/icons/calendar_style=line.svg',
-                width: 24.w,
-                height: 24.h,
-              ),
-              Divider(
-                color: AppColors.Grey900,
-                thickness: 1.r,
-                indent: 16.w,
-              ),
-              SvgPicture.asset(
-                'assets/icons/alarm_style=line.svg',
-                width: 24.w,
-                height: 24.h,
-              ),
-            ],
-          ),
+          TopScreenRight(),
         ],
       ),
     );
@@ -116,4 +99,33 @@ class _TopState extends ConsumerState<ScreenTop> {
 //     logger.d(status);
 //   }, const Duration(seconds: 1));
 // }
+}
+
+class TopScreenRight extends StatelessWidget {
+  const TopScreenRight({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        SvgPicture.asset(
+          'assets/icons/calendar_style=line.svg',
+          width: 24.w,
+          height: 24.h,
+        ),
+        Divider(
+          color: AppColors.Grey900,
+          thickness: 1.r,
+          indent: 16.w,
+        ),
+        SvgPicture.asset(
+          'assets/icons/alarm_style=line.svg',
+          width: 24.w,
+          height: 24.h,
+        ),
+      ],
+    );
+  }
 }

@@ -35,4 +35,4 @@ Map<String, String> languageMap = {
 
 int userId = 2;
 
-enum PortalType { vote, pic, community, novel }
+enum PortalType { vote, pic, community, novel, mypage }
