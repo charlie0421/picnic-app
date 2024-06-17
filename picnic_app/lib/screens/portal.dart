@@ -31,11 +31,11 @@ class _PortalState extends ConsumerState<Portal> {
 
   @override
   Widget build(BuildContext context) {
-    final navigationInfo = ref.watch(navigationInfoProvider);
+    final currentScreen = ref.watch(navigationInfoProvider.select((value) {
+      return value.currentScreen;
+    }));
     final navigationInfoNotifier = ref.read(navigationInfoProvider.notifier);
     final userInfo = ref.watch(userInfoProvider);
-
-    Widget currentScreen = navigationInfo.currentScreen;
 
     final bool logined = ref.watch(loginedProvider);
 
@@ -52,7 +52,9 @@ class _PortalState extends ConsumerState<Portal> {
                   data: (data) => data != null
                       ? GestureDetector(
                           behavior: HitTestBehavior.opaque,
-                          onTap: () => Scaffold.of(context).openDrawer(),
+                          onTap: () {
+                            Scaffold.of(context).openDrawer();
+                          },
                           child: Container(
                             width: 36.w,
                             height: 36.w,
