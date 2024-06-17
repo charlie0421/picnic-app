@@ -13,6 +13,7 @@ import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/screens/pic/pic_camera_screen.dart';
 import 'package:picnic_app/screens/portal.dart';
 import 'package:picnic_app/ui/community_theme.dart';
+import 'package:picnic_app/ui/mypage_theme.dart';
 import 'package:picnic_app/ui/novel_theme.dart';
 import 'package:picnic_app/ui/pic_theme.dart';
 import 'package:picnic_app/ui/vote_theme.dart';
@@ -143,6 +144,8 @@ class _PicnicAppState extends ConsumerState<PicnicApp>
       return communityThemeLight;
     } else if (currentPortal.portalType == PortalType.novel) {
       return novelThemeLight;
+    } else if (currentPortal.portalType == PortalType.mypage) {
+      return mypageThemeLight;
     } else {
       return picThemeLight;
     }

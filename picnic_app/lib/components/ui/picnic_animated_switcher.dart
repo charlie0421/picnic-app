@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_app/pages/common/mypage.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 
 class PicnicAnimatedSwitcher extends ConsumerWidget {
@@ -26,9 +27,39 @@ class PicnicAnimatedSwitcher extends ConsumerWidget {
             margin: navigationInfo.showBottomNavigation
                 ? const EdgeInsets.only(bottom: 60).r
                 : null,
-            child: navigationInfo.navigationStack != null &&
-                    navigationInfo.navigationStack!.length > 0
-                ? navigationInfo.navigationStack?.peek()
+            child: navigationInfo.topNavigationStack != null &&
+                    navigationInfo.topNavigationStack!.length > 0
+                ? navigationInfo.topNavigationStack?.peek()
                 : Container()));
+  }
+}
+
+class MyAnimatedSwitcher extends ConsumerWidget {
+  const MyAnimatedSwitcher({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final navigationInfo = ref.watch(navigationInfoProvider);
+    return AnimatedSwitcher(
+        duration: const Duration(milliseconds: 500),
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
+        layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
+          return currentChild ?? Container();
+        },
+        child: Container(
+            margin: navigationInfo.showBottomNavigation
+                ? const EdgeInsets.only(bottom: 60).r
+                : null,
+            child: navigationInfo.myNavigationStack != null &&
+                    navigationInfo.myNavigationStack!.length > 0
+                ? navigationInfo.myNavigationStack?.peek()
+                : MyPage()));
   }
 }

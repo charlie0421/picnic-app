@@ -24,58 +24,60 @@ class MyPage extends ConsumerStatefulWidget {
 class _MyPageState extends ConsumerState<MyPage> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: ListView(
-        children: [
-          SizedBox(height: 24.h),
-          _buildProfile(),
-          SizedBox(height: 24.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SizedBox(
-                  width: 144.w, height: 36.h, child: const CommonMyPoint()),
-            ],
-          ),
-          SizedBox(height: 24.h),
-          const Divider(color: AppColors.Grey200),
-          ListItem(
-              leading: Intl.message('label_mypage_notice'),
-              assetPath: 'assets/icons/arrow_right_style=line.svg',
-              onTap: () {}),
-          const Divider(color: AppColors.Grey200),
-          ListItem(
-              leading: Intl.message('label_mypage_charge_history'),
-              assetPath: 'assets/icons/arrow_right_style=line.svg',
-              onTap: () {}),
-          const Divider(color: AppColors.Grey200),
-          ListItem(
-              leading: Intl.message('label_mypage_customer_center'),
-              assetPath: 'assets/icons/arrow_right_style=line.svg',
-              onTap: () {}),
-          const Divider(color: AppColors.Grey200),
-          ListItem(
-              leading: Intl.message('label_mypage_setting'),
-              assetPath: 'assets/icons/arrow_right_style=line.svg',
-              onTap: () => ref
-                  .read(navigationInfoProvider.notifier)
-                  .setCurrentPage(SettingPage())),
-          const Divider(color: AppColors.Grey200),
-          _buildMyStar('VOTE'),
-          const Divider(color: AppColors.Grey200),
-          ListItem(
-              leading: Intl.message('label_mypage_vote_history'),
-              assetPath: 'assets/icons/arrow_right_style=line.svg',
-              onTap: () {}),
-          const Divider(color: AppColors.Grey200),
-          _buildMyStar('P-RAME'),
-          const Divider(color: AppColors.Grey200),
-          ListItem(
-              leading: Intl.message('label_mypage_membership_history'),
-              assetPath: 'assets/icons/arrow_right_style=line.svg',
-              onTap: () {}),
-        ],
+    return Scaffold(
+      body: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        child: ListView(
+          children: [
+            SizedBox(height: 24.w),
+            _buildProfile(),
+            SizedBox(height: 24.w),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SizedBox(
+                    width: 144.w, height: 36.w, child: const CommonMyPoint()),
+              ],
+            ),
+            SizedBox(height: 24.w),
+            const Divider(color: AppColors.Grey200),
+            ListItem(
+                leading: Intl.message('label_mypage_notice'),
+                assetPath: 'assets/icons/arrow_right_style=line.svg',
+                onTap: () {}),
+            const Divider(color: AppColors.Grey200),
+            ListItem(
+                leading: Intl.message('label_mypage_charge_history'),
+                assetPath: 'assets/icons/arrow_right_style=line.svg',
+                onTap: () {}),
+            const Divider(color: AppColors.Grey200),
+            ListItem(
+                leading: Intl.message('label_mypage_customer_center'),
+                assetPath: 'assets/icons/arrow_right_style=line.svg',
+                onTap: () {}),
+            const Divider(color: AppColors.Grey200),
+            ListItem(
+                leading: Intl.message('label_mypage_setting'),
+                assetPath: 'assets/icons/arrow_right_style=line.svg',
+                onTap: () => ref
+                    .read(navigationInfoProvider.notifier)
+                    .setCurrentMyPage(SettingPage())),
+            const Divider(color: AppColors.Grey200),
+            _buildMyStar('VOTE'),
+            const Divider(color: AppColors.Grey200),
+            ListItem(
+                leading: Intl.message('label_mypage_vote_history'),
+                assetPath: 'assets/icons/arrow_right_style=line.svg',
+                onTap: () {}),
+            const Divider(color: AppColors.Grey200),
+            _buildMyStar('P-RAME'),
+            const Divider(color: AppColors.Grey200),
+            ListItem(
+                leading: Intl.message('label_mypage_membership_history'),
+                assetPath: 'assets/icons/arrow_right_style=line.svg',
+                onTap: () {}),
+          ],
+        ),
       ),
     );
   }
@@ -83,13 +85,13 @@ class _MyPageState extends ConsumerState<MyPage> {
   Widget _buildProfile() {
     final userInfo = ref.watch(userInfoProvider);
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: userInfo.when(
         data: (data) {
           return Row(
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(80),
+                borderRadius: BorderRadius.circular(80).r,
                 child: CachedNetworkImage(
                   imageUrl: data?.avatar_url ?? '',
                   placeholder: (context, url) => buildPlaceholderImage(),
@@ -98,7 +100,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                   fit: BoxFit.cover,
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16.w),
               Text(
                 data?.nickname ?? '',
                 style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900),
@@ -127,7 +129,7 @@ class _MyPageState extends ConsumerState<MyPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          height: 48.h,
+          height: 48.w,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -142,7 +144,7 @@ class _MyPageState extends ConsumerState<MyPage> {
               ),
               SvgPicture.asset('assets/icons/arrow_right_style=line.svg',
                   width: 20.w,
-                  height: 20.h,
+                  height: 20.w,
                   colorFilter: const ColorFilter.mode(
                     AppColors.Grey900,
                     BlendMode.srcIn,
@@ -150,10 +152,10 @@ class _MyPageState extends ConsumerState<MyPage> {
             ],
           ),
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: 16.w),
         SizedBox(
           width: double.infinity,
-          height: 80.h,
+          height: 80.w,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             shrinkWrap: true,

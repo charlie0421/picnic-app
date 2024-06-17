@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/menu.dart';
 import 'package:picnic_app/navigation_stack.dart';
-import 'package:picnic_app/pages/vote/vote_home_page.dart';
+import 'package:picnic_app/pages/common/mypage.dart';
 import 'package:picnic_app/reflector.dart';
 import 'package:picnic_app/screens/community/community_home_screen.dart';
+import 'package:picnic_app/screens/mypage_screen.dart';
 import 'package:picnic_app/screens/novel/novel_home_screen.dart';
 import 'package:picnic_app/screens/pic/pic_home_screen.dart';
 import 'package:picnic_app/screens/vote/vote_home_screen.dart';
@@ -36,6 +37,12 @@ class NavigationInfo extends _$NavigationInfo {
     } else if (portalType == PortalType.novel) {
       currentScreen = const NovelHomeScreen();
       currentPage = novelPages[state.picBottomNavigationIndex].pageWidget;
+    } else if (portalType == PortalType.vote) {
+      currentScreen = const VoteHomeScreen();
+      currentPage = votePages[state.voteBottomNavigationIndex].pageWidget;
+    } else if (portalType == PortalType.mypage) {
+      currentScreen = const MyPageScreen();
+      currentPage = const MyPage();
     } else {
       currentScreen = const VoteHomeScreen();
       currentPage = votePages[state.voteBottomNavigationIndex].pageWidget;
@@ -108,7 +115,7 @@ class NavigationInfo extends _$NavigationInfo {
 
   setCurrentPage(Widget page,
       {bool showTopMenu = true, bool showBottomNavigation = true}) {
-    final NavigationStack? navigationStack = state.navigationStack;
+    final NavigationStack? navigationStack = state.topNavigationStack;
 
     if (navigationStack?.peek() == page) {
       return;
@@ -122,8 +129,19 @@ class NavigationInfo extends _$NavigationInfo {
     );
   }
 
+  setCurrentMyPage(Widget page) {
+    final NavigationStack? navigationStack = state.myNavigationStack;
+
+    if (navigationStack?.peek() == page) {
+      return;
+    }
+
+    navigationStack?.push(page);
+    state = state.copyWith(myNavigationStack: navigationStack);
+  }
+
   goBack() {
-    final NavigationStack? navigationStack = state.navigationStack;
+    final NavigationStack? navigationStack = state.topNavigationStack;
     navigationStack?.pop();
 
     state = state.copyWith(navigationStack: navigationStack);
@@ -140,8 +158,8 @@ class Navigation {
   Widget currentScreen = const VoteHomeScreen();
   bool showTopMenu = true;
   bool showBottomNavigation = true;
-  NavigationStack? navigationStack = NavigationStack()
-    ..push(const VoteHomePage());
+  NavigationStack? topNavigationStack = NavigationStack();
+  NavigationStack? myNavigationStack = NavigationStack()..push(const MyPage());
 
   Navigation();
 
@@ -161,21 +179,24 @@ class Navigation {
     logger.d('portalString: $portalString');
     if (portalString == PortalType.vote.name.toString()) {
       currentScreen = const VoteHomeScreen();
-      navigationStack = NavigationStack()
+      topNavigationStack = NavigationStack()
         ..push(votePages[int.parse(voteBottomNavigationIndex!)].pageWidget);
     } else if (portalString == PortalType.pic.name.toString()) {
       currentScreen = const PicHomeScreen();
-      navigationStack = NavigationStack()
+      topNavigationStack = NavigationStack()
         ..push(picPages[int.parse(picBottomNavigationIndex!)].pageWidget);
     } else if (portalString == PortalType.community.name.toString()) {
       currentScreen = const CommunityHomeScreen();
-      navigationStack = NavigationStack()
+      topNavigationStack = NavigationStack()
         ..push(communityPages[int.parse(communityBottomNavigationIndex!)]
             .pageWidget);
     } else if (portalString == PortalType.novel.name.toString()) {
       currentScreen = const NovelHomeScreen();
-      navigationStack = NavigationStack()
+      topNavigationStack = NavigationStack()
         ..push(novelPages[int.parse(novelBottomNavigationIndex!)].pageWidget);
+    } else if (portalString == PortalType.mypage.name.toString()) {
+      currentScreen = const MyPageScreen();
+      topNavigationStack = NavigationStack()..push(const MyPage());
     }
 
     return Navigation()
@@ -186,7 +207,8 @@ class Navigation {
           int.parse(communityBottomNavigationIndex!)
       ..novelBottomNavigationIndex = int.parse(novelBottomNavigationIndex!)
       ..currentScreen = currentScreen
-      ..navigationStack = navigationStack;
+      ..topNavigationStack = topNavigationStack
+      ..myNavigationStack = myNavigationStack;
   }
 
   getPortalTypeByString(String portalString) {
@@ -205,6 +227,7 @@ class Navigation {
     bool? showTopMenu,
     bool? showBottomNavigation,
     NavigationStack? navigationStack,
+    NavigationStack? myNavigationStack,
   }) {
     return Navigation()
       ..portalType = portalType ?? this.portalType
@@ -219,6 +242,7 @@ class Navigation {
       ..currentScreen = currentScreen ?? this.currentScreen
       ..showTopMenu = showTopMenu ?? this.showTopMenu
       ..showBottomNavigation = showBottomNavigation ?? this.showBottomNavigation
-      ..navigationStack = navigationStack ?? this.navigationStack;
+      ..topNavigationStack = navigationStack ?? topNavigationStack
+      ..myNavigationStack = myNavigationStack ?? myNavigationStack;
   }
 }

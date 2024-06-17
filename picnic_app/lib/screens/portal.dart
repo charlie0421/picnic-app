@@ -6,11 +6,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/common/portal_menu_item.dart';
 import 'package:picnic_app/components/common/screen_top.dart';
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/pages/common/mypage.dart';
 import 'package:picnic_app/providers/logined_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/screens/login_screen.dart';
+import 'package:picnic_app/screens/mypage_screen.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
 
@@ -41,82 +41,88 @@ class _PortalState extends ConsumerState<Portal> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
+      drawer: Drawer(
+        width: double.infinity,
+        child: MyPageScreen(),
+      ),
       appBar: AppBar(
-        title: SizedBox(
-          height: 54.h,
-          child: Row(
-            children: [
-              logined
-                  ? userInfo.when(
-                      data: (data) => data != null
-                          ? GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () =>
-                                  navigationInfoNotifier.setCurrentPage(
-                                MyPage(),
-                              ),
-                              child: Container(
+        leading: Builder(
+          builder: (context) => logined
+              ? userInfo.when(
+                  data: (data) => data != null
+                      ? GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => Scaffold.of(context).openDrawer(),
+                          child: Container(
+                            width: 36.w,
+                            height: 36.w,
+                            alignment: Alignment.center,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8.r),
+                              child: CachedNetworkImage(
+                                imageUrl: data.avatar_url ?? '',
+                                placeholder: (context, url) =>
+                                    buildPlaceholderImage(),
                                 width: 36.w,
                                 height: 36.w,
-                                alignment: Alignment.center,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8.r),
-                                  child: CachedNetworkImage(
-                                    imageUrl: data.avatar_url ?? '',
-                                    placeholder: (context, url) =>
-                                        buildPlaceholderImage(),
-                                    width: 36.w,
-                                    height: 36.w,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                            )
-                          : Container(
-                              width: 36.w,
-                              height: 36.w,
-                              decoration: BoxDecoration(
-                                color: AppColors.Grey200,
-                                borderRadius: BorderRadius.circular(8.r),
-                              ),
-                              child: SvgPicture.asset(
-                                'assets/icons/header/default_avatar.svg',
-                                width: 24.w,
-                                height: 24.w,
+                                fit: BoxFit.cover,
                               ),
                             ),
-                      error: (error, stackTrace) => const Icon(Icons.error),
-                      loading: () => Container(
-                        width: 36.w,
-                        height: 36.w,
-                        alignment: Alignment.center,
-                        child: ClipRRect(
+                          ),
+                        )
+                      : Container(
+                          width: 36.w,
+                          height: 36.w,
+                          decoration: BoxDecoration(
+                            color: AppColors.Grey200,
                             borderRadius: BorderRadius.circular(8.r),
-                            child: buildPlaceholderImage()),
-                      ),
-                    )
-                  : GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => navigationInfoNotifier.setCurrentPage(
-                        const LoginScreen(),
-                      ),
-                      child: Container(
-                        width: 36.w,
-                        height: 36.w,
-                        decoration: BoxDecoration(
-                          color: AppColors.Grey200,
-                          borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: SvgPicture.asset(
+                            'assets/icons/header/default_avatar.svg',
+                            width: 24.w,
+                            height: 24.w,
+                          ),
                         ),
-                        child: SvgPicture.asset(
-                          'assets/icons/header/default_avatar.svg',
-                          width: 24.w,
-                          height: 24.w,
-                        ),
-                      ),
+                  error: (error, stackTrace) => const Icon(Icons.error),
+                  loading: () => Container(
+                    width: 36.w,
+                    height: 36.w,
+                    alignment: Alignment.center,
+                    child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8.r),
+                        child: buildPlaceholderImage()),
+                  ),
+                )
+              : GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => navigationInfoNotifier.setCurrentPage(
+                    const LoginScreen(),
+                  ),
+                  child: Container(
+                    width: 36.w,
+                    height: 36.w,
+                    decoration: BoxDecoration(
+                      color: AppColors.Grey200,
+                      borderRadius: BorderRadius.circular(8.r),
                     ),
+                    child: SvgPicture.asset(
+                      'assets/icons/header/default_avatar.svg',
+                      width: 24.w,
+                      height: 24.w,
+                    ),
+                  ),
+                ),
+        ),
+        leadingWidth: 52.w,
+        titleSpacing: 0,
+        title: SizedBox(
+          height: 26.w,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: [
               SizedBox(
-                height: 26.h,
-                width: MediaQuery.of(context).size.width - 32.w - 36.w,
+                height: 26.w,
+                width: MediaQuery.of(context).size.width,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: const [
