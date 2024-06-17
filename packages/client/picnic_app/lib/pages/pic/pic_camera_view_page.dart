@@ -110,7 +110,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
 
   Widget _buildTopBar(BuildContext context) {
     return Container(
-      height: 60.h,
+      height: 60.w,
       alignment: Alignment.centerRight,
       child: IconButton(
         icon: const Icon(Icons.close, size: 36),
@@ -453,11 +453,11 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                          margin: EdgeInsets.only(top: 16.h),
+                          margin: EdgeInsets.only(top: 16.w),
                           child: Image.memory(_capturedImageBytes!)),
                       Container(
                         width: 200.w,
-                        padding: EdgeInsets.symmetric(vertical: 16.h),
+                        padding: EdgeInsets.symmetric(vertical: 16.w),
                         child: ElevatedButton(
                           onPressed: () async {
                             await _saveImage();

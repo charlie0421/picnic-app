@@ -20,7 +20,7 @@ class CommentReplyLayer extends ConsumerWidget {
     return Container(
       color: AppColors.Grey300,
       width: double.infinity,
-      height: 40.h,
+      height: 40.w,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

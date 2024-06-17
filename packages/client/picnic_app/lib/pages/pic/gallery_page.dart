@@ -58,7 +58,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
             ),
           ),
           SizedBox(
-            height: 20.h,
+            height: 20.w,
           ),
           Expanded(
             child: ListView.separated(
@@ -67,7 +67,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
               itemCount: galleryList.length,
               separatorBuilder: (context, index) {
                 return SizedBox(
-                  height: 16.h,
+                  height: 16.w,
                 );
               },
               itemBuilder: (context, index) {
@@ -87,11 +87,11 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
                     children: [
                       SizedBox(
                           width: double.infinity,
-                          height: 215.h,
+                          height: 215.w,
                           child: CachedNetworkImage(
                             imageUrl: gallery.cover ?? '',
                             width: 361.w,
-                            height: 215.h,
+                            height: 215.w,
                             placeholder: (context, url) =>
                                 buildPlaceholderImage(),
                             fit: BoxFit.cover,
@@ -100,7 +100,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
                         bottom: 10,
                         left: 10,
                         child: SizedBox(
-                          height: 30.h,
+                          height: 30.w,
                           child: Text(
                             gallery.title_en,
                             style: getTextStyle(

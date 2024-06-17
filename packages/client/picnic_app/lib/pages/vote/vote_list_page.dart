@@ -48,7 +48,7 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
           ]),
         ),
         SizedBox(
-          height: 36.h,
+          height: 36.w,
         ),
         Expanded(
             child: TabBarView(controller: _tabController, children: const [
@@ -67,7 +67,7 @@ Widget _buildVote(BuildContext context, WidgetRef ref, VoteModel vote) {
       children: [
         VoteHeader(vote: vote),
         SizedBox(
-          height: 10.h,
+          height: 10.w,
         ),
         Container(
           padding: const EdgeInsets.only(bottom: 10),

@@ -35,8 +35,8 @@ class CommentActions extends ConsumerWidget {
                     child: Container(
                       alignment: Alignment.topLeft,
                       padding: EdgeInsets.only(
-                        top: 5.h,
-                        bottom: 10.h,
+                        top: 5.w,
+                        bottom: 10.w,
                       ),
                       child: Text(Intl.message('label_reply'),
                           style:

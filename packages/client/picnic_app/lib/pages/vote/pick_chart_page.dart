@@ -47,7 +47,7 @@ class _PicChartPageState extends State<PicChartPage>
                       style: getTextStyle(AppTypo.BODY14M, AppColors.Grey900),
                     ),
                     Divider(
-                      height: 72.h,
+                      height: 72.w,
                       thickness: 1,
                       color: AppColors.Grey300,
                     ),
@@ -57,7 +57,7 @@ class _PicChartPageState extends State<PicChartPage>
                         SvgPicture.asset(
                           'assets/icons/vote/vote_title_left.svg',
                           width: 16.w,
-                          height: 16.h,
+                          height: 16.w,
                         ),
                         Text(
                           '점수 산정 방법',
@@ -71,13 +71,13 @@ class _PicChartPageState extends State<PicChartPage>
                         ),
                       ],
                     ),
-                    SizedBox(height: 16.h),
+                    SizedBox(height: 16.w),
                     Text(
                       '무슨 차트로,\n무슨 지표를 어떻게 하는 차트입니다.\n픽차트는 이렇게 저렇게 쓰입니당',
                       textAlign: TextAlign.center,
                       style: getTextStyle(AppTypo.BODY14M, AppColors.Grey900),
                     ),
-                    SizedBox(height: 16.h),
+                    SizedBox(height: 16.w),
                     Text(
                       '주간 투표 / 각 멤버의 투표 순위 평균 /\n개인의 경우 개인 순위 반영 / 포털 검색량 /\n구글, 네이버, 야후 등 / 스포티파이 순위',
                       textAlign: TextAlign.center,

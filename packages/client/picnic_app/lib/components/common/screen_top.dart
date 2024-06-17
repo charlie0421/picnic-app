@@ -42,8 +42,8 @@ class _TopState extends ConsumerState<ScreenTop> {
       }
     }
     return Container(
-      height: 54.h,
-      padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 16.w),
+      height: 54.w,
+      padding: EdgeInsets.symmetric(vertical: 10.w, horizontal: 16.w),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -113,7 +113,7 @@ class TopScreenRight extends StatelessWidget {
         SvgPicture.asset(
           'assets/icons/calendar_style=line.svg',
           width: 24.w,
-          height: 24.h,
+          height: 24.w,
         ),
         Divider(
           color: AppColors.Grey900,
@@ -123,7 +123,7 @@ class TopScreenRight extends StatelessWidget {
         SvgPicture.asset(
           'assets/icons/alarm_style=line.svg',
           width: 24.w,
-          height: 24.h,
+          height: 24.w,
         ),
       ],
     );

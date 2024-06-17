@@ -17,7 +17,7 @@ class CommonPointInfo extends ConsumerWidget {
     return Stack(
       children: [
         Container(
-          height: 100.h,
+          height: 100.w,
           margin: const EdgeInsets.only(top: 24, left: 16, right: 16).r,
           decoration: BoxDecoration(
               border: Border.all(

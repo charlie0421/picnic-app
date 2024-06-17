@@ -39,7 +39,7 @@ class _PicHomeScreenState extends ConsumerState<PicHomeScreen> {
         if (picBottomNavigationIndex == 0)
           Positioned(
               right: 20.w,
-              bottom: 120.h,
+              bottom: 120.w,
               child: FloatingActionButton(
                 onPressed: _buildFloating,
                 backgroundColor: picMainColor,

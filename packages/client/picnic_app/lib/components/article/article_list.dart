@@ -58,7 +58,7 @@ class ArticleList extends ConsumerWidget {
         children: [
           ArticleTitle(article: article),
           SizedBox(
-            height: 10.h,
+            height: 10.w,
           ),
           Container(
             padding: const EdgeInsets.only(bottom: 10),
@@ -78,7 +78,7 @@ class ArticleList extends ConsumerWidget {
                 ),
               ],
             ),
-            height: 700.h,
+            height: 700.w,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

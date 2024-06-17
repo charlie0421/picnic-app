@@ -26,7 +26,7 @@ class _LibraryListState extends ConsumerState<AlbumList> {
 
     return asyncLibraryState.when(
         data: (data) => SizedBox(
-              height: 300.h,
+              height: 300.w,
               child: Column(
                 children: [
                   Row(
@@ -55,7 +55,7 @@ class _LibraryListState extends ConsumerState<AlbumList> {
                       itemCount: data?.length ?? 0,
                       itemBuilder: (context, index) {
                         return SizedBox(
-                          height: 50.h,
+                          height: 50.w,
                           width: double.infinity,
                           child: RadioListTile<int>(
                             title: Text(
@@ -76,7 +76,7 @@ class _LibraryListState extends ConsumerState<AlbumList> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.only(bottom: 30.h),
+                    margin: EdgeInsets.only(bottom: 30.w),
                     child: ElevatedButton(
                       onPressed: () {
                         logger.w('selectedRadioTile: $_selectedRadioTile');

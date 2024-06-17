@@ -9,9 +9,9 @@ class PurchaseStarCandy extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       children: [
-        SizedBox(height: 36.h),
+        SizedBox(height: 36.w),
         const CommonPointInfo(),
-        SizedBox(height: 36.h),
+        SizedBox(height: 36.w),
       ],
     );
   }

@@ -55,7 +55,7 @@ class VoteArtists extends StatelessWidget {
                             top: 0,
                             child: Container(
                               width: 18.w,
-                              height: 18.h,
+                              height: 18.w,
                               decoration: BoxDecoration(
                                 color: picMainColor,
                                 borderRadius: BorderRadius.circular(10),
@@ -72,7 +72,7 @@ class VoteArtists extends StatelessWidget {
                         ],
                       ),
                       SizedBox(
-                        height: 2.h,
+                        height: 2.w,
                       ),
                       Text(
                         artist.value.mystar_member.getTitle(),

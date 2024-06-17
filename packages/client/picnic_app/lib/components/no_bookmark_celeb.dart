@@ -28,10 +28,10 @@ class _NoBookmarkCelebState extends ConsumerState<NoBookmarkCeleb> {
         children: [
           SvgPicture.asset('assets/landing/no_celeb.svg',
               width: 60.w,
-              height: 60.h,
+              height: 60.w,
               colorFilter:
                   const ColorFilter.mode(Color(0xFFB7B7B7), BlendMode.srcIn)),
-          SizedBox(height: 8.h),
+          SizedBox(height: 8.w),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             alignment: Alignment.center,

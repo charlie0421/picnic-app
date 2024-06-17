@@ -34,7 +34,7 @@ void showSimpleDialog({
               ),
               if (content != null)
                 SizedBox(
-                  height: 12.h,
+                  height: 12.w,
                 ),
               if (content != null)
                 Padding(
@@ -46,11 +46,11 @@ void showSimpleDialog({
                 ),
               if (contentWidget != null)
                 SizedBox(
-                  height: 12.h,
+                  height: 12.w,
                 ),
               if (contentWidget != null) contentWidget,
               SizedBox(
-                height: 28.h,
+                height: 28.w,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
