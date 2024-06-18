@@ -71,6 +71,9 @@ class NavigationInfo extends _$NavigationInfo {
 
   setBottomNavigationIndex(int index) {
     logger.d('setBottomNavigationIndex: $index');
+    state = state.copyWith(
+      showTopMenu: true,
+    );
     if (state.portalType == PortalType.vote) {
       setVoteBottomNavigationIndex(index);
     } else if (state.portalType == PortalType.pic) {
@@ -117,7 +120,7 @@ class NavigationInfo extends _$NavigationInfo {
   }
 
   setCurrentPage(Widget page,
-      {bool showTopMenu = true, bool showBottomNavigation = true}) {
+      {bool showTopMenu = false, bool showBottomNavigation = true}) {
     final NavigationStack? topNavigationStack = state.topNavigationStack;
 
     if (topNavigationStack?.peek() == page) {
@@ -130,6 +133,13 @@ class NavigationInfo extends _$NavigationInfo {
       showTopMenu: showTopMenu,
       showBottomNavigation: showBottomNavigation,
     );
+
+    // 각 메뉴의 진입점인경우만 포털을 노출
+    (votePages + picPages + communityPages + novelPages)
+                .firstWhere((element) => element.pageWidget == page) !=
+            null
+        ? showPortal()
+        : hidePortal();
   }
 
   setCurrentMyPage(Widget page) {
@@ -147,10 +157,17 @@ class NavigationInfo extends _$NavigationInfo {
   }
 
   goBack() {
-    final NavigationStack? navigationStack = state.topNavigationStack;
-    navigationStack?.pop();
+    final NavigationStack? topNavigationStack = state.topNavigationStack;
+    topNavigationStack?.pop();
 
-    state = state.copyWith(topNavigationStack: navigationStack);
+    state = state.copyWith(topNavigationStack: topNavigationStack);
+
+    // 각 메뉴의 진입점인경우만 포털을 노출
+    (votePages + picPages + communityPages + novelPages).firstWhere((element) =>
+                element.pageWidget == topNavigationStack?.peek()) !=
+            null
+        ? showPortal()
+        : hidePortal();
   }
 
   goBackMy() {
@@ -158,6 +175,18 @@ class NavigationInfo extends _$NavigationInfo {
     navigationStack?.pop();
 
     state = state.copyWith(drawerNavigationStack: navigationStack);
+  }
+
+  hidePortal() {
+    state = state.copyWith(
+      showTopMenu: false,
+    );
+  }
+
+  showPortal() {
+    state = state.copyWith(
+      showTopMenu: true,
+    );
   }
 }
 
