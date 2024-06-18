@@ -248,9 +248,10 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                           ),
                           SizedBox(height: 2.w),
                           Text(
-                            '${DateFormat('yyyy.MM.dd HH:mm').format(DateTime.tryParse(widget.result['updatedAt'])!.add(Duration(hours: 9)))} (KST)',
+                            '${DateFormat('yyyy.MM.dd HH:mm').format(DateTime.tryParse(widget.result['updatedAt'])!.add(Duration(hours: 9)))}(KST)',
                             style: getTextStyle(
                                 AppTypo.CAPTION12R, AppColors.Grey600),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
@@ -282,15 +283,18 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                           Text('이번 투표',
                               style: getTextStyle(
                                   AppTypo.CAPTION12M, AppColors.Primary500)),
-                          Text(
-                            widget.voteModel.getTitle() ?? '',
-                            style: getTextStyle(
-                              AppTypo.BODY14B,
-                              AppColors.Grey900,
+                          SizedBox(width: 16.w),
+                          Expanded(
+                            child: Text(
+                              widget.voteModel.getTitle() ?? '',
+                              style: getTextStyle(
+                                AppTypo.BODY14B,
+                                AppColors.Grey900,
+                              ),
+                              textAlign: TextAlign.center,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
                             ),
-                            textAlign: TextAlign.center,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
                           ),
                         ],
                       ),
