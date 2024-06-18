@@ -6,10 +6,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'vote_pick_list_provider.g.dart';
 
-enum VoteStatus { all, active, end }
-
-enum VoteCategory { all, birthday }
-
 @riverpod
 class AsyncVotePickList extends _$AsyncVotePickList {
   @override
@@ -24,7 +20,6 @@ class AsyncVotePickList extends _$AsyncVotePickList {
       final response = await Supabase.instance.client
           .from('vote_pick')
           .select('*, vote(*), vote_item(*, mystar_member(*, mystar_group(*)))')
-          // .select('*, vote_item(*, mystar_member(*, mystar_group(*)))')
           .order(sort, ascending: order == 'ASC')
           .limit(limit)
           .count();

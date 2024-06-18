@@ -1,4 +1,3 @@
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/reflector.dart';
@@ -13,21 +12,14 @@ enum VoteCategory { all, birthday }
 
 @riverpod
 class AsyncVoteList extends _$AsyncVoteList {
-  final PagingController<int, VoteModel> _pagingController =
-      PagingController(firstPageKey: 1);
-  late int galleryId;
-
   @override
-  Future<PagingController<int, VoteModel>> build(
-      {required VoteCategory category, required VoteStatus status}) async {
-    fetch(1, 10, 'vote.id', 'DESC',
+  Future<VoteListModel> build(int page, int limit, String sort, String order,
+      {required VoteStatus status, required VoteCategory category}) async {
+    return fetch(1, 10, 'vote.id', 'DESC',
         category: category.name, status: status.name);
-    return _pagingController;
   }
 
-  PagingController<int, VoteModel> get pagingController => _pagingController;
-
-  Future<void> fetch(int page, int limit, String sort, String order,
+  Future<VoteListModel> fetch(int page, int limit, String sort, String order,
       {required String category, required String status}) async {
     try {
       final now = DateTime.now().toIso8601String();
@@ -42,6 +34,7 @@ class AsyncVoteList extends _$AsyncVoteList {
             // .eq('vote_category', category == 'all' ? '' : category)
             .lt('start_at', now)
             .gt('stop_at', now)
+            .order(sort, ascending: order == 'ASC')
             .count();
       } else if (status == 'end') {
         // status가 'end'인 경우, stop_at은 현재 시간보다 이전이어야 합니다.
@@ -50,6 +43,7 @@ class AsyncVoteList extends _$AsyncVoteList {
             .select('*, vote_item(*, mystar_member(*, mystar_group(*)))')
             // .eq('vote_category', category == 'all' ? '' : category)
             .lt('stop_at', now)
+            .order(sort, ascending: order == 'ASC')
             .count();
       } else {
         // status가 'all'인 경우, 필터링 없이 모든 데이터를 가져옵니다.
@@ -57,6 +51,7 @@ class AsyncVoteList extends _$AsyncVoteList {
             .from('vote')
             .select('*, vote_item(*, mystar_member(*))')
             // .eq('vote_category', category == 'all' ? '' : category)
+            .order(sort, ascending: order == 'ASC')
             .count();
       }
       // final response = await Supabase.instance.client
@@ -80,27 +75,20 @@ class AsyncVoteList extends _$AsyncVoteList {
         voteList[i] = voteList[i].copyWith(vote_item: updatedVoteItems);
       }
 
-      VoteListState voteListState = VoteListState(
-        category: category,
-        page: page,
-        limit: limit,
-        sort: sort,
-        order: order,
-        voteCount: response.count,
-        currentPage: 1,
-        totalPages: response.count ~/ 10,
-        pagingController: _pagingController,
-      );
-
-      if (voteListState.currentPage >= voteListState.totalPages) {
-        _pagingController.appendLastPage(voteList);
-      } else {
-        _pagingController.appendPage(voteList, voteListState.currentPage + 1);
-      }
+      return VoteListModel.fromJson({
+        'items': voteList,
+        'meta': {
+          'totalItems': response.count,
+          'currentPage': page,
+          'itemCount': response.data.length,
+          'itemsPerPage': limit,
+          'totalPages': (response.count + 1) ~/ limit,
+        }
+      });
     } catch (e, stackTrace) {
-      _pagingController.error = e;
       logger.e(e, stackTrace: stackTrace);
-    }
+      throw e;
+    } finally {}
   }
 }
 
@@ -125,33 +113,6 @@ class SortOptionType {
   String order = '';
 
   SortOptionType(this.sort, this.order);
-}
-
-@reflector
-class VoteListState {
-  final String category;
-  final int page;
-  final int limit;
-  final String sort;
-  final String order;
-  final PagingController<int, VoteModel> pagingController;
-  final int voteCount;
-  final int currentPage;
-  int totalPages;
-
-  VoteListState({
-    required this.category,
-    required this.page,
-    required this.limit,
-    required this.sort,
-    required this.order,
-    required this.pagingController,
-    required this.voteCount,
-    required this.currentPage,
-    required this.totalPages,
-  }) {
-    totalPages = voteCount ~/ limit;
-  }
 }
 
 @riverpod

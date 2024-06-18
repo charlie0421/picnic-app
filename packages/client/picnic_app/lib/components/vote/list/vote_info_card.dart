@@ -9,23 +9,21 @@ import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
 
-class VoteInfoCard extends StatefulWidget {
+class VoteInfoCard extends ConsumerStatefulWidget {
   const VoteInfoCard({
     super.key,
     required this.context,
-    required this.ref,
     required this.vote,
   });
 
   final BuildContext context;
-  final WidgetRef ref;
   final VoteModel vote;
 
   @override
-  State<VoteInfoCard> createState() => _VoteInfoCardState();
+  ConsumerState<VoteInfoCard> createState() => _VoteInfoCardState();
 }
 
-class _VoteInfoCardState extends State<VoteInfoCard>
+class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<Offset> _offsetAnimation;
@@ -85,7 +83,7 @@ class _VoteInfoCardState extends State<VoteInfoCard>
       behavior: HitTestBehavior.opaque,
       onTap: () {
         final navigationInfoNotifier =
-            widget.ref.read(navigationInfoProvider.notifier);
+            ref.read(navigationInfoProvider.notifier);
         navigationInfoNotifier
             .setCurrentPage(VoteDetailPage(voteId: widget.vote.id));
       },
