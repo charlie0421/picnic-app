@@ -46,6 +46,10 @@ class _PortalState extends ConsumerState<Portal> {
         child: MyPageScreen(),
       ),
       appBar: AppBar(
+        toolbarHeight: ref.watch(
+                navigationInfoProvider.select((value) => value.showTopMenu))
+            ? 56.w
+            : 0,
         leading: Container(
           width: 36.w,
           height: 36.w,
@@ -121,9 +125,7 @@ class _PortalState extends ConsumerState<Portal> {
       ),
       body: Column(
         children: [
-          if (ref.watch(
-              navigationInfoProvider.select((value) => value.showTopMenu)))
-            const ScreenTop(),
+          const ScreenTop(),
           Expanded(child: currentScreen),
         ],
       ),

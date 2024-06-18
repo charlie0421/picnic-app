@@ -60,7 +60,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         onTap: () {
           ref
               .read(navigationInfoProvider.notifier)
-              .setCurrentPage(VoteListPage());
+              .setCurrentPage(VoteListPage(), showTopMenu: false);
         },
         child: Container(
           padding: const EdgeInsets.only(left: 16),
