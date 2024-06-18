@@ -41,79 +41,59 @@ class _PortalState extends ConsumerState<Portal> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      drawer: Drawer(
+      drawer: const Drawer(
         width: double.infinity,
         child: MyPageScreen(),
       ),
       appBar: AppBar(
-        leading: Builder(
-          builder: (context) => logined
-              ? userInfo.when(
-                  data: (data) => data != null
-                      ? GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () {
-                            Scaffold.of(context).openDrawer();
-                          },
-                          child: Container(
-                            width: 36.w,
-                            height: 36.w,
-                            alignment: Alignment.center,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8.r),
-                              child: CachedNetworkImage(
-                                imageUrl: data.avatar_url ?? '',
-                                placeholder: (context, url) =>
-                                    buildPlaceholderImage(),
-                                width: 36.w,
-                                height: 36.w,
-                                fit: BoxFit.cover,
+        leading: Container(
+          width: 36.w,
+          height: 36.w,
+          alignment: Alignment.center,
+          child: Builder(
+            builder: (context) => logined
+                ? userInfo.when(
+                    data: (data) => data != null
+                        ? GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              Scaffold.of(context).openDrawer();
+                            },
+                            child: Container(
+                              width: 36.w,
+                              height: 36.w,
+                              alignment: Alignment.center,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8.r),
+                                child: CachedNetworkImage(
+                                  imageUrl: data.avatar_url ?? '',
+                                  placeholder: (context, url) =>
+                                      buildPlaceholderImage(),
+                                  width: 36.w,
+                                  height: 36.w,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
-                          ),
-                        )
-                      : Container(
-                          width: 36.w,
-                          height: 36.w,
-                          decoration: BoxDecoration(
-                            color: AppColors.Grey200,
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          child: SvgPicture.asset(
-                            'assets/icons/header/default_avatar.svg',
-                            width: 24.w,
-                            height: 24.w,
-                          ),
-                        ),
-                  error: (error, stackTrace) => const Icon(Icons.error),
-                  loading: () => Container(
-                    width: 36.w,
-                    height: 36.w,
-                    alignment: Alignment.center,
-                    child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8.r),
-                        child: buildPlaceholderImage()),
-                  ),
-                )
-              : GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => navigationInfoNotifier.setCurrentPage(
-                    const LoginScreen(),
-                  ),
-                  child: Container(
-                    width: 36.w,
-                    height: 36.w,
-                    decoration: BoxDecoration(
-                      color: AppColors.Grey200,
-                      borderRadius: BorderRadius.circular(8.r),
+                          )
+                        : const DefaultAvatar(),
+                    error: (error, stackTrace) => const Icon(Icons.error),
+                    loading: () => SizedBox(
+                      width: 36.w,
+                      height: 36.w,
+                      child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8.r),
+                          child: buildPlaceholderImage()),
                     ),
-                    child: SvgPicture.asset(
-                      'assets/icons/header/default_avatar.svg',
-                      width: 24.w,
-                      height: 24.w,
+                  )
+                : GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => navigationInfoNotifier.setCurrentPage(
+                      const LoginScreen(),
                     ),
+                    child: const DefaultAvatar(),
                   ),
-                ),
+          ),
         ),
         leadingWidth: 52.w,
         titleSpacing: 0,
@@ -146,6 +126,34 @@ class _PortalState extends ConsumerState<Portal> {
             const ScreenTop(),
           Expanded(child: currentScreen),
         ],
+      ),
+    );
+  }
+}
+
+class DefaultAvatar extends StatelessWidget {
+  const DefaultAvatar({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 36.w,
+      height: 36.w,
+      padding: const EdgeInsets.all(6).r,
+      decoration: BoxDecoration(
+        color: AppColors.Grey200,
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+      child: SvgPicture.asset(
+        'assets/icons/header/default_avatar.svg',
+        width: 24.w,
+        height: 24.w,
+        colorFilter: const ColorFilter.mode(
+          AppColors.Grey00,
+          BlendMode.srcIn,
+        ),
       ),
     );
   }
