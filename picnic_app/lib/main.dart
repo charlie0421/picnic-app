@@ -23,11 +23,11 @@ void main() async {
   final client = LoggingHttpClient(http.Client());
 
   await Supabase.initialize(
-      url: supabaseOptions.url,
-      anonKey: supabaseOptions.anonKey,
-      debug: true,
-      httpClient: kDebugMode ? client : null);
-
+    url: supabaseOptions.url,
+    anonKey: supabaseOptions.anonKey,
+    debug: true,
+    // httpClient: kDebugMode ? client : null
+  );
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
