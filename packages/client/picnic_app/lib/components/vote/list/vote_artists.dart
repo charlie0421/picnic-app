@@ -22,7 +22,7 @@ class VoteArtists extends StatelessWidget {
           mainAxisSpacing: 10,
           childAspectRatio: 1 / 1.45,
         ),
-        children: vote.vote_item
+        children: vote.vote_item!
             .asMap()
             .entries
             .map((artist) => Container(
