@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/components/ui/picnic_animated_switcher.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -13,16 +14,28 @@ class MyPageScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final drawerNavigationStack = ref.watch(
-        navigationInfoProvider.select((value) => value.drawerNavigationStack));
+    final navigationInfo = ref.watch(navigationInfoProvider);
+
+    String pageName;
+    try {
+      pageName =
+          (navigationInfo.drawerNavigationStack!.peek() as dynamic).pageName;
+    } catch (e) {
+      if (e is NoSuchMethodError) {
+        pageName = '';
+      } else {
+        rethrow;
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.Grey00,
         foregroundColor: AppColors.Grey900,
         leading: GestureDetector(
           onTap: () {
-            if (drawerNavigationStack != null &&
-                drawerNavigationStack.length > 1) {
+            if (navigationInfo.drawerNavigationStack != null &&
+                navigationInfo.drawerNavigationStack!.length > 1) {
               ref.read(navigationInfoProvider.notifier).goBackMy();
             } else {
               Navigator.of(context).pop();
@@ -39,6 +52,9 @@ class MyPageScreen extends ConsumerWidget {
             ),
           ),
         ),
+        title: Text(Intl.message(pageName),
+            style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
+        centerTitle: true,
         leadingWidth: 40.w,
         actions: [
           SvgPicture.asset(

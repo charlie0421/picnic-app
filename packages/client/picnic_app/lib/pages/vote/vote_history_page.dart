@@ -11,6 +11,8 @@ import 'package:picnic_app/util.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class VoteHistoryPage extends ConsumerStatefulWidget {
+  final String pageName = 'label_mypage_vote_history';
+
   const VoteHistoryPage({super.key});
 
   @override
