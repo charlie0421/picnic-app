@@ -32,8 +32,8 @@ _$VoteModelImpl _$$VoteModelImplFromJson(Map<String, dynamic> json) =>
       wait_image: json['wait_image'] as String,
       result_image: json['result_image'] as String,
       vote_content: json['vote_content'] as String,
-      vote_item: (json['vote_item'] as List<dynamic>)
-          .map((e) => VoteItemModel.fromJson(e as Map<String, dynamic>))
+      vote_item: (json['vote_item'] as List<dynamic>?)
+          ?.map((e) => VoteItemModel.fromJson(e as Map<String, dynamic>))
           .toList(),
       created_at: DateTime.parse(json['created_at'] as String),
       visible_at: DateTime.parse(json['visible_at'] as String),

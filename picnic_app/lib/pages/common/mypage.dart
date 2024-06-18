@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/common_my_point_info.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
 import 'package:picnic_app/pages/common/setting.dart';
+import 'package:picnic_app/pages/vote/vote_history_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -68,7 +69,9 @@ class _MyPageState extends ConsumerState<MyPage> {
             ListItem(
                 leading: Intl.message('label_mypage_vote_history'),
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
-                onTap: () {}),
+                onTap: () => ref
+                    .read(navigationInfoProvider.notifier)
+                    .setCurrentMyPage(VoteHistoryPage())),
             const Divider(color: AppColors.Grey200),
             _buildMyStar('P-RAME'),
             const Divider(color: AppColors.Grey200),

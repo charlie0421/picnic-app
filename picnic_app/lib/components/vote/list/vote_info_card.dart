@@ -76,10 +76,10 @@ class _VoteInfoCardState extends State<VoteInfoCard>
   @override
   @override
   Widget build(BuildContext context) {
-    final List<VoteItemModel> items = widget.vote.vote_item;
-    final no1 = items[0];
-    final no2 = items[1];
-    final no3 = items[2];
+    final List<VoteItemModel>? items = widget.vote.vote_item;
+    final no1 = items?[0];
+    final no2 = items?[1];
+    final no3 = items?[2];
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -125,15 +125,15 @@ class _VoteInfoCardState extends State<VoteInfoCard>
                     children: [
                       VoteCardColumn(
                           rank: 2,
-                          voteItem: no2,
+                          voteItem: no2!,
                           opacityAnimation: _opacityAnimation),
                       VoteCardColumn(
                           rank: 1,
-                          voteItem: no1,
+                          voteItem: no1!,
                           opacityAnimation: _opacityAnimation),
                       VoteCardColumn(
                           rank: 3,
-                          voteItem: no3,
+                          voteItem: no3!,
                           opacityAnimation: _opacityAnimation),
                     ],
                   ),

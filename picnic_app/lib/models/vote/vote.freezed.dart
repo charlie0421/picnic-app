@@ -208,7 +208,7 @@ mixin _$VoteModel {
   String get wait_image => throw _privateConstructorUsedError;
   String get result_image => throw _privateConstructorUsedError;
   String get vote_content => throw _privateConstructorUsedError;
-  List<VoteItemModel> get vote_item => throw _privateConstructorUsedError;
+  List<VoteItemModel>? get vote_item => throw _privateConstructorUsedError;
   DateTime get created_at => throw _privateConstructorUsedError;
   DateTime get visible_at => throw _privateConstructorUsedError;
   DateTime get stop_at => throw _privateConstructorUsedError;
@@ -237,7 +237,7 @@ abstract class $VoteModelCopyWith<$Res> {
       String wait_image,
       String result_image,
       String vote_content,
-      List<VoteItemModel> vote_item,
+      List<VoteItemModel>? vote_item,
       DateTime created_at,
       DateTime visible_at,
       DateTime stop_at,
@@ -268,7 +268,7 @@ class _$VoteModelCopyWithImpl<$Res, $Val extends VoteModel>
     Object? wait_image = null,
     Object? result_image = null,
     Object? vote_content = null,
-    Object? vote_item = null,
+    Object? vote_item = freezed,
     Object? created_at = null,
     Object? visible_at = null,
     Object? stop_at = null,
@@ -316,10 +316,10 @@ class _$VoteModelCopyWithImpl<$Res, $Val extends VoteModel>
           ? _value.vote_content
           : vote_content // ignore: cast_nullable_to_non_nullable
               as String,
-      vote_item: null == vote_item
+      vote_item: freezed == vote_item
           ? _value.vote_item
           : vote_item // ignore: cast_nullable_to_non_nullable
-              as List<VoteItemModel>,
+              as List<VoteItemModel>?,
       created_at: null == created_at
           ? _value.created_at
           : created_at // ignore: cast_nullable_to_non_nullable
@@ -363,7 +363,7 @@ abstract class _$$VoteModelImplCopyWith<$Res>
       String wait_image,
       String result_image,
       String vote_content,
-      List<VoteItemModel> vote_item,
+      List<VoteItemModel>? vote_item,
       DateTime created_at,
       DateTime visible_at,
       DateTime stop_at,
@@ -392,7 +392,7 @@ class __$$VoteModelImplCopyWithImpl<$Res>
     Object? wait_image = null,
     Object? result_image = null,
     Object? vote_content = null,
-    Object? vote_item = null,
+    Object? vote_item = freezed,
     Object? created_at = null,
     Object? visible_at = null,
     Object? stop_at = null,
@@ -440,10 +440,10 @@ class __$$VoteModelImplCopyWithImpl<$Res>
           ? _value.vote_content
           : vote_content // ignore: cast_nullable_to_non_nullable
               as String,
-      vote_item: null == vote_item
+      vote_item: freezed == vote_item
           ? _value._vote_item
           : vote_item // ignore: cast_nullable_to_non_nullable
-              as List<VoteItemModel>,
+              as List<VoteItemModel>?,
       created_at: null == created_at
           ? _value.created_at
           : created_at // ignore: cast_nullable_to_non_nullable
@@ -482,7 +482,7 @@ class _$VoteModelImpl extends _VoteModel {
       required this.wait_image,
       required this.result_image,
       required this.vote_content,
-      required final List<VoteItemModel> vote_item,
+      required final List<VoteItemModel>? vote_item,
       required this.created_at,
       required this.visible_at,
       required this.stop_at,
@@ -515,12 +515,14 @@ class _$VoteModelImpl extends _VoteModel {
   final String result_image;
   @override
   final String vote_content;
-  final List<VoteItemModel> _vote_item;
+  final List<VoteItemModel>? _vote_item;
   @override
-  List<VoteItemModel> get vote_item {
+  List<VoteItemModel>? get vote_item {
+    final value = _vote_item;
+    if (value == null) return null;
     if (_vote_item is EqualUnmodifiableListView) return _vote_item;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_vote_item);
+    return EqualUnmodifiableListView(value);
   }
 
   @override
@@ -629,7 +631,7 @@ abstract class _VoteModel extends VoteModel {
       required final String wait_image,
       required final String result_image,
       required final String vote_content,
-      required final List<VoteItemModel> vote_item,
+      required final List<VoteItemModel>? vote_item,
       required final DateTime created_at,
       required final DateTime visible_at,
       required final DateTime stop_at,
@@ -661,7 +663,7 @@ abstract class _VoteModel extends VoteModel {
   @override
   String get vote_content;
   @override
-  List<VoteItemModel> get vote_item;
+  List<VoteItemModel>? get vote_item;
   @override
   DateTime get created_at;
   @override

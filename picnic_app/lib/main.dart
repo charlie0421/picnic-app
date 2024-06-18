@@ -6,7 +6,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:http/http.dart' as http;
 import 'package:picnic_app/firebase_options.dart';
+import 'package:picnic_app/logging_http_client.dart';
 import 'package:picnic_app/main.reflectable.dart';
 import 'package:picnic_app/picnic_app.dart';
 import 'package:picnic_app/reflector.dart';
@@ -18,11 +20,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
 
+  final client = LoggingHttpClient(http.Client());
+
   await Supabase.initialize(
-    url: supabaseOptions.url,
-    anonKey: supabaseOptions.anonKey,
-    debug: true,
-  );
+      url: supabaseOptions.url,
+      anonKey: supabaseOptions.anonKey,
+      debug: true,
+      httpClient: kDebugMode ? client : null);
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,

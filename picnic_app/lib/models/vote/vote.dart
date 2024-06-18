@@ -37,7 +37,7 @@ class VoteModel with _$VoteModel {
     required String wait_image,
     required String result_image,
     required String vote_content,
-    required List<VoteItemModel> vote_item,
+    required List<VoteItemModel>? vote_item,
     required DateTime created_at,
     required DateTime visible_at,
     required DateTime stop_at,
