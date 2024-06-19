@@ -8,6 +8,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/simple_dialog.dart';
 import 'package:picnic_app/components/vote/common_vote_info.dart';
+import 'package:picnic_app/components/vote/store/store_list_tile.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -52,7 +53,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
           SizedBox(height: 36.w),
           const CommonPointInfo(),
           SizedBox(height: 36.w),
-          CommonListTile(
+          StoreListTile(
             title: Text(Intl.message('label_button_watch_and_charge'),
                 style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
             subtitle: Text.rich(
@@ -75,7 +76,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
             isLoading: _isLoading[0],
           ),
           Divider(height: 32.w, thickness: 1, color: AppColors.Grey200),
-          CommonListTile(
+          StoreListTile(
             title: Text(Intl.message('label_button_watch_and_charge'),
                 style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
             subtitle: Text.rich(
@@ -198,70 +199,5 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
       _rewardedAds[index] = null;
       _isLoading[index] = true;
     });
-  }
-}
-
-class CommonListTile extends StatelessWidget {
-  const CommonListTile({
-    super.key,
-    required this.title,
-    this.subtitle,
-    required this.buttonText,
-    required this.buttonOnPressed,
-    required this.isLoading,
-  });
-
-  final Text title;
-  final Text? subtitle;
-  final String buttonText;
-  final Function buttonOnPressed;
-  final bool isLoading;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 48.w,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          SizedBox(
-            width: 48.w,
-            height: 48.w,
-            child: Image.asset(
-              'assets/icons/header/star.png',
-              width: 24.w,
-              height: 24.w,
-            ),
-          ),
-          SizedBox(width: 16.w),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [title, subtitle ?? Container()],
-            ),
-          ),
-          SizedBox(
-            height: 32.w,
-            child: ElevatedButton(
-              onPressed: isLoading ? null : () => buttonOnPressed(),
-              child: isLoading
-                  ? SizedBox(
-                      width: 16.w,
-                      height: 16.w,
-                      child: const CircularProgressIndicator(
-                        color: AppColors.Primary500,
-                      ),
-                    )
-                  : Text(
-                      buttonText,
-                      style:
-                          getTextStyle(AppTypo.BODY14B, AppColors.Primary500),
-                    ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
