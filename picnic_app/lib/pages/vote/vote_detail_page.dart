@@ -294,8 +294,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                     child: filteredIndices.isEmpty
                         ? SizedBox(
                             height: 200.w,
-                            child: const Center(
-                              child: Text('No data'),
+                            child: Center(
+                              child:
+                                  Text(Intl.message('text_no_search_result')),
                             ),
                           )
                         : Column(

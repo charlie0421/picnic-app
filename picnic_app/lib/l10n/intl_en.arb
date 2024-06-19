@@ -107,5 +107,22 @@
   "dialog_button_ok": "OK",
   "dialog_button_cancel": "Cancel",
   "dialog_title_vote_fail": "Vote failed",
-  "text_dialog_vote_amount_should_not_zero": "The amount of votes should not be 0."
+  "text_dialog_vote_amount_should_not_zero": "The amount of votes should not be 0.",
+  "text_no_search_result": "No search results.",
+  "label_tab_buy_star_candy": "Buy Star Candy",
+  "label_tab_free_charge_station": "Free Charging Station",
+  "label_dropdown_recent": "Recent",
+  "label_dropdown_oldest": "Oldest",
+  "text_star_candy": "Star Candy",
+  "text_vote_complete": "Vote complete",
+  "text_this_time_vote": "This time vote",
+  "label_button_save_vote_paper": "Save the voting paper",
+  "label_button_share": "Share",
+  "label_button_watch_and_charge": "Watch and charge",
+  "label_watch_ads": "Watch ads",
+  "label_bonus": "Bonus",
+  "text_star_candy_usage_policy_title": "Star Candy Usage Policy",
+  "text_star_candy_usage_policy_guide": "Bonuses will disappear the month after you earn them! ⓘ",
+  "text_star_candy_usage_policy": "### Expiration Date\n\n- Purchase Candy: None (unlimited)\n- Bonus Star Candy: Expires in batches on the 15th of the month after earned\n\n### Redeem Star Candy\n\n- Star Candies that are about to expire will be used first.\n- If they have the same expiration date, the earliest one will be used.",
+  "text_dialog_star_candy_received": "Star Candy received"
 }

@@ -1129,6 +1129,176 @@ class S {
       args: [],
     );
   }
+
+  /// `No search results.`
+  String get text_no_search_result {
+    return Intl.message(
+      'No search results.',
+      name: 'text_no_search_result',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Buy Star Candy`
+  String get label_tab_buy_star_candy {
+    return Intl.message(
+      'Buy Star Candy',
+      name: 'label_tab_buy_star_candy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Free Charging Station`
+  String get label_tab_free_charge_station {
+    return Intl.message(
+      'Free Charging Station',
+      name: 'label_tab_free_charge_station',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Recent`
+  String get label_dropdown_recent {
+    return Intl.message(
+      'Recent',
+      name: 'label_dropdown_recent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Oldest`
+  String get label_dropdown_oldest {
+    return Intl.message(
+      'Oldest',
+      name: 'label_dropdown_oldest',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Star Candy`
+  String get text_star_candy {
+    return Intl.message(
+      'Star Candy',
+      name: 'text_star_candy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Vote complete`
+  String get text_vote_complete {
+    return Intl.message(
+      'Vote complete',
+      name: 'text_vote_complete',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This time vote`
+  String get text_this_time_vote {
+    return Intl.message(
+      'This time vote',
+      name: 'text_this_time_vote',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save the voting paper`
+  String get label_button_save_vote_paper {
+    return Intl.message(
+      'Save the voting paper',
+      name: 'label_button_save_vote_paper',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Share`
+  String get label_button_share {
+    return Intl.message(
+      'Share',
+      name: 'label_button_share',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Watch and charge`
+  String get label_button_watch_and_charge {
+    return Intl.message(
+      'Watch and charge',
+      name: 'label_button_watch_and_charge',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Watch ads`
+  String get label_watch_ads {
+    return Intl.message(
+      'Watch ads',
+      name: 'label_watch_ads',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Bonus`
+  String get label_bonus {
+    return Intl.message(
+      'Bonus',
+      name: 'label_bonus',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Star Candy Usage Policy`
+  String get text_star_candy_usage_policy_title {
+    return Intl.message(
+      'Star Candy Usage Policy',
+      name: 'text_star_candy_usage_policy_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Bonuses will disappear the month after you earn them! ⓘ`
+  String get text_star_candy_usage_policy_guide {
+    return Intl.message(
+      'Bonuses will disappear the month after you earn them! ⓘ',
+      name: 'text_star_candy_usage_policy_guide',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `### Expiration Date\n\n- Purchase Candy: None (unlimited)\n- Bonus Star Candy: Expires in batches on the 15th of the month after earned\n\n### Redeem Star Candy\n\n- Star Candies that are about to expire will be used first.\n- If they have the same expiration date, the earliest one will be used.`
+  String get text_star_candy_usage_policy {
+    return Intl.message(
+      '### Expiration Date\n\n- Purchase Candy: None (unlimited)\n- Bonus Star Candy: Expires in batches on the 15th of the month after earned\n\n### Redeem Star Candy\n\n- Star Candies that are about to expire will be used first.\n- If they have the same expiration date, the earliest one will be used.',
+      name: 'text_star_candy_usage_policy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Star Candy received`
+  String get text_dialog_star_candy_received {
+    return Intl.message(
+      'Star Candy received',
+      name: 'text_dialog_star_candy_received',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

@@ -107,5 +107,22 @@
   "dialog_button_ok": "确认",
   "dialog_button_cancel": "取消",
   "dialog_title_vote_fail": "投票失败",
-  "text_dialog_vote_amount_should_not_zero": "投票数量不能为零。"
+  "text_dialog_vote_amount_should_not_zero": "投票数量不能为零。",
+  "text_no_search_result": "没有搜索结果。",
+  "label_tab_buy_star_candy": "购买明星糖果",
+  "label_tab_free_charge_station": "免费充电站",
+  "label_dropdown_recently": "最近",
+  "label_dropdown_oldest": "最旧",
+  "text_star_candy": "明星糖果",
+  "text_vote_complete": "投票完成",
+  "text_this_time_vote": "本次投票",
+  "label_button_save_vote_paper": "保存投票单",
+  "label_button_share": "分享",
+  "label_button_watch_and_charge": "观看并充电",
+  "label_watch_ads": "观看广告",
+  "label_bonus": "奖金",
+  "text_star_candy_usage_policy_title": "明星糖果使用政策",
+  "text_star_candy_usage_policy_guide": "奖金将在您获得奖金的次月消失！ ⓘ",
+  "text_star_candy_usage_policy": "### 有效期\n\n- 购买糖果：无（无限制）\n- 奖励星星糖：在获得后的当月 15 日分批过期\n\n#### 兑换星星糖\n\n- 即将到期的星星糖将优先使用。\n- 如果有效期相同，则使用最早的一个。",
+  "text_dialog_star_candy_received": "您已收到明星糖果。"
 }

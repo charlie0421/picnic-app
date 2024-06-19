@@ -39,9 +39,15 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_album_add": MessageLookupByLibrary.simpleMessage("새로운 앨범 추가"),
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("첫 댓글의 주인공이 되세요!"),
+        "label_bonus": MessageLookupByLibrary.simpleMessage("보너스"),
         "label_button_clse": MessageLookupByLibrary.simpleMessage("닫기"),
         "label_button_recharge": MessageLookupByLibrary.simpleMessage("충전하기"),
+        "label_button_save_vote_paper":
+            MessageLookupByLibrary.simpleMessage("투표증 저장"),
+        "label_button_share": MessageLookupByLibrary.simpleMessage("공유하기"),
         "label_button_vote": MessageLookupByLibrary.simpleMessage("투표하기"),
+        "label_button_watch_and_charge":
+            MessageLookupByLibrary.simpleMessage("광고보고 충전하기"),
         "label_celeb_gallery": MessageLookupByLibrary.simpleMessage("샐럽 갤러리"),
         "label_celeb_recommend": MessageLookupByLibrary.simpleMessage("유명인 추천"),
         "label_checkbox_entire_use":
@@ -49,6 +55,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_current_language": MessageLookupByLibrary.simpleMessage("현재 언어"),
         "label_draw_image":
             MessageLookupByLibrary.simpleMessage("랜덤 이미지 획득 기회"),
+        "label_dropdown_oldest": MessageLookupByLibrary.simpleMessage("오래된순"),
+        "label_dropdown_recent": MessageLookupByLibrary.simpleMessage("최신순"),
         "label_find_celeb": MessageLookupByLibrary.simpleMessage("더 많은 유명인 찾기"),
         "label_gallery_tab_article":
             MessageLookupByLibrary.simpleMessage("아티클"),
@@ -104,6 +112,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_setting_storage":
             MessageLookupByLibrary.simpleMessage("저장공간 관리"),
         "label_setting_update": MessageLookupByLibrary.simpleMessage("업데이트"),
+        "label_tab_buy_star_candy":
+            MessageLookupByLibrary.simpleMessage("별사탕 구매"),
+        "label_tab_free_charge_station":
+            MessageLookupByLibrary.simpleMessage("무료충전소"),
         "label_tabbar_picchart_daily":
             MessageLookupByLibrary.simpleMessage("일간차트"),
         "label_tabbar_picchart_monthly":
@@ -127,6 +139,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_tab_pic": MessageLookupByLibrary.simpleMessage("P-RAME 투표"),
         "label_vote_vote_gather":
             MessageLookupByLibrary.simpleMessage("투표 모아보기"),
+        "label_watch_ads": MessageLookupByLibrary.simpleMessage("광고보기"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("내 셀럽"),
         "message_pic_pic_save_fail":
             MessageLookupByLibrary.simpleMessage("이미지 저장에 실패했습니다."),
@@ -159,6 +172,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("투표 모아보기"),
         "text_ads_random":
             MessageLookupByLibrary.simpleMessage("광고 보기 및 무작위 이미지 수집."),
+        "text_dialog_star_candy_received":
+            MessageLookupByLibrary.simpleMessage("별사탕이 지급되었습니다."),
         "text_dialog_vote_amount_should_not_zero":
             MessageLookupByLibrary.simpleMessage("투표수량은 0이 될 수 없습니다."),
         "text_draw_image":
@@ -168,9 +183,18 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("선택한 셀러브리티의 집으로 이동합니다."),
         "text_need_recharge":
             MessageLookupByLibrary.simpleMessage("충전이 필요합니다."),
+        "text_no_search_result":
+            MessageLookupByLibrary.simpleMessage("검색결과가 없어요."),
+        "text_star_candy": MessageLookupByLibrary.simpleMessage("별사탕"),
+        "text_star_candy_usage_policy_guide":
+            MessageLookupByLibrary.simpleMessage("보너스는 획득한 다음달에 사라져요! ⓘ"),
+        "text_star_candy_usage_policy_title":
+            MessageLookupByLibrary.simpleMessage("별사탕 사용정책"),
+        "text_this_time_vote": MessageLookupByLibrary.simpleMessage("이번 투표"),
         "text_vote_1st": MessageLookupByLibrary.simpleMessage("1위"),
         "text_vote_2nd": MessageLookupByLibrary.simpleMessage("2위"),
         "text_vote_3rd": MessageLookupByLibrary.simpleMessage("3위"),
+        "text_vote_complete": MessageLookupByLibrary.simpleMessage("투표 완료"),
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("랭크 인 리워드"),
         "text_vote_rank_surffix": MessageLookupByLibrary.simpleMessage("위"),

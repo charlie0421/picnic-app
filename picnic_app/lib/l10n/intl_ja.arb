@@ -107,5 +107,22 @@
   "dialog_button_ok": "確認",
   "dialog_button_cancel": "キャンセル",
   "dialog_title_vote_fail": "投票失敗",
-  "text_dialog_vote_amount_should_not_zero": "投票数は0より大きい値を入力してください。"
+  "text_dialog_vote_amount_should_not_zero": "投票数は0より大きい値を入力してください。",
+  "text_no_search_result": "検索結果がありません。",
+  "label_tab_buy_star_candy": "スターキャンディー購入",
+  "label_tab_free_charge_station": "無料チャージステーション",
+  "label_dropdown_recently": "最近",
+  "label_dropdown_oldest": "古い順",
+  "text_star_candy": "スターキャンディー",
+  "text_vote_complete": "投票完了",
+  "text_this_time_vote": "今回の投票",
+  "label_button_save_vote_paper": "投票証明書保存",
+  "label_button_share": "共有",
+  "label_button_watch_and_charge": "視聴してチャージ",
+  "label_watch_ads": "広告を見る",
+  "label_bonus": "ボーナス",
+  "text_star_candy_usage_policy_title": "スターキャンディー利用規約",
+  "text_star_candy_usage_policy_guide": "ボーナスは獲得した翌月に消えますよ！ⓘ",
+  "text_star_candy_usage_policy": "### 有効期限\n\n- 購入星飴 : なし (無制限)\n- ボーナス星飴：獲得した翌月15日に一括消滅\n\n### 星飴の使用\n\n- 消滅日が迫っている星飴から使用されます。\n- 有効期限が同じ場合は、獲得日が早い順に使用されます。",
+  "text_dialog_star_candy_received": "スターキャンディーが受け取られました。"
 }
