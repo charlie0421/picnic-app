@@ -139,6 +139,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
     return RepaintBoundary(
       key: _globalKey,
       child: Dialog(
+        insetPadding: EdgeInsets.symmetric(horizontal: 24.w),
         backgroundColor: Colors.transparent,
         child: LargePopupWidget(
           backgroundColor: AppColors.Mint500,
@@ -157,62 +158,112 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                   ),
                 )
               : null,
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Container(
-                width: 203.w,
-                height: 51.w,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: AppColors.Grey00,
-                  borderRadius: BorderRadius.circular(26.r),
-                  border: Border.all(
-                      color: AppColors.Primary500,
-                      width: 2.5.r,
-                      strokeAlign: BorderSide.strokeAlignInside),
-                ),
-                child: Container(
+          content: Container(
+            padding: EdgeInsets.only(
+                top: 24.w, left: 24.w, right: 24.w, bottom: 48.w),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 203.w,
+                  height: 51.w,
                   alignment: Alignment.center,
-                  width: 195.w,
-                  height: 43.w,
-                  padding: EdgeInsets.symmetric(horizontal: 24.w),
                   decoration: BoxDecoration(
+                    color: AppColors.Grey00,
                     borderRadius: BorderRadius.circular(26.r),
                     border: Border.all(
-                        color: AppColors.Mint500,
+                        color: AppColors.Primary500,
                         width: 2.5.r,
                         strokeAlign: BorderSide.strokeAlignInside),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Image.asset(
-                        'assets/icons/header/star.png',
-                        width: 24.w,
-                        height: 24.w,
-                      ),
-                      Expanded(
-                        child: Text(Intl.message('text_vote_complete'),
-                            style: getTextStyle(
-                                AppTypo.TITLE18B, AppColors.Point900),
-                            textAlign: TextAlign.center),
-                      ),
-                      Image.asset(
-                        'assets/icons/header/star.png',
-                        width: 24.w,
-                        height: 24.w,
-                      ),
-                    ],
+                  child: Container(
+                    alignment: Alignment.center,
+                    width: 195.w,
+                    height: 43.w,
+                    padding: EdgeInsets.symmetric(horizontal: 24.w),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(26.r),
+                      border: Border.all(
+                          color: AppColors.Mint500,
+                          width: 2.5.r,
+                          strokeAlign: BorderSide.strokeAlignInside),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Image.asset(
+                          'assets/icons/header/star.png',
+                          width: 24.w,
+                          height: 24.w,
+                        ),
+                        Expanded(
+                          child: Text(Intl.message('text_vote_complete'),
+                              style: getTextStyle(
+                                  AppTypo.TITLE18B, AppColors.Point900),
+                              textAlign: TextAlign.center),
+                        ),
+                        Image.asset(
+                          'assets/icons/header/star.png',
+                          width: 24.w,
+                          height: 24.w,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(height: 16.w),
-              Container(
+                SizedBox(height: 12.w),
+                Container(
+                    width: 291.w,
+                    height: 70.w,
+                    padding: EdgeInsets.only(left: 12.w),
+                    decoration: BoxDecoration(
+                      color: AppColors.Grey00,
+                      borderRadius: BorderRadius.circular(20.r),
+                      border: Border.all(
+                        color: AppColors.Primary500,
+                        width: 1.5.r,
+                        strokeAlign: BorderSide.strokeAlignInside,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(48.r),
+                          child: CachedNetworkImage(
+                            imageUrl: userInfo.value?.avatar_url ?? '',
+                            width: 48.w,
+                            height: 48.w,
+                            placeholder: (context, url) =>
+                                buildPlaceholderImage(),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        SizedBox(width: 16.w),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              userInfo.value?.nickname ?? '',
+                              style: getTextStyle(
+                                  AppTypo.CAPTION12B, AppColors.Grey900),
+                            ),
+                            SizedBox(height: 2.w),
+                            Text(
+                              '${DateFormat('yyyy.MM.dd HH:mm').format(DateTime.tryParse(widget.result['updatedAt'])!.add(Duration(hours: 9)))}(KST)',
+                              style: getTextStyle(
+                                  AppTypo.CAPTION12R, AppColors.Grey600),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ],
+                    )),
+                SizedBox(height: 12.w),
+                Container(
                   width: 291.w,
-                  height: 80.w,
-                  padding: EdgeInsets.only(left: 24.w),
                   decoration: BoxDecoration(
                     color: AppColors.Grey00,
                     borderRadius: BorderRadius.circular(20.r),
@@ -222,240 +273,202 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                       strokeAlign: BorderSide.strokeAlignInside,
                     ),
                   ),
-                  child: Row(
+                  child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(48.r),
-                        child: CachedNetworkImage(
-                          imageUrl: userInfo.value?.avatar_url ?? '',
-                          width: 48.w,
-                          height: 48.w,
-                          placeholder: (context, url) =>
-                              buildPlaceholderImage(),
-                          fit: BoxFit.cover,
+                      Container(
+                        padding: EdgeInsets.only(
+                            top: 16.w, bottom: 0.w, left: 24.w, right: 24.w),
+                        alignment: Alignment.center,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(Intl.message('text_this_time_vote'),
+                                style: getTextStyle(
+                                    AppTypo.CAPTION12M, AppColors.Primary500)),
+                            SizedBox(width: 16.w),
+                            Expanded(
+                              child: Text(
+                                widget.voteModel.getTitle() ?? '',
+                                style: getTextStyle(
+                                  AppTypo.BODY14B,
+                                  AppColors.Grey900,
+                                ),
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      SizedBox(width: 16.w),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            userInfo.value?.nickname ?? '',
-                            style: getTextStyle(
-                                AppTypo.CAPTION12B, AppColors.Grey900),
-                          ),
-                          SizedBox(height: 2.w),
-                          Text(
-                            '${DateFormat('yyyy.MM.dd HH:mm').format(DateTime.tryParse(widget.result['updatedAt'])!.add(Duration(hours: 9)))}(KST)',
-                            style: getTextStyle(
-                                AppTypo.CAPTION12R, AppColors.Grey600),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
+                      Divider(
+                        color: AppColors.Grey300,
+                        indent: 13.w,
+                        endIndent: 13.w,
+                        thickness: 1,
+                        height: 1.w,
                       ),
-                    ],
-                  )),
-              SizedBox(height: 12.w),
-              Container(
-                width: 291.w,
-                height: 218.w,
-                decoration: BoxDecoration(
-                  color: AppColors.Grey00,
-                  borderRadius: BorderRadius.circular(20.r),
-                  border: Border.all(
-                    color: AppColors.Primary500,
-                    width: 1.5.r,
-                    strokeAlign: BorderSide.strokeAlignInside,
-                  ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: EdgeInsets.only(
-                          top: 16.w, bottom: 12.w, left: 24.w, right: 24.w),
-                      alignment: Alignment.center,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(Intl.message('text_this_time_vote'),
-                              style: getTextStyle(
-                                  AppTypo.CAPTION12M, AppColors.Primary500)),
-                          SizedBox(width: 16.w),
-                          Expanded(
-                            child: Text(
-                              widget.voteModel.getTitle() ?? '',
-                              style: getTextStyle(
-                                AppTypo.BODY14B,
-                                AppColors.Grey900,
-                              ),
-                              textAlign: TextAlign.center,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Divider(
-                      color: AppColors.Grey300,
-                      indent: 13.w,
-                      endIndent: 13.w,
-                      thickness: 1,
-                      height: 1.w,
-                    ),
-                    SizedBox(height: 24.w),
-                    Container(
-                      padding: EdgeInsets.only(right: 16.w),
-                      color: AppColors.Grey00,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            flex: 1,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(64.r),
-                                  child: CachedNetworkImage(
-                                    imageUrl: widget.voteItemModel.mystar_member
-                                            .image ??
-                                        '',
-                                    width: 56.w,
-                                    height: 56.w,
-                                  ),
-                                ),
-                                SizedBox(height: 12.w),
-                                Text(
-                                  widget.voteItemModel.mystar_member
-                                          .getTitle() ??
-                                      '',
-                                  style: getTextStyle(
-                                      AppTypo.BODY16B, AppColors.Grey900),
-                                ),
-                                SizedBox(height: 7.w),
-                                Text(
-                                  widget.voteItemModel.mystar_member
-                                      .getGroupTitle(),
-                                  style: getTextStyle(
-                                      AppTypo.CAPTION12R, AppColors.Grey600),
-                                ),
-                                SizedBox(height: 6.5.w),
-                                AnimatedDigitWidget(
-                                    value: widget.result['updatedVoteTotal'],
-                                    enableSeparator: true,
-                                    duration: _duration,
-                                    textStyle: getTextStyle(AppTypo.CAPTION12B,
-                                        AppColors.Primary500)),
-                              ],
-                            ),
-                          ),
-                          SizedBox(width: 10.w),
-                          Expanded(
-                            flex: 1,
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Container(
-                                  width: 120.w,
-                                  height: 120.w,
-                                  child: GradientCircularProgressIndicator(
-                                    value: widget.result['addedVoteTotal'] /
-                                        widget.result['updatedVoteTotal'],
-                                    strokeWidth: 20,
-                                    gradientColors: [
-                                      Color(0xFF9374FF),
-                                      Color(0xFF83FBC8),
-                                    ],
-                                  ),
-                                ),
-                                Positioned(
-                                    child: Column(
-                                  mainAxisSize: MainAxisSize.min,
+                      SizedBox(height: 12.w),
+                      Container(
+                        padding: EdgeInsets.only(right: 16.w),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: Container(
+                                width: 120.w,
+                                height: 140.w,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(64.r),
+                                      child: CachedNetworkImage(
+                                        imageUrl: widget.voteItemModel
+                                                .mystar_member.image ??
+                                            '',
+                                        width: 56.w,
+                                        height: 56.w,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8.w),
+                                    Text(
+                                      widget.voteItemModel.mystar_member
+                                              .getTitle() ??
+                                          '',
+                                      style: getTextStyle(
+                                          AppTypo.BODY16B, AppColors.Grey900),
+                                    ),
+                                    SizedBox(height: 5.w),
+                                    Text(
+                                      widget.voteItemModel.mystar_member
+                                          .getGroupTitle(),
+                                      style: getTextStyle(AppTypo.CAPTION12R,
+                                          AppColors.Grey600),
+                                    ),
+                                    SizedBox(height: 4.5.w),
                                     AnimatedDigitWidget(
                                         value:
-                                            widget.result['existingVoteTotal'],
+                                            widget.result['updatedVoteTotal'],
                                         enableSeparator: true,
                                         duration: _duration,
                                         textStyle: getTextStyle(
                                             AppTypo.CAPTION12B,
-                                            AppColors.Grey400)),
-                                    AnimatedDigitWidget(
-                                        value: widget.result['addedVoteTotal'],
-                                        enableSeparator: true,
-                                        prefix: '+',
-                                        duration: _duration,
-                                        textStyle: getTextStyle(AppTypo.BODY14B,
                                             AppColors.Primary500)),
                                   ],
-                                ))
-                              ],
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 16.w),
-              !_isSaving
-                  ? SizedBox(
-                      height: 32.w,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ElevatedButton(
-                              onPressed: _saveDialogAsImage,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.Primary500,
-                                shadowColor: AppColors.Primary500,
-                                padding: EdgeInsets.zero,
-                                minimumSize: Size(104.w, 32.w),
-                                maximumSize: Size(104.w, 32.w),
-                              ),
-                              child: Text(
-                                  Intl.message('label_button_save_vote_paper'),
-                                  style: getTextStyle(
-                                      AppTypo.BODY14B, AppColors.Grey00))),
-                          SizedBox(width: 16.w),
-                          ElevatedButton(
-                              onPressed: _shareDialogImage,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.Primary500,
-                                shadowColor: AppColors.Primary500,
-                                padding: EdgeInsets.zero,
-                                minimumSize: Size(104.w, 32.w),
-                                maximumSize: Size(104.w, 32.w),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                            SizedBox(width: 10.w),
+                            Expanded(
+                              flex: 1,
+                              child: Stack(
+                                alignment: Alignment.center,
                                 children: [
-                                  Text(Intl.message('label_button_share'),
-                                      style: getTextStyle(
-                                          AppTypo.BODY14B, AppColors.Grey00)),
-                                  SvgPicture.asset(
-                                    'assets/icons/twitter_style=fill.svg',
-                                    width: 16.w,
-                                    height: 16.w,
+                                  Container(
+                                    width: 120.w,
+                                    height: 120.w,
+                                    child: GradientCircularProgressIndicator(
+                                      value: widget.result['addedVoteTotal'] /
+                                          widget.result['updatedVoteTotal'],
+                                      strokeWidth: 20,
+                                      gradientColors: [
+                                        Color(0xFF9374FF),
+                                        Color(0xFF83FBC8),
+                                      ],
+                                    ),
                                   ),
+                                  Positioned(
+                                      child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      AnimatedDigitWidget(
+                                          value: widget
+                                              .result['existingVoteTotal'],
+                                          enableSeparator: true,
+                                          duration: _duration,
+                                          textStyle: getTextStyle(
+                                              AppTypo.CAPTION12B,
+                                              AppColors.Grey400)),
+                                      AnimatedDigitWidget(
+                                          value:
+                                              widget.result['addedVoteTotal'],
+                                          enableSeparator: true,
+                                          prefix: '+',
+                                          duration: _duration,
+                                          textStyle: getTextStyle(
+                                              AppTypo.BODY14B,
+                                              AppColors.Primary500)),
+                                    ],
+                                  ))
                                 ],
-                              )),
-                        ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    )
-                  : Image.asset(
-                      'assets/images/logo.png',
-                      width: 75.w,
-                      height: 57.w,
-                    ),
-            ],
+                    ],
+                  ),
+                ),
+                SizedBox(height: 16.w),
+                !_isSaving
+                    ? SizedBox(
+                        height: 32.w,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                                onPressed: _saveDialogAsImage,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.Primary500,
+                                  shadowColor: AppColors.Primary500,
+                                  padding: EdgeInsets.zero,
+                                  minimumSize: Size(104.w, 32.w),
+                                  maximumSize: Size(104.w, 32.w),
+                                ),
+                                child: Text(
+                                    Intl.message(
+                                        'label_button_save_vote_paper'),
+                                    style: getTextStyle(
+                                        AppTypo.BODY14B, AppColors.Grey00))),
+                            SizedBox(width: 16.w),
+                            ElevatedButton(
+                                onPressed: _shareDialogImage,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.Primary500,
+                                  shadowColor: AppColors.Primary500,
+                                  padding: EdgeInsets.zero,
+                                  minimumSize: Size(104.w, 32.w),
+                                  maximumSize: Size(104.w, 32.w),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(Intl.message('label_button_share'),
+                                        style: getTextStyle(
+                                            AppTypo.BODY14B, AppColors.Grey00)),
+                                    SizedBox(width: 4.w),
+                                    SvgPicture.asset(
+                                      'assets/icons/twitter_style=fill.svg',
+                                      width: 16.w,
+                                      height: 16.w,
+                                    ),
+                                  ],
+                                )),
+                          ],
+                        ),
+                      )
+                    : Image.asset(
+                        'assets/images/logo.png',
+                        width: 75.w,
+                        height: 57.w,
+                      ),
+              ],
+            ),
           ),
         ),
       ),

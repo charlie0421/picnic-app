@@ -197,7 +197,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             return Column(
               children: [
                 Container(
-                  height: 200.w,
+                  height: 160.w,
                   color: AppColors.Grey200,
                 ),
                 SizedBox(
@@ -580,7 +580,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
       child: Column(
         children: [
           Container(
-            height: 200.w,
+            height: 160.w,
             color: AppColors.Grey200,
           ),
           SizedBox(height: 16.w),
