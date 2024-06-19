@@ -58,6 +58,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_draw_image":
             MessageLookupByLibrary.simpleMessage("ランダム画像獲得チャンス"),
         "label_dropdown_oldest": MessageLookupByLibrary.simpleMessage("古い順"),
+        "label_dropdown_recent": MessageLookupByLibrary.simpleMessage("最近"),
         "label_find_celeb": MessageLookupByLibrary.simpleMessage("セレブをもっと探す"),
         "label_gallery_tab_article": MessageLookupByLibrary.simpleMessage("記事"),
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("チャット"),
