@@ -207,12 +207,14 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Need to recharge"),
         "text_no_search_result":
             MessageLookupByLibrary.simpleMessage("No search results."),
+        "text_purchase_vat_included":
+            MessageLookupByLibrary.simpleMessage("*VAT included"),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("Star Candy"),
         "text_star_candy_usage_policy": MessageLookupByLibrary.simpleMessage(
             "### Expiration Date\n\n- Purchase Candy: None (unlimited)\n- Bonus Star Candy: Expires in batches on the 15th of the month after earned\n\n### Redeem Star Candy\n\n- Star Candies that are about to expire will be used first.\n- If they have the same expiration date, the earliest one will be used."),
         "text_star_candy_usage_policy_guide":
             MessageLookupByLibrary.simpleMessage(
-                "Bonuses will disappear the month after you earn them! ⓘ"),
+                "*Bonuses will disappear the month after you earn them! ⓘ"),
         "text_star_candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("Star Candy Usage Policy"),
         "text_this_time_vote":

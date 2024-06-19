@@ -5,6 +5,7 @@ import 'package:picnic_app/ui/style.dart';
 class StoreListTile extends StatelessWidget {
   const StoreListTile({
     super.key,
+    required this.icon,
     required this.title,
     this.subtitle,
     required this.buttonText,
@@ -12,6 +13,7 @@ class StoreListTile extends StatelessWidget {
     this.isLoading,
   });
 
+  final Image icon;
   final Text title;
   final Text? subtitle;
   final String buttonText;
@@ -25,15 +27,7 @@ class StoreListTile extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SizedBox(
-            width: 48.w,
-            height: 48.w,
-            child: Image.asset(
-              'assets/icons/header/star.png',
-              width: 24.w,
-              height: 24.w,
-            ),
-          ),
+          icon,
           SizedBox(width: 16.w),
           Expanded(
             child: Column(

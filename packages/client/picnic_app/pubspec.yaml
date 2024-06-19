@@ -96,6 +96,7 @@ flutter:
     - assets/icons/vote/
     - assets/icons/header/
     - assets/icons/bottom/
+    - assets/icons/store/
     - assets/mockup/
     - assets/mockup/my/
     - assets/mockup/gallery/
