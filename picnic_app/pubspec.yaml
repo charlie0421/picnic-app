@@ -14,6 +14,7 @@ dependencies:
     sdk: flutter
   shimmer: ^3.0.0
   cupertino_icons: ^1.0.8
+  another_flutter_splash_screen: ^1.2.0
   flutter_native_splash: ^2.4.0
   flutter_launcher_icons: ^0.13.1
   google_mobile_ads: ^5.1.0
@@ -91,6 +92,7 @@ flutter:
   uses-material-design: true
   generate: true
   assets:
+    - assets/
     - assets/images/
     - assets/icons/
     - assets/icons/vote/

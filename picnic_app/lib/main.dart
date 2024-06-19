@@ -3,7 +3,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
@@ -31,7 +30,6 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   if (isMobile()) {
     await initializeWidgetsAndDeviceOrientation(widgetsBinding);
@@ -44,8 +42,6 @@ void main() async {
   runApp(
       ProviderScope(observers: [LoggingObserver()], child: const PicnicApp()));
   requestAppTrackingTransparency();
-
-  FlutterNativeSplash.remove();
 }
 
 Future<void> requestAppTrackingTransparency() async {
