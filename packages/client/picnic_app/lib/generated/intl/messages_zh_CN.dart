@@ -55,6 +55,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_current_language": MessageLookupByLibrary.simpleMessage("当前语言"),
         "label_draw_image": MessageLookupByLibrary.simpleMessage("赢取随机图片的机会"),
         "label_dropdown_oldest": MessageLookupByLibrary.simpleMessage("最旧"),
+        "label_dropdown_recent": MessageLookupByLibrary.simpleMessage("最近"),
         "label_find_celeb": MessageLookupByLibrary.simpleMessage("查找更多名人"),
         "label_gallery_tab_article":
             MessageLookupByLibrary.simpleMessage("Articles"),

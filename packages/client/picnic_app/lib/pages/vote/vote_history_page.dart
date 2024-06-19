@@ -82,8 +82,10 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
               });
             },
             items: [
-              CustomDropdownMenuItem(value: 'DESC', text: '최신순'),
-              CustomDropdownMenuItem(value: 'ASC', text: '오래된순')
+              CustomDropdownMenuItem(
+                  value: 'DESC', text: Intl.message('label_dropdown_recent')),
+              CustomDropdownMenuItem(
+                  value: 'ASC', text: Intl.message('label_dropdown_oldest')),
             ],
           ),
         ),
@@ -113,7 +115,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
                                   AppTypo.CAPTION12R, AppColors.Grey900),
                             ),
                             Text(
-                              '투표완료',
+                              Intl.message('text_vote_complete'),
                               style: getTextStyle(
                                   AppTypo.CAPTION12M, AppColors.Grey900),
                             ),
