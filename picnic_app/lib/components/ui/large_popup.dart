@@ -33,9 +33,9 @@ class LargePopupWidget extends StatelessWidget {
             alignment: Alignment.center,
             children: [
               Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.only(
-                      top: 32.w, left: 24.w, right: 24.w, bottom: 24.w),
+                  width: 345.w,
+                  // padding: EdgeInsets.only(
+                  //     top: 24.w, left: 24.w, right: 24.w, bottom: 24.w),
                   decoration: BoxDecoration(
                     color: backgroundColor ?? AppColors.Grey00,
                     border: Border.all(
