@@ -80,6 +80,7 @@ Deno.serve(async (req) => {
             transaction_id,
             signature,
             key_id
+
         });
 
         if (!user_id || !reward_amount || !reward_type || !ad_network || !transaction_id || !signature || !key_id) {
@@ -141,10 +142,22 @@ Deno.serve(async (req) => {
                                      WHERE id = $2`;
             await connection.queryObject(updateUserQuery, [reward_amount, user_id]);
 
-            console.log('Inserting reward record');
-            // const insertRewardQuery = `INSERT INTO rewards (user_id, reward_amount, reward_type, ad_network, transaction_id)
-            //                            VALUES ($1, $2, $3, $4, $5)`;
-            // await connection.queryObject(insertRewardQuery, [user_id, reward_amount, reward_type, ad_network, transaction_id]);
+            console.log('Inserting star_candy history');
+
+            // 히스토리 저장
+            const insertHistoryQuery: String = `INSERT INTO star_candy_history (type, amount, user_id, transaction_id)
+                                                VALUES ($1, $2, $3, $4)`;
+            await connection.queryObject(insertHistoryQuery, ['AD', reward_amount, user_id, transaction_id]);
+
+            console.log('Inserting transaction');
+            // 트랜잭션 저장
+            const insertTransactionQuery: String = `INSERT INTO transaction_admob (transaction_id,
+                                                                                   reward_type, reward_amount,
+                                                                                   signature,
+                                                                                   ad_network, key_id)
+                                                    VALUES ($1, $2, $3, $4, $5, $6)`;
+            await connection.queryObject(insertTransactionQuery, [transaction_id, reward_type, reward_amount, signature, ad_network, key_id]);
+
 
             await connection.queryObject('COMMIT');
             connection.release();
