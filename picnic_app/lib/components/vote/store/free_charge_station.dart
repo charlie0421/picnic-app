@@ -51,9 +51,14 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
       child: ListView(
         children: [
           SizedBox(height: 36.w),
-          const CommonPointInfo(),
+          const StorePointInfo(),
           SizedBox(height: 36.w),
           StoreListTile(
+            icon: Image.asset(
+              'assets/icons/store/star_100.png',
+              width: 48.w,
+              height: 48.w,
+            ),
             title: Text(Intl.message('label_button_watch_and_charge'),
                 style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
             subtitle: Text.rich(
@@ -77,6 +82,11 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
           ),
           Divider(height: 32.w, thickness: 1, color: AppColors.Grey200),
           StoreListTile(
+            icon: Image.asset(
+              'assets/icons/store/star_100.png',
+              width: 48.w,
+              height: 48.w,
+            ),
             title: Text(Intl.message('label_button_watch_and_charge'),
                 style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
             subtitle: Text.rich(

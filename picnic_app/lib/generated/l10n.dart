@@ -1270,10 +1270,10 @@ class S {
     );
   }
 
-  /// `Bonuses will disappear the month after you earn them! ⓘ`
+  /// `*Bonuses will disappear the month after you earn them! ⓘ`
   String get text_star_candy_usage_policy_guide {
     return Intl.message(
-      'Bonuses will disappear the month after you earn them! ⓘ',
+      '*Bonuses will disappear the month after you earn them! ⓘ',
       name: 'text_star_candy_usage_policy_guide',
       desc: '',
       args: [],
@@ -1295,6 +1295,16 @@ class S {
     return Intl.message(
       'Star Candy received',
       name: 'text_dialog_star_candy_received',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `*VAT included`
+  String get text_purchase_vat_included {
+    return Intl.message(
+      '*VAT included',
+      name: 'text_purchase_vat_included',
       desc: '',
       args: [],
     );

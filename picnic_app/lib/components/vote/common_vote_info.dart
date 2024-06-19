@@ -6,8 +6,8 @@ import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
 
-class CommonPointInfo extends ConsumerWidget {
-  const CommonPointInfo({super.key});
+class StorePointInfo extends ConsumerWidget {
+  const StorePointInfo({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -34,7 +34,7 @@ class CommonPointInfo extends ConsumerWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset('assets/icons/header/star.png',
+                Image.asset('assets/icons/store/star_100.png',
                     width: 48.w, height: 48.w),
                 Text(formatNumberWithComma(starCandy),
                     style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),

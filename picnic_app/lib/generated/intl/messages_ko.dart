@@ -185,9 +185,11 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("충전이 필요합니다."),
         "text_no_search_result":
             MessageLookupByLibrary.simpleMessage("검색결과가 없어요."),
+        "text_purchase_vat_included":
+            MessageLookupByLibrary.simpleMessage("*VAT 포함 가격입니다."),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("별사탕"),
         "text_star_candy_usage_policy_guide":
-            MessageLookupByLibrary.simpleMessage("보너스는 획득한 다음달에 사라져요! ⓘ"),
+            MessageLookupByLibrary.simpleMessage("*보너스는 획득한 다음달에 사라져요! ⓘ"),
         "text_star_candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("별사탕 사용정책"),
         "text_this_time_vote": MessageLookupByLibrary.simpleMessage("이번 투표"),

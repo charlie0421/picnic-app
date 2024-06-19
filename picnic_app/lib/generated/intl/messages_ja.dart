@@ -183,11 +183,13 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("チャージが必要です。"),
         "text_no_search_result":
             MessageLookupByLibrary.simpleMessage("検索結果がありません。"),
+        "text_purchase_vat_included":
+            MessageLookupByLibrary.simpleMessage("*税込"),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("スターキャンディー"),
         "text_star_candy_usage_policy": MessageLookupByLibrary.simpleMessage(
             "### 有効期限\n\n- 購入星飴 : なし (無制限)\n- ボーナス星飴：獲得した翌月15日に一括消滅\n\n### 星飴の使用\n\n- 消滅日が迫っている星飴から使用されます。\n- 有効期限が同じ場合は、獲得日が早い順に使用されます。"),
         "text_star_candy_usage_policy_guide":
-            MessageLookupByLibrary.simpleMessage("ボーナスは獲得した翌月に消えますよ！ⓘ"),
+            MessageLookupByLibrary.simpleMessage("*ボーナスは獲得した翌月に消えますよ！ⓘ"),
         "text_star_candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("スターキャンディー利用規約"),
         "text_this_time_vote": MessageLookupByLibrary.simpleMessage("今回の投票"),

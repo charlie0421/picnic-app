@@ -172,11 +172,13 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("导航至所选名人的主页。"),
         "text_no_search_result":
             MessageLookupByLibrary.simpleMessage("没有搜索结果。"),
+        "text_purchase_vat_included":
+            MessageLookupByLibrary.simpleMessage("*（含增值税）"),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("明星糖果"),
         "text_star_candy_usage_policy": MessageLookupByLibrary.simpleMessage(
             "### 有效期\n\n- 购买糖果：无（无限制）\n- 奖励星星糖：在获得后的当月 15 日分批过期\n\n#### 兑换星星糖\n\n- 即将到期的星星糖将优先使用。\n- 如果有效期相同，则使用最早的一个。"),
         "text_star_candy_usage_policy_guide":
-            MessageLookupByLibrary.simpleMessage("奖金将在您获得奖金的次月消失！ ⓘ"),
+            MessageLookupByLibrary.simpleMessage("*奖金将在您获得奖金的次月消失！ ⓘ"),
         "text_star_candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("明星糖果使用政策"),
         "text_this_time_vote": MessageLookupByLibrary.simpleMessage("本次投票"),
