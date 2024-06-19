@@ -119,7 +119,8 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
                             ),
                           ],
                         ),
-                        Text('${formatNumberWithComma(item.amount)} 별사탕',
+                        Text(
+                            '${formatNumberWithComma(item.amount)} ${Intl.message('text_star_candy')}',
                             style: getTextStyle(
                                 AppTypo.TITLE18B, AppColors.Grey900)),
                         RichText(

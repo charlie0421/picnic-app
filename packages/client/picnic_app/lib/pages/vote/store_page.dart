@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/components/vote/store/free_charge_station.dart';
 import 'package:picnic_app/components/vote/store/purchase_star_candy.dart';
 
@@ -29,10 +30,9 @@ class _StorePageState extends State<StorePage>
       children: [
         TabBar(
           controller: _tabController,
-          tabs: const [
-            // TODO i18n
-            Tab(text: '별사탕 구매'),
-            Tab(text: '무료 충전소'),
+          tabs: [
+            Tab(text: Intl.message('label_tab_buy_star_candy')),
+            Tab(text: Intl.message('label_tab_free_charge_station')),
           ],
         ),
         Expanded(

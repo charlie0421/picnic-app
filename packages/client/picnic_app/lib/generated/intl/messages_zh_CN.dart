@@ -39,15 +39,22 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_album_add": MessageLookupByLibrary.simpleMessage("添加新相册"),
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("成为第一个发表评论的人！"),
+        "label_bonus": MessageLookupByLibrary.simpleMessage("奖金"),
         "label_button_clse": MessageLookupByLibrary.simpleMessage("关闭"),
         "label_button_recharge": MessageLookupByLibrary.simpleMessage("充值"),
+        "label_button_save_vote_paper":
+            MessageLookupByLibrary.simpleMessage("保存投票单"),
+        "label_button_share": MessageLookupByLibrary.simpleMessage("分享"),
         "label_button_vote": MessageLookupByLibrary.simpleMessage("投票"),
+        "label_button_watch_and_charge":
+            MessageLookupByLibrary.simpleMessage("观看并充电"),
         "label_celeb_gallery": MessageLookupByLibrary.simpleMessage("萨洛普画廊"),
         "label_celeb_recommend": MessageLookupByLibrary.simpleMessage("名人推荐"),
         "label_checkbox_entire_use":
             MessageLookupByLibrary.simpleMessage("全部使用"),
         "label_current_language": MessageLookupByLibrary.simpleMessage("当前语言"),
         "label_draw_image": MessageLookupByLibrary.simpleMessage("赢取随机图片的机会"),
+        "label_dropdown_oldest": MessageLookupByLibrary.simpleMessage("最旧"),
         "label_find_celeb": MessageLookupByLibrary.simpleMessage("查找更多名人"),
         "label_gallery_tab_article":
             MessageLookupByLibrary.simpleMessage("Articles"),
@@ -99,6 +106,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("清除缓存"),
         "label_setting_storage": MessageLookupByLibrary.simpleMessage("存储管理"),
         "label_setting_update": MessageLookupByLibrary.simpleMessage("更新"),
+        "label_tab_buy_star_candy":
+            MessageLookupByLibrary.simpleMessage("购买明星糖果"),
+        "label_tab_free_charge_station":
+            MessageLookupByLibrary.simpleMessage("免费充电站"),
         "label_tabbar_picchart_daily":
             MessageLookupByLibrary.simpleMessage("每日"),
         "label_tabbar_picchart_monthly":
@@ -119,6 +130,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_tab_birthday": MessageLookupByLibrary.simpleMessage("生日投票"),
         "label_vote_tab_pic": MessageLookupByLibrary.simpleMessage("P-RAME投票"),
         "label_vote_vote_gather": MessageLookupByLibrary.simpleMessage("收集选票"),
+        "label_watch_ads": MessageLookupByLibrary.simpleMessage("观看广告"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("我的名人"),
         "message_pic_pic_save_fail":
             MessageLookupByLibrary.simpleMessage("保存失败。"),
@@ -148,6 +160,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("投票"),
         "page_title_vote_gather": MessageLookupByLibrary.simpleMessage("收集选票"),
         "text_ads_random": MessageLookupByLibrary.simpleMessage("查看广告并收集随机图片。"),
+        "text_dialog_star_candy_received":
+            MessageLookupByLibrary.simpleMessage("您已收到明星糖果。"),
         "text_dialog_vote_amount_should_not_zero":
             MessageLookupByLibrary.simpleMessage("投票数量不能为零。"),
         "text_draw_image":
@@ -155,9 +169,20 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_hint_search": MessageLookupByLibrary.simpleMessage("搜索名人。"),
         "text_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("导航至所选名人的主页。"),
+        "text_no_search_result":
+            MessageLookupByLibrary.simpleMessage("没有搜索结果。"),
+        "text_star_candy": MessageLookupByLibrary.simpleMessage("明星糖果"),
+        "text_star_candy_usage_policy": MessageLookupByLibrary.simpleMessage(
+            "### 有效期\n\n- 购买糖果：无（无限制）\n- 奖励星星糖：在获得后的当月 15 日分批过期\n\n#### 兑换星星糖\n\n- 即将到期的星星糖将优先使用。\n- 如果有效期相同，则使用最早的一个。"),
+        "text_star_candy_usage_policy_guide":
+            MessageLookupByLibrary.simpleMessage("奖金将在您获得奖金的次月消失！ ⓘ"),
+        "text_star_candy_usage_policy_title":
+            MessageLookupByLibrary.simpleMessage("明星糖果使用政策"),
+        "text_this_time_vote": MessageLookupByLibrary.simpleMessage("本次投票"),
         "text_vote_1st": MessageLookupByLibrary.simpleMessage("第一名"),
         "text_vote_2nd": MessageLookupByLibrary.simpleMessage("第二名"),
         "text_vote_3rd": MessageLookupByLibrary.simpleMessage("第三名"),
+        "text_vote_complete": MessageLookupByLibrary.simpleMessage("投票完成"),
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("奖励排名"),
         "text_vote_rank_surffix": MessageLookupByLibrary.simpleMessage("位"),

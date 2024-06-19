@@ -5,6 +5,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/simple_dialog.dart';
 import 'package:picnic_app/components/vote/common_vote_info.dart';
 import 'package:picnic_app/constants.dart';
@@ -52,19 +53,19 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
           const CommonPointInfo(),
           SizedBox(height: 36.w),
           CommonListTile(
-            title: Text('시청하고 충전하기',
+            title: Text(Intl.message('label_button_watch_and_charge'),
                 style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
             subtitle: Text.rich(
               TextSpan(
                 children: [
                   TextSpan(
-                      text: '+보너스 1',
+                      text: '+${Intl.message('label_bonus')} 1',
                       style:
                           getTextStyle(AppTypo.CAPTION12B, AppColors.Point900)),
                 ],
               ),
             ),
-            buttonText: '시청하기',
+            buttonText: Intl.message('label_watch_ads'),
             buttonOnPressed: () async {
               if (_rewardedAds[0] == null) {
                 await _createRewardedAd(0);
@@ -75,19 +76,19 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
           ),
           Divider(height: 32.w, thickness: 1, color: AppColors.Grey200),
           CommonListTile(
-            title: Text('시청하고 충전하기',
+            title: Text(Intl.message('label_button_watch_and_charge'),
                 style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
             subtitle: Text.rich(
               TextSpan(
                 children: [
                   TextSpan(
-                      text: '+보너스 1',
+                      text: '+${Intl.message('label_bonus')} 1',
                       style:
                           getTextStyle(AppTypo.CAPTION12B, AppColors.Point900)),
                 ],
               ),
             ),
-            buttonText: '시청하기',
+            buttonText: Intl.message('label_watch_ads'),
             buttonOnPressed: () async {
               if (_rewardedAds[1] == null) {
                 await _createRewardedAd(1);
@@ -101,25 +102,14 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
             onTap: () {
               showSimpleDialog(
                 context: context,
-                title: '별사탕 사용 정책',
-                contentWidget: const Markdown(
-                  padding: EdgeInsets.zero,
-                  shrinkWrap: true,
-                  data: """
-### 유효기간
-
-- 구매 별사탕 : 없음 (무제한)
-- 보너스 별사탕 : 획득한 다음 달 15일에 일괄 소멸
-
-### 별사탕 사용
-
-- 소멸일자가 임박한 별사탕부터 사용됩니다.
-- 유효기간이 동일한 경우, 그 중 획득일자가 빠른 순으로 사용됩니다.
-                  """,
-                ),
+                title: Intl.message('text_star_candy_usage_policy_title'),
+                contentWidget: Markdown(
+                    padding: EdgeInsets.zero,
+                    shrinkWrap: true,
+                    data: Intl.message('text_star_candy_usage_policy')),
               );
             },
-            child: Text('보너스는 획득한 다음달에 사라져요! ⓘ',
+            child: Text(Intl.message('text_star_candy_usage_policy_guide'),
                 style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600)),
           ),
         ],
@@ -170,7 +160,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
 
         showSimpleDialog(
           context: context,
-          title: '별사탕이 지급되었어요!!',
+          title: Intl.message('text_dialog_star_candy_received'),
           onOk: () {},
         );
 

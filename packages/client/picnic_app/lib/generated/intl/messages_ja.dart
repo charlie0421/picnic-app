@@ -39,9 +39,15 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_album_add": MessageLookupByLibrary.simpleMessage("新しいアルバムを追加"),
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("最初のコメントの主人公になりましょう！"),
+        "label_bonus": MessageLookupByLibrary.simpleMessage("ボーナス"),
         "label_button_clse": MessageLookupByLibrary.simpleMessage("閉じる"),
         "label_button_recharge": MessageLookupByLibrary.simpleMessage("チャージ"),
+        "label_button_save_vote_paper":
+            MessageLookupByLibrary.simpleMessage("投票証明書保存"),
+        "label_button_share": MessageLookupByLibrary.simpleMessage("共有"),
         "label_button_vote": MessageLookupByLibrary.simpleMessage("投票"),
+        "label_button_watch_and_charge":
+            MessageLookupByLibrary.simpleMessage("視聴してチャージ"),
         "label_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("ソラップギャラリー。"),
         "label_celeb_recommend":
@@ -51,6 +57,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_current_language": MessageLookupByLibrary.simpleMessage("現在の言語"),
         "label_draw_image":
             MessageLookupByLibrary.simpleMessage("ランダム画像獲得チャンス"),
+        "label_dropdown_oldest": MessageLookupByLibrary.simpleMessage("古い順"),
         "label_find_celeb": MessageLookupByLibrary.simpleMessage("セレブをもっと探す"),
         "label_gallery_tab_article": MessageLookupByLibrary.simpleMessage("記事"),
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("チャット"),
@@ -105,6 +112,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_setting_storage":
             MessageLookupByLibrary.simpleMessage("ストレージ管理"),
         "label_setting_update": MessageLookupByLibrary.simpleMessage("アップデート"),
+        "label_tab_buy_star_candy":
+            MessageLookupByLibrary.simpleMessage("スターキャンディー購入"),
+        "label_tab_free_charge_station":
+            MessageLookupByLibrary.simpleMessage("無料チャージステーション"),
         "label_tabbar_picchart_daily":
             MessageLookupByLibrary.simpleMessage("デイリー"),
         "label_tabbar_picchart_monthly":
@@ -126,6 +137,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_tab_pic": MessageLookupByLibrary.simpleMessage("P-RAME投票"),
         "label_vote_vote_gather":
             MessageLookupByLibrary.simpleMessage("投票集を見る"),
+        "label_watch_ads": MessageLookupByLibrary.simpleMessage("広告を見る"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("マイ・セレブ"),
         "message_pic_pic_save_fail":
             MessageLookupByLibrary.simpleMessage("保存に失敗しました。"),
@@ -157,6 +169,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("投票集を見る"),
         "text_ads_random":
             MessageLookupByLibrary.simpleMessage("広告を見て、ランダムな画像を集める。"),
+        "text_dialog_star_candy_received":
+            MessageLookupByLibrary.simpleMessage("スターキャンディーが受け取られました。"),
         "text_dialog_vote_amount_should_not_zero":
             MessageLookupByLibrary.simpleMessage("投票数は0より大きい値を入力してください。"),
         "text_draw_image":
@@ -166,9 +180,20 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("選択した有名人のホームに移動します。"),
         "text_need_recharge":
             MessageLookupByLibrary.simpleMessage("チャージが必要です。"),
+        "text_no_search_result":
+            MessageLookupByLibrary.simpleMessage("検索結果がありません。"),
+        "text_star_candy": MessageLookupByLibrary.simpleMessage("スターキャンディー"),
+        "text_star_candy_usage_policy": MessageLookupByLibrary.simpleMessage(
+            "### 有効期限\n\n- 購入星飴 : なし (無制限)\n- ボーナス星飴：獲得した翌月15日に一括消滅\n\n### 星飴の使用\n\n- 消滅日が迫っている星飴から使用されます。\n- 有効期限が同じ場合は、獲得日が早い順に使用されます。"),
+        "text_star_candy_usage_policy_guide":
+            MessageLookupByLibrary.simpleMessage("ボーナスは獲得した翌月に消えますよ！ⓘ"),
+        "text_star_candy_usage_policy_title":
+            MessageLookupByLibrary.simpleMessage("スターキャンディー利用規約"),
+        "text_this_time_vote": MessageLookupByLibrary.simpleMessage("今回の投票"),
         "text_vote_1st": MessageLookupByLibrary.simpleMessage("1位"),
         "text_vote_2nd": MessageLookupByLibrary.simpleMessage("2位"),
         "text_vote_3rd": MessageLookupByLibrary.simpleMessage("3位"),
+        "text_vote_complete": MessageLookupByLibrary.simpleMessage("投票完了"),
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("報酬ランクイン"),
         "text_vote_rank_surffix": MessageLookupByLibrary.simpleMessage("位"),

@@ -41,10 +41,16 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Add a new album"),
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("Be the first to comment!"),
+        "label_bonus": MessageLookupByLibrary.simpleMessage("Bonus"),
         "label_button_clse": MessageLookupByLibrary.simpleMessage("Close"),
         "label_button_recharge":
             MessageLookupByLibrary.simpleMessage("Recharge"),
+        "label_button_save_vote_paper":
+            MessageLookupByLibrary.simpleMessage("Save the voting paper"),
+        "label_button_share": MessageLookupByLibrary.simpleMessage("Share"),
         "label_button_vote": MessageLookupByLibrary.simpleMessage("Vote"),
+        "label_button_watch_and_charge":
+            MessageLookupByLibrary.simpleMessage("Watch and charge"),
         "label_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("Celeb Gallery."),
         "label_celeb_recommend":
@@ -55,6 +61,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Current language"),
         "label_draw_image": MessageLookupByLibrary.simpleMessage(
             "Chance to win a random image"),
+        "label_dropdown_oldest": MessageLookupByLibrary.simpleMessage("Oldest"),
+        "label_dropdown_recent": MessageLookupByLibrary.simpleMessage("Recent"),
         "label_find_celeb":
             MessageLookupByLibrary.simpleMessage("Find more celebrities"),
         "label_gallery_tab_article":
@@ -116,6 +124,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_setting_storage":
             MessageLookupByLibrary.simpleMessage("Manage Storage"),
         "label_setting_update": MessageLookupByLibrary.simpleMessage("Update"),
+        "label_tab_buy_star_candy":
+            MessageLookupByLibrary.simpleMessage("Buy Star Candy"),
+        "label_tab_free_charge_station":
+            MessageLookupByLibrary.simpleMessage("Free Charging Station"),
         "label_tabbar_picchart_daily":
             MessageLookupByLibrary.simpleMessage("Daily"),
         "label_tabbar_picchart_monthly":
@@ -142,6 +154,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("P-RAME Voting"),
         "label_vote_vote_gather":
             MessageLookupByLibrary.simpleMessage("Collecting votes"),
+        "label_watch_ads": MessageLookupByLibrary.simpleMessage("Watch ads"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("My Celeb"),
         "message_pic_pic_save_fail":
             MessageLookupByLibrary.simpleMessage("Failed to save."),
@@ -179,6 +192,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Collecting votes"),
         "text_ads_random": MessageLookupByLibrary.simpleMessage(
             "Viewing ads and collecting random images."),
+        "text_dialog_star_candy_received":
+            MessageLookupByLibrary.simpleMessage("Star Candy received"),
         "text_dialog_vote_amount_should_not_zero":
             MessageLookupByLibrary.simpleMessage(
                 "The amount of votes should not be 0."),
@@ -190,9 +205,23 @@ class MessageLookup extends MessageLookupByLibrary {
             "Navigates to the selected celebrity\'s home."),
         "text_need_recharge":
             MessageLookupByLibrary.simpleMessage("Need to recharge"),
+        "text_no_search_result":
+            MessageLookupByLibrary.simpleMessage("No search results."),
+        "text_star_candy": MessageLookupByLibrary.simpleMessage("Star Candy"),
+        "text_star_candy_usage_policy": MessageLookupByLibrary.simpleMessage(
+            "### Expiration Date\n\n- Purchase Candy: None (unlimited)\n- Bonus Star Candy: Expires in batches on the 15th of the month after earned\n\n### Redeem Star Candy\n\n- Star Candies that are about to expire will be used first.\n- If they have the same expiration date, the earliest one will be used."),
+        "text_star_candy_usage_policy_guide":
+            MessageLookupByLibrary.simpleMessage(
+                "Bonuses will disappear the month after you earn them! ⓘ"),
+        "text_star_candy_usage_policy_title":
+            MessageLookupByLibrary.simpleMessage("Star Candy Usage Policy"),
+        "text_this_time_vote":
+            MessageLookupByLibrary.simpleMessage("This time vote"),
         "text_vote_1st": MessageLookupByLibrary.simpleMessage("1st"),
         "text_vote_2nd": MessageLookupByLibrary.simpleMessage("2nd"),
         "text_vote_3rd": MessageLookupByLibrary.simpleMessage("3rd"),
+        "text_vote_complete":
+            MessageLookupByLibrary.simpleMessage("Vote complete"),
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("Rank in the reward"),
         "text_vote_rank_surffix": MessageLookupByLibrary.simpleMessage("th"),

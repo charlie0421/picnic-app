@@ -194,7 +194,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                         height: 24.w,
                       ),
                       Expanded(
-                        child: Text('투표 완료',
+                        child: Text(Intl.message('text_vote_complete'),
                             style: getTextStyle(
                                 AppTypo.TITLE18B, AppColors.Point900),
                             textAlign: TextAlign.center),
@@ -280,7 +280,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('이번 투표',
+                          Text(Intl.message('text_this_time_vote'),
                               style: getTextStyle(
                                   AppTypo.CAPTION12M, AppColors.Primary500)),
                           SizedBox(width: 16.w),
@@ -420,7 +420,8 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                 minimumSize: Size(104.w, 32.w),
                                 maximumSize: Size(104.w, 32.w),
                               ),
-                              child: Text('투표지 저장',
+                              child: Text(
+                                  Intl.message('label_button_save_vote_paper'),
                                   style: getTextStyle(
                                       AppTypo.BODY14B, AppColors.Grey00))),
                           SizedBox(width: 16.w),
@@ -436,7 +437,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text('공유하기',
+                                  Text(Intl.message('label_button_share'),
                                       style: getTextStyle(
                                           AppTypo.BODY14B, AppColors.Grey00)),
                                   SvgPicture.asset(
