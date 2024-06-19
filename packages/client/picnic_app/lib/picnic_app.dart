@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:another_flutter_splash_screen/another_flutter_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -128,7 +129,15 @@ class _PicnicAppState extends ConsumerState<PicnicApp>
             routes: {
               '/pic-camera': (context) => const PicCameraScreen(),
             },
-            home: const Portal()),
+            home: FlutterSplashScreen.fadeIn(
+                useImmersiveMode: true,
+                duration: const Duration(milliseconds: 3000),
+                animationDuration: const Duration(milliseconds: 3000),
+                childWidget: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    child: Image.asset("assets/splash.png", fit: BoxFit.cover)),
+                nextScreen: Portal())),
       ),
     );
   }
