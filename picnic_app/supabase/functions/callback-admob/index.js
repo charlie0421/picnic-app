@@ -88,12 +88,12 @@ function verifySignature(transaction_id, user_id, reward_amount, signature, secr
     });
 }
 Deno.serve(function (req) { return __awaiter(void 0, void 0, void 0, function () {
-    var url, params, user_id, reward_amount, custom_data, ad_network, transaction_id, signature, key_id, reward_type, parsedData, isValid, supabaseClient, _a, user_profiles, userError, connection, updateUserQuery, e_1, error_2;
+    var url, params, user_id, reward_amount, custom_data, ad_network, transaction_id, signature, key_id, reward_type, parsedData, isValid, supabaseClient, _a, user_profiles, userError, connection, updateUserQuery, insertHistoryQuery, insertTransactionQuery, e_1, error_2;
     var _b, _c, _d;
     return __generator(this, function (_e) {
         switch (_e.label) {
             case 0:
-                _e.trys.push([0, 11, , 12]);
+                _e.trys.push([0, 13, , 14]);
                 url = new URL(req.url);
                 params = url.searchParams;
                 user_id = params.get('user_id');
@@ -165,7 +165,7 @@ Deno.serve(function (req) { return __awaiter(void 0, void 0, void 0, function ()
                 connection = _e.sent();
                 _e.label = 4;
             case 4:
-                _e.trys.push([4, 8, , 10]);
+                _e.trys.push([4, 10, , 12]);
                 return [4 /*yield*/, connection.queryObject('BEGIN')];
             case 5:
                 _e.sent();
@@ -174,38 +174,41 @@ Deno.serve(function (req) { return __awaiter(void 0, void 0, void 0, function ()
                 return [4 /*yield*/, connection.queryObject(updateUserQuery, [reward_amount, user_id])];
             case 6:
                 _e.sent();
-                console.log('Inserting reward record');
-                // const insertRewardQuery = `INSERT INTO rewards (user_id, reward_amount, reward_type, ad_network, transaction_id)
-                //                            VALUES ($1, $2, $3, $4, $5)`;
-                // await connection.queryObject(insertRewardQuery, [user_id, reward_amount, reward_type, ad_network, transaction_id]);
-                return [4 /*yield*/, connection.queryObject('COMMIT')];
+                console.log('Inserting star_candy history');
+                insertHistoryQuery = "INSERT INTO star_candy_history (type, amount, user_id, transaction_id)\n                                                VALUES ($1, $2, $3, $4)";
+                return [4 /*yield*/, connection.queryObject(insertHistoryQuery, ['AD', reward_amount, user_id, transaction_id])];
             case 7:
-                // const insertRewardQuery = `INSERT INTO rewards (user_id, reward_amount, reward_type, ad_network, transaction_id)
-                //                            VALUES ($1, $2, $3, $4, $5)`;
-                // await connection.queryObject(insertRewardQuery, [user_id, reward_amount, reward_type, ad_network, transaction_id]);
+                _e.sent();
+                console.log('Inserting transaction');
+                insertTransactionQuery = "INSERT INTO transaction_admob (transaction_id,\n                                                                                   reward_type, reward_amount,\n                                                                                   signature,\n                                                                                   ad_network, key_id)\n                                                    VALUES ($1, $2, $3, $4, $5, $6)";
+                return [4 /*yield*/, connection.queryObject(insertTransactionQuery, [transaction_id, reward_type, reward_amount, signature, ad_network, key_id])];
+            case 8:
+                _e.sent();
+                return [4 /*yield*/, connection.queryObject('COMMIT')];
+            case 9:
                 _e.sent();
                 connection.release();
                 return [2 /*return*/, new Response(JSON.stringify({ success: true }), {
                         headers: { 'Content-Type': 'application/json' },
                         status: 200,
                     })];
-            case 8:
+            case 10:
                 e_1 = _e.sent();
                 return [4 /*yield*/, connection.queryObject('ROLLBACK')];
-            case 9:
+            case 11:
                 _e.sent();
                 connection.release();
                 console.error('Transaction failed', e_1);
                 throw e_1;
-            case 10: return [3 /*break*/, 12];
-            case 11:
+            case 12: return [3 /*break*/, 14];
+            case 13:
                 error_2 = _e.sent();
                 console.error('Unhandled error', error_2);
                 return [2 /*return*/, new Response(JSON.stringify({ error: error_2.message }), {
                         headers: { 'Content-Type': 'application/json' },
                         status: 500,
                     })];
-            case 12: return [2 /*return*/];
+            case 14: return [2 /*return*/];
         }
     });
 }); });

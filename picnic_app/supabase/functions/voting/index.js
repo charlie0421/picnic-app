@@ -41,16 +41,17 @@ var postgres = require("https://deno.land/x/postgres@v0.17.0/mod.ts");
 var databaseUrl = Deno.env.get('SUPABASE_DB_URL');
 var pool = new postgres.Pool(databaseUrl, 3, true);
 Deno.serve(function (req) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, vote_id, vote_item_id, amount, user_id, supabaseClient, _b, user_profiles, userError, connection, insertVoteQuery, existingVoteRows, existingVoteTotal, updateVoteQuery, updateUserQuery, e_1, error_1;
+    var supabaseClient, _a, vote_id, vote_item_id, amount, user_id, _b, user_profiles, userError, connection, insertVoteQuery, vote_pick, vote_pick_id, existingVoteRows, existingVoteTotal, updateVoteQuery, updateUserQuery, insertHistoryQuery, e_1, error_1;
     var _c, _d;
     return __generator(this, function (_e) {
         switch (_e.label) {
             case 0:
-                _e.trys.push([0, 14, , 15]);
+                _e.trys.push([0, 15, , 16]);
+                supabaseClient = (0, supabase_js_2_1.createClient)((_c = Deno.env.get('SUPABASE_URL')) !== null && _c !== void 0 ? _c : '', (_d = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')) !== null && _d !== void 0 ? _d : '', { global: { headers: { Authorization: req.headers.get('Authorization') } } });
                 return [4 /*yield*/, req.json()];
             case 1:
                 _a = _e.sent(), vote_id = _a.vote_id, vote_item_id = _a.vote_item_id, amount = _a.amount, user_id = _a.user_id;
-                supabaseClient = (0, supabase_js_2_1.createClient)((_c = Deno.env.get('SUPABASE_URL')) !== null && _c !== void 0 ? _c : '', (_d = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')) !== null && _d !== void 0 ? _d : '', { global: { headers: { Authorization: req.headers.get('Authorization') } } });
+                console.log('Request data:', { vote_id: vote_id, vote_item_id: vote_item_id, amount: amount, user_id: user_id });
                 return [4 /*yield*/, supabaseClient
                         .from('user_profiles')
                         .select('star_candy')
@@ -75,28 +76,47 @@ Deno.serve(function (req) { return __awaiter(void 0, void 0, void 0, function ()
                 connection = _e.sent();
                 _e.label = 4;
             case 4:
-                _e.trys.push([4, 11, , 13]);
+                _e.trys.push([4, 12, , 14]);
                 return [4 /*yield*/, connection.queryObject('BEGIN')];
             case 5:
                 _e.sent();
-                insertVoteQuery = "INSERT INTO vote_pick (vote_id, vote_item_id, amount, user_id)\n                                     VALUES ($1, $2, $3, $4)";
+                insertVoteQuery = "INSERT INTO vote_pick (vote_id, vote_item_id, amount, user_id)\n                                             VALUES ($1, $2, $3, $4) RETURNING id";
                 return [4 /*yield*/, connection.queryObject(insertVoteQuery, [vote_id, vote_item_id, amount, user_id])];
             case 6:
-                _e.sent();
+                vote_pick = _e.sent();
+                console.log(vote_pick);
+                vote_pick_id = void 0;
+                if (vote_pick.rows.length > 0) {
+                    vote_pick_id = vote_pick.rows[0].id;
+                }
+                else {
+                    // Handle the case where no rows were inserted
+                    console.error('No rows were inserted');
+                }
                 return [4 /*yield*/, connection.queryObject("SELECT vote_total\n                 FROM vote_item\n                 WHERE id = $1", [vote_item_id])];
             case 7:
                 existingVoteRows = (_e.sent()).rows;
                 existingVoteTotal = existingVoteRows.length > 0 ? existingVoteRows[0].vote_total : 0;
-                updateVoteQuery = "UPDATE vote_item\n                                     SET vote_total = vote_total + $1\n                                     WHERE id = $2";
+                // 투표수 업데이트
+                console.log('Updating vote total');
+                updateVoteQuery = "UPDATE vote_item\n                                             SET vote_total = vote_total + $1\n                                             WHERE id = $2";
                 return [4 /*yield*/, connection.queryObject(updateVoteQuery, [amount, vote_item_id])];
             case 8:
                 _e.sent();
-                updateUserQuery = "UPDATE user_profiles\n                                     SET star_candy = star_candy - $1\n                                     WHERE id = $2";
+                // 사용자 포인트 차감
+                console.log('Updating user rewards');
+                updateUserQuery = "UPDATE user_profiles\n                                             SET star_candy = star_candy - $1\n                                             WHERE id = $2";
                 return [4 /*yield*/, connection.queryObject(updateUserQuery, [amount, user_id])];
             case 9:
                 _e.sent();
-                return [4 /*yield*/, connection.queryObject('COMMIT')];
+                // 히스토리 저장
+                console.log('Inserting star_candy history');
+                insertHistoryQuery = "INSERT INTO star_candy_history (type, user_id, amount, vote_pick_id)\n                                                VALUES ($1, $2, $3, $4)";
+                return [4 /*yield*/, connection.queryObject(insertHistoryQuery, ['VOTE', user_id, amount, vote_pick_id])];
             case 10:
+                _e.sent();
+                return [4 /*yield*/, connection.queryObject('COMMIT')];
+            case 11:
                 _e.sent();
                 connection.release();
                 return [2 /*return*/, new Response(JSON.stringify({
@@ -108,21 +128,22 @@ Deno.serve(function (req) { return __awaiter(void 0, void 0, void 0, function ()
                         headers: { 'Content-Type': 'application/json' },
                         status: 200,
                     })];
-            case 11:
+            case 12:
                 e_1 = _e.sent();
                 return [4 /*yield*/, connection.queryObject('ROLLBACK')];
-            case 12:
+            case 13:
                 _e.sent();
                 connection.release();
                 throw e_1;
-            case 13: return [3 /*break*/, 15];
-            case 14:
+            case 14: return [3 /*break*/, 16];
+            case 15:
                 error_1 = _e.sent();
+                console.error('Unhandled error', error_1);
                 return [2 /*return*/, new Response(JSON.stringify({ error: error_1.message }), {
                         headers: { 'Content-Type': 'application/json' },
                         status: 500,
                     })];
-            case 15: return [2 /*return*/];
+            case 16: return [2 /*return*/];
         }
     });
 }); });
