@@ -17,17 +17,33 @@ class UserInfo extends _$UserInfo {
     return getUserProfiles();
   }
 
+  bool get isLogged => Supabase.instance.client.isLogged;
+
   Future<UserProfilesModel?> getUserProfiles() async {
+    logger.i(
+        'Supabase.instance.client.isLogged: ${Supabase.instance.client.isLogged}');
     if (!Supabase.instance.client.isLogged) {
       return null;
     }
+    try {
+      final response = await Supabase.instance.client
+          .from('user_profiles')
+          .select()
+          .single();
+      logger.i('response.data: $response');
+      state = AsyncValue.data(UserProfilesModel.fromJson(response));
 
-    final response =
-        await Supabase.instance.client.from('user_profiles').select().single();
-    logger.i('response.data: $response');
+      return UserProfilesModel.fromJson(response);
+    } catch (e, s) {
+      logger.e(e);
+      logger.e(s);
 
-    state = AsyncValue.data(UserProfilesModel.fromJson(response));
+      return null;
+    } finally {}
+  }
 
-    return UserProfilesModel.fromJson(response);
+  Future<void> logout() async {
+    await Supabase.instance.client.auth.signOut();
+    state = AsyncValue.data(null);
   }
 }

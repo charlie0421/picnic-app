@@ -84,14 +84,21 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Charge History"),
         "label_mypage_customer_center":
             MessageLookupByLibrary.simpleMessage("Customer Center"),
+        "label_mypage_logout": MessageLookupByLibrary.simpleMessage("Logout"),
         "label_mypage_membership_history":
             MessageLookupByLibrary.simpleMessage("Membership History"),
         "label_mypage_mystar": MessageLookupByLibrary.simpleMessage("My Star"),
         "label_mypage_notice": MessageLookupByLibrary.simpleMessage("Notice"),
+        "label_mypage_privacy_policy":
+            MessageLookupByLibrary.simpleMessage("Privacy Policy"),
         "label_mypage_setting":
             MessageLookupByLibrary.simpleMessage("Settings"),
+        "label_mypage_terms_of_use":
+            MessageLookupByLibrary.simpleMessage("Terms of Use"),
         "label_mypage_vote_history":
             MessageLookupByLibrary.simpleMessage("Vote History"),
+        "label_mypage_withdrawal":
+            MessageLookupByLibrary.simpleMessage("Withdrawal"),
         "label_no_celeb": MessageLookupByLibrary.simpleMessage(
             "You don\'t have any celebrities bookmarked yet!."),
         "label_pic_image_cropping":

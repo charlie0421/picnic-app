@@ -77,13 +77,19 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("チャージ履歴"),
         "label_mypage_customer_center":
             MessageLookupByLibrary.simpleMessage("カスタマーセンター"),
+        "label_mypage_logout": MessageLookupByLibrary.simpleMessage("ログアウト"),
         "label_mypage_membership_history":
             MessageLookupByLibrary.simpleMessage("メンバーシップ履歴"),
         "label_mypage_mystar": MessageLookupByLibrary.simpleMessage("マイスター"),
         "label_mypage_notice": MessageLookupByLibrary.simpleMessage("お知らせ"),
+        "label_mypage_privacy_policy":
+            MessageLookupByLibrary.simpleMessage("プライバシーポリシー"),
         "label_mypage_setting": MessageLookupByLibrary.simpleMessage("設定"),
+        "label_mypage_terms_of_use":
+            MessageLookupByLibrary.simpleMessage("利用規約"),
         "label_mypage_vote_history":
             MessageLookupByLibrary.simpleMessage("投票履歴"),
+        "label_mypage_withdrawal": MessageLookupByLibrary.simpleMessage("退会"),
         "label_no_celeb":
             MessageLookupByLibrary.simpleMessage("あなたはまだ有名人をブックマークしていない!"),
         "label_pic_image_cropping":

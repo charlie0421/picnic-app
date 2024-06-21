@@ -18,3 +18,13 @@ SwitchThemeData commonSwitchTheme = SwitchThemeData(
   trackOutlineWidth: const WidgetStatePropertyAll(0),
   trackOutlineColor: WidgetStateProperty.all(AppColors.Grey00),
 );
+
+BottomSheetThemeData commonBottomSheetTheme = const BottomSheetThemeData(
+  dragHandleSize: Size(200, 2),
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.only(
+      topLeft: Radius.circular(10),
+      topRight: Radius.circular(10),
+    ),
+  ),
+);

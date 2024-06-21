@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/common_my_point_info.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
+import 'package:picnic_app/pages/common/myprofile.dart';
 import 'package:picnic_app/pages/common/setting.dart';
 import 'package:picnic_app/pages/vote/vote_history_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -62,7 +63,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () => ref
                     .read(navigationInfoProvider.notifier)
-                    .setCurrentMyPage(SettingPage())),
+                    .setCurrentMyPage(const SettingPage())),
             const Divider(color: AppColors.Grey200),
             _buildMyStar('VOTE'),
             const Divider(color: AppColors.Grey200),
@@ -71,7 +72,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () => ref
                     .read(navigationInfoProvider.notifier)
-                    .setCurrentMyPage(VoteHistoryPage())),
+                    .setCurrentMyPage(const VoteHistoryPage())),
             const Divider(color: AppColors.Grey200),
             _buildMyStar('P-RAME'),
             const Divider(color: AppColors.Grey200),
@@ -87,42 +88,47 @@ class _MyPageState extends ConsumerState<MyPage> {
 
   Widget _buildProfile() {
     final userInfo = ref.watch(userInfoProvider);
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: userInfo.when(
-        data: (data) {
-          return Row(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(80).r,
-                child: CachedNetworkImage(
-                  imageUrl: data?.avatar_url ?? '',
-                  placeholder: (context, url) => buildPlaceholderImage(),
-                  width: 80.w,
-                  height: 80.w,
-                  fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () => ref
+          .read(navigationInfoProvider.notifier)
+          .setCurrentMyPage(const MyProfilePage()),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        child: userInfo.when(
+          data: (data) {
+            return Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(80).r,
+                  child: CachedNetworkImage(
+                    imageUrl: data?.avatar_url ?? '',
+                    placeholder: (context, url) => buildPlaceholderImage(),
+                    width: 80.w,
+                    height: 80.w,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              ),
-              SizedBox(width: 16.w),
-              Text(
-                data?.nickname ?? '',
-                style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900),
-              ),
-              SizedBox(width: 8.w),
-              SvgPicture.asset('assets/icons/setting_style=line.svg',
-                  width: 20.w,
-                  height: 20.w,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.Grey900,
-                    BlendMode.srcIn,
-                  )),
-            ],
-          );
-        },
-        loading: () => buildLoadingOverlay(),
-        error: (error, stack) {
-          return Text('Error: $error');
-        },
+                SizedBox(width: 16.w),
+                Text(
+                  data?.nickname ?? '',
+                  style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900),
+                ),
+                SizedBox(width: 8.w),
+                SvgPicture.asset('assets/icons/setting_style=line.svg',
+                    width: 20.w,
+                    height: 20.w,
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.Grey900,
+                      BlendMode.srcIn,
+                    )),
+              ],
+            );
+          },
+          loading: () => buildLoadingOverlay(),
+          error: (error, stack) {
+            return Text('Error: $error');
+          },
+        ),
       ),
     );
   }

@@ -8,7 +8,6 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/pages/vote/vote_list_page.dart';
 import 'package:picnic_app/providers/banner_list_provider.dart';
@@ -135,8 +134,6 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
       'itemsPerPage': limit,
       'totalPages': response.count ~/ limit + 1,
     };
-
-    logger.i(meta);
 
     return VoteListModel.fromJson({'items': response.data, 'meta': meta});
   }
