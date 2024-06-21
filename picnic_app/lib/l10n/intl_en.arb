@@ -125,5 +125,9 @@
   "text_star_candy_usage_policy_guide": "*Bonuses will disappear the month after you earn them! ⓘ",
   "text_star_candy_usage_policy": "### Expiration Date\n\n- Purchase Candy: None (unlimited)\n- Bonus Star Candy: Expires in batches on the 15th of the month after earned\n\n### Redeem Star Candy\n\n- Star Candies that are about to expire will be used first.\n- If they have the same expiration date, the earliest one will be used.",
   "text_dialog_star_candy_received": "Star Candy received",
-  "text_purchase_vat_included": "*VAT included"
+  "text_purchase_vat_included": "*VAT included",
+  "label_mypage_terms_of_use": "Terms of Use",
+  "label_mypage_privacy_policy": "Privacy Policy",
+  "label_mypage_logout": "Logout",
+  "label_mypage_withdrawal": "Withdrawal"
 }

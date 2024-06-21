@@ -1309,6 +1309,46 @@ class S {
       args: [],
     );
   }
+
+  /// `Terms of Use`
+  String get label_mypage_terms_of_use {
+    return Intl.message(
+      'Terms of Use',
+      name: 'label_mypage_terms_of_use',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Privacy Policy`
+  String get label_mypage_privacy_policy {
+    return Intl.message(
+      'Privacy Policy',
+      name: 'label_mypage_privacy_policy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Logout`
+  String get label_mypage_logout {
+    return Intl.message(
+      'Logout',
+      name: 'label_mypage_logout',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Withdrawal`
+  String get label_mypage_withdrawal {
+    return Intl.message(
+      'Withdrawal',
+      name: 'label_mypage_withdrawal',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

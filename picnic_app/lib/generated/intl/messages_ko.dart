@@ -76,13 +76,19 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("충전내역"),
         "label_mypage_customer_center":
             MessageLookupByLibrary.simpleMessage("고객센터"),
+        "label_mypage_logout": MessageLookupByLibrary.simpleMessage("로그아웃"),
         "label_mypage_membership_history":
             MessageLookupByLibrary.simpleMessage("멤버십 내역"),
         "label_mypage_mystar": MessageLookupByLibrary.simpleMessage("마이 스타"),
         "label_mypage_notice": MessageLookupByLibrary.simpleMessage("공지사항"),
+        "label_mypage_privacy_policy":
+            MessageLookupByLibrary.simpleMessage("개인정보처리방침"),
         "label_mypage_setting": MessageLookupByLibrary.simpleMessage("설정"),
+        "label_mypage_terms_of_use":
+            MessageLookupByLibrary.simpleMessage("이용약관"),
         "label_mypage_vote_history":
             MessageLookupByLibrary.simpleMessage("투표내역"),
+        "label_mypage_withdrawal": MessageLookupByLibrary.simpleMessage("회원탈퇴"),
         "label_no_celeb":
             MessageLookupByLibrary.simpleMessage("아직 북마크한 유명인이 없습니다!"),
         "label_pic_image_cropping":

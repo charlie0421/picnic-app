@@ -6,7 +6,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/common/portal_menu_item.dart';
 import 'package:picnic_app/components/common/screen_top.dart';
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/providers/logined_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/screens/login_screen.dart';
@@ -36,8 +35,7 @@ class _PortalState extends ConsumerState<Portal> {
     }));
     final navigationInfoNotifier = ref.read(navigationInfoProvider.notifier);
     final userInfo = ref.watch(userInfoProvider);
-
-    final bool logined = ref.watch(loginedProvider);
+    final userInfoNotifier = ref.read(userInfoProvider.notifier);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -55,7 +53,7 @@ class _PortalState extends ConsumerState<Portal> {
           height: 36.w,
           alignment: Alignment.center,
           child: Builder(
-            builder: (context) => logined
+            builder: (context) => userInfoNotifier.isLogged
                 ? userInfo.when(
                     data: (data) => data != null
                         ? GestureDetector(
@@ -92,9 +90,8 @@ class _PortalState extends ConsumerState<Portal> {
                   )
                 : GestureDetector(
                     behavior: HitTestBehavior.opaque,
-                    onTap: () => navigationInfoNotifier.setCurrentPage(
-                      const LoginScreen(),
-                    ),
+                    onTap: () =>
+                        Navigator.of(context).pushNamed(LoginScreen.routeName),
                     child: const DefaultAvatar(),
                   ),
           ),

@@ -41,15 +41,5 @@ ThemeData mypageThemeLight = ThemeData.light().copyWith(
     onSurface: Colors.black,
     brightness: Brightness.light,
   ),
-  bottomSheetTheme: const BottomSheetThemeData(
-    showDragHandle: true,
-    dragHandleColor: novelMainColor,
-    dragHandleSize: Size(200, 2),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(10),
-        topRight: Radius.circular(10),
-      ),
-    ),
-  ),
+  bottomSheetTheme: commonBottomSheetTheme,
 );

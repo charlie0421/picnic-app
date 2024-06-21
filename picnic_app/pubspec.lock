@@ -285,10 +285,10 @@ packages:
     dependency: transitive
     description:
       name: camera_android_camerax
-      sha256: "7d84815edbb8304b51c10deba3c20f44eef80aa46ff156ec45428ed16600b49a"
+      sha256: "7abb0faddbf103c59365e805ad9a30ab4d602b2eb7a8de469697945fd4a69daa"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.5+5"
+    version: "0.6.5+6"
   camera_avfoundation:
     dependency: transitive
     description:
@@ -751,10 +751,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_markdown
-      sha256: ff76a9300a06ad1f2b394e54c0b4beaaf6a95f95c98540c918b870221499bb10
+      sha256: "85cc6f7daeae537844c92e2d56e2aff61b00095f8f77913b529ea4be12fc45ea"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.2"
+    version: "0.7.2+1"
   flutter_native_splash:
     dependency: "direct main"
     description:
@@ -969,10 +969,10 @@ packages:
     dependency: transitive
     description:
       name: google_sign_in_android
-      sha256: "8f2606fffd912ff8c23e8d94da106764c116112ce65fb18c78123331ae628eb3"
+      sha256: "60e4f7947fa413cd9f2e23c955e8406afe640a8b2fbd00b46fb2901058047b8f"
       url: "https://pub.dev"
     source: hosted
-    version: "6.1.24"
+    version: "6.1.25"
   google_sign_in_ios:
     dependency: transitive
     description:
@@ -993,18 +993,18 @@ packages:
     dependency: transitive
     description:
       name: google_sign_in_web
-      sha256: fc0f14ed45ea616a6cfb4d1c7534c2221b7092cc4f29a709f0c3053cc3e821bd
+      sha256: d606264c7a1a526a3aa79d938b85a601d8589731a478bd4a3dcbdeb14a572228
       url: "https://pub.dev"
     source: hosted
-    version: "0.12.4"
+    version: "0.12.4+1"
   gotrue:
     dependency: transitive
     description:
       name: gotrue
-      sha256: b7324a9113bb21c354fd52531d9a9dba6570a9c37b2fc6b424865feb19974476
+      sha256: "65c8c47afb8230218bc295e6edcb948b117e39801f91c4a4bcb94dfd26b57134"
       url: "https://pub.dev"
     source: hosted
-    version: "2.8.0"
+    version: "2.8.1"
   graphs:
     dependency: transitive
     description:
@@ -1537,10 +1537,10 @@ packages:
     dependency: transitive
     description:
       name: path_provider_android
-      sha256: "9c96da072b421e98183f9ea7464898428e764bc0ce5567f27ec8693442e72514"
+      sha256: bca87b0165ffd7cdb9cad8edd22d18d2201e886d9a9f19b4fb3452ea7df3a72a
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.5"
+    version: "2.2.6"
   path_provider_foundation:
     dependency: transitive
     description:
@@ -2046,10 +2046,10 @@ packages:
     dependency: transitive
     description:
       name: supabase
-      sha256: "1133466d2ec9441e7cff6bf73943f0a6e17cbb5044f6327ca93e3dddc567c882"
+      sha256: "073aabf6a9f6ada2ebb77082222e1104949afb9f7f181017d0643d99bda0efe3"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.1"
+    version: "2.2.2"
   supabase_auth_ui:
     dependency: "direct main"
     description:
@@ -2070,10 +2070,10 @@ packages:
     dependency: "direct main"
     description:
       name: supabase_flutter
-      sha256: "521de6a72fefc0447bd052b0a33be30ed429ac8c39d9028dfbf0f9af2c4c93b2"
+      sha256: ae56c20924fadd62f0a83f0570c22cec85f4b093768fbd0e049c4e1741a109a7
       url: "https://pub.dev"
     source: hosted
-    version: "2.5.5"
+    version: "2.5.6"
   synchronized:
     dependency: transitive
     description:

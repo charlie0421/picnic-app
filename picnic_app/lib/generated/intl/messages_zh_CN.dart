@@ -74,13 +74,19 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("充值记录"),
         "label_mypage_customer_center":
             MessageLookupByLibrary.simpleMessage("客服中心"),
+        "label_mypage_logout": MessageLookupByLibrary.simpleMessage("登出"),
         "label_mypage_membership_history":
             MessageLookupByLibrary.simpleMessage("会员记录"),
         "label_mypage_mystar": MessageLookupByLibrary.simpleMessage("我的明星"),
         "label_mypage_notice": MessageLookupByLibrary.simpleMessage("通知"),
+        "label_mypage_privacy_policy":
+            MessageLookupByLibrary.simpleMessage("隐私政策"),
         "label_mypage_setting": MessageLookupByLibrary.simpleMessage("设置"),
+        "label_mypage_terms_of_use":
+            MessageLookupByLibrary.simpleMessage("使用条款"),
         "label_mypage_vote_history":
             MessageLookupByLibrary.simpleMessage("投票记录"),
+        "label_mypage_withdrawal": MessageLookupByLibrary.simpleMessage("退出"),
         "label_no_celeb": MessageLookupByLibrary.simpleMessage("您还没有将任何名人加入书签"),
         "label_pic_image_cropping":
             MessageLookupByLibrary.simpleMessage("裁剪图像..."),
