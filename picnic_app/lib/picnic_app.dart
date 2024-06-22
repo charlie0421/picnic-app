@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:another_flutter_splash_screen/another_flutter_splash_screen.dart';
+import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +12,7 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/overlays.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/screens/login_screen.dart';
 import 'package:picnic_app/screens/pic/pic_camera_screen.dart';
 import 'package:picnic_app/screens/portal.dart';
@@ -57,9 +59,8 @@ class _PicnicAppState extends ConsumerState<PicnicApp>
       await ScreenProtector.preventScreenshotOn();
     });
     WidgetsBinding.instance.addObserver(this);
-    final _supabaseClient = Supabase.instance.client;
 
-    _supabaseClient.auth.onAuthStateChange.listen((data) {
+    Supabase.instance.client.auth.onAuthStateChange.listen((data) {
       final session = data.session;
       if (session != null) {
         final jwtToken = session.accessToken;
@@ -67,14 +68,15 @@ class _PicnicAppState extends ConsumerState<PicnicApp>
       }
     });
 
-    // final _appLinks = AppLinks(); // AppLinks is singleton
-    //
-    // _sub = _appLinks.uriLinkStream.listen((Uri uri) {
-    //   logger.i('Incoming link: $uri');
-    // }, onError: (err) {
-    //   Handle error
-    // print('Error: $err');
-    // });
+    final _appLinks = AppLinks(); // AppLinks is singleton
+
+    _sub = _appLinks.uriLinkStream.listen((Uri uri) {
+      logger.i('Incoming link: $uri');
+      ref.read(userInfoProvider.notifier).getUserProfiles();
+    }, onError: (err) {
+      // Handle error
+      print('Error: $err');
+    });
   }
 
   @override
