@@ -44,6 +44,6 @@ class UserInfo extends _$UserInfo {
 
   Future<void> logout() async {
     await Supabase.instance.client.auth.signOut();
-    state = AsyncValue.data(null);
+    state = const AsyncValue.data(null);
   }
 }

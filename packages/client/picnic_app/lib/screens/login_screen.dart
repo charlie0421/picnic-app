@@ -1,12 +1,19 @@
+import 'dart:convert';
+
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
+import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
@@ -174,26 +181,55 @@ class LoginScreen extends ConsumerWidget {
                                   GestureDetector(
                                       behavior: HitTestBehavior.translucent,
                                       onTap: () {
-                                        _nativeGoogleSignIn();
-                                        //   .then((value) {
-                                        // if (value) {
-                                        //   ref
-                                        //       .read(userInfoProvider.notifier)
-                                        //       .getUserProfiles()
-                                        //       .then((value) {
-                                        //     logger.i(value);
-                                        //
-                                        //     // Navigator.of(context).pop();
-                                        //     // Navigator.of(context).pop();
-                                        //   });
-                                        // }
-                                        // });
+                                        OverlayLoadingProgress.start(context);
+
+                                        _nativeGoogleSignIn().then((value) {
+                                          if (value) {
+                                            ref
+                                                .read(userInfoProvider.notifier)
+                                                .getUserProfiles()
+                                                .then((value) {
+                                              logger.i(value);
+                                              OverlayLoadingProgress.stop();
+
+                                              Navigator.of(context).pop();
+                                              Navigator.of(context).pop();
+                                            });
+                                          }
+                                        });
                                       },
                                       child: Container(
                                         alignment: Alignment.center,
                                         width: double.infinity,
                                         height: 61.w,
                                         child: Text('Google',
+                                            style: getTextStyle(AppTypo.BODY16M,
+                                                AppColors.Grey900)),
+                                      )),
+                                  GestureDetector(
+                                      behavior: HitTestBehavior.translucent,
+                                      onTap: () async {
+                                        OverlayLoadingProgress.start(context);
+                                        _KakaoSignIn().then((value) {
+                                          if (value) {
+                                            ref
+                                                .read(userInfoProvider.notifier)
+                                                .getUserProfiles()
+                                                .then((value) {
+                                              logger.i(value);
+                                              OverlayLoadingProgress.stop();
+
+                                              Navigator.of(context).pop();
+                                              Navigator.of(context).pop();
+                                            });
+                                          }
+                                        });
+                                      },
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        width: double.infinity,
+                                        height: 61.w,
+                                        child: Text('Kakao',
                                             style: getTextStyle(AppTypo.BODY16M,
                                                 AppColors.Grey900)),
                                       )),
@@ -231,6 +267,13 @@ class LoginScreen extends ConsumerWidget {
       final accessToken = googleAuth.accessToken;
       final idToken = googleAuth.idToken;
 
+      try {
+        Map<String, dynamic> decodedToken = JwtDecoder.decode(idToken!);
+        print('Decoded Token: $decodedToken');
+      } catch (e) {
+        print('Failed to decode id_token: $e');
+      }
+
       if (accessToken == null) {
         throw 'No Access Token found.';
       }
@@ -238,25 +281,106 @@ class LoginScreen extends ConsumerWidget {
         throw 'No ID Token found.';
       }
 
-      logger.i('googleUser: $googleUser');
-      logger.i('googleAuth: $googleAuth');
-      logger.i('accessToken: $accessToken');
-      logger.i('idToken: $idToken');
+      decodeAndPrintToken(
+          idToken!); // Add this line to decode and print the token
 
-      final response = await Supabase.instance.client.auth.signInWithIdToken(
+      await Supabase.instance.client.auth.signInWithIdToken(
         provider: OAuthProvider.google,
         idToken: idToken,
         accessToken: accessToken,
       );
-
-      logger.i('response: $response');
-      logger.i('response.user: ${response.user}');
 
       return true;
     } catch (e, s) {
       logger.e(e);
       logger.e(s);
       return false;
+    }
+  }
+
+  Future<bool> _KakaoSignIn() async {
+    try {
+      KakaoSdk.init(
+        nativeAppKey: '75e247f5d29512f84749e64aac77ebfa',
+        javaScriptAppKey: 'fe170eb02c6ff6a488a5848f9db41335',
+      );
+
+      OAuthToken? token;
+      if (await isKakaoTalkInstalled()) {
+        try {
+          token = await UserApi.instance.loginWithKakaoTalk();
+          print('카카오톡으로 로그인 성공');
+        } catch (error) {
+          print('카카오톡으로 로그인 실패 $error');
+
+          // 사용자가 카카오톡 설치 후 디바이스 권한 요청 화면에서 로그인을 취소한 경우,
+          // 의도적인 로그인 취소로 보고 카카오계정으로 로그인 시도 없이 로그인 취소로 처리 (예: 뒤로 가기)
+          if (error is PlatformException && error.code == 'CANCELED') {
+            return false;
+          }
+          // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인
+          try {
+            await UserApi.instance.loginWithKakaoAccount();
+            print('카카오계정으로 로그인 성공');
+          } catch (error) {
+            print('카카오계정으로 로그인 실패 $error');
+          }
+        }
+      } else {
+        try {
+          token = await UserApi.instance.loginWithKakaoAccount();
+          print('카카오계정으로 로그인 성공');
+        } catch (error) {
+          print('카카오계정으로 로그인 실패 $error');
+        }
+      }
+      if (token == null || token.idToken == null || token.accessToken == null) {
+        throw 'Kakao login failed';
+      }
+
+      decodeAndPrintToken(token.idToken!); // 토큰 디코딩 및 출력
+
+      final decodedToken = JwtDecoder.decode(token.idToken!);
+      const expectedAudience = '75e247f5d29512f84749e64aac77ebfa';
+
+      if (decodedToken['aud'] != expectedAudience) {
+        throw 'Invalid audience: ${decodedToken['aud']}';
+      }
+
+      // 토큰 정보 출력
+      print('ID Token: ${token.idToken}');
+      print('Access Token: ${token.accessToken}');
+
+      final response = await Supabase.instance.client.auth.signInWithIdToken(
+        provider: OAuthProvider.kakao,
+        idToken: token.idToken!,
+        accessToken: token.accessToken!,
+        nonce: decodedToken['nonce'],
+      );
+
+      return true;
+    } catch (e, s) {
+      logger.e(e);
+      logger.e(s);
+      return false;
+    }
+  }
+
+  void decodeAndPrintToken(String token) {
+    final parts = token.split('.');
+    if (parts.length != 3) {
+      throw Exception('Invalid token');
+    }
+
+    final payload =
+        utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
+    final payloadMap = json.decode(payload) as Map<String, dynamic>;
+
+    print('Token Payload: $payloadMap');
+    if (payloadMap.containsKey('aud')) {
+      print('Audience: ${payloadMap['aud']}');
+    } else {
+      print('Audience not found in token');
     }
   }
 }

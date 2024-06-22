@@ -33,6 +33,7 @@
 			</array>
 			<key>CFBundleURLSchemes</key>
 			<array>
+			    <string>kakao08a8a85e49aa423ff34ddc11a61db3ac</string>
 				<string>com.googleusercontent.apps.853406219989-ntnler0e2qe0gfheh3qdjt3k2h4kpvj4</string>
 				<string>fan.picnic.app</string>
 			</array>
@@ -58,6 +59,9 @@
 		<string>tg</string>
 		<string>whatsapp</string>
 		<string>twitter</string>
+        <string>kakao</string>
+        <string>kakaokompassauth</string>
+        <string>kakaolink</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
