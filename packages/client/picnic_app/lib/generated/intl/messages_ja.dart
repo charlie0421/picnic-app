@@ -77,7 +77,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("AIフォト"),
         "label_library_tab_library":
             MessageLookupByLibrary.simpleMessage("ライブラリ"),
-        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("フレーム"),
+        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("Frame"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("アーティストギャラリーへ"),
         "label_mypage_charge_history":
@@ -185,6 +185,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_subscription": MessageLookupByLibrary.simpleMessage("サブスクリプション"),
         "nav_vote": MessageLookupByLibrary.simpleMessage("投票"),
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("マイページ"),
+        "page_title_myprofile":
+            MessageLookupByLibrary.simpleMessage("私のプロフィール"),
         "page_title_setting": MessageLookupByLibrary.simpleMessage("環境設定"),
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("投票する"),
         "page_title_vote_gather":

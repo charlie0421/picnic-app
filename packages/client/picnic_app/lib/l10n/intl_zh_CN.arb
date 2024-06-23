@@ -1,539 +1,543 @@
 {
-  "@@locale": "zh",
-  "nav_home": "홈",
-  "@nav_home": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "nav_gallery": "画廊",
-  "@nav_gallery": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "nav_library": "图书馆",
-  "@nav_library": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "nav_purchases": "购买",
-  "@nav_purchases": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "nav_ads": "广告",
-  "@nav_ads": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "nav_subscription": "订阅",
-  "@nav_subscription": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "mypage_purchases": "我的采购",
-  "@mypage_purchases": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "mypage_setting": "设置",
-  "@mypage_setting": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "mypage_subscription": "订阅",
-  "@mypage_subscription": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "mypage_comment": "管理评论",
-  "@mypage_comment": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "mypage_language": "语言设置",
-  "@mypage_language": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "title_select_language": "选择语言",
-  "@title_select_language": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_current_language": "当前语言",
-  "@label_current_language": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "lable_my_celeb": "我的艺术家",
-  "@lable_my_celeb": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_celeb_recommend": "艺术家精选",
-  "@label_celeb_recommend": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "text_hint_search": "搜索艺术家",
-  "@text_hint_search": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "toast_max_five_celeb": "您最多可以添加五位自己的艺术家。",
-  "@toast_max_five_celeb": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_moveto_celeb_gallery": "前往艺术家画廊",
-  "@label_moveto_celeb_gallery": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "text_moveto_celeb_gallery": "访问所选艺术家的主页。",
-  "@text_moveto_celeb_gallery": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "text_ads_random": "查看广告并收集随机图片。",
-  "@text_ads_random": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_find_celeb": "寻找更多艺术家",
-  "@label_find_celeb": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_no_celeb": "您还没有将任何艺术家加入书签！",
-  "@label_no_celeb": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_celeb_gallery": "艺术家画廊",
-  "@label_celeb_gallery": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_draw_image": "赢取随机图片的机会",
-  "@label_draw_image": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "text_draw_image": "来自整个画廊的 1 张图片已确认收藏",
-  "@text_draw_image": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_gallery_tab_article": "文章",
-  "@label_gallery_tab_article": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_gallery_tab_chat": "聊天",
-  "@label_gallery_tab_chat": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_reply": "答复",
-  "@label_reply": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_time_ago_day": "{天}前",
-  "@label_time_ago_day": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_time_ago_hour": "{小时}前",
-  "@label_time_ago_hour": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_time_ago_minute": "{分钟}前",
-  "@label_time_ago_minute": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_time_ago_right_now": "就在刚才",
-  "@label_time_ago_right_now": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_read_more_comment": "更多评论",
-  "@label_read_more_comment": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_title_report": "提交报告",
-  "@label_title_report": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "message_report_confirm": "你想报告吗？",
-  "@message_report_confirm": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "message_report_ok": "报告已完成。",
-  "@message_report_ok": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_title_comment": "评论",
-  "@label_title_comment": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_hint_comment": "发表评论。",
-  "@label_hint_comment": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "button_ok": "确认",
-  "@button_ok": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
   "button_cancel": "取消",
-  "@button_cancel": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_library_tab_library": "图书馆",
-  "@label_library_tab_library": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_library_tab_pic": "框架",
-  "@label_library_tab_pic": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_library_tab_ai_photo": "人工智能照片",
-  "@label_library_tab_ai_photo": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_article_comment_empty": "成为第一个发表评论的人！",
-  "@label_article_comment_empty": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_library_save": "保存图书馆",
-  "@label_library_save": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_album_add": "添加新相册",
-  "@label_album_add": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "title_dialog_library_add": "添加新相册",
-  "@title_dialog_library_add": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "hint_library_add": "专辑名称",
-  "@hint_library_add": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
   "button_complete": "完成",
-  "@button_complete": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_vote_screen_title": "投票",
-  "@label_vote_screen_title": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_vote_tab_birthday": "生日投票",
-  "@label_vote_tab_birthday": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_vote_tab_pic": "事先知情同意投票",
-  "@label_vote_tab_pic": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "nav_setting": "设置",
-  "@nav_setting": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "page_title_vote_detail": "投票",
-  "@page_title_vote_detail": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "page_title_mypage": "我的页面",
-  "@page_title_mypage": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "page_title_setting": "首选项",
-  "@page_title_setting": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "nav_vote": "投票",
-  "@nav_vote": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "nav_picchart": "PIC 图表",
-  "@nav_picchart": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "nav_media": "媒体",
-  "@nav_media": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "nav_store": "商店",
-  "@nav_store": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_mypage_notice": "公告",
-  "@label_mypage_notice": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_mypage_charge_history": "收费",
-  "@label_mypage_charge_history": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_mypage_customer_center": "帮助中心",
-  "@label_mypage_customer_center": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_mypage_setting": "设置",
-  "@label_mypage_setting": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_mypage_vote_history": "投票历史",
-  "@label_mypage_vote_history": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_mypage_mystar": "我的明星",
-  "@label_mypage_mystar": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_mypage_membership_history": "会员历史",
-  "@label_mypage_membership_history": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_setting_alarm": "通知",
-  "@label_setting_alarm": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_setting_push_alarm": "推送通知",
-  "@label_setting_push_alarm": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_setting_event_alarm": "活动通知",
-  "@label_setting_event_alarm": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_setting_event_alarm_desc": "了解各种活动和事件。",
-  "@label_setting_event_alarm_desc": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_setting_language": "语言设置",
-  "@label_setting_language": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_setting_storage": "管理存储",
-  "@label_setting_storage": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_setting_remove_cache": "删除缓存",
-  "@label_setting_remove_cache": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_setting_appinfo": "关于应用程序",
-  "@label_setting_appinfo": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_setting_current_version": "当前版本",
-  "@label_setting_current_version": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_setting_update": "更新",
-  "@label_setting_update": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_setting_recent_version": "最新版本",
-  "@label_setting_recent_version": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_tabbar_picchart_daily": "每日图表",
-  "@label_tabbar_picchart_daily": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_tabbar_picchart_weekly": "每周图表",
-  "@label_tabbar_picchart_weekly": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_tabbar_picchart_monthly": "月度图表",
-  "@label_tabbar_picchart_monthly": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_vote_reward_list": "奖励清单",
-  "@label_vote_reward_list": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_pic_pic_save_gallery": "保存到图库",
-  "@label_pic_pic_save_gallery": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
+  "button_ok": "确认",
   "button_pic_pic_save": "节省",
-  "@button_pic_pic_save": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_pic_pic_initializing_camera": "初始化摄像机...",
-  "@label_pic_pic_initializing_camera": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_pic_pic_synthesizing_image": "合成图像...",
-  "@label_pic_pic_synthesizing_image": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "message_pic_pic_save_success": "图像已保存。",
-  "@message_pic_pic_save_success": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "message_pic_pic_save_fail": "保存图像失败。",
-  "@message_pic_pic_save_fail": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "text_vote_rank_in_reward": "奖励排名",
-  "@text_vote_rank_in_reward": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "text_vote_where_is_my_bias": "我的最爱呢？",
-  "@text_vote_where_is_my_bias": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_vote_vote_gather": "收集选票",
-  "@label_vote_vote_gather": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_tabbar_vote_active": "进行中",
-  "@label_tabbar_vote_active": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_tabbar_vote_end": "退出",
-  "@label_tabbar_vote_end": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "page_title_vote_gather": "收集选票",
-  "@page_title_vote_gather": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_pic_image_cropping": "裁剪图像",
-  "@label_pic_image_cropping": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "text_vote_rank_surffix": "위",
-  "@text_vote_rank_surffix": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "text_vote_first": "1",
-  "@text_vote_first": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "text_vote_second": "第 2",
-  "@text_vote_second": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "text_vote_third": "第三名",
-  "@text_vote_third": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_button_recharge": "充电",
-  "@label_button_recharge": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_checkbox_entire_use": "充分利用",
-  "@label_checkbox_entire_use": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_input_input": "输入",
-  "@label_input_input": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "text_need_recharge": "需要充电。",
-  "@text_need_recharge": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_button_vote": "投票",
-  "@label_button_vote": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_button_clse": "關閉",
-  "@label_button_clse": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "dialog_button_ok": "确认",
-  "@dialog_button_ok": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "dialog_button_cancel": "取消",
-  "@dialog_button_cancel": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "dialog_title_vote_fail": "表决失败",
-  "@dialog_title_vote_fail": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "text_dialog_vote_amount_should_not_zero": "票数不能为零。",
-  "@text_dialog_vote_amount_should_not_zero": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "text_no_search_result": "没有搜索结果。",
-  "@text_no_search_result": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_tab_buy_star_candy": "购买星星糖",
-  "@label_tab_buy_star_candy": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_tab_free_charge_station": "免费充电站",
-  "@label_tab_free_charge_station": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_dropdown_recent": "最新",
-  "@label_dropdown_recent": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_dropdown_oldest": "最老",
-  "@label_dropdown_oldest": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "text_star_candy": "星形糖果",
-  "@text_star_candy": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "text_vote_complete": "投票结束",
-  "@text_vote_complete": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "text_this_time_vote": "这次投票",
-  "@text_this_time_vote": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_button_save_vote_paper": "存储您的选票",
-  "@label_button_save_vote_paper": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_button_share": "分享",
-  "@label_button_share": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_button_watch_and_charge": "查看广告并收取费用",
-  "@label_button_watch_and_charge": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_watch_ads": "查看广告",
-  "@label_watch_ads": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_bonus": "奖金",
-  "@label_bonus": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "candy_usage_policy_title": "星糖使用政策",
-  "@candy_usage_policy_title": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "candy_usage_policy_guide": "*奖金将在您获得奖金的次月消失！ ⓘ",
-  "@candy_usage_policy_guide": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
   "candy_usage_policy_contents": "### 有效期\n\n- 自获得之日起，Star Candy 的有效期为一年。\n\n### 赚取的星星糖\n\n登录：每天 1 个\n- 投票：每天 1 次\n购买糖果：无（无限制）\n奖励星星糖果：在获得后的当月 15 日分批过期\n\n在 ##### 上兑换星星糖\n\n有效期即将结束的星星糖果将优先使用。\n如果有效期相同，则使用最早的一个。",
-  "@candy_usage_policy_contents": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "text_dialog_star_candy_received": "已颁发星形糖果。",
-  "@text_dialog_star_candy_received": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "text_purchase_vat_included": "*价格包含增值税。",
-  "@text_purchase_vat_included": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_mypage_terms_of_use": "条款和条件",
-  "@label_mypage_terms_of_use": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_mypage_privacy_policy": "隐私政策",
-  "@label_mypage_privacy_policy": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
+  "candy_usage_policy_guide": "*奖金将在您获得奖金的次月消失！ ⓘ",
+  "candy_usage_policy_title": "星糖使用政策",
+  "dialog_button_cancel": "取消",
+  "dialog_button_ok": "确认",
+  "dialog_title_vote_fail": "表决失败",
+  "hint_library_add": "专辑名称",
+  "label_album_add": "添加新相册",
+  "label_article_comment_empty": "成为第一个发表评论的人！",
+  "label_bonus": "奖金",
+  "label_button_clse": "關閉",
+  "label_button_recharge": "充电",
+  "label_button_save_vote_paper": "存储您的选票",
+  "label_button_share": "分享",
+  "label_button_vote": "投票",
+  "label_button_watch_and_charge": "查看广告并收取费用",
+  "label_celeb_gallery": "艺术家画廊",
+  "label_celeb_recommend": "艺术家精选",
+  "label_checkbox_entire_use": "充分利用",
+  "label_current_language": "当前语言",
+  "label_draw_image": "赢取随机图片的机会",
+  "label_dropdown_oldest": "最老",
+  "label_dropdown_recent": "最新",
+  "label_find_celeb": "寻找更多艺术家",
+  "label_gallery_tab_article": "文章",
+  "label_gallery_tab_chat": "聊天",
+  "label_hint_comment": "发表评论。",
+  "label_input_input": "输入",
+  "label_library_save": "保存图书馆",
+  "label_library_tab_ai_photo": "人工智能照片",
+  "label_library_tab_library": "图书馆",
+  "label_library_tab_pic": "Frame",
+  "label_moveto_celeb_gallery": "前往艺术家画廊",
+  "label_mypage_charge_history": "收费",
+  "label_mypage_customer_center": "帮助中心",
   "label_mypage_logout": "退出",
-  "@label_mypage_logout": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
+  "label_mypage_membership_history": "会员历史",
+  "label_mypage_mystar": "我的明星",
+  "label_mypage_notice": "公告",
+  "label_mypage_privacy_policy": "隐私政策",
+  "label_mypage_setting": "设置",
+  "label_mypage_terms_of_use": "条款和条件",
+  "label_mypage_vote_history": "投票历史",
   "label_mypage_withdrawal": "退出",
-  "@label_mypage_withdrawal": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "label_star_candy_pouch": "星形糖果袋",
-  "@label_star_candy_pouch": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
-  "message_error_occurred": "出现错误。",
-  "@message_error_occurred": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
-  },
+  "label_no_celeb": "您还没有将任何艺术家加入书签！",
+  "label_pic_image_cropping": "裁剪图像",
+  "label_pic_pic_initializing_camera": "初始化摄像机...",
+  "label_pic_pic_save_gallery": "保存到图库",
+  "label_pic_pic_synthesizing_image": "合成图像...",
+  "label_read_more_comment": "更多评论",
+  "label_reply": "答复",
   "label_retry": "再试一次",
+  "label_setting_alarm": "通知",
+  "label_setting_appinfo": "关于应用程序",
+  "label_setting_current_version": "当前版本",
+  "label_setting_event_alarm": "活动通知",
+  "label_setting_event_alarm_desc": "了解各种活动和事件。",
+  "label_setting_language": "语言设置",
+  "label_setting_push_alarm": "推送通知",
+  "label_setting_recent_version": "最新版本",
+  "label_setting_remove_cache": "删除缓存",
+  "label_setting_storage": "管理存储",
+  "label_setting_update": "更新",
+  "label_star_candy_pouch": "星形糖果袋",
+  "label_tab_buy_star_candy": "购买星星糖",
+  "label_tab_free_charge_station": "免费充电站",
+  "label_tabbar_picchart_daily": "每日图表",
+  "label_tabbar_picchart_monthly": "月度图表",
+  "label_tabbar_picchart_weekly": "每周图表",
+  "label_tabbar_vote_active": "进行中",
+  "label_tabbar_vote_end": "退出",
+  "label_time_ago_day": "{天}前",
+  "label_time_ago_hour": "{小时}前",
+  "label_time_ago_minute": "{分钟}前",
+  "label_time_ago_right_now": "就在刚才",
+  "label_title_comment": "评论",
+  "label_title_report": "提交报告",
+  "label_vote_reward_list": "奖励清单",
+  "label_vote_screen_title": "投票",
+  "label_vote_tab_birthday": "生日投票",
+  "label_vote_tab_pic": "事先知情同意投票",
+  "label_vote_vote_gather": "收集选票",
+  "label_watch_ads": "查看广告",
+  "lable_my_celeb": "我的艺术家",
+  "message_error_occurred": "出现错误。",
+  "message_pic_pic_save_fail": "保存图像失败。",
+  "message_pic_pic_save_success": "图像已保存。",
+  "message_report_confirm": "你想报告吗？",
+  "message_report_ok": "报告已完成。",
+  "mypage_comment": "管理评论",
+  "mypage_language": "语言设置",
+  "mypage_purchases": "我的采购",
+  "mypage_setting": "设置",
+  "mypage_subscription": "订阅",
+  "nav_ads": "广告",
+  "nav_gallery": "画廊",
+  "nav_home": "홈",
+  "nav_library": "图书馆",
+  "nav_media": "媒体",
+  "nav_picchart": "PIC 图表",
+  "nav_purchases": "购买",
+  "nav_setting": "设置",
+  "nav_store": "商店",
+  "nav_subscription": "订阅",
+  "nav_vote": "投票",
+  "page_title_mypage": "我的页面",
+  "page_title_myprofile": "我的简介",
+  "page_title_setting": "首选项",
+  "page_title_vote_detail": "投票",
+  "page_title_vote_gather": "收集选票",
+  "text_ads_random": "查看广告并收集随机图片。",
+  "text_dialog_star_candy_received": "已颁发星形糖果。",
+  "text_dialog_vote_amount_should_not_zero": "票数不能为零。",
+  "text_draw_image": "来自整个画廊的 1 张图片已确认收藏",
+  "text_hint_search": "搜索艺术家",
+  "text_moveto_celeb_gallery": "访问所选艺术家的主页。",
+  "text_need_recharge": "需要充电。",
+  "text_no_search_result": "没有搜索结果。",
+  "text_purchase_vat_included": "*价格包含增值税。",
+  "text_star_candy": "星形糖果",
+  "text_this_time_vote": "这次投票",
+  "text_vote_complete": "投票结束",
+  "text_vote_first": "1",
+  "text_vote_rank_in_reward": "奖励排名",
+  "text_vote_rank_surffix": "위",
+  "text_vote_second": "第 2",
+  "text_vote_third": "第三名",
+  "text_vote_where_is_my_bias": "我的最爱呢？",
+  "title_dialog_library_add": "添加新相册",
+  "title_select_language": "选择语言",
+  "toast_max_five_celeb": "您最多可以添加五位自己的艺术家。",
+  "@@locale": "zh",
+  "@button_cancel": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@button_complete": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@button_ok": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@button_pic_pic_save": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@candy_usage_policy_contents": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@candy_usage_policy_guide": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@candy_usage_policy_title": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@dialog_button_cancel": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@dialog_button_ok": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@dialog_title_vote_fail": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@hint_library_add": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_album_add": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_article_comment_empty": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_bonus": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_button_clse": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_button_recharge": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_button_save_vote_paper": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_button_share": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_button_vote": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_button_watch_and_charge": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_celeb_gallery": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_celeb_recommend": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_checkbox_entire_use": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_current_language": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_draw_image": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_dropdown_oldest": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_dropdown_recent": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_find_celeb": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_gallery_tab_article": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_gallery_tab_chat": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_hint_comment": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_input_input": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_library_save": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_library_tab_ai_photo": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_library_tab_library": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_library_tab_pic": {
+    "translationTimestamp": "2024-06-24T07:51:27.596378"
+  },
+  "@label_moveto_celeb_gallery": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_mypage_charge_history": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_mypage_customer_center": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_mypage_logout": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_mypage_membership_history": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_mypage_mystar": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_mypage_notice": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_mypage_privacy_policy": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_mypage_setting": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_mypage_terms_of_use": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_mypage_vote_history": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_mypage_withdrawal": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_no_celeb": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_pic_image_cropping": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_pic_pic_initializing_camera": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_pic_pic_save_gallery": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_pic_pic_synthesizing_image": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_read_more_comment": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_reply": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
   "@label_retry": {
-    "translationTimestamp": "2024-06-24T00:27:44.937833"
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_setting_alarm": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_setting_appinfo": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_setting_current_version": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_setting_event_alarm": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_setting_event_alarm_desc": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_setting_language": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_setting_push_alarm": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_setting_recent_version": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_setting_remove_cache": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_setting_storage": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_setting_update": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_star_candy_pouch": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_tab_buy_star_candy": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_tab_free_charge_station": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_tabbar_picchart_daily": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_tabbar_picchart_monthly": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_tabbar_picchart_weekly": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_tabbar_vote_active": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_tabbar_vote_end": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_time_ago_day": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_time_ago_hour": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_time_ago_minute": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_time_ago_right_now": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_title_comment": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_title_report": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_vote_reward_list": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_vote_screen_title": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_vote_tab_birthday": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_vote_tab_pic": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_vote_vote_gather": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@label_watch_ads": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@lable_my_celeb": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@message_error_occurred": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@message_pic_pic_save_fail": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@message_pic_pic_save_success": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@message_report_confirm": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@message_report_ok": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@mypage_comment": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@mypage_language": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@mypage_purchases": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@mypage_setting": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@mypage_subscription": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@nav_ads": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@nav_gallery": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@nav_home": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@nav_library": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@nav_media": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@nav_picchart": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@nav_purchases": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@nav_setting": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@nav_store": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@nav_subscription": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@nav_vote": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@page_title_mypage": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@page_title_myprofile": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@page_title_setting": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@page_title_vote_detail": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@page_title_vote_gather": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@text_ads_random": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@text_dialog_star_candy_received": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@text_dialog_vote_amount_should_not_zero": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@text_draw_image": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@text_hint_search": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@text_moveto_celeb_gallery": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@text_need_recharge": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@text_no_search_result": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@text_purchase_vat_included": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@text_star_candy": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@text_this_time_vote": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@text_vote_complete": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@text_vote_first": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@text_vote_rank_in_reward": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@text_vote_rank_surffix": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@text_vote_second": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@text_vote_third": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@text_vote_where_is_my_bias": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@title_dialog_library_add": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@title_select_language": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
+  },
+  "@toast_max_five_celeb": {
+    "translationTimestamp": "2024-06-24T07:53:12.001595"
   }
 }
