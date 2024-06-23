@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:picnic_app/firebase_options.dart';
 import 'package:picnic_app/main.reflectable.dart';
-import 'package:picnic_app/picnic_app.dart';
+import 'package:picnic_app/app.dart';
 import 'package:picnic_app/reflector.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util.dart';
@@ -39,8 +39,7 @@ void main() async {
 
   // MobileAds.instance.initialize();
 
-  runApp(
-      ProviderScope(observers: [LoggingObserver()], child: const PicnicApp()));
+  runApp(ProviderScope(observers: [LoggingObserver()], child: const App()));
   requestAppTrackingTransparency();
 }
 

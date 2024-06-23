@@ -25,8 +25,8 @@ import 'package:picnic_app/util.dart';
 import 'package:screen_protector/screen_protector.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class PicnicApp extends ConsumerStatefulWidget {
-  const PicnicApp({super.key});
+class App extends ConsumerStatefulWidget {
+  const App({super.key});
 
   @override
   createState() => _PicnicAppState();
@@ -47,8 +47,7 @@ void logJwtToken(String token) {
   }
 }
 
-class _PicnicAppState extends ConsumerState<PicnicApp>
-    with WidgetsBindingObserver {
+class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
   late StreamSubscription _sub;
 
   @override
