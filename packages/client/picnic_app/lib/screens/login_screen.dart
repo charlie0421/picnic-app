@@ -180,6 +180,33 @@ class LoginScreen extends ConsumerWidget {
                                 children: [
                                   GestureDetector(
                                       behavior: HitTestBehavior.translucent,
+                                      onTap: () {},
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        width: double.infinity,
+                                        height: 61.w,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Image.asset(
+                                              'assets/icons/login/apple.png',
+                                              width: 20.w,
+                                              height: 20.w,
+                                            ),
+                                            SizedBox(
+                                              width: 8.w,
+                                            ),
+                                            Text('Apple',
+                                                style: getTextStyle(
+                                                    AppTypo.BODY14M,
+                                                    AppColors.Grey200)),
+                                            // AppColors.Grey800)),
+                                          ],
+                                        ),
+                                      )),
+                                  GestureDetector(
+                                      behavior: HitTestBehavior.translucent,
                                       onTap: () {
                                         OverlayLoadingProgress.start(context);
 
@@ -202,9 +229,24 @@ class LoginScreen extends ConsumerWidget {
                                         alignment: Alignment.center,
                                         width: double.infinity,
                                         height: 61.w,
-                                        child: Text('Google',
-                                            style: getTextStyle(AppTypo.BODY16M,
-                                                AppColors.Grey900)),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Image.asset(
+                                              'assets/icons/login/google.png',
+                                              width: 20.w,
+                                              height: 20.w,
+                                            ),
+                                            SizedBox(
+                                              width: 8.w,
+                                            ),
+                                            Text('Google',
+                                                style: getTextStyle(
+                                                    AppTypo.BODY14M,
+                                                    AppColors.Grey800)),
+                                          ],
+                                        ),
                                       )),
                                   GestureDetector(
                                       behavior: HitTestBehavior.translucent,
@@ -229,9 +271,24 @@ class LoginScreen extends ConsumerWidget {
                                         alignment: Alignment.center,
                                         width: double.infinity,
                                         height: 61.w,
-                                        child: Text('Kakao',
-                                            style: getTextStyle(AppTypo.BODY16M,
-                                                AppColors.Grey900)),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Image.asset(
+                                              'assets/icons/login/kakao.png',
+                                              width: 20.w,
+                                              height: 20.w,
+                                            ),
+                                            SizedBox(
+                                              width: 8.w,
+                                            ),
+                                            Text('Kakao Talk',
+                                                style: getTextStyle(
+                                                    AppTypo.BODY14M,
+                                                    AppColors.Grey800)),
+                                          ],
+                                        ),
                                       )),
                                 ],
                               ),

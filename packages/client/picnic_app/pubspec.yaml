@@ -97,6 +97,7 @@ flutter:
     - assets/
     - assets/images/
     - assets/icons/
+    - assets/icons/login/
     - assets/icons/vote/
     - assets/icons/header/
     - assets/icons/bottom/
