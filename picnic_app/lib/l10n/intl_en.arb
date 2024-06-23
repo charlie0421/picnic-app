@@ -1,136 +1,539 @@
 {
   "@@locale": "en",
-  "nav_home": "Home",
+  "nav_home": "홈",
+  "@nav_home": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "nav_gallery": "Gallery",
-  "nav_library": "Library",
-  "nav_purchases": "Purchases",
+  "@nav_gallery": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "nav_library": "Libraries",
+  "@nav_library": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "nav_purchases": "Purchase",
+  "@nav_purchases": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "nav_ads": "Ads",
-  "nav_subscription": "Subscription",
-  "mypage_purchases": "My Purchases",
+  "@nav_ads": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "nav_subscription": "Subscriptions",
+  "@nav_subscription": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "mypage_purchases": "My purchases",
+  "@mypage_purchases": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "mypage_setting": "Settings",
-  "mypage_subscription": "Subscription Info",
-  "mypage_comment": "Comment Management",
-  "mypage_language": "Language Settings",
-  "title_select_language": "Language selection",
+  "@mypage_setting": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "mypage_subscription": "Subscription information",
+  "@mypage_subscription": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "mypage_comment": "Manage comments",
+  "@mypage_comment": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "mypage_language": "Language settings",
+  "@mypage_language": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "title_select_language": "Select a language",
+  "@title_select_language": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_current_language": "Current language",
-  "lable_my_celeb": "My Celeb",
-  "label_celeb_recommend": "Celebrity recommendations",
-  "text_hint_search": "Search for celebrities.",
-  "toast_max_5_celeb": "You can add up to 5 My Celebrities.",
-  "label_moveto_celeb_gallery": "Go to the Celebrity Gallery",
-  "text_moveto_celeb_gallery": "Navigates to the selected celebrity's home.",
+  "@label_current_language": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "lable_my_celeb": "My Artists",
+  "@lable_my_celeb": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_celeb_recommend": "Artist recommendations",
+  "@label_celeb_recommend": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "text_hint_search": "Search for an artist.",
+  "@text_hint_search": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "toast_max_five_celeb": "You can add up to five of your own artists.",
+  "@toast_max_five_celeb": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_moveto_celeb_gallery": "Go to the Artist Gallery",
+  "@label_moveto_celeb_gallery": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "text_moveto_celeb_gallery": "Navigate to the selected artist's home.",
+  "@text_moveto_celeb_gallery": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "text_ads_random": "Viewing ads and collecting random images.",
-  "label_find_celeb": "Find more celebrities",
-  "label_no_celeb": "You don't have any celebrities bookmarked yet!.",
-  "label_celeb_gallery": "Celeb Gallery.",
+  "@text_ads_random": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_find_celeb": "Find more artists",
+  "@label_find_celeb": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_no_celeb": "You don't have any artists bookmarked yet!",
+  "@label_no_celeb": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_celeb_gallery": "Artist Gallery",
+  "@label_celeb_gallery": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_draw_image": "Chance to win a random image",
+  "@label_draw_image": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "text_draw_image": "Confirmed ownership of 1 image from the entire gallery",
+  "@text_draw_image": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_gallery_tab_article": "Articles",
+  "@label_gallery_tab_article": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_gallery_tab_chat": "Chat",
+  "@label_gallery_tab_chat": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_reply": "Replying to a reply",
+  "@label_reply": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_time_ago_day": "{day} days ago",
+  "@label_time_ago_day": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_time_ago_hour": "{hour} hours ago",
+  "@label_time_ago_hour": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_time_ago_minute": "{minute} minutes ago",
+  "@label_time_ago_minute": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_time_ago_right_now": "Just a moment ago",
+  "@label_time_ago_right_now": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_read_more_comment": "More comments",
+  "@label_read_more_comment": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_title_report": "Make a report",
+  "@label_title_report": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "message_report_confirm": "Want to report?",
+  "@message_report_confirm": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "message_report_ok": "The report is complete.",
+  "@message_report_ok": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_title_comment": "Comments",
+  "@label_title_comment": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_hint_comment": "Leave a comment.",
+  "@label_hint_comment": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "button_ok": "Confirm",
+  "@button_ok": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "button_cancel": "Cancel",
+  "@button_cancel": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_library_tab_library": "Libraries",
+  "@label_library_tab_library": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_library_tab_pic": "Frame",
+  "@label_library_tab_pic": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_library_tab_ai_photo": "AI Photos",
+  "@label_library_tab_ai_photo": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_article_comment_empty": "Be the first to comment!",
+  "@label_article_comment_empty": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_library_save": "Save the library",
+  "@label_library_save": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_album_add": "Add a new album",
+  "@label_album_add": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "title_dialog_library_add": "Add a new album",
+  "@title_dialog_library_add": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "hint_library_add": "Album name",
+  "@hint_library_add": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "button_complete": "Done",
-  "label_vote_screen_title": "vote",
-  "label_vote_tab_birthday": "birthday vote",
-  "label_vote_tab_pic": "P-RAME Voting",
+  "@button_complete": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_vote_screen_title": "Voting",
+  "@label_vote_screen_title": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_vote_tab_birthday": "Birthday polls",
+  "@label_vote_tab_birthday": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_vote_tab_pic": "PIC voting",
+  "@label_vote_tab_pic": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "nav_setting": "Settings",
+  "@nav_setting": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "page_title_vote_detail": "Vote",
+  "@page_title_vote_detail": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "page_title_mypage": "My Page",
-  "page_title_setting": "Settings",
-  "nav_vote": "Vote",
-  "nav_picchart": "PicChart",
+  "@page_title_mypage": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "page_title_setting": "Preferences",
+  "@page_title_setting": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "nav_vote": "Voting",
+  "@nav_vote": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "nav_picchart": "PIC Charts",
+  "@nav_picchart": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "nav_media": "Media",
-  "nav_store": "Store",
-  "label_mypage_notice": "Notice",
-  "label_mypage_charge_history": "Charge History",
-  "label_mypage_customer_center": "Customer Center",
+  "@nav_media": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "nav_store": "Shop",
+  "@nav_store": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_mypage_notice": "Announcements",
+  "@label_mypage_notice": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_mypage_charge_history": "Charges",
+  "@label_mypage_charge_history": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_mypage_customer_center": "Help Center",
+  "@label_mypage_customer_center": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_mypage_setting": "Settings",
-  "label_mypage_vote_history": "Vote History",
+  "@label_mypage_setting": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_mypage_vote_history": "Voting history",
+  "@label_mypage_vote_history": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_mypage_mystar": "My Star",
-  "label_mypage_membership_history": "Membership History",
-  "label_setting_alarm": "Alarm",
-  "label_setting_push_alarm": "Push Notifications",
-  "label_setting_event_alarm": "Event Notifications",
-  "label_setting_event_alarm_desc": "Events & activities",
-  "label_setting_language": "Language Settings",
-  "label_setting_storage": "Manage Storage",
-  "label_setting_remove_cache": "Clear Cache",
-  "label_setting_appinfo": "App Info",
-  "label_setting_current_version": "Current Version",
+  "@label_mypage_mystar": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_mypage_membership_history": "Membership history",
+  "@label_mypage_membership_history": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_setting_alarm": "Notifications",
+  "@label_setting_alarm": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_setting_push_alarm": "Push notifications",
+  "@label_setting_push_alarm": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_setting_event_alarm": "Event notifications",
+  "@label_setting_event_alarm": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_setting_event_alarm_desc": "Events and happenings.",
+  "@label_setting_event_alarm_desc": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_setting_language": "Language settings",
+  "@label_setting_language": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_setting_storage": "Manage storage",
+  "@label_setting_storage": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_setting_remove_cache": "Delete Cache",
+  "@label_setting_remove_cache": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_setting_appinfo": "App info",
+  "@label_setting_appinfo": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_setting_current_version": "Current version",
+  "@label_setting_current_version": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_setting_update": "Update",
-  "label_tabbar_picchart_daily": "Daily",
-  "label_tabbar_picchart_weekly": "Weekly",
-  "label_tabbar_picchart_monthly": "Monthly",
-  "label_vote_reward_list": "Reward List",
+  "@label_setting_update": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_setting_recent_version": "Latest version",
+  "@label_setting_recent_version": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_tabbar_picchart_daily": "Daily charts",
+  "@label_tabbar_picchart_daily": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_tabbar_picchart_weekly": "Weekly charts",
+  "@label_tabbar_picchart_weekly": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_tabbar_picchart_monthly": "Monthly Charts",
+  "@label_tabbar_picchart_monthly": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_vote_reward_list": "Rewards list",
+  "@label_vote_reward_list": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_pic_pic_save_gallery": "Save to Gallery",
+  "@label_pic_pic_save_gallery": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "button_pic_pic_save": "Save",
+  "@button_pic_pic_save": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_pic_pic_initializing_camera": "Initializing camera...",
-  "label_pic_pic_synthesizing_image": "Synthesizing image...",
-  "message_pic_pic_save_success": "Saved successfully.",
-  "message_pic_pic_save_fail": "Failed to save.",
-  "text_vote_rank_in_reward": "Rank in the reward",
-  "text_vote_where_is_my_bias": "Where is my bias?",
+  "@label_pic_pic_initializing_camera": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_pic_pic_synthesizing_image": "Compositing an image...",
+  "@label_pic_pic_synthesizing_image": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "message_pic_pic_save_success": "The image has been saved.",
+  "@message_pic_pic_save_success": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "message_pic_pic_save_fail": "Saving the image failed.",
+  "@message_pic_pic_save_fail": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "text_vote_rank_in_reward": "Rank in Rewards",
+  "@text_vote_rank_in_reward": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "text_vote_where_is_my_bias": "Where's My Favorite?",
+  "@text_vote_where_is_my_bias": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_vote_vote_gather": "Collecting votes",
+  "@label_vote_vote_gather": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_tabbar_vote_active": "In Progress",
-  "label_tabbar_vote_end": "End",
+  "@label_tabbar_vote_active": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_tabbar_vote_end": "Exit",
+  "@label_tabbar_vote_end": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "page_title_vote_gather": "Collecting votes",
-  "label_pic_image_cropping": "Image cropping",
-  "text_vote_rank_surffix": "th",
-  "text_vote_1st": "1st",
-  "text_vote_2nd": "2nd",
-  "text_vote_3rd": "3rd",
-  "label_button_recharge": "Recharge",
-  "label_checkbox_entire_use": "Use all",
+  "@page_title_vote_gather": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_pic_image_cropping": "Crop an image",
+  "@label_pic_image_cropping": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "text_vote_rank_surffix": "위",
+  "@text_vote_rank_surffix": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "text_vote_first": "1",
+  "@text_vote_first": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "text_vote_second": "2nd place",
+  "@text_vote_second": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "text_vote_third": "3rd place",
+  "@text_vote_third": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_button_recharge": "Charging",
+  "@label_button_recharge": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_checkbox_entire_use": "Full Use",
+  "@label_checkbox_entire_use": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_input_input": "Input",
-  "text_need_recharge": "Need to recharge",
+  "@label_input_input": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "text_need_recharge": "Requires charging.",
+  "@text_need_recharge": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_button_vote": "Vote",
-  "label_button_clse": "Close",
-  "dialog_button_ok": "OK",
+  "@label_button_vote": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_button_clse": "关闭",
+  "@label_button_clse": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "dialog_button_ok": "Confirm",
+  "@dialog_button_ok": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "dialog_button_cancel": "Cancel",
-  "dialog_title_vote_fail": "Vote failed",
-  "text_dialog_vote_amount_should_not_zero": "The amount of votes should not be 0.",
+  "@dialog_button_cancel": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "dialog_title_vote_fail": "Voting Failed",
+  "@dialog_title_vote_fail": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "text_dialog_vote_amount_should_not_zero": "The number of votes cannot be zero.",
+  "@text_dialog_vote_amount_should_not_zero": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "text_no_search_result": "No search results.",
-  "label_tab_buy_star_candy": "Buy Star Candy",
-  "label_tab_free_charge_station": "Free Charging Station",
-  "label_dropdown_recent": "Recent",
+  "@text_no_search_result": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_tab_buy_star_candy": "Buy star candy",
+  "@label_tab_buy_star_candy": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_tab_free_charge_station": "Free charging stations",
+  "@label_tab_free_charge_station": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_dropdown_recent": "Newest",
+  "@label_dropdown_recent": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_dropdown_oldest": "Oldest",
+  "@label_dropdown_oldest": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "text_star_candy": "Star Candy",
-  "text_vote_complete": "Vote complete",
-  "text_this_time_vote": "This time vote",
-  "label_button_save_vote_paper": "Save the voting paper",
+  "@text_star_candy": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "text_vote_complete": "Voting complete",
+  "@text_vote_complete": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "text_this_time_vote": "This Vote",
+  "@text_this_time_vote": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_button_save_vote_paper": "Save your ballot",
+  "@label_button_save_vote_paper": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_button_share": "Share",
-  "label_button_watch_and_charge": "Watch and charge",
-  "label_watch_ads": "Watch ads",
-  "label_bonus": "Bonus",
-  "text_star_candy_usage_policy_title": "Star Candy Usage Policy",
-  "text_star_candy_usage_policy_guide": "*Bonuses will disappear the month after you earn them! ⓘ",
-  "text_star_candy_usage_policy": "### Expiration Date\n\nPurchase Candy: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n### Redeem Star Candy\n\nStar Candies that are about to expire will be used first.\nIf they have the same expiration date, the earliest one will be used.",
-  "text_dialog_star_candy_received": "Star Candy received",
-  "text_purchase_vat_included": "*VAT included",
+  "@label_button_share": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_button_watch_and_charge": "Viewing and charging for ads",
+  "@label_button_watch_and_charge": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_watch_ads": "View ads",
+  "@label_watch_ads": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_bonus": "Bonuses",
+  "@label_bonus": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "candy_usage_policy_title": "Stardust Usage Policy",
+  "@candy_usage_policy_title": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "candy_usage_policy_guide": "*Bonuses disappear the month after you earn them! ⓘ",
+  "@candy_usage_policy_guide": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "candy_usage_policy_contents": "### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, they will be used in the order of the earliest acquisition date.",
+  "@candy_usage_policy_contents": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "text_dialog_star_candy_received": "Star candy has been awarded.",
+  "@text_dialog_star_candy_received": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "text_purchase_vat_included": "*Price includes VAT.",
+  "@text_purchase_vat_included": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_mypage_terms_of_use": "Terms of Use",
+  "@label_mypage_terms_of_use": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_mypage_privacy_policy": "Privacy Policy",
-  "label_mypage_logout": "Logout",
+  "@label_mypage_privacy_policy": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_mypage_logout": "Log out",
+  "@label_mypage_logout": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_mypage_withdrawal": "Withdrawal",
+  "@label_mypage_withdrawal": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "label_star_candy_pouch": "Star Candy Pouch",
+  "@label_star_candy_pouch": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
   "message_error_occurred": "An error occurred.",
-  "label_retry": "Retry"
+  "@message_error_occurred": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  },
+  "label_retry": "Retrying",
+  "@label_retry": {
+    "translationTimestamp": "2024-06-24T00:25:58.136745"
+  }
 }

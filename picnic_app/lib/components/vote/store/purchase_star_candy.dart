@@ -63,8 +63,6 @@ class PurchaseStarCandy extends ConsumerWidget {
           SizedBox(height: 2.w),
           GestureDetector(
             onTap: () {
-              print(S.of(context).text_star_candy_usage_policy);
-              final message = S.of(context).text_star_candy_usage_policy;
               showDialog(
                   context: context,
                   builder: (context) => LargePopupWidget(
@@ -86,9 +84,7 @@ class PurchaseStarCandy extends ConsumerWidget {
                                     )),
                                 SizedBox(width: 8.w),
                                 Text(
-                                  S
-                                      .of(context)
-                                      .text_star_candy_usage_policy_title,
+                                  S.of(context).candy_usage_policy_title,
                                   style: getTextStyle(
                                       AppTypo.BODY14B, AppColors.Primary500),
                                 ),
@@ -110,7 +106,7 @@ class PurchaseStarCandy extends ConsumerWidget {
                             Markdown(
                               padding: EdgeInsets.zero,
                               shrinkWrap: true,
-                              data: message,
+                              data: S.of(context).candy_usage_policy_contents,
                               styleSheet: commonMarkdownStyleSheet,
                             ),
                             SizedBox(height: 16.w),
@@ -123,7 +119,7 @@ class PurchaseStarCandy extends ConsumerWidget {
                         ),
                       ));
             },
-            child: Text(S.of(context).text_star_candy_usage_policy_guide,
+            child: Text(S.of(context).candy_usage_policy_guide,
                 style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600)),
           ),
           SizedBox(height: 36.w),

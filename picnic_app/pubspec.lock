@@ -465,6 +465,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.6"
+  deepl_dart:
+    dependency: "direct main"
+    description:
+      name: deepl_dart
+      sha256: b5da962d20bf49e28d65b400bd969eacafe168ef61a1e4aea3c29a923c4bc097
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.4.0"
   diffutil_dart:
     dependency: transitive
     description:
@@ -2211,7 +2219,7 @@ packages:
     source: hosted
     version: "14.2.1"
   watcher:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: watcher
       sha256: "3d2ad6751b3c16cf07c7fca317a1413b3f26530319181b37e3b9039b84fc01d8"

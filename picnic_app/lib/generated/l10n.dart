@@ -50,10 +50,10 @@ class S {
     return Localizations.of<S>(context, S);
   }
 
-  /// `Home`
+  /// `홈`
   String get nav_home {
     return Intl.message(
-      'Home',
+      '홈',
       name: 'nav_home',
       desc: '',
       args: [],
@@ -70,20 +70,20 @@ class S {
     );
   }
 
-  /// `Library`
+  /// `Libraries`
   String get nav_library {
     return Intl.message(
-      'Library',
+      'Libraries',
       name: 'nav_library',
       desc: '',
       args: [],
     );
   }
 
-  /// `Purchases`
+  /// `Purchase`
   String get nav_purchases {
     return Intl.message(
-      'Purchases',
+      'Purchase',
       name: 'nav_purchases',
       desc: '',
       args: [],
@@ -100,20 +100,20 @@ class S {
     );
   }
 
-  /// `Subscription`
+  /// `Subscriptions`
   String get nav_subscription {
     return Intl.message(
-      'Subscription',
+      'Subscriptions',
       name: 'nav_subscription',
       desc: '',
       args: [],
     );
   }
 
-  /// `My Purchases`
+  /// `My purchases`
   String get mypage_purchases {
     return Intl.message(
-      'My Purchases',
+      'My purchases',
       name: 'mypage_purchases',
       desc: '',
       args: [],
@@ -130,40 +130,40 @@ class S {
     );
   }
 
-  /// `Subscription Info`
+  /// `Subscription information`
   String get mypage_subscription {
     return Intl.message(
-      'Subscription Info',
+      'Subscription information',
       name: 'mypage_subscription',
       desc: '',
       args: [],
     );
   }
 
-  /// `Comment Management`
+  /// `Manage comments`
   String get mypage_comment {
     return Intl.message(
-      'Comment Management',
+      'Manage comments',
       name: 'mypage_comment',
       desc: '',
       args: [],
     );
   }
 
-  /// `Language Settings`
+  /// `Language settings`
   String get mypage_language {
     return Intl.message(
-      'Language Settings',
+      'Language settings',
       name: 'mypage_language',
       desc: '',
       args: [],
     );
   }
 
-  /// `Language selection`
+  /// `Select a language`
   String get title_select_language {
     return Intl.message(
-      'Language selection',
+      'Select a language',
       name: 'title_select_language',
       desc: '',
       args: [],
@@ -180,60 +180,60 @@ class S {
     );
   }
 
-  /// `My Celeb`
+  /// `My Artists`
   String get lable_my_celeb {
     return Intl.message(
-      'My Celeb',
+      'My Artists',
       name: 'lable_my_celeb',
       desc: '',
       args: [],
     );
   }
 
-  /// `Celebrity recommendations`
+  /// `Artist recommendations`
   String get label_celeb_recommend {
     return Intl.message(
-      'Celebrity recommendations',
+      'Artist recommendations',
       name: 'label_celeb_recommend',
       desc: '',
       args: [],
     );
   }
 
-  /// `Search for celebrities.`
+  /// `Search for an artist.`
   String get text_hint_search {
     return Intl.message(
-      'Search for celebrities.',
+      'Search for an artist.',
       name: 'text_hint_search',
       desc: '',
       args: [],
     );
   }
 
-  /// `You can add up to 5 My Celebrities.`
-  String get toast_max_5_celeb {
+  /// `You can add up to five of your own artists.`
+  String get toast_max_five_celeb {
     return Intl.message(
-      'You can add up to 5 My Celebrities.',
-      name: 'toast_max_5_celeb',
+      'You can add up to five of your own artists.',
+      name: 'toast_max_five_celeb',
       desc: '',
       args: [],
     );
   }
 
-  /// `Go to the Celebrity Gallery`
+  /// `Go to the Artist Gallery`
   String get label_moveto_celeb_gallery {
     return Intl.message(
-      'Go to the Celebrity Gallery',
+      'Go to the Artist Gallery',
       name: 'label_moveto_celeb_gallery',
       desc: '',
       args: [],
     );
   }
 
-  /// `Navigates to the selected celebrity's home.`
+  /// `Navigate to the selected artist's home.`
   String get text_moveto_celeb_gallery {
     return Intl.message(
-      'Navigates to the selected celebrity\'s home.',
+      'Navigate to the selected artist\'s home.',
       name: 'text_moveto_celeb_gallery',
       desc: '',
       args: [],
@@ -250,30 +250,30 @@ class S {
     );
   }
 
-  /// `Find more celebrities`
+  /// `Find more artists`
   String get label_find_celeb {
     return Intl.message(
-      'Find more celebrities',
+      'Find more artists',
       name: 'label_find_celeb',
       desc: '',
       args: [],
     );
   }
 
-  /// `You don't have any celebrities bookmarked yet!.`
+  /// `You don't have any artists bookmarked yet!`
   String get label_no_celeb {
     return Intl.message(
-      'You don\'t have any celebrities bookmarked yet!.',
+      'You don\'t have any artists bookmarked yet!',
       name: 'label_no_celeb',
       desc: '',
       args: [],
     );
   }
 
-  /// `Celeb Gallery.`
+  /// `Artist Gallery`
   String get label_celeb_gallery {
     return Intl.message(
-      'Celeb Gallery.',
+      'Artist Gallery',
       name: 'label_celeb_gallery',
       desc: '',
       args: [],
@@ -540,30 +540,30 @@ class S {
     );
   }
 
-  /// `vote`
+  /// `Voting`
   String get label_vote_screen_title {
     return Intl.message(
-      'vote',
+      'Voting',
       name: 'label_vote_screen_title',
       desc: '',
       args: [],
     );
   }
 
-  /// `birthday vote`
+  /// `Birthday polls`
   String get label_vote_tab_birthday {
     return Intl.message(
-      'birthday vote',
+      'Birthday polls',
       name: 'label_vote_tab_birthday',
       desc: '',
       args: [],
     );
   }
 
-  /// `P-RAME Voting`
+  /// `PIC voting`
   String get label_vote_tab_pic {
     return Intl.message(
-      'P-RAME Voting',
+      'PIC voting',
       name: 'label_vote_tab_pic',
       desc: '',
       args: [],
@@ -600,30 +600,30 @@ class S {
     );
   }
 
-  /// `Settings`
+  /// `Preferences`
   String get page_title_setting {
     return Intl.message(
-      'Settings',
+      'Preferences',
       name: 'page_title_setting',
       desc: '',
       args: [],
     );
   }
 
-  /// `Vote`
+  /// `Voting`
   String get nav_vote {
     return Intl.message(
-      'Vote',
+      'Voting',
       name: 'nav_vote',
       desc: '',
       args: [],
     );
   }
 
-  /// `PicChart`
+  /// `PIC Charts`
   String get nav_picchart {
     return Intl.message(
-      'PicChart',
+      'PIC Charts',
       name: 'nav_picchart',
       desc: '',
       args: [],
@@ -640,40 +640,40 @@ class S {
     );
   }
 
-  /// `Store`
+  /// `Shop`
   String get nav_store {
     return Intl.message(
-      'Store',
+      'Shop',
       name: 'nav_store',
       desc: '',
       args: [],
     );
   }
 
-  /// `Notice`
+  /// `Announcements`
   String get label_mypage_notice {
     return Intl.message(
-      'Notice',
+      'Announcements',
       name: 'label_mypage_notice',
       desc: '',
       args: [],
     );
   }
 
-  /// `Charge History`
+  /// `Charges`
   String get label_mypage_charge_history {
     return Intl.message(
-      'Charge History',
+      'Charges',
       name: 'label_mypage_charge_history',
       desc: '',
       args: [],
     );
   }
 
-  /// `Customer Center`
+  /// `Help Center`
   String get label_mypage_customer_center {
     return Intl.message(
-      'Customer Center',
+      'Help Center',
       name: 'label_mypage_customer_center',
       desc: '',
       args: [],
@@ -690,10 +690,10 @@ class S {
     );
   }
 
-  /// `Vote History`
+  /// `Voting history`
   String get label_mypage_vote_history {
     return Intl.message(
-      'Vote History',
+      'Voting history',
       name: 'label_mypage_vote_history',
       desc: '',
       args: [],
@@ -710,100 +710,100 @@ class S {
     );
   }
 
-  /// `Membership History`
+  /// `Membership history`
   String get label_mypage_membership_history {
     return Intl.message(
-      'Membership History',
+      'Membership history',
       name: 'label_mypage_membership_history',
       desc: '',
       args: [],
     );
   }
 
-  /// `Alarm`
+  /// `Notifications`
   String get label_setting_alarm {
     return Intl.message(
-      'Alarm',
+      'Notifications',
       name: 'label_setting_alarm',
       desc: '',
       args: [],
     );
   }
 
-  /// `Push Notifications`
+  /// `Push notifications`
   String get label_setting_push_alarm {
     return Intl.message(
-      'Push Notifications',
+      'Push notifications',
       name: 'label_setting_push_alarm',
       desc: '',
       args: [],
     );
   }
 
-  /// `Event Notifications`
+  /// `Event notifications`
   String get label_setting_event_alarm {
     return Intl.message(
-      'Event Notifications',
+      'Event notifications',
       name: 'label_setting_event_alarm',
       desc: '',
       args: [],
     );
   }
 
-  /// `Events & activities`
+  /// `Events and happenings.`
   String get label_setting_event_alarm_desc {
     return Intl.message(
-      'Events & activities',
+      'Events and happenings.',
       name: 'label_setting_event_alarm_desc',
       desc: '',
       args: [],
     );
   }
 
-  /// `Language Settings`
+  /// `Language settings`
   String get label_setting_language {
     return Intl.message(
-      'Language Settings',
+      'Language settings',
       name: 'label_setting_language',
       desc: '',
       args: [],
     );
   }
 
-  /// `Manage Storage`
+  /// `Manage storage`
   String get label_setting_storage {
     return Intl.message(
-      'Manage Storage',
+      'Manage storage',
       name: 'label_setting_storage',
       desc: '',
       args: [],
     );
   }
 
-  /// `Clear Cache`
+  /// `Delete Cache`
   String get label_setting_remove_cache {
     return Intl.message(
-      'Clear Cache',
+      'Delete Cache',
       name: 'label_setting_remove_cache',
       desc: '',
       args: [],
     );
   }
 
-  /// `App Info`
+  /// `App info`
   String get label_setting_appinfo {
     return Intl.message(
-      'App Info',
+      'App info',
       name: 'label_setting_appinfo',
       desc: '',
       args: [],
     );
   }
 
-  /// `Current Version`
+  /// `Current version`
   String get label_setting_current_version {
     return Intl.message(
-      'Current Version',
+      'Current version',
       name: 'label_setting_current_version',
       desc: '',
       args: [],
@@ -820,40 +820,50 @@ class S {
     );
   }
 
-  /// `Daily`
+  /// `Latest version`
+  String get label_setting_recent_version {
+    return Intl.message(
+      'Latest version',
+      name: 'label_setting_recent_version',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Daily charts`
   String get label_tabbar_picchart_daily {
     return Intl.message(
-      'Daily',
+      'Daily charts',
       name: 'label_tabbar_picchart_daily',
       desc: '',
       args: [],
     );
   }
 
-  /// `Weekly`
+  /// `Weekly charts`
   String get label_tabbar_picchart_weekly {
     return Intl.message(
-      'Weekly',
+      'Weekly charts',
       name: 'label_tabbar_picchart_weekly',
       desc: '',
       args: [],
     );
   }
 
-  /// `Monthly`
+  /// `Monthly Charts`
   String get label_tabbar_picchart_monthly {
     return Intl.message(
-      'Monthly',
+      'Monthly Charts',
       name: 'label_tabbar_picchart_monthly',
       desc: '',
       args: [],
     );
   }
 
-  /// `Reward List`
+  /// `Rewards list`
   String get label_vote_reward_list {
     return Intl.message(
-      'Reward List',
+      'Rewards list',
       name: 'label_vote_reward_list',
       desc: '',
       args: [],
@@ -890,50 +900,50 @@ class S {
     );
   }
 
-  /// `Synthesizing image...`
+  /// `Compositing an image...`
   String get label_pic_pic_synthesizing_image {
     return Intl.message(
-      'Synthesizing image...',
+      'Compositing an image...',
       name: 'label_pic_pic_synthesizing_image',
       desc: '',
       args: [],
     );
   }
 
-  /// `Saved successfully.`
+  /// `The image has been saved.`
   String get message_pic_pic_save_success {
     return Intl.message(
-      'Saved successfully.',
+      'The image has been saved.',
       name: 'message_pic_pic_save_success',
       desc: '',
       args: [],
     );
   }
 
-  /// `Failed to save.`
+  /// `Saving the image failed.`
   String get message_pic_pic_save_fail {
     return Intl.message(
-      'Failed to save.',
+      'Saving the image failed.',
       name: 'message_pic_pic_save_fail',
       desc: '',
       args: [],
     );
   }
 
-  /// `Rank in the reward`
+  /// `Rank in Rewards`
   String get text_vote_rank_in_reward {
     return Intl.message(
-      'Rank in the reward',
+      'Rank in Rewards',
       name: 'text_vote_rank_in_reward',
       desc: '',
       args: [],
     );
   }
 
-  /// `Where is my bias?`
+  /// `Where's My Favorite?`
   String get text_vote_where_is_my_bias {
     return Intl.message(
-      'Where is my bias?',
+      'Where\'s My Favorite?',
       name: 'text_vote_where_is_my_bias',
       desc: '',
       args: [],
@@ -960,10 +970,10 @@ class S {
     );
   }
 
-  /// `End`
+  /// `Exit`
   String get label_tabbar_vote_end {
     return Intl.message(
-      'End',
+      'Exit',
       name: 'label_tabbar_vote_end',
       desc: '',
       args: [],
@@ -980,70 +990,70 @@ class S {
     );
   }
 
-  /// `Image cropping`
+  /// `Crop an image`
   String get label_pic_image_cropping {
     return Intl.message(
-      'Image cropping',
+      'Crop an image',
       name: 'label_pic_image_cropping',
       desc: '',
       args: [],
     );
   }
 
-  /// `th`
+  /// `위`
   String get text_vote_rank_surffix {
     return Intl.message(
-      'th',
+      '위',
       name: 'text_vote_rank_surffix',
       desc: '',
       args: [],
     );
   }
 
-  /// `1st`
-  String get text_vote_1st {
+  /// `1`
+  String get text_vote_first {
     return Intl.message(
-      '1st',
-      name: 'text_vote_1st',
+      '1',
+      name: 'text_vote_first',
       desc: '',
       args: [],
     );
   }
 
-  /// `2nd`
-  String get text_vote_2nd {
+  /// `2nd place`
+  String get text_vote_second {
     return Intl.message(
-      '2nd',
-      name: 'text_vote_2nd',
+      '2nd place',
+      name: 'text_vote_second',
       desc: '',
       args: [],
     );
   }
 
-  /// `3rd`
-  String get text_vote_3rd {
+  /// `3rd place`
+  String get text_vote_third {
     return Intl.message(
-      '3rd',
-      name: 'text_vote_3rd',
+      '3rd place',
+      name: 'text_vote_third',
       desc: '',
       args: [],
     );
   }
 
-  /// `Recharge`
+  /// `Charging`
   String get label_button_recharge {
     return Intl.message(
-      'Recharge',
+      'Charging',
       name: 'label_button_recharge',
       desc: '',
       args: [],
     );
   }
 
-  /// `Use all`
+  /// `Full Use`
   String get label_checkbox_entire_use {
     return Intl.message(
-      'Use all',
+      'Full Use',
       name: 'label_checkbox_entire_use',
       desc: '',
       args: [],
@@ -1060,10 +1070,10 @@ class S {
     );
   }
 
-  /// `Need to recharge`
+  /// `Requires charging.`
   String get text_need_recharge {
     return Intl.message(
-      'Need to recharge',
+      'Requires charging.',
       name: 'text_need_recharge',
       desc: '',
       args: [],
@@ -1080,20 +1090,20 @@ class S {
     );
   }
 
-  /// `Close`
+  /// `关闭`
   String get label_button_clse {
     return Intl.message(
-      'Close',
+      '关闭',
       name: 'label_button_clse',
       desc: '',
       args: [],
     );
   }
 
-  /// `OK`
+  /// `Confirm`
   String get dialog_button_ok {
     return Intl.message(
-      'OK',
+      'Confirm',
       name: 'dialog_button_ok',
       desc: '',
       args: [],
@@ -1110,20 +1120,20 @@ class S {
     );
   }
 
-  /// `Vote failed`
+  /// `Voting Failed`
   String get dialog_title_vote_fail {
     return Intl.message(
-      'Vote failed',
+      'Voting Failed',
       name: 'dialog_title_vote_fail',
       desc: '',
       args: [],
     );
   }
 
-  /// `The amount of votes should not be 0.`
+  /// `The number of votes cannot be zero.`
   String get text_dialog_vote_amount_should_not_zero {
     return Intl.message(
-      'The amount of votes should not be 0.',
+      'The number of votes cannot be zero.',
       name: 'text_dialog_vote_amount_should_not_zero',
       desc: '',
       args: [],
@@ -1140,30 +1150,30 @@ class S {
     );
   }
 
-  /// `Buy Star Candy`
+  /// `Buy star candy`
   String get label_tab_buy_star_candy {
     return Intl.message(
-      'Buy Star Candy',
+      'Buy star candy',
       name: 'label_tab_buy_star_candy',
       desc: '',
       args: [],
     );
   }
 
-  /// `Free Charging Station`
+  /// `Free charging stations`
   String get label_tab_free_charge_station {
     return Intl.message(
-      'Free Charging Station',
+      'Free charging stations',
       name: 'label_tab_free_charge_station',
       desc: '',
       args: [],
     );
   }
 
-  /// `Recent`
+  /// `Newest`
   String get label_dropdown_recent {
     return Intl.message(
-      'Recent',
+      'Newest',
       name: 'label_dropdown_recent',
       desc: '',
       args: [],
@@ -1190,30 +1200,30 @@ class S {
     );
   }
 
-  /// `Vote complete`
+  /// `Voting complete`
   String get text_vote_complete {
     return Intl.message(
-      'Vote complete',
+      'Voting complete',
       name: 'text_vote_complete',
       desc: '',
       args: [],
     );
   }
 
-  /// `This time vote`
+  /// `This Vote`
   String get text_this_time_vote {
     return Intl.message(
-      'This time vote',
+      'This Vote',
       name: 'text_this_time_vote',
       desc: '',
       args: [],
     );
   }
 
-  /// `Save the voting paper`
+  /// `Save your ballot`
   String get label_button_save_vote_paper {
     return Intl.message(
-      'Save the voting paper',
+      'Save your ballot',
       name: 'label_button_save_vote_paper',
       desc: '',
       args: [],
@@ -1230,80 +1240,80 @@ class S {
     );
   }
 
-  /// `Watch and charge`
+  /// `Viewing and charging for ads`
   String get label_button_watch_and_charge {
     return Intl.message(
-      'Watch and charge',
+      'Viewing and charging for ads',
       name: 'label_button_watch_and_charge',
       desc: '',
       args: [],
     );
   }
 
-  /// `Watch ads`
+  /// `View ads`
   String get label_watch_ads {
     return Intl.message(
-      'Watch ads',
+      'View ads',
       name: 'label_watch_ads',
       desc: '',
       args: [],
     );
   }
 
-  /// `Bonus`
+  /// `Bonuses`
   String get label_bonus {
     return Intl.message(
-      'Bonus',
+      'Bonuses',
       name: 'label_bonus',
       desc: '',
       args: [],
     );
   }
 
-  /// `Star Candy Usage Policy`
-  String get text_star_candy_usage_policy_title {
+  /// `Stardust Usage Policy`
+  String get candy_usage_policy_title {
     return Intl.message(
-      'Star Candy Usage Policy',
-      name: 'text_star_candy_usage_policy_title',
+      'Stardust Usage Policy',
+      name: 'candy_usage_policy_title',
       desc: '',
       args: [],
     );
   }
 
-  /// `*Bonuses will disappear the month after you earn them! ⓘ`
-  String get text_star_candy_usage_policy_guide {
+  /// `*Bonuses disappear the month after you earn them! ⓘ`
+  String get candy_usage_policy_guide {
     return Intl.message(
-      '*Bonuses will disappear the month after you earn them! ⓘ',
-      name: 'text_star_candy_usage_policy_guide',
+      '*Bonuses disappear the month after you earn them! ⓘ',
+      name: 'candy_usage_policy_guide',
       desc: '',
       args: [],
     );
   }
 
-  /// `### Expiration Date\n\nPurchase Candy: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n### Redeem Star Candy\n\nStar Candies that are about to expire will be used first.\nIf they have the same expiration date, the earliest one will be used.`
-  String get text_star_candy_usage_policy {
+  /// `### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, they will be used in the order of the earliest acquisition date.`
+  String get candy_usage_policy_contents {
     return Intl.message(
-      '### Expiration Date\n\nPurchase Candy: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n### Redeem Star Candy\n\nStar Candies that are about to expire will be used first.\nIf they have the same expiration date, the earliest one will be used.',
-      name: 'text_star_candy_usage_policy',
+      '### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, they will be used in the order of the earliest acquisition date.',
+      name: 'candy_usage_policy_contents',
       desc: '',
       args: [],
     );
   }
 
-  /// `Star Candy received`
+  /// `Star candy has been awarded.`
   String get text_dialog_star_candy_received {
     return Intl.message(
-      'Star Candy received',
+      'Star candy has been awarded.',
       name: 'text_dialog_star_candy_received',
       desc: '',
       args: [],
     );
   }
 
-  /// `*VAT included`
+  /// `*Price includes VAT.`
   String get text_purchase_vat_included {
     return Intl.message(
-      '*VAT included',
+      '*Price includes VAT.',
       name: 'text_purchase_vat_included',
       desc: '',
       args: [],
@@ -1330,10 +1340,10 @@ class S {
     );
   }
 
-  /// `Logout`
+  /// `Log out`
   String get label_mypage_logout {
     return Intl.message(
-      'Logout',
+      'Log out',
       name: 'label_mypage_logout',
       desc: '',
       args: [],
@@ -1370,10 +1380,10 @@ class S {
     );
   }
 
-  /// `Retry`
+  /// `Retrying`
   String get label_retry {
     return Intl.message(
-      'Retry',
+      'Retrying',
       name: 'label_retry',
       desc: '',
       args: [],
