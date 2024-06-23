@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/error.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/pic/gallery.dart';
 import 'package:picnic_app/pages/pic/gallery_detail_page.dart';
 import 'package:picnic_app/providers/gallery_list_provider.dart';
@@ -50,7 +51,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              Intl.message('label_celeb_gallery'),
+              S.of(context).label_celeb_gallery,
               style: getTextStyle(
                 AppTypo.TITLE18B,
                 AppColors.Grey900,

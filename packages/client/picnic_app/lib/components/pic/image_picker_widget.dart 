@@ -22,13 +22,17 @@ class ImagePickerWidget extends StatelessWidget {
             aspectRatio: const CropAspectRatio(ratioX: 5.5, ratioY: 8.5),
             uiSettings: [
               AndroidUiSettings(
-                  toolbarTitle: Intl.message('label_pic_image_cropping'),
+                  toolbarTitle: S
+                      .of(context)
+                      .label_pic_image_cropping,
                   toolbarColor: AppColors.primaryColor,
                   toolbarWidgetColor: Colors.white,
                   initAspectRatio: CropAspectRatioPreset.original,
                   lockAspectRatio: true),
               IOSUiSettings(
-                title: Intl.message('label_pic_image_cropping'),
+                title: S
+                    .of(context)
+                    .label_pic_image_cropping,
                 aspectRatioPickerButtonHidden: true,
                 aspectRatioLockEnabled: true,
               ),

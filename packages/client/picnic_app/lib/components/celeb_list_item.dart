@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/pic/celeb.dart';
 import 'package:picnic_app/providers/celeb_list_provider.dart';
 import 'package:picnic_app/providers/celeb_search_provider.dart';
@@ -99,7 +100,7 @@ class CelebListItem extends ConsumerWidget {
                                     5) {
                                   showOverlayToast(
                                       context,
-                                      Text(Intl.message('toast_max_5_celeb'),
+                                      Text(S.of(context).toast_max_5_celeb,
                                           style: getTextStyle(AppTypo.BODY16M,
                                               AppColors.Grey900)));
 

@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:load_switch/load_switch.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/platform_info_provider.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
@@ -45,11 +46,11 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       child: ListView(
         children: [
           SizedBox(height: 16.w),
-          Text(Intl.message('label_setting_alarm'),
+          Text(S.of(context).label_setting_alarm,
               style: getTextStyle(AppTypo.BODY14B, AppColors.Grey600)),
           SizedBox(height: 4.w),
           ListItem(
-            leading: Intl.message('label_setting_push_alarm'),
+            leading: S.of(context).label_setting_push_alarm,
             assetPath: 'assets/icons/arrow_right_style=line.svg',
             tailing: LoadSwitch(
               width: 48.w,
@@ -85,12 +86,12 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           ),
           const Divider(color: AppColors.Grey200),
           ListItem(
-            leading: Intl.message('label_setting_event_alarm'),
+            leading: S.of(context).label_setting_event_alarm,
             title: Container(
               margin: EdgeInsets.only(left: 8.w),
               alignment: Alignment.centerLeft,
               child: Text(
-                Intl.message('label_setting_event_alarm_desc'),
+                S.of(context).label_setting_event_alarm_desc,
                 style: getTextStyle(AppTypo.CAPTION12R, AppColors.Grey600),
                 textAlign: TextAlign.start,
               ),
@@ -130,7 +131,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           ),
           const Divider(color: AppColors.Grey200),
           SizedBox(height: 48.w),
-          Text(Intl.message('label_setting_language'),
+          Text(S.of(context).label_setting_language,
               style: getTextStyle(AppTypo.BODY14B, AppColors.Grey600)),
           DropdownButtonFormField(
             value: appSettingState.locale.languageCode,
@@ -165,25 +166,25 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           ),
           const Divider(color: AppColors.Grey200),
           SizedBox(height: 48.w),
-          Text(Intl.message('label_setting_storage'),
+          Text(S.of(context).label_setting_storage,
               style: getTextStyle(AppTypo.BODY14B, AppColors.Grey600)),
           ListItem(
-              leading: Intl.message('label_setting_remove_cache'),
+              leading: S.of(context).label_setting_remove_cache,
               assetPath: 'assets/icons/arrow_right_style=line.svg',
               onTap: () {}),
           const Divider(color: AppColors.Grey200),
           SizedBox(height: 48.w),
-          Text(Intl.message('label_setting_appinfo'),
+          Text(S.of(context).label_setting_appinfo,
               style: getTextStyle(AppTypo.BODY14B, AppColors.Grey600)),
           const Divider(color: AppColors.Grey200),
           ListItem(
               leading:
-                  '${Intl.message('label_setting_current_version')} ${asyncPlatformInfoState.value?.version ?? ''}(${asyncPlatformInfoState.value?.buildNumber ?? ''})',
+                  '${S.of(context).label_setting_current_version} ${asyncPlatformInfoState.value?.version ?? ''}(${asyncPlatformInfoState.value?.buildNumber ?? ''})',
               title: Align(
                 alignment: Alignment.centerRight,
                 child: Text(
-                  Intl.message('label_setting_update'),
-                  // Intl.message('label_setting_recent_version'),
+                  S.of(context).label_setting_update,
+                  // S.of(context).label_setting_recent_version,
                   style: getTextStyle(AppTypo.CAPTION12B, AppColors.Primary500),
                   textAlign: TextAlign.start,
                 ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_app/components/vote/store/free_charge_station.dart';
 import 'package:picnic_app/components/vote/store/purchase_star_candy.dart';
+import 'package:picnic_app/generated/l10n.dart';
 
 class StorePage extends StatefulWidget {
   const StorePage({super.key});
@@ -31,8 +31,8 @@ class _StorePageState extends State<StorePage>
         TabBar(
           controller: _tabController,
           tabs: [
-            Tab(text: Intl.message('label_tab_buy_star_candy')),
-            Tab(text: Intl.message('label_tab_free_charge_station')),
+            Tab(text: S.of(context).label_tab_buy_star_candy),
+            Tab(text: S.of(context).label_tab_free_charge_station),
           ],
         ),
         Expanded(

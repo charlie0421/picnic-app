@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/loading_view.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/library_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 
@@ -33,7 +34,7 @@ class _LibraryListState extends ConsumerState<AlbumList> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       Text(
-                        Intl.message('label_library_save'),
+                        S.of(context).label_library_save,
                         style: getTextStyle(AppTypo.BODY16B),
                       ),
                       GestureDetector(
@@ -42,7 +43,7 @@ class _LibraryListState extends ConsumerState<AlbumList> {
                           _showAddAlbum();
                         },
                         child: Text(
-                          Intl.message('label_album_add'),
+                          S.of(context).label_album_add,
                           style: getTextStyle(AppTypo.BODY14R),
                         ),
                       ),
@@ -85,7 +86,7 @@ class _LibraryListState extends ConsumerState<AlbumList> {
                         asyncLibraryNotifier.addImageToLibrary(
                             _selectedRadioTile, widget.imageId);
                       },
-                      child: Text(Intl.message('button_complete')),
+                      child: Text(S.of(context).button_complete),
                     ),
                   ),
                 ],
@@ -102,21 +103,21 @@ class _LibraryListState extends ConsumerState<AlbumList> {
       builder: (context) {
         TextEditingController albumController = TextEditingController();
         return AlertDialog(
-          title: Text(Intl.message('title_dialog_library_add')),
+          title: Text(S.of(context).title_dialog_library_add),
           content: TextFormField(
               controller: albumController,
               decoration:
-                  InputDecoration(hintText: Intl.message('hint_library_add'))),
+                  InputDecoration(hintText: S.of(context).hint_library_add)),
           actions: <Widget>[
             TextButton(
-              child: Text(Intl.message('button_cancel')),
+              child: Text(S.of(context).button_cancel),
               onPressed: () {
                 albumController.dispose();
                 Navigator.pop(context);
               },
             ),
             TextButton(
-              child: Text(Intl.message('button_ok')),
+              child: Text(S.of(context).button_ok),
               onPressed: () {
                 if (albumController.text.isNotEmpty) {
                   albumController.dispose();

@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/common_my_point_info.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/pages/common/myprofile.dart';
 import 'package:picnic_app/pages/common/setting.dart';
 import 'package:picnic_app/pages/vote/vote_history_page.dart';
@@ -44,22 +45,22 @@ class _MyPageState extends ConsumerState<MyPage> {
             SizedBox(height: 24.w),
             const Divider(color: AppColors.Grey200),
             ListItem(
-                leading: Intl.message('label_mypage_notice'),
+                leading: S.of(context).label_mypage_notice,
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () {}),
             const Divider(color: AppColors.Grey200),
             ListItem(
-                leading: Intl.message('label_mypage_charge_history'),
+                leading: S.of(context).label_mypage_charge_history,
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () {}),
             const Divider(color: AppColors.Grey200),
             ListItem(
-                leading: Intl.message('label_mypage_customer_center'),
+                leading: S.of(context).label_mypage_customer_center,
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () {}),
             const Divider(color: AppColors.Grey200),
             ListItem(
-                leading: Intl.message('label_mypage_setting'),
+                leading: S.of(context).label_mypage_setting,
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () => ref
                     .read(navigationInfoProvider.notifier)
@@ -68,7 +69,7 @@ class _MyPageState extends ConsumerState<MyPage> {
             _buildMyStar('VOTE'),
             const Divider(color: AppColors.Grey200),
             ListItem(
-                leading: Intl.message('label_mypage_vote_history'),
+                leading: S.of(context).label_mypage_vote_history,
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () => ref
                     .read(navigationInfoProvider.notifier)
@@ -77,7 +78,7 @@ class _MyPageState extends ConsumerState<MyPage> {
             _buildMyStar('P-RAME'),
             const Divider(color: AppColors.Grey200),
             ListItem(
-                leading: Intl.message('label_mypage_membership_history'),
+                leading: S.of(context).label_mypage_membership_history,
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () {}),
           ],
@@ -147,7 +148,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(categoryText, style: getTextStyle(AppTypo.BODY14B)),
-                  Text(Intl.message('label_mypage_mystar'),
+                  Text(S.of(context).label_mypage_mystar,
                       style: getTextStyle(AppTypo.BODY16M)),
                 ],
               ),

@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
+
+import 'package:flutter/material.dart';
 
 class ImageComposer extends CustomPainter {
   final ui.Image userImage;
@@ -20,7 +21,8 @@ class ImageComposer extends CustomPainter {
     final userImagePaint = Paint();
     canvas.drawImageRect(
       userImage,
-      ui.Rect.fromLTWH(0, 0, userImage.width.toDouble(), userImage.height.toDouble()),
+      ui.Rect.fromLTWH(
+          0, 0, userImage.width.toDouble(), userImage.height.toDouble()),
       ui.Rect.fromLTWH(0, 0, size.width, size.height),
       userImagePaint,
     );

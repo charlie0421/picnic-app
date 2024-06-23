@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
 
 void showSimpleDialog({
@@ -64,7 +65,7 @@ void showSimpleDialog({
                       width: 100.w,
                       child: TextButton(
                         child: Text(
-                          Intl.message('dialog_button_cancel'),
+                          S.of(context).dialog_button_cancel,
                           style:
                               getTextStyle(AppTypo.BODY14B, AppColors.Mint500),
                         ),
@@ -79,7 +80,7 @@ void showSimpleDialog({
                       width: 100.w,
                       child: TextButton(
                         child: Text(
-                          Intl.message('dialog_button_ok'),
+                          S.of(context).dialog_button_ok,
                           style: getTextStyle(
                               AppTypo.BODY14B, AppColors.Primary500),
                         ),

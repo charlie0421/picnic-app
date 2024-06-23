@@ -2,6 +2,7 @@
 // https://github.com/dart-lang/reflectable.
 
 import 'dart:core';
+
 import 'package:picnic_app/models/common/banner.dart' as prefix11;
 import 'package:picnic_app/models/meta.dart' as prefix8;
 import 'package:picnic_app/models/pic/article.dart' as prefix13;
@@ -31,8 +32,8 @@ import 'package:picnic_app/reflector.dart' as prefix0;
 // ignore_for_file: unused_import
 
 import 'package:reflectable/mirrors.dart' as m;
-import 'package:reflectable/src/reflectable_builder_based.dart' as r;
 import 'package:reflectable/reflectable.dart' as r show Reflectable;
+import 'package:reflectable/src/reflectable_builder_based.dart' as r;
 
 final _data = <r.Reflectable, r.ReflectorData>{
   const prefix0.Reflector(): r.ReflectorData(

@@ -3,11 +3,11 @@ import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_app/components/article/comment/comment_item.dart';
 import 'package:picnic_app/components/article/comment/comment_reply_layer.dart';
 import 'package:picnic_app/components/ui/bottom_sheet_header.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/pic/article.dart';
 import 'package:picnic_app/models/pic/comment.dart';
 import 'package:picnic_app/providers/article_list_provider.dart';
@@ -118,7 +118,7 @@ class _CommentState extends ConsumerState<Comment> {
                         child: Container(
                           padding: const EdgeInsets.all(10),
                           child: Text(
-                            Intl.message('label_article_comment_empty'),
+                            S.of(context).label_article_comment_empty,
                             style: const TextStyle(
                                 fontSize: 30, fontWeight: FontWeight.bold),
                           ),

@@ -98,6 +98,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("合成图像..."),
         "label_read_more_comment": MessageLookupByLibrary.simpleMessage("更多评论"),
         "label_reply": MessageLookupByLibrary.simpleMessage("答复"),
+        "label_retry": MessageLookupByLibrary.simpleMessage("重试"),
         "label_setting_alarm": MessageLookupByLibrary.simpleMessage("闹钟"),
         "label_setting_appinfo": MessageLookupByLibrary.simpleMessage("应用信息"),
         "label_setting_current_version":
@@ -139,6 +140,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_vote_gather": MessageLookupByLibrary.simpleMessage("收集选票"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("观看广告"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("我的名人"),
+        "message_error_occurred": MessageLookupByLibrary.simpleMessage("发生错误。"),
         "message_pic_pic_save_fail":
             MessageLookupByLibrary.simpleMessage("保存失败。"),
         "message_pic_pic_save_success":

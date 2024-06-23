@@ -130,5 +130,7 @@
   "label_mypage_privacy_policy": "隐私政策",
   "label_mypage_logout": "登出",
   "label_mypage_withdrawal": "退出",
-  "label_mypage_withdrawal_desc": "退出后，您的所有数据将被删除。"
+  "label_mypage_withdrawal_desc": "退出后，您的所有数据将被删除。",
+  "message_error_occurred": "发生错误。",
+  "label_retry": "重试"
 }

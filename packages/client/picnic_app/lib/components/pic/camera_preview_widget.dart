@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
 import 'dart:ui' as ui;
 
+import 'package:camera/camera.dart';
+import 'package:flutter/material.dart';
 import 'package:picnic_app/components/pic/image_overlay_painter.dart';
 
 class CameraPreviewWidget extends StatelessWidget {

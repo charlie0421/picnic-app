@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
@@ -112,7 +113,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             height: 24.w,
           ),
           ListItem(
-              leading: Intl.message('label_mypage_terms_of_use'),
+              leading: S.of(context).label_mypage_terms_of_use,
               assetPath: 'assets/icons/arrow_right_style=line.svg',
               onTap: () {}),
           Divider(
@@ -121,7 +122,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             height: 24.w,
           ),
           ListItem(
-              leading: Intl.message('label_mypage_privacy_policy'),
+              leading: S.of(context).label_mypage_privacy_policy,
               assetPath: 'assets/icons/arrow_right_style=line.svg',
               onTap: () {}),
           Divider(
@@ -130,7 +131,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             height: 24.w,
           ),
           ListItem(
-              leading: Intl.message('label_mypage_logout'),
+              leading: S.of(context).label_mypage_logout,
               assetPath: 'assets/icons/arrow_right_style=line.svg',
               onTap: () {
                 ref.read(userInfoProvider.notifier).logout();
@@ -142,7 +143,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             height: 24.w,
           ),
           ListItem(
-              leading: Intl.message('label_mypage_withdrawal'),
+              leading: S.of(context).label_mypage_withdrawal,
               assetPath: 'assets/icons/arrow_right_style=line.svg',
               onTap: () {}),
           Divider(

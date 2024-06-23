@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:picnic_app/generated/l10n.dart';
 
 class MyFavItem {
   final String image;
@@ -78,7 +78,7 @@ class _MyPageState extends State<MyPage> {
               style: Theme.of(context)
                   .textTheme
                   .headlineMedium
-                  ?.copyWith( fontWeight: FontWeight.bold)),
+                  ?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
           SizedBox(
             height: 140,
@@ -114,20 +114,49 @@ class _MyPageState extends State<MyPage> {
             shrinkWrap: true,
             children: [
               const Divider(height: 20),
-              Text(Intl.message('mypage_purchases'),style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),),
+              Text(
+                S.of(context).mypage_purchases,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
               const Divider(height: 20),
-              Text(Intl.message('mypage_setting'),style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),),
+              Text(
+                S.of(context).mypage_setting,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
               const Divider(height: 20),
-              Text(Intl.message('mypage_subscription'),style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),),
+              Text(
+                S.of(context).mypage_subscription,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
               const Divider(height: 20),
-              Text(Intl.message('mypage_comment'),style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),),
+              Text(
+                S.of(context).mypage_comment,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
               const Divider(height: 20),
               InkWell(
-                onTap: () {
-                  Navigator.pushNamed(context, '/language');
-
-                },
-                  child: Text(Intl.message('mypage_language'),style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),)),
+                  onTap: () {
+                    Navigator.pushNamed(context, '/language');
+                  },
+                  child: Text(
+                    S.of(context).mypage_language,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  )),
               const Divider(height: 20),
             ],
           )

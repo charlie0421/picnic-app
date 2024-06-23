@@ -6,12 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/simple_dialog.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/components/vote/common_vote_info.dart';
 import 'package:picnic_app/components/vote/store/store_list_tile.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/common_theme.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -55,7 +55,9 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
         children: [
           SizedBox(height: 36.w),
           StorePointInfo(
-              title: Intl.message('label_star_candy_pouch'),
+              title: S
+                  .of(context)
+                  .label_star_candy_pouch,
               width: double.infinity,
               height: 100.w),
           SizedBox(height: 36.w),
@@ -65,19 +67,25 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
               width: 48.w,
               height: 48.w,
             ),
-            title: Text(Intl.message('label_button_watch_and_charge'),
+            title: Text(S
+                .of(context)
+                .label_button_watch_and_charge,
                 style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
             subtitle: Text.rich(
               TextSpan(
                 children: [
                   TextSpan(
-                      text: '+${Intl.message('label_bonus')} 1',
+                      text: '+${S
+                          .of(context)
+                          .label_bonus} 1',
                       style:
-                          getTextStyle(AppTypo.CAPTION12B, AppColors.Point900)),
+                      getTextStyle(AppTypo.CAPTION12B, AppColors.Point900)),
                 ],
               ),
             ),
-            buttonText: Intl.message('label_watch_ads'),
+            buttonText: S
+                .of(context)
+                .label_watch_ads,
             buttonOnPressed: () async {
               if (_rewardedAds[0] == null) {
                 await _createRewardedAd(0);
@@ -93,19 +101,25 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
               width: 48.w,
               height: 48.w,
             ),
-            title: Text(Intl.message('label_button_watch_and_charge'),
+            title: Text(S
+                .of(context)
+                .label_button_watch_and_charge,
                 style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
             subtitle: Text.rich(
               TextSpan(
                 children: [
                   TextSpan(
-                      text: '+${Intl.message('label_bonus')} 1',
+                      text: '+${S
+                          .of(context)
+                          .label_bonus} 1',
                       style:
-                          getTextStyle(AppTypo.CAPTION12B, AppColors.Point900)),
+                      getTextStyle(AppTypo.CAPTION12B, AppColors.Point900)),
                 ],
               ),
             ),
-            buttonText: Intl.message('label_watch_ads'),
+            buttonText: S
+                .of(context)
+                .label_watch_ads,
             buttonOnPressed: () async {
               if (_rewardedAds[1] == null) {
                 await _createRewardedAd(1);
@@ -117,12 +131,20 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
           Divider(height: 32.w, thickness: 1, color: AppColors.Grey200),
           GestureDetector(
             onTap: () {
-              print(Intl.message('text_star_candy_usage_policy'));
-              final message = Intl.message('text_star_candy_usage_policy');
+              print(S
+                  .of(context)
+                  .text_star_candy_usage_policy);
+              final message = S
+                  .of(context)
+                  .text_star_candy_usage_policy;
               showDialog(
                   context: context,
-                  builder: (context) => LargePopupWidget(
-                        width: MediaQuery.of(context).size.width - 32.w,
+                  builder: (context) =>
+                      LargePopupWidget(
+                        width: MediaQuery
+                            .of(context)
+                            .size
+                            .width - 32.w,
                         content: Container(
                           padding: EdgeInsets.symmetric(
                               horizontal: 40.w, vertical: 64.w),
@@ -140,8 +162,9 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
                                     )),
                                 SizedBox(width: 8.w),
                                 Text(
-                                  Intl.message(
-                                      'text_star_candy_usage_policy_title'),
+                                  S
+                                      .of(context)
+                                      .text_star_candy_usage_policy_title,
                                   style: getTextStyle(
                                       AppTypo.BODY14B, AppColors.Primary500),
                                 ),
@@ -168,7 +191,9 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
                             ),
                             SizedBox(height: 16.w),
                             StorePointInfo(
-                                title: Intl.message('label_star_candy_pouch'),
+                                title: S
+                                    .of(context)
+                                    .label_star_candy_pouch,
                                 width: 231.w,
                                 titlePadding: 10.w,
                                 height: 78.w)
@@ -176,7 +201,9 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
                         ),
                       ));
             },
-            child: Text(Intl.message('text_star_candy_usage_policy_guide'),
+            child: Text(S
+                .of(context)
+                .text_star_candy_usage_policy_guide,
                 style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600)),
           ),
         ],
@@ -227,7 +254,9 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
 
         showSimpleDialog(
           context: context,
-          title: Intl.message('text_dialog_star_candy_received'),
+          title: S
+              .of(context)
+              .text_dialog_star_candy_received,
           onOk: () {},
         );
 
@@ -249,7 +278,11 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
     );
 
     ServerSideVerificationOptions options = ServerSideVerificationOptions(
-      userId: ref.watch(userInfoProvider).value?.id.toString(),
+      userId: ref
+          .watch(userInfoProvider)
+          .value
+          ?.id
+          .toString(),
       customData: '{"reward_type":"free_charge_station"}',
     );
     _rewardedAds[index]?.setServerSideOptions(options);

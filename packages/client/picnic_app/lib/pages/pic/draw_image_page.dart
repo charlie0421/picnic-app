@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/celeb_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 
@@ -52,11 +53,11 @@ class _DrawImagePageState extends ConsumerState<DrawImagePage>
               child: Image.asset('assets/images/random_image.webp')),
           const SizedBox(height: 20),
           Text(
-            Intl.message('label_draw_image'),
+            S.of(context).label_draw_image,
             style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900),
           ),
           Text(
-            Intl.message('text_draw_image'),
+            S.of(context).text_draw_image,
             style: getTextStyle(AppTypo.BODY16R, AppColors.Grey900),
           ),
         ],

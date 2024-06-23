@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/ui/common_theme.dart';
 import 'package:picnic_app/ui/style.dart';
 

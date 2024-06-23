@@ -130,5 +130,7 @@
   "label_mypage_privacy_policy": "プライバシーポリシー",
   "label_mypage_logout": "ログアウト",
   "label_mypage_withdrawal": "退会",
-  "label_star_candy_pouch": "スターキャンディーポーチ"
+  "label_star_candy_pouch": "スターキャンディーポーチ",
+  "message_error_occurred": "エラーが発生しました。",
+  "label_retry": "再試行"
 }

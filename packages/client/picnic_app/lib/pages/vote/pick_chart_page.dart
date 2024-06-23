@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class PicChartPage extends StatefulWidget {
@@ -140,26 +140,26 @@ class _PicChartPageState extends State<PicChartPage>
         SizedBox(
           height: 50,
           child: TabBar(controller: _tabController, tabs: [
-            Tab(text: Intl.message('label_tabbar_picchart_daily')),
-            Tab(text: Intl.message('label_tabbar_picchart_weekly')),
-            Tab(text: Intl.message('label_tabbar_picchart_monthly')),
+            Tab(text: S.of(context).label_tabbar_picchart_daily),
+            Tab(text: S.of(context).label_tabbar_picchart_weekly),
+            Tab(text: S.of(context).label_tabbar_picchart_monthly),
           ]),
         ),
         Expanded(
             child: TabBarView(controller: _tabController, children: [
           Container(
             child: Center(
-              child: Text(Intl.message('label_tabbar_picchart_daily')),
+              child: Text(S.of(context).label_tabbar_picchart_daily),
             ),
           ),
           Container(
             child: Center(
-              child: Text(Intl.message('label_tabbar_picchart_daily')),
+              child: Text(S.of(context).label_tabbar_picchart_daily),
             ),
           ),
           Container(
             child: Center(
-              child: Text(Intl.message('label_tabbar_picchart_daily')),
+              child: Text(S.of(context).label_tabbar_picchart_daily),
             ),
           ),
         ]))
