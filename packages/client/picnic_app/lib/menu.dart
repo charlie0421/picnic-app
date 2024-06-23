@@ -3,7 +3,7 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/pages/pic/gallery_page.dart';
 import 'package:picnic_app/pages/pic/library_page.dart';
 import 'package:picnic_app/pages/pic/pic_home_page.dart';
-import 'package:picnic_app/pages/vote/pick_chart_page.dart';
+import 'package:picnic_app/pages/vote/pic_chart_page.dart';
 import 'package:picnic_app/pages/vote/store_page.dart';
 import 'package:picnic_app/pages/vote/vote_home_page.dart';
 

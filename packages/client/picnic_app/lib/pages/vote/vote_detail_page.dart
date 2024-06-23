@@ -344,21 +344,23 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                                     'assets/icons/vote/crown${index + 1}.svg'),
                                               if (index == 0)
                                                 Text(
-                                                  S.of(context).text_vote_1st,
+                                                  S.of(context).text_vote_first,
                                                   style: getTextStyle(
                                                       AppTypo.CAPTION12B,
                                                       AppColors.Point900),
                                                 )
                                               else if (index == 1)
                                                 Text(
-                                                  S.of(context).text_vote_2nd,
+                                                  S
+                                                      .of(context)
+                                                      .text_vote_second,
                                                   style: getTextStyle(
                                                       AppTypo.CAPTION12B,
                                                       AppColors.Point900),
                                                 )
                                               else if (index == 2)
                                                 Text(
-                                                  S.of(context).text_vote_3rd,
+                                                  S.of(context).text_vote_third,
                                                   style: getTextStyle(
                                                       AppTypo.CAPTION12B,
                                                       AppColors.Point900),

@@ -32,6 +32,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_complete": MessageLookupByLibrary.simpleMessage("완료"),
         "button_ok": MessageLookupByLibrary.simpleMessage("확인"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("저장하기"),
+        "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
+            "### 유효기간\n\n- 별사탕은 획득일로부터 1년간 유효합니다.\n\n### 별사탕 획득\n\n로그인 : 1일 1회\n- 투표 : 1회당 1개\n구매 별사탕 : 없음 (무제한)\n보너스 별사탕 : 획득한 다음 달 15일에 일괄 소멸\n\n##### 별사탕 사용\n\n소멸일자가 임박한 별사탕부터 사용됩니다.\n유효기간이 동일한 경우, 그 중 획득일자가 빠른 순으로 사용됩니다."),
+        "candy_usage_policy_guide":
+            MessageLookupByLibrary.simpleMessage("*보너스는 획득한 다음달에 사라져요! ⓘ"),
+        "candy_usage_policy_title":
+            MessageLookupByLibrary.simpleMessage("별사탕 사용정책"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("취소"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("확인"),
         "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("투표 실패"),
@@ -48,8 +54,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_button_vote": MessageLookupByLibrary.simpleMessage("투표하기"),
         "label_button_watch_and_charge":
             MessageLookupByLibrary.simpleMessage("광고보고 충전하기"),
-        "label_celeb_gallery": MessageLookupByLibrary.simpleMessage("샐럽 갤러리"),
-        "label_celeb_recommend": MessageLookupByLibrary.simpleMessage("유명인 추천"),
+        "label_celeb_gallery": MessageLookupByLibrary.simpleMessage("아티스트 갤러리"),
+        "label_celeb_recommend":
+            MessageLookupByLibrary.simpleMessage("아티스트 추천"),
         "label_checkbox_entire_use":
             MessageLookupByLibrary.simpleMessage("전체사용"),
         "label_current_language": MessageLookupByLibrary.simpleMessage("현재 언어"),
@@ -57,7 +64,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("랜덤 이미지 획득 기회"),
         "label_dropdown_oldest": MessageLookupByLibrary.simpleMessage("오래된순"),
         "label_dropdown_recent": MessageLookupByLibrary.simpleMessage("최신순"),
-        "label_find_celeb": MessageLookupByLibrary.simpleMessage("더 많은 유명인 찾기"),
+        "label_find_celeb":
+            MessageLookupByLibrary.simpleMessage("더 많은 아티스트 찾기"),
         "label_gallery_tab_article":
             MessageLookupByLibrary.simpleMessage("아티클"),
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("채팅"),
@@ -71,7 +79,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("라이브러리"),
         "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("Frame"),
         "label_moveto_celeb_gallery":
-            MessageLookupByLibrary.simpleMessage("셀러브리티 갤러리로 이동"),
+            MessageLookupByLibrary.simpleMessage("아티스트 갤러리로 이동"),
         "label_mypage_charge_history":
             MessageLookupByLibrary.simpleMessage("충전내역"),
         "label_mypage_customer_center":
@@ -90,7 +98,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("투표내역"),
         "label_mypage_withdrawal": MessageLookupByLibrary.simpleMessage("회원탈퇴"),
         "label_no_celeb":
-            MessageLookupByLibrary.simpleMessage("아직 북마크한 유명인이 없습니다!"),
+            MessageLookupByLibrary.simpleMessage("아직 북마크한 아티스트가 없습니다!"),
         "label_pic_image_cropping":
             MessageLookupByLibrary.simpleMessage("이미지 자르기"),
         "label_pic_pic_initializing_camera":
@@ -102,7 +110,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_read_more_comment":
             MessageLookupByLibrary.simpleMessage("댓글 더보기"),
         "label_reply": MessageLookupByLibrary.simpleMessage("답글 달기"),
-        "label_retry": MessageLookupByLibrary.simpleMessage("재시도"),
+        "label_retry": MessageLookupByLibrary.simpleMessage("재시도 하기"),
         "label_setting_alarm": MessageLookupByLibrary.simpleMessage("알림"),
         "label_setting_appinfo": MessageLookupByLibrary.simpleMessage("앱정보"),
         "label_setting_current_version":
@@ -114,6 +122,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_setting_language": MessageLookupByLibrary.simpleMessage("언어설정"),
         "label_setting_push_alarm":
             MessageLookupByLibrary.simpleMessage("푸시알림"),
+        "label_setting_recent_version":
+            MessageLookupByLibrary.simpleMessage("최신버전"),
         "label_setting_remove_cache":
             MessageLookupByLibrary.simpleMessage("캐시삭제"),
         "label_setting_storage":
@@ -145,11 +155,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_screen_title": MessageLookupByLibrary.simpleMessage("투표"),
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("생일 투표"),
-        "label_vote_tab_pic": MessageLookupByLibrary.simpleMessage("P-RAME 투표"),
+        "label_vote_tab_pic": MessageLookupByLibrary.simpleMessage("PIC 투표"),
         "label_vote_vote_gather":
             MessageLookupByLibrary.simpleMessage("투표 모아보기"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("광고보기"),
-        "lable_my_celeb": MessageLookupByLibrary.simpleMessage("내 셀럽"),
+        "lable_my_celeb": MessageLookupByLibrary.simpleMessage("나의 아티스트"),
         "message_error_occurred":
             MessageLookupByLibrary.simpleMessage("오류가 발생했습니다."),
         "message_pic_pic_save_fail":
@@ -170,7 +180,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_home": MessageLookupByLibrary.simpleMessage("홈"),
         "nav_library": MessageLookupByLibrary.simpleMessage("라이브러리"),
         "nav_media": MessageLookupByLibrary.simpleMessage("미디어"),
-        "nav_picchart": MessageLookupByLibrary.simpleMessage("픽차트"),
+        "nav_picchart": MessageLookupByLibrary.simpleMessage("PIC차트"),
         "nav_purchases": MessageLookupByLibrary.simpleMessage("구매"),
         "nav_setting": MessageLookupByLibrary.simpleMessage("설정"),
         "nav_store": MessageLookupByLibrary.simpleMessage("상점"),
@@ -189,9 +199,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("투표수량은 0이 될 수 없습니다."),
         "text_draw_image":
             MessageLookupByLibrary.simpleMessage("전체 갤러리 중 이미지 1개 확정 소장"),
-        "text_hint_search": MessageLookupByLibrary.simpleMessage("유명인을 검색하세요."),
+        "text_hint_search":
+            MessageLookupByLibrary.simpleMessage("아티스트를 검색하세요."),
         "text_moveto_celeb_gallery":
-            MessageLookupByLibrary.simpleMessage("선택한 셀러브리티의 집으로 이동합니다."),
+            MessageLookupByLibrary.simpleMessage("선택한 아티스트의 집으로 이동합니다."),
         "text_need_recharge":
             MessageLookupByLibrary.simpleMessage("충전이 필요합니다."),
         "text_no_search_result":
@@ -199,24 +210,20 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_purchase_vat_included":
             MessageLookupByLibrary.simpleMessage("*VAT 포함 가격입니다."),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("별사탕"),
-        "text_star_candy_usage_policy_guide":
-            MessageLookupByLibrary.simpleMessage("*보너스는 획득한 다음달에 사라져요! ⓘ"),
-        "text_star_candy_usage_policy_title":
-            MessageLookupByLibrary.simpleMessage("별사탕 사용정책"),
         "text_this_time_vote": MessageLookupByLibrary.simpleMessage("이번 투표"),
-        "text_vote_1st": MessageLookupByLibrary.simpleMessage("1위"),
-        "text_vote_2nd": MessageLookupByLibrary.simpleMessage("2위"),
-        "text_vote_3rd": MessageLookupByLibrary.simpleMessage("3위"),
         "text_vote_complete": MessageLookupByLibrary.simpleMessage("투표 완료"),
+        "text_vote_first": MessageLookupByLibrary.simpleMessage("1위"),
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("랭크 인 리워드"),
         "text_vote_rank_surffix": MessageLookupByLibrary.simpleMessage("위"),
+        "text_vote_second": MessageLookupByLibrary.simpleMessage("2위"),
+        "text_vote_third": MessageLookupByLibrary.simpleMessage("3위"),
         "text_vote_where_is_my_bias":
             MessageLookupByLibrary.simpleMessage("나의 최애는 어디에?"),
         "title_dialog_library_add":
             MessageLookupByLibrary.simpleMessage("새로운 앨범 추가"),
         "title_select_language": MessageLookupByLibrary.simpleMessage("언어 선택"),
-        "toast_max_5_celeb":
-            MessageLookupByLibrary.simpleMessage("내 셀러브리티를 최대 5개까지 추가할 수 있습니다.")
+        "toast_max_five_celeb":
+            MessageLookupByLibrary.simpleMessage("내 아티스트를 최대 5개까지 추가할 수 있습니다.")
       };
 }

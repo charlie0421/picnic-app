@@ -55,9 +55,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
         children: [
           SizedBox(height: 36.w),
           StorePointInfo(
-              title: S
-                  .of(context)
-                  .label_star_candy_pouch,
+              title: S.of(context).label_star_candy_pouch,
               width: double.infinity,
               height: 100.w),
           SizedBox(height: 36.w),
@@ -67,25 +65,19 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
               width: 48.w,
               height: 48.w,
             ),
-            title: Text(S
-                .of(context)
-                .label_button_watch_and_charge,
+            title: Text(S.of(context).label_button_watch_and_charge,
                 style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
             subtitle: Text.rich(
               TextSpan(
                 children: [
                   TextSpan(
-                      text: '+${S
-                          .of(context)
-                          .label_bonus} 1',
+                      text: '+${S.of(context).label_bonus} 1',
                       style:
-                      getTextStyle(AppTypo.CAPTION12B, AppColors.Point900)),
+                          getTextStyle(AppTypo.CAPTION12B, AppColors.Point900)),
                 ],
               ),
             ),
-            buttonText: S
-                .of(context)
-                .label_watch_ads,
+            buttonText: S.of(context).label_watch_ads,
             buttonOnPressed: () async {
               if (_rewardedAds[0] == null) {
                 await _createRewardedAd(0);
@@ -101,25 +93,19 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
               width: 48.w,
               height: 48.w,
             ),
-            title: Text(S
-                .of(context)
-                .label_button_watch_and_charge,
+            title: Text(S.of(context).label_button_watch_and_charge,
                 style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
             subtitle: Text.rich(
               TextSpan(
                 children: [
                   TextSpan(
-                      text: '+${S
-                          .of(context)
-                          .label_bonus} 1',
+                      text: '+${S.of(context).label_bonus} 1',
                       style:
-                      getTextStyle(AppTypo.CAPTION12B, AppColors.Point900)),
+                          getTextStyle(AppTypo.CAPTION12B, AppColors.Point900)),
                 ],
               ),
             ),
-            buttonText: S
-                .of(context)
-                .label_watch_ads,
+            buttonText: S.of(context).label_watch_ads,
             buttonOnPressed: () async {
               if (_rewardedAds[1] == null) {
                 await _createRewardedAd(1);
@@ -131,20 +117,10 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
           Divider(height: 32.w, thickness: 1, color: AppColors.Grey200),
           GestureDetector(
             onTap: () {
-              print(S
-                  .of(context)
-                  .text_star_candy_usage_policy);
-              final message = S
-                  .of(context)
-                  .text_star_candy_usage_policy;
               showDialog(
                   context: context,
-                  builder: (context) =>
-                      LargePopupWidget(
-                        width: MediaQuery
-                            .of(context)
-                            .size
-                            .width - 32.w,
+                  builder: (context) => LargePopupWidget(
+                        width: MediaQuery.of(context).size.width - 32.w,
                         content: Container(
                           padding: EdgeInsets.symmetric(
                               horizontal: 40.w, vertical: 64.w),
@@ -162,9 +138,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
                                     )),
                                 SizedBox(width: 8.w),
                                 Text(
-                                  S
-                                      .of(context)
-                                      .text_star_candy_usage_policy_title,
+                                  S.of(context).candy_usage_policy_title,
                                   style: getTextStyle(
                                       AppTypo.BODY14B, AppColors.Primary500),
                                 ),
@@ -186,14 +160,12 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
                             Markdown(
                               padding: EdgeInsets.zero,
                               shrinkWrap: true,
-                              data: message,
+                              data: S.of(context).candy_usage_policy_contents,
                               styleSheet: commonMarkdownStyleSheet,
                             ),
                             SizedBox(height: 16.w),
                             StorePointInfo(
-                                title: S
-                                    .of(context)
-                                    .label_star_candy_pouch,
+                                title: S.of(context).label_star_candy_pouch,
                                 width: 231.w,
                                 titlePadding: 10.w,
                                 height: 78.w)
@@ -201,9 +173,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
                         ),
                       ));
             },
-            child: Text(S
-                .of(context)
-                .text_star_candy_usage_policy_guide,
+            child: Text(S.of(context).candy_usage_policy_guide,
                 style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600)),
           ),
         ],
@@ -254,9 +224,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
 
         showSimpleDialog(
           context: context,
-          title: S
-              .of(context)
-              .text_dialog_star_candy_received,
+          title: S.of(context).text_dialog_star_candy_received,
           onOk: () {},
         );
 
@@ -278,11 +246,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
     );
 
     ServerSideVerificationOptions options = ServerSideVerificationOptions(
-      userId: ref
-          .watch(userInfoProvider)
-          .value
-          ?.id
-          .toString(),
+      userId: ref.watch(userInfoProvider).value?.id.toString(),
       customData: '{"reward_type":"free_charge_station"}',
     );
     _rewardedAds[index]?.setServerSideOptions(options);

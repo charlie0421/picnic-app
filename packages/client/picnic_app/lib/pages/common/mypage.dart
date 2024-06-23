@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/common_my_point_info.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
 import 'package:picnic_app/generated/l10n.dart';
@@ -75,7 +74,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                     .read(navigationInfoProvider.notifier)
                     .setCurrentMyPage(const VoteHistoryPage())),
             const Divider(color: AppColors.Grey200),
-            _buildMyStar('P-RAME'),
+            _buildMyStar('PIC'),
             const Divider(color: AppColors.Grey200),
             ListItem(
                 leading: S.of(context).label_mypage_membership_history,
