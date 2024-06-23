@@ -103,6 +103,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_read_more_comment":
             MessageLookupByLibrary.simpleMessage("コメントをもっと見る"),
         "label_reply": MessageLookupByLibrary.simpleMessage("返信する"),
+        "label_retry": MessageLookupByLibrary.simpleMessage("再試行"),
         "label_setting_alarm": MessageLookupByLibrary.simpleMessage("アラーム"),
         "label_setting_appinfo": MessageLookupByLibrary.simpleMessage("アプリ情報"),
         "label_setting_current_version":
@@ -148,6 +149,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("投票集を見る"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("広告を見る"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("マイ・セレブ"),
+        "message_error_occurred":
+            MessageLookupByLibrary.simpleMessage("エラーが発生しました。"),
         "message_pic_pic_save_fail":
             MessageLookupByLibrary.simpleMessage("保存に失敗しました。"),
         "message_pic_pic_save_success":

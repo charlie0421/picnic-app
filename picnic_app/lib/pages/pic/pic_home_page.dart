@@ -3,10 +3,10 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/no_bookmark_celeb.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/pic/celeb.dart';
 import 'package:picnic_app/models/pic/gallery.dart';
 import 'package:picnic_app/pages/pic/gallery_detail_page.dart';
@@ -116,7 +116,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisSize: MainAxisSize.max,
                           children: [
-                            Text(Intl.message('text_ads_random'),
+                            Text(S.of(context).text_ads_random,
                                 style: getTextStyle(
                                     AppTypo.TITLE18M, AppColors.Grey900)),
                             Text('01:00:00',
@@ -170,7 +170,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        Intl.message('label_celeb_gallery'),
+                        S.of(context).label_celeb_gallery,
                         style:
                             getTextStyle(AppTypo.TITLE18B, AppColors.Grey900),
                       ),
@@ -288,11 +288,11 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
             children: [
               const SizedBox(height: 20),
               Text(
-                Intl.message('label_moveto_celeb_gallery'),
+                S.of(context).label_moveto_celeb_gallery,
                 style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900),
               ),
               Text(
-                Intl.message('text_moveto_celeb_gallery'),
+                S.of(context).text_moveto_celeb_gallery,
                 style: getTextStyle(AppTypo.BODY16R, AppColors.Grey900),
               ),
               const SizedBox(height: 16),
@@ -327,7 +327,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                   onTap: () {
                     _buildFloating(context);
                   },
-                  child: Text(Intl.message('label_find_celeb'))),
+                  child: Text(S.of(context).label_find_celeb)),
               const SizedBox(
                 height: 40,
               ),

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:picnic_app/storage/local_storage.dart';
 import 'package:picnic_app/ui/style.dart';

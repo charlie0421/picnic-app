@@ -27,7 +27,7 @@ class CommentHeader extends StatelessWidget {
                   text: '${item.user?.nickname} ',
                   style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
               TextSpan(
-                  text: formatTimeAgo(item.created_at),
+                  text: formatTimeAgo(context, item.created_at),
                   style: getTextStyle(AppTypo.BODY14M, AppColors.Grey900)),
             ]),
           ),

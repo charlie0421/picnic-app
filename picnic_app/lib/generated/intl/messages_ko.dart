@@ -102,6 +102,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_read_more_comment":
             MessageLookupByLibrary.simpleMessage("댓글 더보기"),
         "label_reply": MessageLookupByLibrary.simpleMessage("답글 달기"),
+        "label_retry": MessageLookupByLibrary.simpleMessage("재시도"),
         "label_setting_alarm": MessageLookupByLibrary.simpleMessage("알림"),
         "label_setting_appinfo": MessageLookupByLibrary.simpleMessage("앱정보"),
         "label_setting_current_version":
@@ -149,6 +150,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("투표 모아보기"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("광고보기"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("내 셀럽"),
+        "message_error_occurred":
+            MessageLookupByLibrary.simpleMessage("오류가 발생했습니다."),
         "message_pic_pic_save_fail":
             MessageLookupByLibrary.simpleMessage("이미지 저장에 실패했습니다."),
         "message_pic_pic_save_success":

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:picnic_app/generated/l10n.dart';
 
 import '../constants.dart';
 
@@ -17,7 +17,7 @@ Widget ErrorView(final BuildContext context,
         Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-                '${Intl.message('message_error_occurred')}\n ${error.toString()}',
+                '${S.of(context).message_error_occurred}\n ${error.toString()}',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge)),
         if (retryFunction != null)
@@ -25,7 +25,7 @@ Widget ErrorView(final BuildContext context,
             width: 200,
             child: ElevatedButton(
               onPressed: retryFunction,
-              child: Text(Intl.message('message_retry')),
+              child: Text(S.of(context).label_retry),
             ),
           ),
       ],

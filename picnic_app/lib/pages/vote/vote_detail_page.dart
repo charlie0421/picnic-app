@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
 import 'package:picnic_app/components/vote/list/voting_dialog.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
@@ -241,7 +242,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 SizedBox(
                     height: 21.w,
                     child: Text(
-                      Intl.message('text_vote_rank_in_reward'),
+                      S.of(context).text_vote_rank_in_reward,
                       style:
                           getTextStyle(AppTypo.BODY14B, AppColors.Primary500),
                     )),
@@ -295,8 +296,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                         ? SizedBox(
                             height: 200.w,
                             child: Center(
-                              child:
-                                  Text(Intl.message('text_no_search_result')),
+                              child: Text(S.of(context).text_no_search_result),
                             ),
                           )
                         : Column(
@@ -344,28 +344,28 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                                     'assets/icons/vote/crown${index + 1}.svg'),
                                               if (index == 0)
                                                 Text(
-                                                  Intl.message('text_vote_1st'),
+                                                  S.of(context).text_vote_1st,
                                                   style: getTextStyle(
                                                       AppTypo.CAPTION12B,
                                                       AppColors.Point900),
                                                 )
                                               else if (index == 1)
                                                 Text(
-                                                  Intl.message('text_vote_2nd'),
+                                                  S.of(context).text_vote_2nd,
                                                   style: getTextStyle(
                                                       AppTypo.CAPTION12B,
                                                       AppColors.Point900),
                                                 )
                                               else if (index == 2)
                                                 Text(
-                                                  Intl.message('text_vote_3rd'),
+                                                  S.of(context).text_vote_3rd,
                                                   style: getTextStyle(
                                                       AppTypo.CAPTION12B,
                                                       AppColors.Point900),
                                                 )
                                               else
                                                 Text(
-                                                  '${index + 1}${Intl.message('text_vote_rank_surffix')}',
+                                                  '${index + 1}${S.of(context).text_vote_rank_surffix}',
                                                   style: getTextStyle(
                                                       AppTypo.CAPTION12B,
                                                       AppColors.Point900),
@@ -531,8 +531,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                   focusNode: _focusNode,
                                   controller: _textEditingController,
                                   decoration: InputDecoration(
-                                    hintText: Intl.message(
-                                        'text_vote_where_is_my_bias'),
+                                    hintText: S
+                                        .of(context)
+                                        .text_vote_where_is_my_bias,
                                     hintStyle: getTextStyle(
                                         AppTypo.BODY16R, AppColors.Grey300),
                                     border: InputBorder.none,

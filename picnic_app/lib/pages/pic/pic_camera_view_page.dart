@@ -12,13 +12,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:picnic_app/components/pic/bottom_bar_widget.dart';
 import 'package:picnic_app/components/pic/image_overlay_painter.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class PicCameraViewPage extends ConsumerStatefulWidget {
@@ -147,8 +147,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                 Container(
                   color: Colors.transparent,
                   child: Center(
-                    child: Text(
-                        Intl.message('label_pic_pic_synthesizing_image'),
+                    child: Text(S.of(context).label_pic_pic_synthesizing_image,
                         style: TextStyle(
                             fontSize: 30, color: AppColors.Primary500)),
                   ),
@@ -183,7 +182,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                   color: Colors.transparent,
                   child: Center(
                     child: Text(
-                      Intl.message('label_pic_pic_initializing_camera'),
+                      S.of(context).label_pic_pic_initializing_camera,
                       style:
                           TextStyle(fontSize: 30, color: AppColors.Primary500),
                     ),
@@ -209,7 +208,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                   color: Colors.transparent,
                   child: Center(
                     child: Text(
-                      Intl.message('label_pic_pic_synthesizing_image'),
+                      S.of(context).label_pic_pic_synthesizing_image,
                       style:
                           TextStyle(fontSize: 30, color: AppColors.Primary500),
                     ),
@@ -435,7 +434,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
         return Dialog(
           backgroundColor: Colors.transparent,
           child: LargePopupWidget(
-            title: Intl.message('label_pic_pic_save_gallery'),
+            title: S.of(context).label_pic_pic_save_gallery,
             closeButton: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () {
@@ -465,7 +464,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                                 .resumePreview(); // Resume the camera preview
                             Navigator.of(context).pop();
                           },
-                          child: Text(Intl.message('button_pic_pic_save')),
+                          child: Text(S.of(context).button_pic_pic_save),
                         ),
                       ),
                     ],
@@ -488,8 +487,8 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
         );
 
         final snackBarContent = result['isSuccess']
-            ? Text(Intl.message('message_pic_pic_save_success'))
-            : Text(Intl.message('message_pic_pic_save_fail'));
+            ? Text(S.of(context).message_pic_pic_save_success)
+            : Text(S.of(context).message_pic_pic_save_fail);
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: snackBarContent));
       }

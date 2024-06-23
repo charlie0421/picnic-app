@@ -131,5 +131,7 @@
   "label_mypage_privacy_policy": "개인정보처리방침",
   "label_mypage_logout": "로그아웃",
   "label_mypage_withdrawal": "회원탈퇴",
-  "label_star_candy_pouch": "별사탕 주머니"
+  "label_star_candy_pouch": "별사탕 주머니",
+  "message_error_occurred": "오류가 발생했습니다.",
+  "label_retry": "재시도"
 }

@@ -15,6 +15,7 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -198,7 +199,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                           height: 24.w,
                         ),
                         Expanded(
-                          child: Text(Intl.message('text_vote_complete'),
+                          child: Text(S.of(context).text_vote_complete,
                               style: getTextStyle(
                                   AppTypo.TITLE18B, AppColors.Point900),
                               textAlign: TextAlign.center),
@@ -283,7 +284,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(Intl.message('text_this_time_vote'),
+                            Text(S.of(context).text_this_time_vote,
                                 style: getTextStyle(
                                     AppTypo.CAPTION12M, AppColors.Primary500)),
                             SizedBox(width: 16.w),
@@ -431,8 +432,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                   maximumSize: Size(104.w, 32.w),
                                 ),
                                 child: Text(
-                                    Intl.message(
-                                        'label_button_save_vote_paper'),
+                                    S.of(context).label_button_save_vote_paper,
                                     style: getTextStyle(
                                         AppTypo.BODY14B, AppColors.Grey00))),
                             SizedBox(width: 16.w),
@@ -448,7 +448,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text(Intl.message('label_button_share'),
+                                    Text(S.of(context).label_button_share,
                                         style: getTextStyle(
                                             AppTypo.BODY14B, AppColors.Grey00)),
                                     SizedBox(width: 4.w),

@@ -113,6 +113,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("More comments"),
         "label_reply":
             MessageLookupByLibrary.simpleMessage("Replying to a reply"),
+        "label_retry": MessageLookupByLibrary.simpleMessage("Retry"),
         "label_setting_alarm": MessageLookupByLibrary.simpleMessage("Alarm"),
         "label_setting_appinfo":
             MessageLookupByLibrary.simpleMessage("App Info"),
@@ -165,6 +166,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Collecting votes"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("Watch ads"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("My Celeb"),
+        "message_error_occurred":
+            MessageLookupByLibrary.simpleMessage("An error occurred."),
         "message_pic_pic_save_fail":
             MessageLookupByLibrary.simpleMessage("Failed to save."),
         "message_pic_pic_save_success":

@@ -5,12 +5,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/common/simple_dialog.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/components/vote/list/voting_complete.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/pages/vote/store_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -219,7 +219,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              Intl.message('label_button_recharge'),
+                              S.of(context).label_button_recharge,
                               style: getTextStyle(
                                   AppTypo.BODY14B, AppColors.Primary500),
                             ),
@@ -273,7 +273,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                       ),
                       SizedBox(width: 4.w),
                       Text(
-                        Intl.message('label_checkbox_entire_use'),
+                        S.of(context).label_checkbox_entire_use,
                         style: getTextStyle(
                           AppTypo.BODY14M,
                           _checkAll ? AppColors.Primary500 : AppColors.Grey300,
@@ -309,7 +309,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                           controller: _textEditingController,
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
-                            hintText: Intl.message('label_input_input'),
+                            hintText: S.of(context).label_input_input,
                             hintStyle: getTextStyle(
                                 AppTypo.BODY16R, AppColors.Grey300),
                             border: InputBorder.none,
@@ -393,7 +393,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                         width: double.infinity,
                         height: 15.w,
                         child: Text(
-                          Intl.message('text_need_recharge'),
+                          S.of(context).text_need_recharge,
                           style: getTextStyle(
                               AppTypo.CAPTION10SB, AppColors.StatusError),
                           textAlign: TextAlign.left,
@@ -428,9 +428,10 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                           OverlayLoadingProgress.stop();
                           showSimpleDialog(
                             context: context,
-                            title: Intl.message('dialog_title_vote_fail'),
-                            content: Intl.message(
-                                'text_dialog_vote_amount_should_not_zero'),
+                            title: S.of(context).dialog_title_vote_fail,
+                            content: S
+                                .of(context)
+                                .text_dialog_vote_amount_should_not_zero,
                             onOk: () {},
                           );
                           return;
@@ -440,8 +441,8 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                           OverlayLoadingProgress.stop();
                           showSimpleDialog(
                             context: context,
-                            title: Intl.message('dialog_title_vote_fail'),
-                            content: Intl.message('text_need_recharge'),
+                            title: S.of(context).dialog_title_vote_fail,
+                            content: S.of(context).text_need_recharge,
                             onOk: () {},
                           );
                           return;
@@ -484,7 +485,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                           logger.e('투표 실패: $e\n $stackTrace');
                           showSimpleDialog(
                             context: context,
-                            title: Intl.message('dialog_title_vote_fail'),
+                            title: S.of(context).dialog_title_vote_fail,
                             onOk: () => Navigator.pop(context),
                           );
                         } finally {
@@ -509,7 +510,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                   ),
                   alignment: Alignment.center,
                   child: Text(
-                    Intl.message('label_button_vote'),
+                    S.of(context).label_button_vote,
                     style: getTextStyle(
                         AppTypo.TITLE18SB,
                         _isOver ||

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/pic/comment.dart';
 import 'package:picnic_app/providers/article_list_provider.dart';
 import 'package:picnic_app/providers/comment_list_provider.dart';
@@ -49,7 +49,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
                   controller: _textEditingController,
                   decoration: InputDecoration(
                     counterText: '',
-                    hintText: Intl.message('label_hint_comment'),
+                    hintText: S.of(context).label_hint_comment,
                     hintStyle: TextStyle(
                       fontSize: 16.sp,
                       color: AppColors.Grey400,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 
 class LanguagePage extends ConsumerWidget {
@@ -24,7 +24,7 @@ class LanguagePage extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  Intl.message('label_current_language'),
+                  S.of(context).label_current_language,
                   style: Theme.of(context)
                       .textTheme
                       .titleLarge

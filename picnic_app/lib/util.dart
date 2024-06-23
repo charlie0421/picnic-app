@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -41,7 +42,7 @@ String formatNumberWithComma<T>(T number) {
       : numberFormat.format(number);
 }
 
-String formatTimeAgo(DateTime timestamp) {
+String formatTimeAgo(BuildContext context, DateTime timestamp) {
   final now = DateTime.now().toUtc();
   final difference = now.difference(timestamp);
 
@@ -55,7 +56,7 @@ String formatTimeAgo(DateTime timestamp) {
     return Intl.message('label_time_ago_minute',
         args: [difference.inMinutes.toString()]);
   } else {
-    return Intl.message('label_time_ago_right_now');
+    return S.of(context).label_time_ago_right_now;
   }
 }
 

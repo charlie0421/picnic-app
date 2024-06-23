@@ -3,10 +3,10 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/components/vote/common_vote_info.dart';
 import 'package:picnic_app/components/vote/store/store_list_tile.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/purchase_product_provider.dart';
 import 'package:picnic_app/ui/common_theme.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -25,7 +25,7 @@ class PurchaseStarCandy extends ConsumerWidget {
         children: [
           SizedBox(height: 36.w),
           StorePointInfo(
-              title: Intl.message('label_star_candy_pouch'),
+              title: S.of(context).label_star_candy_pouch,
               width: double.infinity,
               height: 100.w),
           SizedBox(height: 36.w),
@@ -45,7 +45,7 @@ class PurchaseStarCandy extends ConsumerWidget {
                   children: [
                     TextSpan(
                         text:
-                            '${formatNumberWithComma(purchaseProductList[index].star_candy)} +${Intl.message('label_bonus')} ${formatNumberWithComma(purchaseProductList[index].bonus_star_candy)}',
+                            '${formatNumberWithComma(purchaseProductList[index].star_candy)} +${S.of(context).label_bonus} ${formatNumberWithComma(purchaseProductList[index].bonus_star_candy)}',
                         style: getTextStyle(
                             AppTypo.CAPTION12B, AppColors.Point900)),
                   ],
@@ -58,13 +58,13 @@ class PurchaseStarCandy extends ConsumerWidget {
             itemCount: purchaseProductList.length,
           ),
           const Divider(color: AppColors.Grey200, height: 32),
-          Text(Intl.message('text_purchase_vat_included'),
+          Text(S.of(context).text_purchase_vat_included,
               style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600)),
           SizedBox(height: 2.w),
           GestureDetector(
             onTap: () {
-              print(Intl.message('text_star_candy_usage_policy'));
-              final message = Intl.message('text_star_candy_usage_policy');
+              print(S.of(context).text_star_candy_usage_policy);
+              final message = S.of(context).text_star_candy_usage_policy;
               showDialog(
                   context: context,
                   builder: (context) => LargePopupWidget(
@@ -86,8 +86,9 @@ class PurchaseStarCandy extends ConsumerWidget {
                                     )),
                                 SizedBox(width: 8.w),
                                 Text(
-                                  Intl.message(
-                                      'text_star_candy_usage_policy_title'),
+                                  S
+                                      .of(context)
+                                      .text_star_candy_usage_policy_title,
                                   style: getTextStyle(
                                       AppTypo.BODY14B, AppColors.Primary500),
                                 ),
@@ -114,7 +115,7 @@ class PurchaseStarCandy extends ConsumerWidget {
                             ),
                             SizedBox(height: 16.w),
                             StorePointInfo(
-                                title: Intl.message('label_star_candy_pouch'),
+                                title: S.of(context).label_star_candy_pouch,
                                 width: 231.w,
                                 titlePadding: 10.w,
                                 height: 78.w)
@@ -122,7 +123,7 @@ class PurchaseStarCandy extends ConsumerWidget {
                         ),
                       ));
             },
-            child: Text(Intl.message('text_star_candy_usage_policy_guide'),
+            child: Text(S.of(context).text_star_candy_usage_policy_guide,
                 style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600)),
           ),
           SizedBox(height: 36.w),

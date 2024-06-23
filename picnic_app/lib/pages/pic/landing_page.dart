@@ -6,6 +6,7 @@ import 'package:picnic_app/components/celeb_list_item.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/no_bookmark_celeb.dart';
 import 'package:picnic_app/components/search_list.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/celeb_list_provider.dart';
 import 'package:picnic_app/providers/celeb_search_provider.dart';
 import 'package:picnic_app/util.dart';
@@ -47,7 +48,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(Intl.message('lable_my_celeb'),
+          Text(S.of(context).lable_my_celeb,
               style: Theme.of(context)
                   .textTheme
                   .headlineMedium
@@ -64,7 +65,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
               );
             }),
           const SizedBox(height: 16),
-          Text(Intl.message('label_celeb_recommend'),
+          Text(S.of(context).label_celeb_recommend,
               style: Theme.of(context)
                   .textTheme
                   .headlineMedium

@@ -1359,6 +1359,26 @@ class S {
       args: [],
     );
   }
+
+  /// `An error occurred.`
+  String get message_error_occurred {
+    return Intl.message(
+      'An error occurred.',
+      name: 'message_error_occurred',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retry`
+  String get label_retry {
+    return Intl.message(
+      'Retry',
+      name: 'label_retry',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

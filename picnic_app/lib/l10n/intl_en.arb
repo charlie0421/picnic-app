@@ -130,5 +130,7 @@
   "label_mypage_privacy_policy": "Privacy Policy",
   "label_mypage_logout": "Logout",
   "label_mypage_withdrawal": "Withdrawal",
-  "label_star_candy_pouch": "Star Candy Pouch"
+  "label_star_candy_pouch": "Star Candy Pouch",
+  "message_error_occurred": "An error occurred.",
+  "label_retry": "Retry"
 }

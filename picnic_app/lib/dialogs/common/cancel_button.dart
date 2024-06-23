@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_app/generated/l10n.dart';
 
 class DialogCommonCancelButton extends StatelessWidget {
   final VoidCallback callback;
@@ -23,7 +24,7 @@ class DialogCommonCancelButton extends StatelessWidget {
           child: Container(
             alignment: Alignment.center,
             child: Text(
-              Intl.message('button_cancel'),
+              S.of(context).button_cancel,
               style: const TextStyle(
                   fontSize: 18,
                   color: Colors.white,

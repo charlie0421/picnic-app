@@ -8,6 +8,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/pages/vote/vote_list_page.dart';
 import 'package:picnic_app/providers/banner_list_provider.dart';
@@ -66,7 +67,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
           alignment: Alignment.centerLeft,
           child: Row(
             children: [
-              Text(Intl.message('label_vote_vote_gather'),
+              Text(S.of(context).label_vote_vote_gather,
                   style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900)),
               SvgPicture.asset(
                 'assets/icons/arrow_right_style=line.svg',
@@ -144,7 +145,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
       Container(
         padding: const EdgeInsets.only(left: 16),
         alignment: Alignment.centerLeft,
-        child: Text(Intl.message('label_vote_reward_list'),
+        child: Text(S.of(context).label_vote_reward_list,
             style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900)),
       ),
       SizedBox(height: 16.w),

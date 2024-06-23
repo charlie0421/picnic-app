@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/celeb_list_item.dart';
 import 'package:picnic_app/components/error.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/pic/celeb.dart';
 import 'package:picnic_app/providers/celeb_search_provider.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -38,7 +39,7 @@ class _SearchListState extends ConsumerState<SearchList> {
             child: TextField(
               controller: _textEditingController,
               decoration: InputDecoration(
-                hintText: Intl.message('text_hint_search'),
+                hintText: S.of(context).text_hint_search,
                 hintStyle: getTextStyle(AppTypo.BODY14B, AppColors.Grey300),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/chat/rooms.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/pages/pic/article_page.dart';
 
 class GalleryDetailPage extends ConsumerStatefulWidget {
@@ -51,13 +52,13 @@ class _GalleryDetailScreenState extends ConsumerState<GalleryDetailPage>
             tabs: [
               Align(
                   alignment: Alignment.center,
-                  child: Text(Intl.message('label_gallery_tab_article'),
+                  child: Text(S.of(context).label_gallery_tab_article,
                       style: const TextStyle(
                         fontSize: 16,
                       ))),
               Align(
                   alignment: Alignment.center,
-                  child: Text(Intl.message('label_gallery_tab_chat'),
+                  child: Text(S.of(context).label_gallery_tab_chat,
                       style: const TextStyle(
                         fontSize: 16,
                       ))),

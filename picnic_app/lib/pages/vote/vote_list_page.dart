@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_app/components/vote/list/vote_artists.dart';
 import 'package:picnic_app/components/vote/list/vote_header.dart';
 import 'package:picnic_app/components/vote/list/vote_image.dart';
 import 'package:picnic_app/components/vote/list/vote_list.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
 
@@ -43,8 +43,8 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
         SizedBox(
           height: 50,
           child: TabBar(controller: _tabController, tabs: [
-            Tab(text: Intl.message('label_tabbar_vote_active')),
-            Tab(text: Intl.message('label_tabbar_vote_end')),
+            Tab(text: S.of(context).label_tabbar_vote_active),
+            Tab(text: S.of(context).label_tabbar_vote_end),
           ]),
         ),
         SizedBox(

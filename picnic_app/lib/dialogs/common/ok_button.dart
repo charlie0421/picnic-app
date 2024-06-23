@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_app/generated/l10n.dart';
 
 class DialogCommonOkButton extends StatelessWidget {
   final VoidCallback callback;
@@ -31,7 +32,7 @@ class DialogCommonOkButton extends StatelessWidget {
               alignment: Alignment.center,
               // 내부 텍스트 중앙 정렬
               child: Text(
-                Intl.message('button_ok'),
+                S.of(context).button_ok,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                     fontSize: 18,
