@@ -187,6 +187,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_subscription": MessageLookupByLibrary.simpleMessage("구독"),
         "nav_vote": MessageLookupByLibrary.simpleMessage("투표"),
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("마이페이지"),
+        "page_title_myprofile": MessageLookupByLibrary.simpleMessage("나의 프로필"),
         "page_title_setting": MessageLookupByLibrary.simpleMessage("환경설정"),
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("투표하기"),
         "page_title_vote_gather":

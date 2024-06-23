@@ -209,6 +209,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Subscriptions"),
         "nav_vote": MessageLookupByLibrary.simpleMessage("Voting"),
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("My Page"),
+        "page_title_myprofile":
+            MessageLookupByLibrary.simpleMessage("My profile"),
         "page_title_setting":
             MessageLookupByLibrary.simpleMessage("Preferences"),
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("Vote"),

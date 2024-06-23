@@ -9,6 +9,7 @@ import 'package:watcher/watcher.dart';
 const deeplApiKey = 'ef2715c3-89d7-4b1b-a95b-e1fd3b7d734e:fx';
 const timestampKey = 'translationTimestamp';
 const manualTranslationKey = 'manualTranslation';
+final koreanRegex = RegExp(r'[가-힣]+');
 
 String generateUniqueMethodName(String key, String value) {
   final bytes = utf8.encode('$key$value');
@@ -42,13 +43,32 @@ bool isValidKey(String key) {
   return validKeyPattern.hasMatch(key);
 }
 
+bool containsKorean(String text) {
+  return koreanRegex.hasMatch(text);
+}
+
+Map<String, dynamic> sortKeys(Map<String, dynamic> map) {
+  final sortedKeys = map.keys.toList()
+    ..sort((a, b) {
+      if (a.startsWith('@') && !b.startsWith('@')) return 1;
+      if (!a.startsWith('@') && b.startsWith('@')) return -1;
+      return a.compareTo(b);
+    });
+
+  final sortedMap = <String, dynamic>{};
+  for (var key in sortedKeys) {
+    sortedMap[key] = map[key];
+  }
+  return sortedMap;
+}
+
 Future<void> translateArbFile(Translator translator, String inputFile,
     String outputFile, String targetLanguage,
     {bool translateAll = false}) async {
   final originalArbContent = await readJsonFile(inputFile);
   final translatedArbContent = await readJsonFile(outputFile);
 
-  final updatedArbContent = <String, dynamic>{};
+  final updatedArbContent = Map<String, dynamic>.from(translatedArbContent);
   final currentTimestamp = DateTime.now().toIso8601String();
 
   final keys = List<String>.from(originalArbContent.keys);
@@ -74,16 +94,25 @@ Future<void> translateArbFile(Translator translator, String inputFile,
           !hasTimestamp ||
           originalArbContent[metaKey][timestampKey] !=
               translatedArbContent[metaKey][timestampKey]) {
-        print('Translating key: $key');
-        final translatedText = await translateText(
-            translator, originalArbContent[key], targetLanguage);
-        updatedArbContent[key] = translatedText;
-        if (!originalArbContent.containsKey(metaKey)) {
-          updatedArbContent[metaKey] = {};
+        if (containsKorean(originalArbContent[key])) {
+          print('Translating key: $key');
+          final translatedText = await translateText(
+              translator, originalArbContent[key], targetLanguage);
+          updatedArbContent[key] = translatedText;
+          if (!originalArbContent.containsKey(metaKey)) {
+            updatedArbContent[metaKey] = {};
+          } else {
+            updatedArbContent[metaKey] = originalArbContent[metaKey];
+          }
+          updatedArbContent[metaKey][timestampKey] = currentTimestamp;
+          print('Processed key: $key');
         } else {
-          updatedArbContent[metaKey] = originalArbContent[metaKey];
+          updatedArbContent[key] = originalArbContent[key];
+          if (originalArbContent.containsKey(metaKey)) {
+            updatedArbContent[metaKey] = originalArbContent[metaKey];
+          }
+          print('Copied key without translation: $key');
         }
-        updatedArbContent[metaKey][timestampKey] = currentTimestamp;
       } else {
         if (translatedArbContent.containsKey(key)) {
           updatedArbContent[key] = translatedArbContent[key];
@@ -91,6 +120,7 @@ Future<void> translateArbFile(Translator translator, String inputFile,
         if (translatedArbContent.containsKey(metaKey)) {
           updatedArbContent[metaKey] = translatedArbContent[metaKey];
         }
+        print('Key already up-to-date: $key');
       }
     } else {
       updatedArbContent[key] = originalArbContent[key];
@@ -99,10 +129,82 @@ Future<void> translateArbFile(Translator translator, String inputFile,
 
   updatedArbContent["@@locale"] = targetLanguage.toLowerCase();
 
+  final sortedContent = sortKeys(updatedArbContent);
+
   final encoder = JsonEncoder.withIndent('  ');
-  final formattedJson = encoder.convert(updatedArbContent);
+  final formattedJson = encoder.convert(sortedContent);
   await File(outputFile).writeAsString(formattedJson);
   print('Translation completed and saved to $outputFile');
+}
+
+Future<void> synchronizeKeys(String inputFile, List<String> outputFiles) async {
+  final originalArbContent = await readJsonFile(inputFile);
+  for (final outputFile in outputFiles) {
+    final translatedArbContent = await readJsonFile(outputFile);
+    final updatedArbContent = Map<String, dynamic>.from(translatedArbContent);
+
+    final keys = List<String>.from(originalArbContent.keys);
+    final currentTimestamp = DateTime.now().toIso8601String();
+
+    for (var key in keys) {
+      if (!key.startsWith('@')) {
+        final metaKey = '@$key';
+        if (!translatedArbContent.containsKey(key)) {
+          updatedArbContent[key] = originalArbContent[key];
+          updatedArbContent[metaKey] = originalArbContent.containsKey(metaKey)
+              ? Map<String, dynamic>.from(originalArbContent[metaKey])
+              : {};
+          updatedArbContent[metaKey][timestampKey] = currentTimestamp;
+          print('Added new key to $outputFile: $key');
+        }
+      }
+    }
+
+    updatedArbContent["@@locale"] =
+        outputFile.split('_').last.split('.').first.toLowerCase();
+
+    final sortedContent = sortKeys(updatedArbContent);
+
+    final encoder = JsonEncoder.withIndent('  ');
+    final formattedJson = encoder.convert(sortedContent);
+    await File(outputFile).writeAsString(formattedJson);
+    print('Synchronized and saved to $outputFile');
+  }
+}
+
+Future<void> addTimestampToArbFile(String filePath) async {
+  final file = File(filePath);
+  if (!await file.exists()) {
+    print('File not found: $filePath');
+    return;
+  }
+
+  final contents = await file.readAsString();
+  final arbContent = json.decode(contents) as Map<String, dynamic>;
+
+  final currentTimestamp = DateTime.now().toIso8601String();
+  final updatedArbContent = <String, dynamic>{};
+
+  for (var key in arbContent.keys) {
+    updatedArbContent[key] = arbContent[key];
+    if (!key.startsWith('@')) {
+      final metaKey = '@$key';
+      if (!arbContent.containsKey(metaKey)) {
+        updatedArbContent[metaKey] = {};
+      } else {
+        updatedArbContent[metaKey] = arbContent[metaKey];
+      }
+      updatedArbContent[metaKey][timestampKey] = currentTimestamp;
+      print('Added timestamp to key: $key');
+    }
+  }
+
+  final sortedContent = sortKeys(updatedArbContent);
+
+  final encoder = JsonEncoder.withIndent('  ');
+  final formattedJson = encoder.convert(sortedContent);
+  await file.writeAsString(formattedJson);
+  print('Timestamps added and saved to $filePath');
 }
 
 void main(List<String> arguments) async {
@@ -121,6 +223,14 @@ void main(List<String> arguments) async {
     print('Translating...');
 
     final inputFile = 'lib/l10n/intl_ko.arb';
+    final outputFiles = [
+      'lib/l10n/intl_en.arb',
+      'lib/l10n/intl_ja.arb',
+      'lib/l10n/intl_zh_CN.arb'
+    ];
+
+    await addTimestampToArbFile(inputFile);
+    await synchronizeKeys(inputFile, outputFiles);
 
     print('Translating en...');
     await translateArbFile(translator, inputFile, 'lib/l10n/intl_en.arb', 'EN',
@@ -144,14 +254,14 @@ void main(List<String> arguments) async {
         if (event.type == ChangeType.MODIFY) {
           print('Detected changes in $inputFile, translating...');
 
+          await synchronizeKeys(inputFile, outputFiles);
+
           await translateArbFile(
               translator, inputFile, 'lib/l10n/intl_en.arb', 'EN',
               translateAll: translateAll);
-
           await translateArbFile(
               translator, inputFile, 'lib/l10n/intl_ja.arb', 'JA',
               translateAll: translateAll);
-
           await translateArbFile(
               translator, inputFile, 'lib/l10n/intl_zh_CN.arb', 'ZH',
               translateAll: translateAll);

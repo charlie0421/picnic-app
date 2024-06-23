@@ -72,7 +72,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("人工智能照片"),
         "label_library_tab_library":
             MessageLookupByLibrary.simpleMessage("图书馆"),
-        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("框架"),
+        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("Frame"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("前往艺术家画廊"),
         "label_mypage_charge_history":
@@ -174,6 +174,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_subscription": MessageLookupByLibrary.simpleMessage("订阅"),
         "nav_vote": MessageLookupByLibrary.simpleMessage("投票"),
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("我的页面"),
+        "page_title_myprofile": MessageLookupByLibrary.simpleMessage("我的简介"),
         "page_title_setting": MessageLookupByLibrary.simpleMessage("首选项"),
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("投票"),
         "page_title_vote_gather": MessageLookupByLibrary.simpleMessage("收集选票"),

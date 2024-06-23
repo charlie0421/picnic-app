@@ -50,221 +50,201 @@ class S {
     return Localizations.of<S>(context, S);
   }
 
-  /// `홈`
-  String get nav_home {
+  /// `Cancel`
+  String get button_cancel {
     return Intl.message(
-      '홈',
-      name: 'nav_home',
+      'Cancel',
+      name: 'button_cancel',
       desc: '',
       args: [],
     );
   }
 
-  /// `Gallery`
-  String get nav_gallery {
+  /// `Done`
+  String get button_complete {
     return Intl.message(
-      'Gallery',
-      name: 'nav_gallery',
+      'Done',
+      name: 'button_complete',
       desc: '',
       args: [],
     );
   }
 
-  /// `Libraries`
-  String get nav_library {
+  /// `Confirm`
+  String get button_ok {
     return Intl.message(
-      'Libraries',
-      name: 'nav_library',
+      'Confirm',
+      name: 'button_ok',
       desc: '',
       args: [],
     );
   }
 
-  /// `Purchase`
-  String get nav_purchases {
+  /// `Save`
+  String get button_pic_pic_save {
     return Intl.message(
-      'Purchase',
-      name: 'nav_purchases',
+      'Save',
+      name: 'button_pic_pic_save',
       desc: '',
       args: [],
     );
   }
 
-  /// `Ads`
-  String get nav_ads {
+  /// `### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, they will be used in the order of the earliest acquisition date.`
+  String get candy_usage_policy_contents {
     return Intl.message(
-      'Ads',
-      name: 'nav_ads',
+      '### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, they will be used in the order of the earliest acquisition date.',
+      name: 'candy_usage_policy_contents',
       desc: '',
       args: [],
     );
   }
 
-  /// `Subscriptions`
-  String get nav_subscription {
+  /// `*Bonuses disappear the month after you earn them! ⓘ`
+  String get candy_usage_policy_guide {
     return Intl.message(
-      'Subscriptions',
-      name: 'nav_subscription',
+      '*Bonuses disappear the month after you earn them! ⓘ',
+      name: 'candy_usage_policy_guide',
       desc: '',
       args: [],
     );
   }
 
-  /// `My purchases`
-  String get mypage_purchases {
+  /// `Stardust Usage Policy`
+  String get candy_usage_policy_title {
     return Intl.message(
-      'My purchases',
-      name: 'mypage_purchases',
+      'Stardust Usage Policy',
+      name: 'candy_usage_policy_title',
       desc: '',
       args: [],
     );
   }
 
-  /// `Settings`
-  String get mypage_setting {
+  /// `Cancel`
+  String get dialog_button_cancel {
     return Intl.message(
-      'Settings',
-      name: 'mypage_setting',
+      'Cancel',
+      name: 'dialog_button_cancel',
       desc: '',
       args: [],
     );
   }
 
-  /// `Subscription information`
-  String get mypage_subscription {
+  /// `Confirm`
+  String get dialog_button_ok {
     return Intl.message(
-      'Subscription information',
-      name: 'mypage_subscription',
+      'Confirm',
+      name: 'dialog_button_ok',
       desc: '',
       args: [],
     );
   }
 
-  /// `Manage comments`
-  String get mypage_comment {
+  /// `Voting Failed`
+  String get dialog_title_vote_fail {
     return Intl.message(
-      'Manage comments',
-      name: 'mypage_comment',
+      'Voting Failed',
+      name: 'dialog_title_vote_fail',
       desc: '',
       args: [],
     );
   }
 
-  /// `Language settings`
-  String get mypage_language {
+  /// `Album name`
+  String get hint_library_add {
     return Intl.message(
-      'Language settings',
-      name: 'mypage_language',
+      'Album name',
+      name: 'hint_library_add',
       desc: '',
       args: [],
     );
   }
 
-  /// `Select a language`
-  String get title_select_language {
+  /// `Add a new album`
+  String get label_album_add {
     return Intl.message(
-      'Select a language',
-      name: 'title_select_language',
+      'Add a new album',
+      name: 'label_album_add',
       desc: '',
       args: [],
     );
   }
 
-  /// `Current language`
-  String get label_current_language {
+  /// `Be the first to comment!`
+  String get label_article_comment_empty {
     return Intl.message(
-      'Current language',
-      name: 'label_current_language',
+      'Be the first to comment!',
+      name: 'label_article_comment_empty',
       desc: '',
       args: [],
     );
   }
 
-  /// `My Artists`
-  String get lable_my_celeb {
+  /// `Bonuses`
+  String get label_bonus {
     return Intl.message(
-      'My Artists',
-      name: 'lable_my_celeb',
+      'Bonuses',
+      name: 'label_bonus',
       desc: '',
       args: [],
     );
   }
 
-  /// `Artist recommendations`
-  String get label_celeb_recommend {
+  /// `关闭`
+  String get label_button_clse {
     return Intl.message(
-      'Artist recommendations',
-      name: 'label_celeb_recommend',
+      '关闭',
+      name: 'label_button_clse',
       desc: '',
       args: [],
     );
   }
 
-  /// `Search for an artist.`
-  String get text_hint_search {
+  /// `Charging`
+  String get label_button_recharge {
     return Intl.message(
-      'Search for an artist.',
-      name: 'text_hint_search',
+      'Charging',
+      name: 'label_button_recharge',
       desc: '',
       args: [],
     );
   }
 
-  /// `You can add up to five of your own artists.`
-  String get toast_max_five_celeb {
+  /// `Save your ballot`
+  String get label_button_save_vote_paper {
     return Intl.message(
-      'You can add up to five of your own artists.',
-      name: 'toast_max_five_celeb',
+      'Save your ballot',
+      name: 'label_button_save_vote_paper',
       desc: '',
       args: [],
     );
   }
 
-  /// `Go to the Artist Gallery`
-  String get label_moveto_celeb_gallery {
+  /// `Share`
+  String get label_button_share {
     return Intl.message(
-      'Go to the Artist Gallery',
-      name: 'label_moveto_celeb_gallery',
+      'Share',
+      name: 'label_button_share',
       desc: '',
       args: [],
     );
   }
 
-  /// `Navigate to the selected artist's home.`
-  String get text_moveto_celeb_gallery {
+  /// `Vote`
+  String get label_button_vote {
     return Intl.message(
-      'Navigate to the selected artist\'s home.',
-      name: 'text_moveto_celeb_gallery',
+      'Vote',
+      name: 'label_button_vote',
       desc: '',
       args: [],
     );
   }
 
-  /// `Viewing ads and collecting random images.`
-  String get text_ads_random {
+  /// `Viewing and charging for ads`
+  String get label_button_watch_and_charge {
     return Intl.message(
-      'Viewing ads and collecting random images.',
-      name: 'text_ads_random',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Find more artists`
-  String get label_find_celeb {
-    return Intl.message(
-      'Find more artists',
-      name: 'label_find_celeb',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `You don't have any artists bookmarked yet!`
-  String get label_no_celeb {
-    return Intl.message(
-      'You don\'t have any artists bookmarked yet!',
-      name: 'label_no_celeb',
+      'Viewing and charging for ads',
+      name: 'label_button_watch_and_charge',
       desc: '',
       args: [],
     );
@@ -280,6 +260,36 @@ class S {
     );
   }
 
+  /// `Artist recommendations`
+  String get label_celeb_recommend {
+    return Intl.message(
+      'Artist recommendations',
+      name: 'label_celeb_recommend',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Full Use`
+  String get label_checkbox_entire_use {
+    return Intl.message(
+      'Full Use',
+      name: 'label_checkbox_entire_use',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Current language`
+  String get label_current_language {
+    return Intl.message(
+      'Current language',
+      name: 'label_current_language',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Chance to win a random image`
   String get label_draw_image {
     return Intl.message(
@@ -290,11 +300,31 @@ class S {
     );
   }
 
-  /// `Confirmed ownership of 1 image from the entire gallery`
-  String get text_draw_image {
+  /// `Oldest`
+  String get label_dropdown_oldest {
     return Intl.message(
-      'Confirmed ownership of 1 image from the entire gallery',
-      name: 'text_draw_image',
+      'Oldest',
+      name: 'label_dropdown_oldest',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Newest`
+  String get label_dropdown_recent {
+    return Intl.message(
+      'Newest',
+      name: 'label_dropdown_recent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Find more artists`
+  String get label_find_celeb {
+    return Intl.message(
+      'Find more artists',
+      name: 'label_find_celeb',
       desc: '',
       args: [],
     );
@@ -320,11 +350,451 @@ class S {
     );
   }
 
+  /// `Leave a comment.`
+  String get label_hint_comment {
+    return Intl.message(
+      'Leave a comment.',
+      name: 'label_hint_comment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Input`
+  String get label_input_input {
+    return Intl.message(
+      'Input',
+      name: 'label_input_input',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save the library`
+  String get label_library_save {
+    return Intl.message(
+      'Save the library',
+      name: 'label_library_save',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `AI Photos`
+  String get label_library_tab_ai_photo {
+    return Intl.message(
+      'AI Photos',
+      name: 'label_library_tab_ai_photo',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Libraries`
+  String get label_library_tab_library {
+    return Intl.message(
+      'Libraries',
+      name: 'label_library_tab_library',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Frame`
+  String get label_library_tab_pic {
+    return Intl.message(
+      'Frame',
+      name: 'label_library_tab_pic',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Go to the Artist Gallery`
+  String get label_moveto_celeb_gallery {
+    return Intl.message(
+      'Go to the Artist Gallery',
+      name: 'label_moveto_celeb_gallery',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Charges`
+  String get label_mypage_charge_history {
+    return Intl.message(
+      'Charges',
+      name: 'label_mypage_charge_history',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Help Center`
+  String get label_mypage_customer_center {
+    return Intl.message(
+      'Help Center',
+      name: 'label_mypage_customer_center',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Log out`
+  String get label_mypage_logout {
+    return Intl.message(
+      'Log out',
+      name: 'label_mypage_logout',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Membership history`
+  String get label_mypage_membership_history {
+    return Intl.message(
+      'Membership history',
+      name: 'label_mypage_membership_history',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `My Star`
+  String get label_mypage_mystar {
+    return Intl.message(
+      'My Star',
+      name: 'label_mypage_mystar',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Announcements`
+  String get label_mypage_notice {
+    return Intl.message(
+      'Announcements',
+      name: 'label_mypage_notice',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Privacy Policy`
+  String get label_mypage_privacy_policy {
+    return Intl.message(
+      'Privacy Policy',
+      name: 'label_mypage_privacy_policy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Settings`
+  String get label_mypage_setting {
+    return Intl.message(
+      'Settings',
+      name: 'label_mypage_setting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Terms of Use`
+  String get label_mypage_terms_of_use {
+    return Intl.message(
+      'Terms of Use',
+      name: 'label_mypage_terms_of_use',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Voting history`
+  String get label_mypage_vote_history {
+    return Intl.message(
+      'Voting history',
+      name: 'label_mypage_vote_history',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Withdrawal`
+  String get label_mypage_withdrawal {
+    return Intl.message(
+      'Withdrawal',
+      name: 'label_mypage_withdrawal',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You don't have any artists bookmarked yet!`
+  String get label_no_celeb {
+    return Intl.message(
+      'You don\'t have any artists bookmarked yet!',
+      name: 'label_no_celeb',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Crop an image`
+  String get label_pic_image_cropping {
+    return Intl.message(
+      'Crop an image',
+      name: 'label_pic_image_cropping',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Initializing camera...`
+  String get label_pic_pic_initializing_camera {
+    return Intl.message(
+      'Initializing camera...',
+      name: 'label_pic_pic_initializing_camera',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save to Gallery`
+  String get label_pic_pic_save_gallery {
+    return Intl.message(
+      'Save to Gallery',
+      name: 'label_pic_pic_save_gallery',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Compositing an image...`
+  String get label_pic_pic_synthesizing_image {
+    return Intl.message(
+      'Compositing an image...',
+      name: 'label_pic_pic_synthesizing_image',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `More comments`
+  String get label_read_more_comment {
+    return Intl.message(
+      'More comments',
+      name: 'label_read_more_comment',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Replying to a reply`
   String get label_reply {
     return Intl.message(
       'Replying to a reply',
       name: 'label_reply',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retrying`
+  String get label_retry {
+    return Intl.message(
+      'Retrying',
+      name: 'label_retry',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Notifications`
+  String get label_setting_alarm {
+    return Intl.message(
+      'Notifications',
+      name: 'label_setting_alarm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `App info`
+  String get label_setting_appinfo {
+    return Intl.message(
+      'App info',
+      name: 'label_setting_appinfo',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Current version`
+  String get label_setting_current_version {
+    return Intl.message(
+      'Current version',
+      name: 'label_setting_current_version',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Event notifications`
+  String get label_setting_event_alarm {
+    return Intl.message(
+      'Event notifications',
+      name: 'label_setting_event_alarm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Events and happenings.`
+  String get label_setting_event_alarm_desc {
+    return Intl.message(
+      'Events and happenings.',
+      name: 'label_setting_event_alarm_desc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Language settings`
+  String get label_setting_language {
+    return Intl.message(
+      'Language settings',
+      name: 'label_setting_language',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Push notifications`
+  String get label_setting_push_alarm {
+    return Intl.message(
+      'Push notifications',
+      name: 'label_setting_push_alarm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Latest version`
+  String get label_setting_recent_version {
+    return Intl.message(
+      'Latest version',
+      name: 'label_setting_recent_version',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete Cache`
+  String get label_setting_remove_cache {
+    return Intl.message(
+      'Delete Cache',
+      name: 'label_setting_remove_cache',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Manage storage`
+  String get label_setting_storage {
+    return Intl.message(
+      'Manage storage',
+      name: 'label_setting_storage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Update`
+  String get label_setting_update {
+    return Intl.message(
+      'Update',
+      name: 'label_setting_update',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Star Candy Pouch`
+  String get label_star_candy_pouch {
+    return Intl.message(
+      'Star Candy Pouch',
+      name: 'label_star_candy_pouch',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Buy star candy`
+  String get label_tab_buy_star_candy {
+    return Intl.message(
+      'Buy star candy',
+      name: 'label_tab_buy_star_candy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Free charging stations`
+  String get label_tab_free_charge_station {
+    return Intl.message(
+      'Free charging stations',
+      name: 'label_tab_free_charge_station',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Daily charts`
+  String get label_tabbar_picchart_daily {
+    return Intl.message(
+      'Daily charts',
+      name: 'label_tabbar_picchart_daily',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Monthly Charts`
+  String get label_tabbar_picchart_monthly {
+    return Intl.message(
+      'Monthly Charts',
+      name: 'label_tabbar_picchart_monthly',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Weekly charts`
+  String get label_tabbar_picchart_weekly {
+    return Intl.message(
+      'Weekly charts',
+      name: 'label_tabbar_picchart_weekly',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `In Progress`
+  String get label_tabbar_vote_active {
+    return Intl.message(
+      'In Progress',
+      name: 'label_tabbar_vote_active',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Exit`
+  String get label_tabbar_vote_end {
+    return Intl.message(
+      'Exit',
+      name: 'label_tabbar_vote_end',
       desc: '',
       args: [],
     );
@@ -370,11 +840,11 @@ class S {
     );
   }
 
-  /// `More comments`
-  String get label_read_more_comment {
+  /// `Comments`
+  String get label_title_comment {
     return Intl.message(
-      'More comments',
-      name: 'label_read_more_comment',
+      'Comments',
+      name: 'label_title_comment',
       desc: '',
       args: [],
     );
@@ -390,151 +860,11 @@ class S {
     );
   }
 
-  /// `Want to report?`
-  String get message_report_confirm {
+  /// `Rewards list`
+  String get label_vote_reward_list {
     return Intl.message(
-      'Want to report?',
-      name: 'message_report_confirm',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `The report is complete.`
-  String get message_report_ok {
-    return Intl.message(
-      'The report is complete.',
-      name: 'message_report_ok',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Comments`
-  String get label_title_comment {
-    return Intl.message(
-      'Comments',
-      name: 'label_title_comment',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Leave a comment.`
-  String get label_hint_comment {
-    return Intl.message(
-      'Leave a comment.',
-      name: 'label_hint_comment',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Confirm`
-  String get button_ok {
-    return Intl.message(
-      'Confirm',
-      name: 'button_ok',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Cancel`
-  String get button_cancel {
-    return Intl.message(
-      'Cancel',
-      name: 'button_cancel',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Libraries`
-  String get label_library_tab_library {
-    return Intl.message(
-      'Libraries',
-      name: 'label_library_tab_library',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Frame`
-  String get label_library_tab_pic {
-    return Intl.message(
-      'Frame',
-      name: 'label_library_tab_pic',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `AI Photos`
-  String get label_library_tab_ai_photo {
-    return Intl.message(
-      'AI Photos',
-      name: 'label_library_tab_ai_photo',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Be the first to comment!`
-  String get label_article_comment_empty {
-    return Intl.message(
-      'Be the first to comment!',
-      name: 'label_article_comment_empty',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Save the library`
-  String get label_library_save {
-    return Intl.message(
-      'Save the library',
-      name: 'label_library_save',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Add a new album`
-  String get label_album_add {
-    return Intl.message(
-      'Add a new album',
-      name: 'label_album_add',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Add a new album`
-  String get title_dialog_library_add {
-    return Intl.message(
-      'Add a new album',
-      name: 'title_dialog_library_add',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Album name`
-  String get hint_library_add {
-    return Intl.message(
-      'Album name',
-      name: 'hint_library_add',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Done`
-  String get button_complete {
-    return Intl.message(
-      'Done',
-      name: 'button_complete',
+      'Rewards list',
+      name: 'label_vote_reward_list',
       desc: '',
       args: [],
     );
@@ -570,351 +900,41 @@ class S {
     );
   }
 
-  /// `Settings`
-  String get nav_setting {
+  /// `Collecting votes`
+  String get label_vote_vote_gather {
     return Intl.message(
-      'Settings',
-      name: 'nav_setting',
+      'Collecting votes',
+      name: 'label_vote_vote_gather',
       desc: '',
       args: [],
     );
   }
 
-  /// `Vote`
-  String get page_title_vote_detail {
+  /// `View ads`
+  String get label_watch_ads {
     return Intl.message(
-      'Vote',
-      name: 'page_title_vote_detail',
+      'View ads',
+      name: 'label_watch_ads',
       desc: '',
       args: [],
     );
   }
 
-  /// `My Page`
-  String get page_title_mypage {
+  /// `My Artists`
+  String get lable_my_celeb {
     return Intl.message(
-      'My Page',
-      name: 'page_title_mypage',
+      'My Artists',
+      name: 'lable_my_celeb',
       desc: '',
       args: [],
     );
   }
 
-  /// `Preferences`
-  String get page_title_setting {
+  /// `An error occurred.`
+  String get message_error_occurred {
     return Intl.message(
-      'Preferences',
-      name: 'page_title_setting',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Voting`
-  String get nav_vote {
-    return Intl.message(
-      'Voting',
-      name: 'nav_vote',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `PIC Charts`
-  String get nav_picchart {
-    return Intl.message(
-      'PIC Charts',
-      name: 'nav_picchart',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Media`
-  String get nav_media {
-    return Intl.message(
-      'Media',
-      name: 'nav_media',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Shop`
-  String get nav_store {
-    return Intl.message(
-      'Shop',
-      name: 'nav_store',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Announcements`
-  String get label_mypage_notice {
-    return Intl.message(
-      'Announcements',
-      name: 'label_mypage_notice',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Charges`
-  String get label_mypage_charge_history {
-    return Intl.message(
-      'Charges',
-      name: 'label_mypage_charge_history',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Help Center`
-  String get label_mypage_customer_center {
-    return Intl.message(
-      'Help Center',
-      name: 'label_mypage_customer_center',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Settings`
-  String get label_mypage_setting {
-    return Intl.message(
-      'Settings',
-      name: 'label_mypage_setting',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Voting history`
-  String get label_mypage_vote_history {
-    return Intl.message(
-      'Voting history',
-      name: 'label_mypage_vote_history',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `My Star`
-  String get label_mypage_mystar {
-    return Intl.message(
-      'My Star',
-      name: 'label_mypage_mystar',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Membership history`
-  String get label_mypage_membership_history {
-    return Intl.message(
-      'Membership history',
-      name: 'label_mypage_membership_history',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Notifications`
-  String get label_setting_alarm {
-    return Intl.message(
-      'Notifications',
-      name: 'label_setting_alarm',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Push notifications`
-  String get label_setting_push_alarm {
-    return Intl.message(
-      'Push notifications',
-      name: 'label_setting_push_alarm',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Event notifications`
-  String get label_setting_event_alarm {
-    return Intl.message(
-      'Event notifications',
-      name: 'label_setting_event_alarm',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Events and happenings.`
-  String get label_setting_event_alarm_desc {
-    return Intl.message(
-      'Events and happenings.',
-      name: 'label_setting_event_alarm_desc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Language settings`
-  String get label_setting_language {
-    return Intl.message(
-      'Language settings',
-      name: 'label_setting_language',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Manage storage`
-  String get label_setting_storage {
-    return Intl.message(
-      'Manage storage',
-      name: 'label_setting_storage',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Delete Cache`
-  String get label_setting_remove_cache {
-    return Intl.message(
-      'Delete Cache',
-      name: 'label_setting_remove_cache',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `App info`
-  String get label_setting_appinfo {
-    return Intl.message(
-      'App info',
-      name: 'label_setting_appinfo',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Current version`
-  String get label_setting_current_version {
-    return Intl.message(
-      'Current version',
-      name: 'label_setting_current_version',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Update`
-  String get label_setting_update {
-    return Intl.message(
-      'Update',
-      name: 'label_setting_update',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Latest version`
-  String get label_setting_recent_version {
-    return Intl.message(
-      'Latest version',
-      name: 'label_setting_recent_version',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Daily charts`
-  String get label_tabbar_picchart_daily {
-    return Intl.message(
-      'Daily charts',
-      name: 'label_tabbar_picchart_daily',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Weekly charts`
-  String get label_tabbar_picchart_weekly {
-    return Intl.message(
-      'Weekly charts',
-      name: 'label_tabbar_picchart_weekly',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Monthly Charts`
-  String get label_tabbar_picchart_monthly {
-    return Intl.message(
-      'Monthly Charts',
-      name: 'label_tabbar_picchart_monthly',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Rewards list`
-  String get label_vote_reward_list {
-    return Intl.message(
-      'Rewards list',
-      name: 'label_vote_reward_list',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Save to Gallery`
-  String get label_pic_pic_save_gallery {
-    return Intl.message(
-      'Save to Gallery',
-      name: 'label_pic_pic_save_gallery',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Save`
-  String get button_pic_pic_save {
-    return Intl.message(
-      'Save',
-      name: 'button_pic_pic_save',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Initializing camera...`
-  String get label_pic_pic_initializing_camera {
-    return Intl.message(
-      'Initializing camera...',
-      name: 'label_pic_pic_initializing_camera',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Compositing an image...`
-  String get label_pic_pic_synthesizing_image {
-    return Intl.message(
-      'Compositing an image...',
-      name: 'label_pic_pic_synthesizing_image',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `The image has been saved.`
-  String get message_pic_pic_save_success {
-    return Intl.message(
-      'The image has been saved.',
-      name: 'message_pic_pic_save_success',
+      'An error occurred.',
+      name: 'message_error_occurred',
       desc: '',
       args: [],
     );
@@ -930,51 +950,231 @@ class S {
     );
   }
 
-  /// `Rank in Rewards`
-  String get text_vote_rank_in_reward {
+  /// `The image has been saved.`
+  String get message_pic_pic_save_success {
     return Intl.message(
-      'Rank in Rewards',
-      name: 'text_vote_rank_in_reward',
+      'The image has been saved.',
+      name: 'message_pic_pic_save_success',
       desc: '',
       args: [],
     );
   }
 
-  /// `Where's My Favorite?`
-  String get text_vote_where_is_my_bias {
+  /// `Want to report?`
+  String get message_report_confirm {
     return Intl.message(
-      'Where\'s My Favorite?',
-      name: 'text_vote_where_is_my_bias',
+      'Want to report?',
+      name: 'message_report_confirm',
       desc: '',
       args: [],
     );
   }
 
-  /// `Collecting votes`
-  String get label_vote_vote_gather {
+  /// `The report is complete.`
+  String get message_report_ok {
     return Intl.message(
-      'Collecting votes',
-      name: 'label_vote_vote_gather',
+      'The report is complete.',
+      name: 'message_report_ok',
       desc: '',
       args: [],
     );
   }
 
-  /// `In Progress`
-  String get label_tabbar_vote_active {
+  /// `Manage comments`
+  String get mypage_comment {
     return Intl.message(
-      'In Progress',
-      name: 'label_tabbar_vote_active',
+      'Manage comments',
+      name: 'mypage_comment',
       desc: '',
       args: [],
     );
   }
 
-  /// `Exit`
-  String get label_tabbar_vote_end {
+  /// `Language settings`
+  String get mypage_language {
     return Intl.message(
-      'Exit',
-      name: 'label_tabbar_vote_end',
+      'Language settings',
+      name: 'mypage_language',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `My purchases`
+  String get mypage_purchases {
+    return Intl.message(
+      'My purchases',
+      name: 'mypage_purchases',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Settings`
+  String get mypage_setting {
+    return Intl.message(
+      'Settings',
+      name: 'mypage_setting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Subscription information`
+  String get mypage_subscription {
+    return Intl.message(
+      'Subscription information',
+      name: 'mypage_subscription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ads`
+  String get nav_ads {
+    return Intl.message(
+      'Ads',
+      name: 'nav_ads',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Gallery`
+  String get nav_gallery {
+    return Intl.message(
+      'Gallery',
+      name: 'nav_gallery',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `홈`
+  String get nav_home {
+    return Intl.message(
+      '홈',
+      name: 'nav_home',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Libraries`
+  String get nav_library {
+    return Intl.message(
+      'Libraries',
+      name: 'nav_library',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Media`
+  String get nav_media {
+    return Intl.message(
+      'Media',
+      name: 'nav_media',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `PIC Charts`
+  String get nav_picchart {
+    return Intl.message(
+      'PIC Charts',
+      name: 'nav_picchart',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Purchase`
+  String get nav_purchases {
+    return Intl.message(
+      'Purchase',
+      name: 'nav_purchases',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Settings`
+  String get nav_setting {
+    return Intl.message(
+      'Settings',
+      name: 'nav_setting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Shop`
+  String get nav_store {
+    return Intl.message(
+      'Shop',
+      name: 'nav_store',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Subscriptions`
+  String get nav_subscription {
+    return Intl.message(
+      'Subscriptions',
+      name: 'nav_subscription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Voting`
+  String get nav_vote {
+    return Intl.message(
+      'Voting',
+      name: 'nav_vote',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `My Page`
+  String get page_title_mypage {
+    return Intl.message(
+      'My Page',
+      name: 'page_title_mypage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `My profile`
+  String get page_title_myprofile {
+    return Intl.message(
+      'My profile',
+      name: 'page_title_myprofile',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Preferences`
+  String get page_title_setting {
+    return Intl.message(
+      'Preferences',
+      name: 'page_title_setting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Vote`
+  String get page_title_vote_detail {
+    return Intl.message(
+      'Vote',
+      name: 'page_title_vote_detail',
       desc: '',
       args: [],
     );
@@ -990,21 +1190,121 @@ class S {
     );
   }
 
-  /// `Crop an image`
-  String get label_pic_image_cropping {
+  /// `Viewing ads and collecting random images.`
+  String get text_ads_random {
     return Intl.message(
-      'Crop an image',
-      name: 'label_pic_image_cropping',
+      'Viewing ads and collecting random images.',
+      name: 'text_ads_random',
       desc: '',
       args: [],
     );
   }
 
-  /// `위`
-  String get text_vote_rank_surffix {
+  /// `Star candy has been awarded.`
+  String get text_dialog_star_candy_received {
     return Intl.message(
-      '위',
-      name: 'text_vote_rank_surffix',
+      'Star candy has been awarded.',
+      name: 'text_dialog_star_candy_received',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The number of votes cannot be zero.`
+  String get text_dialog_vote_amount_should_not_zero {
+    return Intl.message(
+      'The number of votes cannot be zero.',
+      name: 'text_dialog_vote_amount_should_not_zero',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Confirmed ownership of 1 image from the entire gallery`
+  String get text_draw_image {
+    return Intl.message(
+      'Confirmed ownership of 1 image from the entire gallery',
+      name: 'text_draw_image',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search for an artist.`
+  String get text_hint_search {
+    return Intl.message(
+      'Search for an artist.',
+      name: 'text_hint_search',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Navigate to the selected artist's home.`
+  String get text_moveto_celeb_gallery {
+    return Intl.message(
+      'Navigate to the selected artist\'s home.',
+      name: 'text_moveto_celeb_gallery',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Requires charging.`
+  String get text_need_recharge {
+    return Intl.message(
+      'Requires charging.',
+      name: 'text_need_recharge',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No search results.`
+  String get text_no_search_result {
+    return Intl.message(
+      'No search results.',
+      name: 'text_no_search_result',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `*Price includes VAT.`
+  String get text_purchase_vat_included {
+    return Intl.message(
+      '*Price includes VAT.',
+      name: 'text_purchase_vat_included',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Star Candy`
+  String get text_star_candy {
+    return Intl.message(
+      'Star Candy',
+      name: 'text_star_candy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This Vote`
+  String get text_this_time_vote {
+    return Intl.message(
+      'This Vote',
+      name: 'text_this_time_vote',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Voting complete`
+  String get text_vote_complete {
+    return Intl.message(
+      'Voting complete',
+      name: 'text_vote_complete',
       desc: '',
       args: [],
     );
@@ -1015,6 +1315,26 @@ class S {
     return Intl.message(
       '1',
       name: 'text_vote_first',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rank in Rewards`
+  String get text_vote_rank_in_reward {
+    return Intl.message(
+      'Rank in Rewards',
+      name: 'text_vote_rank_in_reward',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `위`
+  String get text_vote_rank_surffix {
+    return Intl.message(
+      '위',
+      name: 'text_vote_rank_surffix',
       desc: '',
       args: [],
     );
@@ -1040,351 +1360,41 @@ class S {
     );
   }
 
-  /// `Charging`
-  String get label_button_recharge {
+  /// `Where's My Favorite?`
+  String get text_vote_where_is_my_bias {
     return Intl.message(
-      'Charging',
-      name: 'label_button_recharge',
+      'Where\'s My Favorite?',
+      name: 'text_vote_where_is_my_bias',
       desc: '',
       args: [],
     );
   }
 
-  /// `Full Use`
-  String get label_checkbox_entire_use {
+  /// `Add a new album`
+  String get title_dialog_library_add {
     return Intl.message(
-      'Full Use',
-      name: 'label_checkbox_entire_use',
+      'Add a new album',
+      name: 'title_dialog_library_add',
       desc: '',
       args: [],
     );
   }
 
-  /// `Input`
-  String get label_input_input {
+  /// `Select a language`
+  String get title_select_language {
     return Intl.message(
-      'Input',
-      name: 'label_input_input',
+      'Select a language',
+      name: 'title_select_language',
       desc: '',
       args: [],
     );
   }
 
-  /// `Requires charging.`
-  String get text_need_recharge {
+  /// `You can add up to five of your own artists.`
+  String get toast_max_five_celeb {
     return Intl.message(
-      'Requires charging.',
-      name: 'text_need_recharge',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Vote`
-  String get label_button_vote {
-    return Intl.message(
-      'Vote',
-      name: 'label_button_vote',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `关闭`
-  String get label_button_clse {
-    return Intl.message(
-      '关闭',
-      name: 'label_button_clse',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Confirm`
-  String get dialog_button_ok {
-    return Intl.message(
-      'Confirm',
-      name: 'dialog_button_ok',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Cancel`
-  String get dialog_button_cancel {
-    return Intl.message(
-      'Cancel',
-      name: 'dialog_button_cancel',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Voting Failed`
-  String get dialog_title_vote_fail {
-    return Intl.message(
-      'Voting Failed',
-      name: 'dialog_title_vote_fail',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `The number of votes cannot be zero.`
-  String get text_dialog_vote_amount_should_not_zero {
-    return Intl.message(
-      'The number of votes cannot be zero.',
-      name: 'text_dialog_vote_amount_should_not_zero',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `No search results.`
-  String get text_no_search_result {
-    return Intl.message(
-      'No search results.',
-      name: 'text_no_search_result',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Buy star candy`
-  String get label_tab_buy_star_candy {
-    return Intl.message(
-      'Buy star candy',
-      name: 'label_tab_buy_star_candy',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Free charging stations`
-  String get label_tab_free_charge_station {
-    return Intl.message(
-      'Free charging stations',
-      name: 'label_tab_free_charge_station',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Newest`
-  String get label_dropdown_recent {
-    return Intl.message(
-      'Newest',
-      name: 'label_dropdown_recent',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Oldest`
-  String get label_dropdown_oldest {
-    return Intl.message(
-      'Oldest',
-      name: 'label_dropdown_oldest',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Star Candy`
-  String get text_star_candy {
-    return Intl.message(
-      'Star Candy',
-      name: 'text_star_candy',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Voting complete`
-  String get text_vote_complete {
-    return Intl.message(
-      'Voting complete',
-      name: 'text_vote_complete',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `This Vote`
-  String get text_this_time_vote {
-    return Intl.message(
-      'This Vote',
-      name: 'text_this_time_vote',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Save your ballot`
-  String get label_button_save_vote_paper {
-    return Intl.message(
-      'Save your ballot',
-      name: 'label_button_save_vote_paper',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Share`
-  String get label_button_share {
-    return Intl.message(
-      'Share',
-      name: 'label_button_share',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Viewing and charging for ads`
-  String get label_button_watch_and_charge {
-    return Intl.message(
-      'Viewing and charging for ads',
-      name: 'label_button_watch_and_charge',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `View ads`
-  String get label_watch_ads {
-    return Intl.message(
-      'View ads',
-      name: 'label_watch_ads',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Bonuses`
-  String get label_bonus {
-    return Intl.message(
-      'Bonuses',
-      name: 'label_bonus',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Stardust Usage Policy`
-  String get candy_usage_policy_title {
-    return Intl.message(
-      'Stardust Usage Policy',
-      name: 'candy_usage_policy_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `*Bonuses disappear the month after you earn them! ⓘ`
-  String get candy_usage_policy_guide {
-    return Intl.message(
-      '*Bonuses disappear the month after you earn them! ⓘ',
-      name: 'candy_usage_policy_guide',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, they will be used in the order of the earliest acquisition date.`
-  String get candy_usage_policy_contents {
-    return Intl.message(
-      '### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, they will be used in the order of the earliest acquisition date.',
-      name: 'candy_usage_policy_contents',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Star candy has been awarded.`
-  String get text_dialog_star_candy_received {
-    return Intl.message(
-      'Star candy has been awarded.',
-      name: 'text_dialog_star_candy_received',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `*Price includes VAT.`
-  String get text_purchase_vat_included {
-    return Intl.message(
-      '*Price includes VAT.',
-      name: 'text_purchase_vat_included',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Terms of Use`
-  String get label_mypage_terms_of_use {
-    return Intl.message(
-      'Terms of Use',
-      name: 'label_mypage_terms_of_use',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Privacy Policy`
-  String get label_mypage_privacy_policy {
-    return Intl.message(
-      'Privacy Policy',
-      name: 'label_mypage_privacy_policy',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Log out`
-  String get label_mypage_logout {
-    return Intl.message(
-      'Log out',
-      name: 'label_mypage_logout',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Withdrawal`
-  String get label_mypage_withdrawal {
-    return Intl.message(
-      'Withdrawal',
-      name: 'label_mypage_withdrawal',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Star Candy Pouch`
-  String get label_star_candy_pouch {
-    return Intl.message(
-      'Star Candy Pouch',
-      name: 'label_star_candy_pouch',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `An error occurred.`
-  String get message_error_occurred {
-    return Intl.message(
-      'An error occurred.',
-      name: 'message_error_occurred',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Retrying`
-  String get label_retry {
-    return Intl.message(
-      'Retrying',
-      name: 'label_retry',
+      'You can add up to five of your own artists.',
+      name: 'toast_max_five_celeb',
       desc: '',
       args: [],
     );
