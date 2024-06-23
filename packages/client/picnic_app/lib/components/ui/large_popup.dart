@@ -12,6 +12,7 @@ class LargePopupWidget extends StatelessWidget {
   final Widget? footer;
   final Widget? closeButton;
   final Color? backgroundColor;
+  final double? width;
 
   const LargePopupWidget({
     super.key,
@@ -20,6 +21,7 @@ class LargePopupWidget extends StatelessWidget {
     this.footer,
     this.closeButton,
     this.backgroundColor,
+    this.width,
   });
 
   @override
@@ -33,7 +35,7 @@ class LargePopupWidget extends StatelessWidget {
             alignment: Alignment.center,
             children: [
               Container(
-                  width: 345.w,
+                  width: width ?? 345.w,
                   // padding: EdgeInsets.only(
                   //     top: 24.w, left: 24.w, right: 24.w, bottom: 24.w),
                   decoration: BoxDecoration(

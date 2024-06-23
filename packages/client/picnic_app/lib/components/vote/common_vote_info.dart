@@ -7,7 +7,17 @@ import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
 
 class StorePointInfo extends ConsumerWidget {
-  const StorePointInfo({super.key});
+  StorePointInfo(
+      {super.key,
+      required this.title,
+      this.width,
+      this.height,
+      this.titlePadding});
+
+  double? width = 48.w;
+  double? height = 48.w;
+  final String title;
+  final double? titlePadding;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -17,7 +27,8 @@ class StorePointInfo extends ConsumerWidget {
     return Stack(
       children: [
         Container(
-          height: 100.w,
+          height: height,
+          width: width,
           margin: const EdgeInsets.only(top: 24, left: 16, right: 16).r,
           decoration: BoxDecoration(
               border: Border.all(
@@ -45,8 +56,8 @@ class StorePointInfo extends ConsumerWidget {
         Positioned.fill(
             child: Container(
                 alignment: Alignment.topCenter,
-                padding: const EdgeInsets.symmetric(horizontal: 57).w,
-                child: const VoteCommonTitle(title: '별사탕 주머니'))),
+                padding: const EdgeInsets.symmetric(horizontal: 33).w,
+                child: VoteCommonTitle(title: title))),
       ],
     );
   }

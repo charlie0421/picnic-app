@@ -1280,10 +1280,10 @@ class S {
     );
   }
 
-  /// `### Expiration Date\n\n- Purchase Candy: None (unlimited)\n- Bonus Star Candy: Expires in batches on the 15th of the month after earned\n\n### Redeem Star Candy\n\n- Star Candies that are about to expire will be used first.\n- If they have the same expiration date, the earliest one will be used.`
+  /// `### Expiration Date\n\nPurchase Candy: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n### Redeem Star Candy\n\nStar Candies that are about to expire will be used first.\nIf they have the same expiration date, the earliest one will be used.`
   String get text_star_candy_usage_policy {
     return Intl.message(
-      '### Expiration Date\n\n- Purchase Candy: None (unlimited)\n- Bonus Star Candy: Expires in batches on the 15th of the month after earned\n\n### Redeem Star Candy\n\n- Star Candies that are about to expire will be used first.\n- If they have the same expiration date, the earliest one will be used.',
+      '### Expiration Date\n\nPurchase Candy: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n### Redeem Star Candy\n\nStar Candies that are about to expire will be used first.\nIf they have the same expiration date, the earliest one will be used.',
       name: 'text_star_candy_usage_policy',
       desc: '',
       args: [],
@@ -1345,6 +1345,16 @@ class S {
     return Intl.message(
       'Withdrawal',
       name: 'label_mypage_withdrawal',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Star Candy Pouch`
+  String get label_star_candy_pouch {
+    return Intl.message(
+      'Star Candy Pouch',
+      name: 'label_star_candy_pouch',
       desc: '',
       args: [],
     );

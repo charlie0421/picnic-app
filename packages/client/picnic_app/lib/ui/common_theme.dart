@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:picnic_app/ui/style.dart';
 
 TabBarTheme commonTabBarTheme = TabBarTheme(
@@ -27,4 +28,11 @@ BottomSheetThemeData commonBottomSheetTheme = const BottomSheetThemeData(
       topRight: Radius.circular(10),
     ),
   ),
+);
+
+MarkdownStyleSheet commonMarkdownStyleSheet = MarkdownStyleSheet(
+  h3: getTextStyle(AppTypo.CAPTION10SB, AppColors.Primary500),
+  h3Align: WrapAlignment.center,
+  h6: getTextStyle(AppTypo.BODY14M, AppColors.Grey900),
+  h6Align: WrapAlignment.center,
 );
