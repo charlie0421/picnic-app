@@ -131,6 +131,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_setting_storage":
             MessageLookupByLibrary.simpleMessage("Manage Storage"),
         "label_setting_update": MessageLookupByLibrary.simpleMessage("Update"),
+        "label_star_candy_pouch":
+            MessageLookupByLibrary.simpleMessage("Star Candy Pouch"),
         "label_tab_buy_star_candy":
             MessageLookupByLibrary.simpleMessage("Buy Star Candy"),
         "label_tab_free_charge_station":
@@ -218,7 +220,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("*VAT included"),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("Star Candy"),
         "text_star_candy_usage_policy": MessageLookupByLibrary.simpleMessage(
-            "### Expiration Date\n\n- Purchase Candy: None (unlimited)\n- Bonus Star Candy: Expires in batches on the 15th of the month after earned\n\n### Redeem Star Candy\n\n- Star Candies that are about to expire will be used first.\n- If they have the same expiration date, the earliest one will be used."),
+            "### Expiration Date\n\nPurchase Candy: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n### Redeem Star Candy\n\nStar Candies that are about to expire will be used first.\nIf they have the same expiration date, the earliest one will be used."),
         "text_star_candy_usage_policy_guide":
             MessageLookupByLibrary.simpleMessage(
                 "*Bonuses will disappear the month after you earn them! ⓘ"),

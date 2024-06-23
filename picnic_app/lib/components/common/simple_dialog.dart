@@ -5,9 +5,11 @@ import 'package:picnic_app/ui/style.dart';
 
 void showSimpleDialog({
   required BuildContext context,
-  required String title,
+  String? title,
+  Widget? titleWidget,
   String? content,
   Widget? contentWidget,
+  Widget? footerWidget,
   Function? onOk,
   Function? onCancel,
 }) {
@@ -28,10 +30,12 @@ void showSimpleDialog({
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                title,
-                style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900),
-              ),
+              if (title != null)
+                Text(
+                  title,
+                  style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900),
+                ),
+              if (titleWidget != null) titleWidget,
               if (content != null)
                 SizedBox(
                   height: 12.w,
@@ -87,6 +91,7 @@ void showSimpleDialog({
                     ),
                 ],
               ),
+              if (footerWidget != null) footerWidget,
             ],
           ),
         ),

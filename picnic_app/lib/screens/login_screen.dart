@@ -179,7 +179,7 @@ class LoginScreen extends ConsumerWidget {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   GestureDetector(
-                                      behavior: HitTestBehavior.translucent,
+                                      behavior: HitTestBehavior.opaque,
                                       onTap: () {},
                                       child: Container(
                                         alignment: Alignment.center,
@@ -206,9 +206,11 @@ class LoginScreen extends ConsumerWidget {
                                         ),
                                       )),
                                   GestureDetector(
-                                      behavior: HitTestBehavior.translucent,
+                                      behavior: HitTestBehavior.opaque,
                                       onTap: () {
-                                        OverlayLoadingProgress.start(context);
+                                        OverlayLoadingProgress.start(context,
+                                            color: AppColors.Primary500,
+                                            barrierDismissible: false);
 
                                         _nativeGoogleSignIn().then((value) {
                                           if (value) {
@@ -222,6 +224,8 @@ class LoginScreen extends ConsumerWidget {
                                               Navigator.of(context).pop();
                                               Navigator.of(context).pop();
                                             });
+                                          } else {
+                                            OverlayLoadingProgress.stop();
                                           }
                                         });
                                       },
@@ -249,9 +253,11 @@ class LoginScreen extends ConsumerWidget {
                                         ),
                                       )),
                                   GestureDetector(
-                                      behavior: HitTestBehavior.translucent,
+                                      behavior: HitTestBehavior.opaque,
                                       onTap: () async {
-                                        OverlayLoadingProgress.start(context);
+                                        OverlayLoadingProgress.start(context,
+                                            color: AppColors.Primary500,
+                                            barrierDismissible: false);
                                         _KakaoSignIn().then((value) {
                                           if (value) {
                                             ref
@@ -264,6 +270,8 @@ class LoginScreen extends ConsumerWidget {
                                               Navigator.of(context).pop();
                                               Navigator.of(context).pop();
                                             });
+                                          } else {
+                                            OverlayLoadingProgress.stop();
                                           }
                                         });
                                       },

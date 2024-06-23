@@ -4,13 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/simple_dialog.dart';
+import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/components/vote/common_vote_info.dart';
 import 'package:picnic_app/components/vote/store/store_list_tile.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
+import 'package:picnic_app/ui/common_theme.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class FreeChargeStation extends ConsumerStatefulWidget {
@@ -51,7 +54,10 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
       child: ListView(
         children: [
           SizedBox(height: 36.w),
-          const StorePointInfo(),
+          StorePointInfo(
+              title: Intl.message('label_star_candy_pouch'),
+              width: double.infinity,
+              height: 100.w),
           SizedBox(height: 36.w),
           StoreListTile(
             icon: Image.asset(
@@ -111,14 +117,64 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
           Divider(height: 32.w, thickness: 1, color: AppColors.Grey200),
           GestureDetector(
             onTap: () {
-              showSimpleDialog(
-                context: context,
-                title: Intl.message('text_star_candy_usage_policy_title'),
-                contentWidget: Markdown(
-                    padding: EdgeInsets.zero,
-                    shrinkWrap: true,
-                    data: Intl.message('text_star_candy_usage_policy')),
-              );
+              print(Intl.message('text_star_candy_usage_policy'));
+              final message = Intl.message('text_star_candy_usage_policy');
+              showDialog(
+                  context: context,
+                  builder: (context) => LargePopupWidget(
+                        width: MediaQuery.of(context).size.width - 32.w,
+                        content: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 40.w, vertical: 64.w),
+                          child: Column(children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(
+                                    'assets/icons/play_style=fill.svg',
+                                    width: 16.w,
+                                    height: 16.w,
+                                    colorFilter: const ColorFilter.mode(
+                                      AppColors.Primary500,
+                                      BlendMode.srcIn,
+                                    )),
+                                SizedBox(width: 8.w),
+                                Text(
+                                  Intl.message(
+                                      'text_star_candy_usage_policy_title'),
+                                  style: getTextStyle(
+                                      AppTypo.BODY14B, AppColors.Primary500),
+                                ),
+                                SizedBox(width: 8.w),
+                                Transform.rotate(
+                                  angle: 3.14,
+                                  child: SvgPicture.asset(
+                                      'assets/icons/play_style=fill.svg',
+                                      width: 16.w,
+                                      height: 16.w,
+                                      colorFilter: const ColorFilter.mode(
+                                        AppColors.Primary500,
+                                        BlendMode.srcIn,
+                                      )),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 16.w),
+                            Markdown(
+                              padding: EdgeInsets.zero,
+                              shrinkWrap: true,
+                              data: message,
+                              styleSheet: commonMarkdownStyleSheet,
+                            ),
+                            SizedBox(height: 16.w),
+                            StorePointInfo(
+                                title: Intl.message('label_star_candy_pouch'),
+                                width: 231.w,
+                                titlePadding: 10.w,
+                                height: 78.w)
+                          ]),
+                        ),
+                      ));
             },
             child: Text(Intl.message('text_star_candy_usage_policy_guide'),
                 style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600)),

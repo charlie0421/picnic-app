@@ -415,6 +415,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                     ? null
                     : () async {
                         OverlayLoadingProgress.start(context,
+                            color: AppColors.Primary500,
                             barrierDismissible: false);
 
                         final voteAmount = int.parse(_textEditingController.text

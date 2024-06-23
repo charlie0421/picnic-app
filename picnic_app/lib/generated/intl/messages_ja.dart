@@ -119,6 +119,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_setting_storage":
             MessageLookupByLibrary.simpleMessage("ストレージ管理"),
         "label_setting_update": MessageLookupByLibrary.simpleMessage("アップデート"),
+        "label_star_candy_pouch":
+            MessageLookupByLibrary.simpleMessage("スターキャンディーポーチ"),
         "label_tab_buy_star_candy":
             MessageLookupByLibrary.simpleMessage("スターキャンディー購入"),
         "label_tab_free_charge_station":
@@ -193,7 +195,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("*税込"),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("スターキャンディー"),
         "text_star_candy_usage_policy": MessageLookupByLibrary.simpleMessage(
-            "### 有効期限\n\n- 購入星飴 : なし (無制限)\n- ボーナス星飴：獲得した翌月15日に一括消滅\n\n### 星飴の使用\n\n- 消滅日が迫っている星飴から使用されます。\n- 有効期限が同じ場合は、獲得日が早い順に使用されます。"),
+            "### 有効期限\n\n###### 購入星飴 : なし (無制限)\n###### ボーナス星飴：獲得した翌月15日に一括消滅\n\n\n\n### 星飴の使用\n\n###### 消滅日が迫っている星飴から使用されます。\n###### 有効期限が同じ場合は、獲得日が早い順に使用されます。"),
         "text_star_candy_usage_policy_guide":
             MessageLookupByLibrary.simpleMessage("*ボーナスは獲得した翌月に消えますよ！ⓘ"),
         "text_star_candy_usage_policy_title":

@@ -118,6 +118,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_setting_storage":
             MessageLookupByLibrary.simpleMessage("저장공간 관리"),
         "label_setting_update": MessageLookupByLibrary.simpleMessage("업데이트"),
+        "label_star_candy_pouch":
+            MessageLookupByLibrary.simpleMessage("별사탕 주머니"),
         "label_tab_buy_star_candy":
             MessageLookupByLibrary.simpleMessage("별사탕 구매"),
         "label_tab_free_charge_station":
