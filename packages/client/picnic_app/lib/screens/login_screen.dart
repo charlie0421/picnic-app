@@ -301,8 +301,10 @@ class LoginScreen extends ConsumerWidget {
   Future<bool> _KakaoSignIn() async {
     try {
       KakaoSdk.init(
-        nativeAppKey: '75e247f5d29512f84749e64aac77ebfa',
-        javaScriptAppKey: 'fe170eb02c6ff6a488a5848f9db41335',
+        nativeAppKey: '08a8a85e49aa423ff34ddc11a61db3ac',
+        javaScriptAppKey: '0c6601457b7eb75b96967728abd638cb',
+        // nativeAppKey: '75e247f5d29512f84749e64aac77ebfa',
+        // javaScriptAppKey: 'fe170eb02c6ff6a488a5848f9db41335',
       );
 
       OAuthToken? token;
@@ -320,7 +322,7 @@ class LoginScreen extends ConsumerWidget {
           }
           // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인
           try {
-            await UserApi.instance.loginWithKakaoAccount();
+            token = await UserApi.instance.loginWithKakaoAccount();
             print('카카오계정으로 로그인 성공');
           } catch (error) {
             print('카카오계정으로 로그인 실패 $error');
@@ -334,6 +336,9 @@ class LoginScreen extends ConsumerWidget {
           print('카카오계정으로 로그인 실패 $error');
         }
       }
+
+      logger.i('Token: $token');
+
       if (token == null || token.idToken == null || token.accessToken == null) {
         throw 'Kakao login failed';
       }
@@ -341,7 +346,8 @@ class LoginScreen extends ConsumerWidget {
       decodeAndPrintToken(token.idToken!); // 토큰 디코딩 및 출력
 
       final decodedToken = JwtDecoder.decode(token.idToken!);
-      const expectedAudience = '75e247f5d29512f84749e64aac77ebfa';
+      const expectedAudience = '08a8a85e49aa423ff34ddc11a61db3ac';
+      // const expectedAudience = '75e247f5d29512f84749e64aac77ebfa';
 
       if (decodedToken['aud'] != expectedAudience) {
         throw 'Invalid audience: ${decodedToken['aud']}';
