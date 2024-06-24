@@ -1150,6 +1150,36 @@ class S {
     );
   }
 
+  /// `20 characters or less, excluding special characters.`
+  String get nickname_validation {
+    return Intl.message(
+      '20 characters or less, excluding special characters.',
+      name: 'nickname_validation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `20자 이내, 특수문자 제외 가능합니다.`
+  String get nickname_validation_error {
+    return Intl.message(
+      '20자 이내, 특수문자 제외 가능합니다.',
+      name: 'nickname_validation_error',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `20 characters or less, excluding special characters.`
+  String get nickname_valitation {
+    return Intl.message(
+      '20 characters or less, excluding special characters.',
+      name: 'nickname_valitation',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `My Page`
   String get page_title_mypage {
     return Intl.message(
