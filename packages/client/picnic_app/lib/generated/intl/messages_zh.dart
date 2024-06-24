@@ -42,6 +42,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("确认"),
         "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("表决失败"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("专辑名称"),
+        "hint_nickname_input": MessageLookupByLibrary.simpleMessage("请输入昵称。"),
         "label_album_add": MessageLookupByLibrary.simpleMessage("添加新相册"),
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("成为第一个发表评论的人！"),

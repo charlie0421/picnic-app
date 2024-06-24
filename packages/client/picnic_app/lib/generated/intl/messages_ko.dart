@@ -42,6 +42,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("확인"),
         "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("투표 실패"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("앨범명"),
+        "hint_nickname_input":
+            MessageLookupByLibrary.simpleMessage("닉네임을 입력해주세요."),
         "label_album_add": MessageLookupByLibrary.simpleMessage("새로운 앨범 추가"),
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("첫 댓글의 주인공이 되세요!"),

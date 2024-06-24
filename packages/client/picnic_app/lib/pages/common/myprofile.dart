@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
@@ -21,6 +20,15 @@ class MyProfilePage extends ConsumerStatefulWidget {
 
 class _SettingPageState extends ConsumerState<MyProfilePage> {
   final TextEditingController _textEditingController = TextEditingController();
+
+  @override
+  initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _textEditingController.text =
+          ref.watch(userInfoProvider).value?.nickname ?? '';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,36 +84,45 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
           ),
           SizedBox(height: 24.w),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 57.w),
-            child: TextField(
-              controller: _textEditingController,
-              decoration: InputDecoration(
-                hintText: '닉네임을 입력하세요',
-                hintStyle: getTextStyle(AppTypo.BODY14B, AppColors.Grey300),
-                fillColor: AppColors.Grey00,
-                labelStyle: getTextStyle(AppTypo.BODY14B, AppColors.Grey900),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24.w),
-                  borderSide: BorderSide(color: AppColors.Primary500),
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24.w),
-                  borderSide: BorderSide(color: AppColors.StatusError),
-                ),
-                contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
-                suffixIcon: IconButton(
-                  icon: SvgPicture.asset('assets/icons/pencil_style=fill.svg',
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.Grey700,
-                        BlendMode.srcIn,
-                      )),
-                  onPressed: () {
-                    _textEditingController.clear();
-                  },
-                ),
-              ),
-            ),
-          ),
+              padding: EdgeInsets.symmetric(horizontal: 57.w),
+              child: TextFormField(
+                  controller: _textEditingController,
+                  decoration: InputDecoration(
+                    hintText: S.of(context).hint_nickname_input,
+                    hintStyle: getTextStyle(AppTypo.BODY14B, AppColors.Grey300),
+                    fillColor: AppColors.Grey00,
+                    labelStyle:
+                        getTextStyle(AppTypo.BODY14B, AppColors.Grey900),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24.w),
+                      borderSide: BorderSide(color: AppColors.Primary500),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24.w),
+                      borderSide: BorderSide(color: AppColors.StatusError),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
+                    suffixIcon: IconButton(
+                      icon:
+                          SvgPicture.asset('assets/icons/pencil_style=fill.svg',
+                              colorFilter: const ColorFilter.mode(
+                                AppColors.Grey700,
+                                BlendMode.srcIn,
+                              )),
+                      onPressed: () {
+                        ref
+                            .read(userInfoProvider.notifier)
+                            .updateNickname(_textEditingController.text);
+                        // final response = Supabase.instance.client
+                        //     .from('user_profiles')
+                        //     .update({
+                        //   'nickname': '111', //_textEditingController.text
+                        // }).single();
+                        // logger.i(response.toString());
+                      },
+                    ),
+                  ),
+                  onFieldSubmitted: (value) {})),
           SizedBox(height: 26.w),
           Divider(
             color: AppColors.Grey300,
