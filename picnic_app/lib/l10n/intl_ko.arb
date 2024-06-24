@@ -134,6 +134,10 @@
   "title_dialog_library_add": "새로운 앨범 추가",
   "title_select_language": "언어 선택",
   "toast_max_five_celeb": "내 아티스트를 최대 5개까지 추가할 수 있습니다.",
+  "hint_nickname_input": "닉네임을 입력해주세요.",
+  "@hint_nickname_input": {
+    "translationTimestamp": "2024-06-24T07:51:27.596378"
+  },
   "@@locale": "ko",
   "@button_cancel": {
     "translationTimestamp": "2024-06-24T07:51:27.596378"

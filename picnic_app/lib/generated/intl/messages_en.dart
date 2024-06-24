@@ -43,6 +43,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialog_title_vote_fail":
             MessageLookupByLibrary.simpleMessage("Voting Failed"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("Album name"),
+        "hint_nickname_input":
+            MessageLookupByLibrary.simpleMessage("Please enter a nickname."),
         "label_album_add":
             MessageLookupByLibrary.simpleMessage("Add a new album"),
         "label_article_comment_empty":

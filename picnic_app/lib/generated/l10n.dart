@@ -160,6 +160,16 @@ class S {
     );
   }
 
+  /// `Please enter a nickname.`
+  String get hint_nickname_input {
+    return Intl.message(
+      'Please enter a nickname.',
+      name: 'hint_nickname_input',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Add a new album`
   String get label_album_add {
     return Intl.message(

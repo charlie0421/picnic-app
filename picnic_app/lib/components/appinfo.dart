@@ -5,7 +5,7 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/platform_info_provider.dart';
 import 'package:picnic_app/util.dart';
-import 'package:supabase_auth_ui/supabase_auth_ui.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AppInfo extends ConsumerWidget {
   const AppInfo({super.key});
