@@ -186,6 +186,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_store": MessageLookupByLibrary.simpleMessage("ショップ"),
         "nav_subscription": MessageLookupByLibrary.simpleMessage("サブスクリプション"),
         "nav_vote": MessageLookupByLibrary.simpleMessage("投票"),
+        "nickname_validation_error":
+            MessageLookupByLibrary.simpleMessage("20자 이내, 특수문자 제외 가능합니다."),
+        "nickname_valitation":
+            MessageLookupByLibrary.simpleMessage("20文字以内、特殊文字を除くことができます。"),
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("マイページ"),
         "page_title_myprofile":
             MessageLookupByLibrary.simpleMessage("私のプロフィール"),

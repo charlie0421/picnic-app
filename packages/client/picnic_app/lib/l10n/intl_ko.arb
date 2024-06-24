@@ -543,5 +543,9 @@
   },
   "@toast_max_five_celeb": {
     "translationTimestamp": "2024-06-24T07:51:27.596378"
-  }
+  },
+  "@translationTimestamp": {
+    "translationTimestamp": "2024-06-24T07:51:27.596378"
+  },
+  "nickname_validation_error": "20자 이내, 특수문자 제외 가능합니다."
 }

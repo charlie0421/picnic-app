@@ -210,6 +210,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_subscription":
             MessageLookupByLibrary.simpleMessage("Subscriptions"),
         "nav_vote": MessageLookupByLibrary.simpleMessage("Voting"),
+        "nickname_validation": MessageLookupByLibrary.simpleMessage(
+            "20 characters or less, excluding special characters."),
+        "nickname_validation_error":
+            MessageLookupByLibrary.simpleMessage("20자 이내, 특수문자 제외 가능합니다."),
+        "nickname_valitation": MessageLookupByLibrary.simpleMessage(
+            "20 characters or less, excluding special characters."),
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("My Page"),
         "page_title_myprofile":
             MessageLookupByLibrary.simpleMessage("My profile"),

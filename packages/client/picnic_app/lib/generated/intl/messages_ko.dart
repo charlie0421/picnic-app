@@ -188,6 +188,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_store": MessageLookupByLibrary.simpleMessage("상점"),
         "nav_subscription": MessageLookupByLibrary.simpleMessage("구독"),
         "nav_vote": MessageLookupByLibrary.simpleMessage("투표"),
+        "nickname_validation_error":
+            MessageLookupByLibrary.simpleMessage("20자 이내, 특수문자 제외 가능합니다."),
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("마이페이지"),
         "page_title_myprofile": MessageLookupByLibrary.simpleMessage("나의 프로필"),
         "page_title_setting": MessageLookupByLibrary.simpleMessage("환경설정"),

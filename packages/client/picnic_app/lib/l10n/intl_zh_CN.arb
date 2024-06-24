@@ -109,6 +109,9 @@
   "nav_store": "商店",
   "nav_subscription": "订阅",
   "nav_vote": "投票",
+  "nickname_validation": "20자 이내, 특수문자 제외 가능합니다.",
+  "nickname_validation_error": "20자 이내, 특수문자 제외 가능합니다.",
+  "nickname_valitation": "20자 이내, 특수문자 제외 가능합니다.",
   "page_title_mypage": "我的页面",
   "page_title_myprofile": "我的简介",
   "page_title_setting": "首选项",
@@ -135,7 +138,7 @@
   "title_dialog_library_add": "添加新相册",
   "title_select_language": "选择语言",
   "toast_max_five_celeb": "您最多可以添加五位自己的艺术家。",
-  "@@locale": "zh",
+  "@@locale": "cn",
   "@button_cancel": {
     "translationTimestamp": "2024-06-24T08:57:30.766763"
   },
@@ -465,6 +468,15 @@
   },
   "@nav_vote": {
     "translationTimestamp": "2024-06-24T08:57:30.766763"
+  },
+  "@nickname_validation": {
+    "translationTimestamp": "2024-06-24T22:08:44.342065"
+  },
+  "@nickname_validation_error": {
+    "translationTimestamp": "2024-06-24T22:10:00.548160"
+  },
+  "@nickname_valitation": {
+    "translationTimestamp": "2024-06-24T22:07:48.871212"
   },
   "@page_title_mypage": {
     "translationTimestamp": "2024-06-24T08:57:30.766763"

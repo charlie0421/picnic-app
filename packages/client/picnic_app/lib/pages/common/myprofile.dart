@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
@@ -20,109 +22,40 @@ class MyProfilePage extends ConsumerStatefulWidget {
 
 class _SettingPageState extends ConsumerState<MyProfilePage> {
   final TextEditingController _textEditingController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  bool isValid = true;
+  late FocusNode _focusNode;
 
   @override
   initState() {
     super.initState();
+    _focusNode = FocusNode();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _textEditingController.text =
           ref.watch(userInfoProvider).value?.nickname ?? '';
+    });
+
+    _textEditingController.addListener(() {
+      logger.d('addListener');
+      setState(() {
+        isValid = validateInput(_textEditingController.text) == null;
+      });
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final userInfo = ref.watch(userInfoProvider);
-
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: ListView(
         children: [
           SizedBox(height: 24.w),
-          Container(
-            width: 100.w,
-            height: 100.w,
-            alignment: Alignment.center,
-            child: Stack(
-              children: [
-                SizedBox(
-                  width: 100.w,
-                  height: 100.w,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(50.w),
-                    clipBehavior: Clip.hardEdge,
-                    child: CachedNetworkImage(
-                        imageUrl: userInfo.value?.avatar_url ?? '',
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => buildPlaceholderImage(),
-                        errorWidget: (context, url, error) =>
-                            const Icon(Icons.error)),
-                  ),
-                ),
-                Positioned(
-                  right: 0,
-                  bottom: 0,
-                  child: Container(
-                      width: 24.w,
-                      height: 24.w,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: AppColors.Primary500,
-                        borderRadius: BorderRadius.circular(50.w),
-                      ),
-                      child:
-                          SvgPicture.asset('assets/icons/camera_style=line.svg',
-                              width: 16.w,
-                              height: 16.w,
-                              colorFilter: const ColorFilter.mode(
-                                AppColors.Grey00,
-                                BlendMode.srcIn,
-                              ))),
-                ),
-              ],
-            ),
-          ),
+          buildProfileImage(userInfo),
           SizedBox(height: 24.w),
-          Container(
-              padding: EdgeInsets.symmetric(horizontal: 57.w),
-              child: TextFormField(
-                  controller: _textEditingController,
-                  decoration: InputDecoration(
-                    hintText: S.of(context).hint_nickname_input,
-                    hintStyle: getTextStyle(AppTypo.BODY14B, AppColors.Grey300),
-                    fillColor: AppColors.Grey00,
-                    labelStyle:
-                        getTextStyle(AppTypo.BODY14B, AppColors.Grey900),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24.w),
-                      borderSide: BorderSide(color: AppColors.Primary500),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24.w),
-                      borderSide: BorderSide(color: AppColors.StatusError),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
-                    suffixIcon: IconButton(
-                      icon:
-                          SvgPicture.asset('assets/icons/pencil_style=fill.svg',
-                              colorFilter: const ColorFilter.mode(
-                                AppColors.Grey700,
-                                BlendMode.srcIn,
-                              )),
-                      onPressed: () {
-                        ref
-                            .read(userInfoProvider.notifier)
-                            .updateNickname(_textEditingController.text);
-                        // final response = Supabase.instance.client
-                        //     .from('user_profiles')
-                        //     .update({
-                        //   'nickname': '111', //_textEditingController.text
-                        // }).single();
-                        // logger.i(response.toString());
-                      },
-                    ),
-                  ),
-                  onFieldSubmitted: (value) {})),
+          buildNicknameInput(context),
+          SizedBox(height: 4.w),
+          buildValidationMsg(context),
           SizedBox(height: 26.w),
           Divider(
             color: AppColors.Grey300,
@@ -171,5 +104,169 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         ],
       ),
     );
+  }
+
+  Container buildValidationMsg(BuildContext context) {
+    return Container(
+      height: 32.w,
+      alignment: Alignment.topLeft,
+      padding: EdgeInsets.only(left: 16.w),
+      margin: EdgeInsets.symmetric(horizontal: 57.w),
+      child: isValid == false
+          ? Text(
+              S.of(context).nickname_validation_error,
+              style: getTextStyle(AppTypo.CAPTION10SB, AppColors.StatusError),
+            )
+          : null,
+    );
+  }
+
+  Container buildNicknameInput(BuildContext context) {
+    return Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24.w),
+          border: Border.all(
+              color: isValid ? AppColors.Primary500 : AppColors.StatusError,
+              strokeAlign: BorderSide.strokeAlignInside,
+              width: 1.5.w),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        margin: EdgeInsets.symmetric(horizontal: 57.w),
+        alignment: Alignment.center,
+        height: 48.w,
+        child: Form(
+          key: _formKey,
+          child: TextFormField(
+            controller: _textEditingController,
+            // autovalidateMode: AutovalidateMode.onUserInteraction,
+            onChanged: (value) {
+              logger.d('onChanged');
+              setState(() {
+                isValid = validateInput(value) == null;
+              });
+            },
+            cursorColor: AppColors.Primary500,
+            focusNode: _focusNode,
+            cursorHeight: 16.w,
+            keyboardType: TextInputType.text,
+            style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
+            decoration: InputDecoration(
+              hintText: S.of(context).hint_nickname_input,
+              hintStyle: getTextStyle(AppTypo.BODY14B, AppColors.Grey300),
+              border: InputBorder.none,
+              fillColor: AppColors.Grey900,
+              focusColor: AppColors.Primary500,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              errorBorder: InputBorder.none,
+              suffixIconConstraints: BoxConstraints(
+                minWidth: 20.w,
+                minHeight: 20.w,
+              ),
+              suffixIcon: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  _textEditingController.clear();
+                },
+                child: _textEditingController.text ==
+                        ref.watch(userInfoProvider).value?.nickname
+                    ? SvgPicture.asset('assets/icons/pencil_style=fill.svg',
+                        colorFilter: const ColorFilter.mode(
+                          AppColors.Grey700,
+                          BlendMode.srcIn,
+                        ))
+                    : _textEditingController.text.isEmpty
+                        ? SvgPicture.asset(
+                            'assets/icons/cancle_style=fill.svg',
+                            colorFilter: const ColorFilter.mode(
+                              AppColors.Grey300,
+                              BlendMode.srcIn,
+                            ),
+                            width: 20.w,
+                            height: 20.w,
+                          )
+                        : GestureDetector(
+                            onTap: () {
+                              _textEditingController.clear();
+                            },
+                            child: SvgPicture.asset(
+                              'assets/icons/cancle_style=fill.svg',
+                              colorFilter: const ColorFilter.mode(
+                                AppColors.Grey700,
+                                BlendMode.srcIn,
+                              ),
+                              width: 20.w,
+                              height: 20.w,
+                            ),
+                          ),
+              ),
+            ),
+            onFieldSubmitted: (value) {
+              logger.d('onFieldSubmitted');
+              _focusNode.unfocus();
+              if (isValid) {
+                ref
+                    .read(userInfoProvider.notifier)
+                    .updateNickname(_textEditingController.text);
+              }
+            },
+          ),
+        ));
+  }
+
+  Container buildProfileImage(AsyncValue<UserProfilesModel?> userInfo) {
+    return Container(
+      width: 100.w,
+      height: 100.w,
+      alignment: Alignment.center,
+      child: Stack(
+        children: [
+          SizedBox(
+            width: 100.w,
+            height: 100.w,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(50.w),
+              clipBehavior: Clip.hardEdge,
+              child: CachedNetworkImage(
+                  imageUrl: userInfo.value?.avatar_url ?? '',
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => buildPlaceholderImage(),
+                  errorWidget: (context, url, error) =>
+                      const Icon(Icons.error)),
+            ),
+          ),
+          Positioned(
+            right: 0,
+            bottom: 0,
+            child: Container(
+                width: 24.w,
+                height: 24.w,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: AppColors.Primary500,
+                  borderRadius: BorderRadius.circular(50.w),
+                ),
+                child: SvgPicture.asset('assets/icons/camera_style=line.svg',
+                    width: 16.w,
+                    height: 16.w,
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.Grey00,
+                      BlendMode.srcIn,
+                    ))),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String? validateInput(String? value) {
+    final regExp = RegExp(r'^[\w\s]+$');
+    if (value == null ||
+        value.isEmpty ||
+        value.length > 20 ||
+        !regExp.hasMatch(value)) {
+      return S.of(context).nickname_validation_error;
+    }
+    return null;
   }
 }
