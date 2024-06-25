@@ -35,8 +35,7 @@ class _DrawImagePageState extends ConsumerState<DrawImagePage>
 
   @override
   Widget build(BuildContext context) {
-    final asyncCelebListState = ref.watch(asyncCelebListProvider);
-    int userId = 2;
+    ref.watch(asyncCelebListProvider);
 
     return SingleChildScrollView(
       child: Column(
