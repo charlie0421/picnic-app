@@ -64,7 +64,7 @@ Map<String, dynamic> sortKeys(Map<String, dynamic> map) {
 
 Future<void> translateArbFile(Translator translator, String inputFile,
     String outputFile, String targetLanguage,
-    {bool translateAll = false, bool manualTranslation = false}) async {
+    {bool translateAll = false}) async {
   final originalArbContent = await readJsonFile(inputFile);
   final translatedArbContent = await readJsonFile(outputFile);
 
@@ -136,7 +136,8 @@ Future<void> translateArbFile(Translator translator, String inputFile,
   print('Translation completed and saved to $outputFile');
 }
 
-Future<void> synchronizeKeys(String inputFile, List<String> outputFiles) async {
+Future<void> synchronizeKeys(String inputFile, List<String> outputFiles,
+    {bool modifyTimestamps = true}) async {
   final originalArbContent = await readJsonFile(inputFile);
   for (final outputFile in outputFiles) {
     final translatedArbContent = await readJsonFile(outputFile);
@@ -153,7 +154,9 @@ Future<void> synchronizeKeys(String inputFile, List<String> outputFiles) async {
           updatedArbContent[metaKey] = originalArbContent.containsKey(metaKey)
               ? Map<String, dynamic>.from(originalArbContent[metaKey])
               : {};
-          updatedArbContent[metaKey][timestampKey] = currentTimestamp;
+          if (modifyTimestamps) {
+            updatedArbContent[metaKey][timestampKey] = currentTimestamp;
+          }
           print('Added new key to $outputFile: $key');
         }
       }
@@ -215,14 +218,11 @@ void main(List<String> arguments) async {
   final parser = ArgParser()
     ..addFlag('all',
         abbr: 'a', defaultsTo: false, help: 'Translate all strings')
-    ..addFlag('watch', abbr: 'w', defaultsTo: false, help: 'Watch for changes')
-    ..addFlag('manual',
-        abbr: 'm', defaultsTo: false, help: 'Respect manual translations');
+    ..addFlag('watch', abbr: 'w', defaultsTo: false, help: 'Watch for changes');
 
   final args = parser.parse(arguments);
   final translateAll = args['all'] as bool;
   final watch = args['watch'] as bool;
-  final manualTranslation = args['manual'] as bool;
 
   try {
     final translator = Translator(authKey: deeplApiKey);
@@ -236,23 +236,30 @@ void main(List<String> arguments) async {
       'lib/l10n/intl_zh_CN.arb'
     ];
 
-    await addTimestampToArbFile(inputFile);
-    await synchronizeKeys(inputFile, outputFiles);
+    if (!watch) {
+      await addTimestampToArbFile(inputFile);
+    }
 
-    // print('Translating en...');
-    // await translateArbFile(translator, inputFile, 'lib/l10n/intl_en.arb', 'EN',
-    //     translateAll: translateAll, manualTranslation: manualTranslation);
-    //
-    // print('Translating ja...');
-    // await translateArbFile(translator, inputFile, 'lib/l10n/intl_ja.arb', 'JA',
-    //     translateAll: translateAll, manualTranslation: manualTranslation);
-    //
-    // print('Translating zh_CN...');
-    // await translateArbFile(
-    //     translator, inputFile, 'lib/l10n/intl_zh_CN.arb', 'ZH',
-    //     translateAll: translateAll, manualTranslation: manualTranslation);
-    //
-    // print('Translation completed');
+    await synchronizeKeys(inputFile, outputFiles, modifyTimestamps: !watch);
+
+    if (translateAll || !watch) {
+      print('Translating en...');
+      await translateArbFile(
+          translator, inputFile, 'lib/l10n/intl_en.arb', 'EN',
+          translateAll: translateAll);
+
+      print('Translating ja...');
+      await translateArbFile(
+          translator, inputFile, 'lib/l10n/intl_ja.arb', 'JA',
+          translateAll: translateAll);
+
+      print('Translating zh_CN...');
+      await translateArbFile(
+          translator, inputFile, 'lib/l10n/intl_zh_CN.arb', 'ZH',
+          translateAll: translateAll);
+
+      print('Translation completed');
+    }
 
     if (watch) {
       print('Watching for changes...');
@@ -261,17 +268,25 @@ void main(List<String> arguments) async {
         if (event.type == ChangeType.MODIFY) {
           print('Detected changes in $inputFile, translating...');
 
-          await synchronizeKeys(inputFile, outputFiles);
+          await synchronizeKeys(inputFile, outputFiles,
+              modifyTimestamps: false);
 
+          print('Translating en...');
           await translateArbFile(
               translator, inputFile, 'lib/l10n/intl_en.arb', 'EN',
-              translateAll: translateAll, manualTranslation: manualTranslation);
+              translateAll: true);
+
+          print('Translating ja...');
           await translateArbFile(
               translator, inputFile, 'lib/l10n/intl_ja.arb', 'JA',
-              translateAll: translateAll, manualTranslation: manualTranslation);
+              translateAll: true);
+
+          print('Translating zh_CN...');
           await translateArbFile(
               translator, inputFile, 'lib/l10n/intl_zh_CN.arb', 'ZH',
-              translateAll: translateAll, manualTranslation: manualTranslation);
+              translateAll: true);
+
+          print('Translation completed');
         }
       });
     }

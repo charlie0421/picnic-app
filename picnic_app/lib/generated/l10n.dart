@@ -150,6 +150,46 @@ class S {
     );
   }
 
+  /// `Let me think about it again`
+  String get dialog_withdraw_button_cancel {
+    return Intl.message(
+      'Let me think about it again',
+      name: 'dialog_withdraw_button_cancel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unsubscribing`
+  String get dialog_withdraw_button_ok {
+    return Intl.message(
+      'Unsubscribing',
+      name: 'dialog_withdraw_button_ok',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `If you cancel your membership, any Star Candy you have on Picnic and your account information will be deleted immediately.`
+  String get dialog_withdraw_message {
+    return Intl.message(
+      'If you cancel your membership, any Star Candy you have on Picnic and your account information will be deleted immediately.',
+      name: 'dialog_withdraw_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to leave?`
+  String get dialog_withdraw_title {
+    return Intl.message(
+      'Are you sure you want to leave?',
+      name: 'dialog_withdraw_title',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Album name`
   String get hint_library_add {
     return Intl.message(

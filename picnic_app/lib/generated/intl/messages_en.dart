@@ -42,6 +42,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
         "dialog_title_vote_fail":
             MessageLookupByLibrary.simpleMessage("Voting Failed"),
+        "dialog_withdraw_button_cancel":
+            MessageLookupByLibrary.simpleMessage("Let me think about it again"),
+        "dialog_withdraw_button_ok":
+            MessageLookupByLibrary.simpleMessage("Unsubscribing"),
+        "dialog_withdraw_message": MessageLookupByLibrary.simpleMessage(
+            "If you cancel your membership, any Star Candy you have on Picnic and your account information will be deleted immediately."),
+        "dialog_withdraw_title": MessageLookupByLibrary.simpleMessage(
+            "Are you sure you want to leave?"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("Album name"),
         "hint_nickname_input":
             MessageLookupByLibrary.simpleMessage("Please enter a nickname."),
