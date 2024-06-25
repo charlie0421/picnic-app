@@ -192,7 +192,9 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("20자 이내, 특수문자 제외 가능합니다."),
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("마이페이지"),
         "page_title_myprofile": MessageLookupByLibrary.simpleMessage("나의 프로필"),
+        "page_title_privacy": MessageLookupByLibrary.simpleMessage("개인정보처리방침"),
         "page_title_setting": MessageLookupByLibrary.simpleMessage("환경설정"),
+        "page_title_terms_of_use": MessageLookupByLibrary.simpleMessage("이용약관"),
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("투표하기"),
         "page_title_vote_gather":
             MessageLookupByLibrary.simpleMessage("투표 모아보기"),

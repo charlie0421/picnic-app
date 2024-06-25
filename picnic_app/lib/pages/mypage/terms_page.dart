@@ -8,7 +8,7 @@ import 'package:picnic_app/providers/policy_provider.dart';
 import 'package:picnic_app/util.dart';
 
 class TermsPage extends ConsumerStatefulWidget {
-  final String pageName = 'page_title_terms';
+  final String pageName = 'page_title_terms_of_use';
 
   const TermsPage({super.key});
 
@@ -30,9 +30,12 @@ class _TermsPageState extends ConsumerState<TermsPage>
 
   Widget _buildTabBar() {
     final PolicyLanguage language =
-        ref.watch(appSettingProvider).locale.languageCode == 'ko'
-            ? PolicyLanguage.ko
-            : PolicyLanguage.en;
+    ref
+        .watch(appSettingProvider)
+        .locale
+        .languageCode == 'ko'
+        ? PolicyLanguage.ko
+        : PolicyLanguage.en;
     final policyModelState = ref
         .watch(asyncPolicyProvider(type: PolicyType.terms, language: language));
     return policyModelState.when(
@@ -48,11 +51,12 @@ class _TermsPageState extends ConsumerState<TermsPage>
         );
       },
       loading: () => buildLoadingOverlay(),
-      error: (error, stack) => ErrorView(
-        context,
-        error: error,
-        stackTrace: stack,
-      ),
+      error: (error, stack) =>
+          ErrorView(
+            context,
+            error: error,
+            stackTrace: stack,
+          ),
     );
   }
 }
