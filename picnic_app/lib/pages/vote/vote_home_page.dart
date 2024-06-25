@@ -176,7 +176,9 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(8.r),
                               child: CachedNetworkImage(
-                                  imageUrl: '${data[index].thumbnail}' ?? '',
+                                  imageUrl: data[index].thumbnail != null
+                                      ? ''
+                                      : data[index].thumbnail!,
                                   width: 120.w,
                                   height: 100.w,
                                   placeholder: (context, url) =>
@@ -262,7 +264,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                   alignment: Alignment.center,
                   height: 200.w,
                   child: CachedNetworkImage(
-                      imageUrl: '${data[index].thumbnail}' ?? '',
+                      imageUrl: data[index].thumbnail ?? '',
                       height: 200.w,
                       placeholder: (context, url) => buildPlaceholderImage(),
                       fit: BoxFit.cover),

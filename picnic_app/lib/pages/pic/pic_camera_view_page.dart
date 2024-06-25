@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -360,7 +359,6 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
     'sounds/10.mp3',
     'sounds/shutter.mp3'
   ];
-  final AudioPlayer _audioPlayer = AudioPlayer(); // Add this line
 
   void _handleCapture() {
     if (_viewMode != ViewMode.ready) return;
@@ -378,11 +376,9 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
           if (countdownIndex >= 0 &&
               countdownIndex < countdownSounds.length - 1) {
             logger.i('Playing sound: ${countdownSounds[countdownIndex]}');
-            // _audioPlayer.play(AssetSource(countdownSounds[countdownIndex]));
           }
           if (_remainTime <= 0) {
             timer.cancel();
-            // _audioPlayer.play(AssetSource(countdownSounds.last));
             _captureImage();
           } else {
             setState(() {
