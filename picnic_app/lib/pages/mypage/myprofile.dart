@@ -7,6 +7,9 @@ import 'package:picnic_app/components/common/picnic_list_item.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/user_profiles.dart';
+import 'package:picnic_app/pages/mypage/privacy_page.dart';
+import 'package:picnic_app/pages/mypage/terms_page.dart';
+import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
@@ -65,7 +68,11 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
           ListItem(
               leading: S.of(context).label_mypage_terms_of_use,
               assetPath: 'assets/icons/arrow_right_style=line.svg',
-              onTap: () {}),
+              onTap: () {
+                ref
+                    .read(navigationInfoProvider.notifier)
+                    .setCurrentMyPage(const TermsPage());
+              }),
           Divider(
             color: AppColors.Grey300,
             thickness: 1,
@@ -74,7 +81,11 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
           ListItem(
               leading: S.of(context).label_mypage_privacy_policy,
               assetPath: 'assets/icons/arrow_right_style=line.svg',
-              onTap: () {}),
+              onTap: () {
+                ref
+                    .read(navigationInfoProvider.notifier)
+                    .setCurrentMyPage(const PrivacyPage());
+              }),
           Divider(
             color: AppColors.Grey300,
             thickness: 1,
