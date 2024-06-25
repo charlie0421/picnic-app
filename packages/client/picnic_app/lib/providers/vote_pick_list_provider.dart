@@ -37,7 +37,7 @@ class AsyncVotePickList extends _$AsyncVotePickList {
       return VotePickListModel.fromJson({'items': response.data, 'meta': meta});
     } catch (e, stackTrace) {
       logger.e(e, stackTrace: stackTrace);
-      throw e;
+      rethrow;
     } finally {}
   }
 }

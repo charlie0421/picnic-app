@@ -49,7 +49,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
                 );
               },
               itemCount: widget.article.article_image!.length,
-              pagination: SwiperPagination(
+              pagination: const SwiperPagination(
                 builder: DotSwiperPaginationBuilder(
                     color: Colors.grey, activeColor: picMainColor),
               ),
@@ -100,7 +100,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
 class FullScreenImageViewer extends StatefulWidget {
   final String imageUrl;
 
-  FullScreenImageViewer({required this.imageUrl});
+  const FullScreenImageViewer({super.key, required this.imageUrl});
 
   @override
   _FullScreenImageViewerState createState() => _FullScreenImageViewerState();
@@ -125,7 +125,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
     _animationController = AnimationController(
       vsync: this,
       duration:
-          Duration(milliseconds: 300), // Define the duration of the animation
+          const Duration(milliseconds: 300), // Define the duration of the animation
     );
 
     _animationController.addListener(() {
@@ -158,7 +158,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
                       imageUrl: widget.imageUrl,
                       fit: BoxFit.contain,
                       placeholder: (context, url) =>
-                          CircularProgressIndicator(),
+                          const CircularProgressIndicator(),
                       imageBuilder: (context, imageProvider) {
                         return Image(
                           image: imageProvider,
@@ -189,7 +189,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
               right: 10,
               top: 40,
               child: IconButton(
-                icon: Icon(Icons.close, color: Colors.white, size: 30),
+                icon: const Icon(Icons.close, color: Colors.white, size: 30),
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ),
@@ -225,10 +225,10 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
       begin: _controller.value,
       end: zoomed,
     ).animate(CurvedAnimation(
-      parent: _animationController!,
+      parent: _animationController,
       curve: Curves.easeInOut,
     ));
 
-    _animationController!.forward(from: 0.0);
+    _animationController.forward(from: 0.0);
   }
 }

@@ -29,13 +29,13 @@ Future<void> addTimestampToArbFile(String filePath) async {
     }
   }
 
-  final encoder = JsonEncoder.withIndent('  ');
+  const encoder = JsonEncoder.withIndent('  ');
   final formattedJson = encoder.convert(updatedArbContent);
   await file.writeAsString(formattedJson);
   print('Timestamps added and saved to $filePath');
 }
 
 void main() async {
-  final filePath = './lib/l10n/intl_ko.arb';
+  const filePath = './lib/l10n/intl_ko.arb';
   await addTimestampToArbFile(filePath);
 }

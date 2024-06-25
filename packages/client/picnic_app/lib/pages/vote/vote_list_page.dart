@@ -31,10 +31,6 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
     );
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {

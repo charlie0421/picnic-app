@@ -29,7 +29,7 @@ class VoteHomePage extends ConsumerStatefulWidget {
 class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   final PagingController<int, VoteModel> _pagingController =
       PagingController(firstPageKey: 1);
-  String _sortOrder = 'DESC';
+  final String _sortOrder = 'DESC';
 
   @override
   void initState() {
@@ -60,7 +60,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         onTap: () {
           ref
               .read(navigationInfoProvider.notifier)
-              .setCurrentPage(VoteListPage(), showTopMenu: false);
+              .setCurrentPage(const VoteListPage(), showTopMenu: false);
         },
         child: Container(
           padding: const EdgeInsets.only(left: 16),
@@ -121,12 +121,12 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
 
     const domain = 'https://cdn-dev.picnic.fan';
 
-    response.data.forEach((element) {
+    for (var element in response.data) {
       element['vote_item'].forEach((item) {
         item['mystar_member']['image'] =
             '$domain/mystar/member/${item['mystar_member']['id']}/${item['mystar_member']['image']}';
       });
-    });
+    }
 
     final meta = {
       'totalItems': response.count,
@@ -159,9 +159,9 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                     itemCount: data.length,
                     itemBuilder: (BuildContext context, int index) {
                       String title = '';
-                      if (Intl.getCurrentLocale() == 'ko')
+                      if (Intl.getCurrentLocale() == 'ko') {
                         title = data[index].title_ko;
-                      else if (Intl.getCurrentLocale() == 'en')
+                      } else if (Intl.getCurrentLocale() == 'en')
                         title = data[index].title_en;
                       else if (Intl.getCurrentLocale() == 'ja')
                         title = data[index].title_ja;
@@ -250,9 +250,9 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         data: (data) => Swiper(
           itemBuilder: (BuildContext context, int index) {
             String title = '';
-            if (Intl.getCurrentLocale() == 'ko')
+            if (Intl.getCurrentLocale() == 'ko') {
               title = data[index].title_ko;
-            else if (Intl.getCurrentLocale() == 'en')
+            } else if (Intl.getCurrentLocale() == 'en')
               title = data[index].title_en;
             else if (Intl.getCurrentLocale() == 'ja')
               title = data[index].title_ja;

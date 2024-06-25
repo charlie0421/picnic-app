@@ -110,7 +110,7 @@ class LoginScreen extends ConsumerWidget {
                     children: [
                       SvgPicture.asset(
                         'assets/icons/global_style=line.svg',
-                        colorFilter: ColorFilter.mode(
+                        colorFilter: const ColorFilter.mode(
                             AppColors.Primary500, BlendMode.srcIn),
                         width: 20.w,
                         height: 20.w,
@@ -132,7 +132,7 @@ class LoginScreen extends ConsumerWidget {
                         angle: 1.57,
                         child: SvgPicture.asset(
                           'assets/icons/play_style=fill.svg',
-                          colorFilter: ColorFilter.mode(
+                          colorFilter: const ColorFilter.mode(
                               AppColors.Grey900, BlendMode.srcIn),
                           width: 20.w,
                           height: 20.w,
@@ -334,9 +334,9 @@ class LoginScreen extends ConsumerWidget {
 
       try {
         Map<String, dynamic> decodedToken = JwtDecoder.decode(idToken!);
-        print('Decoded Token: $decodedToken');
+        logger.i('Decoded Token: $decodedToken');
       } catch (e) {
-        print('Failed to decode id_token: $e');
+        logger.i('Failed to decode id_token: $e');
       }
 
       if (accessToken == null) {
@@ -347,7 +347,7 @@ class LoginScreen extends ConsumerWidget {
       }
 
       decodeAndPrintToken(
-          idToken!); // Add this line to decode and print the token
+          idToken); // Add this line to decode and logger.i the token
 
       await Supabase.instance.client.auth.signInWithIdToken(
         provider: OAuthProvider.google,
@@ -376,9 +376,9 @@ class LoginScreen extends ConsumerWidget {
       if (await isKakaoTalkInstalled()) {
         try {
           token = await UserApi.instance.loginWithKakaoTalk();
-          print('카카오톡으로 로그인 성공');
+          logger.i('카카오톡으로 로그인 성공');
         } catch (error) {
-          print('카카오톡으로 로그인 실패 $error');
+          logger.i('카카오톡으로 로그인 실패 $error');
 
           // 사용자가 카카오톡 설치 후 디바이스 권한 요청 화면에서 로그인을 취소한 경우,
           // 의도적인 로그인 취소로 보고 카카오계정으로 로그인 시도 없이 로그인 취소로 처리 (예: 뒤로 가기)
@@ -388,23 +388,23 @@ class LoginScreen extends ConsumerWidget {
           // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인
           try {
             token = await UserApi.instance.loginWithKakaoAccount();
-            print('카카오계정으로 로그인 성공');
+            logger.i('카카오계정으로 로그인 성공');
           } catch (error) {
-            print('카카오계정으로 로그인 실패 $error');
+            logger.i('카카오계정으로 로그인 실패 $error');
           }
         }
       } else {
         try {
           token = await UserApi.instance.loginWithKakaoAccount();
-          print('카카오계정으로 로그인 성공');
+          logger.i('카카오계정으로 로그인 성공');
         } catch (error) {
-          print('카카오계정으로 로그인 실패 $error');
+          logger.i('카카오계정으로 로그인 실패 $error');
         }
       }
 
       logger.i('Token: $token');
 
-      if (token == null || token.idToken == null || token.accessToken == null) {
+      if (token == null || token.idToken == null) {
         throw 'Kakao login failed';
       }
 
@@ -419,13 +419,13 @@ class LoginScreen extends ConsumerWidget {
       }
 
       // 토큰 정보 출력
-      print('ID Token: ${token.idToken}');
-      print('Access Token: ${token.accessToken}');
+      logger.i('ID Token: ${token.idToken}');
+      logger.i('Access Token: ${token.accessToken}');
 
       final response = await Supabase.instance.client.auth.signInWithIdToken(
         provider: OAuthProvider.kakao,
         idToken: token.idToken!,
-        accessToken: token.accessToken!,
+        accessToken: token.accessToken,
         nonce: decodedToken['nonce'],
       );
 
@@ -447,11 +447,11 @@ class LoginScreen extends ConsumerWidget {
         utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
     final payloadMap = json.decode(payload) as Map<String, dynamic>;
 
-    print('Token Payload: $payloadMap');
+    logger.i('Token Payload: $payloadMap');
     if (payloadMap.containsKey('aud')) {
-      print('Audience: ${payloadMap['aud']}');
+      logger.i('Audience: ${payloadMap['aud']}');
     } else {
-      print('Audience not found in token');
+      logger.i('Audience not found in token');
     }
   }
 }

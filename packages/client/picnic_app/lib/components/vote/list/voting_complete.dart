@@ -253,7 +253,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                             ),
                             SizedBox(height: 2.w),
                             Text(
-                              '${DateFormat('yyyy.MM.dd HH:mm').format(DateTime.tryParse(widget.result['updatedAt'])!.add(Duration(hours: 9)))}(KST)',
+                              '${DateFormat('yyyy.MM.dd HH:mm').format(DateTime.tryParse(widget.result['updatedAt'])!.add(const Duration(hours: 9)))}(KST)',
                               style: getTextStyle(
                                   AppTypo.CAPTION12R, AppColors.Grey600),
                               overflow: TextOverflow.ellipsis,
@@ -319,7 +319,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                           children: [
                             Expanded(
                               flex: 1,
-                              child: Container(
+                              child: SizedBox(
                                 width: 120.w,
                                 height: 140.w,
                                 child: Column(
@@ -370,14 +370,14 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                               child: Stack(
                                 alignment: Alignment.center,
                                 children: [
-                                  Container(
+                                  SizedBox(
                                     width: 120.w,
                                     height: 120.w,
                                     child: GradientCircularProgressIndicator(
                                       value: widget.result['addedVoteTotal'] /
                                           widget.result['updatedVoteTotal'],
                                       strokeWidth: 20,
-                                      gradientColors: [
+                                      gradientColors: const [
                                         Color(0xFF9374FF),
                                         Color(0xFF83FBC8),
                                       ],
@@ -482,11 +482,11 @@ class GradientCircularProgressIndicator extends StatefulWidget {
   final List<Color> gradientColors;
 
   const GradientCircularProgressIndicator({
-    Key? key,
+    super.key,
     required this.value,
     required this.strokeWidth,
     required this.gradientColors,
-  }) : super(key: key);
+  });
 
   @override
   _GradientCircularProgressIndicatorState createState() =>
@@ -554,7 +554,7 @@ class _GradientCircularProgressPainter extends CustomPainter {
     final Rect rect = Rect.fromLTWH(0, 0, size.width, size.height);
     final Gradient gradient = LinearGradient(
       colors: gradientColors,
-      stops: [0.0, 0.75],
+      stops: const [0.0, 0.75],
     );
 
     final Paint paint = Paint()

@@ -11,12 +11,12 @@ class CameraPreviewWidget extends StatelessWidget {
   final bool cameraInitialized;
 
   const CameraPreviewWidget({
-    Key? key,
+    super.key,
     required this.controller,
     required this.overlayImage,
     required this.repaintBoundaryKey,
     required this.cameraInitialized,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

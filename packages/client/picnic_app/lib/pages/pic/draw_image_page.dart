@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/celeb_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';

@@ -41,10 +41,10 @@ class VotingDialog extends ConsumerStatefulWidget {
   final VoteItemModel voteItemModel;
 
   const VotingDialog({
-    Key? key,
+    super.key,
     required this.voteModel,
     required this.voteItemModel,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<VotingDialog> createState() => _VotingDialogState();
@@ -91,7 +91,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   Widget build(BuildContext context) {
     final int myStarCandy = ref.watch(
         userInfoProvider.select((value) => value.value?.star_candy ?? 0));
-    final String user_id =
+    final String userId =
         ref.watch(userInfoProvider.select((value) => value.value?.id ?? ''));
 
     return Dialog(
@@ -382,7 +382,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                   ],
                 ),
               ),
-              Container(
+              SizedBox(
                 height: 28.w,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -455,7 +455,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                             'vote_id': widget.voteModel.id,
                             'vote_item_id': widget.voteItemModel.id,
                             'amount': voteAmount,
-                            'user_id': user_id,
+                            'user_id': userId,
                           });
 
                           logger.i('투표 완료: ${response.data}');

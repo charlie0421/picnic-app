@@ -106,12 +106,12 @@ class _VoteListState extends State<VoteList> {
 
     const domain = 'https://cdn-dev.picnic.fan';
 
-    response.data.forEach((element) {
+    for (var element in response.data) {
       element['vote_item'].forEach((item) {
         item['mystar_member']['image'] =
             '$domain/mystar/member/${item['mystar_member']['id']}/${item['mystar_member']['image']}';
       });
-    });
+    }
 
     final meta = {
       'totalItems': response.count,

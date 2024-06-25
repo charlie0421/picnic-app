@@ -127,7 +127,7 @@ Future<void> translateArbFile(Translator translator, String inputFile,
   final sortedContent = sortKeys(updatedArbContent);
   sortedContent.remove("@@locale");
 
-  final encoder = JsonEncoder.withIndent('  ');
+  const encoder = JsonEncoder.withIndent('  ');
   final formattedJson = encoder.convert({
     "@@locale": targetLanguage.toLowerCase(),
     ...sortedContent,
@@ -165,7 +165,7 @@ Future<void> synchronizeKeys(String inputFile, List<String> outputFiles,
     final sortedContent = sortKeys(updatedArbContent);
     sortedContent.remove("@@locale");
 
-    final encoder = JsonEncoder.withIndent('  ');
+    const encoder = JsonEncoder.withIndent('  ');
     final formattedJson = encoder.convert({
       "@@locale": outputFile.split('_').last.split('.').first.toLowerCase(),
       ...sortedContent,
@@ -205,7 +205,7 @@ Future<void> addTimestampToArbFile(String filePath) async {
   final sortedContent = sortKeys(updatedArbContent);
   sortedContent.remove("@@locale");
 
-  final encoder = JsonEncoder.withIndent('  ');
+  const encoder = JsonEncoder.withIndent('  ');
   final formattedJson = encoder.convert({
     "@@locale": arbContent["@@locale"],
     ...sortedContent,
@@ -229,7 +229,7 @@ void main(List<String> arguments) async {
     print('apiKey: $deeplApiKey');
     print('Translating...');
 
-    final inputFile = 'lib/l10n/intl_ko.arb';
+    const inputFile = 'lib/l10n/intl_ko.arb';
     final outputFiles = [
       'lib/l10n/intl_en.arb',
       'lib/l10n/intl_ja.arb',

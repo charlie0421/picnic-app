@@ -24,7 +24,7 @@ class AsyncVoteList extends _$AsyncVoteList {
     try {
       final now = DateTime.now().toIso8601String();
 
-      var response;
+      PostgrestResponse<PostgrestList> response;
 // status가 'all'이 아닌 경우에만 start_at과 end_at 필드를 기준으로 필터링합니다.
       if (status == 'active') {
         // status가 'active'인 경우, start_at은 현재 시간보다 이전이고 end_at은 현재 시간보다 이후여야 합니다.
@@ -87,7 +87,7 @@ class AsyncVoteList extends _$AsyncVoteList {
       });
     } catch (e, stackTrace) {
       logger.e(e, stackTrace: stackTrace);
-      throw e;
+      rethrow;
     } finally {}
   }
 }

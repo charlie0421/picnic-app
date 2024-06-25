@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:picnic_app/app.dart';
 import 'package:picnic_app/firebase_options.dart';
 import 'package:picnic_app/main.reflectable.dart';
-import 'package:picnic_app/app.dart';
 import 'package:picnic_app/reflector.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util.dart';
@@ -20,7 +20,7 @@ void main() async {
   await Supabase.initialize(
     url: supabaseOptions.url,
     anonKey: supabaseOptions.anonKey,
-    authOptions: FlutterAuthClientOptions(
+    authOptions: const FlutterAuthClientOptions(
       autoRefreshToken: true,
     ),
     debug: true,

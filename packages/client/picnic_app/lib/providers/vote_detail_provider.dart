@@ -53,9 +53,9 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
 
       for (var i = 0; i < voteItemList.length; i++) {
         voteItemList[i] = voteItemList[i].copyWith(
-            mystar_member: voteItemList[i].mystar_member!.copyWith(
+            mystar_member: voteItemList[i].mystar_member.copyWith(
                 image:
-                    'https://cdn-dev.picnic.fan/mystar/member/${voteItemList[i].mystar_member!.id}/${voteItemList[i].mystar_member!.image}'));
+                    'https://cdn-dev.picnic.fan/mystar/member/${voteItemList[i].mystar_member.id}/${voteItemList[i].mystar_member.image}'));
       }
 
       state = AsyncValue.data(voteItemList);
