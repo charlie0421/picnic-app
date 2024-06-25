@@ -64,7 +64,7 @@ Map<String, dynamic> sortKeys(Map<String, dynamic> map) {
 
 Future<void> translateArbFile(Translator translator, String inputFile,
     String outputFile, String targetLanguage,
-    {bool translateAll = false}) async {
+    {bool translateAll = false, bool manualTranslation = false}) async {
   final originalArbContent = await readJsonFile(inputFile);
   final translatedArbContent = await readJsonFile(outputFile);
 
@@ -88,14 +88,14 @@ Future<void> translateArbFile(Translator translator, String inputFile,
           translatedArbContent[metaKey][manualTranslationKey] == true;
 
       if (isManualTranslation) {
-        updatedArbContent[key] = translatedArbContent[key];
-        updatedArbContent[metaKey] = translatedArbContent[metaKey];
-      } else if (translateAll ||
+        continue; // Skip manual translations
+      }
+
+      if (translateAll ||
           !hasTimestamp ||
           originalArbContent[metaKey][timestampKey] !=
               translatedArbContent[metaKey][timestampKey]) {
         if (containsKorean(originalArbContent[key])) {
-          print('Translating key: $key');
           final translatedText = await translateText(
               translator, originalArbContent[key], targetLanguage);
           updatedArbContent[key] = translatedText;
@@ -105,13 +105,11 @@ Future<void> translateArbFile(Translator translator, String inputFile,
             updatedArbContent[metaKey] = originalArbContent[metaKey];
           }
           updatedArbContent[metaKey][timestampKey] = currentTimestamp;
-          print('Processed key: $key');
         } else {
           updatedArbContent[key] = originalArbContent[key];
           if (originalArbContent.containsKey(metaKey)) {
             updatedArbContent[metaKey] = originalArbContent[metaKey];
           }
-          print('Copied key without translation: $key');
         }
       } else {
         if (translatedArbContent.containsKey(key)) {
@@ -120,19 +118,20 @@ Future<void> translateArbFile(Translator translator, String inputFile,
         if (translatedArbContent.containsKey(metaKey)) {
           updatedArbContent[metaKey] = translatedArbContent[metaKey];
         }
-        print('Key already up-to-date: $key');
       }
     } else {
       updatedArbContent[key] = originalArbContent[key];
     }
   }
 
-  updatedArbContent["@@locale"] = targetLanguage.toLowerCase();
-
   final sortedContent = sortKeys(updatedArbContent);
+  sortedContent.remove("@@locale");
 
   final encoder = JsonEncoder.withIndent('  ');
-  final formattedJson = encoder.convert(sortedContent);
+  final formattedJson = encoder.convert({
+    "@@locale": targetLanguage.toLowerCase(),
+    ...sortedContent,
+  });
   await File(outputFile).writeAsString(formattedJson);
   print('Translation completed and saved to $outputFile');
 }
@@ -160,13 +159,14 @@ Future<void> synchronizeKeys(String inputFile, List<String> outputFiles) async {
       }
     }
 
-    updatedArbContent["@@locale"] =
-        outputFile.split('_').last.split('.').first.toLowerCase();
-
     final sortedContent = sortKeys(updatedArbContent);
+    sortedContent.remove("@@locale");
 
     final encoder = JsonEncoder.withIndent('  ');
-    final formattedJson = encoder.convert(sortedContent);
+    final formattedJson = encoder.convert({
+      "@@locale": outputFile.split('_').last.split('.').first.toLowerCase(),
+      ...sortedContent,
+    });
     await File(outputFile).writeAsString(formattedJson);
     print('Synchronized and saved to $outputFile');
   }
@@ -200,9 +200,13 @@ Future<void> addTimestampToArbFile(String filePath) async {
   }
 
   final sortedContent = sortKeys(updatedArbContent);
+  sortedContent.remove("@@locale");
 
   final encoder = JsonEncoder.withIndent('  ');
-  final formattedJson = encoder.convert(sortedContent);
+  final formattedJson = encoder.convert({
+    "@@locale": arbContent["@@locale"],
+    ...sortedContent,
+  });
   await file.writeAsString(formattedJson);
   print('Timestamps added and saved to $filePath');
 }
@@ -211,11 +215,14 @@ void main(List<String> arguments) async {
   final parser = ArgParser()
     ..addFlag('all',
         abbr: 'a', defaultsTo: false, help: 'Translate all strings')
-    ..addFlag('watch', abbr: 'w', defaultsTo: false, help: 'Watch for changes');
+    ..addFlag('watch', abbr: 'w', defaultsTo: false, help: 'Watch for changes')
+    ..addFlag('manual',
+        abbr: 'm', defaultsTo: false, help: 'Respect manual translations');
 
   final args = parser.parse(arguments);
   final translateAll = args['all'] as bool;
   final watch = args['watch'] as bool;
+  final manualTranslation = args['manual'] as bool;
 
   try {
     final translator = Translator(authKey: deeplApiKey);
@@ -232,20 +239,20 @@ void main(List<String> arguments) async {
     await addTimestampToArbFile(inputFile);
     await synchronizeKeys(inputFile, outputFiles);
 
-    print('Translating en...');
-    await translateArbFile(translator, inputFile, 'lib/l10n/intl_en.arb', 'EN',
-        translateAll: translateAll);
-
-    print('Translating ja...');
-    await translateArbFile(translator, inputFile, 'lib/l10n/intl_ja.arb', 'JA',
-        translateAll: translateAll);
-
-    print('Translating zh_CN...');
-    await translateArbFile(
-        translator, inputFile, 'lib/l10n/intl_zh_CN.arb', 'ZH',
-        translateAll: translateAll);
-
-    print('Translation completed');
+    // print('Translating en...');
+    // await translateArbFile(translator, inputFile, 'lib/l10n/intl_en.arb', 'EN',
+    //     translateAll: translateAll, manualTranslation: manualTranslation);
+    //
+    // print('Translating ja...');
+    // await translateArbFile(translator, inputFile, 'lib/l10n/intl_ja.arb', 'JA',
+    //     translateAll: translateAll, manualTranslation: manualTranslation);
+    //
+    // print('Translating zh_CN...');
+    // await translateArbFile(
+    //     translator, inputFile, 'lib/l10n/intl_zh_CN.arb', 'ZH',
+    //     translateAll: translateAll, manualTranslation: manualTranslation);
+    //
+    // print('Translation completed');
 
     if (watch) {
       print('Watching for changes...');
@@ -258,13 +265,13 @@ void main(List<String> arguments) async {
 
           await translateArbFile(
               translator, inputFile, 'lib/l10n/intl_en.arb', 'EN',
-              translateAll: translateAll);
+              translateAll: translateAll, manualTranslation: manualTranslation);
           await translateArbFile(
               translator, inputFile, 'lib/l10n/intl_ja.arb', 'JA',
-              translateAll: translateAll);
+              translateAll: translateAll, manualTranslation: manualTranslation);
           await translateArbFile(
               translator, inputFile, 'lib/l10n/intl_zh_CN.arb', 'ZH',
-              translateAll: translateAll);
+              translateAll: translateAll, manualTranslation: manualTranslation);
         }
       });
     }

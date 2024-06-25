@@ -187,13 +187,15 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_subscription": MessageLookupByLibrary.simpleMessage("サブスクリプション"),
         "nav_vote": MessageLookupByLibrary.simpleMessage("投票"),
         "nickname_validation_error":
-            MessageLookupByLibrary.simpleMessage("20자 이내, 특수문자 제외 가능합니다."),
+            MessageLookupByLibrary.simpleMessage("20文字以内、特殊文字を除くことができます。"),
         "nickname_valitation":
             MessageLookupByLibrary.simpleMessage("20文字以内、特殊文字を除くことができます。"),
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("マイページ"),
         "page_title_myprofile":
             MessageLookupByLibrary.simpleMessage("私のプロフィール"),
+        "page_title_privacy": MessageLookupByLibrary.simpleMessage("個人情報保護方針"),
         "page_title_setting": MessageLookupByLibrary.simpleMessage("環境設定"),
+        "page_title_terms_of_use": MessageLookupByLibrary.simpleMessage("利用規約"),
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("投票する"),
         "page_title_vote_gather":
             MessageLookupByLibrary.simpleMessage("投票集を見る"),

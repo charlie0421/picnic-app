@@ -1160,10 +1160,10 @@ class S {
     );
   }
 
-  /// `20자 이내, 특수문자 제외 가능합니다.`
+  /// `20 characters or less, excluding special characters.`
   String get nickname_validation_error {
     return Intl.message(
-      '20자 이내, 특수문자 제외 가능합니다.',
+      '20 characters or less, excluding special characters.',
       name: 'nickname_validation_error',
       desc: '',
       args: [],
@@ -1200,11 +1200,31 @@ class S {
     );
   }
 
+  /// `Privacy Policy`
+  String get page_title_privacy {
+    return Intl.message(
+      'Privacy Policy',
+      name: 'page_title_privacy',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Preferences`
   String get page_title_setting {
     return Intl.message(
       'Preferences',
       name: 'page_title_setting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Terms of Use`
+  String get page_title_terms_of_use {
+    return Intl.message(
+      'Terms of Use',
+      name: 'page_title_terms_of_use',
       desc: '',
       args: [],
     );

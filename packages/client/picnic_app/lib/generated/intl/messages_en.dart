@@ -212,15 +212,19 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_vote": MessageLookupByLibrary.simpleMessage("Voting"),
         "nickname_validation": MessageLookupByLibrary.simpleMessage(
             "20 characters or less, excluding special characters."),
-        "nickname_validation_error":
-            MessageLookupByLibrary.simpleMessage("20자 이내, 특수문자 제외 가능합니다."),
+        "nickname_validation_error": MessageLookupByLibrary.simpleMessage(
+            "20 characters or less, excluding special characters."),
         "nickname_valitation": MessageLookupByLibrary.simpleMessage(
             "20 characters or less, excluding special characters."),
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("My Page"),
         "page_title_myprofile":
             MessageLookupByLibrary.simpleMessage("My profile"),
+        "page_title_privacy":
+            MessageLookupByLibrary.simpleMessage("Privacy Policy"),
         "page_title_setting":
             MessageLookupByLibrary.simpleMessage("Preferences"),
+        "page_title_terms_of_use":
+            MessageLookupByLibrary.simpleMessage("Terms of Use"),
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("Vote"),
         "page_title_vote_gather":
             MessageLookupByLibrary.simpleMessage("Collecting votes"),
