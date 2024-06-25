@@ -74,7 +74,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
           padding: EdgeInsets.symmetric(horizontal: 16.w),
           alignment: Alignment.centerRight,
           child: CustomDropdown(
-            key: Key('sortOrderDropdown'),
+            key: const Key('sortOrderDropdown'),
             value: _sortOrder,
             onChanged: (value) {
               setState(() {
@@ -134,7 +134,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
                                   AppTypo.BODY14M, AppColors.Grey900)),
                           TextSpan(
                               text:
-                                  '${item.vote_item!.mystar_member!.getTitle()}_${item.vote_item!.mystar_member!.mystar_group!.getTitle()}',
+                                  '${item.vote_item.mystar_member.getTitle()}_${item.vote_item.mystar_member.mystar_group!.getTitle()}',
                               style: getTextStyle(
                                   AppTypo.BODY14M, AppColors.Grey900)),
                         ])),

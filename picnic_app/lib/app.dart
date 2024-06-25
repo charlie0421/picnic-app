@@ -67,9 +67,9 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
       }
     });
 
-    final _appLinks = AppLinks(); // AppLinks is singleton
+    final appLinks = AppLinks(); // AppLinks is singleton
 
-    _sub = _appLinks.uriLinkStream.listen((Uri uri) {
+    _sub = appLinks.uriLinkStream.listen((Uri uri) {
       logger.i('Incoming link: $uri');
       ref.read(userInfoProvider.notifier).getUserProfiles();
     }, onError: (err) {
@@ -137,11 +137,11 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
                 useImmersiveMode: true,
                 duration: const Duration(milliseconds: 3000),
                 animationDuration: const Duration(milliseconds: 3000),
-                childWidget: Container(
+                childWidget: SizedBox(
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height,
                     child: Image.asset("assets/splash.png", fit: BoxFit.cover)),
-                nextScreen: Portal())),
+                nextScreen: const Portal())),
       ),
     );
   }

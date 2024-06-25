@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -66,7 +65,7 @@ class LargePopupWidget extends StatelessWidget {
               onTap: () {
                 Navigator.pop(context);
               },
-              child: Container(
+              child: SizedBox(
                 height: 24.h,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,

@@ -14,6 +14,7 @@ class CustomDropdownMenuItem {
 }
 
 class CustomDropdown extends StatelessWidget {
+  @override
   final Key key;
   final String value;
   final ValueChanged<String?> onChanged;
@@ -21,7 +22,7 @@ class CustomDropdown extends StatelessWidget {
   // final List<DropdownMenuItem<String>> items;
   final List<CustomDropdownMenuItem> items;
 
-  const CustomDropdown({
+  const CustomDropdown({super.key, 
     required this.key,
     required this.value,
     required this.onChanged,

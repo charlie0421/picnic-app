@@ -7,7 +7,7 @@ import 'package:picnic_app/ui/style.dart';
 class CountdownTimer extends StatefulWidget {
   final DateTime stopAt;
 
-  CountdownTimer({required this.stopAt});
+  const CountdownTimer({super.key, required this.stopAt});
 
   @override
   _CountdownTimerState createState() => _CountdownTimerState();
@@ -31,7 +31,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
   }
 
   void _startTimer() {
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         _timeLeft = widget.stopAt.difference(DateTime.now());
         if (_timeLeft.isNegative) {
@@ -101,7 +101,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
       padding: EdgeInsets.symmetric(
         horizontal: 5.w,
       ),
-      margin: EdgeInsets.symmetric(horizontal: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 4),
       // 추가: 숫자 간 간격 조정
       decoration: BoxDecoration(
         color: _color,

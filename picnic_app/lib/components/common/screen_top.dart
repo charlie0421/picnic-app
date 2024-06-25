@@ -74,7 +74,7 @@ class _TopState extends ConsumerState<ScreenTop> {
                   style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
                 )
               : const SizedBox(),
-          TopScreenRight(),
+          const TopScreenRight(),
         ],
       ),
     );

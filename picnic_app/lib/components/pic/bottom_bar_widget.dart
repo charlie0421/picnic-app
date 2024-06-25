@@ -24,7 +24,7 @@ class BottomBarWidget extends StatelessWidget {
   final ViewType viewType;
 
   const BottomBarWidget({
-    Key? key,
+    super.key,
     required this.controller,
     required this.flashMode,
     required this.recentImage,
@@ -38,7 +38,7 @@ class BottomBarWidget extends StatelessWidget {
     required this.onTimerToggle,
     required this.viewMode,
     required this.viewType,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -52,9 +52,9 @@ class BottomBarWidget extends StatelessWidget {
           GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () async {
-              final ImagePicker _picker = ImagePicker();
+              final ImagePicker picker = ImagePicker();
               final XFile? image =
-                  await _picker.pickImage(source: ImageSource.gallery);
+                  await picker.pickImage(source: ImageSource.gallery);
               if (image != null) {
                 final croppedFile = await ImageCropper().cropImage(
                   sourcePath: image.path,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_app/generated/l10n.dart';
 
 class DialogCommonOkButton extends StatelessWidget {
