@@ -7,10 +7,10 @@ import 'package:picnic_app/providers/article_list_provider.dart';
 import '../../ui/style.dart';
 
 class ArticleCommentInfo extends ConsumerStatefulWidget {
-  ArticleModel article;
-  Function showComments;
+  final ArticleModel article;
+  final Function showComments;
 
-  ArticleCommentInfo(
+  const ArticleCommentInfo(
       {super.key, required this.article, required this.showComments});
 
   @override

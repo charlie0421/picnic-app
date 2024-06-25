@@ -422,7 +422,7 @@ class LoginScreen extends ConsumerWidget {
       logger.i('ID Token: ${token.idToken}');
       logger.i('Access Token: ${token.accessToken}');
 
-      final response = await Supabase.instance.client.auth.signInWithIdToken(
+      await Supabase.instance.client.auth.signInWithIdToken(
         provider: OAuthProvider.kakao,
         idToken: token.idToken!,
         accessToken: token.accessToken,

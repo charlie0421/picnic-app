@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:another_flutter_splash_screen/another_flutter_splash_screen.dart';
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
@@ -48,8 +46,6 @@ void logJwtToken(String token) {
 }
 
 class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
-  late StreamSubscription _sub;
-
   @override
   void initState() {
     super.initState();
@@ -69,7 +65,7 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
 
     final appLinks = AppLinks(); // AppLinks is singleton
 
-    _sub = appLinks.uriLinkStream.listen((Uri uri) {
+    appLinks.uriLinkStream.listen((Uri uri) {
       logger.i('Incoming link: $uri');
       ref.read(userInfoProvider.notifier).getUserProfiles();
     }, onError: (err) {

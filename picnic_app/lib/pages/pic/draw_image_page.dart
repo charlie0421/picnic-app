@@ -17,7 +17,6 @@ class DrawImagePage extends ConsumerStatefulWidget {
 class _DrawImagePageState extends ConsumerState<DrawImagePage>
     with SingleTickerProviderStateMixin {
   AnimationController? _controller;
-  Animation<double>? _animation;
 
   @override
   void initState() {
@@ -26,10 +25,6 @@ class _DrawImagePageState extends ConsumerState<DrawImagePage>
       duration: const Duration(milliseconds: 500),
       vsync: this,
     )..repeat(reverse: true);
-    _animation = Tween<double>(begin: -0.05, end: 0.05).animate(_controller!)
-      ..addListener(() {
-        setState(() {});
-      });
   }
 
   @override
