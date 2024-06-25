@@ -11,9 +11,9 @@ import 'package:picnic_app/util.dart';
 import '../../constants.dart';
 
 class ArticleImages extends ConsumerStatefulWidget {
-  ArticleModel article;
+  final ArticleModel article;
 
-  ArticleImages({super.key, required this.article});
+  const ArticleImages({super.key, required this.article});
 
   @override
   ConsumerState<ArticleImages> createState() => _ArticleImagesState();
@@ -124,8 +124,8 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
 
     _animationController = AnimationController(
       vsync: this,
-      duration:
-          const Duration(milliseconds: 300), // Define the duration of the animation
+      duration: const Duration(
+          milliseconds: 300), // Define the duration of the animation
     );
 
     _animationController.addListener(() {
@@ -201,7 +201,6 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
 
   void _handleDoubleTap(TapDownDetails details) {
     final position = details.localPosition;
-    final screenSize = MediaQuery.of(context).size;
     final currentScale = _controller.value.getMaxScaleOnAxis();
     double targetScale;
 

@@ -29,7 +29,6 @@ class VoteHomePage extends ConsumerStatefulWidget {
 class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   final PagingController<int, VoteModel> _pagingController =
       PagingController(firstPageKey: 1);
-  final String _sortOrder = 'DESC';
 
   @override
   void initState() {
@@ -107,7 +106,6 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   }
 
   _fetch(int page, int limit, String sort, String order) async {
-    final now = DateTime.now().toIso8601String();
     final response = await Supabase.instance.client
         .from('vote')
         .select('*, vote_item(*, mystar_member(*, mystar_group(*)))')

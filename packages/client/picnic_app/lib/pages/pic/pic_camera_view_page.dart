@@ -44,7 +44,6 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
   Uint8List? _capturedImageBytes;
   int _setTimer = 3;
   int _remainTime = 0;
-  Timer? _timer;
 
   ViewMode _viewMode = ViewMode.loading;
   ViewType _viewType = ViewType.camera;
@@ -183,8 +182,8 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                   child: Center(
                     child: Text(
                       S.of(context).label_pic_pic_initializing_camera,
-                      style:
-                          const TextStyle(fontSize: 30, color: AppColors.Primary500),
+                      style: const TextStyle(
+                          fontSize: 30, color: AppColors.Primary500),
                     ),
                   ),
                 )
@@ -209,8 +208,8 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                   child: Center(
                     child: Text(
                       S.of(context).label_pic_pic_synthesizing_image,
-                      style:
-                          const TextStyle(fontSize: 30, color: AppColors.Primary500),
+                      style: const TextStyle(
+                          fontSize: 30, color: AppColors.Primary500),
                     ),
                   ),
                 ),
@@ -374,7 +373,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
           _remainTime = _setTimer * 1000;
           _viewMode = ViewMode.timer;
         });
-        _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
+        Timer.periodic(const Duration(seconds: 1), (Timer timer) {
           int countdownIndex = (_remainTime ~/ 1000) - 2;
           if (countdownIndex >= 0 &&
               countdownIndex < countdownSounds.length - 1) {
