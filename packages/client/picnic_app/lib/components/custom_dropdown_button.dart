@@ -22,7 +22,7 @@ class CustomDropdown extends StatelessWidget {
   // final List<DropdownMenuItem<String>> items;
   final List<CustomDropdownMenuItem> items;
 
-  const CustomDropdown({super.key, 
+  const CustomDropdown({
     required this.key,
     required this.value,
     required this.onChanged,
