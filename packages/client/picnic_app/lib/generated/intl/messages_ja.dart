@@ -41,6 +41,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("キャンセル"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("確認"),
         "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("投票失敗"),
+        "dialog_withdraw_button_cancel":
+            MessageLookupByLibrary.simpleMessage("もう一度考えてみます。"),
+        "dialog_withdraw_button_ok":
+            MessageLookupByLibrary.simpleMessage("退会する"),
+        "dialog_withdraw_message": MessageLookupByLibrary.simpleMessage(
+            "退会すると、ピクニックで保有している星キャンディーとアカウント情報は即座に削除されます。"),
+        "dialog_withdraw_title":
+            MessageLookupByLibrary.simpleMessage("本当に退会しますか？"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("アルバム名"),
         "hint_nickname_input":
             MessageLookupByLibrary.simpleMessage("ニックネームを入力してください。"),

@@ -41,6 +41,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("取消"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("确认"),
         "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("表决失败"),
+        "dialog_withdraw_button_cancel":
+            MessageLookupByLibrary.simpleMessage("让我再想一想"),
+        "dialog_withdraw_button_ok": MessageLookupByLibrary.simpleMessage("退订"),
+        "dialog_withdraw_message": MessageLookupByLibrary.simpleMessage(
+            "如果您取消会员资格，您的 Star Candy 和账户信息将被立即删除。"),
+        "dialog_withdraw_title":
+            MessageLookupByLibrary.simpleMessage("您确定要取消订阅吗？"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("专辑名称"),
         "hint_nickname_input": MessageLookupByLibrary.simpleMessage("请输入昵称。"),
         "label_album_add": MessageLookupByLibrary.simpleMessage("添加新相册"),

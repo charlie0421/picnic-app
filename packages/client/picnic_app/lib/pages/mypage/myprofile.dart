@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
+import 'package:picnic_app/components/ui/large_popup.dart';
+import 'package:picnic_app/components/vote/common_vote_info.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/user_profiles.dart';
@@ -106,7 +108,88 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
           ListItem(
               leading: S.of(context).label_mypage_withdrawal,
               assetPath: 'assets/icons/arrow_right_style=line.svg',
-              onTap: () {}),
+              onTap: () => showDialog(
+                  context: context,
+                  builder: (context) => LargePopupWidget(
+                        width: MediaQuery.of(context).size.width - 32.w,
+                        content: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 40.w, vertical: 64.w),
+                          child: Column(children: [
+                            Text(
+                              S.of(context).dialog_withdraw_title,
+                              style: getTextStyle(
+                                  AppTypo.TITLE18SB, AppColors.Grey900),
+                            ),
+                            SizedBox(height: 32.w),
+                            StorePointInfo(
+                                title: S.of(context).label_star_candy_pouch,
+                                width: 231.w,
+                                titlePadding: 10.w,
+                                height: 78.w),
+                            SizedBox(height: 44.w),
+                            SizedBox(
+                              width: 216.w,
+                              child: Text(
+                                S.of(context).dialog_withdraw_message,
+                                style: getTextStyle(
+                                    AppTypo.CAPTION12R, AppColors.Grey700),
+                              ),
+                            ),
+                            SizedBox(height: 32.w),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  flex: 1,
+                                  child: MaterialButton(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 20.w),
+                                      color: AppColors.Grey00,
+                                      shape: RoundedRectangleBorder(
+                                          side: BorderSide(
+                                              color: AppColors.Primary500,
+                                              width: 1.5.w),
+                                          borderRadius:
+                                              BorderRadius.circular(20.w)),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text(
+                                          S
+                                              .of(context)
+                                              .dialog_withdraw_button_ok,
+                                          style: getTextStyle(AppTypo.BODY14B,
+                                              AppColors.Primary500))),
+                                ),
+                                SizedBox(width: 10.w),
+                                Expanded(
+                                  flex: 2,
+                                  child: MaterialButton(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 20.w),
+                                      color: AppColors.Primary500,
+                                      shape: RoundedRectangleBorder(
+                                          side: BorderSide(
+                                              color: AppColors.Primary500,
+                                              width: 1.5.w),
+                                          borderRadius:
+                                              BorderRadius.circular(20.w)),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text(
+                                          S
+                                              .of(context)
+                                              .dialog_withdraw_button_cancel,
+                                          style: getTextStyle(AppTypo.BODY14B,
+                                              AppColors.Grey00))),
+                                ),
+                              ],
+                            )
+                          ]),
+                        ),
+                      ))),
           Divider(
             color: AppColors.Grey300,
             thickness: 1,

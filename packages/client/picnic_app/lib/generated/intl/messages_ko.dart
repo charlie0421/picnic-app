@@ -41,6 +41,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("취소"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("확인"),
         "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("투표 실패"),
+        "dialog_withdraw_button_cancel":
+            MessageLookupByLibrary.simpleMessage("다시 한 번 생각해 볼께요"),
+        "dialog_withdraw_button_ok":
+            MessageLookupByLibrary.simpleMessage("탈퇴하기"),
+        "dialog_withdraw_message": MessageLookupByLibrary.simpleMessage(
+            "회원 탈퇴 시 피크닠에 보유하고 계신 별사탕과 계정정보는 즉시 삭제됩니다."),
+        "dialog_withdraw_title":
+            MessageLookupByLibrary.simpleMessage("정말 탈퇴하시겠어요?"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("앨범명"),
         "hint_nickname_input":
             MessageLookupByLibrary.simpleMessage("닉네임을 입력해주세요."),
