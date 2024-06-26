@@ -113,7 +113,7 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
     return ScreenUtilInit(
       child: OverlaySupport.global(
         child: MaterialApp(
-            title: 'Picnic App',
+            title: 'Picnic',
             theme: _getCurrentTheme(),
             themeMode: appSettingState.themeMode,
             locale: appSettingState.locale,

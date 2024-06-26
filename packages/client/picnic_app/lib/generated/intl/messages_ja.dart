@@ -28,6 +28,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "app_name": MessageLookupByLibrary.simpleMessage("ピクニック"),
         "button_cancel": MessageLookupByLibrary.simpleMessage("キャンセル"),
         "button_complete": MessageLookupByLibrary.simpleMessage("完了"),
         "button_ok": MessageLookupByLibrary.simpleMessage("確認"),

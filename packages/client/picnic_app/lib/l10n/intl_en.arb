@@ -1,5 +1,6 @@
 {
   "@@locale": "en",
+  "app_name": "Picnic",
   "button_cancel": "Cancel",
   "button_complete": "Done",
   "button_ok": "Confirm",

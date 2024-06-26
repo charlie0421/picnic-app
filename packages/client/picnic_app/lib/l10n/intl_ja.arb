@@ -1,5 +1,6 @@
 {
   "@@locale": "ja",
+  "app_name": "ピクニック",
   "button_cancel": "キャンセル",
   "button_complete": "完了",
   "button_ok": "確認",
