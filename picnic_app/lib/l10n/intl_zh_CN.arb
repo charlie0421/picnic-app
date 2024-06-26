@@ -1,5 +1,6 @@
 {
-  "@@locale": "zh",
+  "@@locale": "cn",
+  "app_name": "Picnic",
   "button_cancel": "取消",
   "button_complete": "完成",
   "button_ok": "确认",

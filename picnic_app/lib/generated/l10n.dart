@@ -50,6 +50,16 @@ class S {
     return Localizations.of<S>(context, S);
   }
 
+  /// `Picnic`
+  String get app_name {
+    return Intl.message(
+      'Picnic',
+      name: 'app_name',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Cancel`
   String get button_cancel {
     return Intl.message(
