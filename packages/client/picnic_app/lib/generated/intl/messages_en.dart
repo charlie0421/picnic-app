@@ -54,6 +54,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "hint_library_add": MessageLookupByLibrary.simpleMessage("Album name"),
         "hint_nickname_input":
             MessageLookupByLibrary.simpleMessage("Please enter a nickname."),
+        "image_save_success":
+            MessageLookupByLibrary.simpleMessage("The image has been saved."),
         "label_album_add":
             MessageLookupByLibrary.simpleMessage("Add a new album"),
         "label_article_comment_empty":
@@ -237,6 +239,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("Vote"),
         "page_title_vote_gather":
             MessageLookupByLibrary.simpleMessage("Collecting votes"),
+        "share_image_fail":
+            MessageLookupByLibrary.simpleMessage("Image sharing failed"),
+        "share_image_success":
+            MessageLookupByLibrary.simpleMessage("Shared image successfully"),
+        "share_no_twitter": MessageLookupByLibrary.simpleMessage(
+            "I don\'t have the Twitter app"),
+        "share_twitter":
+            MessageLookupByLibrary.simpleMessage("Share on Twitter"),
         "text_ads_random": MessageLookupByLibrary.simpleMessage(
             "Viewing ads and collecting random images."),
         "text_dialog_star_candy_received": MessageLookupByLibrary.simpleMessage(

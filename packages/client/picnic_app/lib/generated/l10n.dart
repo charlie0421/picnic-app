@@ -220,6 +220,16 @@ class S {
     );
   }
 
+  /// `The image has been saved.`
+  String get image_save_success {
+    return Intl.message(
+      'The image has been saved.',
+      name: 'image_save_success',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Add a new album`
   String get label_album_add {
     return Intl.message(
@@ -1295,6 +1305,46 @@ class S {
     return Intl.message(
       'Collecting votes',
       name: 'page_title_vote_gather',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Image sharing failed`
+  String get share_image_fail {
+    return Intl.message(
+      'Image sharing failed',
+      name: 'share_image_fail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Shared image successfully`
+  String get share_image_success {
+    return Intl.message(
+      'Shared image successfully',
+      name: 'share_image_success',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `I don't have the Twitter app`
+  String get share_no_twitter {
+    return Intl.message(
+      'I don\'t have the Twitter app',
+      name: 'share_no_twitter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Share on Twitter`
+  String get share_twitter {
+    return Intl.message(
+      'Share on Twitter',
+      name: 'share_twitter',
       desc: '',
       args: [],
     );

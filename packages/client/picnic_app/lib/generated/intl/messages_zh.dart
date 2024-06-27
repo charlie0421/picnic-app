@@ -1,5 +1,5 @@
 // DO NOT EDIT. This is code generated via package:intl/generate_localized.dart
-// This is a library that provides messages for a cn locale. All the
+// This is a library that provides messages for a zh locale. All the
 // messages from the main program should be duplicated here with the same
 // function name.
 
@@ -18,7 +18,7 @@ final messages = new MessageLookup();
 typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 
 class MessageLookup extends MessageLookupByLibrary {
-  String get localeName => 'cn';
+  String get localeName => 'zh';
 
   static String m0(day) => "{天}前";
 
@@ -28,7 +28,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
-        "app_name": MessageLookupByLibrary.simpleMessage("Picnic"),
+        "app_name": MessageLookupByLibrary.simpleMessage("野餐"),
         "button_cancel": MessageLookupByLibrary.simpleMessage("取消"),
         "button_complete": MessageLookupByLibrary.simpleMessage("完成"),
         "button_ok": MessageLookupByLibrary.simpleMessage("确认"),
@@ -51,6 +51,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("您确定要取消订阅吗？"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("专辑名称"),
         "hint_nickname_input": MessageLookupByLibrary.simpleMessage("请输入昵称。"),
+        "image_save_success": MessageLookupByLibrary.simpleMessage("图像已保存。"),
         "label_album_add": MessageLookupByLibrary.simpleMessage("添加新相册"),
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("成为第一个发表评论的人！"),
@@ -196,6 +197,11 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("条款和条件"),
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("投票"),
         "page_title_vote_gather": MessageLookupByLibrary.simpleMessage("收集选票"),
+        "share_image_fail": MessageLookupByLibrary.simpleMessage("图像共享失败"),
+        "share_image_success": MessageLookupByLibrary.simpleMessage("成功共享图像"),
+        "share_no_twitter":
+            MessageLookupByLibrary.simpleMessage("我没有 Twitter 应用程序"),
+        "share_twitter": MessageLookupByLibrary.simpleMessage("在 Twitter 上分享"),
         "text_ads_random": MessageLookupByLibrary.simpleMessage("查看广告并收集随机图片。"),
         "text_dialog_star_candy_received":
             MessageLookupByLibrary.simpleMessage("已颁发星形糖果。"),

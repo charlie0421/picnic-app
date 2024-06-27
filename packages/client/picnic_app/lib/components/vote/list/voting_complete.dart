@@ -92,32 +92,54 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
     setState(() {
       _isSaving = true;
     });
-    WidgetsBinding.instance.addPostFrameCallback((_) => _captureAndSaveImage());
+    Future.delayed(const Duration(milliseconds: 300), () {
+      _captureAndSaveImage().then((value) {
+        _isSaving = false;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            duration: const Duration(milliseconds: 300),
+            content: Text(S.of(context).image_save_success)));
+      });
+    });
   }
 
   Future<void> _captureAndShareImage() async {
     try {
-      RenderRepaintBoundary boundary = _globalKey.currentContext!
-          .findRenderObject() as RenderRepaintBoundary;
-      var image = await boundary.toImage();
-      ByteData? byteData = await image.toByteData(format: ImageByteFormat.png);
-      Uint8List pngBytes = byteData!.buffer.asUint8List();
+      setState(() {
+        _isSaving = true;
+      });
+      Future.delayed(const Duration(milliseconds: 300), () async {
+        RenderRepaintBoundary boundary = _globalKey.currentContext!
+            .findRenderObject() as RenderRepaintBoundary;
+        var image = await boundary.toImage();
+        ByteData? byteData =
+            await image.toByteData(format: ImageByteFormat.png);
+        Uint8List pngBytes = byteData!.buffer.asUint8List();
 
-      final directory = (await getApplicationDocumentsDirectory()).path;
-      String path = '$directory/voting_dialog.png';
-      File imgFile = File(path);
-      imgFile.writeAsBytesSync(pngBytes);
+        final directory = (await getApplicationDocumentsDirectory()).path;
+        String path = '$directory/voting_dialog.png';
+        File imgFile = File(path);
+        imgFile.writeAsBytesSync(pngBytes);
 
-      final result = Platform.isIOS
-          ? await appinioSocialShare.iOS.shareToTwitter('트위터 공유', path)
-          : await appinioSocialShare.android.shareToTwitter('트위터 공유', path);
-      logger.d('이미지 공유 결과: $result');
-      if (result == 'ERROR_APP_NOT_AVAILABLE') {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('트위터 앱이 없습니다.')));
-      }
+        final result = Platform.isIOS
+            ? await appinioSocialShare.iOS
+                .shareToTwitter(S.of(context).share_twitter, path)
+            : await appinioSocialShare.android
+                .shareToTwitter(S.of(context).share_twitter, path);
+        logger.d('이미지 공유 결과: $result');
+        if (result == 'ERROR_APP_NOT_AVAILABLE') {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              duration: const Duration(milliseconds: 300),
+              content: Text('트위터 앱이 없습니다.')));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              duration: const Duration(milliseconds: 300),
+              content: Text(S.of(context).share_image_success)));
+        }
+      });
     } catch (e) {
-      print('이미지 공유 실패: $e');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          duration: const Duration(milliseconds: 300),
+          content: Text(S.of(context).share_image_fail)));
     } finally {
       setState(() {
         _isSaving = false;

@@ -53,6 +53,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "hint_library_add": MessageLookupByLibrary.simpleMessage("アルバム名"),
         "hint_nickname_input":
             MessageLookupByLibrary.simpleMessage("ニックネームを入力してください。"),
+        "image_save_success":
+            MessageLookupByLibrary.simpleMessage("画像が保存されました。"),
         "label_album_add": MessageLookupByLibrary.simpleMessage("新しいアルバムを追加"),
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("最初のコメントの主人公になりましょう！"),
@@ -208,6 +210,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("投票する"),
         "page_title_vote_gather":
             MessageLookupByLibrary.simpleMessage("投票集を見る"),
+        "share_image_fail": MessageLookupByLibrary.simpleMessage("画像共有に失敗"),
+        "share_image_success": MessageLookupByLibrary.simpleMessage("画像共有成功"),
+        "share_no_twitter":
+            MessageLookupByLibrary.simpleMessage("Twitterアプリがありません"),
+        "share_twitter": MessageLookupByLibrary.simpleMessage("Twitter共有"),
         "text_ads_random":
             MessageLookupByLibrary.simpleMessage("広告表示とランダム画像収集。"),
         "text_dialog_star_candy_received":

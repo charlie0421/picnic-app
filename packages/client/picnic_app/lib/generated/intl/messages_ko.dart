@@ -53,6 +53,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "hint_library_add": MessageLookupByLibrary.simpleMessage("앨범명"),
         "hint_nickname_input":
             MessageLookupByLibrary.simpleMessage("닉네임을 입력해주세요."),
+        "image_save_success":
+            MessageLookupByLibrary.simpleMessage("이미지가 저장되었습니다."),
         "label_album_add": MessageLookupByLibrary.simpleMessage("새로운 앨범 추가"),
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("첫 댓글의 주인공이 되세요!"),
@@ -207,6 +209,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("투표하기"),
         "page_title_vote_gather":
             MessageLookupByLibrary.simpleMessage("투표 모아보기"),
+        "share_image_fail": MessageLookupByLibrary.simpleMessage("이미지 공유 실패"),
+        "share_image_success":
+            MessageLookupByLibrary.simpleMessage("이미지 공유 성공"),
+        "share_no_twitter": MessageLookupByLibrary.simpleMessage("트위터 앱이 없습니다"),
+        "share_twitter": MessageLookupByLibrary.simpleMessage("트위터 공유"),
         "text_ads_random":
             MessageLookupByLibrary.simpleMessage("광고 보기 및 무작위 이미지 수집."),
         "text_dialog_star_candy_received":
