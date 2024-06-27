@@ -7,8 +7,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/error.dart';
+import 'package:picnic_app/components/vote/home/reward_dialog.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/pages/vote/vote_list_page.dart';
@@ -157,59 +157,64 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                     scrollDirection: Axis.horizontal,
                     itemCount: data.length,
                     itemBuilder: (BuildContext context, int index) {
-                      logger.i(data[index].thumbnail);
-                      String title = '';
-                      if (Intl.getCurrentLocale() == 'ko') {
-                        title = data[index].title_ko;
-                      } else if (Intl.getCurrentLocale() == 'en')
-                        title = data[index].title_en;
-                      else if (Intl.getCurrentLocale() == 'ja')
-                        title = data[index].title_ja;
-                      else if (Intl.getCurrentLocale() == 'zh')
-                        title = data[index].title_zh;
+                      String title = data[index].getTitle();
 
-                      return Container(
-                        margin: const EdgeInsets.only(right: 16),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                        child: Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8.r),
-                              child: CachedNetworkImage(
-                                  imageUrl: '${data[index].thumbnail}',
-                                  width: 120.w,
-                                  height: 100.w,
-                                  placeholder: (context, url) =>
-                                      buildPlaceholderImage(),
-                                  errorWidget: (context, url, error) =>
-                                      buildPlaceholderImage(),
-                                  fit: BoxFit.cover),
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              child: Container(
-                                width: 120.w,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.only(
-                                      bottomLeft: Radius.circular(8.r),
-                                      bottomRight: Radius.circular(8.r)),
-                                  color: Colors.black.withOpacity(0.5),
-                                ),
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 4, horizontal: 8),
-                                child: Text(
-                                  title,
-                                  style: getTextStyle(
-                                          AppTypo.BODY14R, Colors.white)
-                                      .copyWith(
-                                          overflow: TextOverflow.ellipsis),
-                                ),
+                      return GestureDetector(
+                        onTap: () {
+                          showGeneralDialog(
+                            context: context,
+                            barrierDismissible: true,
+                            barrierLabel: MaterialLocalizations.of(context)
+                                .modalBarrierDismissLabel,
+                            pageBuilder: (context, _, __) =>
+                                RewardDialog(data: data[index]),
+                            transitionDuration:
+                                const Duration(milliseconds: 200),
+                          );
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 16),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: Stack(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8.r),
+                                child: CachedNetworkImage(
+                                    imageUrl: '${data[index].thumbnail}',
+                                    width: 120.w,
+                                    height: 100.w,
+                                    placeholder: (context, url) =>
+                                        buildPlaceholderImage(),
+                                    errorWidget: (context, url, error) =>
+                                        buildPlaceholderImage(),
+                                    fit: BoxFit.cover),
                               ),
-                            )
-                          ],
+                              Positioned(
+                                bottom: 0,
+                                child: Container(
+                                  width: 120.w,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.only(
+                                        bottomLeft: Radius.circular(8.r),
+                                        bottomRight: Radius.circular(8.r)),
+                                    color: Colors.black.withOpacity(0.5),
+                                  ),
+                                  alignment: Alignment.center,
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 4, horizontal: 8),
+                                  child: Text(
+                                    title,
+                                    style: getTextStyle(
+                                            AppTypo.BODY14R, Colors.white)
+                                        .copyWith(
+                                            overflow: TextOverflow.ellipsis),
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
                         ),
                       );
                     }),

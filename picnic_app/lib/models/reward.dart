@@ -17,6 +17,10 @@ class RewardModel with _$RewardModel {
     required String title_ja,
     required String title_zh,
     String? thumbnail,
+    List<String>? overview_images,
+    List<String>? location_images,
+    List<String>? location_desc,
+    List<String>? size_guide_images,
   }) = _RewardModel;
 
   String getTitle() {
