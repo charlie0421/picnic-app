@@ -6,7 +6,7 @@ part of 'reward_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$asyncRewardListHash() => r'23bdf9a4825704affc86e959a4147c9c49b80a93';
+String _$asyncRewardListHash() => r'ebfbb15f2a9f3b52d1af85023998f2898e07b8d9';
 
 /// See also [AsyncRewardList].
 @ProviderFor(AsyncRewardList)
