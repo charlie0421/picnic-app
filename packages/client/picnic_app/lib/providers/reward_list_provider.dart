@@ -1,3 +1,4 @@
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/reward.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -12,13 +13,18 @@ class AsyncRewardList extends _$AsyncRewardList {
   }
 
   Future<List<RewardModel>> _fetchRewardList() async {
-    final response = await Supabase.instance.client.from('reward').select();
+    final response = await Supabase.instance.client
+        .from('reward')
+        .select()
+        .order('id', ascending: true);
+
     List<RewardModel> rewardList =
         List<RewardModel>.from(response.map((e) => RewardModel.fromJson(e)));
     for (var i = 0; i < rewardList.length; i++) {
       rewardList[i] = rewardList[i].copyWith(
           thumbnail:
               'https://cdn-dev.picnic.fan/reward/${rewardList[i].id}/${rewardList[i].thumbnail}');
+      logger.d(rewardList[i].thumbnail);
     }
     return rewardList;
   }
