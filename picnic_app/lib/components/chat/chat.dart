@@ -1,14 +1,12 @@
 import 'package:file_picker/file_picker.dart';
-import 'package:file_saver/file_saver.dart';
+//import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_supabase_chat_core/flutter_supabase_chat_core.dart';
-import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
-import 'package:open_filex/open_filex.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
@@ -157,16 +155,16 @@ class _ChatPageState extends State<ChatPage> {
       };
 
   void _handleMessageTap(BuildContext _, types.Message message) async {
-    if (message is types.FileMessage) {
-      final client = http.Client();
-      final request =
-          await client.get(Uri.parse(message.uri), headers: storageHeaders);
-      final result = await FileSaver.instance.saveFile(
-        name: message.uri.split('/').last,
-        bytes: request.bodyBytes,
-      );
-      await OpenFilex.open(result);
-    }
+    // if (message is types.FileMessage) {
+    //   final client = http.Client();
+    //   final request =
+    //       await client.get(Uri.parse(message.uri), headers: storageHeaders);
+    //   final result = await FileSaver.instance.saveFile(
+    //     name: message.uri.split('/').last,
+    //     bytes: request.bodyBytes,
+    //   );
+    //   await OpenFilex.open(result);
+    // }
   }
 
   Future<void> _handlePreviewDataFetched(
