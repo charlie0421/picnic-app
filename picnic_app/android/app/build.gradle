@@ -35,7 +35,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace "fan.picnic.app"
+    namespace "io.iconcasting.picnic.app"
     compileSdk flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
@@ -53,7 +53,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "fan.picnic.app"
+        applicationId "io.iconcasting.picnic.app"
         minSdkVersion 23
         targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
