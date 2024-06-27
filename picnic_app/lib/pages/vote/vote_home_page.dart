@@ -8,6 +8,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/pages/vote/vote_list_page.dart';
@@ -156,6 +157,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                     scrollDirection: Axis.horizontal,
                     itemCount: data.length,
                     itemBuilder: (BuildContext context, int index) {
+                      logger.i(data[index].thumbnail);
                       String title = '';
                       if (Intl.getCurrentLocale() == 'ko') {
                         title = data[index].title_ko;
@@ -176,12 +178,12 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(8.r),
                               child: CachedNetworkImage(
-                                  imageUrl: data[index].thumbnail != null
-                                      ? ''
-                                      : data[index].thumbnail!,
+                                  imageUrl: '${data[index].thumbnail}',
                                   width: 120.w,
                                   height: 100.w,
                                   placeholder: (context, url) =>
+                                      buildPlaceholderImage(),
+                                  errorWidget: (context, url, error) =>
                                       buildPlaceholderImage(),
                                   fit: BoxFit.cover),
                             ),
