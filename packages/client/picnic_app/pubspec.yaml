@@ -38,7 +38,7 @@ dependencies:
   flutter_svg: ^2.0.10+1
   load_switch: ^2.1.0
   riverpod_annotation: ^2.3.5
-  file_saver: ^0.2.13
+  #  file_`save`r: ^0.2.13
   timeago: ^3.6.1
   intl: ^0.19.0
   camera: ^0.11.0+1

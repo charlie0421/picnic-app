@@ -43,7 +43,7 @@
 
     </application>
     <!-- Required to query activities that can process text, see:
-         https://developer.android.com/training/package="fan.picnic.app">
+         https://developer.android.com/training/package="io.iconcasting.picnic.app">
          https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
 
          In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->

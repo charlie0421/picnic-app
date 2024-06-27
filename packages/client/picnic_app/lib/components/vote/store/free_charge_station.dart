@@ -31,10 +31,10 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
   final List<int> _numRewardedLoadAttempts = [0, 0];
   final List<String> _adUnitIds = [
     Platform.isAndroid
-        ? 'ca-app-pub-3940256099942544/5224354917'
+        ? 'ca-app-pub-1539304887624918/3864525446'
         : 'ca-app-pub-1539304887624918/9821126370',
     Platform.isAndroid
-        ? 'ca-app-pub-3940256099942544/5224354917'
+        ? 'ca-app-pub-1539304887624918/7505348989'
         : 'ca-app-pub-1539304887624918/4571289807',
   ];
 
