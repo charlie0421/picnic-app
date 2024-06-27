@@ -52,7 +52,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDm0_bdB3-ky3Za-7H4Ysgj1zci6Yb-NzU',
-    appId: '1:853406219989:android:0a4ca263f9fe23febcac5c',
+    appId: '1:853406219989:android:93153a1e2d8a391cbcac5c',
     messagingSenderId: '853406219989',
     projectId: 'picnic-423500',
     storageBucket: 'picnic-423500.appspot.com',
@@ -60,15 +60,13 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyA4ycAYa1PQYtUZEmIvF3NkOh8YMKahh1o',
-    appId: '1:853406219989:ios:fe34e19993507676bcac5c',
+    appId: '1:853406219989:ios:5a5d708a16024a79bcac5c',
     messagingSenderId: '853406219989',
     projectId: 'picnic-423500',
     storageBucket: 'picnic-423500.appspot.com',
-    androidClientId:
-        '853406219989-8ji54q3mci0tqvin09aigsghk5vo4t0i.apps.googleusercontent.com',
-    iosClientId:
-        '853406219989-ntnler0e2qe0gfheh3qdjt3k2h4kpvj4.apps.googleusercontent.com',
-    iosBundleId: 'pic.picnic.app',
+    androidClientId: '853406219989-8ji54q3mci0tqvin09aigsghk5vo4t0i.apps.googleusercontent.com',
+    iosClientId: '853406219989-un8ik8up6hoi6dsgknc0uabn5n60pbp8.apps.googleusercontent.com',
+    iosBundleId: 'io.iconcasting.picnic.app',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -77,10 +75,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '853406219989',
     projectId: 'picnic-423500',
     storageBucket: 'picnic-423500.appspot.com',
-    androidClientId:
-        '853406219989-8ji54q3mci0tqvin09aigsghk5vo4t0i.apps.googleusercontent.com',
-    iosClientId:
-        '853406219989-qqbcgraqv8kste50lbb18vdi28hkqknl.apps.googleusercontent.com',
+    androidClientId: '853406219989-8ji54q3mci0tqvin09aigsghk5vo4t0i.apps.googleusercontent.com',
     iosBundleId: 'com.example.celabApp',
   );
 
@@ -93,4 +88,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'picnic-423500.appspot.com',
     measurementId: 'G-GWP6Z8F6GM',
   );
+
 }

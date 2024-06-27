@@ -35,7 +35,43 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "853406219989-clb0k1ni6i7t4an7j6h462hin2og0ebu.apps.googleusercontent.com",
+              "client_id": "853406219989-jrfkss5a0lqe5sq43t4uhm7n6i0g6s1b.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "853406219989-ntnler0e2qe0gfheh3qdjt3k2h4kpvj4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "fan.picnic.app"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:853406219989:android:93153a1e2d8a391cbcac5c",
+        "android_client_info": {
+          "package_name": "io.iconcasting.picnic.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "853406219989-jrfkss5a0lqe5sq43t4uhm7n6i0g6s1b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDm0_bdB3-ky3Za-7H4Ysgj1zci6Yb-NzU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "853406219989-jrfkss5a0lqe5sq43t4uhm7n6i0g6s1b.apps.googleusercontent.com",
               "client_type": 3
             },
             {

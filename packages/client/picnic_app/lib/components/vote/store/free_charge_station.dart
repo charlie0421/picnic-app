@@ -43,8 +43,10 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
   @override
   void initState() {
     super.initState();
-    _createRewardedAd(0);
-    _createRewardedAd(1);
+    MobileAds.instance.initialize().then((InitializationStatus status) {
+      _createRewardedAd(0);
+      _createRewardedAd(1);
+    });
   }
 
   @override
@@ -182,6 +184,10 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
   }
 
   Future<void> _createRewardedAd(int index) async {
+    setState(() {
+      _isLoading[index] = true;
+    });
+
     await RewardedAd.load(
       adUnitId: _adUnitIds[index],
       request: request,
@@ -198,7 +204,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
           logger.i('RewardedAd failed to load: $error');
           setState(() {
             _rewardedAds[index] = null;
-            _isLoading[index] = true;
+            _isLoading[index] = false;
             _numRewardedLoadAttempts[index] += 1;
           });
           if (_numRewardedLoadAttempts[index] < maxFailedLoadAttempts) {
