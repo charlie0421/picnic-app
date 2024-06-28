@@ -31,6 +31,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "app_name": MessageLookupByLibrary.simpleMessage("피크닠"),
         "button_cancel": MessageLookupByLibrary.simpleMessage("취소"),
         "button_complete": MessageLookupByLibrary.simpleMessage("완료"),
+        "button_login": MessageLookupByLibrary.simpleMessage("로그인"),
         "button_ok": MessageLookupByLibrary.simpleMessage("확인"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("저장하기"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(

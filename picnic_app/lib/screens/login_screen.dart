@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:card_swiper/card_swiper.dart';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +14,7 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -169,164 +172,165 @@ class LoginScreen extends ConsumerWidget {
                   width: double.infinity,
                   height: 48.h,
                   child: ElevatedButton(
-                    onPressed: () {
-                      showModalBottomSheet(
-                          context: context,
-                          useSafeArea: false,
-                          builder: (context) {
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 40),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  GestureDetector(
-                                      behavior: HitTestBehavior.opaque,
-                                      onTap: () {
-                                        OverlayLoadingProgress.start(context,
-                                            color: AppColors.Primary500,
-                                            barrierDismissible: false);
+                      onPressed: () {
+                        showModalBottomSheet(
+                            context: context,
+                            useSafeArea: false,
+                            builder: (context) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 40),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (Platform.isIOS)
+                                      InkWell(
+                                          onTap: () {
+                                            OverlayLoadingProgress.start(
+                                                context,
+                                                color: AppColors.Primary500,
+                                                barrierDismissible: false);
 
-                                        _nativeAppleSignIn().then((value) {
-                                          if (value) {
-                                            ref
-                                                .read(userInfoProvider.notifier)
-                                                .getUserProfiles()
-                                                .then((value) {
-                                              logger.i(value);
-                                              OverlayLoadingProgress.stop();
+                                            _nativeAppleSignIn().then((value) {
+                                              if (value) {
+                                                ref
+                                                    .read(userInfoProvider
+                                                        .notifier)
+                                                    .getUserProfiles()
+                                                    .then((value) {
+                                                  logger.i(value);
+                                                  OverlayLoadingProgress.stop();
 
-                                              Navigator.of(context).pop();
-                                              Navigator.of(context).pop();
+                                                  Navigator.of(context).pop();
+                                                  Navigator.of(context).pop();
+                                                });
+                                              } else {
+                                                OverlayLoadingProgress.stop();
+                                              }
                                             });
-                                          } else {
-                                            OverlayLoadingProgress.stop();
-                                          }
-                                        });
-                                      },
-                                      child: Container(
-                                        alignment: Alignment.center,
-                                        width: double.infinity,
-                                        height: 61.w,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Image.asset(
-                                              'assets/icons/login/apple.png',
-                                              width: 20.w,
-                                              height: 20.w,
+                                          },
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            width: double.infinity,
+                                            height: 61.w,
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Image.asset(
+                                                  'assets/icons/login/apple.png',
+                                                  width: 20.w,
+                                                  height: 20.w,
+                                                ),
+                                                SizedBox(
+                                                  width: 8.w,
+                                                ),
+                                                Text('Apple',
+                                                    style: getTextStyle(
+                                                        AppTypo.BODY14M,
+                                                        AppColors.Grey800)),
+                                                // AppColors.Grey800)),
+                                              ],
                                             ),
-                                            SizedBox(
-                                              width: 8.w,
-                                            ),
-                                            Text('Apple',
-                                                style: getTextStyle(
-                                                    AppTypo.BODY14M,
-                                                    AppColors.Grey800)),
-                                            // AppColors.Grey800)),
-                                          ],
-                                        ),
-                                      )),
-                                  GestureDetector(
-                                      behavior: HitTestBehavior.opaque,
-                                      onTap: () {
-                                        OverlayLoadingProgress.start(context,
-                                            color: AppColors.Primary500,
-                                            barrierDismissible: false);
+                                          )),
+                                    InkWell(
+                                        onTap: () {
+                                          OverlayLoadingProgress.start(context,
+                                              color: AppColors.Primary500,
+                                              barrierDismissible: false);
 
-                                        _nativeGoogleSignIn().then((value) {
-                                          if (value) {
-                                            ref
-                                                .read(userInfoProvider.notifier)
-                                                .getUserProfiles()
-                                                .then((value) {
-                                              logger.i(value);
+                                          _nativeGoogleSignIn().then((value) {
+                                            if (value) {
+                                              ref
+                                                  .read(
+                                                      userInfoProvider.notifier)
+                                                  .getUserProfiles()
+                                                  .then((value) {
+                                                logger.i(value);
+                                                OverlayLoadingProgress.stop();
+
+                                                Navigator.of(context).pop();
+                                                Navigator.of(context).pop();
+                                              });
+                                            } else {
                                               OverlayLoadingProgress.stop();
+                                            }
+                                          });
+                                        },
+                                        child: Container(
+                                          alignment: Alignment.center,
+                                          width: double.infinity,
+                                          height: 61.w,
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Image.asset(
+                                                'assets/icons/login/google.png',
+                                                width: 20.w,
+                                                height: 20.w,
+                                              ),
+                                              SizedBox(
+                                                width: 8.w,
+                                              ),
+                                              Text('Google',
+                                                  style: getTextStyle(
+                                                      AppTypo.BODY14M,
+                                                      AppColors.Grey800)),
+                                            ],
+                                          ),
+                                        )),
+                                    InkWell(
+                                        onTap: () async {
+                                          OverlayLoadingProgress.start(context,
+                                              color: AppColors.Primary500,
+                                              barrierDismissible: false);
+                                          _KakaoSignIn().then((value) {
+                                            if (value) {
+                                              ref
+                                                  .read(
+                                                      userInfoProvider.notifier)
+                                                  .getUserProfiles()
+                                                  .then((value) {
+                                                logger.i(value);
+                                                OverlayLoadingProgress.stop();
 
-                                              Navigator.of(context).pop();
-                                              Navigator.of(context).pop();
-                                            });
-                                          } else {
-                                            OverlayLoadingProgress.stop();
-                                          }
-                                        });
-                                      },
-                                      child: Container(
-                                        alignment: Alignment.center,
-                                        width: double.infinity,
-                                        height: 61.w,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Image.asset(
-                                              'assets/icons/login/google.png',
-                                              width: 20.w,
-                                              height: 20.w,
-                                            ),
-                                            SizedBox(
-                                              width: 8.w,
-                                            ),
-                                            Text('Google',
-                                                style: getTextStyle(
-                                                    AppTypo.BODY14M,
-                                                    AppColors.Grey800)),
-                                          ],
-                                        ),
-                                      )),
-                                  GestureDetector(
-                                      behavior: HitTestBehavior.opaque,
-                                      onTap: () async {
-                                        OverlayLoadingProgress.start(context,
-                                            color: AppColors.Primary500,
-                                            barrierDismissible: false);
-                                        _KakaoSignIn().then((value) {
-                                          if (value) {
-                                            ref
-                                                .read(userInfoProvider.notifier)
-                                                .getUserProfiles()
-                                                .then((value) {
-                                              logger.i(value);
+                                                Navigator.of(context).pop();
+                                                Navigator.of(context).pop();
+                                              });
+                                            } else {
                                               OverlayLoadingProgress.stop();
-
-                                              Navigator.of(context).pop();
-                                              Navigator.of(context).pop();
-                                            });
-                                          } else {
-                                            OverlayLoadingProgress.stop();
-                                          }
-                                        });
-                                      },
-                                      child: Container(
-                                        alignment: Alignment.center,
-                                        width: double.infinity,
-                                        height: 61.w,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Image.asset(
-                                              'assets/icons/login/kakao.png',
-                                              width: 20.w,
-                                              height: 20.w,
-                                            ),
-                                            SizedBox(
-                                              width: 8.w,
-                                            ),
-                                            Text('Kakao Talk',
-                                                style: getTextStyle(
-                                                    AppTypo.BODY14M,
-                                                    AppColors.Grey800)),
-                                          ],
-                                        ),
-                                      )),
-                                ],
-                              ),
-                            );
-                          });
-                    },
-                    child: const Text('Log in'),
-                  ),
+                                            }
+                                          });
+                                        },
+                                        child: Container(
+                                          alignment: Alignment.center,
+                                          width: double.infinity,
+                                          height: 61.w,
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Image.asset(
+                                                'assets/icons/login/kakao.png',
+                                                width: 20.w,
+                                                height: 20.w,
+                                              ),
+                                              SizedBox(
+                                                width: 8.w,
+                                              ),
+                                              Text('Kakao Talk',
+                                                  style: getTextStyle(
+                                                      AppTypo.BODY14M,
+                                                      AppColors.Grey800)),
+                                            ],
+                                          ),
+                                        )),
+                                  ],
+                                ),
+                              );
+                            });
+                      },
+                      child: Text(S.of(context).button_login)),
                 ),
               ),
             ],
@@ -337,12 +341,29 @@ class LoginScreen extends ConsumerWidget {
   }
 
   Future<bool> _nativeAppleSignIn() async {
+    final supabase = Supabase.instance.client;
+
     try {
+      final rawNonce = supabase.auth.generateRawNonce();
+      final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
+
+      final webAuthenticationOptions = WebAuthenticationOptions(
+        clientId: 'io.iconcasting.picnic.app.apple',
+        // Apple Developer Console에서 설정한 서비스 ID
+        redirectUri: Uri.parse(
+            'https://xtijtefcycoeqludlngc.supabase.co/auth/v1/callback'),
+      );
+
       final credential = await SignInWithApple.getAppleIDCredential(
         scopes: [
           AppleIDAuthorizationScopes.email,
           AppleIDAuthorizationScopes.fullName,
         ],
+        webAuthenticationOptions: WebAuthenticationOptions(
+          clientId: 'io.iconcasting.picnic.app.apple',
+          redirectUri: Uri.parse(
+              'https://xtijtefcycoeqludlngc.supabase.co/auth/v1/callback'),
+        ),
       );
 
       final idToken = credential.identityToken;
@@ -354,7 +375,6 @@ class LoginScreen extends ConsumerWidget {
       final response = await Supabase.instance.client.auth.signInWithIdToken(
         provider: OAuthProvider.apple,
         idToken: credential.identityToken!,
-        nonce: credential.identityToken,
       );
 
       return true;

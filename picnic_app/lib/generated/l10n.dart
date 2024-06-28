@@ -80,6 +80,16 @@ class S {
     );
   }
 
+  /// `Sign in`
+  String get button_login {
+    return Intl.message(
+      'Sign in',
+      name: 'button_login',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Confirm`
   String get button_ok {
     return Intl.message(
