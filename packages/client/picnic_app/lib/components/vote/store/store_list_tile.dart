@@ -10,7 +10,7 @@ class StoreListTile extends StatelessWidget {
     this.subtitle,
     required this.buttonText,
     this.buttonOnPressed,
-    this.isLoading,
+    this.isLoading = false,
   });
 
   final Image icon;
