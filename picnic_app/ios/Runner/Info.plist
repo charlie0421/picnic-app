@@ -74,6 +74,8 @@
 	<array>
 		<string>_dartobservatory._tcp</string>
 	</array>
+	<key>NSAppleIDUsageDescription</key>
+    <string>We use your Apple ID to sign you in to the app.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>프로필 이미지 등록을 위한 카메라 사용에 동의하시겠습니까?</string>
 	<key>NSMicrophoneUsageDescription</key>

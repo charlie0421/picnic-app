@@ -15,6 +15,7 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 const optionText = Text(
@@ -180,7 +181,28 @@ class LoginScreen extends ConsumerWidget {
                                 children: [
                                   GestureDetector(
                                       behavior: HitTestBehavior.opaque,
-                                      onTap: () {},
+                                      onTap: () {
+                                        OverlayLoadingProgress.start(context,
+                                            color: AppColors.Primary500,
+                                            barrierDismissible: false);
+
+                                        _nativeAppleSignIn().then((value) {
+                                          if (value) {
+                                            ref
+                                                .read(userInfoProvider.notifier)
+                                                .getUserProfiles()
+                                                .then((value) {
+                                              logger.i(value);
+                                              OverlayLoadingProgress.stop();
+
+                                              Navigator.of(context).pop();
+                                              Navigator.of(context).pop();
+                                            });
+                                          } else {
+                                            OverlayLoadingProgress.stop();
+                                          }
+                                        });
+                                      },
                                       child: Container(
                                         alignment: Alignment.center,
                                         width: double.infinity,
@@ -200,7 +222,7 @@ class LoginScreen extends ConsumerWidget {
                                             Text('Apple',
                                                 style: getTextStyle(
                                                     AppTypo.BODY14M,
-                                                    AppColors.Grey200)),
+                                                    AppColors.Grey800)),
                                             // AppColors.Grey800)),
                                           ],
                                         ),
@@ -312,6 +334,35 @@ class LoginScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<bool> _nativeAppleSignIn() async {
+    try {
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      final idToken = credential.identityToken;
+      if (idToken == null) {
+        throw const AuthException(
+            'Could not find ID Token from generated credential.');
+      }
+
+      final response = await Supabase.instance.client.auth.signInWithIdToken(
+        provider: OAuthProvider.apple,
+        idToken: credential.identityToken!,
+        nonce: credential.identityToken,
+      );
+
+      return true;
+    } catch (e, s) {
+      logger.e(e);
+      logger.e(s);
+      return false;
+    }
   }
 
   Future<bool> _nativeGoogleSignIn() async {
