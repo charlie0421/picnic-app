@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,6 +16,7 @@ import 'package:picnic_app/providers/purchase_product_provider.dart';
 import 'package:picnic_app/ui/common_theme.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PurchaseStarCandy extends ConsumerStatefulWidget {
   const PurchaseStarCandy({super.key});
@@ -29,8 +33,12 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
 
   @override
   void initState() {
-    super.initState();
+    final purchaseUpdated = _inAppPurchase.purchaseStream;
+    purchaseUpdated.listen((purchases) {
+      _handlePurchaseUpdates(purchases);
+    });
     _initialize();
+    super.initState();
   }
 
   Future<void> _initialize() async {
@@ -62,6 +70,33 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
     setState(() {
       _products = response.productDetails;
     });
+  }
+
+  Future<void> verifyReceipt(String receipt) async {
+    final response = await Supabase.instance.client.functions.invoke(
+        'verify_receipt',
+        body: {'receipt': receipt, 'platform': Platform.isIOS});
+
+    if (response.status == 200) {
+      // 영수증이 유효함
+      final data = json.decode(response.data);
+      print('Receipt is valid: ${data['data']}');
+    } else {
+      // 영수증이 유효하지 않음
+      print('Receipt is invalid: ${response.data}');
+    }
+  }
+
+  void _handlePurchaseUpdates(List<PurchaseDetails> purchaseDetailsList) {
+    for (var purchase in purchaseDetailsList) {
+      if (purchase.status == PurchaseStatus.purchased ||
+          purchase.status == PurchaseStatus.restored) {
+        verifyReceipt(purchase.verificationData.serverVerificationData);
+      }
+      if (purchase.pendingCompletePurchase) {
+        _inAppPurchase.completePurchase(purchase);
+      }
+    }
   }
 
   void _buyProduct(ProductDetails product) {
