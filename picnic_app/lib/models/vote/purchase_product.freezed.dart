@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'purchage_product.dart';
+part of 'purchase_product.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -14,42 +14,45 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
-PurchageProduct _$PurchageProductFromJson(Map<String, dynamic> json) {
-  return _PurchageProduct.fromJson(json);
+PurchaseProduct _$PurchaseProductFromJson(Map<String, dynamic> json) {
+  return _PurchaseProduct.fromJson(json);
 }
 
 /// @nodoc
-mixin _$PurchageProduct {
-  int get id => throw _privateConstructorUsedError;
+mixin _$PurchaseProduct {
+  String get id => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   double get price => throw _privateConstructorUsedError;
   int get star_candy => throw _privateConstructorUsedError;
   int get bonus_star_candy => throw _privateConstructorUsedError;
+  @ProductDetailsConverter()
+  ProductDetails? get productDetails => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $PurchageProductCopyWith<PurchageProduct> get copyWith =>
+  $PurchaseProductCopyWith<PurchaseProduct> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $PurchageProductCopyWith<$Res> {
-  factory $PurchageProductCopyWith(
-          PurchageProduct value, $Res Function(PurchageProduct) then) =
-      _$PurchageProductCopyWithImpl<$Res, PurchageProduct>;
+abstract class $PurchaseProductCopyWith<$Res> {
+  factory $PurchaseProductCopyWith(
+          PurchaseProduct value, $Res Function(PurchaseProduct) then) =
+      _$PurchaseProductCopyWithImpl<$Res, PurchaseProduct>;
   @useResult
   $Res call(
-      {int id,
+      {String id,
       String title,
       double price,
       int star_candy,
-      int bonus_star_candy});
+      int bonus_star_candy,
+      @ProductDetailsConverter() ProductDetails? productDetails});
 }
 
 /// @nodoc
-class _$PurchageProductCopyWithImpl<$Res, $Val extends PurchageProduct>
-    implements $PurchageProductCopyWith<$Res> {
-  _$PurchageProductCopyWithImpl(this._value, this._then);
+class _$PurchaseProductCopyWithImpl<$Res, $Val extends PurchaseProduct>
+    implements $PurchaseProductCopyWith<$Res> {
+  _$PurchaseProductCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
@@ -64,12 +67,13 @@ class _$PurchageProductCopyWithImpl<$Res, $Val extends PurchageProduct>
     Object? price = null,
     Object? star_candy = null,
     Object? bonus_star_candy = null,
+    Object? productDetails = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
-              as int,
+              as String,
       title: null == title
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -86,32 +90,37 @@ class _$PurchageProductCopyWithImpl<$Res, $Val extends PurchageProduct>
           ? _value.bonus_star_candy
           : bonus_star_candy // ignore: cast_nullable_to_non_nullable
               as int,
+      productDetails: freezed == productDetails
+          ? _value.productDetails
+          : productDetails // ignore: cast_nullable_to_non_nullable
+              as ProductDetails?,
     ) as $Val);
   }
 }
 
 /// @nodoc
-abstract class _$$PurchageProductImplCopyWith<$Res>
-    implements $PurchageProductCopyWith<$Res> {
-  factory _$$PurchageProductImplCopyWith(_$PurchageProductImpl value,
-          $Res Function(_$PurchageProductImpl) then) =
-      __$$PurchageProductImplCopyWithImpl<$Res>;
+abstract class _$$PurchaseProductImplCopyWith<$Res>
+    implements $PurchaseProductCopyWith<$Res> {
+  factory _$$PurchaseProductImplCopyWith(_$PurchaseProductImpl value,
+          $Res Function(_$PurchaseProductImpl) then) =
+      __$$PurchaseProductImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
-      {int id,
+      {String id,
       String title,
       double price,
       int star_candy,
-      int bonus_star_candy});
+      int bonus_star_candy,
+      @ProductDetailsConverter() ProductDetails? productDetails});
 }
 
 /// @nodoc
-class __$$PurchageProductImplCopyWithImpl<$Res>
-    extends _$PurchageProductCopyWithImpl<$Res, _$PurchageProductImpl>
-    implements _$$PurchageProductImplCopyWith<$Res> {
-  __$$PurchageProductImplCopyWithImpl(
-      _$PurchageProductImpl _value, $Res Function(_$PurchageProductImpl) _then)
+class __$$PurchaseProductImplCopyWithImpl<$Res>
+    extends _$PurchaseProductCopyWithImpl<$Res, _$PurchaseProductImpl>
+    implements _$$PurchaseProductImplCopyWith<$Res> {
+  __$$PurchaseProductImplCopyWithImpl(
+      _$PurchaseProductImpl _value, $Res Function(_$PurchaseProductImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -122,12 +131,13 @@ class __$$PurchageProductImplCopyWithImpl<$Res>
     Object? price = null,
     Object? star_candy = null,
     Object? bonus_star_candy = null,
+    Object? productDetails = freezed,
   }) {
-    return _then(_$PurchageProductImpl(
+    return _then(_$PurchaseProductImpl(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
-              as int,
+              as String,
       title: null == title
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -144,26 +154,31 @@ class __$$PurchageProductImplCopyWithImpl<$Res>
           ? _value.bonus_star_candy
           : bonus_star_candy // ignore: cast_nullable_to_non_nullable
               as int,
+      productDetails: freezed == productDetails
+          ? _value.productDetails
+          : productDetails // ignore: cast_nullable_to_non_nullable
+              as ProductDetails?,
     ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$PurchageProductImpl extends _PurchageProduct {
-  const _$PurchageProductImpl(
+class _$PurchaseProductImpl extends _PurchaseProduct {
+  const _$PurchaseProductImpl(
       {required this.id,
       required this.title,
       required this.price,
       required this.star_candy,
-      required this.bonus_star_candy})
+      required this.bonus_star_candy,
+      @ProductDetailsConverter() this.productDetails})
       : super._();
 
-  factory _$PurchageProductImpl.fromJson(Map<String, dynamic> json) =>
-      _$$PurchageProductImplFromJson(json);
+  factory _$PurchaseProductImpl.fromJson(Map<String, dynamic> json) =>
+      _$$PurchaseProductImplFromJson(json);
 
   @override
-  final int id;
+  final String id;
   @override
   final String title;
   @override
@@ -172,60 +187,67 @@ class _$PurchageProductImpl extends _PurchageProduct {
   final int star_candy;
   @override
   final int bonus_star_candy;
+  @override
+  @ProductDetailsConverter()
+  final ProductDetails? productDetails;
 
   @override
   String toString() {
-    return 'PurchageProduct(id: $id, title: $title, price: $price, star_candy: $star_candy, bonus_star_candy: $bonus_star_candy)';
+    return 'PurchaseProduct(id: $id, title: $title, price: $price, star_candy: $star_candy, bonus_star_candy: $bonus_star_candy, productDetails: $productDetails)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$PurchageProductImpl &&
+            other is _$PurchaseProductImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.price, price) || other.price == price) &&
             (identical(other.star_candy, star_candy) ||
                 other.star_candy == star_candy) &&
             (identical(other.bonus_star_candy, bonus_star_candy) ||
-                other.bonus_star_candy == bonus_star_candy));
+                other.bonus_star_candy == bonus_star_candy) &&
+            (identical(other.productDetails, productDetails) ||
+                other.productDetails == productDetails));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, title, price, star_candy, bonus_star_candy);
+  int get hashCode => Object.hash(runtimeType, id, title, price, star_candy,
+      bonus_star_candy, productDetails);
 
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$PurchageProductImplCopyWith<_$PurchageProductImpl> get copyWith =>
-      __$$PurchageProductImplCopyWithImpl<_$PurchageProductImpl>(
+  _$$PurchaseProductImplCopyWith<_$PurchaseProductImpl> get copyWith =>
+      __$$PurchaseProductImplCopyWithImpl<_$PurchaseProductImpl>(
           this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$PurchageProductImplToJson(
+    return _$$PurchaseProductImplToJson(
       this,
     );
   }
 }
 
-abstract class _PurchageProduct extends PurchageProduct {
-  const factory _PurchageProduct(
-      {required final int id,
-      required final String title,
-      required final double price,
-      required final int star_candy,
-      required final int bonus_star_candy}) = _$PurchageProductImpl;
-  const _PurchageProduct._() : super._();
+abstract class _PurchaseProduct extends PurchaseProduct {
+  const factory _PurchaseProduct(
+          {required final String id,
+          required final String title,
+          required final double price,
+          required final int star_candy,
+          required final int bonus_star_candy,
+          @ProductDetailsConverter() final ProductDetails? productDetails}) =
+      _$PurchaseProductImpl;
+  const _PurchaseProduct._() : super._();
 
-  factory _PurchageProduct.fromJson(Map<String, dynamic> json) =
-      _$PurchageProductImpl.fromJson;
+  factory _PurchaseProduct.fromJson(Map<String, dynamic> json) =
+      _$PurchaseProductImpl.fromJson;
 
   @override
-  int get id;
+  String get id;
   @override
   String get title;
   @override
@@ -235,7 +257,10 @@ abstract class _PurchageProduct extends PurchageProduct {
   @override
   int get bonus_star_candy;
   @override
+  @ProductDetailsConverter()
+  ProductDetails? get productDetails;
+  @override
   @JsonKey(ignore: true)
-  _$$PurchageProductImplCopyWith<_$PurchageProductImpl> get copyWith =>
+  _$$PurchaseProductImplCopyWith<_$PurchaseProductImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

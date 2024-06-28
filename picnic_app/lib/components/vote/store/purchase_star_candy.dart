@@ -3,20 +3,75 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/components/vote/common_vote_info.dart';
 import 'package:picnic_app/components/vote/store/store_list_tile.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/purchase_product_provider.dart';
 import 'package:picnic_app/ui/common_theme.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
 
-class PurchaseStarCandy extends ConsumerWidget {
+class PurchaseStarCandy extends ConsumerStatefulWidget {
   const PurchaseStarCandy({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  _PurchaseStarCandyState createState() => _PurchaseStarCandyState();
+}
+
+class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
+  final InAppPurchase _inAppPurchase = InAppPurchase.instance;
+  bool _available = true;
+  List<ProductDetails> _products = [];
+  List<PurchaseDetails> _purchases = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    _available = await _inAppPurchase.isAvailable();
+    if (!_available) {
+      setState(() {});
+      return;
+    }
+    final purchaseProductList = ref.watch(purchaseProductListProvider);
+
+    final ProductDetailsResponse response = await _inAppPurchase
+        .queryProductDetails(purchaseProductList.map((e) => e.id).toSet());
+
+    logger.d('response: $response');
+
+    if (response.notFoundIDs.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Not Found IDs: ${response.notFoundIDs}'),
+      ));
+      print('Not Found IDs: ${response.notFoundIDs}');
+      // Handle the error.
+    }
+    if (response.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Error: ${response.error}'),
+      ));
+      print('Error: ${response.error}');
+    }
+    setState(() {
+      _products = response.productDetails;
+    });
+  }
+
+  void _buyProduct(ProductDetails product) {
+    final PurchaseParam purchaseParam = PurchaseParam(productDetails: product);
+    _inAppPurchase.buyConsumable(
+        purchaseParam: purchaseParam, autoConsume: true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final purchaseProductList = ref.watch(purchaseProductListProvider);
 
     return Container(
@@ -34,11 +89,12 @@ class PurchaseStarCandy extends ConsumerWidget {
             physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (BuildContext context, int index) => StoreListTile(
               icon: Image.asset(
-                'assets/icons/store/star_${purchaseProductList[index].star_candy}.png',
+                'assets/icons/store/star_${purchaseProductList[index].star_candy ?? ''}.png',
                 width: 48.w,
                 height: 48.w,
               ),
-              title: Text(purchaseProductList[index].title,
+              title: Text(purchaseProductList[index].title ?? '',
+                  // title: Text(updatedPurchaseProductList[index].title,
                   style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
               subtitle: Text.rich(
                 TextSpan(
@@ -52,6 +108,16 @@ class PurchaseStarCandy extends ConsumerWidget {
                 ),
               ),
               buttonText: '${purchaseProductList[index].price} \$',
+              buttonOnPressed: () {
+                final purchaseProduct = purchaseProductList[index];
+                _buyProduct(ProductDetails(
+                    id: purchaseProduct.id,
+                    title: purchaseProduct.title,
+                    description: purchaseProduct.id,
+                    price: purchaseProduct.price.toString(),
+                    rawPrice: purchaseProduct.price,
+                    currencyCode: 'KR'));
+              },
             ),
             separatorBuilder: (BuildContext context, int index) =>
                 const Divider(color: AppColors.Grey200, height: 32),

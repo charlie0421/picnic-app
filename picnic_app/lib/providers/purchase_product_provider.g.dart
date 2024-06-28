@@ -7,12 +7,12 @@ part of 'purchase_product_provider.dart';
 // **************************************************************************
 
 String _$purchaseProductListHash() =>
-    r'558d73a728c0ced1f12fc2561972fc8f66c5f090';
+    r'd58959c2947a24789a3a1f0753948fd1547a2d77';
 
 /// See also [PurchaseProductList].
 @ProviderFor(PurchaseProductList)
 final purchaseProductListProvider = AutoDisposeNotifierProvider<
-    PurchaseProductList, List<PurchageProduct>>.internal(
+    PurchaseProductList, List<PurchaseProduct>>.internal(
   PurchaseProductList.new,
   name: r'purchaseProductListProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -22,6 +22,6 @@ final purchaseProductListProvider = AutoDisposeNotifierProvider<
   allTransitiveDependencies: null,
 );
 
-typedef _$PurchaseProductList = AutoDisposeNotifier<List<PurchageProduct>>;
+typedef _$PurchaseProductList = AutoDisposeNotifier<List<PurchaseProduct>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
