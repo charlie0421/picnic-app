@@ -24,6 +24,7 @@ void main() async {
       autoRefreshToken: true,
     ),
     debug: true,
+
     // httpClient: kDebugMode ? LoggingHttpClient(http.Client()) : null
   );
 

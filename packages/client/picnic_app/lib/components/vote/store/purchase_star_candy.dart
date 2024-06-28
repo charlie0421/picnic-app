@@ -56,6 +56,7 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
 
     if (response.notFoundIDs.isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        duration: const Duration(milliseconds: 100),
         content: Text('Not Found IDs: ${response.notFoundIDs}'),
       ));
       print('Not Found IDs: ${response.notFoundIDs}');
@@ -63,6 +64,7 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
     }
     if (response.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        duration: const Duration(milliseconds: 100),
         content: Text('Error: ${response.error}'),
       ));
       print('Error: ${response.error}');
