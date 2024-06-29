@@ -16,7 +16,15 @@ part 'navigation_provider.g.dart';
 
 @Riverpod(keepAlive: true)
 class NavigationInfo extends _$NavigationInfo {
-  Navigation setting = Navigation()..load();
+  Navigation setting = Navigation();
+
+  NavigationInfo() {
+    _loadInitialState();
+  }
+
+  Future<void> _loadInitialState() async {
+    await setting.load();
+  }
 
   @override
   Navigation build() {
@@ -134,7 +142,7 @@ class NavigationInfo extends _$NavigationInfo {
       showBottomNavigation: showBottomNavigation,
     );
 
-    // 각 메뉴의 진입점인경우만 포털을 노출
+    // 각 메뉴의 진입점인 경우만 포털을 노출
     (votePages + picPages + communityPages + novelPages)
                 .firstWhere((element) => element.pageWidget == page) !=
             null
@@ -162,7 +170,7 @@ class NavigationInfo extends _$NavigationInfo {
 
     state = state.copyWith(topNavigationStack: topNavigationStack);
 
-    // 각 메뉴의 진입점인경우만 포털을 노출
+    // 각 메뉴의 진입점인 경우만 포털을 노출
     (votePages + picPages + communityPages + novelPages).firstWhere((element) =>
                 element.pageWidget == topNavigationStack?.peek()) !=
             null
@@ -207,52 +215,50 @@ class Navigation {
 
   Navigation();
 
-  Future<Navigation> load() async {
-    String? portalString = await globalStorage.loadData('portalString', 'vote');
-    String? voteBottomNavigationIndex =
+  Future<void> load() async {
+    String? portalString = await globalStorage.loadData(
+        'portalString', PortalType.vote.name.toString());
+    String? voteBottomNavigationIndexString =
         await globalStorage.loadData('voteBottomNavigationIndex', '0');
-    String? picBottomNavigationIndex =
+    String? picBottomNavigationIndexString =
         await globalStorage.loadData('picBottomNavigationIndex', '0');
-    String? communityBottomNavigationIndex =
+    String? communityBottomNavigationIndexString =
         await globalStorage.loadData('communityBottomNavigationIndex', '0');
-    String? novelBottomNavigationIndex =
+    String? novelBottomNavigationIndexString =
         await globalStorage.loadData('novelBottomNavigationIndex', '0');
 
-    Widget currentScreen = Container();
-
-    logger.d('portalString: $portalString');
     if (portalString == PortalType.vote.name.toString()) {
       currentScreen = const VoteHomeScreen();
       topNavigationStack = NavigationStack()
-        ..push(votePages[int.parse(voteBottomNavigationIndex!)].pageWidget);
+        ..push(
+            votePages[int.parse(voteBottomNavigationIndexString!)].pageWidget);
     } else if (portalString == PortalType.pic.name.toString()) {
       currentScreen = const PicHomeScreen();
       topNavigationStack = NavigationStack()
-        ..push(picPages[int.parse(picBottomNavigationIndex!)].pageWidget);
+        ..push(picPages[int.parse(picBottomNavigationIndexString!)].pageWidget);
     } else if (portalString == PortalType.community.name.toString()) {
       currentScreen = const CommunityHomeScreen();
       topNavigationStack = NavigationStack()
-        ..push(communityPages[int.parse(communityBottomNavigationIndex!)]
+        ..push(communityPages[int.parse(communityBottomNavigationIndexString!)]
             .pageWidget);
     } else if (portalString == PortalType.novel.name.toString()) {
       currentScreen = const NovelHomeScreen();
       topNavigationStack = NavigationStack()
-        ..push(novelPages[int.parse(novelBottomNavigationIndex!)].pageWidget);
+        ..push(novelPages[int.parse(novelBottomNavigationIndexString!)]
+            .pageWidget);
     } else if (portalString == PortalType.mypage.name.toString()) {
       currentScreen = const MyPageScreen();
       topNavigationStack = NavigationStack()..push(const MyPage());
     }
 
-    return Navigation()
-      ..portalType = portalType
-      ..voteBottomNavigationIndex = int.parse(voteBottomNavigationIndex!)
-      ..picBottomNavigationIndex = int.parse(picBottomNavigationIndex!)
-      ..communityBottomNavigationIndex =
-          int.parse(communityBottomNavigationIndex!)
-      ..novelBottomNavigationIndex = int.parse(novelBottomNavigationIndex!)
-      ..currentScreen = currentScreen
-      ..topNavigationStack = topNavigationStack
-      ..drawerNavigationStack = drawerNavigationStack;
+    portalType = PortalTypeExtension.fromString(
+        portalString ?? PortalType.vote.name.toString());
+    voteBottomNavigationIndex = int.parse(voteBottomNavigationIndexString!);
+    picBottomNavigationIndex = int.parse(picBottomNavigationIndexString!);
+    communityBottomNavigationIndex =
+        int.parse(communityBottomNavigationIndexString!);
+    novelBottomNavigationIndex = int.parse(novelBottomNavigationIndexString!);
+    drawerNavigationStack = drawerNavigationStack;
   }
 
   Navigation copyWith({
