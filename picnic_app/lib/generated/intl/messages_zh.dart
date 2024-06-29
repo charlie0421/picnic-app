@@ -20,11 +20,13 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'zh';
 
-  static String m0(day) => "{天}前";
+  static String m0(day) => "${day}일 전";
 
-  static String m1(hour) => "{小时}前";
+  static String m1(hour) => "${hour}시간 전";
 
-  static String m2(minute) => "{分钟}前";
+  static String m2(minute) => "${minute}분 전";
+
+  static String m3(num1) => "${num1}개 +${num1}개 보너스";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -204,6 +206,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("我没有 Twitter 应用程序"),
         "share_twitter": MessageLookupByLibrary.simpleMessage("在 Twitter 上分享"),
         "text_ads_random": MessageLookupByLibrary.simpleMessage("查看广告并收集随机图片。"),
+        "text_bonus": MessageLookupByLibrary.simpleMessage("奖金"),
         "text_dialog_star_candy_received":
             MessageLookupByLibrary.simpleMessage("已颁发星形糖果。"),
         "text_dialog_vote_amount_should_not_zero":
@@ -219,9 +222,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_purchase_vat_included":
             MessageLookupByLibrary.simpleMessage("*价格包含增值税。"),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("星形糖果"),
+        "text_star_candy_with_bonus": m3,
         "text_this_time_vote": MessageLookupByLibrary.simpleMessage("这次投票"),
         "text_vote_complete": MessageLookupByLibrary.simpleMessage("投票结束"),
         "text_vote_first": MessageLookupByLibrary.simpleMessage("1"),
+        "text_vote_rank": MessageLookupByLibrary.simpleMessage("{}위"),
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("奖励排名"),
         "text_vote_rank_surffix": MessageLookupByLibrary.simpleMessage("위"),

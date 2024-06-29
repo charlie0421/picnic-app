@@ -148,7 +148,7 @@ Deno.serve(function (req) { return __awaiter(void 0, void 0, void 0, function ()
                 console.log('Fetching user profile', user_id);
                 return [4 /*yield*/, supabaseClient
                         .from('user_profiles')
-                        .select('star_candy')
+                        .select('star_candy_bonus')
                         .eq('id', user_id)
                         .single()];
             case 2:
@@ -170,12 +170,12 @@ Deno.serve(function (req) { return __awaiter(void 0, void 0, void 0, function ()
             case 5:
                 _e.sent();
                 console.log('Updating user rewards');
-                updateUserQuery = "UPDATE user_profiles\n                                     SET star_candy = star_candy + $1\n                                     WHERE id = $2";
+                updateUserQuery = "UPDATE user_profiles\n                                     SET star_candy_bonus = star_candy_bonus + $1\n                                     WHERE id = $2";
                 return [4 /*yield*/, connection.queryObject(updateUserQuery, [reward_amount, user_id])];
             case 6:
                 _e.sent();
                 console.log('Inserting star_candy history');
-                insertHistoryQuery = "INSERT INTO star_candy_history (type, amount, user_id, transaction_id)\n                                                VALUES ($1, $2, $3, $4)";
+                insertHistoryQuery = "INSERT INTO star_candy_bonus_history (type, amount, user_id, transaction_id)\n                                                VALUES ($1, $2, $3, $4)";
                 return [4 /*yield*/, connection.queryObject(insertHistoryQuery, ['AD', reward_amount, user_id, transaction_id])];
             case 7:
                 _e.sent();

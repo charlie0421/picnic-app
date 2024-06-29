@@ -26,6 +26,8 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m2(minute) => "${minute}분 전";
 
+  static String m3(num1) => "${num1}개 +${num1}개 보너스";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "app_name": MessageLookupByLibrary.simpleMessage("피크닠"),
@@ -217,6 +219,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "share_twitter": MessageLookupByLibrary.simpleMessage("트위터 공유"),
         "text_ads_random":
             MessageLookupByLibrary.simpleMessage("광고 보기 및 무작위 이미지 수집."),
+        "text_bonus": MessageLookupByLibrary.simpleMessage("보너스"),
         "text_dialog_star_candy_received":
             MessageLookupByLibrary.simpleMessage("별사탕이 지급되었습니다."),
         "text_dialog_vote_amount_should_not_zero":
@@ -234,14 +237,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_purchase_vat_included":
             MessageLookupByLibrary.simpleMessage("*VAT 포함 가격입니다."),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("별사탕"),
+        "text_star_candy_with_bonus": m3,
         "text_this_time_vote": MessageLookupByLibrary.simpleMessage("이번 투표"),
         "text_vote_complete": MessageLookupByLibrary.simpleMessage("투표 완료"),
-        "text_vote_first": MessageLookupByLibrary.simpleMessage("1위"),
+        "text_vote_rank": MessageLookupByLibrary.simpleMessage("{}위"),
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("랭크 인 리워드"),
-        "text_vote_rank_surffix": MessageLookupByLibrary.simpleMessage("위"),
-        "text_vote_second": MessageLookupByLibrary.simpleMessage("2위"),
-        "text_vote_third": MessageLookupByLibrary.simpleMessage("3위"),
         "text_vote_where_is_my_bias":
             MessageLookupByLibrary.simpleMessage("나의 최애는 어디에?"),
         "title_dialog_library_add":

@@ -120,7 +120,7 @@ Deno.serve(async (req) => {
         console.log('Fetching user profile', user_id);
         const {data: user_profiles, error: userError} = await supabaseClient
             .from('user_profiles')
-            .select('star_candy')
+            .select('star_candy_bonus')
             .eq('id', user_id)
             .single();
 
@@ -138,14 +138,14 @@ Deno.serve(async (req) => {
 
             console.log('Updating user rewards');
             const updateUserQuery = `UPDATE user_profiles
-                                     SET star_candy = star_candy + $1
+                                     SET star_candy_bonus = star_candy_bonus + $1
                                      WHERE id = $2`;
             await connection.queryObject(updateUserQuery, [reward_amount, user_id]);
 
             console.log('Inserting star_candy history');
 
             // 히스토리 저장
-            const insertHistoryQuery: String = `INSERT INTO star_candy_history (type, amount, user_id, transaction_id)
+            const insertHistoryQuery: String = `INSERT INTO star_candy_bonus_history (type, amount, user_id, transaction_id)
                                                 VALUES ($1, $2, $3, $4)`;
             await connection.queryObject(insertHistoryQuery, ['AD', reward_amount, user_id, transaction_id]);
 

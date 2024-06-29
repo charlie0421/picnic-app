@@ -21,7 +21,12 @@ class CommonMyPoint extends ConsumerStatefulWidget {
 class _CommonMyPointState extends ConsumerState<CommonMyPoint> {
   @override
   Widget build(BuildContext context) {
-    final userInfo = ref.watch(userInfoProvider);
+    final starCandy = ref.watch(
+            userInfoProvider.select((value) => value.value?.star_candy)) ??
+        0;
+    final starCandyBonus = ref.watch(userInfoProvider
+            .select((value) => value.value?.star_candy_bonus)) ??
+        0;
 
     return GestureDetector(
       onTap: () {
@@ -56,7 +61,7 @@ class _CommonMyPointState extends ConsumerState<CommonMyPoint> {
                         height: 18.w,
                         constraints: BoxConstraints(minWidth: 80.w),
                         child: AnimatedDigitWidget(
-                            value: userInfo.value?.star_candy ?? 0,
+                            value: starCandy + starCandyBonus,
                             duration: const Duration(milliseconds: 500),
                             enableSeparator: true,
                             curve: Curves.easeInOut,
