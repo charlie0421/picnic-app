@@ -24,7 +24,8 @@ class FreeChargeStation extends ConsumerStatefulWidget {
       _FreeChargeStationState();
 }
 
-class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
+class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
+    with SingleTickerProviderStateMixin {
   final List<RewardedAd?> _rewardedAds = [null, null];
   final List<bool> _isLoading = [true, true];
   final int maxFailedLoadAttempts = 3;
@@ -39,14 +40,33 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
   ];
 
   static const AdRequest request = AdRequest();
+  late AnimationController _animationController;
+  late Animation<double> _buttonScaleAnimation;
 
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 500),
+    );
+    _buttonScaleAnimation = Tween<double>(begin: 1.0, end: 2.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOut,
+      ),
+    );
+
     MobileAds.instance.initialize().then((InitializationStatus status) {
       _createRewardedAd(0);
       _createRewardedAd(1);
     });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -61,61 +81,9 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
               width: double.infinity,
               height: 100.w),
           SizedBox(height: 36.w),
-          StoreListTile(
-            icon: Image.asset(
-              'assets/icons/store/star_100.png',
-              width: 48.w,
-              height: 48.w,
-            ),
-            title: Text(S.of(context).label_button_watch_and_charge,
-                style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
-            subtitle: Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                      text: '+${S.of(context).label_bonus} 1',
-                      style:
-                          getTextStyle(AppTypo.CAPTION12B, AppColors.Point900)),
-                ],
-              ),
-            ),
-            buttonText: S.of(context).label_watch_ads,
-            buttonOnPressed: () async {
-              if (_rewardedAds[0] == null) {
-                await _createRewardedAd(0);
-              }
-              _showRewardedAd(0);
-            },
-            isLoading: _isLoading[0],
-          ),
+          _buildStoreListTile(0),
           Divider(height: 32.w, thickness: 1, color: AppColors.Grey200),
-          StoreListTile(
-            icon: Image.asset(
-              'assets/icons/store/star_100.png',
-              width: 48.w,
-              height: 48.w,
-            ),
-            title: Text(S.of(context).label_button_watch_and_charge,
-                style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
-            subtitle: Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                      text: '+${S.of(context).label_bonus} 1',
-                      style:
-                          getTextStyle(AppTypo.CAPTION12B, AppColors.Point900)),
-                ],
-              ),
-            ),
-            buttonText: S.of(context).label_watch_ads,
-            buttonOnPressed: () async {
-              if (_rewardedAds[1] == null) {
-                await _createRewardedAd(1);
-              }
-              _showRewardedAd(1);
-            },
-            isLoading: _isLoading[1],
-          ),
+          _buildStoreListTile(1),
           Divider(height: 32.w, thickness: 1, color: AppColors.Grey200),
           GestureDetector(
             onTap: () {
@@ -180,6 +148,44 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildStoreListTile(int index) {
+    return AnimatedBuilder(
+      animation: _animationController,
+      builder: (context, child) {
+        return StoreListTile(
+          icon: Image.asset(
+            'assets/icons/store/star_100.png',
+            width: 48.w,
+            height: 48.w,
+          ),
+          title: Text(
+            S.of(context).label_button_watch_and_charge,
+            style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
+          ),
+          subtitle: Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: '+${S.of(context).label_bonus} 1',
+                  style: getTextStyle(AppTypo.CAPTION12B, AppColors.Point900),
+                ),
+              ],
+            ),
+          ),
+          buttonText: S.of(context).label_watch_ads,
+          buttonOnPressed: () async {
+            if (_rewardedAds[index] == null) {
+              await _createRewardedAd(index);
+            }
+            _showRewardedAd(index);
+          },
+          isLoading: _isLoading[index],
+          buttonScale: _buttonScaleAnimation.value,
+        );
+      },
     );
   }
 
@@ -264,9 +270,16 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation> {
         logger.i('User earned reward of ${reward.amount} ${reward.type}');
       },
     );
+
     setState(() {
       _rewardedAds[index] = null;
       _isLoading[index] = true;
     });
+
+    _animateButton();
+  }
+
+  void _animateButton() {
+    _animationController.forward(from: 0.0);
   }
 }

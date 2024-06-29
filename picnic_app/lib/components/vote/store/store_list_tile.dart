@@ -11,6 +11,7 @@ class StoreListTile extends StatelessWidget {
     required this.buttonText,
     this.buttonOnPressed,
     this.isLoading = false,
+    this.buttonScale,
   });
 
   final Image icon;
@@ -19,6 +20,7 @@ class StoreListTile extends StatelessWidget {
   final String buttonText;
   final Function? buttonOnPressed;
   final bool? isLoading;
+  final double? buttonScale;
 
   @override
   Widget build(BuildContext context) {
