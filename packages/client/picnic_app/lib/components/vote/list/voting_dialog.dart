@@ -72,8 +72,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   void _checkOver(String text) {
     String newText = text.replaceAll(',', '');
     final int voteAmount = int.parse(newText.isNotEmpty ? newText : '0');
-    final int myStarCandy = ref.watch(userInfoProvider).value?.star_candy ?? 0;
+    final starCandy = ref.watch(
+        userInfoProvider.select((value) => value.value?.star_candy ?? 0));
+    final starCandyBonus = ref.watch(
+        userInfoProvider.select((value) => value.value?.star_candy_bonus ?? 0));
 
+    final int myStarCandy = starCandy + starCandyBonus;
     setState(() {
       _isOver = voteAmount > myStarCandy;
     });
@@ -89,8 +93,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final int myStarCandy = ref.watch(
+    final starCandy = ref.watch(
         userInfoProvider.select((value) => value.value?.star_candy ?? 0));
+    final starCandyBonus = ref.watch(
+        userInfoProvider.select((value) => value.value?.star_candy_bonus ?? 0));
+
+    final int myStarCandy = starCandy + starCandyBonus;
     final String userId =
         ref.watch(userInfoProvider.select((value) => value.value?.id ?? ''));
 
@@ -534,8 +542,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   }
 }
 
-String formatNumberWithComma(String number) {
-  if (number.isEmpty) {
+String formatNumberWithComma(Object number) {
+  if (number is int) {
+    return formatNumberWithComma(number.toString());
+  }
+
+  if ((number as String).isEmpty) {
     return '';
   }
   final buffer = StringBuffer();

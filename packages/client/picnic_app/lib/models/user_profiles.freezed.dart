@@ -188,6 +188,7 @@ mixin _$UserProfilesModel {
   String? get avatar_url => throw _privateConstructorUsedError;
   String? get country_code => throw _privateConstructorUsedError;
   int get star_candy => throw _privateConstructorUsedError;
+  int get star_candy_bonus => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -206,7 +207,8 @@ abstract class $UserProfilesModelCopyWith<$Res> {
       String? nickname,
       String? avatar_url,
       String? country_code,
-      int star_candy});
+      int star_candy,
+      int star_candy_bonus});
 }
 
 /// @nodoc
@@ -227,6 +229,7 @@ class _$UserProfilesModelCopyWithImpl<$Res, $Val extends UserProfilesModel>
     Object? avatar_url = freezed,
     Object? country_code = freezed,
     Object? star_candy = null,
+    Object? star_candy_bonus = null,
   }) {
     return _then(_value.copyWith(
       id: freezed == id
@@ -249,6 +252,10 @@ class _$UserProfilesModelCopyWithImpl<$Res, $Val extends UserProfilesModel>
           ? _value.star_candy
           : star_candy // ignore: cast_nullable_to_non_nullable
               as int,
+      star_candy_bonus: null == star_candy_bonus
+          ? _value.star_candy_bonus
+          : star_candy_bonus // ignore: cast_nullable_to_non_nullable
+              as int,
     ) as $Val);
   }
 }
@@ -266,7 +273,8 @@ abstract class _$$UserProfilesModelImplCopyWith<$Res>
       String? nickname,
       String? avatar_url,
       String? country_code,
-      int star_candy});
+      int star_candy,
+      int star_candy_bonus});
 }
 
 /// @nodoc
@@ -285,6 +293,7 @@ class __$$UserProfilesModelImplCopyWithImpl<$Res>
     Object? avatar_url = freezed,
     Object? country_code = freezed,
     Object? star_candy = null,
+    Object? star_candy_bonus = null,
   }) {
     return _then(_$UserProfilesModelImpl(
       id: freezed == id
@@ -307,6 +316,10 @@ class __$$UserProfilesModelImplCopyWithImpl<$Res>
           ? _value.star_candy
           : star_candy // ignore: cast_nullable_to_non_nullable
               as int,
+      star_candy_bonus: null == star_candy_bonus
+          ? _value.star_candy_bonus
+          : star_candy_bonus // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }
@@ -319,7 +332,8 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
       this.nickname,
       this.avatar_url,
       this.country_code,
-      required this.star_candy})
+      required this.star_candy,
+      required this.star_candy_bonus})
       : super._();
 
   factory _$UserProfilesModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -335,10 +349,12 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
   final String? country_code;
   @override
   final int star_candy;
+  @override
+  final int star_candy_bonus;
 
   @override
   String toString() {
-    return 'UserProfilesModel(id: $id, nickname: $nickname, avatar_url: $avatar_url, country_code: $country_code, star_candy: $star_candy)';
+    return 'UserProfilesModel(id: $id, nickname: $nickname, avatar_url: $avatar_url, country_code: $country_code, star_candy: $star_candy, star_candy_bonus: $star_candy_bonus)';
   }
 
   @override
@@ -354,13 +370,15 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
             (identical(other.country_code, country_code) ||
                 other.country_code == country_code) &&
             (identical(other.star_candy, star_candy) ||
-                other.star_candy == star_candy));
+                other.star_candy == star_candy) &&
+            (identical(other.star_candy_bonus, star_candy_bonus) ||
+                other.star_candy_bonus == star_candy_bonus));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, id, nickname, avatar_url, country_code, star_candy);
+  int get hashCode => Object.hash(runtimeType, id, nickname, avatar_url,
+      country_code, star_candy, star_candy_bonus);
 
   @JsonKey(ignore: true)
   @override
@@ -383,7 +401,8 @@ abstract class _UserProfilesModel extends UserProfilesModel {
       final String? nickname,
       final String? avatar_url,
       final String? country_code,
-      required final int star_candy}) = _$UserProfilesModelImpl;
+      required final int star_candy,
+      required final int star_candy_bonus}) = _$UserProfilesModelImpl;
   const _UserProfilesModel._() : super._();
 
   factory _UserProfilesModel.fromJson(Map<String, dynamic> json) =
@@ -399,6 +418,8 @@ abstract class _UserProfilesModel extends UserProfilesModel {
   String? get country_code;
   @override
   int get star_candy;
+  @override
+  int get star_candy_bonus;
   @override
   @JsonKey(ignore: true)
   _$$UserProfilesModelImplCopyWith<_$UserProfilesModelImpl> get copyWith =>

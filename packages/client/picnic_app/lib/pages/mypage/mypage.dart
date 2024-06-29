@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:picnic_app/components/common/common_my_point_info.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
+import 'package:picnic_app/components/star_candy_info_text.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/pages/mypage/myprofile.dart';
 import 'package:picnic_app/pages/mypage/setting.dart';
@@ -33,15 +33,9 @@ class _MyPageState extends ConsumerState<MyPage> {
           children: [
             SizedBox(height: 24.w),
             _buildProfile(),
-            SizedBox(height: 24.w),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                SizedBox(
-                    width: 144.w, height: 36.w, child: const CommonMyPoint()),
-              ],
-            ),
-            SizedBox(height: 24.w),
+            const Align(
+                alignment: Alignment.centerLeft,
+                child: StarCandyInfoText(alignment: MainAxisAlignment.start)),
             const Divider(color: AppColors.Grey200),
             ListItem(
                 leading: S.of(context).label_mypage_notice,

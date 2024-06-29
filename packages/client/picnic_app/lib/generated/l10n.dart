@@ -880,30 +880,30 @@ class S {
     );
   }
 
-  /// `{day} days ago`
+  /// `{day}일 전`
   String label_time_ago_day(Object day) {
     return Intl.message(
-      '$day days ago',
+      '$day일 전',
       name: 'label_time_ago_day',
       desc: '',
       args: [day],
     );
   }
 
-  /// `{hour} hours ago`
+  /// `{hour}시간 전`
   String label_time_ago_hour(Object hour) {
     return Intl.message(
-      '$hour hours ago',
+      '$hour시간 전',
       name: 'label_time_ago_hour',
       desc: '',
       args: [hour],
     );
   }
 
-  /// `{minute} minutes ago`
+  /// `{minute}분 전`
   String label_time_ago_minute(Object minute) {
     return Intl.message(
-      '$minute minutes ago',
+      '$minute분 전',
       name: 'label_time_ago_minute',
       desc: '',
       args: [minute],
@@ -1370,6 +1370,16 @@ class S {
     );
   }
 
+  /// `Bonuses`
+  String get text_bonus {
+    return Intl.message(
+      'Bonuses',
+      name: 'text_bonus',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Star candy has been awarded.`
   String get text_dialog_star_candy_received {
     return Intl.message(
@@ -1460,6 +1470,16 @@ class S {
     );
   }
 
+  /// `{num1}개 +{num1}개 보너스`
+  String text_star_candy_with_bonus(Object num1) {
+    return Intl.message(
+      '$num1개 +$num1개 보너스',
+      name: 'text_star_candy_with_bonus',
+      desc: '',
+      args: [num1],
+    );
+  }
+
   /// `This Vote`
   String get text_this_time_vote {
     return Intl.message(
@@ -1485,6 +1505,16 @@ class S {
     return Intl.message(
       '1',
       name: 'text_vote_first',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{}위`
+  String get text_vote_rank {
+    return Intl.message(
+      '{}위',
+      name: 'text_vote_rank',
       desc: '',
       args: [],
     );

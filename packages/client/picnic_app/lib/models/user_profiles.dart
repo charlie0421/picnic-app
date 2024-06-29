@@ -3,6 +3,7 @@ import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/reflector.dart';
 
 part 'user_profiles.freezed.dart';
+
 part 'user_profiles.g.dart';
 
 @reflector
@@ -27,16 +28,8 @@ class UserProfilesModel with _$UserProfilesModel {
     String? avatar_url,
     String? country_code,
     required int star_candy,
+    required int star_candy_bonus,
   }) = _UserProfilesModel;
-
-  copyWithStarCandy(int starCandy) {
-    return UserProfilesModel(
-        id: id,
-        nickname: nickname,
-        country_code: country_code,
-        star_candy: starCandy,
-        avatar_url: avatar_url);
-  }
 
   factory UserProfilesModel.fromJson(Map<String, dynamic> json) =>
       _$UserProfilesModelFromJson(json);
