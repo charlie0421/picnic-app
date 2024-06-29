@@ -1,34 +1,213 @@
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
-import * as postgres from 'https://deno.land/x/postgres@v0.17.0/mod.ts';
+import {Pool} from 'https://deno.land/x/postgres@v0.17.0/mod.ts';
 
 const databaseUrl = Deno.env.get('SUPABASE_DB_URL')!;
-const pool = new postgres.Pool(databaseUrl, 3, true);
+const pool = new Pool(databaseUrl, 3, true);
 
-Deno.serve(async (req) => {
+interface UserProfile {
+    id: string;
+    star_candy: number;
+    star_candy_bonus: number;
+}
+
+async function queryDatabase(query: string, ...args: any[]) {
+    const client = await pool.connect();
     try {
-        const supabaseClient = createClient(
-            Deno.env.get('SUPABASE_URL') ?? '',
-            Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-            {global: {headers: {Authorization: req.headers.get('Authorization')!}}}
-        );
+        const result = await client.queryObject(query, args);
+        console.log('Query executed:', {query, args, result});
+        return result;
+    } catch (error) {
+        console.error('Error executing query:', {query, args, error});
+        throw error;
+    } finally {
+        client.release();
+    }
+}
 
-        const {
-            vote_id,
-            vote_item_id,
-            amount,
-            user_id,
-        } = await req.json();
-
-        console.log('Request data:', {vote_id, vote_item_id, amount, user_id});
-
-
-        // 사용자 정보에서 star_candy 가져오기
-        const {data: user_profiles, error: userError} = await supabaseClient
+async function getUserProfiles(supabaseClient: any, user_id: string) {
+    try {
+        const {data: user_profiles, error} = await supabaseClient
             .from('user_profiles')
-            .select('star_candy')
+            .select('id, star_candy, star_candy_bonus')
             .eq('id', user_id)
             .single();
 
+        if (error) {
+            throw error;
+        }
+
+        return {user_profiles, error: null};
+    } catch (error) {
+        return {user_profiles: null, error};
+    }
+}
+
+async function deductStarCandy(user_id: string, amount: number, vote_pick_id: string) {
+    const {rows} = await queryDatabase(`
+        SELECT id, star_candy
+        FROM user_profiles
+        WHERE id = $1
+    `, user_id);
+
+    if (rows.length === 0) {
+        throw new Error('User not found');
+    }
+
+    const {id, star_candy}: UserProfile = rows[0];
+
+    // Insert new record into star_candy_history for direct star_candy deduction
+    await queryDatabase(`
+        INSERT INTO star_candy_history (type, user_id, amount, vote_pick_id)
+        VALUES ('VOTE', $1, $2, $3)
+    `, user_id, amount, vote_pick_id);
+
+    // Update user_profiles to deduct star_candy
+    await queryDatabase(`
+        UPDATE user_profiles
+        SET star_candy = GREATEST(star_candy - $1, 0)
+        WHERE id = $2
+    `, amount, id);
+}
+
+async function deductStarCandyBonus(user_id: string, amount: number, bonusId: string, vote_pick_id: string) {
+    // Insert new record into star_candy_bonus_history with parent_id and vote_pick_id
+    await queryDatabase(`
+        INSERT INTO star_candy_bonus_history (user_id, amount, parent_id, vote_pick_id)
+        VALUES ($1, $2, $3, $4)
+    `, user_id, amount, bonusId, vote_pick_id);
+
+    // Update user_profiles to deduct star_candy_bonus
+    await queryDatabase(`
+        UPDATE user_profiles
+        SET star_candy_bonus = GREATEST(star_candy_bonus - $1, 0)
+        WHERE id = $2
+    `, amount, user_id);
+}
+
+async function canVote(user_id: string, vote_amount: number, vote_pick_id: string): Promise<boolean> {
+    try {
+        const {rows} = await queryDatabase(`
+            SELECT id, star_candy, star_candy_bonus
+            FROM user_profiles
+            WHERE id = $1
+        `, user_id);
+
+        if (rows.length === 0) {
+            throw new Error('User not found');
+        }
+
+        const {id, star_candy, star_candy_bonus}: UserProfile = rows[0];
+        const totalStarCandy = star_candy + star_candy_bonus;
+
+        if (totalStarCandy < vote_amount || vote_amount <= 0) {
+            return false;
+        }
+
+        // Calculate remaining amount after deducting from bonus first
+        let remainingAmount = vote_amount;
+
+        // Check if there are bonuses available
+        if (star_candy_bonus > 0) {
+            const {rows: bonusRows} = await queryDatabase(`
+                SELECT id, amount
+                FROM star_candy_bonus_history
+                WHERE user_id = $1
+                  AND expired_dt > NOW()
+                  AND amount > 0
+                ORDER BY created_at ASC
+            `, user_id);
+
+            for (const bonusRow of bonusRows) {
+                const {id: bonusId, amount: bonusAmount} = bonusRow;
+
+                if (remainingAmount <= 0) break;
+
+                if (bonusAmount >= remainingAmount) {
+                    await deductStarCandyBonus(user_id, remainingAmount, bonusId, vote_pick_id);
+                    remainingAmount = 0;
+                } else {
+                    await deductStarCandyBonus(user_id, bonusAmount, bonusId, vote_pick_id);
+                    remainingAmount -= bonusAmount;
+                }
+            }
+        }
+
+        // If remaining amount is greater than 0, deduct from star_candy in user_profiles
+        if (remainingAmount > 0) {
+            await deductStarCandy(user_id, remainingAmount, vote_pick_id);
+        }
+
+        return true;
+    } catch (error) {
+        console.error('Error in canVote function:', error);
+        throw error;
+    }
+}
+
+async function performTransaction(connection: any, vote_id: string, vote_item_id: string, amount: number, user_id: string) {
+    await connection.queryObject('BEGIN');
+
+    try {
+        // Insert into vote_pick table and get the inserted id
+        const votePickResult = await queryDatabase(`
+            INSERT INTO vote_pick (vote_id, vote_item_id, amount, user_id)
+            VALUES ($1, $2, $3, $4) RETURNING id
+        `, vote_id, vote_item_id, amount, user_id);
+        const vote_pick_id = votePickResult.rows[0].id;
+
+        const canVoteResult = await canVote(user_id, amount, vote_pick_id);
+
+        if (!canVoteResult) {
+            throw new Error('Insufficient star_candy and star_candy_bonus to vote');
+        }
+
+        // Update vote_item table with the new vote total
+        await queryDatabase(`
+            UPDATE vote_item
+            SET vote_total = vote_total + $1
+            WHERE id = $2
+        `, amount, vote_item_id);
+
+        // Get existing vote total for the specified vote_item_id
+        const voteTotalResult = await queryDatabase(`
+            SELECT vote_total
+            FROM vote_item
+            WHERE id = $1
+        `, vote_item_id);
+        const existingVoteTotal = voteTotalResult.rows.length > 0 ? voteTotalResult.rows[0].vote_total : 0;
+
+        // Commit the transaction
+        await connection.queryObject('COMMIT');
+        connection.release();
+
+        return {
+            existingVoteTotal,
+            addedVoteTotal: amount,
+            updatedVoteTotal: existingVoteTotal + amount,
+            updatedAt: new Date().toISOString(),
+        };
+    } catch (error) {
+        // Rollback transaction on error
+        await connection.queryObject('ROLLBACK');
+        connection.release();
+        console.error('Error in performTransaction function:', error);
+        throw error;
+    }
+}
+
+// Deno server setup
+Deno.serve(async (req) => {
+    const supabaseClient = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+        {global: {headers: {Authorization: req.headers.get('Authorization') ?? ''}}}
+    );
+
+    try {
+        const {vote_id, vote_item_id, amount, user_id} = await req.json();
+        console.log('Request data:', {vote_id, vote_item_id, amount, user_id});
+
+        const {user_profiles, error: userError} = await getUserProfiles(supabaseClient, user_id);
         if (userError || !user_profiles) {
             return new Response(JSON.stringify({error: 'User not found or other error occurred'}), {
                 headers: {'Content-Type': 'application/json'},
@@ -36,81 +215,22 @@ Deno.serve(async (req) => {
             });
         }
 
-        if (amount < 0 || user_profiles.star_candy < amount) {
-            return new Response(JSON.stringify({error: 'Invalid amount or insufficient star_candy'}), {
-                headers: {'Content-Type': 'application/json'},
-                status: 400,
-            });
-        }
-
         const connection = await pool.connect();
         try {
-            await connection.queryObject('BEGIN');
-
-            // 투표 내역 추가
-            const insertVoteQuery: String = `INSERT INTO vote_pick (vote_id, vote_item_id, amount, user_id)
-                                             VALUES ($1, $2, $3, $4) RETURNING id`;
-            const vote_pick = await connection.queryObject(insertVoteQuery, [vote_id, vote_item_id, amount, user_id]);
-            console.log(vote_pick);
-            let vote_pick_id;
-            if (vote_pick.rows.length > 0) {
-                vote_pick_id = vote_pick.rows[0].id;
-            } else {
-                // Handle the case where no rows were inserted
-                console.error('No rows were inserted');
-            }
-            // 기존 투표수 가져오기
-            const {rows: existingVoteRows} = await connection.queryObject(
-                `SELECT vote_total
-                 FROM vote_item
-                 WHERE id = $1`, [vote_item_id]
-            );
-            const existingVoteTotal = existingVoteRows.length > 0 ? existingVoteRows[0].vote_total : 0;
-
-            // 투표수 업데이트
-            console.log('Updating vote total');
-            const updateVoteQuery: String = `UPDATE vote_item
-                                             SET vote_total = vote_total + $1
-                                             WHERE id = $2`;
-            await connection.queryObject(updateVoteQuery, [amount, vote_item_id]);
-
-            // 사용자 포인트 차감
-            console.log('Updating user rewards');
-            const updateUserQuery: String = `UPDATE user_profiles
-                                             SET star_candy = star_candy - $1
-                                             WHERE id = $2`;
-            await connection.queryObject(updateUserQuery, [amount, user_id]);
-
-            // 히스토리 저장
-            console.log('Inserting star_candy history');
-            const insertHistoryQuery: String = `INSERT INTO star_candy_history (type, user_id, amount, vote_pick_id)
-                                                VALUES ($1, $2, $3, $4)`;
-            await connection.queryObject(insertHistoryQuery, ['VOTE', user_id, amount, vote_pick_id]);
-
-
-            await connection.queryObject('COMMIT');
-            connection.release();
-
-            return new Response(
-                JSON.stringify({
-                    existingVoteTotal,
-                    addedVoteTotal: amount,
-                    updatedVoteTotal: existingVoteTotal + amount,
-                    updatedAt: new Date().toISOString(),
-                }),
-                {
-                    headers: {'Content-Type': 'application/json'},
-                    status: 200,
-                }
-            );
+            const transactionResult = await performTransaction(connection, vote_id, vote_item_id, amount, user_id);
+            return new Response(JSON.stringify(transactionResult), {
+                headers: {'Content-Type': 'application/json'},
+                status: 200,
+            });
         } catch (e) {
             await connection.queryObject('ROLLBACK');
             connection.release();
+            console.error('Error occurred during transaction:', e);
             throw e;
         }
     } catch (error) {
-        console.error('Unhandled error', error);
-        return new Response(JSON.stringify({error: error.message}), {
+        console.error('Unexpected error occurred:', error);
+        return new Response(JSON.stringify({error: 'Unexpected error occurred'}), {
             headers: {'Content-Type': 'application/json'},
             status: 500,
         });
