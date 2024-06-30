@@ -193,13 +193,24 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   }
 
   Widget _buildVoteInfo(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = width * 0.5;
     return ref.watch(asyncVoteDetailProvider(voteId: widget.voteId)).when(
           data: (voteModel) {
             return Column(
               children: [
                 Container(
-                  height: 160.w,
-                  color: AppColors.Grey200,
+                  width: width,
+                  height: height,
+                  child: CachedNetworkImage(
+                    imageUrl: voteModel?.main_image ?? '',
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => buildPlaceholderImage(),
+                    errorWidget: (context, url, error) =>
+                        buildPlaceholderImage(),
+                    width: width,
+                    height: height,
+                  ),
                 ),
                 SizedBox(
                   height: 36.w,
