@@ -970,10 +970,10 @@ class S {
     );
   }
 
-  /// `PIC Voting`
+  /// `PIC voting`
   String get label_vote_tab_pic {
     return Intl.message(
-      'PIC Voting',
+      'PIC voting',
       name: 'label_vote_tab_pic',
       desc: '',
       args: [],
@@ -1355,6 +1355,16 @@ class S {
     return Intl.message(
       'Bonuses',
       name: 'text_bonus',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The address has been copied.`
+  String get text_copied_address {
+    return Intl.message(
+      'The address has been copied.',
+      name: 'text_copied_address',
       desc: '',
       args: [],
     );

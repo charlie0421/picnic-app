@@ -166,10 +166,23 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                             barrierDismissible: true,
                             barrierLabel: MaterialLocalizations.of(context)
                                 .modalBarrierDismissLabel,
-                            pageBuilder: (context, _, __) =>
-                                RewardDialog(data: data[index]),
                             transitionDuration:
-                                const Duration(milliseconds: 200),
+                                const Duration(milliseconds: 300),
+                            pageBuilder: (context, animation1, animation2) {
+                              return Container();
+                            },
+                            transitionBuilder:
+                                (context, animation1, animation2, child) {
+                              return Transform.scale(
+                                scale: animation1.value,
+                                child: Opacity(
+                                  opacity: animation1.value,
+                                  child: RewardDialog(
+                                    data: data[index],
+                                  ),
+                                ),
+                              );
+                            },
                           );
                         },
                         child: Container(
@@ -313,6 +326,30 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         loading: () => buildLoadingOverlay(),
         error: (error, stackTrace) =>
             ErrorView(context, error: error.toString(), stackTrace: stackTrace),
+      ),
+    );
+  }
+}
+
+class FullScreenDialog extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Center(
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          color: Colors.white,
+          child: Center(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Close'),
+            ),
+          ),
+        ),
       ),
     );
   }

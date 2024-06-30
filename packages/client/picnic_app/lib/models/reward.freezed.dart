@@ -21,14 +21,11 @@ RewardModel _$RewardModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$RewardModel {
   int get id => throw _privateConstructorUsedError;
-  String get title_ko => throw _privateConstructorUsedError;
-  String get title_en => throw _privateConstructorUsedError;
-  String get title_ja => throw _privateConstructorUsedError;
-  String get title_zh => throw _privateConstructorUsedError;
+  Map<String, dynamic>? get title => throw _privateConstructorUsedError;
   String? get thumbnail => throw _privateConstructorUsedError;
   List<String>? get overview_images => throw _privateConstructorUsedError;
-  List<String>? get location_images => throw _privateConstructorUsedError;
-  List<String>? get location_desc => throw _privateConstructorUsedError;
+  Map<String, dynamic>? get location => throw _privateConstructorUsedError;
+  Map<String, dynamic>? get size_guide => throw _privateConstructorUsedError;
   List<String>? get size_guide_images => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -45,14 +42,11 @@ abstract class $RewardModelCopyWith<$Res> {
   @useResult
   $Res call(
       {int id,
-      String title_ko,
-      String title_en,
-      String title_ja,
-      String title_zh,
+      Map<String, dynamic>? title,
       String? thumbnail,
       List<String>? overview_images,
-      List<String>? location_images,
-      List<String>? location_desc,
+      Map<String, dynamic>? location,
+      Map<String, dynamic>? size_guide,
       List<String>? size_guide_images});
 }
 
@@ -70,14 +64,11 @@ class _$RewardModelCopyWithImpl<$Res, $Val extends RewardModel>
   @override
   $Res call({
     Object? id = null,
-    Object? title_ko = null,
-    Object? title_en = null,
-    Object? title_ja = null,
-    Object? title_zh = null,
+    Object? title = freezed,
     Object? thumbnail = freezed,
     Object? overview_images = freezed,
-    Object? location_images = freezed,
-    Object? location_desc = freezed,
+    Object? location = freezed,
+    Object? size_guide = freezed,
     Object? size_guide_images = freezed,
   }) {
     return _then(_value.copyWith(
@@ -85,22 +76,10 @@ class _$RewardModelCopyWithImpl<$Res, $Val extends RewardModel>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      title_ko: null == title_ko
-          ? _value.title_ko
-          : title_ko // ignore: cast_nullable_to_non_nullable
-              as String,
-      title_en: null == title_en
-          ? _value.title_en
-          : title_en // ignore: cast_nullable_to_non_nullable
-              as String,
-      title_ja: null == title_ja
-          ? _value.title_ja
-          : title_ja // ignore: cast_nullable_to_non_nullable
-              as String,
-      title_zh: null == title_zh
-          ? _value.title_zh
-          : title_zh // ignore: cast_nullable_to_non_nullable
-              as String,
+      title: freezed == title
+          ? _value.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
       thumbnail: freezed == thumbnail
           ? _value.thumbnail
           : thumbnail // ignore: cast_nullable_to_non_nullable
@@ -109,14 +88,14 @@ class _$RewardModelCopyWithImpl<$Res, $Val extends RewardModel>
           ? _value.overview_images
           : overview_images // ignore: cast_nullable_to_non_nullable
               as List<String>?,
-      location_images: freezed == location_images
-          ? _value.location_images
-          : location_images // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
-      location_desc: freezed == location_desc
-          ? _value.location_desc
-          : location_desc // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
+      location: freezed == location
+          ? _value.location
+          : location // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+      size_guide: freezed == size_guide
+          ? _value.size_guide
+          : size_guide // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
       size_guide_images: freezed == size_guide_images
           ? _value.size_guide_images
           : size_guide_images // ignore: cast_nullable_to_non_nullable
@@ -135,14 +114,11 @@ abstract class _$$RewardModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {int id,
-      String title_ko,
-      String title_en,
-      String title_ja,
-      String title_zh,
+      Map<String, dynamic>? title,
       String? thumbnail,
       List<String>? overview_images,
-      List<String>? location_images,
-      List<String>? location_desc,
+      Map<String, dynamic>? location,
+      Map<String, dynamic>? size_guide,
       List<String>? size_guide_images});
 }
 
@@ -158,14 +134,11 @@ class __$$RewardModelImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? title_ko = null,
-    Object? title_en = null,
-    Object? title_ja = null,
-    Object? title_zh = null,
+    Object? title = freezed,
     Object? thumbnail = freezed,
     Object? overview_images = freezed,
-    Object? location_images = freezed,
-    Object? location_desc = freezed,
+    Object? location = freezed,
+    Object? size_guide = freezed,
     Object? size_guide_images = freezed,
   }) {
     return _then(_$RewardModelImpl(
@@ -173,22 +146,10 @@ class __$$RewardModelImplCopyWithImpl<$Res>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      title_ko: null == title_ko
-          ? _value.title_ko
-          : title_ko // ignore: cast_nullable_to_non_nullable
-              as String,
-      title_en: null == title_en
-          ? _value.title_en
-          : title_en // ignore: cast_nullable_to_non_nullable
-              as String,
-      title_ja: null == title_ja
-          ? _value.title_ja
-          : title_ja // ignore: cast_nullable_to_non_nullable
-              as String,
-      title_zh: null == title_zh
-          ? _value.title_zh
-          : title_zh // ignore: cast_nullable_to_non_nullable
-              as String,
+      title: freezed == title
+          ? _value._title
+          : title // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
       thumbnail: freezed == thumbnail
           ? _value.thumbnail
           : thumbnail // ignore: cast_nullable_to_non_nullable
@@ -197,14 +158,14 @@ class __$$RewardModelImplCopyWithImpl<$Res>
           ? _value._overview_images
           : overview_images // ignore: cast_nullable_to_non_nullable
               as List<String>?,
-      location_images: freezed == location_images
-          ? _value._location_images
-          : location_images // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
-      location_desc: freezed == location_desc
-          ? _value._location_desc
-          : location_desc // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
+      location: freezed == location
+          ? _value._location
+          : location // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+      size_guide: freezed == size_guide
+          ? _value._size_guide
+          : size_guide // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
       size_guide_images: freezed == size_guide_images
           ? _value._size_guide_images
           : size_guide_images // ignore: cast_nullable_to_non_nullable
@@ -218,18 +179,16 @@ class __$$RewardModelImplCopyWithImpl<$Res>
 class _$RewardModelImpl extends _RewardModel {
   const _$RewardModelImpl(
       {required this.id,
-      required this.title_ko,
-      required this.title_en,
-      required this.title_ja,
-      required this.title_zh,
+      final Map<String, dynamic>? title,
       this.thumbnail,
       final List<String>? overview_images,
-      final List<String>? location_images,
-      final List<String>? location_desc,
+      final Map<String, dynamic>? location,
+      final Map<String, dynamic>? size_guide,
       final List<String>? size_guide_images})
-      : _overview_images = overview_images,
-        _location_images = location_images,
-        _location_desc = location_desc,
+      : _title = title,
+        _overview_images = overview_images,
+        _location = location,
+        _size_guide = size_guide,
         _size_guide_images = size_guide_images,
         super._();
 
@@ -238,14 +197,16 @@ class _$RewardModelImpl extends _RewardModel {
 
   @override
   final int id;
+  final Map<String, dynamic>? _title;
   @override
-  final String title_ko;
-  @override
-  final String title_en;
-  @override
-  final String title_ja;
-  @override
-  final String title_zh;
+  Map<String, dynamic>? get title {
+    final value = _title;
+    if (value == null) return null;
+    if (_title is EqualUnmodifiableMapView) return _title;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(value);
+  }
+
   @override
   final String? thumbnail;
   final List<String>? _overview_images;
@@ -258,24 +219,24 @@ class _$RewardModelImpl extends _RewardModel {
     return EqualUnmodifiableListView(value);
   }
 
-  final List<String>? _location_images;
+  final Map<String, dynamic>? _location;
   @override
-  List<String>? get location_images {
-    final value = _location_images;
+  Map<String, dynamic>? get location {
+    final value = _location;
     if (value == null) return null;
-    if (_location_images is EqualUnmodifiableListView) return _location_images;
+    if (_location is EqualUnmodifiableMapView) return _location;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(value);
+    return EqualUnmodifiableMapView(value);
   }
 
-  final List<String>? _location_desc;
+  final Map<String, dynamic>? _size_guide;
   @override
-  List<String>? get location_desc {
-    final value = _location_desc;
+  Map<String, dynamic>? get size_guide {
+    final value = _size_guide;
     if (value == null) return null;
-    if (_location_desc is EqualUnmodifiableListView) return _location_desc;
+    if (_size_guide is EqualUnmodifiableMapView) return _size_guide;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(value);
+    return EqualUnmodifiableMapView(value);
   }
 
   final List<String>? _size_guide_images;
@@ -291,7 +252,7 @@ class _$RewardModelImpl extends _RewardModel {
 
   @override
   String toString() {
-    return 'RewardModel(id: $id, title_ko: $title_ko, title_en: $title_en, title_ja: $title_ja, title_zh: $title_zh, thumbnail: $thumbnail, overview_images: $overview_images, location_images: $location_images, location_desc: $location_desc, size_guide_images: $size_guide_images)';
+    return 'RewardModel(id: $id, title: $title, thumbnail: $thumbnail, overview_images: $overview_images, location: $location, size_guide: $size_guide, size_guide_images: $size_guide_images)';
   }
 
   @override
@@ -300,22 +261,14 @@ class _$RewardModelImpl extends _RewardModel {
         (other.runtimeType == runtimeType &&
             other is _$RewardModelImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.title_ko, title_ko) ||
-                other.title_ko == title_ko) &&
-            (identical(other.title_en, title_en) ||
-                other.title_en == title_en) &&
-            (identical(other.title_ja, title_ja) ||
-                other.title_ja == title_ja) &&
-            (identical(other.title_zh, title_zh) ||
-                other.title_zh == title_zh) &&
+            const DeepCollectionEquality().equals(other._title, _title) &&
             (identical(other.thumbnail, thumbnail) ||
                 other.thumbnail == thumbnail) &&
             const DeepCollectionEquality()
                 .equals(other._overview_images, _overview_images) &&
+            const DeepCollectionEquality().equals(other._location, _location) &&
             const DeepCollectionEquality()
-                .equals(other._location_images, _location_images) &&
-            const DeepCollectionEquality()
-                .equals(other._location_desc, _location_desc) &&
+                .equals(other._size_guide, _size_guide) &&
             const DeepCollectionEquality()
                 .equals(other._size_guide_images, _size_guide_images));
   }
@@ -325,14 +278,11 @@ class _$RewardModelImpl extends _RewardModel {
   int get hashCode => Object.hash(
       runtimeType,
       id,
-      title_ko,
-      title_en,
-      title_ja,
-      title_zh,
+      const DeepCollectionEquality().hash(_title),
       thumbnail,
       const DeepCollectionEquality().hash(_overview_images),
-      const DeepCollectionEquality().hash(_location_images),
-      const DeepCollectionEquality().hash(_location_desc),
+      const DeepCollectionEquality().hash(_location),
+      const DeepCollectionEquality().hash(_size_guide),
       const DeepCollectionEquality().hash(_size_guide_images));
 
   @JsonKey(ignore: true)
@@ -352,14 +302,11 @@ class _$RewardModelImpl extends _RewardModel {
 abstract class _RewardModel extends RewardModel {
   const factory _RewardModel(
       {required final int id,
-      required final String title_ko,
-      required final String title_en,
-      required final String title_ja,
-      required final String title_zh,
+      final Map<String, dynamic>? title,
       final String? thumbnail,
       final List<String>? overview_images,
-      final List<String>? location_images,
-      final List<String>? location_desc,
+      final Map<String, dynamic>? location,
+      final Map<String, dynamic>? size_guide,
       final List<String>? size_guide_images}) = _$RewardModelImpl;
   const _RewardModel._() : super._();
 
@@ -369,21 +316,15 @@ abstract class _RewardModel extends RewardModel {
   @override
   int get id;
   @override
-  String get title_ko;
-  @override
-  String get title_en;
-  @override
-  String get title_ja;
-  @override
-  String get title_zh;
+  Map<String, dynamic>? get title;
   @override
   String? get thumbnail;
   @override
   List<String>? get overview_images;
   @override
-  List<String>? get location_images;
+  Map<String, dynamic>? get location;
   @override
-  List<String>? get location_desc;
+  Map<String, dynamic>? get size_guide;
   @override
   List<String>? get size_guide_images;
   @override

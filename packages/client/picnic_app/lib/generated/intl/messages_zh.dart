@@ -41,7 +41,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
             "### 有效期\n\n- 自获得之日起，Star Candy 的有效期为一年。\n\n### 赚取的星星糖\n\n登录：每天 1 个\n- 投票：每天 1 次\n购买糖果：无（无限制）\n奖励星星糖果：在获得后的当月 15 日分批过期\n\n在 ##### 上兑换星星糖\n\n有效期即将结束的星星糖将优先使用。\n如果有效期相同，则按获得日期的先后顺序使用。"),
         "candy_usage_policy_guide":
-            MessageLookupByLibrary.simpleMessage("*获得奖金的次月，奖金就会消失！ ⓘ"),
+            MessageLookupByLibrary.simpleMessage("*奖金将在您获得奖金的次月消失！ ⓘ"),
         "candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("星糖使用政策"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("取消"),
@@ -64,7 +64,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_button_clse": MessageLookupByLibrary.simpleMessage("關閉"),
         "label_button_recharge": MessageLookupByLibrary.simpleMessage("充电"),
         "label_button_save_vote_paper":
-            MessageLookupByLibrary.simpleMessage("保存您的选票"),
+            MessageLookupByLibrary.simpleMessage("存储您的选票"),
         "label_button_share": MessageLookupByLibrary.simpleMessage("分享"),
         "label_button_vote": MessageLookupByLibrary.simpleMessage("投票"),
         "label_button_watch_and_charge":
@@ -205,6 +205,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "share_twitter": MessageLookupByLibrary.simpleMessage("在 Twitter 上分享"),
         "text_ads_random": MessageLookupByLibrary.simpleMessage("查看广告并收集随机图片。"),
         "text_bonus": MessageLookupByLibrary.simpleMessage("奖金"),
+        "text_copied_address": MessageLookupByLibrary.simpleMessage("地址已复制。"),
         "text_dialog_star_candy_received":
             MessageLookupByLibrary.simpleMessage("已颁发星形糖果。"),
         "text_dialog_vote_amount_should_not_zero":

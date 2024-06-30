@@ -149,6 +149,7 @@
   "title_dialog_library_add": "새로운 앨범 추가",
   "title_select_language": "언어 선택",
   "toast_max_five_celeb": "내 아티스트를 최대 5개까지 추가할 수 있습니다.",
+  "text_copied_address": "주소가 복사되었습니다.",
   "@text_vote_rank": {
     "manualTranslationKey": true
   },

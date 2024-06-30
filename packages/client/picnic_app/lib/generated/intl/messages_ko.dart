@@ -222,6 +222,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_ads_random":
             MessageLookupByLibrary.simpleMessage("광고 보기 및 무작위 이미지 수집."),
         "text_bonus": MessageLookupByLibrary.simpleMessage("보너스"),
+        "text_copied_address":
+            MessageLookupByLibrary.simpleMessage("주소가 복사되었습니다."),
         "text_dialog_star_candy_received":
             MessageLookupByLibrary.simpleMessage("별사탕이 지급되었습니다."),
         "text_dialog_vote_amount_should_not_zero":
