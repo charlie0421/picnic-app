@@ -85,8 +85,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_dropdown_recent": MessageLookupByLibrary.simpleMessage("最新順"),
         "label_find_celeb":
             MessageLookupByLibrary.simpleMessage("その他のアーティストを探す"),
-        "label_gallery_tab_article":
-            MessageLookupByLibrary.simpleMessage("アーティクル"),
+        "label_gallery_tab_article": MessageLookupByLibrary.simpleMessage("記事"),
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("チャット"),
         "label_hint_comment":
             MessageLookupByLibrary.simpleMessage("コメントを残してください。"),
@@ -208,7 +207,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("マイページ"),
         "page_title_myprofile":
             MessageLookupByLibrary.simpleMessage("私のプロフィール"),
-        "page_title_privacy": MessageLookupByLibrary.simpleMessage("個人情報保護方針"),
+        "page_title_privacy":
+            MessageLookupByLibrary.simpleMessage("プライバシーポリシー"),
         "page_title_setting": MessageLookupByLibrary.simpleMessage("環境設定"),
         "page_title_terms_of_use": MessageLookupByLibrary.simpleMessage("利用規約"),
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("投票する"),
@@ -222,6 +222,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_ads_random":
             MessageLookupByLibrary.simpleMessage("広告表示とランダム画像収集。"),
         "text_bonus": MessageLookupByLibrary.simpleMessage("ボーナス"),
+        "text_copied_address":
+            MessageLookupByLibrary.simpleMessage("アドレスがコピーされました。"),
         "text_dialog_star_candy_received":
             MessageLookupByLibrary.simpleMessage("星飴が支給されました。"),
         "text_dialog_vote_amount_should_not_zero":

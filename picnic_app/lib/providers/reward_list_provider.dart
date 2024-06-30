@@ -18,27 +18,18 @@ class AsyncRewardList extends _$AsyncRewardList {
         .order('id', ascending: true);
 
     List<RewardModel> rewardList =
-        List<RewardModel>.from(response.map((e) => RewardModel.fromJson(e)));
+    List<RewardModel>.from(response.map((e) => RewardModel.fromJson(e)));
     for (var i = 0; i < rewardList.length; i++) {
       rewardList[i] = rewardList[i].copyWith(
           thumbnail:
-              'https://cdn-dev.picnic.fan/reward/${rewardList[i].id}/${rewardList[i].thumbnail}');
+          'https://cdn-dev.picnic.fan/reward/${rewardList[i].id}/${rewardList[i]
+              .thumbnail}');
 
       rewardList[i] = rewardList[i].copyWith(
-          overview_images: rewardList[i]
-              .overview_images
-              ?.map((e) =>
-                  'https://cdn-dev.picnic.fan/reward/${rewardList[i].id}/$e')
-              .toList(),
-          location_images: rewardList[i]
-              .location_images
-              ?.map((e) =>
-                  'https://cdn-dev.picnic.fan/reward/${rewardList[i].id}/$e')
-              .toList(),
           size_guide_images: rewardList[i]
               .size_guide_images
               ?.map((e) =>
-                  'https://cdn-dev.picnic.fan/reward/${rewardList[i].id}/$e')
+          'https://cdn-dev.picnic.fan/reward/${rewardList[i].id}/$e')
               .toList());
     }
 

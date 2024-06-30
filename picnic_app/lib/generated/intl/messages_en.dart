@@ -190,7 +190,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("Birthday polls"),
         "label_vote_tab_pic":
-            MessageLookupByLibrary.simpleMessage("PIC Voting"),
+            MessageLookupByLibrary.simpleMessage("PIC voting"),
         "label_vote_vote_gather":
             MessageLookupByLibrary.simpleMessage("Collecting votes"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("View ads"),
@@ -251,6 +251,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_ads_random": MessageLookupByLibrary.simpleMessage(
             "Viewing ads and collecting random images."),
         "text_bonus": MessageLookupByLibrary.simpleMessage("Bonuses"),
+        "text_copied_address": MessageLookupByLibrary.simpleMessage(
+            "The address has been copied."),
         "text_dialog_star_candy_received": MessageLookupByLibrary.simpleMessage(
             "Star candy has been awarded."),
         "text_dialog_vote_amount_should_not_zero":
