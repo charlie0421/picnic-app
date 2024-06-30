@@ -28,6 +28,8 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m3(num1) => "${num1}개 +${num1}개 보너스";
 
+  static String m4(rank) => "${rank}위";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "app_name": MessageLookupByLibrary.simpleMessage("피크닠"),
@@ -240,7 +242,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_star_candy_with_bonus": m3,
         "text_this_time_vote": MessageLookupByLibrary.simpleMessage("이번 투표"),
         "text_vote_complete": MessageLookupByLibrary.simpleMessage("투표 완료"),
-        "text_vote_rank": MessageLookupByLibrary.simpleMessage("{}위"),
+        "text_vote_rank": m4,
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("랭크 인 리워드"),
         "text_vote_where_is_my_bias":

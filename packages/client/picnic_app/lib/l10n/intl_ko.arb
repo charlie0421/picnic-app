@@ -143,12 +143,15 @@
   "text_star_candy_with_bonus": "{num1}개 +{num1}개 보너스",
   "text_this_time_vote": "이번 투표",
   "text_vote_complete": "투표 완료",
-  "text_vote_rank": "{}위",
+  "text_vote_rank": "{rank}위",
   "text_vote_rank_in_reward": "랭크 인 리워드",
   "text_vote_where_is_my_bias": "나의 최애는 어디에?",
   "title_dialog_library_add": "새로운 앨범 추가",
   "title_select_language": "언어 선택",
   "toast_max_five_celeb": "내 아티스트를 최대 5개까지 추가할 수 있습니다.",
+  "@text_vote_rank": {
+    "manualTranslationKey": true
+  },
   "@app_name": {
     "translationTimestamp": "2024-06-29T18:04:12.399061"
   },
@@ -581,19 +584,7 @@
   "@text_vote_complete": {
     "translationTimestamp": "2024-06-29T18:04:12.399061"
   },
-  "@text_vote_first": {
-    "translationTimestamp": "2024-06-29T18:04:12.399061"
-  },
   "@text_vote_rank_in_reward": {
-    "translationTimestamp": "2024-06-29T18:04:12.399061"
-  },
-  "@text_vote_rank_surffix": {
-    "translationTimestamp": "2024-06-29T18:04:12.399061"
-  },
-  "@text_vote_second": {
-    "translationTimestamp": "2024-06-29T18:04:12.399061"
-  },
-  "@text_vote_third": {
     "translationTimestamp": "2024-06-29T18:04:12.399061"
   },
   "@text_vote_where_is_my_bias": {

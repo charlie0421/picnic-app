@@ -28,6 +28,8 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m3(num1) => "${num1}개 +${num1}개 보너스";
 
+  static String m4(rank) => "Rank ${rank}";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "app_name": MessageLookupByLibrary.simpleMessage("Picnic"),
@@ -37,7 +39,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("Save"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
-            "### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, they will be used in the order of the earliest acquisition date."),
+            "### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, the earliest one will be used."),
         "candy_usage_policy_guide": MessageLookupByLibrary.simpleMessage(
             "*Bonuses disappear the month after you earn them! ⓘ"),
         "candy_usage_policy_title":
@@ -188,7 +190,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("Birthday polls"),
         "label_vote_tab_pic":
-            MessageLookupByLibrary.simpleMessage("PIC voting"),
+            MessageLookupByLibrary.simpleMessage("PIC Voting"),
         "label_vote_vote_gather":
             MessageLookupByLibrary.simpleMessage("Collecting votes"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("View ads"),
@@ -224,11 +226,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_subscription":
             MessageLookupByLibrary.simpleMessage("Subscriptions"),
         "nav_vote": MessageLookupByLibrary.simpleMessage("Voting"),
-        "nickname_validation": MessageLookupByLibrary.simpleMessage(
-            "20 characters or less, excluding special characters."),
         "nickname_validation_error": MessageLookupByLibrary.simpleMessage(
-            "20 characters or less, excluding special characters."),
-        "nickname_valitation": MessageLookupByLibrary.simpleMessage(
             "20 characters or less, excluding special characters."),
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("My Page"),
         "page_title_myprofile":
@@ -276,13 +274,9 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("This Vote"),
         "text_vote_complete":
             MessageLookupByLibrary.simpleMessage("Voting complete"),
-        "text_vote_first": MessageLookupByLibrary.simpleMessage("1"),
-        "text_vote_rank": MessageLookupByLibrary.simpleMessage("{}위"),
+        "text_vote_rank": m4,
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("Rank in Rewards"),
-        "text_vote_rank_surffix": MessageLookupByLibrary.simpleMessage("위"),
-        "text_vote_second": MessageLookupByLibrary.simpleMessage("2nd place"),
-        "text_vote_third": MessageLookupByLibrary.simpleMessage("3rd place"),
         "text_vote_where_is_my_bias":
             MessageLookupByLibrary.simpleMessage("Where\'s My Favorite?"),
         "title_dialog_library_add":

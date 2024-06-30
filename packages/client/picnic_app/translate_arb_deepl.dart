@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:crypto/crypto.dart';
 import 'package:deepl_dart/deepl_dart.dart';
 import 'package:watcher/watcher.dart';
 
@@ -157,6 +156,16 @@ Future<void> synchronizeKeys(String inputFile, List<String> outputFiles,
       final keys = List<String>.from(originalArbContent.keys);
       final currentTimestamp = DateTime.now().toIso8601String();
 
+      // 오리지널 ARB 파일에 존재하지 않는 키를 타겟 ARB 파일에서 제거
+      final keysToRemove = translatedArbContent.keys
+          .where((key) =>
+              !originalArbContent.containsKey(key) && !key.startsWith("@"))
+          .toList();
+      for (var key in keysToRemove) {
+        updatedArbContent.remove(key);
+        updatedArbContent.remove('@$key');
+      }
+
       for (var key in keys) {
         if (!key.startsWith('@')) {
           final metaKey = '@$key';
@@ -204,6 +213,21 @@ Future<void> translateArbFile(Translator translator, String inputFile,
     final currentTimestamp = DateTime.now().toIso8601String();
     final keys = List<String>.from(originalArbContent.keys);
 
+    // 캐시를 위한 맵
+    final Map<String, String> translationCache = {};
+
+    // 오리지널 ARB 파일에 존재하지 않는 키를 타겟 ARB 파일에서 제거
+    final keysToRemove = translatedArbContent.keys
+        .where((key) =>
+            !originalArbContent.containsKey(key) && !key.startsWith("@"))
+        .toList();
+    for (var key in keysToRemove) {
+      updatedArbContent.remove(key);
+      updatedArbContent.remove('@$key');
+    }
+
+    final List<Future<void>> translationFutures = [];
+
     for (var key in keys) {
       if (!key.startsWith('@')) {
         if (!isValidKey(key)) {
@@ -215,31 +239,41 @@ Future<void> translateArbFile(Translator translator, String inputFile,
         final hasTimestamp = originalArbContent.containsKey(metaKey) &&
             originalArbContent[metaKey][timestampKey] != null;
         final isManualTranslation = translatedArbContent.containsKey(metaKey) &&
-            translatedArbContent[metaKey][manualTranslationKey] == true;
+            translatedArbContent[metaKey]['manualTranslationKey'] == true;
 
         if (isManualTranslation) {
-          continue; // 수동 번역은 건너뜁니다.
+          // 수동 번역일 경우 타겟의 내용을 그대로 사용하고 건너뜀
+          print("수동 번역 키 발견: $targetLanguage $key, 번역을 건너뜁니다.");
+          continue;
         }
 
         if (translateAll ||
             !hasTimestamp ||
             originalArbContent[metaKey][timestampKey] !=
                 translatedArbContent[metaKey][timestampKey]) {
-          // {}로 둘러싸인 텍스트는 번역하지 않고 그대로 유지
-          if (!originalArbContent[key].startsWith('{') &&
-              !originalArbContent[key].endsWith('}')) {
+          // {}가 포함된 텍스트는 번역하지 않고 그대로 유지
+          if (!originalArbContent[key].contains('{') &&
+              !originalArbContent[key].contains('}')) {
             if (containsKorean(originalArbContent[key])) {
-              final translatedText = await translateText(
-                  translator, originalArbContent[key], targetLanguage);
-              updatedArbContent[key] = translatedText;
+              if (!translationCache.containsKey(originalArbContent[key])) {
+                translationFutures.add(() async {
+                  final translatedText = await translateText(
+                      translator, originalArbContent[key], targetLanguage);
+                  translationCache[originalArbContent[key]] = translatedText;
+                  updatedArbContent[key] = translatedText;
 
-              if (!originalArbContent.containsKey(metaKey)) {
-                updatedArbContent[metaKey] = {};
+                  if (!originalArbContent.containsKey(metaKey)) {
+                    updatedArbContent[metaKey] = {};
+                  } else {
+                    updatedArbContent[metaKey] = originalArbContent[metaKey];
+                  }
+
+                  updatedArbContent[metaKey][timestampKey] = currentTimestamp;
+                }());
               } else {
-                updatedArbContent[metaKey] = originalArbContent[metaKey];
+                updatedArbContent[key] =
+                    translationCache[originalArbContent[key]];
               }
-
-              updatedArbContent[metaKey][timestampKey] = currentTimestamp;
             } else {
               updatedArbContent[key] = originalArbContent[key];
 
@@ -267,6 +301,8 @@ Future<void> translateArbFile(Translator translator, String inputFile,
         updatedArbContent[key] = originalArbContent[key];
       }
     }
+
+    await Future.wait(translationFutures);
 
     final sortedContent = sortKeys(updatedArbContent);
     sortedContent.remove("@@locale");
@@ -304,7 +340,7 @@ Future<Map<String, dynamic>> readJsonFile(String path) async {
 }
 
 bool isValidKey(String key) {
-  final validKeyPattern = RegExp(r'^[a-z_]+$');
+  final validKeyPattern = RegExp(r'^[a-zA-Z0-9_]+$');
   return validKeyPattern.hasMatch(key);
 }
 
@@ -327,12 +363,6 @@ Map<String, dynamic> sortKeys(Map<String, dynamic> map) {
   }
 
   return sortedMap;
-}
-
-String generateUniqueMethodName(String key, String value) {
-  final bytes = utf8.encode('$key$value');
-  final digest = sha1.convert(bytes);
-  return 'm${digest.toString().substring(0, 8)}';
 }
 
 Future<String> translateText(

@@ -2,8 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/components/vote/list/vote_header.dart';
-import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/pages/vote/vote_detail_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -192,11 +192,7 @@ class VoteCardColumn extends StatelessWidget {
           child: FadeTransition(
             opacity: opacityAnimation,
             child: Text(
-              rank == 1
-                  ? S.of(context).text_vote_first
-                  : rank == 2
-                      ? S.of(context).text_vote_second
-                      : S.of(context).text_vote_third,
+              Intl.message('text_vote_rank', args: [rank]).toString(),
               style: getTextStyle(AppTypo.CAPTION12B, AppColors.Point900),
               textAlign: TextAlign.center,
             ),
