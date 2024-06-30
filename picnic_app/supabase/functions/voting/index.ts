@@ -70,11 +70,17 @@ async function deductStarCandy(user_id: string, amount: number, vote_pick_id: st
 }
 
 async function deductStarCandyBonus(user_id: string, amount: number, bonusId: string, vote_pick_id: string) {
-    // Insert new record into star_candy_bonus_history with parent_id and vote_pick_id
     await queryDatabase(`
-        INSERT INTO star_candy_bonus_history (user_id, amount, parent_id, vote_pick_id)
-        VALUES ($1, $2, $3, $4)
-    `, user_id, amount, bonusId, vote_pick_id);
+        UPDATE star_candy_bonus_history
+        SET remain_amount = GREATEST(remain_amount - $1, 0),
+            updated_at    = NOW()
+        WHERE id = $2
+    `, amount, bonusId);
+
+    await queryDatabase(`
+        INSERT INTO star_candy_bonus_history (user_id, amount, remain_amount, parent_id, vote_pick_id)
+        VALUES ($1, $2, $3, $4, $5)
+    `, user_id, amount, amount, bonusId, vote_pick_id);
 
     // Update user_profiles to deduct star_candy_bonus
     await queryDatabase(`
@@ -109,16 +115,16 @@ async function canVote(user_id: string, vote_amount: number, vote_pick_id: strin
         // Check if there are bonuses available
         if (star_candy_bonus > 0) {
             const {rows: bonusRows} = await queryDatabase(`
-                SELECT id, amount
+                SELECT id, remain_amount
                 FROM star_candy_bonus_history
                 WHERE user_id = $1
                   AND expired_dt > NOW()
-                  AND amount > 0
+                  AND remain_amount > 0
                 ORDER BY created_at ASC
             `, user_id);
 
             for (const bonusRow of bonusRows) {
-                const {id: bonusId, amount: bonusAmount} = bonusRow;
+                const {id: bonusId, remain_amount: bonusAmount} = bonusRow;
 
                 if (remainingAmount <= 0) break;
 

@@ -129,15 +129,15 @@ function deductStarCandyBonus(user_id, amount, bonusId, vote_pick_id) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: 
-                // Insert new record into star_candy_bonus_history with parent_id and vote_pick_id
-                return [4 /*yield*/, queryDatabase("\n        INSERT INTO star_candy_bonus_history (user_id, amount, parent_id, vote_pick_id)\n        VALUES ($1, $2, $3, $4)\n    ", user_id, amount, bonusId, vote_pick_id)];
+                case 0: return [4 /*yield*/, queryDatabase("\n        UPDATE star_candy_bonus_history\n        SET remain_amount = GREATEST(remain_amount - $1, 0),\n            updated_at    = NOW()\n        WHERE id = $2\n    ", amount, bonusId)];
                 case 1:
-                    // Insert new record into star_candy_bonus_history with parent_id and vote_pick_id
+                    _a.sent();
+                    return [4 /*yield*/, queryDatabase("\n        INSERT INTO star_candy_bonus_history (user_id, amount, remain_amount, parent_id, vote_pick_id)\n        VALUES ($1, $2, $3, $4, $5)\n    ", user_id, amount, amount, bonusId, vote_pick_id)];
+                case 2:
                     _a.sent();
                     // Update user_profiles to deduct star_candy_bonus
                     return [4 /*yield*/, queryDatabase("\n        UPDATE user_profiles\n        SET star_candy_bonus = GREATEST(star_candy_bonus - $1, 0)\n        WHERE id = $2\n    ", amount, user_id)];
-                case 2:
+                case 3:
                     // Update user_profiles to deduct star_candy_bonus
                     _a.sent();
                     return [2 /*return*/];
@@ -165,7 +165,7 @@ function canVote(user_id, vote_amount, vote_pick_id) {
                     }
                     remainingAmount = vote_amount;
                     if (!(star_candy_bonus > 0)) return [3 /*break*/, 8];
-                    return [4 /*yield*/, queryDatabase("\n                SELECT id, amount\n                FROM star_candy_bonus_history\n                WHERE user_id = $1\n                  AND expired_dt > NOW()\n                  AND amount > 0\n                ORDER BY created_at ASC\n            ", user_id)];
+                    return [4 /*yield*/, queryDatabase("\n                SELECT id, remain_amount\n                FROM star_candy_bonus_history\n                WHERE user_id = $1\n                  AND expired_dt > NOW()\n                  AND remain_amount > 0\n                ORDER BY created_at ASC\n            ", user_id)];
                 case 2:
                     bonusRows = (_b.sent()).rows;
                     _i = 0, bonusRows_1 = bonusRows;
@@ -173,7 +173,7 @@ function canVote(user_id, vote_amount, vote_pick_id) {
                 case 3:
                     if (!(_i < bonusRows_1.length)) return [3 /*break*/, 8];
                     bonusRow = bonusRows_1[_i];
-                    bonusId = bonusRow.id, bonusAmount = bonusRow.amount;
+                    bonusId = bonusRow.id, bonusAmount = bonusRow.remain_amount;
                     if (remainingAmount <= 0)
                         return [3 /*break*/, 8];
                     if (!(bonusAmount >= remainingAmount)) return [3 /*break*/, 5];
