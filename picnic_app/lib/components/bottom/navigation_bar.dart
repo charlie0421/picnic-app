@@ -27,7 +27,7 @@ class _CommonBottomNavigationBarState
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: BottomAppBar(
-        elevation: 0,
+        color: Colors.transparent,
         padding: EdgeInsets.zero,
         height: 52.w,
         child: Container(
