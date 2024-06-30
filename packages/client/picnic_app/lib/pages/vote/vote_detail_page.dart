@@ -5,9 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_app/components/common/reward_dialog.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
 import 'package:picnic_app/components/vote/list/voting_dialog.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';
@@ -263,9 +265,19 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 voteModel?.reward != null
                     ? Column(
                         children: voteModel!.reward!
-                            .map((rewardModel) => Text(rewardModel.getTitle(),
-                                style: getTextStyle(
-                                    AppTypo.CAPTION12R, AppColors.Grey900)))
+                            .map((rewardModel) => GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () {
+                                    logger.d(rewardModel);
+                                    showRewardDialog(context, rewardModel);
+                                  },
+                                  child: Text(rewardModel.getTitle(),
+                                      style: getTextStyle(AppTypo.CAPTION12R,
+                                              AppColors.Grey900)
+                                          .copyWith(
+                                        decoration: TextDecoration.underline,
+                                      )),
+                                ))
                             .toList(),
                       )
                     : const SizedBox.shrink(),

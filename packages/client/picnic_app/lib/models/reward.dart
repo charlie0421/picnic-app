@@ -35,11 +35,6 @@ class RewardModel with _$RewardModel {
     return 'https://cdn-dev.picnic.fan/reward/$id/$url';
   }
 
-  List<String>? getCdnUrls(List<String>? urls) {
-    if (urls == null) return null;
-    return urls.map((url) => getCdnUrl(url)).toList();
-  }
-
   factory RewardModel.fromJson(Map<String, dynamic> json) =>
       _$RewardModelFromJson(json);
 }
