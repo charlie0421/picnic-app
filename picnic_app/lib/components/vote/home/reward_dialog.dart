@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
 import 'package:picnic_app/constants.dart';
@@ -43,18 +42,17 @@ class _RewardDialogState extends State<RewardDialog> {
             ),
             Positioned(
               top: 40.w,
-              right: 20.w,
+              right: 15.w,
               child: GestureDetector(
                 onTap: () {
                   Navigator.of(context).pop();
                 },
-                child: SvgPicture.asset(
-                  'assets/icons/cancle_style=fill.svg',
-                  width: 35.w,
-                  height: 35.w,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.Grey500,
-                    BlendMode.srcIn,
+                child: CircleAvatar(
+                  backgroundColor: Colors.white.withOpacity(0.8),
+                  child: Icon(
+                    Icons.close,
+                    color: AppColors.Grey500,
+                    size: 24.w,
                   ),
                 ),
               ),
@@ -79,9 +77,15 @@ class _RewardDialogState extends State<RewardDialog> {
           },
           blendMode: BlendMode.dstIn,
           child: CachedNetworkImage(
-            imageUrl: widget.data.thumbnail ?? '',
-            width: double.infinity,
+            imageUrl: widget.data != null &&
+                    (widget.data.thumbnail?.contains('https') == true ||
+                        widget.data.thumbnail?.contains('http') == true)
+                ? widget.data.thumbnail ?? ''
+                : widget.data.getCdnUrl(widget.data.thumbnail ?? ''),
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.width,
             placeholder: (context, url) => buildPlaceholderImage(),
+            errorWidget: (context, url, error) => buildPlaceholderImage(),
             fit: BoxFit.cover,
           ),
         ),
@@ -93,7 +97,7 @@ class _RewardDialogState extends State<RewardDialog> {
             height: 48.w,
             margin: const EdgeInsets.symmetric(horizontal: 57).r,
             child: VoteCommonTitle(
-              title: widget.data.getTitle() ?? '',
+              title: widget.data.getTitle(),
             ),
           ),
         ),
@@ -170,16 +174,9 @@ class _RewardDialogState extends State<RewardDialog> {
                 widget.data.size_guide?[locale] != null
             ? widget.data.size_guide![locale].map<Widget>((value) {
                 // logger.i(value);
-                logger.i(value['image']);
                 return Column(
                   children: [
                     ...buildImageList(value['image'].cast<String>()),
-                    // CachedNetworkImage(
-                    //   imageUrl: widget.data.getCdnUrl(value['image'][0]),
-                    // ),
-                    // ...buildImageList(
-                    //   value['images'],
-                    // ),
                     SizedBox(height: 24.w),
                     ...buildTextList(value['desc'].cast<String>().sublist(0, 1),
                         getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),

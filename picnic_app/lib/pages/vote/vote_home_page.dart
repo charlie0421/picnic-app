@@ -6,8 +6,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_app/components/common/reward_dialog.dart';
 import 'package:picnic_app/components/error.dart';
-import 'package:picnic_app/components/vote/home/reward_dialog.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
@@ -161,29 +161,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
 
                       return GestureDetector(
                         onTap: () {
-                          showGeneralDialog(
-                            context: context,
-                            barrierDismissible: true,
-                            barrierLabel: MaterialLocalizations.of(context)
-                                .modalBarrierDismissLabel,
-                            transitionDuration:
-                                const Duration(milliseconds: 300),
-                            pageBuilder: (context, animation1, animation2) {
-                              return Container();
-                            },
-                            transitionBuilder:
-                                (context, animation1, animation2, child) {
-                              return Transform.scale(
-                                scale: animation1.value,
-                                child: Opacity(
-                                  opacity: animation1.value,
-                                  child: RewardDialog(
-                                    data: data[index],
-                                  ),
-                                ),
-                              );
-                            },
-                          );
+                          showRewardDialog(context, data[index]);
                         },
                         child: Container(
                           margin: const EdgeInsets.only(right: 16),
@@ -326,30 +304,6 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         loading: () => buildLoadingOverlay(),
         error: (error, stackTrace) =>
             ErrorView(context, error: error.toString(), stackTrace: stackTrace),
-      ),
-    );
-  }
-}
-
-class FullScreenDialog extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Center(
-        child: Container(
-          width: double.infinity,
-          height: double.infinity,
-          color: Colors.white,
-          child: Center(
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Close'),
-            ),
-          ),
-        ),
       ),
     );
   }
