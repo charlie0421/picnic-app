@@ -28,6 +28,8 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m3(num1) => "${num1}개 +${num1}개 보너스";
 
+  static String m4(rank) => "第${rank}名";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "app_name": MessageLookupByLibrary.simpleMessage("野餐"),
@@ -37,9 +39,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_ok": MessageLookupByLibrary.simpleMessage("确认"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("节省"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
-            "### 有效期\n\n- 自获得之日起，Star Candy 的有效期为一年。\n\n### 赚取的星星糖\n\n登录：每天 1 个\n- 投票：每天 1 次\n购买糖果：无（无限制）\n奖励星星糖果：在获得后的当月 15 日分批过期\n\n在 ##### 上兑换星星糖\n\n有效期即将结束的星星糖果将优先使用。\n如果有效期相同，则使用最早的一个。"),
+            "### 有效期\n\n- 自获得之日起，Star Candy 的有效期为一年。\n\n### 赚取的星星糖\n\n登录：每天 1 个\n- 投票：每天 1 次\n购买糖果：无（无限制）\n奖励星星糖果：在获得后的当月 15 日分批过期\n\n在 ##### 上兑换星星糖\n\n有效期即将结束的星星糖将优先使用。\n如果有效期相同，则按获得日期的先后顺序使用。"),
         "candy_usage_policy_guide":
-            MessageLookupByLibrary.simpleMessage("*奖金将在您获得奖金的次月消失！ ⓘ"),
+            MessageLookupByLibrary.simpleMessage("*获得奖金的次月，奖金就会消失！ ⓘ"),
         "candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("星糖使用政策"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("取消"),
@@ -62,7 +64,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_button_clse": MessageLookupByLibrary.simpleMessage("關閉"),
         "label_button_recharge": MessageLookupByLibrary.simpleMessage("充电"),
         "label_button_save_vote_paper":
-            MessageLookupByLibrary.simpleMessage("存储您的选票"),
+            MessageLookupByLibrary.simpleMessage("保存您的选票"),
         "label_button_share": MessageLookupByLibrary.simpleMessage("分享"),
         "label_button_vote": MessageLookupByLibrary.simpleMessage("投票"),
         "label_button_watch_and_charge":
@@ -186,12 +188,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_store": MessageLookupByLibrary.simpleMessage("商店"),
         "nav_subscription": MessageLookupByLibrary.simpleMessage("订阅"),
         "nav_vote": MessageLookupByLibrary.simpleMessage("投票"),
-        "nickname_validation":
-            MessageLookupByLibrary.simpleMessage("20자 이내, 특수문자 제외 가능합니다."),
         "nickname_validation_error":
             MessageLookupByLibrary.simpleMessage("20 个字符或更少，不包括特殊字符。"),
-        "nickname_valitation":
-            MessageLookupByLibrary.simpleMessage("20자 이내, 특수문자 제외 가능합니다."),
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("我的页面"),
         "page_title_myprofile": MessageLookupByLibrary.simpleMessage("我的简介"),
         "page_title_privacy": MessageLookupByLibrary.simpleMessage("隐私政策"),
@@ -225,15 +223,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_star_candy_with_bonus": m3,
         "text_this_time_vote": MessageLookupByLibrary.simpleMessage("这次投票"),
         "text_vote_complete": MessageLookupByLibrary.simpleMessage("投票结束"),
-        "text_vote_first": MessageLookupByLibrary.simpleMessage("1"),
-        "text_vote_rank": MessageLookupByLibrary.simpleMessage("{}위"),
+        "text_vote_rank": m4,
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("奖励排名"),
-        "text_vote_rank_surffix": MessageLookupByLibrary.simpleMessage("위"),
-        "text_vote_second": MessageLookupByLibrary.simpleMessage("第 2"),
-        "text_vote_third": MessageLookupByLibrary.simpleMessage("第三名"),
         "text_vote_where_is_my_bias":
-            MessageLookupByLibrary.simpleMessage("我的最爱呢？"),
+            MessageLookupByLibrary.simpleMessage("我的最爱在哪里？"),
         "title_dialog_library_add":
             MessageLookupByLibrary.simpleMessage("添加新相册"),
         "title_select_language": MessageLookupByLibrary.simpleMessage("选择语言"),

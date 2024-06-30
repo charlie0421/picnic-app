@@ -28,6 +28,8 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m3(num1) => "${num1}개 +${num1}개 보너스";
 
+  static String m4(rank) => "第${rank}位";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "app_name": MessageLookupByLibrary.simpleMessage("ピクニック"),
@@ -83,7 +85,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_dropdown_recent": MessageLookupByLibrary.simpleMessage("最新順"),
         "label_find_celeb":
             MessageLookupByLibrary.simpleMessage("その他のアーティストを探す"),
-        "label_gallery_tab_article": MessageLookupByLibrary.simpleMessage("記事"),
+        "label_gallery_tab_article":
+            MessageLookupByLibrary.simpleMessage("アーティクル"),
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("チャット"),
         "label_hint_comment":
             MessageLookupByLibrary.simpleMessage("コメントを残してください。"),
@@ -202,8 +205,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_vote": MessageLookupByLibrary.simpleMessage("投票"),
         "nickname_validation_error":
             MessageLookupByLibrary.simpleMessage("20文字以内、特殊文字を除くことができます。"),
-        "nickname_valitation":
-            MessageLookupByLibrary.simpleMessage("20文字以内、特殊文字を除くことができます。"),
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("マイページ"),
         "page_title_myprofile":
             MessageLookupByLibrary.simpleMessage("私のプロフィール"),
@@ -225,8 +226,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("星飴が支給されました。"),
         "text_dialog_vote_amount_should_not_zero":
             MessageLookupByLibrary.simpleMessage("投票数は0にすることはできません。"),
-        "text_draw_image":
-            MessageLookupByLibrary.simpleMessage("全ギャラリーのうち、1枚の画像を確定的に所蔵"),
+        "text_draw_image": MessageLookupByLibrary.simpleMessage(
+            "全ギャラリーのうち、1つの画像を確定的に所蔵しています。"),
         "text_hint_search":
             MessageLookupByLibrary.simpleMessage("アーティストを検索してください。"),
         "text_moveto_celeb_gallery":
@@ -240,13 +241,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_star_candy_with_bonus": m3,
         "text_this_time_vote": MessageLookupByLibrary.simpleMessage("今回の投票"),
         "text_vote_complete": MessageLookupByLibrary.simpleMessage("投票完了"),
-        "text_vote_first": MessageLookupByLibrary.simpleMessage("1位"),
-        "text_vote_rank": MessageLookupByLibrary.simpleMessage("{}위"),
+        "text_vote_rank": m4,
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("ランクインリワード"),
-        "text_vote_rank_surffix": MessageLookupByLibrary.simpleMessage("위"),
-        "text_vote_second": MessageLookupByLibrary.simpleMessage("2位"),
-        "text_vote_third": MessageLookupByLibrary.simpleMessage("3位"),
         "text_vote_where_is_my_bias":
             MessageLookupByLibrary.simpleMessage("私のお気に入りはどこ？"),
         "title_dialog_library_add":

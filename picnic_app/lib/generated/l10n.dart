@@ -110,10 +110,10 @@ class S {
     );
   }
 
-  /// `### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, they will be used in the order of the earliest acquisition date.`
+  /// `### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, the earliest one will be used.`
   String get candy_usage_policy_contents {
     return Intl.message(
-      '### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, they will be used in the order of the earliest acquisition date.',
+      '### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, the earliest one will be used.',
       name: 'candy_usage_policy_contents',
       desc: '',
       args: [],
@@ -970,10 +970,10 @@ class S {
     );
   }
 
-  /// `PIC voting`
+  /// `PIC Voting`
   String get label_vote_tab_pic {
     return Intl.message(
-      'PIC voting',
+      'PIC Voting',
       name: 'label_vote_tab_pic',
       desc: '',
       args: [],
@@ -1221,30 +1221,10 @@ class S {
   }
 
   /// `20 characters or less, excluding special characters.`
-  String get nickname_validation {
-    return Intl.message(
-      '20 characters or less, excluding special characters.',
-      name: 'nickname_validation',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `20 characters or less, excluding special characters.`
   String get nickname_validation_error {
     return Intl.message(
       '20 characters or less, excluding special characters.',
       name: 'nickname_validation_error',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `20 characters or less, excluding special characters.`
-  String get nickname_valitation {
-    return Intl.message(
-      '20 characters or less, excluding special characters.',
-      name: 'nickname_valitation',
       desc: '',
       args: [],
     );
@@ -1500,23 +1480,13 @@ class S {
     );
   }
 
-  /// `1`
-  String get text_vote_first {
+  /// `Rank {rank}`
+  String text_vote_rank(Object rank) {
     return Intl.message(
-      '1',
-      name: 'text_vote_first',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `{}위`
-  String get text_vote_rank {
-    return Intl.message(
-      '{}위',
+      'Rank $rank',
       name: 'text_vote_rank',
       desc: '',
-      args: [],
+      args: [rank],
     );
   }
 
@@ -1525,36 +1495,6 @@ class S {
     return Intl.message(
       'Rank in Rewards',
       name: 'text_vote_rank_in_reward',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `위`
-  String get text_vote_rank_surffix {
-    return Intl.message(
-      '위',
-      name: 'text_vote_rank_surffix',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `2nd place`
-  String get text_vote_second {
-    return Intl.message(
-      '2nd place',
-      name: 'text_vote_second',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `3rd place`
-  String get text_vote_third {
-    return Intl.message(
-      '3rd place',
-      name: 'text_vote_third',
       desc: '',
       args: [],
     );
