@@ -51,8 +51,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   @override
   Widget build(BuildContext context) {
     return ListView(children: [
-      _buildVoteBanner(context),
-      SizedBox(height: 44.w),
+      _buildVoteHomeBanner(context),
+      SizedBox(height: 48.w),
       _buildReward(context),
       SizedBox(height: 48.w),
       GestureDetector(
@@ -247,12 +247,15 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
     ]);
   }
 
-  SizedBox _buildVoteBanner(BuildContext context) {
+  SizedBox _buildVoteHomeBanner(BuildContext context) {
     final asyncBannerListState =
         ref.watch(asyncBannerListProvider(location: 'vote_home'));
+    final width = MediaQuery.of(context).size.width;
+    final height = width * 0.5;
 
     return SizedBox(
-      height: 230.w,
+      width: width,
+      height: height + 30,
       child: asyncBannerListState.when(
         data: (data) => Swiper(
           itemBuilder: (BuildContext context, int index) {
@@ -269,10 +272,12 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
               children: [
                 Container(
                   alignment: Alignment.center,
-                  height: 200.w,
+                  width: width,
+                  height: height,
                   child: CachedNetworkImage(
                       imageUrl: data[index].thumbnail ?? '',
-                      height: 200.w,
+                      width: width,
+                      height: height,
                       placeholder: (context, url) => buildPlaceholderImage(),
                       fit: BoxFit.cover),
                 ),
@@ -295,8 +300,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
             );
           },
           itemCount: data.length,
-          containerHeight: 230.w,
-          itemHeight: 200.0.w,
+          containerHeight: height,
+          itemHeight: height,
           autoplay: true,
           pagination: const SwiperPagination(
               builder: DotSwiperPaginationBuilder(
