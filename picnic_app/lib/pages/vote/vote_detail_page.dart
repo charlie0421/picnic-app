@@ -219,7 +219,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 57).r,
-                  child: VoteCommonTitle(title: voteModel?.getTitle() ?? ''),
+                  child: VoteCommonTitle(
+                      title: voteModel?.title[Intl.getCurrentLocale()] ?? ''),
                 ),
                 SizedBox(
                   height: 12.w,

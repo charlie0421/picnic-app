@@ -2,11 +2,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/no_bookmark_celeb.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/models/pic/artist_vote.dart';
 import 'package:picnic_app/models/pic/celeb.dart';
 import 'package:picnic_app/models/pic/gallery.dart';
 import 'package:picnic_app/pages/pic/gallery_detail_page.dart';
@@ -14,11 +17,12 @@ import 'package:picnic_app/pages/pic/landing_page.dart';
 import 'package:picnic_app/providers/banner_list_provider.dart';
 import 'package:picnic_app/providers/gallery_list_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
-import 'package:picnic_app/screens/pic/draw_image_screen.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../components/celeb_list_item.dart';
+import '../../components/vote/list/vote_info_card.dart';
 import '../../providers/celeb_list_provider.dart';
 
 class PicHomePage extends ConsumerStatefulWidget {
@@ -29,6 +33,26 @@ class PicHomePage extends ConsumerStatefulWidget {
 }
 
 class _PicHomePageState extends ConsumerState<PicHomePage> {
+  final PagingController<int, ArtistVoteModel> _pagingController =
+      PagingController(firstPageKey: 1);
+
+  @override
+  void initState() {
+    super.initState();
+    _pagingController.addPageRequestListener((pageKey) {
+      _fetch(pageKey, 10, 'id', "DESC").then((newItems) {
+        final isLastPage =
+            newItems.meta.currentPage == newItems.meta.totalPages;
+        if (isLastPage) {
+          _pagingController.appendLastPage(newItems.items);
+        } else {
+          final nextPageKey = newItems.meta.currentPage + 1;
+          _pagingController.appendPage(newItems.items, nextPageKey);
+        }
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final asyncMyCelebListState = ref.watch(asyncMyCelebListProvider);
@@ -55,143 +79,181 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
           return ListView(
             children: [
               Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  width: double.infinity,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(50),
-                        child: CachedNetworkImage(
-                          imageUrl: selectedCelebState.thumbnail ?? '',
-                          width: 38,
-                          height: 38,
-                          placeholder: (context, url) =>
-                              buildPlaceholderImage(),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        selectedCelebState.name_ko,
-                        style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
-                      ),
-                      const SizedBox(width: 8),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => _buildSelectCelebBottomSheet(),
-                        child: SvgPicture.asset(
-                          'assets/icons/dropdown.svg',
-                          width: 20,
-                          height: 20,
-                        ),
-                      ),
-                    ],
-                  )),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: SingleChildScrollView(
-                    child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                alignment: Alignment.centerLeft,
+                height: 44.w,
+                padding: const EdgeInsets.only(left: 16, top: 8, bottom: 8).r,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.Grey100,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      height: 80,
-                      width: double.infinity,
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () {
-                          Navigator.pushNamed(
-                              context, DrawImageScreen.routeName);
-                        },
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Text(S.of(context).text_ads_random,
-                                style: getTextStyle(
-                                    AppTypo.TITLE18M, AppColors.Grey900)),
-                            Text('01:00:00',
-                                style: getTextStyle(
-                                    AppTypo.TITLE18M, AppColors.Grey900)),
-                          ],
-                        ),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(24).r,
+                      child: CachedNetworkImage(
+                        imageUrl: selectedCelebState.thumbnail ?? '',
+                        width: 28.w,
+                        height: 28.w,
+                        placeholder: (context, url) => buildPlaceholderImage(),
                       ),
                     ),
-                    const SizedBox(
-                      height: 20,
+                    const SizedBox(width: 8),
+                    Text(
+                      selectedCelebState.name_ko,
+                      style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
                     ),
-                    asyncBannerListState.when(
-                      data: (data) {
-                        return SizedBox(
-                          height: 236,
-                          width: MediaQuery.of(context).size.width - 32,
-                          child: Swiper(
-                            itemBuilder: (BuildContext context, int index) {
-                              return ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(50),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => _buildSelectCelebBottomSheet(),
+                      child: SvgPicture.asset(
+                        'assets/icons/arrow_down_style=line.svg',
+                        width: 20.w,
+                        height: 20.w,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SingleChildScrollView(
+                  child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  asyncBannerListState.when(
+                    data: (data) {
+                      final width = MediaQuery.of(context).size.width;
+                      final height = width * .5;
+                      return SizedBox(
+                        width: width,
+                        height: height + 30,
+                        child: Swiper(
+                          itemBuilder: (BuildContext context, int index) {
+                            String title = data[index].getTitle();
+                            return Stack(
+                              children: [
+                                Container(
+                                  alignment: Alignment.center,
+                                  width: width,
+                                  height: height,
                                   child: CachedNetworkImage(
-                                    imageUrl: data[index].thumbnail ?? '',
-                                    placeholder: (context, url) =>
-                                        buildPlaceholderImage(),
-                                    fit: BoxFit.cover,
-                                  ),
+                                      imageUrl: data[index].thumbnail ?? '',
+                                      width: width,
+                                      height: height,
+                                      placeholder: (context, url) =>
+                                          buildPlaceholderImage(),
+                                      fit: BoxFit.cover),
                                 ),
-                              );
-                            },
-                            itemCount: data.length,
-                            pagination: const SwiperPagination(),
-                            autoplay: true,
-                          ),
+                                Positioned(
+                                  bottom: 30,
+                                  child: Container(
+                                    width: MediaQuery.of(context).size.width,
+                                    alignment: Alignment.center,
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    color: Colors.black.withOpacity(0.5),
+                                    child: Text(
+                                      title,
+                                      style: getTextStyle(
+                                              AppTypo.BODY14R, Colors.white)
+                                          .copyWith(
+                                              overflow: TextOverflow.ellipsis),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            );
+                          },
+                          itemCount: data.length,
+                          containerHeight: height,
+                          itemHeight: height,
+                          autoplay: true,
+                          pagination: const SwiperPagination(
+                              builder: DotSwiperPaginationBuilder(
+                                  size: 8,
+                                  color: AppColors.Grey200,
+                                  activeColor: AppColors.Grey500)),
+                          layout: SwiperLayout.DEFAULT,
+                        ),
+                      );
+                    },
+                    loading: () => buildLoadingOverlay(),
+                    error: (error, stackTrace) => ErrorView(
+                      context,
+                      retryFunction: () {
+                        ref.refresh(
+                            asyncBannerListProvider(location: 'pic_home'));
+                      },
+                      error: error,
+                      stackTrace: stackTrace,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.only(left: 16).r,
+                    child: Text(
+                      S.of(context).label_celeb_gallery,
+                      style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  asyncGalleryListState.when(
+                      data: (data) => _buildGalleryList(data),
+                      error: (error, stackTrace) {
+                        return ErrorView(
+                          context,
+                          error: error,
+                          stackTrace: stackTrace,
+                          retryFunction: () => ref
+                              .read(asyncGalleryListProvider.notifier)
+                              .build(),
                         );
                       },
-                      loading: () => buildLoadingOverlay(),
-                      error: (error, stackTrace) => ErrorView(
-                        context,
-                        retryFunction: () {
-                          ref.refresh(
-                              asyncBannerListProvider(location: 'pic_home'));
-                        },
-                        error: error,
-                        stackTrace: stackTrace,
-                      ),
+                      loading: () => buildLoadingOverlay()),
+                  const SizedBox(height: 20),
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.only(left: 16).r,
+                    child: Row(
+                      children: [
+                        Text(
+                          S.of(context).label_celeb_ask_to_you,
+                          style:
+                              getTextStyle(AppTypo.TITLE18B, AppColors.Grey900),
+                        ),
+                        SvgPicture.asset(
+                          'assets/icons/arrow_right_style=line.svg',
+                          width: 8.w,
+                          height: 15.w,
+                          colorFilter: const ColorFilter.mode(
+                              AppColors.Grey900, BlendMode.srcIn),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 20),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        S.of(context).label_celeb_gallery,
-                        style:
-                            getTextStyle(AppTypo.TITLE18B, AppColors.Grey900),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    asyncGalleryListState.when(
-                        data: (data) => _buildGalleryList(data),
-                        error: (error, stackTrace) {
-                          return ErrorView(
-                            context,
-                            error: error,
-                            stackTrace: stackTrace,
-                            retryFunction: () => ref
-                                .read(asyncGalleryListProvider.notifier)
-                                .build(),
-                          );
+                  ),
+                  SizedBox(height: 24.w),
+                  PagedListView<int, ArtistVoteModel>(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    pagingController: _pagingController,
+                    scrollDirection: Axis.vertical,
+                    builderDelegate: PagedChildBuilderDelegate<ArtistVoteModel>(
+                        firstPageErrorIndicatorBuilder: (context) {
+                          return ErrorView(context,
+                              error: _pagingController.error.toString(),
+                              retryFunction: () => _pagingController.refresh(),
+                              stackTrace: _pagingController.error.stackTrace);
                         },
-                        loading: () => buildLoadingOverlay()),
-                  ],
-                )),
-              ),
+                        firstPageProgressIndicatorBuilder: (context) {
+                          return buildLoadingOverlay();
+                        },
+                        noItemsFoundIndicatorBuilder: (context) {
+                          return ErrorView(context,
+                              error: 'No Items Found', stackTrace: null);
+                        },
+                        itemBuilder: (context, item, index) =>
+                            PicVoteInfoCard(context: context, vote: item)),
+                  ),
+                ],
+              )),
             ],
           );
         },
@@ -211,11 +273,14 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
   Widget _buildGalleryList(List<GalleryModel> data) {
     return Container(
       alignment: Alignment.centerLeft,
-      height: 215,
+      height: 100,
       width: double.infinity,
+      padding: const EdgeInsets.only(left: 16),
       child: ListView.separated(
           scrollDirection: Axis.horizontal,
           itemBuilder: (context, index) {
+            String title = data[index].getTitle();
+
             return GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () {
@@ -229,30 +294,39 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
               child: Stack(
                 children: [
                   SizedBox(
-                    height: 215,
-                    width: 215,
-                    child: CachedNetworkImage(
-                      imageUrl: data[index].cover ?? '',
-                      placeholder: (context, url) => buildPlaceholderImage(),
-                      fit: BoxFit.cover,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8.r),
+                      child: CachedNetworkImage(
+                          width: 140.w,
+                          height: 100.w,
+                          imageUrl: data[index].cover ?? '',
+                          placeholder: (context, url) =>
+                              buildPlaceholderImage(),
+                          errorWidget: (context, url, error) =>
+                              buildPlaceholderImage(),
+                          fit: BoxFit.cover),
                     ),
                   ),
                   Positioned(
                     bottom: 0,
-                    left: 0,
-                    right: 0,
                     child: Container(
-                      height: 40,
-                      color: AppColors.Grey900.withOpacity(0.5),
-                      child: Center(
-                        child: Text(
-                          data[index].title_en,
-                          style:
-                              getTextStyle(AppTypo.BODY16B, AppColors.Grey00),
-                        ),
+                      width: 140.w,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(8.r),
+                            bottomRight: Radius.circular(8.r)),
+                        color: Colors.black.withOpacity(0.5),
+                      ),
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 4, horizontal: 8),
+                      child: Text(
+                        title,
+                        style: getTextStyle(AppTypo.BODY14R, Colors.white)
+                            .copyWith(overflow: TextOverflow.ellipsis),
                       ),
                     ),
-                  ),
+                  )
                 ],
               ),
             );
@@ -386,5 +460,34 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
         builder: (BuildContext context) {
           return const LandingPage();
         });
+  }
+
+  _fetch(int page, int limit, String sort, String order) async {
+    final response = await Supabase.instance.client
+        .from('artist_vote')
+        .select('*, artist_vote_item(*)')
+        .eq('category', 'pic')
+        // .lt('start_at', 'now()')
+        // .gt('stop_at', 'now()')
+        .order('id', ascending: false)
+        .order('vote_total',
+            ascending: false, referencedTable: 'artist_vote_item')
+        .range((page - 1) * limit, page * limit - 1)
+        .limit(limit)
+        .count();
+
+    logger.w('response: $response');
+
+    const domain = 'https://cdn-dev.picnic.fan';
+
+    final meta = {
+      'totalItems': response.count,
+      'currentPage': page,
+      'itemCount': response.data.length,
+      'itemsPerPage': limit,
+      'totalPages': response.count ~/ limit + 1,
+    };
+
+    return ArtistVoteListModel.fromJson({'items': response.data, 'meta': meta});
   }
 }

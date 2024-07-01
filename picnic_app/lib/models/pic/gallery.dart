@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/models/pic/celeb.dart';
 import 'package:picnic_app/reflector.dart';
@@ -32,6 +33,17 @@ class GalleryModel with _$GalleryModel {
     String? cover,
     required CelebModel? celeb,
   }) = _GalleryModel;
+
+  getTitle() {
+    switch (Intl.getCurrentLocale()) {
+      case 'ko':
+        return title_ko;
+      case 'en':
+        return title_en;
+      default:
+        return title_en;
+    }
+  }
 
   factory GalleryModel.fromJson(Map<String, dynamic> json) =>
       _$GalleryModelFromJson(json);

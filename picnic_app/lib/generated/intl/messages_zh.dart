@@ -39,7 +39,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_ok": MessageLookupByLibrary.simpleMessage("确认"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("节省"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
-            "### 有效期\n\n- 自获得之日起，Star Candy 的有效期为一年。\n\n### 赚取的星星糖\n\n登录：每天 1 个\n- 投票：每天 1 次\n购买糖果：无（无限制）\n奖励星星糖果：在获得后的当月 15 日分批过期\n\n在 ##### 上兑换星星糖\n\n有效期即将结束的星星糖将优先使用。\n如果有效期相同，则按获得日期的先后顺序使用。"),
+            "### 有效期\n\n- 自获得之日起，Star Candy 的有效期为一年。\n\n### 赚取的星星糖\n\n登录：每天 1 个\n- 投票：每天 1 次\n购买糖果：无（无限制）\n奖励星星糖果：在获得后的当月 15 日分批过期\n\n在 ##### 上兑换星星糖\n\n有效期即将结束的星星糖果将优先使用。\n如果有效期相同，则使用最早的一个。"),
         "candy_usage_policy_guide":
             MessageLookupByLibrary.simpleMessage("*奖金将在您获得奖金的次月消失！ ⓘ"),
         "candy_usage_policy_title":
@@ -64,11 +64,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_button_clse": MessageLookupByLibrary.simpleMessage("關閉"),
         "label_button_recharge": MessageLookupByLibrary.simpleMessage("充电"),
         "label_button_save_vote_paper":
-            MessageLookupByLibrary.simpleMessage("存储您的选票"),
+            MessageLookupByLibrary.simpleMessage("保存您的选票"),
         "label_button_share": MessageLookupByLibrary.simpleMessage("分享"),
         "label_button_vote": MessageLookupByLibrary.simpleMessage("投票"),
         "label_button_watch_and_charge":
             MessageLookupByLibrary.simpleMessage("查看广告并收取费用"),
+        "label_celeb_ask_to_you": MessageLookupByLibrary.simpleMessage("艺术家问你"),
         "label_celeb_gallery": MessageLookupByLibrary.simpleMessage("艺术家画廊"),
         "label_celeb_recommend": MessageLookupByLibrary.simpleMessage("艺术家精选"),
         "label_checkbox_entire_use":

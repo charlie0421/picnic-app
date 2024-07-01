@@ -312,7 +312,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                             SizedBox(width: 16.w),
                             Expanded(
                               child: Text(
-                                widget.voteModel.getTitle() ?? '',
+                                widget.voteModel.title[Intl.getCurrentLocale()],
                                 style: getTextStyle(
                                   AppTypo.BODY14B,
                                   AppColors.Grey900,
