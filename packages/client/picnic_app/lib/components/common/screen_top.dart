@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/common_my_point_info.dart';
+import 'package:picnic_app/components/rotate_image.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 
@@ -41,7 +42,7 @@ class _TopState extends ConsumerState<ScreenTop> {
     }
     return Container(
       height: 54.w,
-      padding: EdgeInsets.symmetric(vertical: 10.w, horizontal: 16.w),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -97,16 +98,37 @@ class TopScreenRight extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        SvgPicture.asset(
-          'assets/icons/calendar_style=line.svg',
-          width: 24.w,
-          height: 24.w,
-        ),
-        Divider(
-          color: AppColors.Grey900,
-          thickness: 1.r,
-          indent: 16.w,
+        Stack(
+          children: [
+            Container(
+              alignment: Alignment.centerLeft,
+              width: 40.w,
+              height: 36.w,
+              child: SvgPicture.asset(
+                'assets/icons/calendar_style=line.svg',
+                width: 24.w,
+                height: 24.w,
+              ),
+            ),
+            Positioned(
+              top: 0,
+              right: 0,
+              child: Column(
+                children: [
+                  RotationImage(
+                    image: Image.asset(
+                      'assets/icons/store/star_100.png',
+                      width: 24.w,
+                      height: 24.w,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
         SvgPicture.asset(
           'assets/icons/alarm_style=line.svg',
