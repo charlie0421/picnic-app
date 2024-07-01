@@ -72,6 +72,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_button_vote": MessageLookupByLibrary.simpleMessage("投票する"),
         "label_button_watch_and_charge":
             MessageLookupByLibrary.simpleMessage("広告を見てチャージする"),
+        "label_celeb_ask_to_you":
+            MessageLookupByLibrary.simpleMessage("アーティストがあなたに尋ねる！"),
         "label_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("アーティストギャラリー"),
         "label_celeb_recommend":
@@ -207,8 +209,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("マイページ"),
         "page_title_myprofile":
             MessageLookupByLibrary.simpleMessage("私のプロフィール"),
-        "page_title_privacy":
-            MessageLookupByLibrary.simpleMessage("プライバシーポリシー"),
+        "page_title_privacy": MessageLookupByLibrary.simpleMessage("個人情報保護方針"),
         "page_title_setting": MessageLookupByLibrary.simpleMessage("環境設定"),
         "page_title_terms_of_use": MessageLookupByLibrary.simpleMessage("利用規約"),
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("投票する"),
@@ -228,8 +229,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("星飴が支給されました。"),
         "text_dialog_vote_amount_should_not_zero":
             MessageLookupByLibrary.simpleMessage("投票数は0にすることはできません。"),
-        "text_draw_image": MessageLookupByLibrary.simpleMessage(
-            "全ギャラリーのうち、1つの画像を確定的に所蔵しています。"),
+        "text_draw_image":
+            MessageLookupByLibrary.simpleMessage("全ギャラリーのうち、1枚の画像を確定的に所蔵"),
         "text_hint_search":
             MessageLookupByLibrary.simpleMessage("アーティストを検索してください。"),
         "text_moveto_celeb_gallery":

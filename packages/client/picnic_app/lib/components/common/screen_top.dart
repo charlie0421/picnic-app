@@ -42,16 +42,6 @@ class _TopState extends ConsumerState<ScreenTop> {
     return Container(
       height: 54.w,
       padding: EdgeInsets.symmetric(vertical: 10.w, horizontal: 16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            offset: const Offset(0, 2),
-            color: AppColors.Grey500.withOpacity(0.1),
-            blurRadius: 4,
-          ),
-        ],
-      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

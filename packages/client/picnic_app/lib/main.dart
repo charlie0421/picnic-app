@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+// import 'package:http/http.dart' as http;
 import 'package:picnic_app/app.dart';
 import 'package:picnic_app/firebase_options.dart';
+// import 'package:picnic_app/logging_http_client.dart';
 import 'package:picnic_app/main.reflectable.dart';
 import 'package:picnic_app/reflector.dart';
 import 'package:picnic_app/supabase_options.dart';
@@ -24,8 +26,7 @@ void main() async {
       autoRefreshToken: true,
     ),
     debug: true,
-
-    // httpClient: kDebugMode ? LoggingHttpClient(http.Client()) : null
+    // httpClient: kDebugMode ? LoggingHttpClient(http.Client()) : null)
   );
 
   await Firebase.initializeApp(

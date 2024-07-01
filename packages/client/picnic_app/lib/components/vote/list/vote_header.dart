@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/vote/list/vote_header_countdown.dart';
-import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class VoteHeader extends StatelessWidget {
-  final VoteModel vote;
+  final String title;
+  final DateTime stopAt;
+
   final VoidCallback? onRefresh;
 
-  const VoteHeader({super.key, required this.vote, this.onRefresh});
+  const VoteHeader(
+      {super.key, required this.title, this.onRefresh, required this.stopAt});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +24,7 @@ class VoteHeader extends StatelessWidget {
               Align(
                 alignment: Alignment.topCenter,
                 child: Text(
-                  vote.getTitle(),
+                  title,
                   style: getTextStyle(
                     AppTypo.BODY16B,
                     AppColors.Grey900,
@@ -47,7 +49,7 @@ class VoteHeader extends StatelessWidget {
         SizedBox(
           width: 4.w,
         ),
-        CountdownTimer(stopAt: vote.stop_at),
+        CountdownTimer(stopAt: stopAt),
       ],
     );
   }

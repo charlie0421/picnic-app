@@ -129,7 +129,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
                         RichText(
                             text: TextSpan(children: [
                           TextSpan(
-                              text: item.vote.getTitle(),
+                              text: item.vote.title[Intl.getCurrentLocale()],
                               style: getTextStyle(
                                   AppTypo.BODY14M, AppColors.Grey900)),
                           TextSpan(

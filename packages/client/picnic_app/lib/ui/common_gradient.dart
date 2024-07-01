@@ -6,6 +6,11 @@ const Gradient commonGradient = LinearGradient(
     end: Alignment.centerRight,
     colors: [AppColors.Mint500, AppColors.Primary500]);
 
+const Gradient commonGradientReverse = LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [AppColors.Primary500, AppColors.Mint500]);
+
 const Gradient voteGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,

@@ -1,65 +1,61 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/models/meta.dart';
-import 'package:picnic_app/models/reward.dart';
 import 'package:picnic_app/reflector.dart';
 
-part 'vote.freezed.dart';
-part 'vote.g.dart';
+part 'artist_vote.freezed.dart';
+part 'artist_vote.g.dart';
 
 @reflector
 @freezed
-class VoteListModel with _$VoteListModel {
-  const VoteListModel._();
+class ArtistVoteListModel with _$ArtistVoteListModel {
+  const ArtistVoteListModel._();
 
-  const factory VoteListModel({
-    required List<VoteModel> items,
+  const factory ArtistVoteListModel({
+    required List<ArtistVoteModel> items,
     required MetaModel meta,
-  }) = _VoteListModel;
+  }) = _ArtistVoteListModel;
 
-  factory VoteListModel.fromJson(Map<String, dynamic> json) =>
-      _$VoteListModelFromJson(json);
+  factory ArtistVoteListModel.fromJson(Map<String, dynamic> json) =>
+      _$ArtistVoteListModelFromJson(json);
 }
 
 @reflector
 @freezed
-class VoteModel with _$VoteModel {
-  const VoteModel._();
+class ArtistVoteModel with _$ArtistVoteModel {
+  const ArtistVoteModel._();
 
-  const factory VoteModel({
+  const factory ArtistVoteModel({
     required int id,
     required Map<String, dynamic> title,
-    required String vote_category,
-    required String main_image,
-    required String wait_image,
-    required String result_image,
-    required String vote_content,
-    required List<VoteItemModel>? vote_item,
+    required String category,
+    required List<ArtistVoteItemModel>? artist_vote_item,
     required DateTime created_at,
-    required DateTime visible_at,
+    required DateTime? updated_at,
+    required DateTime? visible_at,
     required DateTime stop_at,
     required DateTime start_at,
-    required List<RewardModel>? reward,
-  }) = _VoteModel;
+  }) = _ArtistVoteModel;
 
-  factory VoteModel.fromJson(Map<String, dynamic> json) =>
-      _$VoteModelFromJson(json);
+  factory ArtistVoteModel.fromJson(Map<String, dynamic> json) =>
+      _$ArtistVoteModelFromJson(json);
 }
 
 @reflector
 @freezed
-class VoteItemModel with _$VoteItemModel {
-  const VoteItemModel._();
+class ArtistVoteItemModel with _$ArtistVoteItemModel {
+  const ArtistVoteItemModel._();
 
-  const factory VoteItemModel({
+  const factory ArtistVoteItemModel({
     required int id,
     required int vote_total,
-    required int vote_id,
-    required MyStarMemberModel mystar_member,
-  }) = _VoteItemModel;
+    required int artist_vote_id,
+    required Map<String, dynamic> title,
+    required Map<String, dynamic> description,
+  }) = _ArtistVoteItemModel;
 
-  factory VoteItemModel.fromJson(Map<String, dynamic> json) =>
-      _$VoteItemModelFromJson(json);
+  factory ArtistVoteItemModel.fromJson(Map<String, dynamic> json) =>
+      _$ArtistVoteItemModelFromJson(json);
 }
 
 @reflector

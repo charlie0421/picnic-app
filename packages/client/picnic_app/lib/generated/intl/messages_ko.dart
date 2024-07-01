@@ -72,6 +72,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_button_vote": MessageLookupByLibrary.simpleMessage("투표하기"),
         "label_button_watch_and_charge":
             MessageLookupByLibrary.simpleMessage("광고보고 충전하기"),
+        "label_celeb_ask_to_you":
+            MessageLookupByLibrary.simpleMessage("아티스트가 당신에게 묻다!"),
         "label_celeb_gallery": MessageLookupByLibrary.simpleMessage("아티스트 갤러리"),
         "label_celeb_recommend":
             MessageLookupByLibrary.simpleMessage("아티스트 추천"),
