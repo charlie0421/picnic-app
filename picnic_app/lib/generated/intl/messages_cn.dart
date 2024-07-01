@@ -1,5 +1,5 @@
 // DO NOT EDIT. This is code generated via package:intl/generate_localized.dart
-// This is a library that provides messages for a zh locale. All the
+// This is a library that provides messages for a cn locale. All the
 // messages from the main program should be duplicated here with the same
 // function name.
 
@@ -18,7 +18,7 @@ final messages = new MessageLookup();
 typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 
 class MessageLookup extends MessageLookupByLibrary {
-  String get localeName => 'zh';
+  String get localeName => 'cn';
 
   static String m0(day) => "${day}일 전";
 
@@ -180,7 +180,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "mypage_subscription": MessageLookupByLibrary.simpleMessage("订阅"),
         "nav_ads": MessageLookupByLibrary.simpleMessage("广告"),
         "nav_gallery": MessageLookupByLibrary.simpleMessage("画廊"),
-        "nav_home": MessageLookupByLibrary.simpleMessage("홈"),
+        "nav_home": MessageLookupByLibrary.simpleMessage("主页"),
         "nav_library": MessageLookupByLibrary.simpleMessage("图书馆"),
         "nav_media": MessageLookupByLibrary.simpleMessage("媒体"),
         "nav_picchart": MessageLookupByLibrary.simpleMessage("PIC 图表"),

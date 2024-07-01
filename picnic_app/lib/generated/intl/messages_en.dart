@@ -39,7 +39,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("Save"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
-            "### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end will be used first.\nIf they have the same expiration date, the earliest one will be used."),
+            "### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, the earliest one will be used."),
         "candy_usage_policy_guide": MessageLookupByLibrary.simpleMessage(
             "*Bonuses disappear the month after you earn them! ⓘ"),
         "candy_usage_policy_title":
@@ -218,7 +218,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Subscription information"),
         "nav_ads": MessageLookupByLibrary.simpleMessage("Ads"),
         "nav_gallery": MessageLookupByLibrary.simpleMessage("Gallery"),
-        "nav_home": MessageLookupByLibrary.simpleMessage("홈"),
+        "nav_home": MessageLookupByLibrary.simpleMessage("Home"),
         "nav_library": MessageLookupByLibrary.simpleMessage("Libraries"),
         "nav_media": MessageLookupByLibrary.simpleMessage("Media"),
         "nav_picchart": MessageLookupByLibrary.simpleMessage("PIC Charts"),
