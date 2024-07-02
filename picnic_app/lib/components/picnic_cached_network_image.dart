@@ -20,7 +20,7 @@ class PicnicCachedNetworkImage extends StatelessWidget {
   double quality;
   String format;
 
-  final multiple = 2.0;
+  final multiple = 3.0;
 
   @override
   Widget build(BuildContext context) {
