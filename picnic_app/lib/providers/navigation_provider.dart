@@ -131,6 +131,16 @@ class NavigationInfo extends _$NavigationInfo {
       {bool showTopMenu = false, bool showBottomNavigation = true}) {
     final NavigationStack? topNavigationStack = state.topNavigationStack;
 
+    if (topNavigationStack == null) {
+      print('Error: No pages available in the navigation stack.');
+      return;
+    }
+
+    if (topNavigationStack.isEmpty) {
+      print('Error: No pages available in the navigation stack.');
+      return;
+    }
+
     if (topNavigationStack?.peek() == page) {
       return;
     }
@@ -141,13 +151,7 @@ class NavigationInfo extends _$NavigationInfo {
       showTopMenu: showTopMenu,
       showBottomNavigation: showBottomNavigation,
     );
-
-    // 각 메뉴의 진입점인 경우만 포털을 노출
-    (votePages + picPages + communityPages + novelPages)
-                .firstWhere((element) => element.pageWidget == page) !=
-            null
-        ? showPortal()
-        : hidePortal();
+    // topNavigationStack.length == 1 ? showPortal() : hidePortal();
   }
 
   setCurrentMyPage(Widget page) {
@@ -158,6 +162,7 @@ class NavigationInfo extends _$NavigationInfo {
     }
 
     navigationStack?.push(page);
+
     state = state.copyWith(
         drawerNavigationStack: navigationStack,
         showTopMenu: true,
@@ -170,12 +175,10 @@ class NavigationInfo extends _$NavigationInfo {
 
     state = state.copyWith(topNavigationStack: topNavigationStack);
 
-    // 각 메뉴의 진입점인 경우만 포털을 노출
-    (votePages + picPages + communityPages + novelPages).firstWhere((element) =>
-                element.pageWidget == topNavigationStack?.peek()) !=
-            null
-        ? showPortal()
-        : hidePortal();
+    // topNavigationStack != null && topNavigationStack.length == 1
+    //     ? showPortal()
+    //     : hidePortal();
+    showPortal();
   }
 
   goBackMy() {

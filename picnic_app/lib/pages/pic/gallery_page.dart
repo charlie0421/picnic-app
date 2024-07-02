@@ -1,8 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/error.dart';
+import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/pic/gallery.dart';
 import 'package:picnic_app/pages/pic/gallery_detail_page.dart';
@@ -88,12 +88,10 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
                       SizedBox(
                           width: double.infinity,
                           height: 215.w,
-                          child: CachedNetworkImage(
+                          child: PicnicCachedNetworkImage(
                             imageUrl: gallery.getCdnUrl(gallery.cover ?? ''),
                             width: 361.w,
                             height: 215.w,
-                            placeholder: (context, url) =>
-                                buildPlaceholderImage(),
                             fit: BoxFit.cover,
                           )),
                       Positioned(

@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +7,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/reward_dialog.dart';
 import 'package:picnic_app/components/error.dart';
+import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
@@ -53,7 +53,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
     return ListView(children: [
       _buildVoteHomeBanner(context),
       SizedBox(height: 48.w),
-      _buildReward(context),
+      _buildRewardList(context),
       SizedBox(height: 48.w),
       GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -138,7 +138,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
     return VoteListModel.fromJson({'items': response.data, 'meta': meta});
   }
 
-  Widget _buildReward(BuildContext context) {
+  Widget _buildRewardList(BuildContext context) {
     final asyncRewardListState = ref.watch(asyncRewardListProvider);
     return Column(children: [
       Container(
@@ -172,14 +172,10 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                             children: [
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(8.r),
-                                child: CachedNetworkImage(
-                                    imageUrl: '${data[index].thumbnail}',
+                                child: PicnicCachedNetworkImage(
+                                    imageUrl: data[index].getThumbnailUrl(),
                                     width: 120.w,
                                     height: 100.w,
-                                    placeholder: (context, url) =>
-                                        buildPlaceholderImage(),
-                                    errorWidget: (context, url, error) =>
-                                        buildPlaceholderImage(),
                                     fit: BoxFit.cover),
                               ),
                               Positioned(
@@ -265,11 +261,10 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                   alignment: Alignment.center,
                   width: width,
                   height: height,
-                  child: CachedNetworkImage(
+                  child: PicnicCachedNetworkImage(
                       imageUrl: data[index].thumbnail ?? '',
                       width: width,
                       height: height,
-                      placeholder: (context, url) => buildPlaceholderImage(),
                       fit: BoxFit.cover),
                 ),
                 Positioned(

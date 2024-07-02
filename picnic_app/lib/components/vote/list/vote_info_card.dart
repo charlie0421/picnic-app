@@ -1,8 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/vote/list/vote_header.dart';
 import 'package:picnic_app/models/pic/artist_vote.dart';
 import 'package:picnic_app/models/vote/vote.dart';
@@ -228,7 +228,7 @@ class VoteCardColumn extends StatelessWidget {
                 opacity: opacityAnimation,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(50),
-                  child: CachedNetworkImage(
+                  child: PicnicCachedNetworkImage(
                       imageUrl: voteItem.mystar_member.image ?? '',
                       width: 72.w,
                       height: 72.w),
@@ -492,7 +492,7 @@ class VoteCardColumnHorizontal extends StatelessWidget {
                 opacity: opacityAnimation,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(50),
-                  // child: CachedNetworkImage(
+                  // child: PicnicCachedNetworkImage(
                   //     imageUrl: voteItem.mystar_member.image ?? '',
                   //     width: 36.w,
                   //     height: 36.w),

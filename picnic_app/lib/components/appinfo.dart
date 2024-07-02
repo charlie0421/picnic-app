@@ -1,10 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/platform_info_provider.dart';
-import 'package:picnic_app/util.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AppInfo extends ConsumerWidget {
@@ -25,9 +24,8 @@ class AppInfo extends ConsumerWidget {
             SizedBox(
               width: MediaQuery.of(context).size.width / 2,
               height: MediaQuery.of(context).size.width / 2,
-              child: CachedNetworkImage(
+              child: PicnicCachedNetworkImage(
                 imageUrl: user?.userMetadata?['avatar_url'] ?? '',
-                placeholder: (context, url) => buildPlaceholderImage(),
               ),
             ),
             Card(

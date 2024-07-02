@@ -1,9 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
+import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/star_candy_info_text.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/pages/mypage/myprofile.dart';
@@ -94,9 +94,8 @@ class _MyPageState extends ConsumerState<MyPage> {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(80).r,
-                  child: CachedNetworkImage(
+                  child: PicnicCachedNetworkImage(
                     imageUrl: data?.avatar_url ?? '',
-                    placeholder: (context, url) => buildPlaceholderImage(),
                     width: 80.w,
                     height: 80.w,
                     fit: BoxFit.cover,

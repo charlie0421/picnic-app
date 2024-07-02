@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/no_bookmark_celeb.dart';
+import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/pic/artist_vote.dart';
@@ -55,27 +55,28 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final asyncMyCelebListState = ref.watch(asyncMyCelebListProvider);
     final asyncCelebListState = ref.watch(asyncCelebListProvider);
     final selectedCelebState = ref.watch(selectedCelebProvider);
     final selectedCelebNotifier = ref.read(selectedCelebProvider.notifier);
 
-    return asyncMyCelebListState.when(
+    return asyncCelebListState.when(
         data: (data) {
-          if (selectedCelebState == null) {
-            WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-              selectedCelebNotifier
-                  .setSelectedCeleb(asyncCelebListState.value?.first);
-
-              ref.read(asyncMyCelebListProvider.notifier).fetchMyCelebList();
-            });
+          if (data == null) {
             return const SizedBox.shrink();
           }
+          // if (selectedCelebState == null) {
+          WidgetsBinding.instance!.addPostFrameCallback((_) {
+            selectedCelebNotifier.setSelectedCeleb(data.first);
+          });
+
+          // ref.read(asyncMyCelebListProvider.notifier).fetchMyCelebList();
+          // return const SizedBox.shrink();
+          // }
 
           final asyncBannerListState =
               ref.watch(asyncBannerListProvider(location: 'pic_home'));
           final asyncGalleryListState =
-              ref.watch(asyncCelebGalleryListProvider(selectedCelebState.id));
+              ref.watch(asyncCelebGalleryListProvider(1));
           return ListView(
             children: [
               Container(
@@ -87,16 +88,15 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(24).r,
-                      child: CachedNetworkImage(
-                        imageUrl: selectedCelebState.thumbnail ?? '',
+                      child: PicnicCachedNetworkImage(
+                        imageUrl: selectedCelebState?.thumbnail ?? '',
                         width: 28.w,
                         height: 28.w,
-                        placeholder: (context, url) => buildPlaceholderImage(),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      selectedCelebState.name_ko,
+                      selectedCelebState!.name_ko,
                       style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
                     ),
                     const SizedBox(width: 8),
@@ -133,12 +133,10 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                                   alignment: Alignment.center,
                                   width: width,
                                   height: height,
-                                  child: CachedNetworkImage(
+                                  child: PicnicCachedNetworkImage(
                                       imageUrl: data[index].thumbnail ?? '',
                                       width: width,
                                       height: height,
-                                      placeholder: (context, url) =>
-                                          buildPlaceholderImage(),
                                       fit: BoxFit.cover),
                                 ),
                                 Positioned(
@@ -296,14 +294,10 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                   SizedBox(
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8.r),
-                      child: CachedNetworkImage(
+                      child: PicnicCachedNetworkImage(
                           width: 140.w,
                           height: 100.w,
                           imageUrl: data[index].cover ?? '',
-                          placeholder: (context, url) =>
-                              buildPlaceholderImage(),
-                          errorWidget: (context, url, error) =>
-                              buildPlaceholderImage(),
                           fit: BoxFit.cover),
                     ),
                   ),

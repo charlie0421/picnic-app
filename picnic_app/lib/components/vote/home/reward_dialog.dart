@@ -1,9 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/reward.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
@@ -23,7 +22,6 @@ class _RewardDialogState extends State<RewardDialog> {
   @override
   Widget build(BuildContext context) {
     return StatefulBuilder(builder: (context, setState) {
-      logger.i('data: ${widget.data}');
       return Dialog(
         insetPadding: EdgeInsets.zero,
         child: Stack(
@@ -49,9 +47,9 @@ class _RewardDialogState extends State<RewardDialog> {
                 },
                 child: CircleAvatar(
                   backgroundColor: Colors.white.withOpacity(0.8),
+                  foregroundColor: AppColors.Grey500,
                   child: Icon(
                     Icons.close,
-                    color: AppColors.Grey500,
                     size: 24.w,
                   ),
                 ),
@@ -76,16 +74,14 @@ class _RewardDialogState extends State<RewardDialog> {
             ).createShader(rect);
           },
           blendMode: BlendMode.dstIn,
-          child: CachedNetworkImage(
+          child: PicnicCachedNetworkImage(
             imageUrl: widget.data != null &&
                     (widget.data.thumbnail?.contains('https') == true ||
                         widget.data.thumbnail?.contains('http') == true)
                 ? widget.data.thumbnail ?? ''
-                : widget.data.getCdnUrl(widget.data.thumbnail ?? ''),
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.width,
-            placeholder: (context, url) => buildPlaceholderImage(),
-            errorWidget: (context, url, error) => buildPlaceholderImage(),
+                : widget.data.getThumbnailUrl(),
+            width: 393.w,
+            height: 393.w,
             fit: BoxFit.cover,
           ),
         ),
@@ -201,12 +197,14 @@ class _RewardDialogState extends State<RewardDialog> {
         Column(
           children: [
             Container(
-              decoration: decoration,
-              child: ClipRRect(
+                decoration: decoration,
+                child: ClipRRect(
                   borderRadius: BorderRadius.circular(24.r),
-                  child: CachedNetworkImage(
-                      imageUrl: widget.data.getCdnUrl(images[i]))),
-            ),
+                  child: PicnicCachedNetworkImage(
+                    imageUrl: widget.data.getThumbnailUrl(),
+                    width: 300.w,
+                  ),
+                )),
             if (i != images.length - 1) SizedBox(height: 12.w),
             // 마지막 요소가 아닐 때만 추가
           ],

@@ -58,4 +58,5 @@ ThemeData voteThemeLight = ThemeData.light().copyWith(
     brightness: Brightness.light,
   ),
   bottomSheetTheme: commonBottomSheetTheme,
+  dialogTheme: commonDialogTheme,
 );

@@ -1,7 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/pic/celeb.dart';
 import 'package:picnic_app/providers/celeb_list_provider.dart';
@@ -52,11 +52,10 @@ class CelebListItem extends ConsumerWidget {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(50),
-                  child: CachedNetworkImage(
+                  child: PicnicCachedNetworkImage(
                     imageUrl: item.thumbnail ?? '',
                     width: 60,
                     height: 60,
-                    placeholder: (context, url) => buildPlaceholderImage(),
                   ),
                 ),
                 const SizedBox(width: 16),

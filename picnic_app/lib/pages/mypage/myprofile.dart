@@ -1,9 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
+import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/components/vote/common_vote_info.dart';
 import 'package:picnic_app/constants.dart';
@@ -14,7 +14,6 @@ import 'package:picnic_app/pages/mypage/terms_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util.dart';
 
 class MyProfilePage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_myprofile';
@@ -321,12 +320,12 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(50.w),
               clipBehavior: Clip.hardEdge,
-              child: CachedNetworkImage(
-                  imageUrl: userInfo.value?.avatar_url ?? '',
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => buildPlaceholderImage(),
-                  errorWidget: (context, url, error) =>
-                      const Icon(Icons.error)),
+              child: PicnicCachedNetworkImage(
+                imageUrl: userInfo.value?.avatar_url ?? '',
+                fit: BoxFit.cover,
+                width: 100.w,
+                height: 100.w,
+              ),
             ),
           ),
           Positioned(
