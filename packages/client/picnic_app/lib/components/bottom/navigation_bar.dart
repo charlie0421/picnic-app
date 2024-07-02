@@ -86,8 +86,7 @@ class MenuItem extends ConsumerWidget {
     return SizedBox(
       height: 52.w,
       child: InkWell(
-        onTap: () => WidgetsBinding.instance.addPostFrameCallback(
-            (_) => navigationNotifier.setBottomNavigationIndex(this.index)),
+        onTap: () => navigationNotifier.setBottomNavigationIndex(this.index),
         child: Column(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.center,

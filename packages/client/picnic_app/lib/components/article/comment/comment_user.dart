@@ -1,6 +1,5 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:picnic_app/util.dart';
+import 'package:picnic_app/components/picnic_cached_network_image.dart';
 
 class CommentUser extends StatelessWidget {
   final String nickname;
@@ -19,11 +18,10 @@ class CommentUser extends StatelessWidget {
         child: profileImage != ''
             ? ClipRRect(
                 borderRadius: BorderRadius.circular(20),
-                child: CachedNetworkImage(
+                child: PicnicCachedNetworkImage(
                   imageUrl: profileImage,
                   width: 40,
                   height: 40,
-                  placeholder: (context, url) => buildPlaceholderImage(),
                   fit: BoxFit.cover,
                 ),
               )

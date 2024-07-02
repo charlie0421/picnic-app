@@ -1,5 +1,4 @@
 import 'package:animated_digit/animated_digit.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/reward_dialog.dart';
 import 'package:picnic_app/components/error.dart';
+import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
 import 'package:picnic_app/components/vote/list/voting_dialog.dart';
 import 'package:picnic_app/constants.dart';
@@ -15,7 +15,6 @@ import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util.dart';
 import 'package:shimmer/shimmer.dart';
 
 class VoteDetailPage extends ConsumerStatefulWidget {
@@ -77,18 +76,18 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   // }
 
   void _scrollToTarget(GlobalKey targetKey) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.delayed(const Duration(milliseconds: 100), () {
-        final RenderBox renderBox =
-            targetKey.currentContext!.findRenderObject() as RenderBox;
-
-        _scrollController.animateTo(
-          210.w,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
-        );
-      });
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   Future.delayed(const Duration(milliseconds: 100), () {
+    //     final RenderBox renderBox =
+    //         targetKey.currentContext!.findRenderObject() as RenderBox;
+    //
+    //     _scrollController.animateTo(
+    //       210.w,
+    //       duration: const Duration(milliseconds: 200),
+    //       curve: Curves.easeInOut,
+    //     );
+    //   });
+    // });
   }
 
   // void _setupRealtime() {
@@ -204,12 +203,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 Container(
                   width: width,
                   height: height,
-                  child: CachedNetworkImage(
+                  child: PicnicCachedNetworkImage(
                     imageUrl: voteModel?.main_image ?? '',
                     fit: BoxFit.cover,
-                    placeholder: (context, url) => buildPlaceholderImage(),
-                    errorWidget: (context, url, error) =>
-                        buildPlaceholderImage(),
                     width: width,
                     height: height,
                   ),
@@ -401,15 +397,13 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                           child: ClipRRect(
                                             borderRadius:
                                                 BorderRadius.circular(22.5.r),
-                                            child: CachedNetworkImage(
+                                            child: PicnicCachedNetworkImage(
                                               imageUrl:
                                                   item.mystar_member.image ??
                                                       '',
                                               fit: BoxFit.cover,
                                               width: 39.w,
                                               height: 39.w,
-                                              placeholder: (context, url) =>
-                                                  buildPlaceholderImage(),
                                             ),
                                           ),
                                         ),

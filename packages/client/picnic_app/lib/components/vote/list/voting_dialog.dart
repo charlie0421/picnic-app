@@ -1,5 +1,4 @@
 import 'package:animated_digit/animated_digit.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/common/simple_dialog.dart';
+import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/components/vote/list/voting_complete.dart';
 import 'package:picnic_app/constants.dart';
@@ -17,7 +17,6 @@ import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future showVotingDialog({
@@ -136,11 +135,10 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(100.r),
-                  child: CachedNetworkImage(
+                  child: PicnicCachedNetworkImage(
                     imageUrl: widget.voteItemModel.mystar_member.image ?? '',
                     width: 100.w,
                     height: 100.w,
-                    placeholder: (context, url) => buildPlaceholderImage(),
                   ),
                 ),
               ),

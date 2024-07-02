@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:load_switch/load_switch.dart';
+import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
+import 'package:picnic_app/components/common/simple_dialog.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
@@ -170,7 +173,17 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           ListItem(
               leading: S.of(context).label_setting_remove_cache,
               assetPath: 'assets/icons/arrow_right_style=line.svg',
-              onTap: () {}),
+              onTap: () async {
+                OverlayLoadingProgress.start(context);
+                final cacheManager = DefaultCacheManager();
+                await cacheManager.emptyCache();
+                OverlayLoadingProgress.stop();
+                showSimpleDialog(
+                    title: S.of(context).label_setting_remove_cache,
+                    context: context,
+                    content: S.of(context).label_setting_remove_cache,
+                    onOk: () {});
+              }),
           const Divider(color: AppColors.Grey200),
           SizedBox(height: 48.w),
           Text(S.of(context).label_setting_appinfo,

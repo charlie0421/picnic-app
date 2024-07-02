@@ -37,3 +37,7 @@ MarkdownStyleSheet commonMarkdownStyleSheet = MarkdownStyleSheet(
   h6: getTextStyle(AppTypo.BODY14M, AppColors.Grey900),
   h6Align: WrapAlignment.center,
 );
+
+DialogTheme commonDialogTheme = const DialogTheme(
+  backgroundColor: AppColors.Grey00,
+);
