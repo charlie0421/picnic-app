@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_app/components/bounce_red_dot.dart';
 import 'package:picnic_app/components/common/common_my_point_info.dart';
 import 'package:picnic_app/components/rotate_image.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -130,10 +131,25 @@ class TopScreenRight extends StatelessWidget {
             ),
           ],
         ),
-        SvgPicture.asset(
-          'assets/icons/alarm_style=line.svg',
-          width: 24.w,
-          height: 24.w,
+        Stack(
+          children: [
+            Container(
+              width: 24.w,
+              height: 24.w,
+              child: SvgPicture.asset(
+                'assets/icons/alarm_style=line.svg',
+                width: 24.w,
+                height: 24.w,
+              ),
+            ),
+            Positioned(
+              top: 0.w,
+              right: 0.w,
+              left: 0.w,
+              bottom: 3.w,
+              child: BounceRedDot(),
+            ),
+          ],
         ),
       ],
     );
