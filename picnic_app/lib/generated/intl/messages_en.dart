@@ -39,7 +39,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("Save"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
-            "### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, the earliest one will be used."),
+            "### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, they will be used in the order of the earliest acquisition date."),
         "candy_usage_policy_guide": MessageLookupByLibrary.simpleMessage(
             "*Bonuses disappear the month after you earn them! ⓘ"),
         "candy_usage_policy_title":
@@ -103,7 +103,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("AI Photos"),
         "label_library_tab_library":
             MessageLookupByLibrary.simpleMessage("Libraries"),
-        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("Frame"),
+        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("PIC"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("Go to the Artist Gallery"),
         "label_mypage_charge_history":
@@ -192,7 +192,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("Birthday polls"),
         "label_vote_tab_pic":
-            MessageLookupByLibrary.simpleMessage("PIC voting"),
+            MessageLookupByLibrary.simpleMessage("PIC Voting"),
         "label_vote_vote_gather":
             MessageLookupByLibrary.simpleMessage("Collecting votes"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("View ads"),
@@ -215,10 +215,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("My purchases"),
         "mypage_setting": MessageLookupByLibrary.simpleMessage("Settings"),
         "mypage_subscription":
-            MessageLookupByLibrary.simpleMessage("Subscription information"),
+            MessageLookupByLibrary.simpleMessage("Subscriptions"),
         "nav_ads": MessageLookupByLibrary.simpleMessage("Ads"),
         "nav_gallery": MessageLookupByLibrary.simpleMessage("Gallery"),
-        "nav_home": MessageLookupByLibrary.simpleMessage("Home"),
+        "nav_home": MessageLookupByLibrary.simpleMessage("홈"),
         "nav_library": MessageLookupByLibrary.simpleMessage("Libraries"),
         "nav_media": MessageLookupByLibrary.simpleMessage("Media"),
         "nav_picchart": MessageLookupByLibrary.simpleMessage("PIC Charts"),

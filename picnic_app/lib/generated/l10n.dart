@@ -110,10 +110,10 @@ class S {
     );
   }
 
-  /// `### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, the earliest one will be used.`
+  /// `### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, they will be used in the order of the earliest acquisition date.`
   String get candy_usage_policy_contents {
     return Intl.message(
-      '### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, the earliest one will be used.',
+      '### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, they will be used in the order of the earliest acquisition date.',
       name: 'candy_usage_policy_contents',
       desc: '',
       args: [],
@@ -490,10 +490,10 @@ class S {
     );
   }
 
-  /// `Frame`
+  /// `PIC`
   String get label_library_tab_pic {
     return Intl.message(
-      'Frame',
+      'PIC',
       name: 'label_library_tab_pic',
       desc: '',
       args: [],
@@ -980,10 +980,10 @@ class S {
     );
   }
 
-  /// `PIC voting`
+  /// `PIC Voting`
   String get label_vote_tab_pic {
     return Intl.message(
-      'PIC voting',
+      'PIC Voting',
       name: 'label_vote_tab_pic',
       desc: '',
       args: [],
@@ -1110,10 +1110,10 @@ class S {
     );
   }
 
-  /// `Subscription information`
+  /// `Subscriptions`
   String get mypage_subscription {
     return Intl.message(
-      'Subscription information',
+      'Subscriptions',
       name: 'mypage_subscription',
       desc: '',
       args: [],
@@ -1140,10 +1140,10 @@ class S {
     );
   }
 
-  /// `Home`
+  /// `홈`
   String get nav_home {
     return Intl.message(
-      'Home',
+      '홈',
       name: 'nav_home',
       desc: '',
       args: [],

@@ -97,7 +97,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("AI 포토"),
         "label_library_tab_library":
             MessageLookupByLibrary.simpleMessage("라이브러리"),
-        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("Frame"),
+        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("PIC"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("아티스트 갤러리로 이동"),
         "label_mypage_charge_history":

@@ -9,9 +9,10 @@ TabBarTheme commonTabBarTheme = TabBarTheme(
   ),
   unselectedLabelStyle: getTextStyle(
     AppTypo.BODY14R,
-    AppColors.Grey600,
+    AppColors.Grey300,
   ),
   indicatorSize: TabBarIndicatorSize.tab,
+  indicatorColor: Colors.transparent,
 );
 
 SwitchThemeData commonSwitchTheme = SwitchThemeData(
