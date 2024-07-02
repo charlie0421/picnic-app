@@ -45,6 +45,10 @@ class GalleryModel with _$GalleryModel {
     }
   }
 
+  String getCdnUrl(String url) {
+    return 'https://cdn-dev.picnic.fan/gallery/$id/$url';
+  }
+
   factory GalleryModel.fromJson(Map<String, dynamic> json) =>
       _$GalleryModelFromJson(json);
 }

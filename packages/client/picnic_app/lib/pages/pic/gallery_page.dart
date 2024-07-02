@@ -89,7 +89,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
                           width: double.infinity,
                           height: 215.w,
                           child: CachedNetworkImage(
-                            imageUrl: gallery.cover ?? '',
+                            imageUrl: gallery.getCdnUrl(gallery.cover ?? ''),
                             width: 361.w,
                             height: 215.w,
                             placeholder: (context, url) =>
