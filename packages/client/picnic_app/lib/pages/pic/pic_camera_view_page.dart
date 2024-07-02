@@ -187,12 +187,8 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                   ),
                 )
               else if (_viewMode == ViewMode.timer)
-                AnimatedContainer(
+                Container(
                   alignment: Alignment.center,
-                  duration: const Duration(milliseconds: 50),
-                  color: _isBlinking
-                      ? Colors.white.withOpacity(0.8)
-                      : Colors.transparent,
                   child: Text(
                     _remainTime <= 300 ? '' : '${_remainTime ~/ 1000}',
                     style: TextStyle(
