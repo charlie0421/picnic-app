@@ -1,5 +1,5 @@
 // DO NOT EDIT. This is code generated via package:intl/generate_localized.dart
-// This is a library that provides messages for a cn locale. All the
+// This is a library that provides messages for a zh locale. All the
 // messages from the main program should be duplicated here with the same
 // function name.
 
@@ -18,7 +18,7 @@ final messages = new MessageLookup();
 typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 
 class MessageLookup extends MessageLookupByLibrary {
-  String get localeName => 'cn';
+  String get localeName => 'zh';
 
   static String m0(day) => "${day}일 전";
 
@@ -88,7 +88,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("人工智能照片"),
         "label_library_tab_library":
             MessageLookupByLibrary.simpleMessage("图书馆"),
-        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("Frame"),
+        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("PIC"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("前往艺术家画廊"),
         "label_mypage_charge_history":
@@ -180,7 +180,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "mypage_subscription": MessageLookupByLibrary.simpleMessage("订阅"),
         "nav_ads": MessageLookupByLibrary.simpleMessage("广告"),
         "nav_gallery": MessageLookupByLibrary.simpleMessage("画廊"),
-        "nav_home": MessageLookupByLibrary.simpleMessage("主页"),
+        "nav_home": MessageLookupByLibrary.simpleMessage("홈"),
         "nav_library": MessageLookupByLibrary.simpleMessage("图书馆"),
         "nav_media": MessageLookupByLibrary.simpleMessage("媒体"),
         "nav_picchart": MessageLookupByLibrary.simpleMessage("PIC 图表"),
@@ -229,7 +229,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("奖励排名"),
         "text_vote_where_is_my_bias":
-            MessageLookupByLibrary.simpleMessage("我的最爱在哪里？"),
+            MessageLookupByLibrary.simpleMessage("我的最爱呢？"),
         "title_dialog_library_add":
             MessageLookupByLibrary.simpleMessage("添加新相册"),
         "title_select_language": MessageLookupByLibrary.simpleMessage("选择语言"),

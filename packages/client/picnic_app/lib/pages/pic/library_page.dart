@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/generated/l10n.dart';
-import 'package:picnic_app/pages/pic/pic_page.dart';
+import 'package:picnic_app/pages/pic/pic.dart';
 import 'package:picnic_app/providers/pic_provider.dart';
+import 'package:picnic_app/ui/style.dart';
 
 class LibraryPage extends ConsumerStatefulWidget {
   static const String routeName = '/gallery_detail_screen';
@@ -44,38 +46,26 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     return Column(
       children: [
         SizedBox(
-          height: 50,
+          height: 43.w,
           child: TabBar(
-            unselectedLabelColor: Colors.grey,
-            controller: _tabController,
             indicatorWeight: 1,
-            indicatorSize: TabBarIndicatorSize.tab,
-            indicatorPadding: const EdgeInsets.all(0),
-            labelStyle: const TextStyle(
-              fontWeight: FontWeight.bold,
+            indicator: const UnderlineTabIndicator(
+              borderSide: BorderSide(width: 2.0, color: AppColors.Grey900),
             ),
-            unselectedLabelStyle: const TextStyle(
-              fontWeight: FontWeight.normal,
-            ),
+            controller: _tabController,
             tabs: [
-              Align(
-                  alignment: Alignment.center,
-                  child: Text(S.of(context).label_library_tab_library,
-                      style: const TextStyle(
-                        fontSize: 16,
-                      ))),
-              Align(
-                  alignment: Alignment.center,
-                  child: Text(S.of(context).label_library_tab_pic,
-                      style: const TextStyle(
-                        fontSize: 16,
-                      ))),
-              Align(
-                  alignment: Alignment.center,
-                  child: Text(S.of(context).label_library_tab_ai_photo,
-                      style: const TextStyle(
-                        fontSize: 16,
-                      ))),
+              Text(S.of(context).label_library_tab_library,
+                  style: const TextStyle(
+                    fontSize: 16,
+                  )),
+              Text(S.of(context).label_library_tab_pic,
+                  style: const TextStyle(
+                    fontSize: 16,
+                  )),
+              Text(S.of(context).label_library_tab_ai_photo,
+                  style: const TextStyle(
+                    fontSize: 16,
+                  )),
             ],
           ),
         ),

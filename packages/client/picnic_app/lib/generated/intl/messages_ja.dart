@@ -97,7 +97,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("AIフォト"),
         "label_library_tab_library":
             MessageLookupByLibrary.simpleMessage("ライブラリ"),
-        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("Frame"),
+        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("PIC"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("アーティストギャラリーへ"),
         "label_mypage_charge_history":
@@ -195,7 +195,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "mypage_subscription": MessageLookupByLibrary.simpleMessage("購読情報"),
         "nav_ads": MessageLookupByLibrary.simpleMessage("広告"),
         "nav_gallery": MessageLookupByLibrary.simpleMessage("ギャラリー"),
-        "nav_home": MessageLookupByLibrary.simpleMessage("ホーム"),
+        "nav_home": MessageLookupByLibrary.simpleMessage("홈"),
         "nav_library": MessageLookupByLibrary.simpleMessage("ライブラリ"),
         "nav_media": MessageLookupByLibrary.simpleMessage("メディア"),
         "nav_picchart": MessageLookupByLibrary.simpleMessage("PICチャート"),
@@ -209,8 +209,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("マイページ"),
         "page_title_myprofile":
             MessageLookupByLibrary.simpleMessage("私のプロフィール"),
-        "page_title_privacy":
-            MessageLookupByLibrary.simpleMessage("プライバシーポリシー"),
+        "page_title_privacy": MessageLookupByLibrary.simpleMessage("個人情報保護方針"),
         "page_title_setting": MessageLookupByLibrary.simpleMessage("環境設定"),
         "page_title_terms_of_use": MessageLookupByLibrary.simpleMessage("利用規約"),
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("投票する"),

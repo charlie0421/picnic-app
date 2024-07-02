@@ -44,7 +44,7 @@
   "label_library_save": "라이브러리 저장",
   "label_library_tab_ai_photo": "AI 포토",
   "label_library_tab_library": "라이브러리",
-  "label_library_tab_pic": "Frame",
+  "label_library_tab_pic": "PIC",
   "label_moveto_celeb_gallery": "아티스트 갤러리로 이동",
   "label_mypage_charge_history": "충전내역",
   "label_mypage_customer_center": "고객센터",
@@ -284,6 +284,7 @@
     "translationTimestamp": "2024-06-29T18:04:12.399061"
   },
   "@label_library_tab_pic": {
+    "manualTranslationKey": true,
     "translationTimestamp": "2024-06-29T18:04:12.399061"
   },
   "@label_moveto_celeb_gallery": {
