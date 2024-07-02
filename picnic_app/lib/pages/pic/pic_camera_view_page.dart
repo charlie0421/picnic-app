@@ -8,7 +8,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -46,7 +45,6 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
 
   ViewMode _viewMode = ViewMode.loading;
   ViewType _viewType = ViewType.camera;
-  bool _isBlinking = false;
 
   @override
   void initState() {
@@ -376,11 +374,6 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
           if (_remainTime <= 0) {
             timer.cancel();
             _captureImage();
-          } else {
-            setState(() {
-              _remainTime -= 1000;
-              _isBlinking = !_isBlinking; // Blinking effect
-            });
           }
         });
       } else {
@@ -426,39 +419,37 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
           backgroundColor: Colors.transparent,
           child: LargePopupWidget(
             title: S.of(context).label_pic_pic_save_gallery,
-            closeButton: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () {
-                _controller!.resumePreview(); // Resume the camera preview
-                Navigator.pop(context);
-              },
-              child: SvgPicture.asset(
-                'assets/icons/cancle_style=fill.svg',
-                width: 24.w,
-                height: 24.w,
-              ),
-            ),
             content: _capturedImageBytes != null
-                ? Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                          margin: EdgeInsets.only(top: 16.w),
-                          child: Image.memory(_capturedImageBytes!)),
-                      Container(
-                        width: 200.w,
-                        padding: EdgeInsets.symmetric(vertical: 16.w),
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            await _saveImage();
-                            _controller!
-                                .resumePreview(); // Resume the camera preview
-                            Navigator.of(context).pop();
-                          },
-                          child: Text(S.of(context).button_pic_pic_save),
+                ? Container(
+                    height: 500.w,
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.w),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                            width: 200.w,
+                            child: AspectRatio(
+                                aspectRatio: 5.5 / 8.5,
+                                child: Image.memory(
+                                  _capturedImageBytes!,
+                                ))),
+                        Container(
+                          width: 200.w,
+                          padding: EdgeInsets.symmetric(vertical: 16.w),
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              await _saveImage();
+                              _controller!
+                                  .resumePreview(); // Resume the camera preview
+                              Navigator.of(context).pop();
+                            },
+                            child: Text(S.of(context).button_pic_pic_save),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   )
                 : Container(),
           ),
