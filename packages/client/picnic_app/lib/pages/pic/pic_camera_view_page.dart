@@ -374,6 +374,10 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
           if (_remainTime <= 0) {
             timer.cancel();
             _captureImage();
+          } else {
+            setState(() {
+              _remainTime -= 1000;
+            });
           }
         });
       } else {
