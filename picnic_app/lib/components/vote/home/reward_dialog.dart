@@ -79,9 +79,9 @@ class _RewardDialogState extends State<RewardDialog> {
             blendMode: BlendMode.dstIn,
             child: PicnicCachedNetworkImage(
               imageUrl: widget.data.getThumbnailUrl(),
-              width: 300.w,
-              height: 300.w,
-              fit: BoxFit.scaleDown,
+              width: 400.w,
+              height: 400.w,
+              fit: BoxFit.fill,
             ),
           ),
         ),
@@ -200,9 +200,14 @@ class _RewardDialogState extends State<RewardDialog> {
                 decoration: decoration,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(24.r),
-                  child: PicnicCachedNetworkImage(
-                    imageUrl: widget.data.getImageUrl(images[i], i),
+                  child: Container(
+                    alignment: Alignment.topCenter,
                     width: 300.w,
+                    height: 300.w,
+                    child: PicnicCachedNetworkImage(
+                      imageUrl: widget.data.getImageUrl(images[i], i),
+                      width: 300.w,
+                    ),
                   ),
                 )),
             if (i != images.length - 1) SizedBox(height: 12.w),
