@@ -20,35 +20,85 @@ class PicnicCachedNetworkImage extends StatelessWidget {
   double quality;
   String format;
 
-  final multiple = 3.0;
+  final lowResMultiplier = 0.5;
+  final midResMultiplier = 1.5;
+  final highResMultiplier = 3.0;
 
   @override
   Widget build(BuildContext context) {
     assert(width != null || height != null, 'Width or height must be provided');
 
-    String modifiedUrl = imageUrl;
+    String lowResUrl = imageUrl;
+    String midResUrl = imageUrl;
+    String highResUrl = imageUrl;
+
+    // Construct low resolution URL
+    lowResUrl += '?q=10&f=$format';
     if (width != null) {
-      modifiedUrl += '?w=${(width! * multiple).toInt()}';
+      lowResUrl += '&w=${(width! * lowResMultiplier).toInt()}';
     }
     if (height != null) {
-      modifiedUrl +=
-          (width != null ? '&' : '?') + 'h=${(height! * multiple).toInt()}';
+      lowResUrl += '&h=${(height! * lowResMultiplier).toInt()}';
     }
-    modifiedUrl += '&q=$quality&f=$format';
 
-    return Container(
+    // Construct mid resolution URL
+    midResUrl += '?q=50&f=$format';
+    if (width != null) {
+      midResUrl += '&w=${(width! * midResMultiplier).toInt()}';
+    }
+    if (height != null) {
+      midResUrl += '&h=${(height! * midResMultiplier).toInt()}';
+    }
+
+    // Construct high resolution URL
+    highResUrl += '?q=$quality&f=$format';
+    if (width != null) {
+      highResUrl += '&w=${(width! * highResMultiplier).toInt()}';
+    }
+    if (height != null) {
+      highResUrl += '&h=${(height! * highResMultiplier).toInt()}';
+    }
+
+    return SizedBox(
       width: width,
       height: height,
-      child: CachedNetworkImage(
-          imageUrl: modifiedUrl,
-          width: width,
-          height: height,
-          placeholder: (context, url) => buildPlaceholderImage(),
-          errorWidget: (context, url, error) {
-            logger.e('Error loading image: $error');
-            return buildPlaceholderImage();
-          },
-          fit: fit),
+      child: Stack(
+        children: [
+          CachedNetworkImage(
+            imageUrl: lowResUrl,
+            width: width,
+            height: height,
+            fit: fit,
+            // placeholder: (context, url) => buildPlaceholderImage(),
+            errorWidget: (context, url, error) {
+              logger.e('Error loading low-res image: $error');
+              return buildPlaceholderImage();
+            },
+          ),
+          CachedNetworkImage(
+            imageUrl: midResUrl,
+            width: width,
+            height: height,
+            fit: fit,
+            // placeholder: (context, url) => buildPlaceholderImage(),
+            errorWidget: (context, url, error) {
+              logger.e('Error loading mid-res image: $error');
+              return Container();
+            },
+          ),
+          CachedNetworkImage(
+            imageUrl: highResUrl,
+            width: width,
+            height: height,
+            fit: fit,
+            // placeholder: (context, url) => buildPlaceholderImage(),
+            errorWidget: (context, url, error) {
+              logger.e('Error loading high-res image: $error');
+              return Container();
+            },
+          ),
+        ],
+      ),
     );
   }
 }
