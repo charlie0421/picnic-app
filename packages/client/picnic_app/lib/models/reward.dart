@@ -7,17 +7,17 @@ part 'reward.g.dart';
 
 @reflector
 @freezed
-class RewardModel
-    with _$RewardModel {
+class RewardModel with _$RewardModel {
   const RewardModel._();
 
-  const factory RewardModel({required int id,
-    Map<String, dynamic>? title,
-    String? thumbnail,
-    List<String>? overview_images,
-    Map<String, dynamic>? location,
-    Map<String, dynamic>? size_guide,
-    List<String>? size_guide_images}) = _RewardModel;
+  const factory RewardModel(
+      {required int id,
+      Map<String, dynamic>? title,
+      String? thumbnail,
+      List<String>? overview_images,
+      Map<String, dynamic>? location,
+      Map<String, dynamic>? size_guide,
+      List<String>? size_guide_images}) = _RewardModel;
 
   String getTitle() {
     if (Intl.getCurrentLocale() == 'ko') {
@@ -33,6 +33,10 @@ class RewardModel
 
   String getThumbnailUrl() {
     return 'https://cdn-dev.picnic.fan/reward/$id/$thumbnail';
+  }
+
+  getImageUrl(String key, int index) {
+    return 'https://cdn-dev.picnic.fan/reward/$id/${key}';
   }
 
   factory RewardModel.fromJson(Map<String, dynamic> json) =>
