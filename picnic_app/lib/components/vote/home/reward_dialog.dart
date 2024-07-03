@@ -64,25 +64,25 @@ class _RewardDialogState extends State<RewardDialog> {
   Widget buildTopSection() {
     return Stack(
       children: [
-        ShaderMask(
-          shaderCallback: (rect) {
-            return const LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Colors.black, Colors.transparent],
-              stops: [0.7, 1],
-            ).createShader(rect);
-          },
-          blendMode: BlendMode.dstIn,
-          child: PicnicCachedNetworkImage(
-            imageUrl: widget.data != null &&
-                    (widget.data.thumbnail?.contains('https') == true ||
-                        widget.data.thumbnail?.contains('http') == true)
-                ? widget.data.thumbnail ?? ''
-                : widget.data.getThumbnailUrl(),
-            width: 393.w,
-            height: 393.w,
-            fit: BoxFit.cover,
+        SizedBox(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.width,
+          child: ShaderMask(
+            shaderCallback: (rect) {
+              return const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Colors.black, Colors.transparent],
+                stops: [0.7, 1],
+              ).createShader(rect);
+            },
+            blendMode: BlendMode.dstIn,
+            child: PicnicCachedNetworkImage(
+              imageUrl: widget.data.getThumbnailUrl(),
+              width: 300.w,
+              height: 300.w,
+              fit: BoxFit.scaleDown,
+            ),
           ),
         ),
         Positioned(
@@ -201,7 +201,7 @@ class _RewardDialogState extends State<RewardDialog> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(24.r),
                   child: PicnicCachedNetworkImage(
-                    imageUrl: widget.data.getThumbnailUrl(),
+                    imageUrl: widget.data.getImageUrl(images[i], i),
                     width: 300.w,
                   ),
                 )),
