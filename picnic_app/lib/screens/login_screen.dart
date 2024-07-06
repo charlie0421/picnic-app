@@ -350,8 +350,7 @@ class LoginScreen extends ConsumerWidget {
       final webAuthenticationOptions = WebAuthenticationOptions(
         clientId: 'io.iconcasting.picnic.app.apple',
         // Apple Developer Console에서 설정한 서비스 ID
-        redirectUri: Uri.parse(
-            'https://xtijtefcycoeqludlngc.supabase.co/auth/v1/callback'),
+        redirectUri: Uri.parse('https://api.picnic.fan/auth/v1/callback'),
       );
 
       final credential = await SignInWithApple.getAppleIDCredential(
@@ -361,8 +360,7 @@ class LoginScreen extends ConsumerWidget {
         ],
         webAuthenticationOptions: WebAuthenticationOptions(
           clientId: 'io.iconcasting.picnic.app.apple',
-          redirectUri: Uri.parse(
-              'https://xtijtefcycoeqludlngc.supabase.co/auth/v1/callback'),
+          redirectUri: Uri.parse('https://api.picnic.fan/auth/v1/callback'),
         ),
       );
 
