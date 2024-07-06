@@ -1,5 +1,6 @@
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/user_profiles.dart';
+import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -44,6 +45,8 @@ class UserInfo extends _$UserInfo {
 
   Future<void> logout() async {
     await Supabase.instance.client.auth.signOut();
+    ref.read(navigationInfoProvider.notifier).setBottomNavigationIndex(0);
+
     state = const AsyncValue.data(null);
   }
 
