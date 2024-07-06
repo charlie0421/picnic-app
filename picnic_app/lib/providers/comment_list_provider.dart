@@ -2,6 +2,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/pic/comment.dart';
 import 'package:picnic_app/reflector.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -32,14 +33,14 @@ class AsyncCommentList extends _$AsyncCommentList {
     String order, {
     required int articleId,
   }) async {
-    final response = await Supabase.instance.client
+    final response = await supabase
         .from('article_comment')
         .select()
         .eq('article_id', articleId)
         .order('id', ascending: false)
         .range((page - 1) * limit, page * limit - 1);
 
-    final commentCount = await Supabase.instance.client
+    final commentCount = await supabase
         .from('article_comment')
         .select()
         .eq('article_id', articleId)
@@ -61,8 +62,7 @@ class AsyncCommentList extends _$AsyncCommentList {
     int? parentId,
   }) async {
     logger.i('submitComment articleId: $articleId, content: $content');
-    final response =
-        await Supabase.instance.client.from('article_comment').insert({
+    final response = await supabase.from('article_comment').insert({
       'article_id': articleId,
       'content': content,
       'parent_id': parentId,

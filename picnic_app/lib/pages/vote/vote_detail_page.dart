@@ -10,12 +10,16 @@ import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
 import 'package:picnic_app/components/vote/list/voting_dialog.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';
+import 'package:picnic_app/screens/login_screen.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:supabase_extensions/supabase_extensions.dart';
 
 class VoteDetailPage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_vote_detail';
@@ -92,7 +96,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
 
   // void _setupRealtime() {
   //   logger.d('Setting up realtime');
-  //   Supabase.instance.client
+  //   supabase
   //       .channel('realtime')
   //       .onPostgresChanges(
   //           event: PostgresChangeEvent.update,
@@ -334,14 +338,28 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                 child: GestureDetector(
                                   behavior: HitTestBehavior.opaque,
                                   onTap: () {
-                                    showVotingDialog(
-                                      context: context,
-                                      voteModel: ref
-                                          .watch(asyncVoteDetailProvider(
-                                              voteId: widget.voteId))
-                                          .value!,
-                                      voteItemModel: item,
-                                    );
+                                    supabase.isLogged
+                                        ? showVotingDialog(
+                                            context: context,
+                                            voteModel: ref
+                                                .watch(asyncVoteDetailProvider(
+                                                    voteId: widget.voteId))
+                                                .value!,
+                                            voteItemModel: item,
+                                          )
+                                        : showSimpleDialog(
+                                            context: context,
+                                            content: S
+                                                .of(context)
+                                                .dialog_content_login_required,
+                                            onOk: () {
+                                              Navigator.pop(context);
+                                              Navigator.pushNamed(context,
+                                                  LoginScreen.routeName);
+                                            },
+                                            onCancel: () =>
+                                                Navigator.pop(context),
+                                          );
                                   },
                                   child: Container(
                                     key: ValueKey<int>(index),

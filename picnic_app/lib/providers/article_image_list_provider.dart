@@ -1,6 +1,6 @@
 import 'package:picnic_app/models/pic/article_image.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'article_image_list_provider.g.dart';
 
@@ -13,10 +13,8 @@ class AsyncArticleImageList extends _$AsyncArticleImageList {
 
   Future<List<ArticleImageModel>> _fetchGalleryImageList(
       {required int galleryId}) async {
-    final response = await Supabase.instance.client
-        .from('article')
-        .select()
-        .eq('gallery_id', galleryId);
+    final response =
+        await supabase.from('article').select().eq('gallery_id', galleryId);
     final List<ArticleImageModel> articleImageList =
         List<ArticleImageModel>.from(
             response.map((e) => ArticleImageModel.fromJson(e)));

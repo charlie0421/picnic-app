@@ -14,6 +14,7 @@ import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/screens/login_screen.dart';
 import 'package:picnic_app/screens/pic/pic_camera_screen.dart';
 import 'package:picnic_app/screens/portal.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/community_theme.dart';
 import 'package:picnic_app/ui/mypage_theme.dart';
 import 'package:picnic_app/ui/novel_theme.dart';
@@ -21,7 +22,6 @@ import 'package:picnic_app/ui/pic_theme.dart';
 import 'package:picnic_app/ui/vote_theme.dart';
 import 'package:picnic_app/util.dart';
 import 'package:screen_protector/screen_protector.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class App extends ConsumerStatefulWidget {
   const App({super.key});
@@ -55,7 +55,7 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
     });
     WidgetsBinding.instance.addObserver(this);
 
-    Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+    supabase.auth.onAuthStateChange.listen((data) {
       final session = data.session;
       if (session != null) {
         final jwtToken = session.accessToken;

@@ -7,9 +7,9 @@ import 'package:picnic_app/components/custom_dropdown_button.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote_pick.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class VoteHistoryPage extends ConsumerStatefulWidget {
   final String pageName = 'label_mypage_vote_history';
@@ -44,7 +44,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
   }
 
   _fetch(int page, int limit, String sort, String order) async {
-    final response = await Supabase.instance.client
+    final response = await supabase
         .from('vote_pick')
         .select('*, vote(*), vote_item(*, mystar_member(*, mystar_group(*)))')
         .order(

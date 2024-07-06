@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_login/flutter_login.dart';
 import 'package:flutter_supabase_chat_core/flutter_supabase_chat_core.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:picnic_app/supabase_options.dart';
 
 import 'rooms.dart';
 
@@ -23,7 +23,8 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget build(BuildContext context) => FlutterLogin(
         logo: const AssetImage('assets/flyer_logo.png'),
         savedEmail: faker.internet.email(),
-        savedPassword: 'Qawsed1-', //faker.internet.password(),
+        savedPassword: 'Qawsed1-',
+        //faker.internet.password(),
         navigateBackAfterRecovery: true,
         additionalSignupFields: [
           UserFormField(
@@ -53,7 +54,7 @@ class _AuthScreenState extends State<AuthScreen> {
         },
         onLogin: (loginData) async {
           try {
-            await Supabase.instance.client.auth.signInWithPassword(
+            await supabase.auth.signInWithPassword(
               email: loginData.name,
               password: loginData.password,
             );
@@ -64,7 +65,7 @@ class _AuthScreenState extends State<AuthScreen> {
         },
         onSignup: (signupData) async {
           try {
-            final response = await Supabase.instance.client.auth.signUp(
+            final response = await supabase.auth.signUp(
               email: signupData.name,
               password: signupData.password!,
             );
@@ -89,7 +90,7 @@ class _AuthScreenState extends State<AuthScreen> {
         },
         onRecoverPassword: (name) async {
           try {
-            await Supabase.instance.client.auth.resetPasswordForEmail(
+            await supabase.auth.resetPasswordForEmail(
               name,
             );
           } catch (e) {

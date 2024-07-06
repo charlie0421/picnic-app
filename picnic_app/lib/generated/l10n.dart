@@ -160,6 +160,16 @@ class S {
     );
   }
 
+  /// `Login required`
+  String get dialog_content_login_required {
+    return Intl.message(
+      'Login required',
+      name: 'dialog_content_login_required',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Voting Failed`
   String get dialog_title_vote_fail {
     return Intl.message(
@@ -980,10 +990,10 @@ class S {
     );
   }
 
-  /// `PIC Voting`
+  /// `PIC voting`
   String get label_vote_tab_pic {
     return Intl.message(
-      'PIC Voting',
+      'PIC voting',
       name: 'label_vote_tab_pic',
       desc: '',
       args: [],
@@ -1110,10 +1120,10 @@ class S {
     );
   }
 
-  /// `Subscriptions`
+  /// `Subscription information`
   String get mypage_subscription {
     return Intl.message(
-      'Subscriptions',
+      'Subscription information',
       name: 'mypage_subscription',
       desc: '',
       args: [],

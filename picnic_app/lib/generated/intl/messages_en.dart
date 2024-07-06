@@ -46,6 +46,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Stardust Usage Policy"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
+        "dialog_content_login_required":
+            MessageLookupByLibrary.simpleMessage("Login required"),
         "dialog_title_vote_fail":
             MessageLookupByLibrary.simpleMessage("Voting Failed"),
         "dialog_withdraw_button_cancel":
@@ -192,7 +194,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("Birthday polls"),
         "label_vote_tab_pic":
-            MessageLookupByLibrary.simpleMessage("PIC Voting"),
+            MessageLookupByLibrary.simpleMessage("PIC voting"),
         "label_vote_vote_gather":
             MessageLookupByLibrary.simpleMessage("Collecting votes"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("View ads"),
@@ -215,7 +217,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("My purchases"),
         "mypage_setting": MessageLookupByLibrary.simpleMessage("Settings"),
         "mypage_subscription":
-            MessageLookupByLibrary.simpleMessage("Subscriptions"),
+            MessageLookupByLibrary.simpleMessage("Subscription information"),
         "nav_ads": MessageLookupByLibrary.simpleMessage("Ads"),
         "nav_gallery": MessageLookupByLibrary.simpleMessage("Gallery"),
         "nav_home": MessageLookupByLibrary.simpleMessage("홈"),

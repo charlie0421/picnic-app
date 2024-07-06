@@ -1,5 +1,4 @@
-import 'package:file_picker/file_picker.dart';
-//import 'package:file_saver/file_saver.dart';
+import 'package:file_picker/file_picker.dart'; //import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -7,6 +6,7 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_supabase_chat_core/flutter_supabase_chat_core.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
@@ -89,13 +89,10 @@ class _ChatPageState extends State<ChatPage> {
         final bytes = result.files.single.bytes;
         final name = result.files.single.name;
         final mimeType = lookupMimeType(name, headerBytes: bytes);
-        final reference = await Supabase.instance.client.storage
-            .from(buket)
-            .uploadBinary(
-                '${widget.room.id}/${const Uuid().v1()}-$name', bytes!,
-                fileOptions: FileOptions(contentType: mimeType));
-        final url =
-            '${Supabase.instance.client.storage.url}/object/authenticated/$reference';
+        final reference = await supabase.storage.from(buket).uploadBinary(
+            '${widget.room.id}/${const Uuid().v1()}-$name', bytes!,
+            fileOptions: FileOptions(contentType: mimeType));
+        final url = '${supabase.storage.url}/object/authenticated/$reference';
         final message = types.PartialFile(
           mimeType: mimeType,
           name: name,
@@ -125,12 +122,10 @@ class _ChatPageState extends State<ChatPage> {
       final name = result.name;
       final mimeType = lookupMimeType(name, headerBytes: bytes);
       try {
-        final reference = await Supabase.instance.client.storage
-            .from(buket)
-            .uploadBinary('${widget.room.id}/${const Uuid().v1()}-$name', bytes,
-                fileOptions: FileOptions(contentType: mimeType));
-        final url =
-            '${Supabase.instance.client.storage.url}/object/authenticated/$reference';
+        final reference = await supabase.storage.from(buket).uploadBinary(
+            '${widget.room.id}/${const Uuid().v1()}-$name', bytes,
+            fileOptions: FileOptions(contentType: mimeType));
+        final url = '${supabase.storage.url}/object/authenticated/$reference';
         final message = types.PartialImage(
           height: image.height.toDouble(),
           name: name,
@@ -150,8 +145,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Map<String, String> get storageHeaders => {
-        'Authorization':
-            'Bearer ${Supabase.instance.client.auth.currentSession?.accessToken}',
+        'Authorization': 'Bearer ${supabase.auth.currentSession?.accessToken}',
       };
 
   void _handleMessageTap(BuildContext _, types.Message message) async {

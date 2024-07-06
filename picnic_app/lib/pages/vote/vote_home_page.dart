@@ -15,10 +15,10 @@ import 'package:picnic_app/pages/vote/vote_list_page.dart';
 import 'package:picnic_app/providers/banner_list_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/reward_list_provider.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class VoteHomePage extends ConsumerStatefulWidget {
   const VoteHomePage({super.key});
@@ -107,7 +107,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   }
 
   _fetch(int page, int limit, String sort, String order) async {
-    final response = await Supabase.instance.client
+    final response = await supabase
         .from('vote')
         .select('*, vote_item(*, mystar_member(*, mystar_group(*)))')
         .lt('start_at', 'now()')

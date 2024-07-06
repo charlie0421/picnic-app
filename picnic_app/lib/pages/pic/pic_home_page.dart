@@ -17,9 +17,9 @@ import 'package:picnic_app/pages/pic/landing_page.dart';
 import 'package:picnic_app/providers/banner_list_provider.dart';
 import 'package:picnic_app/providers/gallery_list_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../components/celeb_list_item.dart';
 import '../../components/vote/list/vote_info_card.dart';
@@ -457,7 +457,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
   }
 
   _fetch(int page, int limit, String sort, String order) async {
-    final response = await Supabase.instance.client
+    final response = await supabase
         .from('artist_vote')
         .select('*, artist_vote_item(*)')
         .eq('category', 'pic')

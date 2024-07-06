@@ -1,6 +1,6 @@
 import 'package:picnic_app/models/common/banner.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'banner_list_provider.g.dart';
 
@@ -12,7 +12,7 @@ class AsyncBannerList extends _$AsyncBannerList {
   }
 
   Future<List<BannerModel>> _fetchBannerList({required String location}) async {
-    final response = await Supabase.instance.client
+    final response = await supabase
         .from('banner')
         .select()
         .eq('location', location)

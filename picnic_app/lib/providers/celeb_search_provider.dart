@@ -1,6 +1,6 @@
 import 'package:picnic_app/models/pic/celeb.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'celeb_search_provider.g.dart';
 
@@ -14,7 +14,7 @@ class AsyncCelebSearch extends _$AsyncCelebSearch {
   }
 
   Future<void> searchCeleb(String query) async {
-    final response = await Supabase.instance.client
+    final response = await supabase
         .from('celeb')
         .select()
         .ilike('name_ko', '%$query%')

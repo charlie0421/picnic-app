@@ -10,8 +10,10 @@ import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/screens/login_screen.dart';
 import 'package:picnic_app/screens/mypage_screen.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
+import 'package:supabase_extensions/supabase_extensions.dart';
 
 class Portal extends ConsumerStatefulWidget {
   static const String routeName = '/landing';
@@ -33,9 +35,7 @@ class _PortalState extends ConsumerState<Portal> {
     final currentScreen = ref.watch(navigationInfoProvider.select((value) {
       return value.currentScreen;
     }));
-    final navigationInfoNotifier = ref.read(navigationInfoProvider.notifier);
     final userInfo = ref.watch(userInfoProvider);
-    final userInfoNotifier = ref.read(userInfoProvider.notifier);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -53,7 +53,7 @@ class _PortalState extends ConsumerState<Portal> {
           height: 36.w,
           alignment: Alignment.center,
           child: Builder(
-            builder: (context) => userInfoNotifier.isLogged
+            builder: (context) => supabase.isLogged
                 ? userInfo.when(
                     data: (data) => data != null
                         ? GestureDetector(

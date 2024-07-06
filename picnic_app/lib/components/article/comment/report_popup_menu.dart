@@ -4,7 +4,7 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/common_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/pic/comment.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:picnic_app/supabase_options.dart';
 
 class ReportPopupMenu extends StatelessWidget {
   final BuildContext context;
@@ -56,7 +56,7 @@ class ReportPopupMenu extends StatelessWidget {
   }
 
   Future<void> _reportComment({required int commentId}) async {
-    final response = await Supabase.instance.client.from('comment').update({
+    final response = await supabase.from('comment').update({
       'report': true,
     }).eq('id', commentId);
   }

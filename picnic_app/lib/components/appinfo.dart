@@ -4,6 +4,7 @@ import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/platform_info_provider.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AppInfo extends ConsumerWidget {
@@ -16,7 +17,7 @@ class AppInfo extends ConsumerWidget {
 
     return asyncPlatformInfoState.when(
       data: (platformInfo) {
-        User? user = Supabase.instance.client.auth.currentUser;
+        User? user = supabase.auth.currentUser;
 
         logger.d('user: $user');
         return ListView(
@@ -47,10 +48,10 @@ class AppInfo extends ConsumerWidget {
                 subtitle: Text(user?.email ?? '--'),
               ),
             ),
-            // if (Supabase.instance.client.isLogged == true)
+            // if (supabase.isLogged == true)
             //   ElevatedButton(
             //     onPressed: () {
-            //       Supabase.instance.client.auth.signOut();
+            //       supabase.auth.signOut();
             //       ref.read(loginedProvider.notifier).setLogined(false);
             //       final navigationInfoNotifier =
             //           ref.read(navigationInfoProvider.notifier);

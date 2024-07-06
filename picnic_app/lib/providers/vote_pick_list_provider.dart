@@ -1,8 +1,8 @@
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/vote/vote_pick.dart';
 import 'package:picnic_app/reflector.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'vote_pick_list_provider.g.dart';
 
@@ -17,7 +17,7 @@ class AsyncVotePickList extends _$AsyncVotePickList {
   Future<VotePickListModel> fetch(
       int page, int limit, String sort, String order) async {
     try {
-      final response = await Supabase.instance.client
+      final response = await supabase
           .from('vote_pick')
           .select('*, vote(*), vote_item(*, mystar_member(*, mystar_group(*)))')
           .order(sort, ascending: order == 'ASC')
