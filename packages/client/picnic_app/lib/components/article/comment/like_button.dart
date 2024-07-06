@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LikeButton extends StatefulWidget {
   final int commentId;
@@ -42,13 +42,12 @@ class LikeButtonState extends State<LikeButton> {
   }
 
   Future<void> _addCommentLike(int commentId) async {
-    final response = await Supabase.instance.client
-        .from('comment_like')
-        .insert({'comment_id': commentId});
+    final response =
+        await supabase.from('comment_like').insert({'comment_id': commentId});
   }
 
   Future<void> _removeCommentLike(int commentId) async {
-    final response = await Supabase.instance.client
+    final response = await supabase
         .from('comment_like')
         .delete()
         .eq('comment_id', commentId);

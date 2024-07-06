@@ -15,6 +15,7 @@ void showSimpleDialog({
 }) {
   showDialog(
     context: context,
+    barrierDismissible: true,
     builder: (BuildContext context) {
       return Dialog(
         alignment: Alignment.center,
@@ -69,7 +70,6 @@ void showSimpleDialog({
                               getTextStyle(AppTypo.BODY14B, AppColors.Mint500),
                         ),
                         onPressed: () {
-                          Navigator.of(context).pop();
                           onCancel();
                         },
                       ),
@@ -84,7 +84,6 @@ void showSimpleDialog({
                               AppTypo.BODY14B, AppColors.Primary500),
                         ),
                         onPressed: () {
-                          Navigator.of(context).pop();
                           onOk();
                         },
                       ),

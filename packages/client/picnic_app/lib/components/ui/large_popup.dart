@@ -36,8 +36,6 @@ class LargePopupWidget extends StatelessWidget {
             children: [
               Container(
                   width: width ?? 345.w,
-                  // padding: EdgeInsets.only(
-                  //     top: 24.w, left: 24.w, right: 24.w, bottom: 24.w),
                   decoration: BoxDecoration(
                     color: backgroundColor ?? AppColors.Grey00,
                     border: Border.all(
@@ -68,18 +66,27 @@ class LargePopupWidget extends StatelessWidget {
               child: SizedBox(
                 height: 24.h,
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(S.of(context).label_button_clse,
-                        style: getTextStyle(AppTypo.BODY14B, AppColors.Grey00)),
-                    SizedBox(width: 4.w),
-                    SvgPicture.asset(
-                      'assets/icons/cancle_style=line.svg',
-                      width: 24.w,
-                      height: 24.w,
-                      colorFilter: const ColorFilter.mode(
-                          AppColors.Grey00, BlendMode.srcIn),
-                    ),
+                    if (footer != null) footer!,
+                    closeButton != null
+                        ? closeButton!
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(S.of(context).label_button_clse,
+                                  style: getTextStyle(
+                                      AppTypo.BODY14B, AppColors.Grey00)),
+                              SizedBox(width: 4.w),
+                              SvgPicture.asset(
+                                'assets/icons/cancle_style=line.svg',
+                                width: 24.w,
+                                height: 24.w,
+                                colorFilter: const ColorFilter.mode(
+                                    AppColors.Grey00, BlendMode.srcIn),
+                              ),
+                            ],
+                          ),
                   ],
                 ),
               ))

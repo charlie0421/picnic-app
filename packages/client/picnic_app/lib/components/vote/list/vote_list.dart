@@ -4,6 +4,7 @@ import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -67,7 +68,7 @@ class _VoteListState extends State<VoteList> {
     PostgrestResponse<PostgrestList> response;
 
     if (status == VoteStatus.active) {
-      response = await Supabase.instance.client
+      response = await supabase
           .from('vote')
           .select('*, vote_item(*, mystar_member(*, mystar_group(*)))')
           .lt('start_at', 'now()')
@@ -78,7 +79,7 @@ class _VoteListState extends State<VoteList> {
           .limit(limit)
           .count();
     } else if (status == VoteStatus.end) {
-      response = await Supabase.instance.client
+      response = await supabase
           .from('vote')
           .select('*, vote_item(*, mystar_member(*, mystar_group(*)))')
           .lt('stop_at', 'now()')
@@ -91,7 +92,7 @@ class _VoteListState extends State<VoteList> {
           .limit(limit)
           .count();
     } else {
-      response = await Supabase.instance.client
+      response = await supabase
           .from('vote')
           .select('*, vote_item(*, mystar_member(*))')
           .order(

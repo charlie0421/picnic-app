@@ -1,6 +1,6 @@
 import 'package:picnic_app/models/policy.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'policy_provider.g.dart';
 
@@ -14,7 +14,7 @@ class AsyncPolicy extends _$AsyncPolicy {
 
   Future<PolicyItemModel> _fetch(
       {required PolicyType type, required PolicyLanguage language}) async {
-    final response = await Supabase.instance.client
+    final response = await supabase
         .from('policy')
         .select()
         .eq('type', type.name)

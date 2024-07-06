@@ -1,6 +1,6 @@
 import 'package:picnic_app/models/pic/gallery.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'gallery_list_provider.g.dart';
 
@@ -12,10 +12,8 @@ class AsyncGalleryList extends _$AsyncGalleryList {
   }
 
   Future<List<GalleryModel>> _fetchGalleryList() async {
-    final response = await Supabase.instance.client
-        .from('gallery')
-        .select()
-        .order('id', ascending: false);
+    final response =
+        await supabase.from('gallery').select().order('id', ascending: false);
 
     List<GalleryModel> galleryList =
         List<GalleryModel>.from(response.map((e) => GalleryModel.fromJson(e)));
@@ -49,7 +47,7 @@ class AsyncCelebGalleryList extends _$AsyncCelebGalleryList {
   }
 
   Future<List<GalleryModel>> _fetchGalleryList(celebId) async {
-    final response = await Supabase.instance.client
+    final response = await supabase
         .from('gallery')
         .select()
         .eq('celeb_id', celebId)

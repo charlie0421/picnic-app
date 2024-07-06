@@ -1,6 +1,7 @@
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/reflector.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -28,7 +29,7 @@ class AsyncVoteList extends _$AsyncVoteList {
 // status가 'all'이 아닌 경우에만 start_at과 end_at 필드를 기준으로 필터링합니다.
       if (status == 'active') {
         // status가 'active'인 경우, start_at은 현재 시간보다 이전이고 end_at은 현재 시간보다 이후여야 합니다.
-        response = await Supabase.instance.client
+        response = await supabase
             .from('vote')
             .select('*, vote_item(*, mystar_member(*, mystar_group(*)))')
             // .eq('vote_category', category == 'all' ? '' : category)
@@ -38,7 +39,7 @@ class AsyncVoteList extends _$AsyncVoteList {
             .count();
       } else if (status == 'end') {
         // status가 'end'인 경우, stop_at은 현재 시간보다 이전이어야 합니다.
-        response = await Supabase.instance.client
+        response = await supabase
             .from('vote')
             .select('*, vote_item(*, mystar_member(*, mystar_group(*)))')
             // .eq('vote_category', category == 'all' ? '' : category)
@@ -47,14 +48,14 @@ class AsyncVoteList extends _$AsyncVoteList {
             .count();
       } else {
         // status가 'all'인 경우, 필터링 없이 모든 데이터를 가져옵니다.
-        response = await Supabase.instance.client
+        response = await supabase
             .from('vote')
             .select('*, vote_item(*, mystar_member(*))')
             // .eq('vote_category', category == 'all' ? '' : category)
             .order(sort, ascending: order == 'ASC')
             .count();
       }
-      // final response = await Supabase.instance.client
+      // final response = await supabase
       //     .from('vote')
       //     .select('*, vote_item(*, mystar_member(*))')
       //     .eq('vote_category', category == 'all' ? '' : category)

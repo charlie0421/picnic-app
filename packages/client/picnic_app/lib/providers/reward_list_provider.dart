@@ -1,6 +1,6 @@
 import 'package:picnic_app/models/reward.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'reward_list_provider.g.dart';
 
@@ -12,10 +12,8 @@ class AsyncRewardList extends _$AsyncRewardList {
   }
 
   Future<List<RewardModel>> _fetchRewardList() async {
-    final response = await Supabase.instance.client
-        .from('reward')
-        .select()
-        .order('id', ascending: true);
+    final response =
+        await supabase.from('reward').select().order('id', ascending: true);
 
     List<RewardModel> rewardList =
         List<RewardModel>.from(response.map((e) => RewardModel.fromJson(e)));

@@ -1,7 +1,7 @@
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/vote/vote.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'vote_detail_provider.g.dart';
 
@@ -14,7 +14,7 @@ class AsyncVoteDetail extends _$AsyncVoteDetail {
 
   Future<VoteModel?> fetch({required int voteId}) async {
     try {
-      final response = await Supabase.instance.client
+      final response = await supabase
           .from('vote')
           .select('*, vote_item(*, mystar_member(*)), reward(*))')
           .eq('id', voteId)
@@ -42,7 +42,7 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
 
   FutureOr<List<VoteItemModel?>> fetch({required int voteId}) async {
     try {
-      final response = await Supabase.instance.client
+      final response = await supabase
           .from('vote_item')
           .select('*, mystar_member!left(*,mystar_group(*))')
           .eq('vote_id', voteId)

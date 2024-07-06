@@ -6,8 +6,13 @@ import 'package:intl/intl.dart';
 import 'package:picnic_app/components/bounce_red_dot.dart';
 import 'package:picnic_app/components/common/common_my_point_info.dart';
 import 'package:picnic_app/components/rotate_image.dart';
+import 'package:picnic_app/dialogs/simple_dialog.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/screens/login_screen.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:supabase_extensions/supabase_extensions.dart';
 
 class ScreenTop extends ConsumerStatefulWidget {
   const ScreenTop({
@@ -52,7 +57,19 @@ class _TopState extends ConsumerState<ScreenTop> {
               ? GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () {
-                    navigationInfoNotifier.goBack();
+                    supabase.isLogged
+                        ? navigationInfoNotifier.setBottomNavigationIndex(3)
+                        : showSimpleDialog(
+                            context: context,
+                            content:
+                                S.of(context).dialog_content_login_required,
+                            onOk: () {
+                              Navigator.pop(context);
+                              Navigator.pushNamed(
+                                  context, LoginScreen.routeName);
+                            },
+                            onCancel: () => Navigator.pop(context),
+                          );
                   },
                   child: const Icon(Icons.arrow_back_ios),
                 )
@@ -78,7 +95,7 @@ class _TopState extends ConsumerState<ScreenTop> {
 // }
 //
 // void _setupRealtime() {
-//   final subscription = Supabase.instance.client
+//   final subscription = supabase
 //       .channel('realtime')
 //       .onPostgresChanges(
 //           event: PostgresChangeEvent.update,
@@ -104,14 +121,31 @@ class TopScreenRight extends StatelessWidget {
       children: [
         Stack(
           children: [
-            Container(
-              alignment: Alignment.centerLeft,
-              width: 40.w,
-              height: 36.w,
-              child: SvgPicture.asset(
-                'assets/icons/calendar_style=line.svg',
-                width: 24.w,
-                height: 24.w,
+            GestureDetector(
+              onTap: () {
+                supabase.isLogged
+                    ? ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        duration: const Duration(milliseconds: 300),
+                        content: Text('로그인 되어 있습니다')))
+                    : showSimpleDialog(
+                        context: context,
+                        content: S.of(context).dialog_content_login_required,
+                        onOk: () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, LoginScreen.routeName);
+                        },
+                        onCancel: () => Navigator.pop(context),
+                      );
+              },
+              child: Container(
+                alignment: Alignment.centerLeft,
+                width: 40.w,
+                height: 36.w,
+                child: SvgPicture.asset(
+                  'assets/icons/calendar_style=line.svg',
+                  width: 24.w,
+                  height: 24.w,
+                ),
               ),
             ),
             Positioned(
@@ -131,25 +165,42 @@ class TopScreenRight extends StatelessWidget {
             ),
           ],
         ),
-        Stack(
-          children: [
-            Container(
-              width: 24.w,
-              height: 24.w,
-              child: SvgPicture.asset(
-                'assets/icons/alarm_style=line.svg',
+        GestureDetector(
+          onTap: () {
+            supabase.isLogged
+                ? ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    duration: const Duration(milliseconds: 300),
+                    content: Text('로그인 되어 있습니다')))
+                : showSimpleDialog(
+                    context: context,
+                    content: S.of(context).dialog_content_login_required,
+                    onOk: () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, LoginScreen.routeName);
+                    },
+                    onCancel: () => Navigator.pop(context),
+                  );
+          },
+          child: Stack(
+            children: [
+              Container(
                 width: 24.w,
                 height: 24.w,
+                child: SvgPicture.asset(
+                  'assets/icons/alarm_style=line.svg',
+                  width: 24.w,
+                  height: 24.w,
+                ),
               ),
-            ),
-            Positioned(
-              top: 0.w,
-              right: 0.w,
-              left: 0.w,
-              bottom: 3.w,
-              child: BounceRedDot(),
-            ),
-          ],
+              Positioned(
+                top: 0.w,
+                right: 0.w,
+                left: 0.w,
+                bottom: 3.w,
+                child: BounceRedDot(),
+              ),
+            ],
+          ),
         ),
       ],
     );

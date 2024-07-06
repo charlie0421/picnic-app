@@ -10,73 +10,103 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/components/vote/common_vote_info.dart';
 import 'package:picnic_app/components/vote/store/store_list_tile.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/purchase_product_provider.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_theme.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PurchaseStarCandy extends ConsumerStatefulWidget {
   const PurchaseStarCandy({super.key});
 
   @override
-  _PurchaseStarCandyState createState() => _PurchaseStarCandyState();
+  ConsumerState createState() => _PurchaseStarCandyState();
 }
 
 class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
   final InAppPurchase _inAppPurchase = InAppPurchase.instance;
   bool _available = true;
   List<ProductDetails> _products = [];
-  List<PurchaseDetails> _purchases = [];
+  bool _purchasePending = false;
+  final List<String> _productIds = [
+    'STAR100',
+    'STAR300',
+    'STAR600',
+    'STAR1000',
+    'STAR2000',
+    'STAR3000',
+    'STAR4000',
+    'STAR5000'
+  ];
+
+  void _buyProduct(ProductDetails productDetails) {
+    final PurchaseParam purchaseParam =
+        PurchaseParam(productDetails: productDetails);
+    _inAppPurchase.buyConsumable(purchaseParam: purchaseParam);
+  }
+
+  void _listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) {
+    purchaseDetailsList.forEach((PurchaseDetails purchaseDetails) async {
+      if (purchaseDetails.status == PurchaseStatus.pending) {
+        setState(() {
+          _purchasePending = true;
+        });
+      } else {
+        if (purchaseDetails.status == PurchaseStatus.error) {
+          setState(() {
+            _purchasePending = false;
+          });
+        } else if (purchaseDetails.status == PurchaseStatus.purchased) {
+          // Verify purchase and deliver the product
+        }
+        if (purchaseDetails.pendingCompletePurchase) {
+          await _inAppPurchase.completePurchase(purchaseDetails);
+        }
+      }
+    });
+  }
 
   @override
   void initState() {
-    final purchaseUpdated = _inAppPurchase.purchaseStream;
-    purchaseUpdated.listen((purchases) {
-      _handlePurchaseUpdates(purchases);
-    });
-    _initialize();
     super.initState();
+    final purchaseUpdated = _inAppPurchase.purchaseStream;
+    purchaseUpdated.listen((purchaseDetailsList) {
+      _listenToPurchaseUpdated(purchaseDetailsList);
+    });
+    _loadProducts();
   }
 
-  Future<void> _initialize() async {
-    _available = await _inAppPurchase.isAvailable();
-    if (!_available) {
-      setState(() {});
+  Future<void> _loadProducts() async {
+    final bool available = await _inAppPurchase.isAvailable();
+    if (!available) {
+      // Handle the error
+      print('Store is not available');
       return;
     }
-    final purchaseProductList = ref.watch(purchaseProductListProvider);
 
-    final ProductDetailsResponse response = await _inAppPurchase
-        .queryProductDetails(purchaseProductList.map((e) => e.id).toSet());
+    final ProductDetailsResponse response =
+        await _inAppPurchase.queryProductDetails(_productIds.toSet());
 
-    logger.d('response: $response');
-
-    if (response.notFoundIDs.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        duration: const Duration(milliseconds: 100),
-        content: Text('Not Found IDs: ${response.notFoundIDs}'),
-      ));
-      print('Not Found IDs: ${response.notFoundIDs}');
-      // Handle the error.
-    }
     if (response.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        duration: const Duration(milliseconds: 100),
-        content: Text('Error: ${response.error}'),
-      ));
-      print('Error: ${response.error}');
+      // Handle the error
+      print('Error fetching products: ${response.error}');
+      return;
     }
+
+    if (response.productDetails.isEmpty) {
+      // Handle the error
+      print('No products found');
+      return;
+    }
+
     setState(() {
       _products = response.productDetails;
     });
   }
 
   Future<void> verifyReceipt(String receipt) async {
-    final response = await Supabase.instance.client.functions.invoke(
-        'verify_receipt',
+    final response = await supabase.functions.invoke('verify_receipt',
         body: {'receipt': receipt, 'platform': Platform.isIOS});
 
     if (response.status == 200) {
@@ -99,12 +129,6 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
         _inAppPurchase.completePurchase(purchase);
       }
     }
-  }
-
-  void _buyProduct(ProductDetails product) {
-    final PurchaseParam purchaseParam = PurchaseParam(productDetails: product);
-    _inAppPurchase.buyConsumable(
-        purchaseParam: purchaseParam, autoConsume: true);
   }
 
   @override
@@ -131,7 +155,6 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
                 height: 48.w,
               ),
               title: Text(purchaseProductList[index].title ?? '',
-                  // title: Text(updatedPurchaseProductList[index].title,
                   style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
               subtitle: Text.rich(
                 TextSpan(
@@ -153,7 +176,7 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
                     description: purchaseProduct.id,
                     price: purchaseProduct.price.toString(),
                     rawPrice: purchaseProduct.price,
-                    currencyCode: 'KR'));
+                    currencyCode: 'US'));
               },
             ),
             separatorBuilder: (BuildContext context, int index) =>

@@ -17,6 +17,7 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -341,8 +342,6 @@ class LoginScreen extends ConsumerWidget {
   }
 
   Future<bool> _nativeAppleSignIn() async {
-    final supabase = Supabase.instance.client;
-
     try {
       final rawNonce = supabase.auth.generateRawNonce();
       final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
@@ -370,7 +369,7 @@ class LoginScreen extends ConsumerWidget {
             'Could not find ID Token from generated credential.');
       }
 
-      final response = await Supabase.instance.client.auth.signInWithIdToken(
+      final response = await supabase.auth.signInWithIdToken(
         provider: OAuthProvider.apple,
         idToken: credential.identityToken!,
       );
@@ -418,7 +417,7 @@ class LoginScreen extends ConsumerWidget {
       decodeAndPrintToken(
           idToken); // Add this line to decode and logger.i the token
 
-      await Supabase.instance.client.auth.signInWithIdToken(
+      await supabase.auth.signInWithIdToken(
         provider: OAuthProvider.google,
         idToken: idToken,
         accessToken: accessToken,
@@ -491,7 +490,7 @@ class LoginScreen extends ConsumerWidget {
       logger.i('ID Token: ${token.idToken}');
       logger.i('Access Token: ${token.accessToken}');
 
-      await Supabase.instance.client.auth.signInWithIdToken(
+      await supabase.auth.signInWithIdToken(
         provider: OAuthProvider.kakao,
         idToken: token.idToken!,
         accessToken: token.accessToken,

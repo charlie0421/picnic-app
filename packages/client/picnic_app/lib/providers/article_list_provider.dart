@@ -3,8 +3,8 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/pic/article.dart';
 import 'package:picnic_app/models/pic/article_image.dart';
 import 'package:picnic_app/reflector.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'article_list_provider.g.dart';
 
@@ -49,7 +49,7 @@ class AsyncArticleList extends _$AsyncArticleList {
         'order': order,
       };
 
-      final List<ArticleModel> response = await Supabase.instance.client
+      final List<ArticleModel> response = await supabase
           .from('article')
           .select('*, article_image(*, article_image_user(*))')
           .eq('gallery_id', galleryId)

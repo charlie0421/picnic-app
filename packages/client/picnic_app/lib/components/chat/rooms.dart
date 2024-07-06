@@ -7,6 +7,7 @@ import 'package:picnic_app/components/chat/chat.dart';
 import 'package:picnic_app/components/chat/users.dart';
 import 'package:picnic_app/components/chat/util.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -30,9 +31,9 @@ class _RoomsPageState extends State<RoomsPage> {
 
   void initializeFlutterFire() async {
     try {
-      _user = Supabase.instance.client.auth.currentUser;
+      _user = supabase.auth.currentUser;
       logger.d('RoomsPage: _user: $_user');
-      Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+      supabase.auth.onAuthStateChange.listen((data) {
         setState(() {
           _user = data.session?.user;
         });
@@ -48,7 +49,7 @@ class _RoomsPageState extends State<RoomsPage> {
   }
 
   void logout() async {
-    await Supabase.instance.client.auth.signOut();
+    await supabase.auth.signOut();
   }
 
   Widget _buildAvatar(types.Room room) {

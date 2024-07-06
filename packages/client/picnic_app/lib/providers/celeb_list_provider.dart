@@ -1,8 +1,8 @@
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/pic/celeb.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'celeb_list_provider.g.dart';
 
@@ -14,10 +14,8 @@ class AsyncCelebList extends _$AsyncCelebList {
   }
 
   Future<List<CelebModel>?> _fetchCelebList() async {
-    final response = await Supabase.instance.client
-        .from('celeb')
-        .select()
-        .order('id', ascending: true);
+    final response =
+        await supabase.from('celeb').select().order('id', ascending: true);
 
     final List<CelebModel> celebList =
         List<CelebModel>.from(response.map((e) => CelebModel.fromJson(e)));
@@ -32,7 +30,7 @@ class AsyncCelebList extends _$AsyncCelebList {
   }
 
   Future<void> addBookmark(CelebModel celeb) async {
-    final response = await Supabase.instance.client
+    final response = await supabase
         .from('celeb_bookmark')
         .insert({'celeb_id': celeb.id, 'user_id': 1});
 
@@ -42,7 +40,7 @@ class AsyncCelebList extends _$AsyncCelebList {
   }
 
   Future<void> removeBookmark(CelebModel celeb) async {
-    final response = await Supabase.instance.client
+    final response = await supabase
         .from('celeb_bookmark')
         .delete()
         .eq('celeb_id', celeb.id)
@@ -64,14 +62,14 @@ class AsyncMyCelebList extends _$AsyncMyCelebList {
 
   Future<List<CelebModel>?> fetchMyCelebList() async {
     try {
-      if (Supabase.instance.client.auth.currentUser == null) {
+      if (supabase.auth.currentUser == null) {
         return null;
       }
 
-      final response = await Supabase.instance.client
+      final response = await supabase
           .from('celeb_user')
           .select('celeb(*)')
-          .eq('user_id', Supabase.instance.client.uid.toString())
+          .eq('user_id', supabase.uid.toString())
           .order('celeb_id', ascending: true);
       List<CelebModel> celebList = List<CelebModel>.from(
           response.map((e) => CelebModel.fromJson(e['celeb'])));
