@@ -103,7 +103,15 @@ bool isAndroid() {
 }
 
 bool isMobile() {
-  return Platform.isAndroid || Platform.isIOS;
+  if (kIsWeb) {
+    return false;
+  } else {
+    try {
+      return Platform.isAndroid || Platform.isIOS;
+    } catch (e) {
+      return false;
+    }
+  }
 }
 
 bool isDesktop() {
