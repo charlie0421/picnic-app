@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util.dart';
 
 void showSimpleDialog({
   required BuildContext context,
@@ -20,9 +21,9 @@ void showSimpleDialog({
       return Dialog(
         alignment: Alignment.center,
         child: Container(
-          width: 361.w,
-          constraints: const BoxConstraints(
-            minWidth: 151,
+          width: getPlatformScreenSize(context).width,
+          constraints: BoxConstraints(
+            minWidth: 151.w,
           ),
           padding: EdgeInsets.symmetric(
             vertical: 20.w,
@@ -61,31 +62,35 @@ void showSimpleDialog({
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (onCancel != null)
-                    SizedBox(
-                      width: 100.w,
-                      child: TextButton(
-                        child: Text(
-                          S.of(context).dialog_button_cancel,
-                          style:
-                              getTextStyle(AppTypo.BODY14B, AppColors.Mint500),
+                    Expanded(
+                      flex: 1,
+                      child: SizedBox(
+                        child: TextButton(
+                          child: Text(
+                            S.of(context).dialog_button_cancel,
+                            style: getTextStyle(
+                                AppTypo.BODY16B, AppColors.Mint500),
+                          ),
+                          onPressed: () {
+                            onCancel();
+                          },
                         ),
-                        onPressed: () {
-                          onCancel();
-                        },
                       ),
                     ),
                   if (onOk != null)
-                    SizedBox(
-                      width: 100.w,
-                      child: TextButton(
-                        child: Text(
-                          S.of(context).dialog_button_ok,
-                          style: getTextStyle(
-                              AppTypo.BODY14B, AppColors.Primary500),
+                    Expanded(
+                      flex: 1,
+                      child: SizedBox(
+                        child: TextButton(
+                          child: Text(
+                            S.of(context).dialog_button_ok,
+                            style: getTextStyle(
+                                AppTypo.BODY16B, AppColors.Primary500),
+                          ),
+                          onPressed: () {
+                            onOk();
+                          },
                         ),
-                        onPressed: () {
-                          onOk();
-                        },
                       ),
                     ),
                 ],

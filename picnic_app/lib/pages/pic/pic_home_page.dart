@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/no_bookmark_celeb.dart';
 import 'package:picnic_app/components/picnic_cached_network_image.dart';
@@ -119,14 +120,15 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                 children: [
                   asyncBannerListState.when(
                     data: (data) {
-                      final width = MediaQuery.of(context).size.width;
+                      final width = getPlatformScreenSize(context).width;
                       final height = width * .5;
                       return SizedBox(
                         width: width,
                         height: height + 30,
                         child: Swiper(
                           itemBuilder: (BuildContext context, int index) {
-                            String title = data[index].getTitle();
+                            String title =
+                                data[index].title[Intl.getCurrentLocale()];
                             return Stack(
                               children: [
                                 Container(
@@ -142,7 +144,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                                 Positioned(
                                   bottom: 30,
                                   child: Container(
-                                    width: MediaQuery.of(context).size.width,
+                                    width: getPlatformScreenSize(context).width,
                                     alignment: Alignment.center,
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 4, horizontal: 8),

@@ -47,7 +47,7 @@ class _TopState extends ConsumerState<ScreenTop> {
       }
     }
     return Container(
-      height: 54.w,
+      height: 54.h,
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -140,11 +140,11 @@ class TopScreenRight extends StatelessWidget {
               child: Container(
                 alignment: Alignment.centerLeft,
                 width: 40.w,
-                height: 36.w,
+                height: 36.h,
                 child: SvgPicture.asset(
                   'assets/icons/calendar_style=line.svg',
                   width: 24.w,
-                  height: 24.w,
+                  height: 24.h,
                 ),
               ),
             ),
@@ -157,7 +157,7 @@ class TopScreenRight extends StatelessWidget {
                     image: Image.asset(
                       'assets/icons/store/star_100.png',
                       width: 24.w,
-                      height: 24.w,
+                      height: 24.h,
                     ),
                   ),
                 ],
@@ -169,7 +169,7 @@ class TopScreenRight extends StatelessWidget {
           onTap: () {
             supabase.isLogged
                 ? ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    duration: const Duration(milliseconds: 300),
+                    duration: const Duration(milliseconds: 200),
                     content: Text('로그인 되어 있습니다')))
                 : showSimpleDialog(
                     context: context,
@@ -185,11 +185,11 @@ class TopScreenRight extends StatelessWidget {
             children: [
               Container(
                 width: 24.w,
-                height: 24.w,
+                height: 24.h,
                 child: SvgPicture.asset(
                   'assets/icons/alarm_style=line.svg',
                   width: 24.w,
-                  height: 24.w,
+                  height: 24.h,
                 ),
               ),
               Positioned(

@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util.dart';
@@ -30,7 +29,7 @@ class PicnicCachedNetworkImage extends StatelessWidget {
   Widget build(BuildContext context) {
     double resolutionMultiplier = 1.0; // Default multiplier
 
-    if (kIsWeb) {
+    if (UniversalPlatform.isWeb) {
       resolutionMultiplier = webResMultiplier;
     } else if (UniversalPlatform.isAndroid) {
       resolutionMultiplier = androidResMultiplier;

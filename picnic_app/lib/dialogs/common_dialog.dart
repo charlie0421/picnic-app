@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:picnic_app/dialogs/common/cancel_button.dart';
 import 'package:picnic_app/dialogs/common/header.dart';
 import 'package:picnic_app/dialogs/common/ok_button.dart';
+import 'package:picnic_app/util.dart';
 
 Future showCommonDialog(
     {required BuildContext context,
@@ -47,7 +48,7 @@ class _CommonDialog extends State<CommonDialog> {
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(20.0))),
       child: Container(
-        width: MediaQuery.of(context).size.width * 0.7,
+        width: getPlatformScreenSize(context).width * 0.7,
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,

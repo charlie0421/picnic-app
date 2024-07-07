@@ -14,6 +14,7 @@ import 'package:picnic_app/pages/mypage/terms_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util.dart';
 
 class MyProfilePage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_myprofile';
@@ -110,7 +111,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
               onTap: () => showDialog(
                   context: context,
                   builder: (context) => LargePopupWidget(
-                        width: MediaQuery.of(context).size.width - 32.w,
+                        width: getPlatformScreenSize(context).width - 32.w,
                         content: Container(
                           padding: EdgeInsets.symmetric(
                               horizontal: 40.w, vertical: 64.w),
