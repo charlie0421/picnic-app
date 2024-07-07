@@ -209,7 +209,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   width: width,
                   height: height,
                   child: PicnicCachedNetworkImage(
-                    Key: voteModel?.main_image ?? '',
+                    imageUrl: voteModel?.main_image ?? '',
                     fit: BoxFit.cover,
                     width: width,
                     height: height,
@@ -417,8 +417,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                             borderRadius:
                                                 BorderRadius.circular(22.5.r),
                                             child: PicnicCachedNetworkImage(
-                                              Key: item.mystar_member.image ??
-                                                  '',
+                                              imageUrl:
+                                                  item.mystar_member.image ??
+                                                      '',
                                               fit: BoxFit.cover,
                                               width: 39.w,
                                               height: 39.w,

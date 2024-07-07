@@ -322,7 +322,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
               borderRadius: BorderRadius.circular(50.w),
               clipBehavior: Clip.hardEdge,
               child: PicnicCachedNetworkImage(
-                Key: userInfo.value?.avatar_url ?? '',
+                imageUrl: userInfo.value?.avatar_url ?? '',
                 fit: BoxFit.cover,
                 width: 100.w,
                 height: 100.w,

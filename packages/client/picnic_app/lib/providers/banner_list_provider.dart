@@ -17,8 +17,10 @@ class AsyncBannerList extends _$AsyncBannerList {
         .select()
         .eq('location', location)
         .order('start_at', ascending: false);
+
     List<BannerModel> bannerList =
-        List<BannerModel>.from(response.map((e) => BannerModel.fromJson(e)));
+        response.map((e) => BannerModel.fromJson(e)).toList();
+
     return bannerList;
   }
 }

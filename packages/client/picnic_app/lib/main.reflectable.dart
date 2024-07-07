@@ -857,7 +857,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
             {
               r'': (bool b) => ({id, title, thumbnail}) => b
                   ? prefix12.BannerModel(
-                      thumbnail: thumbnail, id: id, title: title)
+                      id: id, thumbnail: thumbnail, title: title)
                   : null,
               r'fromJson': (bool b) =>
                   (json) => b ? prefix12.BannerModel.fromJson(json) : null
@@ -3669,7 +3669,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
             const prefix0.Reflector(), -1, -1, -1, null, null, null, #title),
         r.ParameterMirrorImpl(
             r'thumbnail',
-            67252230,
+            134356998,
             247,
             const prefix0.Reflector(),
             -1,

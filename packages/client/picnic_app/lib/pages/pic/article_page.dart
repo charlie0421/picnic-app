@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/article/article_list.dart';
-import 'package:picnic_app/components/article/article_sort_widget.dart';
 
 class ArticlePage extends ConsumerStatefulWidget {
   final int galleryId;
@@ -29,12 +28,12 @@ class _ArticlePageState extends ConsumerState<ArticlePage> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Align(
-          alignment: Alignment.centerRight,
-          child: ArticleSortWidget(
-            galleryId: widget.galleryId,
-          ),
-        ),
+        // Align(
+        //   alignment: Alignment.centerRight,
+        //   child: ArticleSortWidget(
+        //     galleryId: widget.galleryId,
+        //   ),
+        // ),
         SizedBox(
           height: 20.w,
         ),

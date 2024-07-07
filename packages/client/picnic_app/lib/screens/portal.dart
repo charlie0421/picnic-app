@@ -81,7 +81,7 @@ class _PortalState extends ConsumerState<Portal> {
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(8.r),
                                       child: PicnicCachedNetworkImage(
-                                        Key: data.avatar_url ?? '',
+                                        imageUrl: data.avatar_url ?? '',
                                         width: 36.w,
                                         height: 36.w,
                                         fit: BoxFit.cover,

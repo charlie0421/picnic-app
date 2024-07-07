@@ -12,7 +12,7 @@ class BannerModel with _$BannerModel {
   const factory BannerModel({
     required int id,
     required Map<String, dynamic> title,
-    String? thumbnail,
+    required String thumbnail,
   }) = _BannerModel;
 
   factory BannerModel.fromJson(Map<String, dynamic> json) =>

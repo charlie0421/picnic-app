@@ -14,44 +14,73 @@ import 'package:picnic_app/models/pic/article.dart';
 import 'package:picnic_app/providers/article_list_provider.dart';
 import 'package:picnic_app/util.dart';
 
-class ArticleList extends ConsumerWidget {
+class ArticleList extends ConsumerStatefulWidget {
   final int galleryId;
 
   const ArticleList(this.galleryId, {super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(asyncArticleListProvider(galleryId)).when(
-          data: (pagingController) => Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: PagedListView<int, ArticleModel>(
-                pagingController: pagingController,
-                scrollDirection: Axis.vertical,
-                builderDelegate: PagedChildBuilderDelegate<ArticleModel>(
-                    firstPageErrorIndicatorBuilder: (context) {
-                      return ErrorView(context,
-                          error: pagingController.error.toString(),
-                          retryFunction: () => pagingController.refresh(),
-                          stackTrace: null);
-                    },
-                    firstPageProgressIndicatorBuilder: (context) {
-                      return buildLoadingOverlay();
-                    },
-                    noItemsFoundIndicatorBuilder: (context) {
-                      return ErrorView(context,
-                          error: 'No Items Found', stackTrace: null);
-                    },
-                    itemBuilder: (context, item, index) =>
-                        _buildArticle(context, ref, item)),
-              )),
-          loading: () => buildLoadingOverlay(),
-          error: (error, stackTrace) => ErrorView(context,
-              error: error.toString(), stackTrace: stackTrace),
-        );
+  ConsumerState<ArticleList> createState() => _ArticleListState();
+}
+
+class _ArticleListState extends ConsumerState<ArticleList> {
+  final PagingController<int, ArticleModel> _pagingController =
+      PagingController(firstPageKey: 1);
+
+  @override
+  void initState() {
+    super.initState();
+    _pagingController.addPageRequestListener((pageKey) {
+      ref
+          .watch(FetchArticleListProvider(
+                  page: pageKey,
+                  limit: 10,
+                  sort: 'id',
+                  order: 'ASC',
+                  galleryId: widget.galleryId)
+              .future)
+          .then((newItems) {
+        final isLastPage = newItems!.length < 10;
+        if (isLastPage) {
+          _pagingController.appendLastPage(newItems);
+        } else {
+          final nextPageKey = pageKey + 1;
+          _pagingController.appendPage(newItems, nextPageKey);
+        }
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      child: PagedListView<int, ArticleModel>(
+        pagingController: _pagingController,
+        scrollDirection: Axis.vertical,
+        builderDelegate: PagedChildBuilderDelegate<ArticleModel>(
+            firstPageErrorIndicatorBuilder: (context) {
+              return ErrorView(context,
+                  error: _pagingController.error.toString(),
+                  retryFunction: () => _pagingController.refresh(),
+                  stackTrace: null);
+            },
+            firstPageProgressIndicatorBuilder: (context) {
+              return buildLoadingOverlay();
+            },
+            noItemsFoundIndicatorBuilder: (context) {
+              return ErrorView(context,
+                  error: 'No Items Found', stackTrace: null);
+            },
+            itemBuilder: (context, item, index) =>
+                _buildArticle(context, ref, item)),
+      ),
+    );
   }
 
   Widget _buildArticle(
       BuildContext context, WidgetRef ref, ArticleModel article) {
+    logger.i('ArticleList: ${article}');
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       child: Column(
@@ -78,7 +107,7 @@ class ArticleList extends ConsumerWidget {
                 ),
               ],
             ),
-            height: 700.w,
+            height: 800.h,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

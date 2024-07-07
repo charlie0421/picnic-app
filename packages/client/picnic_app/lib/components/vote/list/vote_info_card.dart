@@ -235,7 +235,7 @@ class VoteCardColumnVertical extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(50),
                   child: PicnicCachedNetworkImage(
-                      Key: voteItem.mystar_member.image ?? '',
+                      imageUrl: voteItem.mystar_member.image ?? '',
                       width: 72.w,
                       height: 72.w),
                 ),

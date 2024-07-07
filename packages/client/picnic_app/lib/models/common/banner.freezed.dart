@@ -22,7 +22,7 @@ BannerModel _$BannerModelFromJson(Map<String, dynamic> json) {
 mixin _$BannerModel {
   int get id => throw _privateConstructorUsedError;
   Map<String, dynamic> get title => throw _privateConstructorUsedError;
-  String? get thumbnail => throw _privateConstructorUsedError;
+  String get thumbnail => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -36,7 +36,7 @@ abstract class $BannerModelCopyWith<$Res> {
           BannerModel value, $Res Function(BannerModel) then) =
       _$BannerModelCopyWithImpl<$Res, BannerModel>;
   @useResult
-  $Res call({int id, Map<String, dynamic> title, String? thumbnail});
+  $Res call({int id, Map<String, dynamic> title, String thumbnail});
 }
 
 /// @nodoc
@@ -54,7 +54,7 @@ class _$BannerModelCopyWithImpl<$Res, $Val extends BannerModel>
   $Res call({
     Object? id = null,
     Object? title = null,
-    Object? thumbnail = freezed,
+    Object? thumbnail = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -65,10 +65,10 @@ class _$BannerModelCopyWithImpl<$Res, $Val extends BannerModel>
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>,
-      thumbnail: freezed == thumbnail
+      thumbnail: null == thumbnail
           ? _value.thumbnail
           : thumbnail // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as String,
     ) as $Val);
   }
 }
@@ -81,7 +81,7 @@ abstract class _$$BannerModelImplCopyWith<$Res>
       __$$BannerModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int id, Map<String, dynamic> title, String? thumbnail});
+  $Res call({int id, Map<String, dynamic> title, String thumbnail});
 }
 
 /// @nodoc
@@ -97,7 +97,7 @@ class __$$BannerModelImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? title = null,
-    Object? thumbnail = freezed,
+    Object? thumbnail = null,
   }) {
     return _then(_$BannerModelImpl(
       id: null == id
@@ -108,10 +108,10 @@ class __$$BannerModelImplCopyWithImpl<$Res>
           ? _value._title
           : title // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>,
-      thumbnail: freezed == thumbnail
+      thumbnail: null == thumbnail
           ? _value.thumbnail
           : thumbnail // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as String,
     ));
   }
 }
@@ -122,7 +122,7 @@ class _$BannerModelImpl extends _BannerModel {
   const _$BannerModelImpl(
       {required this.id,
       required final Map<String, dynamic> title,
-      this.thumbnail})
+      required this.thumbnail})
       : _title = title,
         super._();
 
@@ -140,7 +140,7 @@ class _$BannerModelImpl extends _BannerModel {
   }
 
   @override
-  final String? thumbnail;
+  final String thumbnail;
 
   @override
   String toString() {
@@ -181,7 +181,7 @@ abstract class _BannerModel extends BannerModel {
   const factory _BannerModel(
       {required final int id,
       required final Map<String, dynamic> title,
-      final String? thumbnail}) = _$BannerModelImpl;
+      required final String thumbnail}) = _$BannerModelImpl;
   const _BannerModel._() : super._();
 
   factory _BannerModel.fromJson(Map<String, dynamic> json) =
@@ -192,7 +192,7 @@ abstract class _BannerModel extends BannerModel {
   @override
   Map<String, dynamic> get title;
   @override
-  String? get thumbnail;
+  String get thumbnail;
   @override
   @JsonKey(ignore: true)
   _$$BannerModelImplCopyWith<_$BannerModelImpl> get copyWith =>

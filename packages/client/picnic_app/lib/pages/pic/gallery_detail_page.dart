@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/chat/rooms.dart';
-import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/pages/pic/article_page.dart';
 
 class GalleryDetailPage extends ConsumerStatefulWidget {
@@ -32,49 +31,7 @@ class _GalleryDetailScreenState extends ConsumerState<GalleryDetailPage>
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-          height: 50,
-          child: TabBar(
-            unselectedLabelColor: Colors.grey,
-            controller: _tabController,
-            indicatorWeight: 1,
-            indicatorSize: TabBarIndicatorSize.tab,
-            indicatorPadding: const EdgeInsets.all(0),
-            labelStyle: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
-            unselectedLabelStyle: const TextStyle(
-              fontWeight: FontWeight.normal,
-            ),
-            tabs: [
-              Align(
-                  alignment: Alignment.center,
-                  child: Text(S.of(context).label_gallery_tab_article,
-                      style: const TextStyle(
-                        fontSize: 16,
-                      ))),
-              Align(
-                  alignment: Alignment.center,
-                  child: Text(S.of(context).label_gallery_tab_chat,
-                      style: const TextStyle(
-                        fontSize: 16,
-                      ))),
-            ],
-          ),
-        ),
-        Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            children: [
-              _buildGalleryTab(ref),
-              _buildChatTab(ref),
-            ],
-          ),
-        )
-      ],
-    );
+    return _buildGalleryTab(ref);
   }
 
   Widget _buildGalleryTab(ref) {

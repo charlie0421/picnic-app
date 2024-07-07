@@ -90,14 +90,14 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(24).r,
                       child: PicnicCachedNetworkImage(
-                        Key: selectedCelebState?.thumbnail ?? '',
+                        imageUrl: selectedCelebState?.thumbnail ?? '',
                         width: 28.w,
                         height: 28.w,
                       ),
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      selectedCelebState!.name_ko,
+                      selectedCelebState?.name_ko ?? '',
                       style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
                     ),
                     const SizedBox(width: 8),
@@ -122,6 +122,9 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                     data: (data) {
                       final width = getPlatformScreenSize(context).width;
                       final height = width * .5;
+
+                      logger.w('data: $data');
+
                       return SizedBox(
                         width: width,
                         height: height + 30,
@@ -136,7 +139,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                                   width: width,
                                   height: height,
                                   child: PicnicCachedNetworkImage(
-                                      Key: data[index].thumbnail ?? '',
+                                      imageUrl: data[index].thumbnail,
                                       width: width,
                                       height: height,
                                       fit: BoxFit.cover),
@@ -299,7 +302,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                       child: PicnicCachedNetworkImage(
                           width: 140.w,
                           height: 100.w,
-                          Key: data[index].cover ?? '',
+                          imageUrl: data[index].cover ?? '',
                           fit: BoxFit.cover),
                     ),
                   ),
@@ -471,10 +474,6 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
         .range((page - 1) * limit, page * limit - 1)
         .limit(limit)
         .count();
-
-    logger.w('response: $response');
-
-    const domain = 'https://cdn-dev.picnic.fan';
 
     final meta = {
       'totalItems': response.count,
