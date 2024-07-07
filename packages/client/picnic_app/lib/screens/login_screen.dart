@@ -18,9 +18,11 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 const optionText = Text(
   'Or',
@@ -44,301 +46,366 @@ class LoginScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final appSettingState = ref.watch(appSettingProvider);
     final appSettingNotifier = ref.read(appSettingProvider.notifier);
-
-    return Scaffold(
-      body: SafeArea(
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              Expanded(
-                  child: Swiper(
-                itemCount: 3,
-                pagination: const SwiperPagination(),
-                itemBuilder: (BuildContext context, int index) {
-                  return Container(color: Colors.grey);
-                },
-              )),
-              SizedBox(
-                height: 24.w,
-              ),
-              GestureDetector(
-                onTap: () {
-                  showModalBottomSheet(
-                      context: context,
-                      useSafeArea: false,
-                      builder: (context) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 40),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: languageMap.entries.map((entry) {
-                              return GestureDetector(
-                                onTap: () {
-                                  if (appSettingState.locale.languageCode ==
-                                      entry.key) return;
-                                  appSettingNotifier.setLocale(Locale(
-                                    entry.key,
-                                    countryMap[entry.key] ?? '',
-                                  ));
-                                  Navigator.of(context).pop();
-                                },
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  width: double.infinity,
-                                  height: 61.w,
-                                  child: Text(
-                                    entry.value,
-                                    style: getTextStyle(
-                                        AppTypo.BODY14B,
-                                        Intl.getCurrentLocale() == entry.key
-                                            ? AppColors.Grey800
-                                            : AppColors.Grey400),
+    return Container(
+        decoration: const BoxDecoration(
+          gradient: commonGradient,
+        ),
+        child: Center(
+            child: Container(
+                color: voteMainColor,
+                constraints: BoxConstraints(
+                    maxWidth: UniversalPlatform.isWeb
+                        ? Constants.webWidth
+                        : MediaQuery.of(context).size.width),
+                child: Scaffold(
+                  body: SafeArea(
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        children: [
+                          Expanded(
+                              child: Swiper(
+                            itemCount: 3,
+                            pagination: const SwiperPagination(),
+                            itemBuilder: (BuildContext context, int index) {
+                              return Container(color: Colors.grey);
+                            },
+                          )),
+                          SizedBox(
+                            height: 24.w,
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              showModalBottomSheet(
+                                  context: context,
+                                  useSafeArea: false,
+                                  builder: (context) {
+                                    return Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 40),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children:
+                                            languageMap.entries.map((entry) {
+                                          return GestureDetector(
+                                            onTap: () {
+                                              if (appSettingState
+                                                      .locale.languageCode ==
+                                                  entry.key) return;
+                                              appSettingNotifier
+                                                  .setLocale(Locale(
+                                                entry.key,
+                                                countryMap[entry.key] ?? '',
+                                              ));
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              width: double.infinity,
+                                              height: 61.w,
+                                              child: Text(
+                                                entry.value,
+                                                style: getTextStyle(
+                                                    AppTypo.BODY14B,
+                                                    Intl.getCurrentLocale() ==
+                                                            entry.key
+                                                        ? AppColors.Grey800
+                                                        : AppColors.Grey400),
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    );
+                                  });
+                            },
+                            child: Container(
+                              height: 48.h,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                    color: AppColors.Primary500, width: 1.5),
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/icons/global_style=line.svg',
+                                    colorFilter: const ColorFilter.mode(
+                                        AppColors.Primary500, BlendMode.srcIn),
+                                    width: 20.w,
+                                    height: 20.w,
+                                  ),
+                                  SizedBox(
+                                    width: 20.w,
+                                  ),
+                                  Expanded(
+                                    child: Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        languageMap[appSettingState
+                                            .locale.languageCode]!,
+                                        style: getTextStyle(
+                                            AppTypo.BODY16M, AppColors.Grey900),
+                                      ),
+                                    ),
+                                  ),
+                                  Transform.rotate(
+                                    angle: 1.57,
+                                    child: SvgPicture.asset(
+                                      'assets/icons/play_style=fill.svg',
+                                      colorFilter: const ColorFilter.mode(
+                                          AppColors.Grey900, BlendMode.srcIn),
+                                      width: 20.w,
+                                      height: 20.w,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 24.w,
+                          ),
+                          ElevatedButtonTheme(
+                            data: ElevatedButtonThemeData(
+                              style: ButtonStyle(
+                                backgroundColor: WidgetStateProperty.all(
+                                    AppColors.Primary500),
+                                foregroundColor:
+                                    WidgetStateProperty.all(AppColors.Grey00),
+                                textStyle: WidgetStateProperty.all(getTextStyle(
+                                    AppTypo.TITLE18SB, AppColors.Grey00)),
+                                shape: WidgetStateProperty.all(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                    side: const BorderSide(
+                                        color: AppColors.Mint500,
+                                        width: 1,
+                                        strokeAlign:
+                                            BorderSide.strokeAlignInside),
                                   ),
                                 ),
-                              );
-                            }).toList(),
+                              ),
+                            ),
+                            child: SizedBox(
+                              width: double.infinity,
+                              height: 48.h,
+                              child: ElevatedButton(
+                                  onPressed: () {
+                                    showModalBottomSheet(
+                                        context: context,
+                                        useSafeArea: false,
+                                        builder: (context) {
+                                          return Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 40),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                if (Platform.isIOS)
+                                                  InkWell(
+                                                      onTap: () {
+                                                        OverlayLoadingProgress
+                                                            .start(context,
+                                                                color: AppColors
+                                                                    .Primary500,
+                                                                barrierDismissible:
+                                                                    false);
+
+                                                        _nativeAppleSignIn()
+                                                            .then((value) {
+                                                          if (value) {
+                                                            ref
+                                                                .read(userInfoProvider
+                                                                    .notifier)
+                                                                .getUserProfiles()
+                                                                .then((value) {
+                                                              logger.i(value);
+                                                              OverlayLoadingProgress
+                                                                  .stop();
+
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop();
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop();
+                                                            });
+                                                          } else {
+                                                            OverlayLoadingProgress
+                                                                .stop();
+                                                          }
+                                                        });
+                                                      },
+                                                      child: Container(
+                                                        alignment:
+                                                            Alignment.center,
+                                                        width: double.infinity,
+                                                        height: 61.w,
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            Image.asset(
+                                                              'assets/icons/login/apple.png',
+                                                              width: 20.w,
+                                                              height: 20.w,
+                                                            ),
+                                                            SizedBox(
+                                                              width: 8.w,
+                                                            ),
+                                                            Text('Apple',
+                                                                style: getTextStyle(
+                                                                    AppTypo
+                                                                        .BODY14M,
+                                                                    AppColors
+                                                                        .Grey800)),
+                                                            // AppColors.Grey800)),
+                                                          ],
+                                                        ),
+                                                      )),
+                                                InkWell(
+                                                    onTap: () {
+                                                      OverlayLoadingProgress
+                                                          .start(context,
+                                                              color: AppColors
+                                                                  .Primary500,
+                                                              barrierDismissible:
+                                                                  false);
+
+                                                      _nativeGoogleSignIn()
+                                                          .then((value) {
+                                                        if (value) {
+                                                          ref
+                                                              .read(
+                                                                  userInfoProvider
+                                                                      .notifier)
+                                                              .getUserProfiles()
+                                                              .then((value) {
+                                                            logger.i(value);
+                                                            OverlayLoadingProgress
+                                                                .stop();
+
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                          });
+                                                        } else {
+                                                          OverlayLoadingProgress
+                                                              .stop();
+                                                        }
+                                                      });
+                                                    },
+                                                    child: Container(
+                                                      alignment:
+                                                          Alignment.center,
+                                                      width: double.infinity,
+                                                      height: 61.w,
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Image.asset(
+                                                            'assets/icons/login/google.png',
+                                                            width: 20.w,
+                                                            height: 20.w,
+                                                          ),
+                                                          SizedBox(
+                                                            width: 8.w,
+                                                          ),
+                                                          Text('Google',
+                                                              style: getTextStyle(
+                                                                  AppTypo
+                                                                      .BODY14M,
+                                                                  AppColors
+                                                                      .Grey800)),
+                                                        ],
+                                                      ),
+                                                    )),
+                                                InkWell(
+                                                    onTap: () async {
+                                                      OverlayLoadingProgress
+                                                          .start(context,
+                                                              color: AppColors
+                                                                  .Primary500,
+                                                              barrierDismissible:
+                                                                  false);
+                                                      _KakaoSignIn()
+                                                          .then((value) {
+                                                        if (value) {
+                                                          ref
+                                                              .read(
+                                                                  userInfoProvider
+                                                                      .notifier)
+                                                              .getUserProfiles()
+                                                              .then((value) {
+                                                            logger.i(value);
+                                                            OverlayLoadingProgress
+                                                                .stop();
+
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                          });
+                                                        } else {
+                                                          OverlayLoadingProgress
+                                                              .stop();
+                                                        }
+                                                      });
+                                                    },
+                                                    child: Container(
+                                                      alignment:
+                                                          Alignment.center,
+                                                      width: double.infinity,
+                                                      height: 61.w,
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Image.asset(
+                                                            'assets/icons/login/kakao.png',
+                                                            width: 20.w,
+                                                            height: 20.w,
+                                                          ),
+                                                          SizedBox(
+                                                            width: 8.w,
+                                                          ),
+                                                          Text('Kakao Talk',
+                                                              style: getTextStyle(
+                                                                  AppTypo
+                                                                      .BODY14M,
+                                                                  AppColors
+                                                                      .Grey800)),
+                                                        ],
+                                                      ),
+                                                    )),
+                                              ],
+                                            ),
+                                          );
+                                        });
+                                  },
+                                  child: Text(S.of(context).button_login)),
+                            ),
                           ),
-                        );
-                      });
-                },
-                child: Container(
-                  height: 48.h,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.Primary500, width: 1.5),
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SvgPicture.asset(
-                        'assets/icons/global_style=line.svg',
-                        colorFilter: const ColorFilter.mode(
-                            AppColors.Primary500, BlendMode.srcIn),
-                        width: 20.w,
-                        height: 20.w,
-                      ),
-                      SizedBox(
-                        width: 20.w,
-                      ),
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            languageMap[appSettingState.locale.languageCode]!,
-                            style: getTextStyle(
-                                AppTypo.BODY16M, AppColors.Grey900),
-                          ),
-                        ),
-                      ),
-                      Transform.rotate(
-                        angle: 1.57,
-                        child: SvgPicture.asset(
-                          'assets/icons/play_style=fill.svg',
-                          colorFilter: const ColorFilter.mode(
-                              AppColors.Grey900, BlendMode.srcIn),
-                          width: 20.w,
-                          height: 20.w,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 24.w,
-              ),
-              ElevatedButtonTheme(
-                data: ElevatedButtonThemeData(
-                  style: ButtonStyle(
-                    backgroundColor:
-                        WidgetStateProperty.all(AppColors.Primary500),
-                    foregroundColor: WidgetStateProperty.all(AppColors.Grey00),
-                    textStyle: WidgetStateProperty.all(
-                        getTextStyle(AppTypo.TITLE18SB, AppColors.Grey00)),
-                    shape: WidgetStateProperty.all(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        side: const BorderSide(
-                            color: AppColors.Mint500,
-                            width: 1,
-                            strokeAlign: BorderSide.strokeAlignInside),
+                        ],
                       ),
                     ),
                   ),
-                ),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 48.h,
-                  child: ElevatedButton(
-                      onPressed: () {
-                        showModalBottomSheet(
-                            context: context,
-                            useSafeArea: false,
-                            builder: (context) {
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 40),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    if (Platform.isIOS)
-                                      InkWell(
-                                          onTap: () {
-                                            OverlayLoadingProgress.start(
-                                                context,
-                                                color: AppColors.Primary500,
-                                                barrierDismissible: false);
-
-                                            _nativeAppleSignIn().then((value) {
-                                              if (value) {
-                                                ref
-                                                    .read(userInfoProvider
-                                                        .notifier)
-                                                    .getUserProfiles()
-                                                    .then((value) {
-                                                  logger.i(value);
-                                                  OverlayLoadingProgress.stop();
-
-                                                  Navigator.of(context).pop();
-                                                  Navigator.of(context).pop();
-                                                });
-                                              } else {
-                                                OverlayLoadingProgress.stop();
-                                              }
-                                            });
-                                          },
-                                          child: Container(
-                                            alignment: Alignment.center,
-                                            width: double.infinity,
-                                            height: 61.w,
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Image.asset(
-                                                  'assets/icons/login/apple.png',
-                                                  width: 20.w,
-                                                  height: 20.w,
-                                                ),
-                                                SizedBox(
-                                                  width: 8.w,
-                                                ),
-                                                Text('Apple',
-                                                    style: getTextStyle(
-                                                        AppTypo.BODY14M,
-                                                        AppColors.Grey800)),
-                                                // AppColors.Grey800)),
-                                              ],
-                                            ),
-                                          )),
-                                    InkWell(
-                                        onTap: () {
-                                          OverlayLoadingProgress.start(context,
-                                              color: AppColors.Primary500,
-                                              barrierDismissible: false);
-
-                                          _nativeGoogleSignIn().then((value) {
-                                            if (value) {
-                                              ref
-                                                  .read(
-                                                      userInfoProvider.notifier)
-                                                  .getUserProfiles()
-                                                  .then((value) {
-                                                logger.i(value);
-                                                OverlayLoadingProgress.stop();
-
-                                                Navigator.of(context).pop();
-                                                Navigator.of(context).pop();
-                                              });
-                                            } else {
-                                              OverlayLoadingProgress.stop();
-                                            }
-                                          });
-                                        },
-                                        child: Container(
-                                          alignment: Alignment.center,
-                                          width: double.infinity,
-                                          height: 61.w,
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Image.asset(
-                                                'assets/icons/login/google.png',
-                                                width: 20.w,
-                                                height: 20.w,
-                                              ),
-                                              SizedBox(
-                                                width: 8.w,
-                                              ),
-                                              Text('Google',
-                                                  style: getTextStyle(
-                                                      AppTypo.BODY14M,
-                                                      AppColors.Grey800)),
-                                            ],
-                                          ),
-                                        )),
-                                    InkWell(
-                                        onTap: () async {
-                                          OverlayLoadingProgress.start(context,
-                                              color: AppColors.Primary500,
-                                              barrierDismissible: false);
-                                          _KakaoSignIn().then((value) {
-                                            if (value) {
-                                              ref
-                                                  .read(
-                                                      userInfoProvider.notifier)
-                                                  .getUserProfiles()
-                                                  .then((value) {
-                                                logger.i(value);
-                                                OverlayLoadingProgress.stop();
-
-                                                Navigator.of(context).pop();
-                                                Navigator.of(context).pop();
-                                              });
-                                            } else {
-                                              OverlayLoadingProgress.stop();
-                                            }
-                                          });
-                                        },
-                                        child: Container(
-                                          alignment: Alignment.center,
-                                          width: double.infinity,
-                                          height: 61.w,
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Image.asset(
-                                                'assets/icons/login/kakao.png',
-                                                width: 20.w,
-                                                height: 20.w,
-                                              ),
-                                              SizedBox(
-                                                width: 8.w,
-                                              ),
-                                              Text('Kakao Talk',
-                                                  style: getTextStyle(
-                                                      AppTypo.BODY14M,
-                                                      AppColors.Grey800)),
-                                            ],
-                                          ),
-                                        )),
-                                  ],
-                                ),
-                              );
-                            });
-                      },
-                      child: Text(S.of(context).button_login)),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+                ))));
   }
 
   Future<bool> _nativeAppleSignIn() async {

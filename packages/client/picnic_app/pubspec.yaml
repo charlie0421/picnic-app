@@ -13,6 +13,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   shimmer: ^3.0.0
+  universal_platform:
   cupertino_icons: ^1.0.8
   flutter_cache_manager: ^3.3.2
   another_flutter_splash_screen: ^1.2.0

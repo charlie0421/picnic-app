@@ -26,7 +26,7 @@ class AppInfo extends ConsumerWidget {
               width: MediaQuery.of(context).size.width / 2,
               height: MediaQuery.of(context).size.width / 2,
               child: PicnicCachedNetworkImage(
-                imageUrl: user?.userMetadata?['avatar_url'] ?? '',
+                Key: user?.userMetadata?['avatar_url'] ?? '',
               ),
             ),
             Card(

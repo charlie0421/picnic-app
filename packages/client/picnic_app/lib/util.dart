@@ -9,6 +9,7 @@ import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 String formatCount(int number, String labelName) {
   final String viewString = Intl.getCurrentLocale() == 'ko'
@@ -62,16 +63,13 @@ String formatTimeAgo(BuildContext context, DateTime timestamp) {
   }
 }
 
-bool isTablet(BuildContext context) {
-  return MediaQuery.of(context).size.shortestSide > 600;
-}
-
-double itemPerWidth(BuildContext context) {
-  return kIsWeb
-      ? Constants.webMaxWidth / 4.5 - 10
-      : isTablet(context)
-          ? MediaQuery.of(context).size.width / 7.5 - 10
-          : MediaQuery.of(context).size.width / 4.5 - 10;
+bool isIPad(BuildContext context) {
+  if (!UniversalPlatform.isIOS) return false;
+  final Size screenSize = MediaQuery.of(context).size;
+  // Typical iPad screen size ranges
+  const double iPadSizeThreshold = 768.0; // Width in portrait mode
+  return screenSize.width >= iPadSizeThreshold ||
+      screenSize.height >= iPadSizeThreshold;
 }
 
 String formatCurrentTime() {
@@ -200,4 +198,11 @@ void copyToClipboard(BuildContext context, String text) {
       context: context,
       content: S.of(context).text_copied_address,
       onOk: () {});
+}
+
+Size getPlatformScreenSize(BuildContext context) {
+  if (UniversalPlatform.isWeb) {
+    return const Size(Constants.webWidth, Constants.webHeight);
+  }
+  return MediaQuery.of(context).size;
 }

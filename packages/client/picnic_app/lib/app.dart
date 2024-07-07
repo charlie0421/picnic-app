@@ -22,6 +22,7 @@ import 'package:picnic_app/ui/pic_theme.dart';
 import 'package:picnic_app/ui/vote_theme.dart';
 import 'package:picnic_app/util.dart';
 import 'package:screen_protector/screen_protector.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class App extends ConsumerStatefulWidget {
   const App({super.key});
@@ -107,7 +108,9 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
     final appSettingState = ref.watch(appSettingProvider);
     ScreenUtil.init(
       context,
-      designSize: const Size(375, 812),
+      designSize: UniversalPlatform.isWeb
+          ? const Size(Constants.webWidth, Constants.webHeight)
+          : const Size(375, 812),
     );
 
     return ScreenUtilInit(

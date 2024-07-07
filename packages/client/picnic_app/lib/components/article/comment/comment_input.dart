@@ -29,7 +29,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
     return Container(
       height: 60,
       padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-      width: kIsWeb ? Constants.webMaxWidth : MediaQuery.of(context).size.width,
+      width: kIsWeb ? Constants.webWidth : MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
         border: Border(
           top: BorderSide(

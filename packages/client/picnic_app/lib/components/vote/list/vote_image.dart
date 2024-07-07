@@ -23,8 +23,7 @@ class VoteImage extends StatelessWidget {
         borderRadius: BorderRadius.circular(8.r),
         child: PicnicCachedNetworkImage(
           width: 300.w,
-          imageUrl:
-              'https://cdn-dev.picnic.fan/vote/${vote.id}/${vote.main_image}',
+          Key: 'https://cdn-dev.picnic.fan/vote/${vote.id}/${vote.main_image}',
           fit: BoxFit.cover,
         ),
       ),

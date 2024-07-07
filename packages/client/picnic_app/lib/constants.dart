@@ -7,10 +7,9 @@ const picMainColor = AppColors.Primary500;
 const communityMainColor = AppColors.Sub500;
 const novelMainColor = AppColors.Point500;
 
-const kAccessTokenKey = 'ACCESS_TOKEN';
-
 class Constants {
-  static const double webMaxWidth = 600.0;
+  static const double webWidth = 600.0;
+  static const double webHeight = 1024.0;
   static const int snackBarDuration = 3;
 }
 
@@ -31,8 +30,6 @@ Map<String, String> languageMap = {
   'ja': '日本語',
   'zh': '中文',
 };
-
-int userId = 2;
 
 enum PortalType { vote, pic, community, novel, mypage }
 

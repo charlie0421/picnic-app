@@ -15,9 +15,6 @@ class AsyncRewardList extends _$AsyncRewardList {
     final response =
         await supabase.from('reward').select().order('id', ascending: true);
 
-    List<RewardModel> rewardList =
-        List<RewardModel>.from(response.map((e) => RewardModel.fromJson(e)));
-
-    return rewardList;
+    return List<RewardModel>.from(response.map((e) => RewardModel.fromJson(e)));
   }
 }

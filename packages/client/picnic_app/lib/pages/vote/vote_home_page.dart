@@ -118,15 +118,6 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         .limit(limit)
         .count();
 
-    const domain = 'https://cdn-dev.picnic.fan';
-
-    for (var element in response.data) {
-      element['vote_item'].forEach((item) {
-        item['mystar_member']['image'] =
-            '$domain/mystar/member/${item['mystar_member']['id']}/${item['mystar_member']['image']}';
-      });
-    }
-
     final meta = {
       'totalItems': response.count,
       'currentPage': page,
@@ -149,63 +140,65 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
       ),
       SizedBox(height: 16.w),
       asyncRewardListState.when(
-          data: (data) => Container(
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.only(left: 16),
-                height: 100.w,
-                child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: data.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      String title = data[index].getTitle();
+          data: (data) {
+            return Container(
+              alignment: Alignment.centerLeft,
+              padding: const EdgeInsets.only(left: 16),
+              height: 100.w,
+              child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: data.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    String title = data[index].getTitle();
 
-                      return GestureDetector(
-                        onTap: () {
-                          showRewardDialog(context, data[index]);
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.only(right: 16),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          child: Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(8.r),
-                                child: PicnicCachedNetworkImage(
-                                    imageUrl: data[index].getThumbnailUrl(),
-                                    width: 120.w,
-                                    height: 100.w,
-                                    fit: BoxFit.cover),
-                              ),
-                              Positioned(
-                                bottom: 0,
-                                child: Container(
-                                  width: 120.w,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.only(
-                                        bottomLeft: Radius.circular(8.r),
-                                        bottomRight: Radius.circular(8.r)),
-                                    color: Colors.black.withOpacity(0.5),
-                                  ),
-                                  alignment: Alignment.center,
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 4, horizontal: 8),
-                                  child: Text(
-                                    title,
-                                    style: getTextStyle(
-                                            AppTypo.BODY14R, Colors.white)
-                                        .copyWith(
-                                            overflow: TextOverflow.ellipsis),
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
+                    return GestureDetector(
+                      onTap: () {
+                        showRewardDialog(context, data[index]);
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(right: 16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8.r),
                         ),
-                      );
-                    }),
-              ),
+                        child: Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8.r),
+                              child: PicnicCachedNetworkImage(
+                                  Key: data[index].thumbnail ?? '',
+                                  width: 120.w,
+                                  height: 100.w,
+                                  fit: BoxFit.cover),
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              child: Container(
+                                width: 120.w,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.only(
+                                      bottomLeft: Radius.circular(8.r),
+                                      bottomRight: Radius.circular(8.r)),
+                                  color: Colors.black.withOpacity(0.5),
+                                ),
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 4, horizontal: 8),
+                                child: Text(
+                                  title,
+                                  style: getTextStyle(
+                                          AppTypo.BODY14R, Colors.white)
+                                      .copyWith(
+                                          overflow: TextOverflow.ellipsis),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+            );
+          },
           loading: () => Container(
                 width: double.infinity,
                 height: 100.w,
@@ -262,7 +255,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                   width: width,
                   height: height,
                   child: PicnicCachedNetworkImage(
-                      imageUrl: data[index].thumbnail ?? '',
+                      Key: data[index].thumbnail ?? '',
                       width: width,
                       height: height,
                       fit: BoxFit.cover),

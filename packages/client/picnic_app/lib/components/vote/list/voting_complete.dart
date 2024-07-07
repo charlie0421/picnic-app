@@ -96,9 +96,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
         _isSaving = false;
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             duration: const Duration(milliseconds: 300),
-            content: Text(S
-                .of(context)
-                .image_save_success)));
+            content: Text(S.of(context).image_save_success)));
       });
     });
   }
@@ -113,7 +111,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
             .findRenderObject() as RenderRepaintBoundary;
         var image = await boundary.toImage();
         ByteData? byteData =
-        await image.toByteData(format: ImageByteFormat.png);
+            await image.toByteData(format: ImageByteFormat.png);
         Uint8List pngBytes = byteData!.buffer.asUint8List();
 
         final directory = (await getApplicationDocumentsDirectory()).path;
@@ -123,13 +121,9 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
 
         final result = Platform.isIOS
             ? await appinioSocialShare.iOS
-            .shareToTwitter(S
-            .of(context)
-            .share_twitter, path)
+                .shareToTwitter(S.of(context).share_twitter, path)
             : await appinioSocialShare.android
-            .shareToTwitter(S
-            .of(context)
-            .share_twitter, path);
+                .shareToTwitter(S.of(context).share_twitter, path);
         logger.d('이미지 공유 결과: $result');
         if (result == 'ERROR_APP_NOT_AVAILABLE') {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -138,17 +132,13 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
         } else {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               duration: const Duration(milliseconds: 300),
-              content: Text(S
-                  .of(context)
-                  .share_image_success)));
+              content: Text(S.of(context).share_image_success)));
         }
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           duration: const Duration(milliseconds: 300),
-          content: Text(S
-              .of(context)
-              .share_image_fail)));
+          content: Text(S.of(context).share_image_fail)));
     } finally {
       setState(() {
         _isSaving = false;
@@ -177,18 +167,18 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
           backgroundColor: AppColors.Mint500,
           closeButton: !_isSaving
               ? GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: SvgPicture.asset(
-              'assets/icons/cancle_style=line.svg',
-              width: 24.w,
-              height: 24.w,
-              colorFilter: const ColorFilter.mode(
-                  AppColors.Grey00, BlendMode.srcIn),
-            ),
-          )
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: SvgPicture.asset(
+                    'assets/icons/cancle_style=line.svg',
+                    width: 24.w,
+                    height: 24.w,
+                    colorFilter: const ColorFilter.mode(
+                        AppColors.Grey00, BlendMode.srcIn),
+                  ),
+                )
               : null,
           content: Container(
             padding: EdgeInsets.only(
@@ -230,9 +220,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                           height: 24.w,
                         ),
                         Expanded(
-                          child: Text(S
-                              .of(context)
-                              .text_vote_complete,
+                          child: Text(S.of(context).text_vote_complete,
                               style: getTextStyle(
                                   AppTypo.TITLE18B, AppColors.Point900),
                               textAlign: TextAlign.center),
@@ -266,7 +254,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                         ClipRRect(
                           borderRadius: BorderRadius.circular(48.r),
                           child: PicnicCachedNetworkImage(
-                            imageUrl: userInfo.value?.avatar_url ?? '',
+                            Key: userInfo.value?.avatar_url ?? '',
                             width: 48.w,
                             height: 48.w,
                             fit: BoxFit.cover,
@@ -284,9 +272,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                             ),
                             SizedBox(height: 2.w),
                             Text(
-                              '${DateFormat('yyyy.MM.dd HH:mm').format(
-                                  DateTime.tryParse(widget.result['updatedAt'])!
-                                      .add(const Duration(hours: 9)))}(KST)',
+                              '${DateFormat('yyyy.MM.dd HH:mm').format(DateTime.tryParse(widget.result['updatedAt'])!.add(const Duration(hours: 9)))}(KST)',
                               style: getTextStyle(
                                   AppTypo.CAPTION12R, AppColors.Grey600),
                               overflow: TextOverflow.ellipsis,
@@ -317,9 +303,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(S
-                                .of(context)
-                                .text_this_time_vote,
+                            Text(S.of(context).text_this_time_vote,
                                 style: getTextStyle(
                                     AppTypo.CAPTION12M, AppColors.Primary500)),
                             SizedBox(width: 16.w),
@@ -364,8 +348,8 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(64.r),
                                       child: PicnicCachedNetworkImage(
-                                        imageUrl: widget.voteItemModel
-                                            .mystar_member.image ??
+                                        Key: widget.voteItemModel.mystar_member
+                                                .image ??
                                             '',
                                         width: 56.w,
                                         height: 56.w,
@@ -374,7 +358,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                     SizedBox(height: 8.w),
                                     Text(
                                       widget.voteItemModel.mystar_member
-                                          .getTitle() ??
+                                              .getTitle() ??
                                           '',
                                       style: getTextStyle(
                                           AppTypo.BODY16B, AppColors.Grey900),
@@ -389,7 +373,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                     SizedBox(height: 4.5.w),
                                     AnimatedDigitWidget(
                                         value:
-                                        widget.result['updatedVoteTotal'],
+                                            widget.result['updatedVoteTotal'],
                                         enableSeparator: true,
                                         duration: _duration,
                                         textStyle: getTextStyle(
@@ -420,27 +404,27 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                   ),
                                   Positioned(
                                       child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          AnimatedDigitWidget(
-                                              value: widget
-                                                  .result['existingVoteTotal'],
-                                              enableSeparator: true,
-                                              duration: _duration,
-                                              textStyle: getTextStyle(
-                                                  AppTypo.CAPTION12B,
-                                                  AppColors.Grey400)),
-                                          AnimatedDigitWidget(
-                                              value:
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      AnimatedDigitWidget(
+                                          value: widget
+                                              .result['existingVoteTotal'],
+                                          enableSeparator: true,
+                                          duration: _duration,
+                                          textStyle: getTextStyle(
+                                              AppTypo.CAPTION12B,
+                                              AppColors.Grey400)),
+                                      AnimatedDigitWidget(
+                                          value:
                                               widget.result['addedVoteTotal'],
-                                              enableSeparator: true,
-                                              prefix: '+',
-                                              duration: _duration,
-                                              textStyle: getTextStyle(
-                                                  AppTypo.BODY14B,
-                                                  AppColors.Primary500)),
-                                        ],
-                                      ))
+                                          enableSeparator: true,
+                                          prefix: '+',
+                                          duration: _duration,
+                                          textStyle: getTextStyle(
+                                              AppTypo.BODY14B,
+                                              AppColors.Primary500)),
+                                    ],
+                                  ))
                                 ],
                               ),
                             ),
@@ -453,59 +437,55 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                 SizedBox(height: 16.w),
                 !_isSaving
                     ? SizedBox(
-                  height: 32.w,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton(
-                          onPressed: _saveDialogAsImage,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.Primary500,
-                            shadowColor: AppColors.Primary500,
-                            padding: EdgeInsets.zero,
-                            minimumSize: Size(104.w, 32.w),
-                            maximumSize: Size(104.w, 32.w),
-                          ),
-                          child: Text(
-                              S
-                                  .of(context)
-                                  .label_button_save_vote_paper,
-                              style: getTextStyle(
-                                  AppTypo.BODY14B, AppColors.Grey00))),
-                      SizedBox(width: 16.w),
-                      ElevatedButton(
-                          onPressed: _shareDialogImage,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.Primary500,
-                            shadowColor: AppColors.Primary500,
-                            padding: EdgeInsets.zero,
-                            minimumSize: Size(104.w, 32.w),
-                            maximumSize: Size(104.w, 32.w),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(S
-                                  .of(context)
-                                  .label_button_share,
-                                  style: getTextStyle(
-                                      AppTypo.BODY14B, AppColors.Grey00)),
-                              SizedBox(width: 4.w),
-                              SvgPicture.asset(
-                                'assets/icons/twitter_style=fill.svg',
-                                width: 16.w,
-                                height: 16.w,
-                              ),
-                            ],
-                          )),
-                    ],
-                  ),
-                )
+                        height: 32.w,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                                onPressed: _saveDialogAsImage,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.Primary500,
+                                  shadowColor: AppColors.Primary500,
+                                  padding: EdgeInsets.zero,
+                                  minimumSize: Size(104.w, 32.w),
+                                  maximumSize: Size(104.w, 32.w),
+                                ),
+                                child: Text(
+                                    S.of(context).label_button_save_vote_paper,
+                                    style: getTextStyle(
+                                        AppTypo.BODY14B, AppColors.Grey00))),
+                            SizedBox(width: 16.w),
+                            ElevatedButton(
+                                onPressed: _shareDialogImage,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.Primary500,
+                                  shadowColor: AppColors.Primary500,
+                                  padding: EdgeInsets.zero,
+                                  minimumSize: Size(104.w, 32.w),
+                                  maximumSize: Size(104.w, 32.w),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(S.of(context).label_button_share,
+                                        style: getTextStyle(
+                                            AppTypo.BODY14B, AppColors.Grey00)),
+                                    SizedBox(width: 4.w),
+                                    SvgPicture.asset(
+                                      'assets/icons/twitter_style=fill.svg',
+                                      width: 16.w,
+                                      height: 16.w,
+                                    ),
+                                  ],
+                                )),
+                          ],
+                        ),
+                      )
                     : Image.asset(
-                  'assets/images/logo.png',
-                  width: 75.w,
-                  height: 57.w,
-                ),
+                        'assets/images/logo.png',
+                        width: 75.w,
+                        height: 57.w,
+                      ),
               ],
             ),
           ),
@@ -544,8 +524,7 @@ class _GradientCircularProgressIndicatorState
     _controller = AnimationController(
       vsync: this,
       duration: _duration,
-    )
-      ..forward(); // 진행 후 멈춤
+    )..forward(); // 진행 후 멈춤
 
     _animation =
         Tween<double>(begin: 0, end: widget.value).animate(_controller);
