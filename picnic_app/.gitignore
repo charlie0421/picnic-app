@@ -30,6 +30,8 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+# Except for the build/web directory
+!/build/web/
 
 # Symbolication related
 app.*.symbols
