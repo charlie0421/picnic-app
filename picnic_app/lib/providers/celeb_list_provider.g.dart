@@ -6,7 +6,7 @@ part of 'celeb_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$asyncCelebListHash() => r'ad3500bcf1b6bf65cd370fa2c5ff9b9cf1da1ea2';
+String _$asyncCelebListHash() => r'567e64b60279e5cdbd65bf7be14a6a1c3cc7bcfc';
 
 /// See also [AsyncCelebList].
 @ProviderFor(AsyncCelebList)
@@ -22,7 +22,7 @@ final asyncCelebListProvider = AutoDisposeAsyncNotifierProvider<AsyncCelebList,
 );
 
 typedef _$AsyncCelebList = AutoDisposeAsyncNotifier<List<CelebModel>?>;
-String _$asyncMyCelebListHash() => r'9dc09a9876c396c3500f35e5ffc8ce901780d690';
+String _$asyncMyCelebListHash() => r'09e9a523490f4f825a97eb4d756ea3d18a757643';
 
 /// See also [AsyncMyCelebList].
 @ProviderFor(AsyncMyCelebList)

@@ -11,9 +11,11 @@ import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/screens/login_screen.dart';
 import 'package:picnic_app/screens/mypage_screen.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class Portal extends ConsumerStatefulWidget {
   static const String routeName = '/landing';
@@ -36,93 +38,106 @@ class _PortalState extends ConsumerState<Portal> {
       return value.currentScreen;
     }));
     final userInfo = ref.watch(userInfoProvider);
-
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      drawer: const Drawer(
-        width: double.infinity,
-        child: MyPageScreen(),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: commonGradient,
       ),
-      appBar: AppBar(
-        toolbarHeight: ref.watch(
-                navigationInfoProvider.select((value) => value.showTopMenu))
-            ? 56.w
-            : 0,
-        leading: Container(
-          width: 36.w,
-          height: 36.w,
-          alignment: Alignment.center,
-          child: Builder(
-            builder: (context) => supabase.isLogged
-                ? userInfo.when(
-                    data: (data) => data != null
-                        ? GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () {
-                              Scaffold.of(context).openDrawer();
-                            },
-                            child: Container(
-                              width: 36.w,
-                              height: 36.w,
-                              alignment: Alignment.center,
-                              child: ClipRRect(
+      child: Center(
+        child: Container(
+          color: voteMainColor,
+          constraints: BoxConstraints(
+              maxWidth: UniversalPlatform.isWeb
+                  ? Constants.webWidth
+                  : MediaQuery.of(context).size.width),
+          child: Scaffold(
+            resizeToAvoidBottomInset: false,
+            drawer: const Drawer(
+              width: double.infinity,
+              child: MyPageScreen(),
+            ),
+            appBar: AppBar(
+              toolbarHeight: ref.watch(navigationInfoProvider
+                      .select((value) => value.showTopMenu))
+                  ? 56.w
+                  : 0,
+              leading: Container(
+                width: 36.w,
+                height: 36.w,
+                alignment: Alignment.center,
+                child: Builder(
+                  builder: (context) => supabase.isLogged
+                      ? userInfo.when(
+                          data: (data) => data != null
+                              ? GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () {
+                                    Scaffold.of(context).openDrawer();
+                                  },
+                                  child: Container(
+                                    width: 36.w,
+                                    height: 36.w,
+                                    alignment: Alignment.center,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      child: PicnicCachedNetworkImage(
+                                        Key: data.avatar_url ?? '',
+                                        width: 36.w,
+                                        height: 36.w,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : const DefaultAvatar(),
+                          error: (error, stackTrace) => const Icon(Icons.error),
+                          loading: () => SizedBox(
+                            width: 36.w,
+                            height: 36.w,
+                            child: ClipRRect(
                                 borderRadius: BorderRadius.circular(8.r),
-                                child: PicnicCachedNetworkImage(
-                                  imageUrl: data.avatar_url ?? '',
-                                  width: 36.w,
-                                  height: 36.w,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                          )
-                        : const DefaultAvatar(),
-                    error: (error, stackTrace) => const Icon(Icons.error),
-                    loading: () => SizedBox(
-                      width: 36.w,
-                      height: 36.w,
-                      child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8.r),
-                          child: buildPlaceholderImage()),
-                    ),
-                  )
-                : GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () =>
-                        Navigator.of(context).pushNamed(LoginScreen.routeName),
-                    child: const DefaultAvatar(),
-                  ),
-          ),
-        ),
-        leadingWidth: 52.w,
-        titleSpacing: 0,
-        title: SizedBox(
-          height: 26.w,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: [
-              SizedBox(
+                                child: buildPlaceholderImage()),
+                          ),
+                        )
+                      : GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => Navigator.of(context)
+                              .pushNamed(LoginScreen.routeName),
+                          child: const DefaultAvatar(),
+                        ),
+                ),
+              ),
+              leadingWidth: 52.w,
+              titleSpacing: 0,
+              title: SizedBox(
                 height: 26.w,
-                width: MediaQuery.of(context).size.width,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
-                  children: const [
-                    PortalMenuItem(portalType: PortalType.vote),
-                    PortalMenuItem(portalType: PortalType.pic),
-                    PortalMenuItem(portalType: PortalType.community),
-                    PortalMenuItem(portalType: PortalType.novel),
+                  children: [
+                    SizedBox(
+                      height: 26.w,
+                      width: MediaQuery.of(context).size.width,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: const [
+                          PortalMenuItem(portalType: PortalType.vote),
+                          PortalMenuItem(portalType: PortalType.pic),
+                          PortalMenuItem(portalType: PortalType.community),
+                          PortalMenuItem(portalType: PortalType.novel),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ],
+            ),
+            body: Column(
+              children: [
+                const ScreenTop(),
+                Expanded(child: currentScreen),
+              ],
+            ),
           ),
         ),
-      ),
-      body: Column(
-        children: [
-          const ScreenTop(),
-          Expanded(child: currentScreen),
-        ],
       ),
     );
   }

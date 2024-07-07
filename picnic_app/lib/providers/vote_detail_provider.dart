@@ -20,11 +20,7 @@ class AsyncVoteDetail extends _$AsyncVoteDetail {
           .eq('id', voteId)
           .single();
 
-      final voteModel = VoteModel.fromJson(response).copyWith(
-          main_image:
-              'https://cdn-dev.picnic.fan/vote/$voteId/${response['main_image']}');
-
-      return voteModel;
+      return VoteModel.fromJson(response);
     } catch (e, s) {
       logger.e('Failed to load vote detail: $e');
       logger.e('Failed to load vote detail: $s');
@@ -50,13 +46,6 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
 
       List<VoteItemModel> voteItemList = List<VoteItemModel>.from(
           response.map((e) => VoteItemModel.fromJson(e)));
-
-      for (var i = 0; i < voteItemList.length; i++) {
-        voteItemList[i] = voteItemList[i].copyWith(
-            mystar_member: voteItemList[i].mystar_member.copyWith(
-                image:
-                    'https://cdn-dev.picnic.fan/mystar/member/${voteItemList[i].mystar_member.id}/${voteItemList[i].mystar_member.image}'));
-      }
 
       state = AsyncValue.data(voteItemList);
 

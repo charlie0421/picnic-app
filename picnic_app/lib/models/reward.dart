@@ -31,14 +31,6 @@ class RewardModel with _$RewardModel {
     }
   }
 
-  String getThumbnailUrl() {
-    return 'https://cdn-dev.picnic.fan/reward/$id/$thumbnail';
-  }
-
-  getImageUrl(String key, int index) {
-    return 'https://cdn-dev.picnic.fan/reward/$id/${key}';
-  }
-
   factory RewardModel.fromJson(Map<String, dynamic> json) =>
       _$RewardModelFromJson(json);
 }

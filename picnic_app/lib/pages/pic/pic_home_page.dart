@@ -89,7 +89,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(24).r,
                       child: PicnicCachedNetworkImage(
-                        imageUrl: selectedCelebState?.thumbnail ?? '',
+                        Key: selectedCelebState?.thumbnail ?? '',
                         width: 28.w,
                         height: 28.w,
                       ),
@@ -134,7 +134,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                                   width: width,
                                   height: height,
                                   child: PicnicCachedNetworkImage(
-                                      imageUrl: data[index].thumbnail ?? '',
+                                      Key: data[index].thumbnail ?? '',
                                       width: width,
                                       height: height,
                                       fit: BoxFit.cover),
@@ -297,7 +297,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                       child: PicnicCachedNetworkImage(
                           width: 140.w,
                           height: 100.w,
-                          imageUrl: data[index].cover ?? '',
+                          Key: data[index].cover ?? '',
                           fit: BoxFit.cover),
                     ),
                   ),

@@ -6,7 +6,7 @@ part of 'policy_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$asyncPolicyHash() => r'f16ddb41409222dc2a924c6ee1e2c7b1b4ca92c4';
+String _$asyncPolicyHash() => r'4ebc20ed8352cdaf95e0be477d1f147da3aab8f7';
 
 /// Copied from Dart SDK
 class _SystemHash {

@@ -96,9 +96,8 @@ class _CommentItemState extends ConsumerState<CommentItem>
         child: Container(
           padding: const EdgeInsets.only(left: 20),
           margin: const EdgeInsets.only(bottom: 20),
-          width: kIsWeb
-              ? Constants.webMaxWidth
-              : MediaQuery.of(context).size.width,
+          width:
+              kIsWeb ? Constants.webWidth : MediaQuery.of(context).size.width,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

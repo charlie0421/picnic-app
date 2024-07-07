@@ -89,7 +89,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
                           width: double.infinity,
                           height: 215.w,
                           child: PicnicCachedNetworkImage(
-                            imageUrl: gallery.getCdnUrl(gallery.cover ?? ''),
+                            Key: gallery.getCdnUrl(gallery.cover ?? ''),
                             width: 361.w,
                             height: 215.w,
                             fit: BoxFit.cover,
