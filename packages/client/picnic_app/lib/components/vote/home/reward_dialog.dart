@@ -65,8 +65,8 @@ class _RewardDialogState extends State<RewardDialog> {
     return Stack(
       children: [
         SizedBox(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.width,
+          width: getPlatformScreenSize(context).width,
+          height: getPlatformScreenSize(context).width,
           child: ShaderMask(
             shaderCallback: (rect) {
               return const LinearGradient(

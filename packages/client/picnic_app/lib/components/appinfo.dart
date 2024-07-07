@@ -5,6 +5,7 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/platform_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/util.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AppInfo extends ConsumerWidget {
@@ -23,8 +24,8 @@ class AppInfo extends ConsumerWidget {
         return ListView(
           children: [
             SizedBox(
-              width: MediaQuery.of(context).size.width / 2,
-              height: MediaQuery.of(context).size.width / 2,
+              width: getPlatformScreenSize(context).width / 2,
+              height: getPlatformScreenSize(context).width / 2,
               child: PicnicCachedNetworkImage(
                 Key: user?.userMetadata?['avatar_url'] ?? '',
               ),

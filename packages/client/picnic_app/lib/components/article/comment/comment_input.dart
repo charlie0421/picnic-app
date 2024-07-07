@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,6 +8,7 @@ import 'package:picnic_app/models/pic/comment.dart';
 import 'package:picnic_app/providers/article_list_provider.dart';
 import 'package:picnic_app/providers/comment_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util.dart';
 
 class CommentInput extends ConsumerStatefulWidget {
   const CommentInput(
@@ -29,7 +29,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
     return Container(
       height: 60,
       padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-      width: kIsWeb ? Constants.webWidth : MediaQuery.of(context).size.width,
+      width: getPlatformScreenSize(context).width,
       decoration: BoxDecoration(
         border: Border(
           top: BorderSide(

@@ -15,7 +15,6 @@ import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
-import 'package:universal_platform/universal_platform.dart';
 
 class Portal extends ConsumerStatefulWidget {
   static const String routeName = '/landing';
@@ -46,9 +45,11 @@ class _PortalState extends ConsumerState<Portal> {
         child: Container(
           color: voteMainColor,
           constraints: BoxConstraints(
-              maxWidth: UniversalPlatform.isWeb
-                  ? Constants.webWidth
-                  : MediaQuery.of(context).size.width),
+            maxWidth: getPlatformScreenSize(context).width,
+            minWidth: getPlatformScreenSize(context).width,
+            minHeight: getPlatformScreenSize(context).height,
+            // maxHeight: getPlatformScreenSize(context).height
+          ),
           child: Scaffold(
             resizeToAvoidBottomInset: false,
             drawer: const Drawer(
@@ -58,7 +59,7 @@ class _PortalState extends ConsumerState<Portal> {
             appBar: AppBar(
               toolbarHeight: ref.watch(navigationInfoProvider
                       .select((value) => value.showTopMenu))
-                  ? 56.w
+                  ? 56.h
                   : 0,
               leading: Container(
                 width: 36.w,
@@ -115,7 +116,7 @@ class _PortalState extends ConsumerState<Portal> {
                   children: [
                     SizedBox(
                       height: 26.w,
-                      width: MediaQuery.of(context).size.width,
+                      width: getPlatformScreenSize(context).width,
                       child: ListView(
                         scrollDirection: Axis.horizontal,
                         children: const [

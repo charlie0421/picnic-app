@@ -71,12 +71,13 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyA4ycAYa1PQYtUZEmIvF3NkOh8YMKahh1o',
-    appId: '1:853406219989:ios:7140637e45f4e32dbcac5c',
+    appId: '1:853406219989:ios:52e09030672f28c0bcac5c',
     messagingSenderId: '853406219989',
     projectId: 'picnic-423500',
     storageBucket: 'picnic-423500.appspot.com',
     androidClientId: '853406219989-8ji54q3mci0tqvin09aigsghk5vo4t0i.apps.googleusercontent.com',
-    iosBundleId: 'com.example.celabApp',
+    iosClientId: '853406219989-56cu5ck4pc60flpsur76hil5v8bj23fs.apps.googleusercontent.com',
+    iosBundleId: 'io.iconcasting.picnic.mac',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

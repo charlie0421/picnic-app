@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -7,9 +6,9 @@ import 'package:picnic_app/components/article/comment/comment_contents.dart';
 import 'package:picnic_app/components/article/comment/comment_header.dart';
 import 'package:picnic_app/components/article/comment/comment_user.dart';
 import 'package:picnic_app/components/article/comment/report_popup_menu.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/pic/comment.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util.dart';
 
 class CommentItem extends ConsumerStatefulWidget {
   const CommentItem({
@@ -96,8 +95,7 @@ class _CommentItemState extends ConsumerState<CommentItem>
         child: Container(
           padding: const EdgeInsets.only(left: 20),
           margin: const EdgeInsets.only(bottom: 20),
-          width:
-              kIsWeb ? Constants.webWidth : MediaQuery.of(context).size.width,
+          width: getPlatformScreenSize(context).width,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

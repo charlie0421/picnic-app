@@ -18,6 +18,7 @@ import 'package:picnic_app/screens/login_screen.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
@@ -198,7 +199,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   }
 
   Widget _buildVoteInfo(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    final width = getPlatformScreenSize(context).width;
     final height = width * 0.5;
     return ref.watch(asyncVoteDetailProvider(voteId: widget.voteId)).when(
           data: (voteModel) {
@@ -215,7 +216,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   ),
                 ),
                 SizedBox(
-                  height: 36.w,
+                  height: 36.h,
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 57).r,
@@ -223,10 +224,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                       title: voteModel?.title[Intl.getCurrentLocale()] ?? ''),
                 ),
                 SizedBox(
-                  height: 12.w,
+                  height: 12.h,
                 ),
                 SizedBox(
-                  height: 18.w,
+                  height: 18.h,
                   child: Text.rich(
                     TextSpan(children: [
                       TextSpan(
@@ -251,17 +252,17 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   ),
                 ),
                 SizedBox(
-                  height: 26.w,
+                  height: 26.h,
                 ),
                 SizedBox(
-                    height: 21.w,
+                    height: 21.h,
                     child: Text(
                       S.of(context).text_vote_rank_in_reward,
                       style:
                           getTextStyle(AppTypo.BODY14B, AppColors.Primary500),
                     )),
                 SizedBox(
-                  height: 4.w,
+                  height: 4.h,
                 ),
                 voteModel?.reward != null
                     ? Column(
@@ -283,7 +284,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                       )
                     : const SizedBox.shrink(),
                 SizedBox(
-                  height: 16.w,
+                  height: 16.h,
                 ),
               ],
             );

@@ -33,10 +33,8 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  if (!kIsWeb) {
-    if (isMobile()) {
-      await initializeWidgetsAndDeviceOrientation(widgetsBinding);
-    }
+  if (isMobile()) {
+    await initializeWidgetsAndDeviceOrientation(widgetsBinding);
   }
 
   initializeReflectable();

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -65,7 +64,7 @@ String formatTimeAgo(BuildContext context, DateTime timestamp) {
 
 bool isIPad(BuildContext context) {
   if (!UniversalPlatform.isIOS) return false;
-  final Size screenSize = MediaQuery.of(context).size;
+  final Size screenSize = getPlatformScreenSize(context);
   // Typical iPad screen size ranges
   const double iPadSizeThreshold = 768.0; // Width in portrait mode
   return screenSize.width >= iPadSizeThreshold ||
@@ -88,10 +87,6 @@ Color getComplementaryColor(Color color) {
   return Color.fromARGB(255, red, green, blue);
 }
 
-bool isWeb() {
-  return kIsWeb;
-}
-
 bool isIOS() {
   return Platform.isIOS;
 }
@@ -101,7 +96,7 @@ bool isAndroid() {
 }
 
 bool isMobile() {
-  if (kIsWeb) {
+  if (UniversalPlatform.isWeb) {
     return false;
   } else {
     try {
@@ -132,7 +127,7 @@ void showOverlayToast(BuildContext context, Widget child) {
   OverlayEntry overlayEntry = OverlayEntry(
     builder: (context) => Center(
       child: Container(
-        width: MediaQuery.of(context).size.width * 0.5,
+        width: getPlatformScreenSize(context).width * 0.5,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: AppColors.Grey100,

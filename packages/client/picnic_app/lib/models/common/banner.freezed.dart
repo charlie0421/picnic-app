@@ -21,10 +21,7 @@ BannerModel _$BannerModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$BannerModel {
   int get id => throw _privateConstructorUsedError;
-  String get title_ko => throw _privateConstructorUsedError;
-  String get title_en => throw _privateConstructorUsedError;
-  String get title_ja => throw _privateConstructorUsedError;
-  String get title_zh => throw _privateConstructorUsedError;
+  Map<String, dynamic> get title => throw _privateConstructorUsedError;
   String? get thumbnail => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -39,13 +36,7 @@ abstract class $BannerModelCopyWith<$Res> {
           BannerModel value, $Res Function(BannerModel) then) =
       _$BannerModelCopyWithImpl<$Res, BannerModel>;
   @useResult
-  $Res call(
-      {int id,
-      String title_ko,
-      String title_en,
-      String title_ja,
-      String title_zh,
-      String? thumbnail});
+  $Res call({int id, Map<String, dynamic> title, String? thumbnail});
 }
 
 /// @nodoc
@@ -62,10 +53,7 @@ class _$BannerModelCopyWithImpl<$Res, $Val extends BannerModel>
   @override
   $Res call({
     Object? id = null,
-    Object? title_ko = null,
-    Object? title_en = null,
-    Object? title_ja = null,
-    Object? title_zh = null,
+    Object? title = null,
     Object? thumbnail = freezed,
   }) {
     return _then(_value.copyWith(
@@ -73,22 +61,10 @@ class _$BannerModelCopyWithImpl<$Res, $Val extends BannerModel>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      title_ko: null == title_ko
-          ? _value.title_ko
-          : title_ko // ignore: cast_nullable_to_non_nullable
-              as String,
-      title_en: null == title_en
-          ? _value.title_en
-          : title_en // ignore: cast_nullable_to_non_nullable
-              as String,
-      title_ja: null == title_ja
-          ? _value.title_ja
-          : title_ja // ignore: cast_nullable_to_non_nullable
-              as String,
-      title_zh: null == title_zh
-          ? _value.title_zh
-          : title_zh // ignore: cast_nullable_to_non_nullable
-              as String,
+      title: null == title
+          ? _value.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>,
       thumbnail: freezed == thumbnail
           ? _value.thumbnail
           : thumbnail // ignore: cast_nullable_to_non_nullable
@@ -105,13 +81,7 @@ abstract class _$$BannerModelImplCopyWith<$Res>
       __$$BannerModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {int id,
-      String title_ko,
-      String title_en,
-      String title_ja,
-      String title_zh,
-      String? thumbnail});
+  $Res call({int id, Map<String, dynamic> title, String? thumbnail});
 }
 
 /// @nodoc
@@ -126,10 +96,7 @@ class __$$BannerModelImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? title_ko = null,
-    Object? title_en = null,
-    Object? title_ja = null,
-    Object? title_zh = null,
+    Object? title = null,
     Object? thumbnail = freezed,
   }) {
     return _then(_$BannerModelImpl(
@@ -137,22 +104,10 @@ class __$$BannerModelImplCopyWithImpl<$Res>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      title_ko: null == title_ko
-          ? _value.title_ko
-          : title_ko // ignore: cast_nullable_to_non_nullable
-              as String,
-      title_en: null == title_en
-          ? _value.title_en
-          : title_en // ignore: cast_nullable_to_non_nullable
-              as String,
-      title_ja: null == title_ja
-          ? _value.title_ja
-          : title_ja // ignore: cast_nullable_to_non_nullable
-              as String,
-      title_zh: null == title_zh
-          ? _value.title_zh
-          : title_zh // ignore: cast_nullable_to_non_nullable
-              as String,
+      title: null == title
+          ? _value._title
+          : title // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>,
       thumbnail: freezed == thumbnail
           ? _value.thumbnail
           : thumbnail // ignore: cast_nullable_to_non_nullable
@@ -166,32 +121,30 @@ class __$$BannerModelImplCopyWithImpl<$Res>
 class _$BannerModelImpl extends _BannerModel {
   const _$BannerModelImpl(
       {required this.id,
-      required this.title_ko,
-      required this.title_en,
-      required this.title_ja,
-      required this.title_zh,
+      required final Map<String, dynamic> title,
       this.thumbnail})
-      : super._();
+      : _title = title,
+        super._();
 
   factory _$BannerModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$BannerModelImplFromJson(json);
 
   @override
   final int id;
+  final Map<String, dynamic> _title;
   @override
-  final String title_ko;
-  @override
-  final String title_en;
-  @override
-  final String title_ja;
-  @override
-  final String title_zh;
+  Map<String, dynamic> get title {
+    if (_title is EqualUnmodifiableMapView) return _title;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_title);
+  }
+
   @override
   final String? thumbnail;
 
   @override
   String toString() {
-    return 'BannerModel(id: $id, title_ko: $title_ko, title_en: $title_en, title_ja: $title_ja, title_zh: $title_zh, thumbnail: $thumbnail)';
+    return 'BannerModel(id: $id, title: $title, thumbnail: $thumbnail)';
   }
 
   @override
@@ -200,14 +153,7 @@ class _$BannerModelImpl extends _BannerModel {
         (other.runtimeType == runtimeType &&
             other is _$BannerModelImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.title_ko, title_ko) ||
-                other.title_ko == title_ko) &&
-            (identical(other.title_en, title_en) ||
-                other.title_en == title_en) &&
-            (identical(other.title_ja, title_ja) ||
-                other.title_ja == title_ja) &&
-            (identical(other.title_zh, title_zh) ||
-                other.title_zh == title_zh) &&
+            const DeepCollectionEquality().equals(other._title, _title) &&
             (identical(other.thumbnail, thumbnail) ||
                 other.thumbnail == thumbnail));
   }
@@ -215,7 +161,7 @@ class _$BannerModelImpl extends _BannerModel {
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
-      runtimeType, id, title_ko, title_en, title_ja, title_zh, thumbnail);
+      runtimeType, id, const DeepCollectionEquality().hash(_title), thumbnail);
 
   @JsonKey(ignore: true)
   @override
@@ -234,10 +180,7 @@ class _$BannerModelImpl extends _BannerModel {
 abstract class _BannerModel extends BannerModel {
   const factory _BannerModel(
       {required final int id,
-      required final String title_ko,
-      required final String title_en,
-      required final String title_ja,
-      required final String title_zh,
+      required final Map<String, dynamic> title,
       final String? thumbnail}) = _$BannerModelImpl;
   const _BannerModel._() : super._();
 
@@ -247,13 +190,7 @@ abstract class _BannerModel extends BannerModel {
   @override
   int get id;
   @override
-  String get title_ko;
-  @override
-  String get title_en;
-  @override
-  String get title_ja;
-  @override
-  String get title_zh;
+  Map<String, dynamic> get title;
   @override
   String? get thumbnail;
   @override

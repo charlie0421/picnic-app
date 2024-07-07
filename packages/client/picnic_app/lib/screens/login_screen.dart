@@ -20,6 +20,7 @@ import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -56,7 +57,7 @@ class LoginScreen extends ConsumerWidget {
                 constraints: BoxConstraints(
                     maxWidth: UniversalPlatform.isWeb
                         ? Constants.webWidth
-                        : MediaQuery.of(context).size.width),
+                        : getPlatformScreenSize(context).width),
                 child: Scaffold(
                   body: SafeArea(
                     child: Container(

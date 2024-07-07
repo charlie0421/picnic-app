@@ -8,8 +8,8 @@ const communityMainColor = AppColors.Sub500;
 const novelMainColor = AppColors.Point500;
 
 class Constants {
-  static const double webWidth = 600.0;
-  static const double webHeight = 1024.0;
+  static const double webWidth = 600;
+  static const double webHeight = 1024;
   static const int snackBarDuration = 3;
 }
 

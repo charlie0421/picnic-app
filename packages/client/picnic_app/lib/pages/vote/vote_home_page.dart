@@ -239,15 +239,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
       child: asyncBannerListState.when(
         data: (data) => Swiper(
           itemBuilder: (BuildContext context, int index) {
-            String title = '';
-            if (Intl.getCurrentLocale() == 'ko') {
-              title = data[index].title_ko;
-            } else if (Intl.getCurrentLocale() == 'en')
-              title = data[index].title_en;
-            else if (Intl.getCurrentLocale() == 'ja')
-              title = data[index].title_ja;
-            else if (Intl.getCurrentLocale() == 'zh')
-              title = data[index].title_zh;
+            String title = data[index].title[Intl.getCurrentLocale()];
             return Stack(
               children: [
                 Container(

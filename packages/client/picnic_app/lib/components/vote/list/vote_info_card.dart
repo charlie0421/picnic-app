@@ -125,15 +125,15 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      VoteCardColumn(
+                      VoteCardColumnVertical(
                           rank: 2,
                           voteItem: no2!,
                           opacityAnimation: _opacityAnimation),
-                      VoteCardColumn(
+                      VoteCardColumnVertical(
                           rank: 1,
                           voteItem: no1!,
                           opacityAnimation: _opacityAnimation),
-                      VoteCardColumn(
+                      VoteCardColumnVertical(
                           rank: 3,
                           voteItem: no3!,
                           opacityAnimation: _opacityAnimation),
@@ -152,8 +152,8 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   }
 }
 
-class VoteCardColumn extends StatelessWidget {
-  const VoteCardColumn({
+class VoteCardColumnVertical extends StatelessWidget {
+  const VoteCardColumnVertical({
     super.key,
     required this.voteItem,
     required this.rank,
@@ -173,7 +173,6 @@ class VoteCardColumn extends StatelessWidget {
         : rank == 2
             ? 104
             : 92;
-    final imageBottomMargin = barHeight - 40;
     return Stack(
       alignment: Alignment.center,
       clipBehavior: Clip.none,
@@ -183,14 +182,21 @@ class VoteCardColumn extends StatelessWidget {
           height: barHeight.w,
           child: Container(
             width: 80.w,
-            height: 100.w,
+            height: 160.h,
+          ),
+        ),
+        Positioned(
+          height: barHeight.h,
+          child: Container(
+            width: 80.w,
+            height: 100.h,
             decoration: const BoxDecoration(
               gradient: commonGradient,
             ),
           ),
         ),
         Positioned(
-          bottom: barHeight.w + 50,
+          bottom: barHeight.h + 40.h,
           child: FadeTransition(
             opacity: opacityAnimation,
             child: Text(
@@ -201,7 +207,7 @@ class VoteCardColumn extends StatelessWidget {
           ),
         ),
         Positioned(
-          bottom: imageBottomMargin.w,
+          bottom: barHeight.h - 40.h,
           child: Container(
             width: 80.w,
             height: 80.w,
@@ -238,7 +244,7 @@ class VoteCardColumn extends StatelessWidget {
           ),
         ),
         Positioned(
-          bottom: imageBottomMargin.w - 40.w,
+          bottom: barHeight.h - 80.h,
           child: FadeTransition(
             opacity: opacityAnimation,
             child: Column(
@@ -330,7 +336,6 @@ class _VoteInfoCardHorizontalState extends ConsumerState<PicVoteInfoCard>
   }
 
   @override
-  @override
   Widget build(BuildContext context) {
     final List<ArtistVoteItemModel>? items = widget.vote.artist_vote_item;
     final no1 = items?[0];
@@ -339,15 +344,9 @@ class _VoteInfoCardHorizontalState extends ConsumerState<PicVoteInfoCard>
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () {
-        // final navigationInfoNotifier =
-        //     ref.read(navigationInfoProvider.notifier);
-        // navigationInfoNotifier
-        //     .setCurrentPage(VoteDetailPage(voteId: widget.vote.id));
-        // navigationInfoNotifier.hidePortal();
-      },
+      onTap: () {},
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16).r,
+        padding: const EdgeInsets.symmetric(horizontal: 16).w,
         margin: const EdgeInsets.only(bottom: 32).r,
         child: Column(
           children: [
@@ -357,11 +356,11 @@ class _VoteInfoCardHorizontalState extends ConsumerState<PicVoteInfoCard>
               onRefresh: _restartAnimation,
             ),
             SizedBox(
-              height: 24.w,
+              height: 24.h,
             ),
             Container(
               width: double.infinity,
-              height: 220.w,
+              height: 220.h,
               padding:
                   const EdgeInsets.only(left: 0, right: 18, top: 16, bottom: 16)
                       .r,
@@ -431,16 +430,20 @@ class VoteCardColumnHorizontal extends StatelessWidget {
         : rank == 2
             ? 200.w
             : 160.w;
-    final imageLeftMargin = barWidth - 20.w;
     return Stack(
-      alignment: Alignment.centerLeft,
       clipBehavior: Clip.none,
       children: [
         Container(
           color: AppColors.Grey00,
+          width: double.infinity,
+          child: Container(
+            width: barWidth.w,
+            height: 50.w,
+          ),
+        ),
+        Positioned(
           width: barWidth,
           child: Container(
-            alignment: Alignment.centerLeft,
             width: barWidth.w,
             height: 50.w,
             decoration: const BoxDecoration(
@@ -449,54 +452,16 @@ class VoteCardColumnHorizontal extends StatelessWidget {
           ),
         ),
         Positioned(
-          left: barWidth + 40.w,
+          left: barWidth + 50.w,
           height: 50.w,
           child: Align(
-            alignment: Alignment.center,
+            alignment: Alignment.centerRight,
             child: FadeTransition(
               opacity: opacityAnimation,
               child: Text(
                 Intl.message('text_vote_rank', args: [rank]).toString(),
                 style: getTextStyle(AppTypo.CAPTION12B, AppColors.Point900),
                 textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          left: imageLeftMargin,
-          child: Container(
-            width: 50.w,
-            height: 50.w,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              gradient: rank == 1
-                  ? goldGradient
-                  : rank == 2
-                      ? silverGradient
-                      : bronzeGradient,
-              borderRadius: BorderRadius.circular(50),
-            ),
-            child: Container(
-              width: 42.w,
-              height: 42.w,
-              decoration: BoxDecoration(
-                color: AppColors.Grey200,
-                borderRadius: BorderRadius.circular(50),
-                border: Border.all(
-                  color: AppColors.Grey00,
-                  width: 1.w,
-                ),
-              ),
-              child: FadeTransition(
-                opacity: opacityAnimation,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(50),
-                  // child: PicnicCachedNetworkImage(
-                  //     imageUrl: voteItem.mystar_member.image ?? '',
-                  //     width: 36.w,
-                  //     height: 36.w),
-                ),
               ),
             ),
           ),
@@ -526,6 +491,42 @@ class VoteCardColumnHorizontal extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+        ),
+        Positioned(
+          left: barWidth - 25.w,
+          child: Container(
+            width: 50.w,
+            height: 50.w,
+            alignment: Alignment.center,
+            padding: const EdgeInsets.all(2),
+            decoration: BoxDecoration(
+              gradient: rank == 1
+                  ? goldGradient
+                  : rank == 2
+                      ? silverGradient
+                      : bronzeGradient,
+              borderRadius: BorderRadius.circular(50),
+            ),
+            child: Container(
+              width: 42.w,
+              height: 42.w,
+              alignment: Alignment.centerRight,
+              decoration: BoxDecoration(
+                color: AppColors.Grey200,
+                borderRadius: BorderRadius.circular(50),
+                border: Border.all(
+                  color: AppColors.Grey00,
+                  width: 1.w,
+                ),
+              ),
+              child: FadeTransition(
+                opacity: opacityAnimation,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(50),
+                ),
+              ),
             ),
           ),
         ),

@@ -69,7 +69,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
     });
 
     return SizedBox(
-      height: 18.w,
+      height: 18.h,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
@@ -97,7 +97,8 @@ class _CountdownTimerState extends State<CountdownTimer> {
   Widget _buildTimeCircle(String time) {
     return Container(
       width: 18.w,
-      height: 18.w,
+      height: 18.h,
+      alignment: Alignment.center,
       padding: EdgeInsets.symmetric(
         horizontal: 5.w,
       ),

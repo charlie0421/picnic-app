@@ -31,21 +31,6 @@ class App extends ConsumerStatefulWidget {
   createState() => _PicnicAppState();
 }
 
-void logJwtToken(String token) {
-  const int chunkSize = 500; // 한 번에 로깅할 토큰의 길이
-  int startIndex = 0;
-
-  while (startIndex < token.length) {
-    int endIndex = startIndex + chunkSize;
-    if (endIndex > token.length) {
-      endIndex = token.length;
-    }
-
-    logger.i(token.substring(startIndex, endIndex));
-    startIndex = endIndex;
-  }
-}
-
 class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
   @override
   void initState() {
@@ -60,7 +45,7 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
       final session = data.session;
       if (session != null) {
         final jwtToken = session.accessToken;
-        logJwtToken(jwtToken);
+        logger.d(jwtToken);
       }
     });
 
@@ -86,7 +71,7 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    if (!isWeb() && isMobile()) {
+    if (isMobile()) {
       if (state == AppLifecycleState.inactive) {
         blackScreenOverlaySupport ??= showOverlay(
           (BuildContext context, t) {
@@ -108,9 +93,7 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
     final appSettingState = ref.watch(appSettingProvider);
     ScreenUtil.init(
       context,
-      designSize: UniversalPlatform.isWeb
-          ? const Size(Constants.webWidth, Constants.webHeight)
-          : const Size(375, 812),
+      designSize: getPlatformScreenSize(context),
     );
 
     return ScreenUtilInit(
@@ -132,15 +115,18 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
               Portal.routeName: (context) => const Portal(),
               '/pic-camera': (context) => const PicCameraScreen(),
             },
-            home: FlutterSplashScreen.fadeIn(
-                useImmersiveMode: true,
-                duration: const Duration(milliseconds: 3000),
-                animationDuration: const Duration(milliseconds: 3000),
-                childWidget: SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
-                    child: Image.asset("assets/splash.png", fit: BoxFit.cover)),
-                nextScreen: const Portal())),
+            home: UniversalPlatform.isWeb
+                ? const Portal()
+                : FlutterSplashScreen.fadeIn(
+                    useImmersiveMode: true,
+                    duration: const Duration(milliseconds: 3000),
+                    animationDuration: const Duration(milliseconds: 3000),
+                    childWidget: SizedBox(
+                        width: getPlatformScreenSize(context).width,
+                        height: getPlatformScreenSize(context).height,
+                        child: Image.asset("assets/splash.png",
+                            fit: BoxFit.cover)),
+                    nextScreen: const Portal())),
       ),
     );
   }

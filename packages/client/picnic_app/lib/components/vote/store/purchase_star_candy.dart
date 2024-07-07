@@ -192,7 +192,7 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
               showDialog(
                   context: context,
                   builder: (context) => LargePopupWidget(
-                        width: MediaQuery.of(context).size.width - 32.w,
+                        width: getPlatformScreenSize(context).width - 32.w,
                         content: Container(
                           padding: EdgeInsets.symmetric(
                               horizontal: 40.w, vertical: 64.w),

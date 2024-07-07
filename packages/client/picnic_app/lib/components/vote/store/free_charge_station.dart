@@ -15,6 +15,7 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/common_theme.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util.dart';
 
 class FreeChargeStation extends ConsumerStatefulWidget {
   const FreeChargeStation({super.key});
@@ -90,7 +91,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
               showDialog(
                   context: context,
                   builder: (context) => LargePopupWidget(
-                        width: MediaQuery.of(context).size.width - 32.w,
+                        width: getPlatformScreenSize(context).width - 32.w,
                         content: Container(
                           padding: EdgeInsets.symmetric(
                               horizontal: 40.w, vertical: 64.w),

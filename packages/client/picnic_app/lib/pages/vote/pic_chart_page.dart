@@ -7,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util.dart';
 
 class PicChartPage extends ConsumerStatefulWidget {
   const PicChartPage({super.key});
@@ -40,7 +41,7 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
               backgroundColor: Colors.transparent,
               child: StatefulBuilder(
                 builder: (context, setState) => LargePopupWidget(
-                  width: MediaQuery.of(context).size.width - 32.w,
+                  width: getPlatformScreenSize(context).width - 32.w,
                   title: '픽차트란?',
                   content: Container(
                     padding:

@@ -1,14 +1,14 @@
 import 'dart:html';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:picnic_app/storage/local_storage.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 LocalStorage getInstance() => WebLocalStorage();
 
 class WebLocalStorage implements LocalStorage {
   @override
   Future<void> saveData(String key, String value) async {
-    if (kIsWeb) {
+    if (UniversalPlatform.isWeb) {
       window.localStorage[key] = value;
     }
   }
