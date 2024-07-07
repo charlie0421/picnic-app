@@ -254,7 +254,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                         ClipRRect(
                           borderRadius: BorderRadius.circular(48.r),
                           child: PicnicCachedNetworkImage(
-                            Key: userInfo.value?.avatar_url ?? '',
+                            imageUrl: userInfo.value?.avatar_url ?? '',
                             width: 48.w,
                             height: 48.w,
                             fit: BoxFit.cover,
@@ -348,8 +348,8 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(64.r),
                                       child: PicnicCachedNetworkImage(
-                                        Key: widget.voteItemModel.mystar_member
-                                                .image ??
+                                        imageUrl: widget.voteItemModel
+                                                .mystar_member.image ??
                                             '',
                                         width: 56.w,
                                         height: 56.w,

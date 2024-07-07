@@ -53,7 +53,7 @@ class CelebListItem extends ConsumerWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(50),
                   child: PicnicCachedNetworkImage(
-                    Key: item.thumbnail ?? '',
+                    imageUrl: item.thumbnail ?? '',
                     width: 60,
                     height: 60,
                   ),

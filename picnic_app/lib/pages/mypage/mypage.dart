@@ -95,7 +95,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(80).r,
                   child: PicnicCachedNetworkImage(
-                    Key: data?.avatar_url ?? '',
+                    imageUrl: data?.avatar_url ?? '',
                     width: 80.w,
                     height: 80.w,
                     fit: BoxFit.cover,

@@ -19,7 +19,7 @@ class CommentUser extends StatelessWidget {
             ? ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: PicnicCachedNetworkImage(
-                  Key: profileImage,
+                  imageUrl: profileImage,
                   width: 40,
                   height: 40,
                   fit: BoxFit.cover,

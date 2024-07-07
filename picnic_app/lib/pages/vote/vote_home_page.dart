@@ -165,7 +165,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(8.r),
                               child: PicnicCachedNetworkImage(
-                                  Key: data[index].thumbnail ?? '',
+                                  imageUrl: data[index].thumbnail ?? '',
                                   width: 120.w,
                                   height: 100.w,
                                   fit: BoxFit.cover),
@@ -247,7 +247,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                   width: width,
                   height: height,
                   child: PicnicCachedNetworkImage(
-                      Key: data[index].thumbnail ?? '',
+                      imageUrl: data[index].thumbnail ?? '',
                       width: width,
                       height: height,
                       fit: BoxFit.cover),

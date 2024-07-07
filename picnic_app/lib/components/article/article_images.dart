@@ -1,9 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/library/library_list.dart';
+import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/models/pic/article.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/util.dart';
@@ -22,7 +22,8 @@ class ArticleImages extends ConsumerStatefulWidget {
 class _ArticleImagesState extends ConsumerState<ArticleImages> {
   @override
   Widget build(BuildContext context) {
-    return Expanded(
+    return SizedBox(
+      height: 600.h,
       child: widget.article.article_image != null
           ? Swiper(
               itemBuilder: (BuildContext context, int index) {
@@ -33,16 +34,21 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
                   child: Hero(
                     tag: 'imageHero${widget.article.article_image![index].id}',
                     child: Stack(
-                      fit: StackFit.expand,
                       children: [
-                        CachedNetworkImage(
-                          imageUrl:
-                              widget.article.article_image![index].image ?? '',
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) =>
-                              buildPlaceholderImage(),
+                        Container(
+                          alignment: Alignment.topCenter,
+                          child: PicnicCachedNetworkImage(
+                            imageUrl:
+                                widget.article.article_image![index].image ??
+                                    '',
+                            fit: BoxFit.fitHeight,
+                            height: 600.w,
+                          ),
                         ),
-                        _buildBookmark(widget.article, index),
+                        Positioned(
+                            top: 10.h,
+                            right: 10.w,
+                            child: _buildBookmark(widget.article, index))
                       ],
                     ),
                   ),
@@ -58,6 +64,37 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
     );
   }
 
+  // itemBuilder: (BuildContext context, int index) {
+  //                GestureDetector(
+  //                 behavior: HitTestBehavior.opaque,
+  //                 onTap: () => _showFullScreenImage(context,
+  //                     widget.article.article_image![index].image ?? ''),
+  //                 child: Stack(
+  //                   children: [
+  //                     Hero(
+  //                       tag:
+  //                           'imageHero${widget.article.article_image![index].id}',
+  //                       child: PicnicCachedNetworkImage(
+  //                         Key: widget.article.article_image![index].image ?? '',
+  //                         fit: BoxFit.cover,
+  //                         height: 600.w,
+  //                       ),
+  //                     ),
+  //                     _buildBookmark(widget.article, index),
+  //                   ],
+  //                 ),
+  //               );
+  // },
+  // itemCount: widget.article.article_image!.length,
+  // pagination: const SwiperPagination(
+  //   builder: DotSwiperPaginationBuilder(
+  //       color: Colors.grey, activeColor: picMainColor),
+  // ),
+  // )
+  // : SizedBox(width: 300.w, height: 300.w),
+  // );
+  // }
+
   void _showFullScreenImage(BuildContext context, String imageUrl) {
     Navigator.of(context).push(
       PageRouteBuilder(
@@ -67,33 +104,29 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
     );
   }
 
-  Positioned _buildBookmark(ArticleModel article, int index) {
-    return Positioned(
-      top: 5,
-      right: 5,
-      child: article.article_image![index].article_image_user!.isNotEmpty
-          ? IconButton(
-              icon: const Icon(
-                Icons.bookmark,
-                color: picMainColor,
-              ),
-              onPressed: () {},
-            )
-          : IconButton(
-              icon: const Icon(
-                Icons.bookmark_border,
-                color: picMainColor,
-              ),
-              onPressed: () {
-                showModalBottomSheet(
-                    isScrollControlled: true,
-                    context: context,
-                    useRootNavigator: true,
-                    useSafeArea: true,
-                    builder: (BuildContext context) =>
-                        AlbumList(imageId: article.article_image![index].id));
-              }),
-    );
+  Widget _buildBookmark(ArticleModel article, int index) {
+    return article.article_image![index].article_image_user!.isNotEmpty
+        ? IconButton(
+            icon: const Icon(
+              Icons.bookmark,
+              color: picMainColor,
+            ),
+            onPressed: () {},
+          )
+        : IconButton(
+            icon: const Icon(
+              Icons.bookmark_border,
+              color: picMainColor,
+            ),
+            onPressed: () {
+              showModalBottomSheet(
+                  isScrollControlled: true,
+                  context: context,
+                  useRootNavigator: true,
+                  useSafeArea: true,
+                  builder: (BuildContext context) =>
+                      AlbumList(imageId: article.article_image![index].id));
+            });
   }
 }
 
@@ -152,34 +185,35 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
                   // Disable panning
                   minScale: minScale,
                   maxScale: maxScale,
-                  child: Hero(
-                    tag: 'imageHero${widget.imageUrl}',
-                    child: CachedNetworkImage(
+                  child: Container(
+                    width: getPlatformScreenSize(context).width,
+                    height: getPlatformScreenSize(context).height,
+                    alignment: Alignment.center,
+                    child: PicnicCachedNetworkImage(
                       imageUrl: widget.imageUrl,
-                      fit: BoxFit.contain,
-                      placeholder: (context, url) =>
-                          const CircularProgressIndicator(),
-                      imageBuilder: (context, imageProvider) {
-                        return Image(
-                          image: imageProvider,
-                          fit: BoxFit.contain,
-                          frameBuilder:
-                              (context, child, frame, wasSynchronouslyLoaded) {
-                            if (frame == null) {
-                              return child; // Placeholder
-                            } else {
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                final RenderBox box =
-                                    context.findRenderObject() as RenderBox;
-                                setState(() {
-                                  imageSize = box.size; // 이미지 사이즈 업데이트
-                                });
-                              });
-                              return child;
-                            }
-                          },
-                        );
-                      },
+                      fit: BoxFit.cover,
+                      width: getPlatformScreenSize(context).width,
+                      // imageBuilder: (context, imageProvider) {
+                      //   return Image(
+                      //     image: imageProvider,
+                      //     fit: BoxFit.cover,
+                      //     frameBuilder:
+                      //         (context, child, frame, wasSynchronouslyLoaded) {
+                      //       if (frame == null) {
+                      //         return child; // Placeholder
+                      //       } else {
+                      //         WidgetsBinding.instance.addPostFrameCallback((_) {
+                      //           final RenderBox box =
+                      //               context.findRenderObject() as RenderBox;
+                      //           setState(() {
+                      //             imageSize = box.size; // 이미지 사이즈 업데이트
+                      //           });
+                      //         });
+                      //         return child;
+                      //       }
+                      //     },
+                      //   );
+                      // },
                     ),
                   ),
                 ),

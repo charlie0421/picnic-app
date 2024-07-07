@@ -6,7 +6,7 @@ part of 'article_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$asyncArticleListHash() => r'4bc7d8952a8e9a79cd27e0e04fa9439653e8d84c';
+String _$fetchArticleListHash() => r'4ba7b17ec7941bb7be506164cd83260bb98dcb56';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -29,40 +29,42 @@ class _SystemHash {
   }
 }
 
-abstract class _$AsyncArticleList extends BuildlessAutoDisposeAsyncNotifier<
-    PagingController<int, ArticleModel>> {
-  late final dynamic galleyId;
+/// See also [fetchArticleList].
+@ProviderFor(fetchArticleList)
+const fetchArticleListProvider = FetchArticleListFamily();
 
-  FutureOr<PagingController<int, ArticleModel>> build(
-    dynamic galleyId,
-  );
-}
+/// See also [fetchArticleList].
+class FetchArticleListFamily extends Family<AsyncValue<List<ArticleModel>?>> {
+  /// See also [fetchArticleList].
+  const FetchArticleListFamily();
 
-/// See also [AsyncArticleList].
-@ProviderFor(AsyncArticleList)
-const asyncArticleListProvider = AsyncArticleListFamily();
-
-/// See also [AsyncArticleList].
-class AsyncArticleListFamily
-    extends Family<AsyncValue<PagingController<int, ArticleModel>>> {
-  /// See also [AsyncArticleList].
-  const AsyncArticleListFamily();
-
-  /// See also [AsyncArticleList].
-  AsyncArticleListProvider call(
-    dynamic galleyId,
-  ) {
-    return AsyncArticleListProvider(
-      galleyId,
+  /// See also [fetchArticleList].
+  FetchArticleListProvider call({
+    required int page,
+    required int galleryId,
+    required int limit,
+    required String sort,
+    required String order,
+  }) {
+    return FetchArticleListProvider(
+      page: page,
+      galleryId: galleryId,
+      limit: limit,
+      sort: sort,
+      order: order,
     );
   }
 
   @override
-  AsyncArticleListProvider getProviderOverride(
-    covariant AsyncArticleListProvider provider,
+  FetchArticleListProvider getProviderOverride(
+    covariant FetchArticleListProvider provider,
   ) {
     return call(
-      provider.galleyId,
+      page: provider.page,
+      galleryId: provider.galleryId,
+      limit: provider.limit,
+      sort: provider.sort,
+      order: provider.order,
     );
   }
 
@@ -78,99 +80,146 @@ class AsyncArticleListFamily
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'asyncArticleListProvider';
+  String? get name => r'fetchArticleListProvider';
 }
 
-/// See also [AsyncArticleList].
-class AsyncArticleListProvider extends AutoDisposeAsyncNotifierProviderImpl<
-    AsyncArticleList, PagingController<int, ArticleModel>> {
-  /// See also [AsyncArticleList].
-  AsyncArticleListProvider(
-    dynamic galleyId,
-  ) : this._internal(
-          () => AsyncArticleList()..galleyId = galleyId,
-          from: asyncArticleListProvider,
-          name: r'asyncArticleListProvider',
+/// See also [fetchArticleList].
+class FetchArticleListProvider
+    extends AutoDisposeFutureProvider<List<ArticleModel>?> {
+  /// See also [fetchArticleList].
+  FetchArticleListProvider({
+    required int page,
+    required int galleryId,
+    required int limit,
+    required String sort,
+    required String order,
+  }) : this._internal(
+          (ref) => fetchArticleList(
+            ref as FetchArticleListRef,
+            page: page,
+            galleryId: galleryId,
+            limit: limit,
+            sort: sort,
+            order: order,
+          ),
+          from: fetchArticleListProvider,
+          name: r'fetchArticleListProvider',
           debugGetCreateSourceHash:
               const bool.fromEnvironment('dart.vm.product')
                   ? null
-                  : _$asyncArticleListHash,
-          dependencies: AsyncArticleListFamily._dependencies,
+                  : _$fetchArticleListHash,
+          dependencies: FetchArticleListFamily._dependencies,
           allTransitiveDependencies:
-              AsyncArticleListFamily._allTransitiveDependencies,
-          galleyId: galleyId,
+              FetchArticleListFamily._allTransitiveDependencies,
+          page: page,
+          galleryId: galleryId,
+          limit: limit,
+          sort: sort,
+          order: order,
         );
 
-  AsyncArticleListProvider._internal(
+  FetchArticleListProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
-    required this.galleyId,
+    required this.page,
+    required this.galleryId,
+    required this.limit,
+    required this.sort,
+    required this.order,
   }) : super.internal();
 
-  final dynamic galleyId;
+  final int page;
+  final int galleryId;
+  final int limit;
+  final String sort;
+  final String order;
 
   @override
-  FutureOr<PagingController<int, ArticleModel>> runNotifierBuild(
-    covariant AsyncArticleList notifier,
+  Override overrideWith(
+    FutureOr<List<ArticleModel>?> Function(FetchArticleListRef provider) create,
   ) {
-    return notifier.build(
-      galleyId,
-    );
-  }
-
-  @override
-  Override overrideWith(AsyncArticleList Function() create) {
     return ProviderOverride(
       origin: this,
-      override: AsyncArticleListProvider._internal(
-        () => create()..galleyId = galleyId,
+      override: FetchArticleListProvider._internal(
+        (ref) => create(ref as FetchArticleListRef),
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
-        galleyId: galleyId,
+        page: page,
+        galleryId: galleryId,
+        limit: limit,
+        sort: sort,
+        order: order,
       ),
     );
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<AsyncArticleList,
-      PagingController<int, ArticleModel>> createElement() {
-    return _AsyncArticleListProviderElement(this);
+  AutoDisposeFutureProviderElement<List<ArticleModel>?> createElement() {
+    return _FetchArticleListProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is AsyncArticleListProvider && other.galleyId == galleyId;
+    return other is FetchArticleListProvider &&
+        other.page == page &&
+        other.galleryId == galleryId &&
+        other.limit == limit &&
+        other.sort == sort &&
+        other.order == order;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, galleyId.hashCode);
+    hash = _SystemHash.combine(hash, page.hashCode);
+    hash = _SystemHash.combine(hash, galleryId.hashCode);
+    hash = _SystemHash.combine(hash, limit.hashCode);
+    hash = _SystemHash.combine(hash, sort.hashCode);
+    hash = _SystemHash.combine(hash, order.hashCode);
 
     return _SystemHash.finish(hash);
   }
 }
 
-mixin AsyncArticleListRef on AutoDisposeAsyncNotifierProviderRef<
-    PagingController<int, ArticleModel>> {
-  /// The parameter `galleyId` of this provider.
-  dynamic get galleyId;
+mixin FetchArticleListRef on AutoDisposeFutureProviderRef<List<ArticleModel>?> {
+  /// The parameter `page` of this provider.
+  int get page;
+
+  /// The parameter `galleryId` of this provider.
+  int get galleryId;
+
+  /// The parameter `limit` of this provider.
+  int get limit;
+
+  /// The parameter `sort` of this provider.
+  String get sort;
+
+  /// The parameter `order` of this provider.
+  String get order;
 }
 
-class _AsyncArticleListProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<AsyncArticleList,
-        PagingController<int, ArticleModel>> with AsyncArticleListRef {
-  _AsyncArticleListProviderElement(super.provider);
+class _FetchArticleListProviderElement
+    extends AutoDisposeFutureProviderElement<List<ArticleModel>?>
+    with FetchArticleListRef {
+  _FetchArticleListProviderElement(super.provider);
 
   @override
-  dynamic get galleyId => (origin as AsyncArticleListProvider).galleyId;
+  int get page => (origin as FetchArticleListProvider).page;
+  @override
+  int get galleryId => (origin as FetchArticleListProvider).galleryId;
+  @override
+  int get limit => (origin as FetchArticleListProvider).limit;
+  @override
+  String get sort => (origin as FetchArticleListProvider).sort;
+  @override
+  String get order => (origin as FetchArticleListProvider).order;
 }
 
 String _$sortOptionHash() => r'8d0e51b1242be85e0437cebf8d5053fbce6dd7fe';
