@@ -62,8 +62,8 @@ class _PortalState extends ConsumerState<Portal> {
                   ? 56.h
                   : 0,
               leading: Container(
-                width: 36.w,
-                height: 36.w,
+                width: 24.w,
+                height: 24.w,
                 alignment: Alignment.center,
                 child: Builder(
                   builder: (context) => supabase.isLogged
@@ -75,15 +75,15 @@ class _PortalState extends ConsumerState<Portal> {
                                     Scaffold.of(context).openDrawer();
                                   },
                                   child: Container(
-                                    width: 36.w,
-                                    height: 36.w,
+                                    width: 24.w,
+                                    height: 24.w,
                                     alignment: Alignment.center,
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(8.r),
                                       child: PicnicCachedNetworkImage(
                                         imageUrl: data.avatar_url ?? '',
-                                        width: 36.w,
-                                        height: 36.w,
+                                        width: 24.w,
+                                        height: 24.w,
                                         fit: BoxFit.cover,
                                       ),
                                     ),

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:card_swiper/card_swiper.dart';
 import 'package:crypto/crypto.dart';
@@ -208,7 +207,7 @@ class LoginScreen extends ConsumerWidget {
                                             child: Column(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
-                                                if (Platform.isIOS)
+                                                if (isIOS())
                                                   InkWell(
                                                       onTap: () {
                                                         OverlayLoadingProgress

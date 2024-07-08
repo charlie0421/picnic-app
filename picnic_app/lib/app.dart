@@ -14,6 +14,8 @@ import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/screens/login_screen.dart';
 import 'package:picnic_app/screens/pic/pic_camera_screen.dart';
 import 'package:picnic_app/screens/portal.dart';
+import 'package:picnic_app/screens/privacy.dart';
+import 'package:picnic_app/screens/terms.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/community_theme.dart';
 import 'package:picnic_app/ui/mypage_theme.dart';
@@ -32,6 +34,8 @@ class App extends ConsumerStatefulWidget {
 }
 
 class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
+  Widget? initScreen;
+
   @override
   void initState() {
     super.initState();
@@ -53,7 +57,21 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
 
     appLinks.uriLinkStream.listen((Uri uri) {
       logger.i('Incoming link: $uri');
-      ref.read(userInfoProvider.notifier).getUserProfiles();
+
+      if (uri.pathSegments.contains('terms')) {
+        logger.i('Terms link');
+
+        uri.pathSegments.contains('ko')
+            ? initScreen = TermsScreen(language: 'ko')
+            : initScreen = TermsScreen(language: 'en');
+      } else if (uri.pathSegments.contains('privacy')) {
+        logger.i('Privacy link');
+        uri.pathSegments.contains('ko')
+            ? initScreen = PrivacyScreen(language: 'ko')
+            : initScreen = PrivacyScreen(language: 'en');
+      } else {
+        ref.read(userInfoProvider.notifier).getUserProfiles();
+      }
     }, onError: (err) {
       // Handle error
       print('Error: $err');
@@ -114,9 +132,11 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
               LoginScreen.routeName: (context) => const LoginScreen(),
               Portal.routeName: (context) => const Portal(),
               '/pic-camera': (context) => const PicCameraScreen(),
+              TermsScreen.routeName: (context) => TermsScreen(),
+              PrivacyScreen.routeName: (context) => PrivacyScreen(),
             },
             home: UniversalPlatform.isWeb
-                ? const Portal()
+                ? initScreen ?? const Portal()
                 : FlutterSplashScreen.fadeIn(
                     useImmersiveMode: true,
                     duration: const Duration(milliseconds: 3000),
@@ -126,7 +146,7 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
                         height: getPlatformScreenSize(context).height,
                         child: Image.asset("assets/splash.png",
                             fit: BoxFit.cover)),
-                    nextScreen: const Portal())),
+                    nextScreen: initScreen ?? const Portal())),
       ),
     );
   }

@@ -10,7 +10,8 @@ import 'package:picnic_app/util.dart';
 class TermsPage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_terms_of_use';
 
-  const TermsPage({super.key});
+  TermsPage({super.key, this.language});
+  String? language;
 
   @override
   ConsumerState<TermsPage> createState() => _TermsPageState();
@@ -18,9 +19,18 @@ class TermsPage extends ConsumerStatefulWidget {
 
 class _TermsPageState extends ConsumerState<TermsPage>
     with SingleTickerProviderStateMixin {
+  PolicyLanguage? language;
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.language == 'ko') {
+        ref.read(appSettingProvider.notifier).setLocale(Locale('ko'));
+      } else {
+        ref.read(appSettingProvider.notifier).setLocale(Locale('en'));
+      }
+    });
   }
 
   @override
@@ -30,12 +40,9 @@ class _TermsPageState extends ConsumerState<TermsPage>
 
   Widget _buildTabBar() {
     final PolicyLanguage language =
-    ref
-        .watch(appSettingProvider)
-        .locale
-        .languageCode == 'ko'
-        ? PolicyLanguage.ko
-        : PolicyLanguage.en;
+        ref.watch(appSettingProvider).locale.languageCode == 'ko'
+            ? PolicyLanguage.ko
+            : PolicyLanguage.en;
     final policyModelState = ref
         .watch(asyncPolicyProvider(type: PolicyType.terms, language: language));
     return policyModelState.when(
@@ -51,12 +58,11 @@ class _TermsPageState extends ConsumerState<TermsPage>
         );
       },
       loading: () => buildLoadingOverlay(),
-      error: (error, stack) =>
-          ErrorView(
-            context,
-            error: error,
-            stackTrace: stack,
-          ),
+      error: (error, stack) => ErrorView(
+        context,
+        error: error,
+        stackTrace: stack,
+      ),
     );
   }
 }
