@@ -57,19 +57,7 @@ class _TopState extends ConsumerState<ScreenTop> {
               ? GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () {
-                    supabase.isLogged
-                        ? navigationInfoNotifier.setBottomNavigationIndex(3)
-                        : showSimpleDialog(
-                            context: context,
-                            content:
-                                S.of(context).dialog_content_login_required,
-                            onOk: () {
-                              Navigator.pop(context);
-                              Navigator.pushNamed(
-                                  context, LoginScreen.routeName);
-                            },
-                            onCancel: () => Navigator.pop(context),
-                          );
+                    navigationInfoNotifier.goBack();
                   },
                   child: const Icon(Icons.arrow_back_ios),
                 )
