@@ -46,6 +46,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Stardust Usage Policy"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
+        "dialog_content_ads_loading":
+            MessageLookupByLibrary.simpleMessage("Ads are loading."),
         "dialog_content_login_required":
             MessageLookupByLibrary.simpleMessage("Login required"),
         "dialog_title_vote_fail":

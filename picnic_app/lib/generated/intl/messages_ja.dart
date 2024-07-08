@@ -39,13 +39,15 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_ok": MessageLookupByLibrary.simpleMessage("確認"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("保存する"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
-            "### 有効期限\n\n- 星飴は獲得日から1年間有効です。\n\n星飴獲得 ### 星飴獲得\n\nログイン : 1日1回\n- 投票 : 1回につき1個\n購入星飴 : なし (無制限)\nボーナス星飴：獲得した次の月の15日に一括消滅\n\n##### 星飴を使う\n\n消滅日が迫っている星飴から使用されます。\n有効期限が同じ場合は、獲得日が早い順に使用されます。"),
+            "### 有効期限\n\n- 星飴は獲得日から1年間有効です。\n\n星飴獲得 ### 星飴獲得\n\nログイン : 1日1回\n- 投票 : 1回につき1個\n購入星飴 : なし(無制限)\nボーナス星飴：獲得した翌月の15日に一括消滅\n\n##### 星飴を使う\n\n消滅日が迫っている星飴から使用されます。\n有効期限が同じ場合は、獲得日が早い順に使用されます。"),
         "candy_usage_policy_guide":
             MessageLookupByLibrary.simpleMessage("*ボーナスは獲得した翌月に無くなります！ ⓘ※ボーナス"),
         "candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("スターキャンディー使用ポリシー"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("キャンセル"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("確認"),
+        "dialog_content_ads_loading":
+            MessageLookupByLibrary.simpleMessage("広告の読み込み中です。"),
         "dialog_content_login_required":
             MessageLookupByLibrary.simpleMessage("ログインが必要です"),
         "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("投票失敗"),
@@ -89,8 +91,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_dropdown_recent": MessageLookupByLibrary.simpleMessage("最新順"),
         "label_find_celeb":
             MessageLookupByLibrary.simpleMessage("その他のアーティストを探す"),
-        "label_gallery_tab_article":
-            MessageLookupByLibrary.simpleMessage("アーティクル"),
+        "label_gallery_tab_article": MessageLookupByLibrary.simpleMessage("記事"),
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("チャット"),
         "label_hint_comment":
             MessageLookupByLibrary.simpleMessage("コメントを残してください。"),
@@ -113,7 +114,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_mypage_mystar": MessageLookupByLibrary.simpleMessage("マイスター"),
         "label_mypage_notice": MessageLookupByLibrary.simpleMessage("お知らせ"),
         "label_mypage_privacy_policy":
-            MessageLookupByLibrary.simpleMessage("個人情報保護方針"),
+            MessageLookupByLibrary.simpleMessage("プライバシーポリシー"),
         "label_mypage_setting": MessageLookupByLibrary.simpleMessage("設定"),
         "label_mypage_terms_of_use":
             MessageLookupByLibrary.simpleMessage("利用規約"),
@@ -232,8 +233,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("星飴が支給されました。"),
         "text_dialog_vote_amount_should_not_zero":
             MessageLookupByLibrary.simpleMessage("投票数は0にすることはできません。"),
-        "text_draw_image":
-            MessageLookupByLibrary.simpleMessage("全ギャラリーのうち、1枚の画像を確定的に所蔵"),
+        "text_draw_image": MessageLookupByLibrary.simpleMessage(
+            "全ギャラリーのうち、1つの画像を確定的に所蔵しています。"),
         "text_hint_search":
             MessageLookupByLibrary.simpleMessage("アーティストを検索してください。"),
         "text_moveto_celeb_gallery":

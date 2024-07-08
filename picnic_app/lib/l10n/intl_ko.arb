@@ -13,6 +13,7 @@
   "dialog_button_ok": "확인",
   "dialog_content_login_required": "로그인이 필요합니다",
   "dialog_title_vote_fail": "투표 실패",
+  "dialog_content_ads_loading" : "광고 로딩중입니다.",
   "dialog_withdraw_button_cancel": "다시 한 번 생각해 볼께요",
   "dialog_withdraw_button_ok": "탈퇴하기",
   "dialog_withdraw_message": "회원 탈퇴 시 피크닠에 보유하고 계신 별사탕과 계정정보는 즉시 삭제됩니다.",
@@ -189,6 +190,9 @@
     "translationTimestamp": "2024-07-07T00:12:52.260522"
   },
   "@dialog_title_vote_fail": {
+    "translationTimestamp": "2024-07-07T00:12:52.260522"
+  },
+  "@dialog_content_ads_loading": {
     "translationTimestamp": "2024-07-07T00:12:52.260522"
   },
   "@dialog_withdraw_button_cancel": {

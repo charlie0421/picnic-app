@@ -61,7 +61,7 @@ PODS:
     - Flutter
   - Firebase/CoreOnly (10.27.0):
     - FirebaseCore (= 10.27.0)
-  - firebase_core (3.1.0):
+  - firebase_core (3.1.1):
     - Firebase/CoreOnly (= 10.27.0)
     - Flutter
   - FirebaseCore (10.27.0):
@@ -75,7 +75,7 @@ PODS:
     - Flutter
   - flutter_native_splash (0.0.1):
     - Flutter
-  - flutter_secure_storage (6.0.0):
+  - flutter_secure_storage (3.3.1):
     - Flutter
   - flutter_share (0.0.1):
     - Flutter
@@ -125,9 +125,6 @@ PODS:
     - FlutterMacOS
   - kakao_flutter_sdk_common (1.9.3):
     - Flutter
-  - libphonenumber_plugin (0.0.1):
-    - Flutter
-    - PhoneNumberKit
   - open_filex (0.0.2):
     - Flutter
   - package_info_plus (0.4.5):
@@ -137,12 +134,6 @@ PODS:
     - FlutterMacOS
   - permission_handler_apple (9.3.0):
     - Flutter
-  - PhoneNumberKit (3.7.10):
-    - PhoneNumberKit/PhoneNumberKitCore (= 3.7.10)
-    - PhoneNumberKit/UIKit (= 3.7.10)
-  - PhoneNumberKit/PhoneNumberKitCore (3.7.10)
-  - PhoneNumberKit/UIKit (3.7.10):
-    - PhoneNumberKit/PhoneNumberKitCore
   - photo_manager (2.0.0):
     - Flutter
     - FlutterMacOS
@@ -189,7 +180,6 @@ DEPENDENCIES:
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - in_app_purchase_storekit (from `.symlinks/plugins/in_app_purchase_storekit/darwin`)
   - kakao_flutter_sdk_common (from `.symlinks/plugins/kakao_flutter_sdk_common/ios`)
-  - libphonenumber_plugin (from `.symlinks/plugins/libphonenumber_plugin/ios`)
   - open_filex (from `.symlinks/plugins/open_filex/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
@@ -220,7 +210,6 @@ SPEC REPOS:
     - GoogleUtilities
     - GTMAppAuth
     - GTMSessionFetcher
-    - PhoneNumberKit
     - PromisesObjC
     - ScreenProtectorKit
     - SDWebImage
@@ -266,8 +255,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/in_app_purchase_storekit/darwin"
   kakao_flutter_sdk_common:
     :path: ".symlinks/plugins/kakao_flutter_sdk_common/ios"
-  libphonenumber_plugin:
-    :path: ".symlinks/plugins/libphonenumber_plugin/ios"
   open_filex:
     :path: ".symlinks/plugins/open_filex/ios"
   package_info_plus:
@@ -306,13 +293,13 @@ SPEC CHECKSUMS:
   FBSDKShareKit: de5c291ad414ec07048ab09bae1b1b74b3ed92fe
   file_picker: 09aa5ec1ab24135ccd7a1621c46c84134bfd6655
   Firebase: 26b040b20866a55f55eb3611b9fcf3ae64816b86
-  firebase_core: 483cfad66d24d8f3c233f31db4263830c625c909
+  firebase_core: f8d0424c45e0f1e596811085fc12c638d628457c
   FirebaseCore: a2b95ae4ce7c83ceecfbbbe3b6f1cddc7415a808
   FirebaseCoreInternal: 4b297a2d56063dbea2c1d0d04222d44a8d058862
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_keyboard_visibility: 0339d06371254c3eb25eeb90ba8d17dca8f9c069
   flutter_native_splash: edf599c81f74d093a4daf8e17bd7a018854bc778
-  flutter_secure_storage: d33dac7ae2ea08509be337e775f6b59f1ff45f12
+  flutter_secure_storage: 7953c38a04c3fdbb00571bcd87d8e3b5ceb9daec
   flutter_share: 4be0208963c60b537e6255ed2ce1faae61cd9ac2
   Google-Mobile-Ads-SDK: 5a6d005a6cb5b5e8f4c7b69ca05cdea79c181139
   google_mobile_ads: 9379c80fdfa9988fb0e105a407890ff8deb3cf86
@@ -327,12 +314,10 @@ SPEC CHECKSUMS:
   image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
   in_app_purchase_storekit: 8c3b0b3eb1b0f04efbff401c3de6266d4258d433
   kakao_flutter_sdk_common: 80c3308f209f3d6cc74e338ffea3a51d17501d77
-  libphonenumber_plugin: 48bf4078546377eedaab4aa54978cd0f6fa23072
   open_filex: 6e26e659846ec990262224a12ef1c528bb4edbe4
   package_info_plus: 58f0028419748fad15bf008b270aaa8e54380b1c
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
-  PhoneNumberKit: 3d9a20cfe8ee68f35c2a3ae9474093133f72a8a1
   photo_manager: ff695c7a1dd5bc379974953a2b5c0a293f7c4c8a
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   screen_protector: 6f92086bd2f2f4b54f54913289b9d1310610140b

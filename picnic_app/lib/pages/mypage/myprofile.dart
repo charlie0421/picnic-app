@@ -141,7 +141,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Expanded(
-                                  flex: 1,
+                                  flex: 2,
                                   child: MaterialButton(
                                       padding: EdgeInsets.symmetric(
                                           horizontal: 20.w),
@@ -164,7 +164,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                 ),
                                 SizedBox(width: 10.w),
                                 Expanded(
-                                  flex: 2,
+                                  flex: 3,
                                   child: MaterialButton(
                                       padding: EdgeInsets.symmetric(
                                           horizontal: 20.w),
