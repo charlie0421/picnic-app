@@ -38,7 +38,7 @@
                 />
                 <data
                         android:scheme="https"
-                        android:host="xtijtefcycoeqludlngc.supabase.co"
+                        android:host="api.picnic.fan"
                         android:path="/auth/v1/callback" />
             </intent-filter>
 

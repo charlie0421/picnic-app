@@ -31,7 +31,7 @@ class _CommonBottomNavigationBarState
         padding: EdgeInsets.zero,
         height: 52.w,
         child: Container(
-          height: 42.w,
+          height: 42.h,
           padding: const EdgeInsets.symmetric(horizontal: 32).r,
           decoration: ShapeDecoration(
             color: widget.screenInfo.color,
@@ -84,7 +84,7 @@ class MenuItem extends ConsumerWidget {
     final bool isSelected = index == this.index;
 
     return SizedBox(
-      height: 52.w,
+      height: 42.h,
       child: InkWell(
         onTap: () => navigationNotifier.setBottomNavigationIndex(this.index),
         child: Column(
@@ -92,8 +92,8 @@ class MenuItem extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             SizedBox(
-                width: 20.w,
-                height: 20.w,
+                width: 24.w,
+                height: 24.w,
                 child: SvgPicture.asset(
                   assetPath,
                   colorFilter: ColorFilter.mode(
@@ -103,7 +103,7 @@ class MenuItem extends ConsumerWidget {
             Text(
               Intl.message(title),
               style: getTextStyle(
-                AppTypo.CAPTION12R,
+                isSelected ? AppTypo.CAPTION12B : AppTypo.CAPTION12R,
                 isSelected ? AppColors.Grey900 : AppColors.Grey400,
               ),
             )

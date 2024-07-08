@@ -73,7 +73,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
               onTap: () {
                 ref
                     .read(navigationInfoProvider.notifier)
-                    .setCurrentMyPage(const TermsPage());
+                    .setCurrentMyPage(TermsPage());
               }),
           Divider(
             color: AppColors.Grey300,
@@ -86,7 +86,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
               onTap: () {
                 ref
                     .read(navigationInfoProvider.notifier)
-                    .setCurrentMyPage(const PrivacyPage());
+                    .setCurrentMyPage(PrivacyPage());
               }),
           Divider(
             color: AppColors.Grey300,

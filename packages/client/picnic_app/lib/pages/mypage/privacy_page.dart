@@ -9,8 +9,9 @@ import 'package:picnic_app/util.dart';
 
 class PrivacyPage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_privacy';
+  String? language;
 
-  const PrivacyPage({super.key});
+  PrivacyPage({super.key, this.language});
 
   @override
   ConsumerState<PrivacyPage> createState() => _PrivacyPageState();
@@ -18,9 +19,19 @@ class PrivacyPage extends ConsumerStatefulWidget {
 
 class _PrivacyPageState extends ConsumerState<PrivacyPage>
     with SingleTickerProviderStateMixin {
+  PolicyLanguage? language;
+
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.language == 'ko') {
+        ref.read(appSettingProvider.notifier).setLocale(Locale('ko'));
+      } else {
+        ref.read(appSettingProvider.notifier).setLocale(Locale('en'));
+      }
+    });
   }
 
   @override

@@ -88,6 +88,9 @@ Color getComplementaryColor(Color color) {
 }
 
 bool isIOS() {
+  if (UniversalPlatform.isWeb) {
+    return false;
+  }
   return Platform.isIOS;
 }
 

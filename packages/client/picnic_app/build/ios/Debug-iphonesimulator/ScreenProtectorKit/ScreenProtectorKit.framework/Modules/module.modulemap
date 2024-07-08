@@ -1,0 +1,11 @@
+framework module ScreenProtectorKit {
+  umbrella header "ScreenProtectorKit-umbrella.h"
+
+  export *
+  module * { export * }
+}
+
+module ScreenProtectorKit.Swift {
+  header "ScreenProtectorKit-Swift.h"
+  requires objc
+}
