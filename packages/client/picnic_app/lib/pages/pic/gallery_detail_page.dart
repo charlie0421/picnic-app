@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_app/components/chat/rooms.dart';
 import 'package:picnic_app/pages/pic/article_page.dart';
 
 class GalleryDetailPage extends ConsumerStatefulWidget {
@@ -36,10 +35,6 @@ class _GalleryDetailScreenState extends ConsumerState<GalleryDetailPage>
 
   Widget _buildGalleryTab(ref) {
     return ArticlePage(galleryId: widget.galleryId);
-  }
-
-  Widget _buildChatTab(ref) {
-    return const RoomsPage();
   }
 }
 

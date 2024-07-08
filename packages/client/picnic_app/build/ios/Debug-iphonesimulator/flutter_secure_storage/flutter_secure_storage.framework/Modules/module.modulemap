@@ -4,8 +4,3 @@ framework module flutter_secure_storage {
   export *
   module * { export * }
 }
-
-module flutter_secure_storage.Swift {
-  header "flutter_secure_storage-Swift.h"
-  requires objc
-}

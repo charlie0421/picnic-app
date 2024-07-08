@@ -10,12 +10,14 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/components/vote/common_vote_info.dart';
 import 'package:picnic_app/components/vote/store/store_list_tile.dart';
+import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/purchase_product_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_theme.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
+import 'package:supabase_extensions/supabase_extensions.dart';
 
 class PurchaseStarCandy extends ConsumerStatefulWidget {
   const PurchaseStarCandy({super.key});
@@ -170,13 +172,22 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
               buttonText: '${purchaseProductList[index].price} \$',
               buttonOnPressed: () {
                 final purchaseProduct = purchaseProductList[index];
-                _buyProduct(ProductDetails(
-                    id: purchaseProduct.id,
-                    title: purchaseProduct.title,
-                    description: purchaseProduct.id,
-                    price: purchaseProduct.price.toString(),
-                    rawPrice: purchaseProduct.price,
-                    currencyCode: 'US'));
+
+                supabase.isLogged
+                    ? _buyProduct(ProductDetails(
+                        id: purchaseProduct.id,
+                        title: purchaseProduct.title,
+                        description: purchaseProduct.id,
+                        price: purchaseProduct.price.toString(),
+                        rawPrice: purchaseProduct.price,
+                        currencyCode: 'US'))
+                    : showSimpleDialog(
+                        context: context,
+                        content: S.of(context).dialog_content_ads_loading,
+                        onOk: () {
+                          Navigator.of(context).pop();
+                        },
+                      );
               },
             ),
             separatorBuilder: (BuildContext context, int index) =>

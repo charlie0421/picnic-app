@@ -160,6 +160,16 @@ class S {
     );
   }
 
+  /// `Ads are loading.`
+  String get dialog_content_ads_loading {
+    return Intl.message(
+      'Ads are loading.',
+      name: 'dialog_content_ads_loading',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Login required`
   String get dialog_content_login_required {
     return Intl.message(

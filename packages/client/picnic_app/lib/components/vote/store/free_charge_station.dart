@@ -13,9 +13,11 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_theme.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
+import 'package:supabase_extensions/supabase_extensions.dart';
 
 class FreeChargeStation extends ConsumerStatefulWidget {
   const FreeChargeStation({super.key});
@@ -49,7 +51,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
     );
     _buttonScaleAnimation = Tween<double>(begin: 1.0, end: 2.0).animate(
       CurvedAnimation(
@@ -81,11 +83,11 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
               title: S.of(context).label_star_candy_pouch,
               width: double.infinity,
               height: 100.w),
-          SizedBox(height: 36.w),
+          SizedBox(height: 36.h),
           _buildStoreListTile(0),
-          Divider(height: 32.w, thickness: 1, color: AppColors.Grey200),
+          Divider(height: 32.h, thickness: 1, color: AppColors.Grey200),
           _buildStoreListTile(1),
-          Divider(height: 32.w, thickness: 1, color: AppColors.Grey200),
+          Divider(height: 32.h, thickness: 1, color: AppColors.Grey200),
           GestureDetector(
             onTap: () {
               showDialog(
@@ -179,9 +181,26 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
           buttonText: S.of(context).label_watch_ads,
           buttonOnPressed: () async {
             if (_rewardedAds[index] == null) {
-              await _createRewardedAd(index);
+              // await _createRewardedAd(index);
+              showSimpleDialog(
+                context: context,
+                content: S.of(context).dialog_content_ads_loading,
+                onOk: () => Navigator.of(context).pop(),
+              );
+              return;
             }
-            _showRewardedAd(index);
+
+            supabase.isLogged
+                ? _showRewardedAd(index)
+                : showSimpleDialog(
+                    context: context,
+                    content: S.of(context).dialog_content_login_required,
+                    onOk: () {
+                      Navigator.of(context).pushNamed('/login');
+                    },
+                    onCancel: () {
+                      Navigator.of(context).pop();
+                    });
           },
           isLoading: _isLoading[index],
           buttonScale: _buttonScaleAnimation.value,
@@ -238,7 +257,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
         showSimpleDialog(
           context: context,
           title: S.of(context).text_dialog_star_candy_received,
-          onOk: () {},
+          onOk: () => Navigator.of(context).pop(),
         );
 
         _createRewardedAd(index);

@@ -46,6 +46,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("별사탕 사용정책"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("취소"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("확인"),
+        "dialog_content_ads_loading":
+            MessageLookupByLibrary.simpleMessage("광고 로딩중입니다."),
         "dialog_content_login_required":
             MessageLookupByLibrary.simpleMessage("로그인이 필요합니다"),
         "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("투표 실패"),
