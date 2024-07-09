@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -200,7 +199,7 @@ void copyToClipboard(BuildContext context, String text) {
 
 Size getPlatformScreenSize(BuildContext context) {
   if (UniversalPlatform.isWeb) {
-    return const Size(Constants.webWidth, Constants.webHeight);
+    return const Size(393 * 2, 852 * 2);
   }
   return MediaQuery.of(context).size;
 }

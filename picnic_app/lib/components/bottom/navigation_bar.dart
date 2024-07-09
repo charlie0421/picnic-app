@@ -23,40 +23,46 @@ class _CommonBottomNavigationBarState
   @override
   Widget build(BuildContext context) {
     ref.watch(appSettingProvider.select((value) => value.locale));
-
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: BottomAppBar(
-        color: Colors.transparent,
-        padding: EdgeInsets.zero,
-        height: 52.w,
-        child: Container(
-          height: 42.h,
-          padding: const EdgeInsets.symmetric(horizontal: 32).r,
-          decoration: ShapeDecoration(
-            color: widget.screenInfo.color,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20).r,
-            ),
-            shadows: [
-              BoxShadow(
-                color: const Color(0x3F000000),
-                blurRadius: 8.r,
-                offset: const Offset(0, 0),
-                spreadRadius: 0,
-              )
-            ],
+      padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 52.h),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            AppColors.Grey200.withOpacity(0),
+            AppColors.Grey200.withOpacity(0.8),
+            AppColors.Grey200.withOpacity(1),
+          ],
+          stops: const [0.0, 0.62, 0.785],
+        ),
+      ),
+      child: Container(
+        height: 52.h,
+        padding: const EdgeInsets.symmetric(horizontal: 24).r,
+        decoration: ShapeDecoration(
+          color: widget.screenInfo.color,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20).r,
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: widget.screenInfo.pages
-                .map((e) => MenuItem(
-                      title: e.title,
-                      assetPath: e.assetPath,
-                      index: e.index,
-                    ))
-                .toList(),
-          ),
+          shadows: [
+            BoxShadow(
+              color: const Color(0x3F000000),
+              blurRadius: 8.r,
+              offset: const Offset(0, 0),
+              spreadRadius: 0,
+            )
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: widget.screenInfo.pages
+              .map((e) => MenuItem(
+                    title: e.title,
+                    assetPath: e.assetPath,
+                    index: e.index,
+                  ))
+              .toList(),
         ),
       ),
     );
