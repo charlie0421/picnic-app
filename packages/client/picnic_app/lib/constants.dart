@@ -9,7 +9,7 @@ const novelMainColor = AppColors.Point500;
 
 class Constants {
   static const double webWidth = 600;
-  static const double webHeight = 1024;
+  static const double webHeight = 400;
   static const int snackBarDuration = 3;
 }
 
