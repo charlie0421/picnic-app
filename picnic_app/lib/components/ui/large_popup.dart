@@ -27,71 +27,74 @@ class LargePopupWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return KeyboardDismissOnTap(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                  width: width ?? 345.w,
-                  decoration: BoxDecoration(
-                    color: backgroundColor ?? AppColors.Grey00,
-                    border: Border.all(
-                      color: AppColors.Mint500,
-                      width: 2.r,
-                    ),
-                    borderRadius: BorderRadius.circular(120.r),
+        child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+                width: width ?? 345.w,
+                decoration: BoxDecoration(
+                  color: backgroundColor ?? AppColors.Grey00,
+                  border: Border.all(
+                    color: AppColors.Mint500,
+                    width: 2.r,
                   ),
-                  child: content),
-              if (title != null)
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                      height: 48.w,
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.symmetric(horizontal: 33).w,
-                      child: VoteCommonTitle(title: title!)),
+                  borderRadius: BorderRadius.circular(120.r),
                 ),
-            ],
-          ),
-          GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () {
-                Navigator.pop(context);
-              },
-              child: SizedBox(
-                height: 24.h,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    if (footer != null) footer!,
-                    closeButton != null
-                        ? closeButton!
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Text(S.of(context).label_button_clse,
-                                  style: getTextStyle(
-                                      AppTypo.BODY14B, AppColors.Grey00)),
-                              SizedBox(width: 4.w),
-                              SvgPicture.asset(
-                                'assets/icons/cancle_style=line.svg',
-                                width: 24.w,
-                                height: 24.w,
-                                colorFilter: const ColorFilter.mode(
-                                    AppColors.Grey00, BlendMode.srcIn),
-                              ),
-                            ],
-                          ),
-                  ],
+                child: content),
+            if (title != null)
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                    height: 48.w,
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(horizontal: 33).w,
+                    child: VoteCommonTitle(title: title!)),
+              ),
+            Positioned(
+              bottom: 0,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: SizedBox(
+                  height: 24.h,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      if (footer != null) footer!,
+                      closeButton != null
+                          ? closeButton!
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Text(S.of(context).label_button_clse,
+                                    style: getTextStyle(
+                                        AppTypo.BODY14B, AppColors.Grey00)),
+                                SizedBox(width: 4.w),
+                                SvgPicture.asset(
+                                  'assets/icons/cancle_style=line.svg',
+                                  width: 24.w,
+                                  height: 24.w,
+                                  colorFilter: const ColorFilter.mode(
+                                      AppColors.Grey00, BlendMode.srcIn),
+                                ),
+                              ],
+                            ),
+                    ],
+                  ),
                 ),
-              ))
-        ],
-      ),
-    );
+              ),
+            ),
+          ],
+        ),
+      ],
+    ));
   }
 }

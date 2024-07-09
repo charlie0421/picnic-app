@@ -28,7 +28,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m3(num1) => "${num1}개 +${num1}개 보너스";
 
-  static String m4(rank) => "Rank ${rank}";
+  static String m4(rank) => "${rank}위";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -39,7 +39,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("Save"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
-            "### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, they will be used in the order of the earliest acquisition date."),
+            "### Validity\n\n- Star Candy is valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, the earliest one will be used."),
         "candy_usage_policy_guide": MessageLookupByLibrary.simpleMessage(
             "*Bonuses disappear the month after you earn them! ⓘ"),
         "candy_usage_policy_title":
@@ -199,7 +199,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("Birthday polls"),
         "label_vote_tab_pic":
-            MessageLookupByLibrary.simpleMessage("PIC Voting"),
+            MessageLookupByLibrary.simpleMessage("PIC voting"),
         "label_vote_vote_gather":
             MessageLookupByLibrary.simpleMessage("Collecting votes"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("View ads"),
@@ -260,6 +260,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_ads_random": MessageLookupByLibrary.simpleMessage(
             "Viewing ads and collecting random images."),
         "text_bonus": MessageLookupByLibrary.simpleMessage("Bonuses"),
+        "text_comming_soon_pic_chart1": MessageLookupByLibrary.simpleMessage(
+            "핔 차트에 오신 여러분을 환영합니다!\\n2024년 8월에 만나요!"),
+        "text_comming_soon_pic_chart2": MessageLookupByLibrary.simpleMessage(
+            "핔차트는 일간, 주간, 월간 점수를 반영하는\\n피크닠만의 새로운 차트입니다."),
+        "text_comming_soon_pic_chart3": MessageLookupByLibrary.simpleMessage(
+            "실시간으로 반영되는\\n아티스트의 브랜드 평판을 확인해 보세요!"),
+        "text_comming_soon_pic_chart_title":
+            MessageLookupByLibrary.simpleMessage("핔차트란?"),
         "text_copied_address": MessageLookupByLibrary.simpleMessage(
             "The address has been copied."),
         "text_dialog_star_candy_received": MessageLookupByLibrary.simpleMessage(

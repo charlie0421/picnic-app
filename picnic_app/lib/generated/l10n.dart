@@ -110,10 +110,10 @@ class S {
     );
   }
 
-  /// `### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, they will be used in the order of the earliest acquisition date.`
+  /// `### Validity\n\n- Star Candy is valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, the earliest one will be used.`
   String get candy_usage_policy_contents {
     return Intl.message(
-      '### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, they will be used in the order of the earliest acquisition date.',
+      '### Validity\n\n- Star Candy is valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, the earliest one will be used.',
       name: 'candy_usage_policy_contents',
       desc: '',
       args: [],
@@ -1020,10 +1020,10 @@ class S {
     );
   }
 
-  /// `PIC Voting`
+  /// `PIC voting`
   String get label_vote_tab_pic {
     return Intl.message(
-      'PIC Voting',
+      'PIC voting',
       name: 'label_vote_tab_pic',
       desc: '',
       args: [],
@@ -1410,6 +1410,46 @@ class S {
     );
   }
 
+  /// `핔 차트에 오신 여러분을 환영합니다!\n2024년 8월에 만나요!`
+  String get text_comming_soon_pic_chart1 {
+    return Intl.message(
+      '핔 차트에 오신 여러분을 환영합니다!\\n2024년 8월에 만나요!',
+      name: 'text_comming_soon_pic_chart1',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `핔차트는 일간, 주간, 월간 점수를 반영하는\n피크닠만의 새로운 차트입니다.`
+  String get text_comming_soon_pic_chart2 {
+    return Intl.message(
+      '핔차트는 일간, 주간, 월간 점수를 반영하는\\n피크닠만의 새로운 차트입니다.',
+      name: 'text_comming_soon_pic_chart2',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `실시간으로 반영되는\n아티스트의 브랜드 평판을 확인해 보세요!`
+  String get text_comming_soon_pic_chart3 {
+    return Intl.message(
+      '실시간으로 반영되는\\n아티스트의 브랜드 평판을 확인해 보세요!',
+      name: 'text_comming_soon_pic_chart3',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `핔차트란?`
+  String get text_comming_soon_pic_chart_title {
+    return Intl.message(
+      '핔차트란?',
+      name: 'text_comming_soon_pic_chart_title',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `The address has been copied.`
   String get text_copied_address {
     return Intl.message(
@@ -1540,10 +1580,10 @@ class S {
     );
   }
 
-  /// `Rank {rank}`
+  /// `{rank}위`
   String text_vote_rank(Object rank) {
     return Intl.message(
-      'Rank $rank',
+      '$rank위',
       name: 'text_vote_rank',
       desc: '',
       args: [rank],

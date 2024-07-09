@@ -10,6 +10,7 @@ class VoteHomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Stack(
+      fit: StackFit.expand,
       children: [
         const PicnicAnimatedSwitcher(),
         Positioned(

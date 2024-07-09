@@ -166,7 +166,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_tabbar_picchart_daily":
             MessageLookupByLibrary.simpleMessage("日足チャート"),
         "label_tabbar_picchart_monthly":
-            MessageLookupByLibrary.simpleMessage("月次チャート"),
+            MessageLookupByLibrary.simpleMessage("月間チャート"),
         "label_tabbar_picchart_weekly":
             MessageLookupByLibrary.simpleMessage("週間チャート"),
         "label_tabbar_vote_active": MessageLookupByLibrary.simpleMessage("進行中"),
@@ -231,14 +231,22 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_ads_random":
             MessageLookupByLibrary.simpleMessage("広告表示とランダム画像収集。"),
         "text_bonus": MessageLookupByLibrary.simpleMessage("ボーナス"),
+        "text_comming_soon_pic_chart1": MessageLookupByLibrary.simpleMessage(
+            "ピックチャートへようこそ！n2024年8月にお会いしましょう！"),
+        "text_comming_soon_pic_chart2": MessageLookupByLibrary.simpleMessage(
+            "ピックチャートは、日次、週次、月次のスコアを反映する\\nピクニックだけの新しいチャートです。"),
+        "text_comming_soon_pic_chart3": MessageLookupByLibrary.simpleMessage(
+            "リアルタイムで反映される\\nアーティストのブランド評判をご確認ください！"),
+        "text_comming_soon_pic_chart_title":
+            MessageLookupByLibrary.simpleMessage("핔차트란?"),
         "text_copied_address":
             MessageLookupByLibrary.simpleMessage("アドレスがコピーされました。"),
         "text_dialog_star_candy_received":
             MessageLookupByLibrary.simpleMessage("星飴が支給されました。"),
         "text_dialog_vote_amount_should_not_zero":
             MessageLookupByLibrary.simpleMessage("投票数は0にすることはできません。"),
-        "text_draw_image":
-            MessageLookupByLibrary.simpleMessage("全ギャラリーのうち、1枚の画像を確定的に所蔵"),
+        "text_draw_image": MessageLookupByLibrary.simpleMessage(
+            "全ギャラリーのうち、1つの画像を確定的に所蔵しています。"),
         "text_hint_search":
             MessageLookupByLibrary.simpleMessage("アーティストを検索してください。"),
         "text_moveto_celeb_gallery":
