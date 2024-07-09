@@ -52,7 +52,6 @@ class _PortalState extends ConsumerState<Portal> {
             // maxHeight: getPlatformScreenSize(context).height
           ),
           child: Scaffold(
-            resizeToAvoidBottomInset: false,
             drawer: const Drawer(
               width: double.infinity,
               child: MyPageScreen(),

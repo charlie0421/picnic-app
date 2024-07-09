@@ -39,7 +39,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_ok": MessageLookupByLibrary.simpleMessage("确认"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("节省"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
-            "### 有效期\n\n- 自获得之日起，Star Candy 的有效期为一年。\n\n### 赚取的星星糖\n\n登录：每天 1 个\n- 投票：每天 1 次\n购买糖果：无（无限制）\n奖励星星糖果：在获得后的当月 15 日分批过期\n\n在 ##### 上兑换星星糖\n\n有效期即将结束的星星糖将优先使用。\n如果有效期相同，则按获得日期的先后顺序使用。"),
+            "### 有效期\n\n- 自获得之日起，Star Candy 的有效期为一年。\n\n### 赚取的星星糖\n\n登录：每天 1 个\n- 投票：每天 1 次\n购买糖果：无（无限制）\n奖励星星糖果：在获得后的当月 15 日分批过期\n\n在 ##### 上兑换星星糖\n\n有效期即将结束的星星糖果将优先使用。\n如果有效期相同，则使用最早的一个。"),
         "candy_usage_policy_guide":
             MessageLookupByLibrary.simpleMessage("*奖金将在您获得奖金的次月消失！ ⓘ"),
         "candy_usage_policy_title":
@@ -69,7 +69,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("成为第一个发表评论的人！"),
         "label_bonus": MessageLookupByLibrary.simpleMessage("奖金"),
-        "label_button_clse": MessageLookupByLibrary.simpleMessage("关闭"),
+        "label_button_clse": MessageLookupByLibrary.simpleMessage("關閉"),
         "label_button_recharge": MessageLookupByLibrary.simpleMessage("充电"),
         "label_button_save_vote_paper":
             MessageLookupByLibrary.simpleMessage("保存您的选票"),
@@ -214,6 +214,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "share_twitter": MessageLookupByLibrary.simpleMessage("在 Twitter 上分享"),
         "text_ads_random": MessageLookupByLibrary.simpleMessage("查看广告并收集随机图片。"),
         "text_bonus": MessageLookupByLibrary.simpleMessage("奖金"),
+        "text_comming_soon_pic_chart1": MessageLookupByLibrary.simpleMessage(
+            "欢迎来到 Peek Charts！2024 年 8 月再见！"),
+        "text_comming_soon_pic_chart2": MessageLookupByLibrary.simpleMessage(
+            "饼图是 Peeknick 独有的一种新图表，可反映每日、每周和每月的分数。"),
+        "text_comming_soon_pic_chart3":
+            MessageLookupByLibrary.simpleMessage("实时查看艺术家的品牌声誉！"),
+        "text_comming_soon_pic_chart_title":
+            MessageLookupByLibrary.simpleMessage("핔차트란?"),
         "text_copied_address": MessageLookupByLibrary.simpleMessage("地址已复制。"),
         "text_dialog_star_candy_received":
             MessageLookupByLibrary.simpleMessage("已颁发星形糖果。"),
@@ -237,7 +245,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("奖励排名"),
         "text_vote_where_is_my_bias":
-            MessageLookupByLibrary.simpleMessage("我的最爱在哪里？"),
+            MessageLookupByLibrary.simpleMessage("我的最爱呢？"),
         "title_dialog_library_add":
             MessageLookupByLibrary.simpleMessage("添加新相册"),
         "title_select_language": MessageLookupByLibrary.simpleMessage("选择语言"),
