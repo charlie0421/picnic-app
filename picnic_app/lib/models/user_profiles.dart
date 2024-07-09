@@ -3,7 +3,6 @@ import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/reflector.dart';
 
 part 'user_profiles.freezed.dart';
-
 part 'user_profiles.g.dart';
 
 @reflector

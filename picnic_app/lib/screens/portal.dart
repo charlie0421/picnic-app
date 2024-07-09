@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -80,12 +81,19 @@ class _PortalState extends ConsumerState<Portal> {
                                     alignment: Alignment.center,
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(8.r),
-                                      child: PicnicCachedNetworkImage(
-                                        imageUrl: data.avatar_url ?? '',
-                                        width: 24.w,
-                                        height: 24.w,
-                                        fit: BoxFit.cover,
-                                      ),
+                                      child: data.avatar_url!.contains('https')
+                                          ? CachedNetworkImage(
+                                              imageUrl: data.avatar_url ?? '',
+                                              width: 24.w,
+                                              height: 24.w,
+                                              fit: BoxFit.cover,
+                                            )
+                                          : PicnicCachedNetworkImage(
+                                              imageUrl: data.avatar_url ?? '',
+                                              width: 24.w,
+                                              height: 24.w,
+                                              fit: BoxFit.cover,
+                                            ),
                                     ),
                                   ),
                                 )

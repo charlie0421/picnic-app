@@ -210,11 +210,31 @@ class S {
     );
   }
 
+  /// `An error occurred during unsubscribe.`
+  String get dialog_withdraw_error {
+    return Intl.message(
+      'An error occurred during unsubscribe.',
+      name: 'dialog_withdraw_error',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `If you cancel your membership, any Star Candy you have on Picnic and your account information will be deleted immediately.`
   String get dialog_withdraw_message {
     return Intl.message(
       'If you cancel your membership, any Star Candy you have on Picnic and your account information will be deleted immediately.',
       name: 'dialog_withdraw_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The unsubscribe was processed successfully.`
+  String get dialog_withdraw_success {
+    return Intl.message(
+      'The unsubscribe was processed successfully.',
+      name: 'dialog_withdraw_success',
       desc: '',
       args: [],
     );
@@ -700,10 +720,10 @@ class S {
     );
   }
 
-  /// `Replying to a reply`
+  /// `Reply to a reply`
   String get label_reply {
     return Intl.message(
-      'Replying to a reply',
+      'Reply to a reply',
       name: 'label_reply',
       desc: '',
       args: [],
@@ -1000,10 +1020,10 @@ class S {
     );
   }
 
-  /// `PIC voting`
+  /// `PIC Voting`
   String get label_vote_tab_pic {
     return Intl.message(
-      'PIC voting',
+      'PIC Voting',
       name: 'label_vote_tab_pic',
       desc: '',
       args: [],

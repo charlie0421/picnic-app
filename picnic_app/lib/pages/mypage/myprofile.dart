@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:http/http.dart' as http;
 import 'package:picnic_app/components/common/picnic_list_item.dart';
 import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
@@ -13,6 +16,7 @@ import 'package:picnic_app/pages/mypage/privacy_page.dart';
 import 'package:picnic_app/pages/mypage/terms_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
 
@@ -114,19 +118,19 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                         width: getPlatformScreenSize(context).width - 32.w,
                         content: Container(
                           padding: EdgeInsets.symmetric(
-                              horizontal: 40.w, vertical: 64.w),
+                              horizontal: 40.w, vertical: 64.h),
                           child: Column(children: [
                             Text(
                               S.of(context).dialog_withdraw_title,
                               style: getTextStyle(
                                   AppTypo.TITLE18SB, AppColors.Grey900),
                             ),
-                            SizedBox(height: 32.w),
+                            SizedBox(height: 32.h),
                             StorePointInfo(
                                 title: S.of(context).label_star_candy_pouch,
                                 width: 231.w,
                                 titlePadding: 10.w,
-                                height: 78.w),
+                                height: 78.h),
                             SizedBox(height: 44.w),
                             SizedBox(
                               width: 216.w,
@@ -136,7 +140,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                     AppTypo.CAPTION12R, AppColors.Grey700),
                               ),
                             ),
-                            SizedBox(height: 32.w),
+                            SizedBox(height: 32.h),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -153,7 +157,38 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                           borderRadius:
                                               BorderRadius.circular(20.w)),
                                       onPressed: () {
-                                        Navigator.of(context).pop();
+                                        try {
+                                          _deleteAccount().then((value) {
+                                            Navigator.of(context).pop();
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(SnackBar(
+                                              content: Text(S
+                                                  .of(context)
+                                                  .dialog_withdraw_success),
+                                            ));
+
+                                            ref
+                                                .read(userInfoProvider.notifier)
+                                                .logout();
+                                            Navigator.of(context).pop();
+                                            ref
+                                                .read(navigationInfoProvider
+                                                    .notifier)
+                                                .setBottomNavigationIndex(0);
+                                            ref
+                                                .read(navigationInfoProvider
+                                                    .notifier)
+                                                .setPortal(PortalType.vote);
+                                          });
+                                        } catch (e, s) {
+                                          logger.e(e, stackTrace: s);
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                            content: Text(S
+                                                .of(context)
+                                                .dialog_withdraw_error),
+                                          ));
+                                        }
                                       },
                                       child: Text(
                                           S
@@ -198,6 +233,45 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         ],
       ),
     );
+  }
+
+  Future<void> _deleteAccount() async {
+    try {
+      // 현재 로그인된 사용자 가져오기
+      final user = supabase.auth.currentUser;
+      if (user == null) {
+        logger.i('No user is signed in');
+        return;
+      }
+
+      // Edge Function 호출
+      final response = await http.post(
+        Uri.parse('${supabaseOptions.url}/functions/v1/delete-user'),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Authorization':
+              'Bearer ${supabase.auth.currentSession!.accessToken}',
+        },
+        body: jsonEncode(<String, String>{
+          'userId': user.id,
+        }),
+      );
+
+      logger.d('Response status: ${response.statusCode}');
+      logger.d('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        logger.i('User deleted successfully');
+        // 로그아웃 시도
+        await supabase.auth.signOut();
+        ref.read(navigationInfoProvider.notifier).setBottomNavigationIndex(0);
+      } else {
+        throw Exception('Failed to delete user: ${response.body}');
+      }
+    } catch (e, s) {
+      logger.e(s, stackTrace: s);
+      rethrow;
+    }
   }
 
   Container buildValidationMsg(BuildContext context) {
