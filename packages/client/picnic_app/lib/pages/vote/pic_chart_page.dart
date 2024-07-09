@@ -43,15 +43,13 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
     return Stack(
       fit: StackFit.expand,
       children: [
-        Image.asset(
-          'assets/images/picchart_comming_soon.png',
-          fit: BoxFit.cover,
-        ),
+        Image.asset('assets/images/picchart_comming_soon.png',
+            fit: BoxFit.fill),
         if (_showOverlay)
           Positioned(
             left: 24.w,
             right: 24.w,
-            top: 32.h,
+            top: 48.h,
             child: Material(
               color: Colors.transparent,
               child: LargePopupWidget(

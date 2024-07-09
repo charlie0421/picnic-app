@@ -261,11 +261,11 @@ class MessageLookup extends MessageLookupByLibrary {
             "Viewing ads and collecting random images."),
         "text_bonus": MessageLookupByLibrary.simpleMessage("Bonuses"),
         "text_comming_soon_pic_chart1": MessageLookupByLibrary.simpleMessage(
-            "핔 차트에 오신 여러분을 환영합니다!\\n2024년 8월에 만나요!"),
+            "Welcome to Pic Chart!\nSee you in August 2024!"),
         "text_comming_soon_pic_chart2": MessageLookupByLibrary.simpleMessage(
-            "핔차트는 일간, 주간, 월간 점수를 반영하는\\n피크닠만의 새로운 차트입니다."),
+            "Pic Chart is Picnic\'s new chart that\nreflects daily, weekly, and monthly scores."),
         "text_comming_soon_pic_chart3": MessageLookupByLibrary.simpleMessage(
-            "실시간으로 반영되는\\n아티스트의 브랜드 평판을 확인해 보세요!"),
+            "Check out the real-time\nbrand reputation of artists!"),
         "text_comming_soon_pic_chart_title":
             MessageLookupByLibrary.simpleMessage("핔차트란?"),
         "text_copied_address": MessageLookupByLibrary.simpleMessage(

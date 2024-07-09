@@ -1410,30 +1410,30 @@ class S {
     );
   }
 
-  /// `핔 차트에 오신 여러분을 환영합니다!\n2024년 8월에 만나요!`
+  /// `Welcome to Pic Chart!\nSee you in August 2024!`
   String get text_comming_soon_pic_chart1 {
     return Intl.message(
-      '핔 차트에 오신 여러분을 환영합니다!\\n2024년 8월에 만나요!',
+      'Welcome to Pic Chart!\nSee you in August 2024!',
       name: 'text_comming_soon_pic_chart1',
       desc: '',
       args: [],
     );
   }
 
-  /// `핔차트는 일간, 주간, 월간 점수를 반영하는\n피크닠만의 새로운 차트입니다.`
+  /// `Pic Chart is Picnic's new chart that\nreflects daily, weekly, and monthly scores.`
   String get text_comming_soon_pic_chart2 {
     return Intl.message(
-      '핔차트는 일간, 주간, 월간 점수를 반영하는\\n피크닠만의 새로운 차트입니다.',
+      'Pic Chart is Picnic\'s new chart that\nreflects daily, weekly, and monthly scores.',
       name: 'text_comming_soon_pic_chart2',
       desc: '',
       args: [],
     );
   }
 
-  /// `실시간으로 반영되는\n아티스트의 브랜드 평판을 확인해 보세요!`
+  /// `Check out the real-time\nbrand reputation of artists!`
   String get text_comming_soon_pic_chart3 {
     return Intl.message(
-      '실시간으로 반영되는\\n아티스트의 브랜드 평판을 확인해 보세요!',
+      'Check out the real-time\nbrand reputation of artists!',
       name: 'text_comming_soon_pic_chart3',
       desc: '',
       args: [],
