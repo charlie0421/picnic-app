@@ -56,8 +56,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Let me think about it again"),
         "dialog_withdraw_button_ok":
             MessageLookupByLibrary.simpleMessage("Unsubscribing"),
+        "dialog_withdraw_error": MessageLookupByLibrary.simpleMessage(
+            "An error occurred during unsubscribe."),
         "dialog_withdraw_message": MessageLookupByLibrary.simpleMessage(
             "If you cancel your membership, any Star Candy you have on Picnic and your account information will be deleted immediately."),
+        "dialog_withdraw_success": MessageLookupByLibrary.simpleMessage(
+            "The unsubscribe was processed successfully."),
         "dialog_withdraw_title": MessageLookupByLibrary.simpleMessage(
             "Are you sure you want to leave?"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("Album name"),
@@ -142,8 +146,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Compositing an image..."),
         "label_read_more_comment":
             MessageLookupByLibrary.simpleMessage("More comments"),
-        "label_reply":
-            MessageLookupByLibrary.simpleMessage("Replying to a reply"),
+        "label_reply": MessageLookupByLibrary.simpleMessage("Reply to a reply"),
         "label_retry": MessageLookupByLibrary.simpleMessage("Retrying"),
         "label_setting_alarm":
             MessageLookupByLibrary.simpleMessage("Notifications"),
@@ -196,7 +199,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("Birthday polls"),
         "label_vote_tab_pic":
-            MessageLookupByLibrary.simpleMessage("PIC voting"),
+            MessageLookupByLibrary.simpleMessage("PIC Voting"),
         "label_vote_vote_gather":
             MessageLookupByLibrary.simpleMessage("Collecting votes"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("View ads"),

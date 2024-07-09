@@ -13,6 +13,7 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
@@ -350,6 +351,15 @@ class LoginScreen extends ConsumerWidget {
                                                               .getUserProfiles()
                                                               .then((value) {
                                                             logger.i(value);
+                                                            if (value == null) {
+                                                              showSimpleDialog(
+                                                                  context:
+                                                                      context,
+                                                                  title:
+                                                                      '로그인 실패',
+                                                                  content:
+                                                                      '로그인에 실패했습니다. 다시 시도해주세요.');
+                                                            }
                                                             OverlayLoadingProgress
                                                                 .stop();
 

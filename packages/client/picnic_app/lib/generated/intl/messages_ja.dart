@@ -55,8 +55,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("もう一度考えてみます。"),
         "dialog_withdraw_button_ok":
             MessageLookupByLibrary.simpleMessage("退会する"),
+        "dialog_withdraw_error":
+            MessageLookupByLibrary.simpleMessage("退会中にエラーが発生しました。"),
         "dialog_withdraw_message": MessageLookupByLibrary.simpleMessage(
             "退会すると、ピクニックで保有している星キャンディーとアカウント情報は即座に削除されます。"),
+        "dialog_withdraw_success":
+            MessageLookupByLibrary.simpleMessage("退会が正常に処理されました。"),
         "dialog_withdraw_title":
             MessageLookupByLibrary.simpleMessage("本当に退会しますか？"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("アルバム名"),
@@ -114,7 +118,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_mypage_mystar": MessageLookupByLibrary.simpleMessage("マイスター"),
         "label_mypage_notice": MessageLookupByLibrary.simpleMessage("お知らせ"),
         "label_mypage_privacy_policy":
-            MessageLookupByLibrary.simpleMessage("プライバシーポリシー"),
+            MessageLookupByLibrary.simpleMessage("個人情報保護方針"),
         "label_mypage_setting": MessageLookupByLibrary.simpleMessage("設定"),
         "label_mypage_terms_of_use":
             MessageLookupByLibrary.simpleMessage("利用規約"),
@@ -162,7 +166,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_tabbar_picchart_daily":
             MessageLookupByLibrary.simpleMessage("日足チャート"),
         "label_tabbar_picchart_monthly":
-            MessageLookupByLibrary.simpleMessage("月間チャート"),
+            MessageLookupByLibrary.simpleMessage("月次チャート"),
         "label_tabbar_picchart_weekly":
             MessageLookupByLibrary.simpleMessage("週間チャート"),
         "label_tabbar_vote_active": MessageLookupByLibrary.simpleMessage("進行中"),
@@ -233,8 +237,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("星飴が支給されました。"),
         "text_dialog_vote_amount_should_not_zero":
             MessageLookupByLibrary.simpleMessage("投票数は0にすることはできません。"),
-        "text_draw_image": MessageLookupByLibrary.simpleMessage(
-            "全ギャラリーのうち、1つの画像を確定的に所蔵しています。"),
+        "text_draw_image":
+            MessageLookupByLibrary.simpleMessage("全ギャラリーのうち、1枚の画像を確定的に所蔵"),
         "text_hint_search":
             MessageLookupByLibrary.simpleMessage("アーティストを検索してください。"),
         "text_moveto_celeb_gallery":

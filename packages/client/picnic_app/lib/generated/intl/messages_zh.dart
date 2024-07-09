@@ -39,7 +39,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_ok": MessageLookupByLibrary.simpleMessage("确认"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("节省"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
-            "### 有效期\n\n- 自获得之日起，Star Candy 的有效期为一年。\n\n### 赚取的星星糖\n\n登录：每天 1 个\n- 投票：每天 1 次\n购买糖果：无（无限制）\n奖励星星糖果：在获得后的当月 15 日分批过期\n\n在 ##### 上兑换星星糖\n\n有效期即将结束的星星糖果将优先使用。\n如果有效期相同，则使用最早的一个。"),
+            "### 有效期\n\n- 自获得之日起，Star Candy 的有效期为一年。\n\n### 赚取的星星糖\n\n登录：每天 1 个\n- 投票：每天 1 次\n购买糖果：无（无限制）\n奖励星星糖果：在获得后的当月 15 日分批过期\n\n在 ##### 上兑换星星糖\n\n有效期即将结束的星星糖将优先使用。\n如果有效期相同，则按获得日期的先后顺序使用。"),
         "candy_usage_policy_guide":
             MessageLookupByLibrary.simpleMessage("*奖金将在您获得奖金的次月消失！ ⓘ"),
         "candy_usage_policy_title":
@@ -54,8 +54,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialog_withdraw_button_cancel":
             MessageLookupByLibrary.simpleMessage("让我再想一想"),
         "dialog_withdraw_button_ok": MessageLookupByLibrary.simpleMessage("退订"),
+        "dialog_withdraw_error":
+            MessageLookupByLibrary.simpleMessage("取消订阅时发生错误。"),
         "dialog_withdraw_message": MessageLookupByLibrary.simpleMessage(
             "如果您取消会员资格，您的 Star Candy 和账户信息将被立即删除。"),
+        "dialog_withdraw_success":
+            MessageLookupByLibrary.simpleMessage("取款已成功处理。"),
         "dialog_withdraw_title":
             MessageLookupByLibrary.simpleMessage("您确定要取消订阅吗？"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("专辑名称"),
@@ -65,7 +69,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("成为第一个发表评论的人！"),
         "label_bonus": MessageLookupByLibrary.simpleMessage("奖金"),
-        "label_button_clse": MessageLookupByLibrary.simpleMessage("關閉"),
+        "label_button_clse": MessageLookupByLibrary.simpleMessage("关闭"),
         "label_button_recharge": MessageLookupByLibrary.simpleMessage("充电"),
         "label_button_save_vote_paper":
             MessageLookupByLibrary.simpleMessage("保存您的选票"),
