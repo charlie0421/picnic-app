@@ -24,7 +24,7 @@ class _CommonBottomNavigationBarState
   Widget build(BuildContext context) {
     ref.watch(appSettingProvider.select((value) => value.locale));
     return Container(
-      padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 26.h),
+      padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 40.h),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,

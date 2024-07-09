@@ -215,7 +215,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_ads_random": MessageLookupByLibrary.simpleMessage("查看广告并收集随机图片。"),
         "text_bonus": MessageLookupByLibrary.simpleMessage("奖金"),
         "text_comming_soon_pic_chart1": MessageLookupByLibrary.simpleMessage(
-            "欢迎来到 Peek Charts！2024 年 8 月再见！"),
+            "欢迎来到 Peek Charts！\n2024 年 8 月再见！"),
         "text_comming_soon_pic_chart2": MessageLookupByLibrary.simpleMessage(
             "饼图是 Peeknick 独有的一种新图表，可反映每日、每周和每月的分数。"),
         "text_comming_soon_pic_chart3":

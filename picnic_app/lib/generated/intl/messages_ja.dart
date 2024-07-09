@@ -234,9 +234,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_comming_soon_pic_chart1": MessageLookupByLibrary.simpleMessage(
             "ピックチャートへようこそ！n2024年8月にお会いしましょう！"),
         "text_comming_soon_pic_chart2": MessageLookupByLibrary.simpleMessage(
-            "ピックチャートは、日次、週次、月次のスコアを反映する\\nピクニックだけの新しいチャートです。"),
+            "ピックチャートは、日次、週次、月次のスコアを反映する\nピクニックだけの新しいチャートです。"),
         "text_comming_soon_pic_chart3": MessageLookupByLibrary.simpleMessage(
-            "リアルタイムで反映される\\nアーティストのブランド評判をご確認ください！"),
+            "リアルタイムで反映される\nアーティストのブランド評判をご確認ください！"),
         "text_comming_soon_pic_chart_title":
             MessageLookupByLibrary.simpleMessage("핔차트란?"),
         "text_copied_address":
