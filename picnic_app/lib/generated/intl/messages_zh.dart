@@ -1,5 +1,5 @@
 // DO NOT EDIT. This is code generated via package:intl/generate_localized.dart
-// This is a library that provides messages for a cn locale. All the
+// This is a library that provides messages for a zh locale. All the
 // messages from the main program should be duplicated here with the same
 // function name.
 
@@ -18,7 +18,7 @@ final messages = new MessageLookup();
 typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 
 class MessageLookup extends MessageLookupByLibrary {
-  String get localeName => 'cn';
+  String get localeName => 'zh';
 
   static String m0(day) => "${day}일 전";
 
@@ -39,7 +39,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_ok": MessageLookupByLibrary.simpleMessage("确认"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("节省"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
-            "### 有效期\n\n- 自获得之日起，Star Candy 的有效期为一年。\n\n### 赚取的星星糖\n\n登录：每天 1 个\n- 投票：每天 1 次\n购买糖果：无（无限制）\n奖励星星糖果：在获得后的当月 15 日分批过期\n\n在 ##### 上兑换星星糖\n\n有效期即将结束的星星糖果将优先使用。\n如果有效期相同，则使用最早的一个。"),
+            "### 有效期\n\n- 自获得之日起，Star Candy 的有效期为一年。\n\n### 赚取的星星糖\n\n登录：每天 1 个\n- 投票：每天 1 次\n购买糖果：无（无限制）\n奖励星星糖果：在获得后的当月 15 日分批过期\n\n在 ##### 上兑换星星糖\n\n有效期即将结束的星星糖将优先使用。\n如果有效期相同，则使用最早的一个。"),
         "candy_usage_policy_guide":
             MessageLookupByLibrary.simpleMessage("*奖金将在您获得奖金的次月消失！ ⓘ"),
         "candy_usage_policy_title":
@@ -50,7 +50,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("广告正在加载。"),
         "dialog_content_login_required":
             MessageLookupByLibrary.simpleMessage("需要登录"),
-        "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("表决失败"),
+        "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("投票失败"),
         "dialog_withdraw_button_cancel":
             MessageLookupByLibrary.simpleMessage("让我再想一想"),
         "dialog_withdraw_button_ok": MessageLookupByLibrary.simpleMessage("退订"),
@@ -63,27 +63,26 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialog_withdraw_title":
             MessageLookupByLibrary.simpleMessage("您确定要取消订阅吗？"),
         "error_message_no_user":
-            MessageLookupByLibrary.simpleMessage("회원 정보가 존재하지 않습니다."),
+            MessageLookupByLibrary.simpleMessage("会员信息不存在。"),
         "error_message_withdrawal":
-            MessageLookupByLibrary.simpleMessage("탈퇴한 회원입니다."),
+            MessageLookupByLibrary.simpleMessage("已取消订阅的会员。"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("专辑名称"),
         "hint_nickname_input": MessageLookupByLibrary.simpleMessage("请输入昵称。"),
         "image_save_success": MessageLookupByLibrary.simpleMessage("图像已保存。"),
         "label_agreement_privacy":
-            MessageLookupByLibrary.simpleMessage("개인정보 수집 및 이용 동의"),
-        "label_agreement_terms":
-            MessageLookupByLibrary.simpleMessage("이용 약관 동의"),
+            MessageLookupByLibrary.simpleMessage("同意收集和使用个人信息"),
+        "label_agreement_terms": MessageLookupByLibrary.simpleMessage("接受使用条款"),
         "label_album_add": MessageLookupByLibrary.simpleMessage("添加新相册"),
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("成为第一个发表评论的人！"),
         "label_bonus": MessageLookupByLibrary.simpleMessage("奖金"),
-        "label_button_agreement": MessageLookupByLibrary.simpleMessage("동의"),
+        "label_button_agreement": MessageLookupByLibrary.simpleMessage("同意"),
         "label_button_clse": MessageLookupByLibrary.simpleMessage("關閉"),
         "label_button_disagreement":
-            MessageLookupByLibrary.simpleMessage("비동의"),
+            MessageLookupByLibrary.simpleMessage("不同意"),
         "label_button_recharge": MessageLookupByLibrary.simpleMessage("充电"),
         "label_button_save_vote_paper":
-            MessageLookupByLibrary.simpleMessage("保存您的选票"),
+            MessageLookupByLibrary.simpleMessage("存储您的选票"),
         "label_button_share": MessageLookupByLibrary.simpleMessage("分享"),
         "label_button_vote": MessageLookupByLibrary.simpleMessage("投票"),
         "label_button_watch_and_charge":
@@ -127,8 +126,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_mypage_vote_history":
             MessageLookupByLibrary.simpleMessage("投票历史"),
         "label_mypage_withdrawal": MessageLookupByLibrary.simpleMessage("退出"),
-        "label_no_celeb":
-            MessageLookupByLibrary.simpleMessage("您还没有将任何艺术家加入书签！"),
+        "label_no_celeb": MessageLookupByLibrary.simpleMessage("您还没有收藏任何艺术家！"),
         "label_pic_image_cropping":
             MessageLookupByLibrary.simpleMessage("裁剪图像"),
         "label_pic_pic_initializing_camera":
@@ -141,7 +139,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_reply": MessageLookupByLibrary.simpleMessage("答复"),
         "label_retry": MessageLookupByLibrary.simpleMessage("再试一次"),
         "label_screen_title_agreement":
-            MessageLookupByLibrary.simpleMessage("약관 동의"),
+            MessageLookupByLibrary.simpleMessage("接受条款"),
         "label_setting_alarm": MessageLookupByLibrary.simpleMessage("通知"),
         "label_setting_appinfo": MessageLookupByLibrary.simpleMessage("关于应用程序"),
         "label_setting_current_version":
@@ -187,7 +185,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("查看广告"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("我的艺术家"),
         "message_agreement_success":
-            MessageLookupByLibrary.simpleMessage("약관 동의가 완료되었습니다."),
+            MessageLookupByLibrary.simpleMessage("你已经接受了条款。"),
         "message_error_occurred": MessageLookupByLibrary.simpleMessage("出现错误。"),
         "message_pic_pic_save_fail":
             MessageLookupByLibrary.simpleMessage("保存图像失败。"),
@@ -236,7 +234,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_comming_soon_pic_chart3":
             MessageLookupByLibrary.simpleMessage("实时查看艺术家的品牌声誉！"),
         "text_comming_soon_pic_chart_title":
-            MessageLookupByLibrary.simpleMessage("핔차트란?"),
+            MessageLookupByLibrary.simpleMessage("Pic Chart?"),
         "text_copied_address": MessageLookupByLibrary.simpleMessage("地址已复制。"),
         "text_dialog_star_candy_received":
             MessageLookupByLibrary.simpleMessage("已颁发星形糖果。"),
@@ -246,7 +244,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("来自整个画廊的 1 张图片已确认收藏"),
         "text_hint_search": MessageLookupByLibrary.simpleMessage("搜索艺术家"),
         "text_moveto_celeb_gallery":
-            MessageLookupByLibrary.simpleMessage("访问所选艺术家的主页。"),
+            MessageLookupByLibrary.simpleMessage("导航至所选艺术家的主页。"),
         "text_need_recharge": MessageLookupByLibrary.simpleMessage("需要充电。"),
         "text_no_search_result":
             MessageLookupByLibrary.simpleMessage("没有搜索结果。"),
@@ -263,7 +261,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("我的最爱呢？"),
         "title_dialog_library_add":
             MessageLookupByLibrary.simpleMessage("添加新相册"),
-        "title_dialog_success": MessageLookupByLibrary.simpleMessage("성공"),
+        "title_dialog_success": MessageLookupByLibrary.simpleMessage("成功"),
         "title_select_language": MessageLookupByLibrary.simpleMessage("选择语言"),
         "toast_max_five_celeb":
             MessageLookupByLibrary.simpleMessage("您最多可以添加五位自己的艺术家。")
