@@ -67,13 +67,13 @@ class _MyPageState extends ConsumerState<MyPage> {
                 onTap: () => ref
                     .read(navigationInfoProvider.notifier)
                     .setCurrentMyPage(const VoteHistoryPage())),
-            const Divider(color: AppColors.Grey200),
-            _buildMyStar('PIC'),
-            const Divider(color: AppColors.Grey200),
-            ListItem(
-                leading: S.of(context).label_mypage_membership_history,
-                assetPath: 'assets/icons/arrow_right_style=line.svg',
-                onTap: () {}),
+            // const Divider(color: AppColors.Grey200),
+            // _buildMyStar('PIC'),
+            // const Divider(color: AppColors.Grey200),
+            // ListItem(
+            //     leading: S.of(context).label_mypage_membership_history,
+            //     assetPath: 'assets/icons/arrow_right_style=line.svg',
+            //     onTap: () {}),
           ],
         ),
       ),
