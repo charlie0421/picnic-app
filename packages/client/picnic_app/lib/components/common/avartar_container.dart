@@ -1,0 +1,74 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:picnic_app/components/picnic_cached_network_image.dart';
+import 'package:picnic_app/ui/style.dart';
+
+class ProfileImageContainer extends StatelessWidget {
+  ProfileImageContainer({
+    super.key,
+    required this.avatarUrl,
+    required this.borderRadius,
+    required this.width,
+    required this.height,
+  });
+
+  final avatarUrl;
+  double? borderRadius = 8.r;
+  double? width = 24.w;
+  double? height = 24.w;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: height,
+      alignment: Alignment.center,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(borderRadius!),
+        child: avatarUrl!.contains('http://') || avatarUrl!.contains('https://')
+            ? CachedNetworkImage(
+                imageUrl: avatarUrl ?? '',
+                width: width,
+                height: height,
+                fit: BoxFit.cover,
+              )
+            : PicnicCachedNetworkImage(
+                imageUrl: avatarUrl ?? '',
+                width: width,
+                height: height,
+                fit: BoxFit.cover,
+              ),
+      ),
+    );
+  }
+}
+
+class DefaultAvatar extends StatelessWidget {
+  const DefaultAvatar({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 36.w,
+      height: 36.w,
+      padding: const EdgeInsets.all(6).r,
+      decoration: BoxDecoration(
+        color: AppColors.Grey200,
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+      child: SvgPicture.asset(
+        'assets/icons/header/default_avatar.svg',
+        width: 24.w,
+        height: 24.w,
+        colorFilter: const ColorFilter.mode(
+          AppColors.Grey00,
+          BlendMode.srcIn,
+        ),
+      ),
+    );
+  }
+}

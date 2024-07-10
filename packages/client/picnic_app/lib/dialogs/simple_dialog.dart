@@ -69,7 +69,7 @@ void showSimpleDialog({
                           child: Text(
                             S.of(context).dialog_button_cancel,
                             style: getTextStyle(
-                                AppTypo.BODY16B, AppColors.Mint500),
+                                AppTypo.BODY16B, AppColors.Grey700),
                           ),
                           onPressed: () {
                             onCancel();
