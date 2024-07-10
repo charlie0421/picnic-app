@@ -64,6 +64,10 @@ class MessageLookup extends MessageLookupByLibrary {
             "The unsubscribe was processed successfully."),
         "dialog_withdraw_title": MessageLookupByLibrary.simpleMessage(
             "Are you sure you want to leave?"),
+        "error_message_no_user":
+            MessageLookupByLibrary.simpleMessage("회원 정보가 존재하지 않습니다."),
+        "error_message_withdrawal":
+            MessageLookupByLibrary.simpleMessage("탈퇴한 회원입니다."),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("Album name"),
         "hint_nickname_input":
             MessageLookupByLibrary.simpleMessage("Please enter a nickname."),

@@ -20,6 +20,8 @@
   "dialog_withdraw_message": "退会すると、ピクニックで保有している星キャンディーとアカウント情報は即座に削除されます。",
   "dialog_withdraw_success": "退会が正常に処理されました。",
   "dialog_withdraw_title": "本当に退会しますか？",
+  "error_message_no_user": "회원 정보가 존재하지 않습니다.",
+  "error_message_withdrawal": "탈퇴한 회원입니다.",
   "hint_library_add": "アルバム名",
   "hint_nickname_input": "ニックネームを入力してください。",
   "image_save_success": "画像が保存されました。",
@@ -219,6 +221,8 @@
   "@dialog_withdraw_title": {
     "translationTimestamp": "2024-07-10T01:43:17.805259"
   },
+  "@error_message_no_user": {},
+  "@error_message_withdrawal": {},
   "@hint_library_add": {
     "translationTimestamp": "2024-07-10T01:43:17.805259"
   },

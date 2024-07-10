@@ -1,5 +1,5 @@
 {
-  "@@locale": "zh",
+  "@@locale": "cn",
   "app_name": "野餐",
   "button_cancel": "取消",
   "button_complete": "完成",
@@ -20,6 +20,8 @@
   "dialog_withdraw_message": "如果您取消会员资格，您的 Star Candy 和账户信息将被立即删除。",
   "dialog_withdraw_success": "取款已成功处理。",
   "dialog_withdraw_title": "您确定要取消订阅吗？",
+  "error_message_no_user": "회원 정보가 존재하지 않습니다.",
+  "error_message_withdrawal": "탈퇴한 회원입니다.",
   "hint_library_add": "专辑名称",
   "hint_nickname_input": "请输入昵称。",
   "image_save_success": "图像已保存。",
@@ -219,6 +221,8 @@
   "@dialog_withdraw_title": {
     "translationTimestamp": "2024-07-10T01:43:17.813327"
   },
+  "@error_message_no_user": {},
+  "@error_message_withdrawal": {},
   "@hint_library_add": {
     "translationTimestamp": "2024-07-10T01:43:17.813327"
   },

@@ -187,6 +187,7 @@ mixin _$UserProfilesModel {
   String? get nickname => throw _privateConstructorUsedError;
   String? get avatar_url => throw _privateConstructorUsedError;
   String? get country_code => throw _privateConstructorUsedError;
+  DateTime? get deleted_at => throw _privateConstructorUsedError;
   int get star_candy => throw _privateConstructorUsedError;
   int get star_candy_bonus => throw _privateConstructorUsedError;
 
@@ -207,6 +208,7 @@ abstract class $UserProfilesModelCopyWith<$Res> {
       String? nickname,
       String? avatar_url,
       String? country_code,
+      DateTime? deleted_at,
       int star_candy,
       int star_candy_bonus});
 }
@@ -228,6 +230,7 @@ class _$UserProfilesModelCopyWithImpl<$Res, $Val extends UserProfilesModel>
     Object? nickname = freezed,
     Object? avatar_url = freezed,
     Object? country_code = freezed,
+    Object? deleted_at = freezed,
     Object? star_candy = null,
     Object? star_candy_bonus = null,
   }) {
@@ -248,6 +251,10 @@ class _$UserProfilesModelCopyWithImpl<$Res, $Val extends UserProfilesModel>
           ? _value.country_code
           : country_code // ignore: cast_nullable_to_non_nullable
               as String?,
+      deleted_at: freezed == deleted_at
+          ? _value.deleted_at
+          : deleted_at // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       star_candy: null == star_candy
           ? _value.star_candy
           : star_candy // ignore: cast_nullable_to_non_nullable
@@ -273,6 +280,7 @@ abstract class _$$UserProfilesModelImplCopyWith<$Res>
       String? nickname,
       String? avatar_url,
       String? country_code,
+      DateTime? deleted_at,
       int star_candy,
       int star_candy_bonus});
 }
@@ -292,6 +300,7 @@ class __$$UserProfilesModelImplCopyWithImpl<$Res>
     Object? nickname = freezed,
     Object? avatar_url = freezed,
     Object? country_code = freezed,
+    Object? deleted_at = freezed,
     Object? star_candy = null,
     Object? star_candy_bonus = null,
   }) {
@@ -312,6 +321,10 @@ class __$$UserProfilesModelImplCopyWithImpl<$Res>
           ? _value.country_code
           : country_code // ignore: cast_nullable_to_non_nullable
               as String?,
+      deleted_at: freezed == deleted_at
+          ? _value.deleted_at
+          : deleted_at // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       star_candy: null == star_candy
           ? _value.star_candy
           : star_candy // ignore: cast_nullable_to_non_nullable
@@ -332,6 +345,7 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
       this.nickname,
       this.avatar_url,
       this.country_code,
+      this.deleted_at,
       required this.star_candy,
       required this.star_candy_bonus})
       : super._();
@@ -348,13 +362,15 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
   @override
   final String? country_code;
   @override
+  final DateTime? deleted_at;
+  @override
   final int star_candy;
   @override
   final int star_candy_bonus;
 
   @override
   String toString() {
-    return 'UserProfilesModel(id: $id, nickname: $nickname, avatar_url: $avatar_url, country_code: $country_code, star_candy: $star_candy, star_candy_bonus: $star_candy_bonus)';
+    return 'UserProfilesModel(id: $id, nickname: $nickname, avatar_url: $avatar_url, country_code: $country_code, deleted_at: $deleted_at, star_candy: $star_candy, star_candy_bonus: $star_candy_bonus)';
   }
 
   @override
@@ -369,6 +385,8 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
                 other.avatar_url == avatar_url) &&
             (identical(other.country_code, country_code) ||
                 other.country_code == country_code) &&
+            (identical(other.deleted_at, deleted_at) ||
+                other.deleted_at == deleted_at) &&
             (identical(other.star_candy, star_candy) ||
                 other.star_candy == star_candy) &&
             (identical(other.star_candy_bonus, star_candy_bonus) ||
@@ -378,7 +396,7 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, id, nickname, avatar_url,
-      country_code, star_candy, star_candy_bonus);
+      country_code, deleted_at, star_candy, star_candy_bonus);
 
   @JsonKey(ignore: true)
   @override
@@ -401,6 +419,7 @@ abstract class _UserProfilesModel extends UserProfilesModel {
       final String? nickname,
       final String? avatar_url,
       final String? country_code,
+      final DateTime? deleted_at,
       required final int star_candy,
       required final int star_candy_bonus}) = _$UserProfilesModelImpl;
   const _UserProfilesModel._() : super._();
@@ -416,6 +435,8 @@ abstract class _UserProfilesModel extends UserProfilesModel {
   String? get avatar_url;
   @override
   String? get country_code;
+  @override
+  DateTime? get deleted_at;
   @override
   int get star_candy;
   @override
