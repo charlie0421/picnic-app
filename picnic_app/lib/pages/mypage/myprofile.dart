@@ -5,8 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
+import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
-import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/components/vote/common_vote_info.dart';
 import 'package:picnic_app/constants.dart';
@@ -392,15 +392,11 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
           SizedBox(
             width: 100.w,
             height: 100.w,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(50.w),
-              clipBehavior: Clip.hardEdge,
-              child: PicnicCachedNetworkImage(
-                imageUrl: userInfo.value?.avatar_url ?? '',
-                fit: BoxFit.cover,
-                width: 100.w,
-                height: 100.w,
-              ),
+            child: ProfileImageContainer(
+              avatarUrl: userInfo.value?.avatar_url,
+              borderRadius: 50.w,
+              width: 100.w,
+              height: 100.w,
             ),
           ),
           Positioned(

@@ -33,7 +33,7 @@ class UserInfo extends _$UserInfo {
       logger.e(e);
       logger.e(s);
 
-      return null;
+      rethrow;
     } finally {}
   }
 
