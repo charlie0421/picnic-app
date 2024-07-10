@@ -35,24 +35,20 @@ class _TermsPageState extends ConsumerState<TermsPage>
 
   @override
   Widget build(BuildContext context) {
-    return _buildTabBar();
-  }
-
-  Widget _buildTabBar() {
     final PolicyLanguage language =
         ref.watch(appSettingProvider).locale.languageCode == 'ko'
             ? PolicyLanguage.ko
             : PolicyLanguage.en;
-    final policyModelState = ref
-        .watch(asyncPolicyProvider(type: PolicyType.terms, language: language));
+    final policyModelState = ref.watch(asyncPolicyProvider);
     return policyModelState.when(
       data: (policy) {
         return Column(
           children: [
             Expanded(
               child: Markdown(
-                data: policy.content,
-              ),
+                  data: language == PolicyLanguage.ko
+                      ? policy.terms_ko!.content
+                      : policy.terms_en!.content),
             ),
           ],
         );

@@ -13,8 +13,8 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
+import 'package:picnic_app/pages/signup/login_page.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';
-import 'package:picnic_app/screens/login_screen.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -355,8 +355,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                                 .dialog_content_login_required,
                                             onOk: () {
                                               Navigator.pop(context);
-                                              Navigator.pushNamed(context,
-                                                  LoginScreen.routeName);
+                                              Navigator.pushNamed(
+                                                  context, LoginPage.routeName);
                                             },
                                             onCancel: () =>
                                                 Navigator.pop(context),

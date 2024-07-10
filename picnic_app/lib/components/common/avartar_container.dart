@@ -72,3 +72,21 @@ class DefaultAvatar extends StatelessWidget {
     );
   }
 }
+
+class NoAvatar extends StatelessWidget {
+  const NoAvatar({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8.r),
+      child: Image.asset(
+        'assets/icons/header/no_avatar.png',
+        width: 36.w,
+        height: 36.w,
+      ),
+    );
+  }
+}

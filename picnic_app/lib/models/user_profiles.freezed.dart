@@ -14,169 +14,6 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
-/// @nodoc
-mixin _$UserProfilesListModel {
-  List<UserProfilesModel> get items => throw _privateConstructorUsedError;
-  MetaModel get meta => throw _privateConstructorUsedError;
-
-  @JsonKey(ignore: true)
-  $UserProfilesListModelCopyWith<UserProfilesListModel> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class $UserProfilesListModelCopyWith<$Res> {
-  factory $UserProfilesListModelCopyWith(UserProfilesListModel value,
-          $Res Function(UserProfilesListModel) then) =
-      _$UserProfilesListModelCopyWithImpl<$Res, UserProfilesListModel>;
-  @useResult
-  $Res call({List<UserProfilesModel> items, MetaModel meta});
-
-  $MetaModelCopyWith<$Res> get meta;
-}
-
-/// @nodoc
-class _$UserProfilesListModelCopyWithImpl<$Res,
-        $Val extends UserProfilesListModel>
-    implements $UserProfilesListModelCopyWith<$Res> {
-  _$UserProfilesListModelCopyWithImpl(this._value, this._then);
-
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? items = null,
-    Object? meta = null,
-  }) {
-    return _then(_value.copyWith(
-      items: null == items
-          ? _value.items
-          : items // ignore: cast_nullable_to_non_nullable
-              as List<UserProfilesModel>,
-      meta: null == meta
-          ? _value.meta
-          : meta // ignore: cast_nullable_to_non_nullable
-              as MetaModel,
-    ) as $Val);
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  $MetaModelCopyWith<$Res> get meta {
-    return $MetaModelCopyWith<$Res>(_value.meta, (value) {
-      return _then(_value.copyWith(meta: value) as $Val);
-    });
-  }
-}
-
-/// @nodoc
-abstract class _$$UserProfilesListModelImplCopyWith<$Res>
-    implements $UserProfilesListModelCopyWith<$Res> {
-  factory _$$UserProfilesListModelImplCopyWith(
-          _$UserProfilesListModelImpl value,
-          $Res Function(_$UserProfilesListModelImpl) then) =
-      __$$UserProfilesListModelImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({List<UserProfilesModel> items, MetaModel meta});
-
-  @override
-  $MetaModelCopyWith<$Res> get meta;
-}
-
-/// @nodoc
-class __$$UserProfilesListModelImplCopyWithImpl<$Res>
-    extends _$UserProfilesListModelCopyWithImpl<$Res,
-        _$UserProfilesListModelImpl>
-    implements _$$UserProfilesListModelImplCopyWith<$Res> {
-  __$$UserProfilesListModelImplCopyWithImpl(_$UserProfilesListModelImpl _value,
-      $Res Function(_$UserProfilesListModelImpl) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? items = null,
-    Object? meta = null,
-  }) {
-    return _then(_$UserProfilesListModelImpl(
-      items: null == items
-          ? _value._items
-          : items // ignore: cast_nullable_to_non_nullable
-              as List<UserProfilesModel>,
-      meta: null == meta
-          ? _value.meta
-          : meta // ignore: cast_nullable_to_non_nullable
-              as MetaModel,
-    ));
-  }
-}
-
-/// @nodoc
-
-class _$UserProfilesListModelImpl extends _UserProfilesListModel {
-  const _$UserProfilesListModelImpl(
-      {required final List<UserProfilesModel> items, required this.meta})
-      : _items = items,
-        super._();
-
-  final List<UserProfilesModel> _items;
-  @override
-  List<UserProfilesModel> get items {
-    if (_items is EqualUnmodifiableListView) return _items;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_items);
-  }
-
-  @override
-  final MetaModel meta;
-
-  @override
-  String toString() {
-    return 'UserProfilesListModel(items: $items, meta: $meta)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$UserProfilesListModelImpl &&
-            const DeepCollectionEquality().equals(other._items, _items) &&
-            (identical(other.meta, meta) || other.meta == meta));
-  }
-
-  @override
-  int get hashCode => Object.hash(
-      runtimeType, const DeepCollectionEquality().hash(_items), meta);
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$UserProfilesListModelImplCopyWith<_$UserProfilesListModelImpl>
-      get copyWith => __$$UserProfilesListModelImplCopyWithImpl<
-          _$UserProfilesListModelImpl>(this, _$identity);
-}
-
-abstract class _UserProfilesListModel extends UserProfilesListModel {
-  const factory _UserProfilesListModel(
-      {required final List<UserProfilesModel> items,
-      required final MetaModel meta}) = _$UserProfilesListModelImpl;
-  const _UserProfilesListModel._() : super._();
-
-  @override
-  List<UserProfilesModel> get items;
-  @override
-  MetaModel get meta;
-  @override
-  @JsonKey(ignore: true)
-  _$$UserProfilesListModelImplCopyWith<_$UserProfilesListModelImpl>
-      get copyWith => throw _privateConstructorUsedError;
-}
-
 UserProfilesModel _$UserProfilesModelFromJson(Map<String, dynamic> json) {
   return _UserProfilesModel.fromJson(json);
 }
@@ -188,6 +25,7 @@ mixin _$UserProfilesModel {
   String? get avatar_url => throw _privateConstructorUsedError;
   String? get country_code => throw _privateConstructorUsedError;
   DateTime? get deleted_at => throw _privateConstructorUsedError;
+  UserAgreement? get user_agreement => throw _privateConstructorUsedError;
   int get star_candy => throw _privateConstructorUsedError;
   int get star_candy_bonus => throw _privateConstructorUsedError;
 
@@ -209,8 +47,11 @@ abstract class $UserProfilesModelCopyWith<$Res> {
       String? avatar_url,
       String? country_code,
       DateTime? deleted_at,
+      UserAgreement? user_agreement,
       int star_candy,
       int star_candy_bonus});
+
+  $UserAgreementCopyWith<$Res>? get user_agreement;
 }
 
 /// @nodoc
@@ -231,6 +72,7 @@ class _$UserProfilesModelCopyWithImpl<$Res, $Val extends UserProfilesModel>
     Object? avatar_url = freezed,
     Object? country_code = freezed,
     Object? deleted_at = freezed,
+    Object? user_agreement = freezed,
     Object? star_candy = null,
     Object? star_candy_bonus = null,
   }) {
@@ -255,6 +97,10 @@ class _$UserProfilesModelCopyWithImpl<$Res, $Val extends UserProfilesModel>
           ? _value.deleted_at
           : deleted_at // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      user_agreement: freezed == user_agreement
+          ? _value.user_agreement
+          : user_agreement // ignore: cast_nullable_to_non_nullable
+              as UserAgreement?,
       star_candy: null == star_candy
           ? _value.star_candy
           : star_candy // ignore: cast_nullable_to_non_nullable
@@ -264,6 +110,18 @@ class _$UserProfilesModelCopyWithImpl<$Res, $Val extends UserProfilesModel>
           : star_candy_bonus // ignore: cast_nullable_to_non_nullable
               as int,
     ) as $Val);
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $UserAgreementCopyWith<$Res>? get user_agreement {
+    if (_value.user_agreement == null) {
+      return null;
+    }
+
+    return $UserAgreementCopyWith<$Res>(_value.user_agreement!, (value) {
+      return _then(_value.copyWith(user_agreement: value) as $Val);
+    });
   }
 }
 
@@ -281,8 +139,12 @@ abstract class _$$UserProfilesModelImplCopyWith<$Res>
       String? avatar_url,
       String? country_code,
       DateTime? deleted_at,
+      UserAgreement? user_agreement,
       int star_candy,
       int star_candy_bonus});
+
+  @override
+  $UserAgreementCopyWith<$Res>? get user_agreement;
 }
 
 /// @nodoc
@@ -301,6 +163,7 @@ class __$$UserProfilesModelImplCopyWithImpl<$Res>
     Object? avatar_url = freezed,
     Object? country_code = freezed,
     Object? deleted_at = freezed,
+    Object? user_agreement = freezed,
     Object? star_candy = null,
     Object? star_candy_bonus = null,
   }) {
@@ -325,6 +188,10 @@ class __$$UserProfilesModelImplCopyWithImpl<$Res>
           ? _value.deleted_at
           : deleted_at // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      user_agreement: freezed == user_agreement
+          ? _value.user_agreement
+          : user_agreement // ignore: cast_nullable_to_non_nullable
+              as UserAgreement?,
       star_candy: null == star_candy
           ? _value.star_candy
           : star_candy // ignore: cast_nullable_to_non_nullable
@@ -346,6 +213,7 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
       this.avatar_url,
       this.country_code,
       this.deleted_at,
+      this.user_agreement,
       required this.star_candy,
       required this.star_candy_bonus})
       : super._();
@@ -364,13 +232,15 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
   @override
   final DateTime? deleted_at;
   @override
+  final UserAgreement? user_agreement;
+  @override
   final int star_candy;
   @override
   final int star_candy_bonus;
 
   @override
   String toString() {
-    return 'UserProfilesModel(id: $id, nickname: $nickname, avatar_url: $avatar_url, country_code: $country_code, deleted_at: $deleted_at, star_candy: $star_candy, star_candy_bonus: $star_candy_bonus)';
+    return 'UserProfilesModel(id: $id, nickname: $nickname, avatar_url: $avatar_url, country_code: $country_code, deleted_at: $deleted_at, user_agreement: $user_agreement, star_candy: $star_candy, star_candy_bonus: $star_candy_bonus)';
   }
 
   @override
@@ -387,6 +257,8 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
                 other.country_code == country_code) &&
             (identical(other.deleted_at, deleted_at) ||
                 other.deleted_at == deleted_at) &&
+            (identical(other.user_agreement, user_agreement) ||
+                other.user_agreement == user_agreement) &&
             (identical(other.star_candy, star_candy) ||
                 other.star_candy == star_candy) &&
             (identical(other.star_candy_bonus, star_candy_bonus) ||
@@ -396,7 +268,7 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, id, nickname, avatar_url,
-      country_code, deleted_at, star_candy, star_candy_bonus);
+      country_code, deleted_at, user_agreement, star_candy, star_candy_bonus);
 
   @JsonKey(ignore: true)
   @override
@@ -420,6 +292,7 @@ abstract class _UserProfilesModel extends UserProfilesModel {
       final String? avatar_url,
       final String? country_code,
       final DateTime? deleted_at,
+      final UserAgreement? user_agreement,
       required final int star_candy,
       required final int star_candy_bonus}) = _$UserProfilesModelImpl;
   const _UserProfilesModel._() : super._();
@@ -438,11 +311,169 @@ abstract class _UserProfilesModel extends UserProfilesModel {
   @override
   DateTime? get deleted_at;
   @override
+  UserAgreement? get user_agreement;
+  @override
   int get star_candy;
   @override
   int get star_candy_bonus;
   @override
   @JsonKey(ignore: true)
   _$$UserProfilesModelImplCopyWith<_$UserProfilesModelImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+UserAgreement _$UserAgreementFromJson(Map<String, dynamic> json) {
+  return _UserAgreement.fromJson(json);
+}
+
+/// @nodoc
+mixin _$UserAgreement {
+  DateTime get terms => throw _privateConstructorUsedError;
+  DateTime get privacy => throw _privateConstructorUsedError;
+
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $UserAgreementCopyWith<UserAgreement> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $UserAgreementCopyWith<$Res> {
+  factory $UserAgreementCopyWith(
+          UserAgreement value, $Res Function(UserAgreement) then) =
+      _$UserAgreementCopyWithImpl<$Res, UserAgreement>;
+  @useResult
+  $Res call({DateTime terms, DateTime privacy});
+}
+
+/// @nodoc
+class _$UserAgreementCopyWithImpl<$Res, $Val extends UserAgreement>
+    implements $UserAgreementCopyWith<$Res> {
+  _$UserAgreementCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? terms = null,
+    Object? privacy = null,
+  }) {
+    return _then(_value.copyWith(
+      terms: null == terms
+          ? _value.terms
+          : terms // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      privacy: null == privacy
+          ? _value.privacy
+          : privacy // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$UserAgreementImplCopyWith<$Res>
+    implements $UserAgreementCopyWith<$Res> {
+  factory _$$UserAgreementImplCopyWith(
+          _$UserAgreementImpl value, $Res Function(_$UserAgreementImpl) then) =
+      __$$UserAgreementImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({DateTime terms, DateTime privacy});
+}
+
+/// @nodoc
+class __$$UserAgreementImplCopyWithImpl<$Res>
+    extends _$UserAgreementCopyWithImpl<$Res, _$UserAgreementImpl>
+    implements _$$UserAgreementImplCopyWith<$Res> {
+  __$$UserAgreementImplCopyWithImpl(
+      _$UserAgreementImpl _value, $Res Function(_$UserAgreementImpl) _then)
+      : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? terms = null,
+    Object? privacy = null,
+  }) {
+    return _then(_$UserAgreementImpl(
+      terms: null == terms
+          ? _value.terms
+          : terms // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      privacy: null == privacy
+          ? _value.privacy
+          : privacy // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$UserAgreementImpl extends _UserAgreement {
+  const _$UserAgreementImpl({required this.terms, required this.privacy})
+      : super._();
+
+  factory _$UserAgreementImpl.fromJson(Map<String, dynamic> json) =>
+      _$$UserAgreementImplFromJson(json);
+
+  @override
+  final DateTime terms;
+  @override
+  final DateTime privacy;
+
+  @override
+  String toString() {
+    return 'UserAgreement(terms: $terms, privacy: $privacy)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$UserAgreementImpl &&
+            (identical(other.terms, terms) || other.terms == terms) &&
+            (identical(other.privacy, privacy) || other.privacy == privacy));
+  }
+
+  @JsonKey(ignore: true)
+  @override
+  int get hashCode => Object.hash(runtimeType, terms, privacy);
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$UserAgreementImplCopyWith<_$UserAgreementImpl> get copyWith =>
+      __$$UserAgreementImplCopyWithImpl<_$UserAgreementImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$UserAgreementImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _UserAgreement extends UserAgreement {
+  const factory _UserAgreement(
+      {required final DateTime terms,
+      required final DateTime privacy}) = _$UserAgreementImpl;
+  const _UserAgreement._() : super._();
+
+  factory _UserAgreement.fromJson(Map<String, dynamic> json) =
+      _$UserAgreementImpl.fromJson;
+
+  @override
+  DateTime get terms;
+  @override
+  DateTime get privacy;
+  @override
+  @JsonKey(ignore: true)
+  _$$UserAgreementImplCopyWith<_$UserAgreementImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

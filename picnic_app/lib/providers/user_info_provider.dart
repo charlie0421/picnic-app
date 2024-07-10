@@ -7,10 +7,11 @@ import 'package:supabase_extensions/supabase_extensions.dart';
 
 part 'user_info_provider.g.dart';
 
-@Riverpod(keepAlive: true)
+@riverpod
 class UserInfo extends _$UserInfo {
   @override
   Future<UserProfilesModel?> build() async {
+    logger.i('supabase.isLogged: ${supabase.isLogged}');
     if (!supabase.isLogged) {
       return null;
     }
@@ -23,8 +24,12 @@ class UserInfo extends _$UserInfo {
     if (!supabase.isLogged) {
       return null;
     }
+
     try {
-      final response = await supabase.from('user_profiles').select().single();
+      final response = await supabase
+          .from('user_profiles')
+          .select('*, user_agreement(*)')
+          .single();
       logger.i('response.data: $response');
       state = AsyncValue.data(UserProfilesModel.fromJson(response));
 
@@ -35,6 +40,10 @@ class UserInfo extends _$UserInfo {
 
       rethrow;
     } finally {}
+  }
+
+  Future<UserProfilesModel?> login() async {
+    return getUserProfiles();
   }
 
   Future<void> logout() async {
@@ -63,5 +72,37 @@ class UserInfo extends _$UserInfo {
       logger.e(e);
       logger.e(s);
     }
+  }
+}
+
+@riverpod
+Future<bool> setAgreement(AgreementRef ref) async {
+  try {
+    final response = await supabase.from('user_agreement').upsert({
+      'id': supabase.auth.currentUser?.id,
+      'terms': 'now',
+      'privacy': 'now',
+    }).select();
+
+    return true;
+  } catch (e, s) {
+    logger.e(e, stackTrace: s);
+    return false;
+  }
+}
+
+@riverpod
+Future<bool> agreement(AgreementRef ref) async {
+  try {
+    final response = await supabase.from('user_agreement').insert({
+      'id': supabase.auth.currentUser?.id,
+      'terms': DateTime.now(),
+      'privacy': DateTime.now(),
+    }).select();
+
+    return true;
+  } catch (e, s) {
+    logger.e(e, stackTrace: s);
+    return false;
   }
 }

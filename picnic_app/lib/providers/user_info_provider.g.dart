@@ -6,12 +6,40 @@ part of 'user_info_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$userInfoHash() => r'fafd836e2819abdf30e844f66f0539095c582a33';
+String _$setAgreementHash() => r'7479150514aae43a4de8b87220e5e79e8c34bd74';
+
+/// See also [setAgreement].
+@ProviderFor(setAgreement)
+final setAgreementProvider = AutoDisposeFutureProvider<bool>.internal(
+  setAgreement,
+  name: r'setAgreementProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$setAgreementHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef SetAgreementRef = AutoDisposeFutureProviderRef<bool>;
+String _$agreementHash() => r'a94ff0db8a9196f275e29a92bc6489822ed94ef2';
+
+/// See also [agreement].
+@ProviderFor(agreement)
+final agreementProvider = AutoDisposeFutureProvider<bool>.internal(
+  agreement,
+  name: r'agreementProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$agreementHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef AgreementRef = AutoDisposeFutureProviderRef<bool>;
+String _$userInfoHash() => r'9d120ff86fca94b9306e8a77a88536cb82371537';
 
 /// See also [UserInfo].
 @ProviderFor(UserInfo)
 final userInfoProvider =
-    AsyncNotifierProvider<UserInfo, UserProfilesModel?>.internal(
+    AutoDisposeAsyncNotifierProvider<UserInfo, UserProfilesModel?>.internal(
   UserInfo.new,
   name: r'userInfoProvider',
   debugGetCreateSourceHash:
@@ -20,6 +48,6 @@ final userInfoProvider =
   allTransitiveDependencies: null,
 );
 
-typedef _$UserInfo = AsyncNotifier<UserProfilesModel?>;
+typedef _$UserInfo = AutoDisposeAsyncNotifier<UserProfilesModel?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

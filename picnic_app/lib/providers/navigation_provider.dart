@@ -3,6 +3,7 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/menu.dart';
 import 'package:picnic_app/navigation_stack.dart';
 import 'package:picnic_app/pages/mypage/mypage.dart';
+import 'package:picnic_app/pages/signup/login_page.dart';
 import 'package:picnic_app/pages/vote/vote_home_page.dart';
 import 'package:picnic_app/reflector.dart';
 import 'package:picnic_app/screens/community/community_home_screen.dart';
@@ -169,6 +170,21 @@ class NavigationInfo extends _$NavigationInfo {
         showBottomNavigation: true);
   }
 
+  setCurrentSignUpPage(Widget page) {
+    final NavigationStack? navigationStack = state.signUpNavigationStack;
+
+    if (navigationStack?.peek() == page) {
+      return;
+    }
+
+    navigationStack?.push(page);
+
+    state = state.copyWith(
+        signUpNavigationStack: navigationStack,
+        showTopMenu: true,
+        showBottomNavigation: true);
+  }
+
   goBack() {
     final NavigationStack? topNavigationStack = state.topNavigationStack;
     topNavigationStack?.pop();
@@ -186,6 +202,13 @@ class NavigationInfo extends _$NavigationInfo {
     navigationStack?.pop();
 
     state = state.copyWith(drawerNavigationStack: navigationStack);
+  }
+
+  goBackSignUp() {
+    final NavigationStack? navigationStack = state.signUpNavigationStack;
+    navigationStack?.pop();
+
+    state = state.copyWith(signUpNavigationStack: navigationStack);
   }
 
   hidePortal() {
@@ -215,6 +238,8 @@ class Navigation {
     ..push(const VoteHomePage());
   NavigationStack? drawerNavigationStack = NavigationStack()
     ..push(const MyPage());
+  NavigationStack? signUpNavigationStack = NavigationStack()
+    ..push(const LoginPage());
 
   Navigation();
 
@@ -275,6 +300,7 @@ class Navigation {
     bool? showBottomNavigation,
     NavigationStack? topNavigationStack,
     NavigationStack? drawerNavigationStack,
+    NavigationStack? signUpNavigationStack,
   }) {
     return Navigation()
       ..portalType = portalType ?? this.portalType
@@ -291,6 +317,8 @@ class Navigation {
       ..showBottomNavigation = showBottomNavigation ?? this.showBottomNavigation
       ..topNavigationStack = topNavigationStack ?? this.topNavigationStack
       ..drawerNavigationStack =
-          drawerNavigationStack ?? this.drawerNavigationStack;
+          drawerNavigationStack ?? this.drawerNavigationStack
+      ..signUpNavigationStack =
+          signUpNavigationStack ?? this.signUpNavigationStack;
   }
 }

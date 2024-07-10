@@ -44,16 +44,20 @@ class _PrivacyPageState extends ConsumerState<PrivacyPage>
         ref.watch(appSettingProvider).locale.languageCode == 'ko'
             ? PolicyLanguage.ko
             : PolicyLanguage.en;
-    final policyModelState = ref.watch(
-        asyncPolicyProvider(type: PolicyType.privacy, language: language));
+    final policyModelState = ref.watch(asyncPolicyProvider);
     return policyModelState.when(
       data: (policy) {
         return Column(
           children: [
             Expanded(
               child: Markdown(
-                data: policy.content,
-              ),
+                  data: language == PolicyLanguage.ko
+                      ? policy
+                          .privacy_ko!
+                          .content
+                      : policy
+                          .privacy_en!
+                          .content),
             ),
           ],
         );
