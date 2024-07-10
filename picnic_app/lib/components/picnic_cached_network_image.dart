@@ -27,12 +27,6 @@ class PicnicCachedNetworkImage extends StatefulWidget {
 }
 
 class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
-  List<bool> _loaded = [
-    false,
-    false,
-    false
-  ]; // Tracks loading state of each image
-
   double getResolutionMultiplier(BuildContext context) {
     if (UniversalPlatform.isWeb) {
       return 1.0;
@@ -58,40 +52,30 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
     return SizedBox(
       width: widget.width,
       height: widget.height,
-      child: Stack(
-        alignment: Alignment.center,
-        children: urls.asMap().entries.map((entry) {
+      child: Stack(alignment: Alignment.center, children: [
+        buildLoadingOverlay(),
+        ...urls.asMap().entries.map((entry) {
           int index = entry.key;
           String url = entry.value;
-          return Visibility(
-            visible: !_loaded.sublist(index + 1).contains(true),
-            child: CachedNetworkImage(
-              imageUrl: url,
-              width: widget.width,
-              height: widget.height,
-              fit: widget.fit,
-              imageBuilder: (context, imageProvider) {
-                // Once the image is loaded, update the state to reflect this
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (!mounted) return;
-                  setState(() {
-                    _loaded[index] = true;
-                  });
-                });
-                return Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: imageProvider,
-                      fit: BoxFit.cover,
-                    ),
+          return CachedNetworkImage(
+            imageUrl: url,
+            width: widget.width,
+            height: widget.height,
+            fit: widget.fit,
+            imageBuilder: (context, imageProvider) {
+              return Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: imageProvider,
+                    fit: BoxFit.cover,
                   ),
-                );
-              },
-              errorWidget: (context, url, error) => Container(),
-            ),
+                ),
+              );
+            },
+            errorWidget: (context, url, error) => Container(),
           );
         }).toList(),
-      ),
+      ]),
     );
   }
 
