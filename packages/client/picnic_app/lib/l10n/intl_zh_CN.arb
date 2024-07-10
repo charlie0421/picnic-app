@@ -25,10 +25,14 @@
   "hint_library_add": "专辑名称",
   "hint_nickname_input": "请输入昵称。",
   "image_save_success": "图像已保存。",
+  "label_agreement_privacy": "개인정보 수집 및 이용 동의",
+  "label_agreement_terms": "이용 약관 동의",
   "label_album_add": "添加新相册",
   "label_article_comment_empty": "成为第一个发表评论的人！",
   "label_bonus": "奖金",
+  "label_button_agreement": "동의",
   "label_button_clse": "關閉",
+  "label_button_disagreement": "비동의",
   "label_button_recharge": "充电",
   "label_button_save_vote_paper": "保存您的选票",
   "label_button_share": "分享",
@@ -71,6 +75,7 @@
   "label_read_more_comment": "更多评论",
   "label_reply": "答复",
   "label_retry": "再试一次",
+  "label_screen_title_agreement": "약관 동의",
   "label_setting_alarm": "通知",
   "label_setting_appinfo": "关于应用程序",
   "label_setting_current_version": "当前版本",
@@ -103,6 +108,7 @@
   "label_vote_vote_gather": "收集选票",
   "label_watch_ads": "查看广告",
   "lable_my_celeb": "我的艺术家",
+  "message_agreement_success": "약관 동의가 완료되었습니다.",
   "message_error_occurred": "出现错误。",
   "message_pic_pic_save_fail": "保存图像失败。",
   "message_pic_pic_save_success": "图像已保存。",
@@ -159,6 +165,7 @@
   "text_vote_rank_in_reward": "奖励排名",
   "text_vote_where_is_my_bias": "我的最爱呢？",
   "title_dialog_library_add": "添加新相册",
+  "title_dialog_success": "성공",
   "title_select_language": "选择语言",
   "toast_max_five_celeb": "您最多可以添加五位自己的艺术家。",
   "@app_name": {
@@ -232,6 +239,8 @@
   "@image_save_success": {
     "translationTimestamp": "2024-07-10T01:43:17.813327"
   },
+  "@label_agreement_privacy": {},
+  "@label_agreement_terms": {},
   "@label_album_add": {
     "translationTimestamp": "2024-07-10T01:43:17.813327"
   },
@@ -241,9 +250,11 @@
   "@label_bonus": {
     "translationTimestamp": "2024-07-10T01:43:17.813327"
   },
+  "@label_button_agreement": {},
   "@label_button_clse": {
     "translationTimestamp": "2024-07-10T01:43:17.813327"
   },
+  "@label_button_disagreement": {},
   "@label_button_recharge": {
     "translationTimestamp": "2024-07-10T01:43:17.813327"
   },
@@ -371,6 +382,7 @@
   "@label_retry": {
     "translationTimestamp": "2024-07-10T01:43:17.813327"
   },
+  "@label_screen_title_agreement": {},
   "@label_setting_alarm": {
     "translationTimestamp": "2024-07-10T01:43:17.813327"
   },
@@ -467,6 +479,7 @@
   "@lable_my_celeb": {
     "translationTimestamp": "2024-07-10T01:43:17.813327"
   },
+  "@message_agreement_success": {},
   "@message_error_occurred": {
     "translationTimestamp": "2024-07-10T01:43:17.813327"
   },
@@ -648,6 +661,7 @@
   "@title_dialog_library_add": {
     "translationTimestamp": "2024-07-10T01:43:17.813327"
   },
+  "@title_dialog_success": {},
   "@title_select_language": {
     "translationTimestamp": "2024-07-10T01:43:17.813327"
   },

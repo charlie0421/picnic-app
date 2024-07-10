@@ -13,12 +13,12 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/user_profiles.dart';
+import 'package:picnic_app/pages/signup/agreement_terms_page.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
+import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
-import 'package:picnic_app/screens/portal.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -27,16 +27,16 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-class LoginScreen extends ConsumerStatefulWidget {
+class LoginPage extends ConsumerStatefulWidget {
   static const String routeName = '/login';
 
-  const LoginScreen({super.key});
+  const LoginPage({super.key});
 
   @override
   createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -223,43 +223,54 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  Future<UserProfilesModel?> _getUserProfile() async {
-    final userInfoNotifier = ref.watch(userInfoProvider.notifier);
-    try {
-      final userInfo = await userInfoNotifier.getUserProfiles();
-      logger.i('User Profile: $userInfo');
-
-      if (userInfo == null) {
-        throw S.of(context).error_message_no_user;
-      } else if (userInfo.deleted_at != null)
-        throw S.of(context).error_message_withdrawal;
-
-      return userInfo;
-    } catch (e, s) {
-      logger.e(e, stackTrace: s);
-      showSimpleDialog(
-          context: context,
-          title: '로그인 실패',
-          content: e.toString(),
-          onOk: () {
-            Navigator.of(context).pop();
-          });
-      return null;
-    }
-  }
+  // Future<UserProfilesModel?> _getUserProfile() async {
+  //   final userInfoNotifier = ref.watch(userInfoProvider.notifier);
+  //   try {
+  //     final userInfo = await userInfoNotifier.getUserProfiles();
+  //     logger.i('User Profile: $userInfo');
+  //
+  //     if (userInfo == null) {
+  //       throw S.of(context).error_message_no_user;
+  //     } else if (userInfo.deleted_at != null)
+  //       throw S.of(context).error_message_withdrawal;
+  //
+  //     return userInfo;
+  //   } catch (e, s) {
+  //     logger.e(e, stackTrace: s);
+  //     showSimpleDialog(
+  //         context: context,
+  //         title: '로그인 실패',
+  //         content: e.toString(),
+  //         onOk: () {
+  //           Navigator.of(context).pop();
+  //         });
+  //     return null;
+  //   }
+  // }
 
   Widget _buildAppleLogin(
     BuildContext context,
   ) {
+    final userInfoState = ref.watch(userInfoProvider);
+
     return InkWell(
       onTap: () async {
         OverlayLoadingProgress.start(context,
             color: AppColors.Primary500, barrierDismissible: false);
-        final success = await _nativeAppleSignIn(ref);
+        final success = await _nativeAppleSignIn();
         OverlayLoadingProgress.stop();
         if (success) {
-          if (await _getUserProfile() != null) {
-            Navigator.of(context).pop();
+          Navigator.of(context).pop();
+          final userInfoNotifier = ref.read(userInfoProvider.notifier);
+
+          UserProfilesModel? userProfilesModel = await userInfoNotifier.login();
+
+          if (userProfilesModel?.user_agreement == null) {
+            ref
+                .read(navigationInfoProvider.notifier)
+                .setCurrentSignUpPage(AgreementTermsPage());
+            return;
+          } else {
             Navigator.of(context).pop();
           }
         }
@@ -289,11 +300,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       onTap: () async {
         OverlayLoadingProgress.start(context,
             color: AppColors.Primary500, barrierDismissible: false);
-        final success = await _nativeGoogleSignIn(ref);
+        final success = await _nativeGoogleSignIn();
         OverlayLoadingProgress.stop();
         if (success) {
-          if (await _getUserProfile() != null) {
-            Navigator.of(context).pop();
+          Navigator.of(context).pop();
+          final userInfoNotifier = ref.read(userInfoProvider.notifier);
+
+          UserProfilesModel? userProfilesModel = await userInfoNotifier.login();
+
+          if (userProfilesModel?.user_agreement == null) {
+            ref
+                .read(navigationInfoProvider.notifier)
+                .setCurrentSignUpPage(AgreementTermsPage());
+            return;
+          } else {
             Navigator.of(context).pop();
           }
         }
@@ -319,16 +339,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget _buildKakaoLogin(
     BuildContext context,
   ) {
+    final userInfoState = ref.watch(userInfoProvider);
     return InkWell(
       onTap: () async {
         OverlayLoadingProgress.start(context,
             color: AppColors.Primary500, barrierDismissible: false);
-        final success = await _KakaoSignIn(ref);
+        final success = await _KakaoSignIn();
         OverlayLoadingProgress.stop();
         if (success) {
-          if (await _getUserProfile() != null) {
-            Navigator.of(context)
-                .pushNamedAndRemoveUntil(Portal.routeName, (route) => false);
+          Navigator.of(context).pop();
+          final userInfoNotifier = ref.read(userInfoProvider.notifier);
+
+          UserProfilesModel? userProfilesModel = await userInfoNotifier.login();
+
+          if (userProfilesModel?.user_agreement == null) {
+            ref
+                .read(navigationInfoProvider.notifier)
+                .setCurrentSignUpPage(AgreementTermsPage());
+            return;
+          } else {
+            Navigator.of(context).pop();
           }
         }
       },
@@ -350,7 +380,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  Future<bool> _nativeAppleSignIn(WidgetRef ref) async {
+  Future<bool> _nativeAppleSignIn() async {
     try {
       final rawNonce = supabase.auth.generateRawNonce();
       final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
@@ -382,7 +412,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
-  Future<bool> _nativeGoogleSignIn(WidgetRef ref) async {
+  Future<bool> _nativeGoogleSignIn() async {
     try {
       const webClientId =
           '853406219989-jrfkss5a0lqe5sq43t4uhm7n6i0g6s1b.apps.googleusercontent.com';
@@ -397,12 +427,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       final accessToken = googleAuth.accessToken;
       final idToken = googleAuth.idToken;
 
-      try {
-        Map<String, dynamic> decodedToken = JwtDecoder.decode(idToken!);
-        logger.i('Decoded Token: $decodedToken');
-      } catch (e) {
-        logger.i('Failed to decode id_token: $e');
-      }
+      // try {
+      //   Map<String, dynamic> decodedToken = JwtDecoder.decode(idToken!);
+      //   logger.i('Decoded Token: $decodedToken');
+      // } catch (e) {
+      //   logger.i('Failed to decode id_token: $e');
+      // }
 
       if (accessToken == null) {
         throw 'No Access Token found.';
@@ -411,7 +441,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         throw 'No ID Token found.';
       }
 
-      decodeAndPrintToken(idToken);
+      // decodeAndPrintToken(idToken);
 
       await supabase.auth.signInWithIdToken(
           provider: OAuthProvider.google,
@@ -425,7 +455,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
-  Future<bool> _KakaoSignIn(WidgetRef ref) async {
+  Future<bool> _KakaoSignIn() async {
     try {
       KakaoSdk.init(
           nativeAppKey: '08a8a85e49aa423ff34ddc11a61db3ac',

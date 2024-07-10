@@ -7,8 +7,8 @@ import 'package:picnic_app/components/common/screen_top.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
-import 'package:picnic_app/screens/login_screen.dart';
 import 'package:picnic_app/screens/mypage_screen.dart';
+import 'package:picnic_app/screens/signup/signup_screen.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/util.dart';
@@ -71,13 +71,14 @@ class _PortalState extends ConsumerState<Portal> {
                                   onTap: () {
                                     Scaffold.of(context).openDrawer();
                                   },
-                                  child: ProfileImageContainer(
-                                    avatarUrl: data.avatar_url,
-                                    width: 36.w,
-                                    height: 36.w,
-                                    borderRadius: 8.r,
-                                  ),
-                                )
+                                  child: data.avatar_url != null
+                                      ? ProfileImageContainer(
+                                          avatarUrl: data.avatar_url,
+                                          width: 36.w,
+                                          height: 36.w,
+                                          borderRadius: 8.r,
+                                        )
+                                      : NoAvatar())
                               : const DefaultAvatar(),
                           error: (error, stackTrace) => const Icon(Icons.error),
                           loading: () => SizedBox(
@@ -91,7 +92,7 @@ class _PortalState extends ConsumerState<Portal> {
                       : GestureDetector(
                           behavior: HitTestBehavior.opaque,
                           onTap: () => Navigator.of(context)
-                              .pushNamed(LoginScreen.routeName),
+                              .pushNamed(SignUpScreen.routeName),
                           child: const DefaultAvatar(),
                         ),
                 ),

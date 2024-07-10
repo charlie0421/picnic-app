@@ -72,11 +72,18 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("닉네임을 입력해주세요."),
         "image_save_success":
             MessageLookupByLibrary.simpleMessage("이미지가 저장되었습니다."),
+        "label_agreement_privacy":
+            MessageLookupByLibrary.simpleMessage("개인정보 수집 및 이용 동의"),
+        "label_agreement_terms":
+            MessageLookupByLibrary.simpleMessage("이용 약관 동의"),
         "label_album_add": MessageLookupByLibrary.simpleMessage("새로운 앨범 추가"),
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("첫 댓글의 주인공이 되세요!"),
         "label_bonus": MessageLookupByLibrary.simpleMessage("보너스"),
+        "label_button_agreement": MessageLookupByLibrary.simpleMessage("동의"),
         "label_button_clse": MessageLookupByLibrary.simpleMessage("닫기"),
+        "label_button_disagreement":
+            MessageLookupByLibrary.simpleMessage("비동의"),
         "label_button_recharge": MessageLookupByLibrary.simpleMessage("충전하기"),
         "label_button_save_vote_paper":
             MessageLookupByLibrary.simpleMessage("투표증 저장"),
@@ -143,6 +150,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("댓글 더보기"),
         "label_reply": MessageLookupByLibrary.simpleMessage("답글 달기"),
         "label_retry": MessageLookupByLibrary.simpleMessage("재시도 하기"),
+        "label_screen_title_agreement":
+            MessageLookupByLibrary.simpleMessage("약관 동의"),
         "label_setting_alarm": MessageLookupByLibrary.simpleMessage("알림"),
         "label_setting_appinfo": MessageLookupByLibrary.simpleMessage("앱정보"),
         "label_setting_current_version":
@@ -192,6 +201,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("투표 모아보기"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("광고보기"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("나의 아티스트"),
+        "message_agreement_success":
+            MessageLookupByLibrary.simpleMessage("약관 동의가 완료되었습니다."),
         "message_error_occurred":
             MessageLookupByLibrary.simpleMessage("오류가 발생했습니다."),
         "message_pic_pic_save_fail":
@@ -273,6 +284,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("나의 최애는 어디에?"),
         "title_dialog_library_add":
             MessageLookupByLibrary.simpleMessage("새로운 앨범 추가"),
+        "title_dialog_success": MessageLookupByLibrary.simpleMessage("성공"),
         "title_select_language": MessageLookupByLibrary.simpleMessage("언어 선택"),
         "toast_max_five_celeb":
             MessageLookupByLibrary.simpleMessage("내 아티스트를 최대 5개까지 추가할 수 있습니다.")

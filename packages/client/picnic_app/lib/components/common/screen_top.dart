@@ -8,8 +8,8 @@ import 'package:picnic_app/components/common/common_my_point_info.dart';
 import 'package:picnic_app/components/rotate_image.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/pages/signup/login_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
-import 'package:picnic_app/screens/login_screen.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
@@ -120,7 +120,7 @@ class TopScreenRight extends StatelessWidget {
                         content: S.of(context).dialog_content_login_required,
                         onOk: () {
                           Navigator.pop(context);
-                          Navigator.pushNamed(context, LoginScreen.routeName);
+                          Navigator.pushNamed(context, LoginPage.routeName);
                         },
                         onCancel: () => Navigator.pop(context),
                       );
@@ -164,7 +164,7 @@ class TopScreenRight extends StatelessWidget {
                     content: S.of(context).dialog_content_login_required,
                     onOk: () {
                       Navigator.pop(context);
-                      Navigator.pushNamed(context, LoginScreen.routeName);
+                      Navigator.pushNamed(context, LoginPage.routeName);
                     },
                     onCancel: () => Navigator.pop(context),
                   );

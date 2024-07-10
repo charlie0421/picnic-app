@@ -11,10 +11,10 @@ import 'package:picnic_app/overlays.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
-import 'package:picnic_app/screens/login_screen.dart';
 import 'package:picnic_app/screens/pic/pic_camera_screen.dart';
 import 'package:picnic_app/screens/portal.dart';
 import 'package:picnic_app/screens/privacy.dart';
+import 'package:picnic_app/screens/signup/signup_screen.dart';
 import 'package:picnic_app/screens/terms.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/community_theme.dart';
@@ -129,8 +129,8 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
             ],
             supportedLocales: S.delegate.supportedLocales,
             routes: {
-              LoginScreen.routeName: (context) => const LoginScreen(),
               Portal.routeName: (context) => const Portal(),
+              SignUpScreen.routeName: (context) => const SignUpScreen(),
               '/pic-camera': (context) => const PicCameraScreen(),
               TermsScreen.routeName: (context) => TermsScreen(),
               PrivacyScreen.routeName: (context) => PrivacyScreen(),

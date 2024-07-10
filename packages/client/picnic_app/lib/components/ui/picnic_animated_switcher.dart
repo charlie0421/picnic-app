@@ -63,3 +63,33 @@ class DrawerAnimatedSwitcher extends ConsumerWidget {
                 : Container()));
   }
 }
+
+class SignUpAnimatedSwitcher extends ConsumerWidget {
+  const SignUpAnimatedSwitcher({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final navigationInfo = ref.watch(navigationInfoProvider);
+
+    logger.i('signUpNavigationStack: ${navigationInfo.signUpNavigationStack}');
+
+    return AnimatedSwitcher(
+        duration: const Duration(milliseconds: 500),
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
+        layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
+          return currentChild ?? Container();
+        },
+        child: Container(
+            child: navigationInfo.signUpNavigationStack != null &&
+                    navigationInfo.signUpNavigationStack!.length > 0
+                ? navigationInfo.signUpNavigationStack?.peek()
+                : Container()));
+  }
+}

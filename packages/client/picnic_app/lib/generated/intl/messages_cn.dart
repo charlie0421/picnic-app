@@ -69,11 +69,18 @@ class MessageLookup extends MessageLookupByLibrary {
         "hint_library_add": MessageLookupByLibrary.simpleMessage("专辑名称"),
         "hint_nickname_input": MessageLookupByLibrary.simpleMessage("请输入昵称。"),
         "image_save_success": MessageLookupByLibrary.simpleMessage("图像已保存。"),
+        "label_agreement_privacy":
+            MessageLookupByLibrary.simpleMessage("개인정보 수집 및 이용 동의"),
+        "label_agreement_terms":
+            MessageLookupByLibrary.simpleMessage("이용 약관 동의"),
         "label_album_add": MessageLookupByLibrary.simpleMessage("添加新相册"),
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("成为第一个发表评论的人！"),
         "label_bonus": MessageLookupByLibrary.simpleMessage("奖金"),
+        "label_button_agreement": MessageLookupByLibrary.simpleMessage("동의"),
         "label_button_clse": MessageLookupByLibrary.simpleMessage("關閉"),
+        "label_button_disagreement":
+            MessageLookupByLibrary.simpleMessage("비동의"),
         "label_button_recharge": MessageLookupByLibrary.simpleMessage("充电"),
         "label_button_save_vote_paper":
             MessageLookupByLibrary.simpleMessage("保存您的选票"),
@@ -133,6 +140,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_read_more_comment": MessageLookupByLibrary.simpleMessage("更多评论"),
         "label_reply": MessageLookupByLibrary.simpleMessage("答复"),
         "label_retry": MessageLookupByLibrary.simpleMessage("再试一次"),
+        "label_screen_title_agreement":
+            MessageLookupByLibrary.simpleMessage("약관 동의"),
         "label_setting_alarm": MessageLookupByLibrary.simpleMessage("通知"),
         "label_setting_appinfo": MessageLookupByLibrary.simpleMessage("关于应用程序"),
         "label_setting_current_version":
@@ -177,6 +186,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_vote_gather": MessageLookupByLibrary.simpleMessage("收集选票"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("查看广告"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("我的艺术家"),
+        "message_agreement_success":
+            MessageLookupByLibrary.simpleMessage("약관 동의가 완료되었습니다."),
         "message_error_occurred": MessageLookupByLibrary.simpleMessage("出现错误。"),
         "message_pic_pic_save_fail":
             MessageLookupByLibrary.simpleMessage("保存图像失败。"),
@@ -252,6 +263,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("我的最爱呢？"),
         "title_dialog_library_add":
             MessageLookupByLibrary.simpleMessage("添加新相册"),
+        "title_dialog_success": MessageLookupByLibrary.simpleMessage("성공"),
         "title_select_language": MessageLookupByLibrary.simpleMessage("选择语言"),
         "toast_max_five_celeb":
             MessageLookupByLibrary.simpleMessage("您最多可以添加五位自己的艺术家。")

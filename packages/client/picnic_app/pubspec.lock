@@ -9,6 +9,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "67.0.0"
+  advanced_shadows:
+    dependency: "direct main"
+    description:
+      name: advanced_shadows
+      sha256: "2af73fe0ec3e7ec75afe50cf6ed88610b4bbe2f0686de2bdc26bbc60640b3e0f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1"
   analyzer:
     dependency: transitive
     description:
@@ -662,6 +670,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.20.5"
+  flutter_inner_shadow:
+    dependency: "direct main"
+    description:
+      name: flutter_inner_shadow
+      sha256: b50693ec5214700340e20b920835af4504b788673da2217a794eea95309a4de0
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1"
   flutter_keyboard_visibility:
     dependency: "direct main"
     description:

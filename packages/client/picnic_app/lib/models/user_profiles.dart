@@ -1,20 +1,19 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/reflector.dart';
 
 part 'user_profiles.freezed.dart';
 part 'user_profiles.g.dart';
 
-@reflector
-@freezed
-class UserProfilesListModel with _$UserProfilesListModel {
-  const UserProfilesListModel._();
-
-  const factory UserProfilesListModel({
-    required List<UserProfilesModel> items,
-    required MetaModel meta,
-  }) = _UserProfilesListModel;
-}
+// @reflector
+// @freezed
+// class UserProfilesListModel with _$UserProfilesListModel {
+//   const UserProfilesListModel._();
+//
+//   const factory UserProfilesListModel({
+//     required List<UserProfilesModel> items,
+//     required MetaModel meta,
+//   }) = _UserProfilesListModel;
+// }
 
 @reflector
 @freezed
@@ -27,10 +26,25 @@ class UserProfilesModel with _$UserProfilesModel {
     String? avatar_url,
     String? country_code,
     DateTime? deleted_at,
+    UserAgreement? user_agreement,
     required int star_candy,
     required int star_candy_bonus,
   }) = _UserProfilesModel;
 
   factory UserProfilesModel.fromJson(Map<String, dynamic> json) =>
       _$UserProfilesModelFromJson(json);
+}
+
+@reflector
+@freezed
+class UserAgreement with _$UserAgreement {
+  const UserAgreement._();
+
+  const factory UserAgreement({
+    required DateTime terms,
+    required DateTime privacy,
+  }) = _UserAgreement;
+
+  factory UserAgreement.fromJson(Map<String, dynamic> json) =>
+      _$UserAgreementFromJson(json);
 }
