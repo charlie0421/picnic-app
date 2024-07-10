@@ -1,5 +1,5 @@
 // DO NOT EDIT. This is code generated via package:intl/generate_localized.dart
-// This is a library that provides messages for a zh locale. All the
+// This is a library that provides messages for a cn locale. All the
 // messages from the main program should be duplicated here with the same
 // function name.
 
@@ -18,7 +18,7 @@ final messages = new MessageLookup();
 typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 
 class MessageLookup extends MessageLookupByLibrary {
-  String get localeName => 'zh';
+  String get localeName => 'cn';
 
   static String m0(day) => "${day}일 전";
 
@@ -62,6 +62,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("取款已成功处理。"),
         "dialog_withdraw_title":
             MessageLookupByLibrary.simpleMessage("您确定要取消订阅吗？"),
+        "error_message_no_user":
+            MessageLookupByLibrary.simpleMessage("회원 정보가 존재하지 않습니다."),
+        "error_message_withdrawal":
+            MessageLookupByLibrary.simpleMessage("탈퇴한 회원입니다."),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("专辑名称"),
         "hint_nickname_input": MessageLookupByLibrary.simpleMessage("请输入昵称。"),
         "image_save_success": MessageLookupByLibrary.simpleMessage("图像已保存。"),

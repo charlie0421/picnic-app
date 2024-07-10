@@ -24,11 +24,7 @@ class UserInfo extends _$UserInfo {
       return null;
     }
     try {
-      final response = await supabase
-          .from('user_profiles')
-          .select()
-          .not('deleted_at', 'is', 'not_null')
-          .single();
+      final response = await supabase.from('user_profiles').select().single();
       logger.i('response.data: $response');
       state = AsyncValue.data(UserProfilesModel.fromJson(response));
 

@@ -63,6 +63,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("탈퇴가 성공적으로 처리 되었습니다."),
         "dialog_withdraw_title":
             MessageLookupByLibrary.simpleMessage("정말 탈퇴하시겠어요?"),
+        "error_message_no_user":
+            MessageLookupByLibrary.simpleMessage("회원 정보가 존재하지 않습니다."),
+        "error_message_withdrawal":
+            MessageLookupByLibrary.simpleMessage("탈퇴한 회원입니다."),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("앨범명"),
         "hint_nickname_input":
             MessageLookupByLibrary.simpleMessage("닉네임을 입력해주세요."),

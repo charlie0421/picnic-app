@@ -9,6 +9,8 @@
   "text_comming_soon_pic_chart2": "핔차트는 일간, 주간, 월간 점수를 반영하는\n피크닠만의 새로운 차트입니다.",
   "text_comming_soon_pic_chart3": "실시간으로 반영되는\n아티스트의 브랜드 평판을 확인해 보세요!",
   "text_comming_soon_pic_chart_title": "핔차트란?",
+  "error_message_no_user": "회원 정보가 존재하지 않습니다.",
+  "error_message_withdrawal": "탈퇴한 회원입니다.",
   "button_pic_pic_save": "저장하기",
   "candy_usage_policy_contents": "### 유효기간\n\n- 별사탕은 획득일로부터 1년간 유효합니다.\n\n### 별사탕 획득\n\n로그인 : 1일 1회\n- 투표 : 1회당 1개\n구매 별사탕 : 없음 (무제한)\n보너스 별사탕 : 획득한 다음 달 15일에 일괄 소멸\n\n##### 별사탕 사용\n\n소멸일자가 임박한 별사탕부터 사용됩니다.\n유효기간이 동일한 경우, 그 중 획득일자가 빠른 순으로 사용됩니다.",
   "candy_usage_policy_guide": "*보너스는 획득한 다음달에 사라져요! ⓘ",

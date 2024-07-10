@@ -20,6 +20,8 @@
   "dialog_withdraw_message": "If you cancel your membership, any Star Candy you have on Picnic and your account information will be deleted immediately.",
   "dialog_withdraw_success": "The unsubscribe was processed successfully.",
   "dialog_withdraw_title": "Are you sure you want to leave?",
+  "error_message_no_user": "회원 정보가 존재하지 않습니다.",
+  "error_message_withdrawal": "탈퇴한 회원입니다.",
   "hint_library_add": "Album name",
   "hint_nickname_input": "Please enter a nickname.",
   "image_save_success": "The image has been saved.",
@@ -219,6 +221,8 @@
   "@dialog_withdraw_title": {
     "translationTimestamp": "2024-07-10T01:43:17.715473"
   },
+  "@error_message_no_user": {},
+  "@error_message_withdrawal": {},
   "@hint_library_add": {
     "translationTimestamp": "2024-07-10T01:43:17.715473"
   },

@@ -25,9 +25,11 @@ void showSimpleDialog({
           constraints: BoxConstraints(
             minWidth: 151.w,
           ),
-          padding: EdgeInsets.symmetric(
-            vertical: 20.w,
-            horizontal: 28.w,
+          padding: EdgeInsets.only(
+            top: 28.h,
+            bottom: 20.h,
+            left: 20.w,
+            right: 20.w,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -38,25 +40,24 @@ void showSimpleDialog({
                   style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900),
                 ),
               if (titleWidget != null) titleWidget,
-              if (content != null)
+              if (content != null) ...[
                 SizedBox(
-                  height: 12.w,
+                  height: 12.h,
                 ),
-              if (content != null)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20).w,
-                  child: Text(
-                    content,
-                    style: getTextStyle(AppTypo.BODY14R, AppColors.Grey900),
-                  ),
-                ),
-              if (contentWidget != null)
+                Text(
+                  content,
+                  style: getTextStyle(AppTypo.BODY14R, AppColors.Grey700),
+                  textAlign: TextAlign.center,
+                )
+              ],
+              if (contentWidget != null) ...[
                 SizedBox(
-                  height: 12.w,
+                  height: 12.h,
                 ),
-              if (contentWidget != null) contentWidget,
+                contentWidget
+              ],
               SizedBox(
-                height: 28.w,
+                height: 28.h,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

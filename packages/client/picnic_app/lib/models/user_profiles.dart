@@ -26,6 +26,7 @@ class UserProfilesModel with _$UserProfilesModel {
     String? nickname,
     String? avatar_url,
     String? country_code,
+    DateTime? deleted_at,
     required int star_candy,
     required int star_candy_bonus,
   }) = _UserProfilesModel;

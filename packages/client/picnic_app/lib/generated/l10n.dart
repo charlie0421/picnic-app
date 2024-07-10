@@ -250,6 +250,26 @@ class S {
     );
   }
 
+  /// `회원 정보가 존재하지 않습니다.`
+  String get error_message_no_user {
+    return Intl.message(
+      '회원 정보가 존재하지 않습니다.',
+      name: 'error_message_no_user',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `탈퇴한 회원입니다.`
+  String get error_message_withdrawal {
+    return Intl.message(
+      '탈퇴한 회원입니다.',
+      name: 'error_message_withdrawal',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Album name`
   String get hint_library_add {
     return Intl.message(

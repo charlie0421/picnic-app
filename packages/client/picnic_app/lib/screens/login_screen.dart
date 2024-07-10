@@ -96,8 +96,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 children: languageMap.entries.map((entry) {
                   return GestureDetector(
                     onTap: () {
-                      if (appSettingState.locale.languageCode == entry.key)
+                      if (appSettingState.locale.languageCode == entry.key) {
                         return;
+                      }
                       appSettingNotifier.setLocale(
                           Locale(entry.key, countryMap[entry.key] ?? ''));
                       Navigator.of(context).pop();
@@ -227,16 +228,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     try {
       final userInfo = await userInfoNotifier.getUserProfiles();
       logger.i('User Profile: $userInfo');
-      userInfo == null
-          ? throw 'User Profile is null'
-          : logger.i('User Profile: $userInfo');
+
+      if (userInfo == null) {
+        throw S.of(context).error_message_no_user;
+      } else if (userInfo.deleted_at != null)
+        throw S.of(context).error_message_withdrawal;
+
       return userInfo;
     } catch (e, s) {
       logger.e(e, stackTrace: s);
       showSimpleDialog(
           context: context,
           title: '로그인 실패',
-          content: '로그인에 실패했습니다. 다시 시도해주세요.',
+          content: e.toString(),
           onOk: () {
             Navigator.of(context).pop();
           });
