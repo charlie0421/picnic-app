@@ -22,9 +22,6 @@ serve(async (req) => {
 
     const token = authHeader.split(' ')[1];
 
-    // Verify the JWT token
-    console.log('Verifying token with secret key', jwtSecret);
-    console.log('Token:', token);
     let payload;
     try {
       payload = jwt.verify(token, jwtSecret);
@@ -34,8 +31,6 @@ serve(async (req) => {
         headers: { 'Content-Type': 'application/json' },
       });
     }
-
-    console.log('Payload:', payload);
 
     if (payload.sub !== userId) {
         console.error('Unauthorized user');
@@ -54,19 +49,6 @@ serve(async (req) => {
     }
 
     const deletedAt = new Date().toISOString();
-
-    const { error: updateError } = await supabase
-        .from('auth.users')
-        .update({ deleted_at: deletedAt })
-        .eq('id', userId);
-
-    if (updateError) {
-      console.error('Error updating user:', updateError);
-      return new Response(JSON.stringify({ error: updateError.message }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
 
     // Update related table user_profiles
     const { error: profileUpdateError } = await supabase
