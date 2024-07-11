@@ -26,13 +26,14 @@ async function queryDatabase(query: string, ...args: any[]) {
 
 async function getUserProfiles(supabaseClient: any, user_id: string) {
     try {
+        console.error('Fetching user profiles:', user_id);
         const {data: user_profiles, error} = await supabaseClient
             .from('user_profiles')
             .select('id, star_candy, star_candy_bonus')
-            .eq('id', user_id)
-            .single();
+            .eq('id', user_id);
 
         if (error) {
+            console.error('Error fetching user profiles:', error);
             throw error;
         }
 
