@@ -34,7 +34,7 @@ final agreementProvider = AutoDisposeFutureProvider<bool>.internal(
 );
 
 typedef AgreementRef = AutoDisposeFutureProviderRef<bool>;
-String _$userInfoHash() => r'9d120ff86fca94b9306e8a77a88536cb82371537';
+String _$userInfoHash() => r'0ca541aaba95009515b7c6a1aa07f829c4276c82';
 
 /// See also [UserInfo].
 @ProviderFor(UserInfo)

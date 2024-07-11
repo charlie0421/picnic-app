@@ -3,8 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -202,4 +204,16 @@ Size getPlatformScreenSize(BuildContext context) {
     return const Size(393 * 2, 852 * 2);
   }
   return MediaQuery.of(context).size;
+}
+
+Future<bool> checkSuperAdmin() async {
+  final response =
+      await supabase.from('auth.users').select('is_super_admin').single();
+
+  logger.i('response[\'is_super_admin\'] : ${response['is_super_admin']}');
+  if (response['is_super_admin'] == true) {
+    return true;
+  }
+
+  return true;
 }

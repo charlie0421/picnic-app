@@ -26,6 +26,7 @@ mixin _$UserProfilesModel {
   String? get country_code => throw _privateConstructorUsedError;
   DateTime? get deleted_at => throw _privateConstructorUsedError;
   UserAgreement? get user_agreement => throw _privateConstructorUsedError;
+  bool get is_admin => throw _privateConstructorUsedError;
   int get star_candy => throw _privateConstructorUsedError;
   int get star_candy_bonus => throw _privateConstructorUsedError;
 
@@ -48,6 +49,7 @@ abstract class $UserProfilesModelCopyWith<$Res> {
       String? country_code,
       DateTime? deleted_at,
       UserAgreement? user_agreement,
+      bool is_admin,
       int star_candy,
       int star_candy_bonus});
 
@@ -73,6 +75,7 @@ class _$UserProfilesModelCopyWithImpl<$Res, $Val extends UserProfilesModel>
     Object? country_code = freezed,
     Object? deleted_at = freezed,
     Object? user_agreement = freezed,
+    Object? is_admin = null,
     Object? star_candy = null,
     Object? star_candy_bonus = null,
   }) {
@@ -101,6 +104,10 @@ class _$UserProfilesModelCopyWithImpl<$Res, $Val extends UserProfilesModel>
           ? _value.user_agreement
           : user_agreement // ignore: cast_nullable_to_non_nullable
               as UserAgreement?,
+      is_admin: null == is_admin
+          ? _value.is_admin
+          : is_admin // ignore: cast_nullable_to_non_nullable
+              as bool,
       star_candy: null == star_candy
           ? _value.star_candy
           : star_candy // ignore: cast_nullable_to_non_nullable
@@ -140,6 +147,7 @@ abstract class _$$UserProfilesModelImplCopyWith<$Res>
       String? country_code,
       DateTime? deleted_at,
       UserAgreement? user_agreement,
+      bool is_admin,
       int star_candy,
       int star_candy_bonus});
 
@@ -164,6 +172,7 @@ class __$$UserProfilesModelImplCopyWithImpl<$Res>
     Object? country_code = freezed,
     Object? deleted_at = freezed,
     Object? user_agreement = freezed,
+    Object? is_admin = null,
     Object? star_candy = null,
     Object? star_candy_bonus = null,
   }) {
@@ -192,6 +201,10 @@ class __$$UserProfilesModelImplCopyWithImpl<$Res>
           ? _value.user_agreement
           : user_agreement // ignore: cast_nullable_to_non_nullable
               as UserAgreement?,
+      is_admin: null == is_admin
+          ? _value.is_admin
+          : is_admin // ignore: cast_nullable_to_non_nullable
+              as bool,
       star_candy: null == star_candy
           ? _value.star_candy
           : star_candy // ignore: cast_nullable_to_non_nullable
@@ -214,6 +227,7 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
       this.country_code,
       this.deleted_at,
       this.user_agreement,
+      required this.is_admin,
       required this.star_candy,
       required this.star_candy_bonus})
       : super._();
@@ -234,13 +248,15 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
   @override
   final UserAgreement? user_agreement;
   @override
+  final bool is_admin;
+  @override
   final int star_candy;
   @override
   final int star_candy_bonus;
 
   @override
   String toString() {
-    return 'UserProfilesModel(id: $id, nickname: $nickname, avatar_url: $avatar_url, country_code: $country_code, deleted_at: $deleted_at, user_agreement: $user_agreement, star_candy: $star_candy, star_candy_bonus: $star_candy_bonus)';
+    return 'UserProfilesModel(id: $id, nickname: $nickname, avatar_url: $avatar_url, country_code: $country_code, deleted_at: $deleted_at, user_agreement: $user_agreement, is_admin: $is_admin, star_candy: $star_candy, star_candy_bonus: $star_candy_bonus)';
   }
 
   @override
@@ -259,6 +275,8 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
                 other.deleted_at == deleted_at) &&
             (identical(other.user_agreement, user_agreement) ||
                 other.user_agreement == user_agreement) &&
+            (identical(other.is_admin, is_admin) ||
+                other.is_admin == is_admin) &&
             (identical(other.star_candy, star_candy) ||
                 other.star_candy == star_candy) &&
             (identical(other.star_candy_bonus, star_candy_bonus) ||
@@ -267,8 +285,17 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, id, nickname, avatar_url,
-      country_code, deleted_at, user_agreement, star_candy, star_candy_bonus);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      nickname,
+      avatar_url,
+      country_code,
+      deleted_at,
+      user_agreement,
+      is_admin,
+      star_candy,
+      star_candy_bonus);
 
   @JsonKey(ignore: true)
   @override
@@ -293,6 +320,7 @@ abstract class _UserProfilesModel extends UserProfilesModel {
       final String? country_code,
       final DateTime? deleted_at,
       final UserAgreement? user_agreement,
+      required final bool is_admin,
       required final int star_candy,
       required final int star_candy_bonus}) = _$UserProfilesModelImpl;
   const _UserProfilesModel._() : super._();
@@ -312,6 +340,8 @@ abstract class _UserProfilesModel extends UserProfilesModel {
   DateTime? get deleted_at;
   @override
   UserAgreement? get user_agreement;
+  @override
+  bool get is_admin;
   @override
   int get star_candy;
   @override

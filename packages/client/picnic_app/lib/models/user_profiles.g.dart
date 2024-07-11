@@ -20,6 +20,7 @@ _$UserProfilesModelImpl _$$UserProfilesModelImplFromJson(
           ? null
           : UserAgreement.fromJson(
               json['user_agreement'] as Map<String, dynamic>),
+      is_admin: json['is_admin'] as bool,
       star_candy: (json['star_candy'] as num).toInt(),
       star_candy_bonus: (json['star_candy_bonus'] as num).toInt(),
     );
@@ -33,6 +34,7 @@ Map<String, dynamic> _$$UserProfilesModelImplToJson(
       'country_code': instance.country_code,
       'deleted_at': instance.deleted_at?.toIso8601String(),
       'user_agreement': instance.user_agreement,
+      'is_admin': instance.is_admin,
       'star_candy': instance.star_candy,
       'star_candy_bonus': instance.star_candy_bonus,
     };

@@ -27,6 +27,7 @@ class UserProfilesModel with _$UserProfilesModel {
     String? country_code,
     DateTime? deleted_at,
     UserAgreement? user_agreement,
+    required bool is_admin,
     required int star_candy,
     required int star_candy_bonus,
   }) = _UserProfilesModel;

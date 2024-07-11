@@ -3,6 +3,7 @@ import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:screen_protector/screen_protector.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
 part 'user_info_provider.g.dart';
@@ -32,6 +33,12 @@ class UserInfo extends _$UserInfo {
           .single();
       logger.i('response.data: $response');
       state = AsyncValue.data(UserProfilesModel.fromJson(response));
+
+      if (response['is_admin'] == true) {
+        ScreenProtector.preventScreenshotOff();
+      } else {
+        ScreenProtector.preventScreenshotOn();
+      }
 
       return UserProfilesModel.fromJson(response);
     } catch (e, s) {

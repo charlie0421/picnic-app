@@ -300,23 +300,24 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
       onTap: () async {
         OverlayLoadingProgress.start(context,
             color: AppColors.Primary500, barrierDismissible: false);
-        final success = await _nativeGoogleSignIn();
-        OverlayLoadingProgress.stop();
-        if (success) {
-          Navigator.of(context).pop();
-          final userInfoNotifier = ref.read(userInfoProvider.notifier);
-
-          UserProfilesModel? userProfilesModel = await userInfoNotifier.login();
-
-          if (userProfilesModel?.user_agreement == null) {
-            ref
-                .read(navigationInfoProvider.notifier)
-                .setCurrentSignUpPage(AgreementTermsPage());
-            return;
-          } else {
+        await _nativeGoogleSignIn().then((success) {
+          OverlayLoadingProgress.stop();
+          if (success) {
             Navigator.of(context).pop();
+            final userInfoNotifier = ref.read(userInfoProvider.notifier);
+
+            userInfoNotifier.login().then((userProfilesModel) async {
+              if (userProfilesModel?.user_agreement == null) {
+                ref
+                    .read(navigationInfoProvider.notifier)
+                    .setCurrentSignUpPage(AgreementTermsPage());
+                return;
+              } else {
+                Navigator.of(context).pop();
+              }
+            });
           }
-        }
+        });
       },
       child: Container(
         alignment: Alignment.center,

@@ -34,7 +34,7 @@ class _PortalState extends ConsumerState<Portal> {
     final currentScreen = ref.watch(navigationInfoProvider.select((value) {
       return value.currentScreen;
     }));
-    final userInfo = ref.watch(userInfoProvider);
+    final userInfoState = ref.watch(userInfoProvider);
     return Container(
       decoration: const BoxDecoration(
         gradient: commonGradient,
@@ -64,7 +64,7 @@ class _PortalState extends ConsumerState<Portal> {
                 alignment: Alignment.center,
                 child: Builder(
                   builder: (context) => supabase.isLogged
-                      ? userInfo.when(
+                      ? userInfoState.when(
                           data: (data) => data != null
                               ? GestureDetector(
                                   behavior: HitTestBehavior.opaque,
@@ -109,11 +109,28 @@ class _PortalState extends ConsumerState<Portal> {
                       width: getPlatformScreenSize(context).width,
                       child: ListView(
                         scrollDirection: Axis.horizontal,
-                        children: const [
+                        children: [
                           PortalMenuItem(portalType: PortalType.vote),
-                          PortalMenuItem(portalType: PortalType.pic),
-                          PortalMenuItem(portalType: PortalType.community),
-                          PortalMenuItem(portalType: PortalType.novel),
+                          supabase.isLogged
+                              ? userInfoState.when(
+                                  data: (userInfo) {
+                                    if (userInfo != null && userInfo.is_admin) {
+                                      return Row(children: [
+                                        PortalMenuItem(
+                                            portalType: PortalType.pic),
+                                        PortalMenuItem(
+                                            portalType: PortalType.community),
+                                        PortalMenuItem(
+                                            portalType: PortalType.novel),
+                                      ]);
+                                    } else
+                                      return Container();
+                                  },
+                                  error: (error, stackTrace) =>
+                                      const Icon(Icons.error),
+                                  loading: () => const SizedBox(),
+                                )
+                              : Container(),
                         ],
                       ),
                     ),
