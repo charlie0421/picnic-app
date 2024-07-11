@@ -205,7 +205,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
           data: (voteModel) {
             return Column(
               children: [
-                Container(
+                SizedBox(
                   width: width,
                   height: height,
                   child: PicnicCachedNetworkImage(
