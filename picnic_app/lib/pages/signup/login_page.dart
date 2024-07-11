@@ -293,6 +293,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
             return;
           } else {
             Navigator.of(context).pop();
+            Navigator.of(context).pop();
           }
         }
       },
@@ -332,7 +333,6 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                 ref
                     .read(navigationInfoProvider.notifier)
                     .setCurrentSignUpPage(AgreementTermsPage());
-                return;
               } else {
                 Navigator.of(context).pop();
               }
@@ -366,7 +366,10 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
       onTap: () async {
         OverlayLoadingProgress.start(context,
             color: AppColors.Primary500, barrierDismissible: false);
-        final success = await _KakaoSignIn();
+        final success = await _KakaoSignIn().then((value) {
+          OverlayLoadingProgress.stop();
+          return value;
+        });
         OverlayLoadingProgress.stop();
         if (success) {
           Navigator.of(context).pop();
@@ -380,6 +383,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                 .setCurrentSignUpPage(AgreementTermsPage());
             return;
           } else {
+            Navigator.of(context).pop();
             Navigator.of(context).pop();
           }
         }
