@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:picnic_app/menu.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class CommonBottomNavigationBar extends ConsumerStatefulWidget {
@@ -23,6 +24,10 @@ class _CommonBottomNavigationBarState
   @override
   Widget build(BuildContext context) {
     ref.watch(appSettingProvider.select((value) => value.locale));
+    final userInfoState = ref.watch(userInfoProvider);
+
+    final bool? isAdmin = userInfoState.value?.is_admin;
+
     return Container(
       padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 40.h),
       decoration: BoxDecoration(
@@ -57,6 +62,7 @@ class _CommonBottomNavigationBarState
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: widget.screenInfo.pages
+              .where((e) => e.title != 'nav_media' || isAdmin == true)
               .map((e) => MenuItem(
                     title: e.title,
                     assetPath: e.assetPath,
