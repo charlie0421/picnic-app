@@ -102,6 +102,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
               assetPath: 'assets/icons/arrow_right_style=line.svg',
               onTap: () {
                 ref.read(userInfoProvider.notifier).logout();
+                ref.read(navigationInfoProvider.notifier).setReseStackMyPage();
                 Navigator.of(context).pop();
               }),
           Divider(

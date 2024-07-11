@@ -155,6 +155,12 @@ class NavigationInfo extends _$NavigationInfo {
     // topNavigationStack.length == 1 ? showPortal() : hidePortal();
   }
 
+  setReseStackMyPage() {
+    state = state.copyWith(
+      drawerNavigationStack: NavigationStack()..push(const MyPage()),
+    );
+  }
+
   setCurrentMyPage(Widget page) {
     final NavigationStack? navigationStack = state.drawerNavigationStack;
 
