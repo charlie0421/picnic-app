@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
             },
             body: JSON.stringify({
                 'receipt-data': receipt,
-                'password': 'your_shared_secret', // App Store Connect에서 생성한 공유 비밀번호
+                'password': '52468d297ebc4777a3daefb2d12aabce', // App Store Connect에서 생성한 공유 비밀번호
             }),
         });
     } else if (platform === 'android') {
@@ -43,6 +43,8 @@ Deno.serve(async (req) => {
             .from('receipts')
             .insert([{receipt_data: receipt, status: 'valid', platform}]);
 
+        grantReward(data.userId, data.productId);
+
         return {
             statusCode: 200,
             body: JSON.stringify({success: true, data: data}),
@@ -60,6 +62,56 @@ Deno.serve(async (req) => {
     }
 
 })
+
+async function grantReward(userId: string, productId: string) {
+    // 제품 ID에 따른 보상 로직
+    if (productId === 'STAR100') {
+        // 사용자 프로필 업데이트 예제
+        await supabase
+            .from('user_profiles')
+            .update({star_candy: 100})
+            .eq('id', userId);
+    } else if (productId === 'STAR200') {
+        await supabase
+            .from('user_profiles')
+            .update({star_candy: 200, star_candy_bonus: 25})
+            .eq('id', userId);
+    } else if (productId === 'STAR600') {
+        await supabase
+            .from('user_profiles')
+            .update({star_candy: 600, star_candy_bonus: 85})
+            .eq('id', userId);
+    } else if (productId === 'STAR1000') {
+        await supabase
+            .from('user_profiles')
+            .update({star_candy: 1000, star_candy_bonus: 150})
+            .eq('id', userId);
+    } else if (productId === 'STAR2000') {
+        await supabase
+            .from('user_profiles')
+            .update({star_candy: 2000, star_candy_bonus: 320})
+            .eq('id', userId);
+
+    } else if ( productId === 'STAR3000') {
+        await supabase
+            .from('user_profiles')
+            .update({star_candy: 3000, star_candy_bonus: 540})
+            .eq('id', userId);
+    } else if ( productId === 'STAR4000') {
+        await supabase
+            .from('user_profiles')
+            .update({star_candy: 4000, star_candy_bonus: 760})
+            .eq('id', userId);
+    } else if (productId === 'STAR5000') {
+        await supabase
+            .from('user_profiles')
+            .update({star_candy: 5000, star_candy_bonus: 1000})
+            .eq('id', userId);
+    }
+
+
+}
+
 
 /* To invoke locally:
 
