@@ -62,6 +62,8 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
           });
         } else if (purchaseDetails.status == PurchaseStatus.purchased) {
           // Verify purchase and deliver the product
+          await verifyReceipt(
+              purchaseDetails.verificationData.serverVerificationData);
         }
         if (purchaseDetails.pendingCompletePurchase) {
           await _inAppPurchase.completePurchase(purchaseDetails);
