@@ -13,6 +13,7 @@ import 'package:picnic_app/components/vote/store/store_list_tile.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/purchase_product_provider.dart';
+import 'package:picnic_app/screens/signup/signup_screen.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_theme.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -183,8 +184,13 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
                         currencyCode: 'US'))
                     : showSimpleDialog(
                         context: context,
-                        content: S.of(context).dialog_content_ads_loading,
+                        content: S.of(context).dialog_content_login_required,
                         onOk: () {
+                          Navigator.of(context)
+                              .pushNamed(SignUpScreen.routeName);
+                          Navigator.of(context).pop();
+                        },
+                        onCancel: () {
                           Navigator.of(context).pop();
                         },
                       );

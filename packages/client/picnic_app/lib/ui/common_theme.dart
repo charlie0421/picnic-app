@@ -12,7 +12,7 @@ TabBarTheme commonTabBarTheme = TabBarTheme(
     AppColors.Grey300,
   ),
   indicatorSize: TabBarIndicatorSize.tab,
-  indicatorColor: Colors.transparent,
+  indicatorColor: AppColors.Grey900,
 );
 
 SwitchThemeData commonSwitchTheme = SwitchThemeData(
