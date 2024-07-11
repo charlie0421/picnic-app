@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/reward.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
@@ -172,7 +173,7 @@ class _RewardDialogState extends State<RewardDialog> {
                 // logger.i(value);
                 return Column(
                   children: [
-                    ...buildImageList(value['image'].cast<String>()),
+                    ...buildSizeGuideImageList(value['image'].cast<String>()),
                     SizedBox(height: 24.w),
                     ...buildTextList(value['desc'].cast<String>().sublist(0, 1),
                         getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
@@ -212,6 +213,31 @@ class _RewardDialogState extends State<RewardDialog> {
                     ),
                   ),
                 )),
+            if (i != images.length - 1) SizedBox(height: 12.w),
+            // 마지막 요소가 아닐 때만 추가
+          ],
+        ),
+      );
+    }
+    return imageWidgets;
+  }
+
+  List<Widget> buildSizeGuideImageList(
+    List<String>? images,
+  ) {
+    if (images == null) return [];
+    List<Widget> imageWidgets = [];
+    for (int i = 0; i < images.length; i++) {
+      logger.i(images[i]);
+      imageWidgets.add(
+        Column(
+          children: [
+            SizedBox(
+              child: PicnicCachedNetworkImage(
+                imageUrl: images[i] ?? '',
+                fit: BoxFit.cover,
+              ),
+            ),
             if (i != images.length - 1) SizedBox(height: 12.w),
             // 마지막 요소가 아닐 때만 추가
           ],
