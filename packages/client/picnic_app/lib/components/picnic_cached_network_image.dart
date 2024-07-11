@@ -62,16 +62,16 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
             width: widget.width,
             height: widget.height,
             fit: widget.fit,
-            imageBuilder: (context, imageProvider) {
-              return Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: imageProvider,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              );
-            },
+            // imageBuilder: (context, imageProvider) {
+            //   return Container(
+            //     decoration: BoxDecoration(
+            //       image: DecorationImage(
+            //         image: imageProvider,
+            //         fit: BoxFit.cover,
+            //       ),
+            //     ),
+            //   );
+            // },
             errorWidget: (context, url, error) => Container(),
           );
         }).toList(),
