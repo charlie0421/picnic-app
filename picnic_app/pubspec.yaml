@@ -104,6 +104,7 @@ flutter:
   assets:
     - assets/
     - assets/images/
+    - assets/images/login/
     - assets/icons/
     - assets/icons/login/
     - assets/icons/vote/

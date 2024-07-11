@@ -12,6 +12,7 @@ import 'package:intl/intl.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:picnic_app/components/common/custom_pagination.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/user_profiles.dart';
@@ -39,6 +40,8 @@ class LoginPage extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
+    final navigationInfoNotifier = ref.read(navigationInfoProvider.notifier);
+
     return Container(
       decoration: const BoxDecoration(gradient: commonGradient),
       child: Center(
@@ -55,6 +58,20 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: SvgPicture.asset(
+                          'assets/icons/arrow_left_style=line.svg',
+                          width: 24.w,
+                          height: 24.h,
+                          color: AppColors.Grey900,
+                        ),
+                      ),
+                    ),
                     Expanded(child: _buildSwiper()),
                     SizedBox(height: 24.w),
                     _buildLanguageSelector(context, ref),
@@ -73,9 +90,13 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
   Widget _buildSwiper() {
     return Swiper(
       itemCount: 3,
-      pagination: const SwiperPagination(),
+      autoplay: true,
+      pagination: SwiperPagination(
+        builder: CustomPaginationBuilder(),
+      ),
       itemBuilder: (BuildContext context, int index) {
-        return Container(color: Colors.grey);
+        return Image.asset(
+            'assets/images/login/${Intl.getCurrentLocale()}_${index + 1}.png');
       },
     );
   }
