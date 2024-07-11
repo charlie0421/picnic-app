@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/ui/gradient_border_painter.dart';
-import 'package:picnic_app/pages/vote/store_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
@@ -32,9 +31,6 @@ class _CommonMyPointState extends ConsumerState<CommonMyPoint> {
       onTap: () {
         ref
             .read(navigationInfoProvider.notifier)
-            .setCurrentPage(const StorePage());
-        ref
-            .read(navigationInfoProvider.notifier)
             .setVoteBottomNavigationIndex(3);
       },
       child: SizedBox(
@@ -47,8 +43,8 @@ class _CommonMyPointState extends ConsumerState<CommonMyPoint> {
             children: [
               Image.asset(
                 'assets/icons/store/star_100.png',
-                width: 20.w,
-                height: 20.h,
+                width: 30.w,
+                height: 30.w,
               ),
               Container(
                 alignment: Alignment.centerRight,
@@ -63,11 +59,13 @@ class _CommonMyPointState extends ConsumerState<CommonMyPoint> {
                     textStyle:
                         getTextStyle(AppTypo.CAPTION12B, AppColors.Primary500)),
               ),
+              SizedBox(width: 8.w),
               Image.asset(
                 'assets/icons/header/plus.png',
-                width: 20.w,
-                height: 20.h,
+                width: 16.w,
+                height: 16.w,
               ),
+              SizedBox(width: 8.w),
             ],
           ),
         ),
