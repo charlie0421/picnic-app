@@ -26,58 +26,73 @@ class MyPage extends ConsumerStatefulWidget {
 class _MyPageState extends ConsumerState<MyPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        child: ListView(
-          children: [
-            SizedBox(height: 24.w),
-            _buildProfile(),
-            const Align(
-                alignment: Alignment.centerLeft,
-                child: StarCandyInfoText(alignment: MainAxisAlignment.start)),
-            const Divider(color: AppColors.Grey200),
-            ListItem(
-                leading: S.of(context).label_mypage_notice,
-                assetPath: 'assets/icons/arrow_right_style=line.svg',
-                onTap: () {}),
-            const Divider(color: AppColors.Grey200),
-            ListItem(
-                leading: S.of(context).label_mypage_charge_history,
-                assetPath: 'assets/icons/arrow_right_style=line.svg',
-                onTap: () {}),
-            const Divider(color: AppColors.Grey200),
-            ListItem(
-                leading: S.of(context).label_mypage_customer_center,
-                assetPath: 'assets/icons/arrow_right_style=line.svg',
-                onTap: () {}),
-            const Divider(color: AppColors.Grey200),
-            ListItem(
-                leading: S.of(context).label_mypage_setting,
-                assetPath: 'assets/icons/arrow_right_style=line.svg',
-                onTap: () => ref
-                    .read(navigationInfoProvider.notifier)
-                    .setCurrentMyPage(const SettingPage())),
-            const Divider(color: AppColors.Grey200),
-            _buildMyStar('VOTE'),
-            const Divider(color: AppColors.Grey200),
-            ListItem(
-                leading: S.of(context).label_mypage_vote_history,
-                assetPath: 'assets/icons/arrow_right_style=line.svg',
-                onTap: () => ref
-                    .read(navigationInfoProvider.notifier)
-                    .setCurrentMyPage(const VoteHistoryPage())),
-            // const Divider(color: AppColors.Grey200),
-            // _buildMyStar('PIC'),
-            // const Divider(color: AppColors.Grey200),
-            // ListItem(
-            //     leading: S.of(context).label_mypage_membership_history,
-            //     assetPath: 'assets/icons/arrow_right_style=line.svg',
-            //     onTap: () {}),
-          ],
-        ),
-      ),
-    );
+    final userInfoState = ref.watch(userInfoProvider);
+
+    return userInfoState.when(
+        data: (data) => data != null
+            ? Scaffold(
+                body: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: ListView(
+                    children: [
+                      SizedBox(height: 24.w),
+                      _buildProfile(),
+                      const Align(
+                          alignment: Alignment.centerLeft,
+                          child: StarCandyInfoText(
+                              alignment: MainAxisAlignment.start)),
+                      const Divider(color: AppColors.Grey200),
+                      if (data.is_admin)
+                        ListItem(
+                            leading: S.of(context).label_mypage_notice,
+                            assetPath:
+                                'assets/icons/arrow_right_style=line.svg',
+                            onTap: () {}),
+                      if (data.is_admin)
+                        const Divider(color: AppColors.Grey200),
+                      if (data.is_admin)
+                        ListItem(
+                            leading: S.of(context).label_mypage_charge_history,
+                            assetPath:
+                                'assets/icons/arrow_right_style=line.svg',
+                            onTap: () {}),
+                      if (data.is_admin)
+                        const Divider(color: AppColors.Grey200),
+                      ListItem(
+                          leading: S.of(context).label_mypage_customer_center,
+                          assetPath: 'assets/icons/arrow_right_style=line.svg',
+                          onTap: () {}),
+                      const Divider(color: AppColors.Grey200),
+                      ListItem(
+                          leading: S.of(context).label_mypage_setting,
+                          assetPath: 'assets/icons/arrow_right_style=line.svg',
+                          onTap: () => ref
+                              .read(navigationInfoProvider.notifier)
+                              .setCurrentMyPage(const SettingPage())),
+                      const Divider(color: AppColors.Grey200),
+                      if (data.is_admin) _buildMyStar('VOTE'),
+                      if (data.is_admin)
+                        const Divider(color: AppColors.Grey200),
+                      ListItem(
+                          leading: S.of(context).label_mypage_vote_history,
+                          assetPath: 'assets/icons/arrow_right_style=line.svg',
+                          onTap: () => ref
+                              .read(navigationInfoProvider.notifier)
+                              .setCurrentMyPage(const VoteHistoryPage())),
+                      const Divider(color: AppColors.Grey200),
+                      // _buildMyStar('PIC'),
+                      // const Divider(color: AppColors.Grey200),
+                      // ListItem(
+                      //     leading: S.of(context).label_mypage_membership_history,
+                      //     assetPath: 'assets/icons/arrow_right_style=line.svg',
+                      //     onTap: () {}),
+                    ],
+                  ),
+                ),
+              )
+            : Container(),
+        loading: () => buildLoadingOverlay(),
+        error: (error, stackTrace) => Container());
   }
 
   Widget _buildProfile() {

@@ -384,44 +384,51 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
   }
 
   Container buildProfileImage(AsyncValue<UserProfilesModel?> userInfo) {
-    return Container(
-      width: 100.w,
-      height: 100.w,
-      alignment: Alignment.center,
-      child: Stack(
-        children: [
-          SizedBox(
-            width: 100.w,
-            height: 100.w,
-            child: ProfileImageContainer(
-              avatarUrl: userInfo.value?.avatar_url,
-              borderRadius: 50.w,
-              width: 100.w,
-              height: 100.w,
-            ),
-          ),
-          Positioned(
-            right: 0,
-            bottom: 0,
-            child: Container(
-                width: 24.w,
-                height: 24.w,
+    return userInfo.when(
+        data: (data) => data != null
+            ? Container(
+                width: 100.w,
+                height: 100.w,
                 alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: AppColors.Primary500,
-                  borderRadius: BorderRadius.circular(50.w),
+                child: Stack(
+                  children: [
+                    SizedBox(
+                      width: 100.w,
+                      height: 100.w,
+                      child: ProfileImageContainer(
+                        avatarUrl: userInfo.value?.avatar_url,
+                        borderRadius: 50.w,
+                        width: 100.w,
+                        height: 100.w,
+                      ),
+                    ),
+                    if (userInfo.value!.is_admin)
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: Container(
+                            width: 24.w,
+                            height: 24.w,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: AppColors.Primary500,
+                              borderRadius: BorderRadius.circular(50.w),
+                            ),
+                            child: SvgPicture.asset(
+                                'assets/icons/camera_style=line.svg',
+                                width: 16.w,
+                                height: 16.w,
+                                colorFilter: const ColorFilter.mode(
+                                  AppColors.Grey00,
+                                  BlendMode.srcIn,
+                                ))),
+                      ),
+                  ],
                 ),
-                child: SvgPicture.asset('assets/icons/camera_style=line.svg',
-                    width: 16.w,
-                    height: 16.w,
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.Grey00,
-                      BlendMode.srcIn,
-                    ))),
-          ),
-        ],
-      ),
-    );
+              )
+            : Container(),
+        loading: () => Container(),
+        error: (error, stackTrace) => Container());
   }
 
   String? validateInput(String? value) {

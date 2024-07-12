@@ -8,6 +8,7 @@ import 'package:picnic_app/components/common/common_my_point_info.dart';
 import 'package:picnic_app/components/rotate_image.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
@@ -32,6 +33,7 @@ class _TopState extends ConsumerState<ScreenTop> {
   Widget build(BuildContext context) {
     final navigationInfo = ref.watch(navigationInfoProvider);
     final navigationInfoNotifier = ref.watch(navigationInfoProvider.notifier);
+    final userInfoState = ref.watch(userInfoProvider);
 
     String pageName;
     try {
@@ -67,7 +69,12 @@ class _TopState extends ConsumerState<ScreenTop> {
                   style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
                 )
               : const SizedBox(),
-          const TopScreenRight(),
+          userInfoState.when(
+              data: (data) => data != null && data.is_admin
+                  ? const TopScreenRight()
+                  : Container(),
+              loading: () => Container(),
+              error: (error, stackTrace) => Container())
         ],
       ),
     );

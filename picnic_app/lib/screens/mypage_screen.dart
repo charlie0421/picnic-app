@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_app/components/common/screen_top.dart';
 import 'package:picnic_app/components/ui/picnic_animated_switcher.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class MyPageScreen extends ConsumerWidget {
@@ -15,6 +17,7 @@ class MyPageScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final navigationInfo = ref.watch(navigationInfoProvider);
+    final userInfoState = ref.watch(userInfoProvider);
 
     String pageName;
     try {
@@ -57,17 +60,12 @@ class MyPageScreen extends ConsumerWidget {
         centerTitle: true,
         leadingWidth: 40.w,
         actions: [
-          SvgPicture.asset(
-            'assets/icons/calendar_style=line.svg',
-            width: 24.w,
-            height: 24.w,
-          ),
-          SizedBox(width: 16.w),
-          SvgPicture.asset(
-            'assets/icons/alarm_style=line.svg',
-            width: 24.w,
-            height: 24.w,
-          ),
+          userInfoState.when(
+              data: (data) => data != null && data.is_admin
+                  ? const TopScreenRight()
+                  : Container(),
+              loading: () => Container(),
+              error: (error, stackTrace) => Container()),
           SizedBox(width: 16.w),
         ],
       ),
