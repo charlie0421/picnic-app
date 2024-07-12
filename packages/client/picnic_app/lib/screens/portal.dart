@@ -78,7 +78,7 @@ class _PortalState extends ConsumerState<Portal> {
                                           height: 36.w,
                                           borderRadius: 8.r,
                                         )
-                                      : NoAvatar())
+                                      : const NoAvatar())
                               : const DefaultAvatar(),
                           error: (error, stackTrace) => const Icon(Icons.error),
                           loading: () => SizedBox(
@@ -110,12 +110,12 @@ class _PortalState extends ConsumerState<Portal> {
                       child: ListView(
                         scrollDirection: Axis.horizontal,
                         children: [
-                          PortalMenuItem(portalType: PortalType.vote),
+                          const PortalMenuItem(portalType: PortalType.vote),
                           supabase.isLogged
                               ? userInfoState.when(
                                   data: (userInfo) {
                                     if (userInfo != null && userInfo.is_admin) {
-                                      return Row(children: [
+                                      return const Row(children: [
                                         PortalMenuItem(
                                             portalType: PortalType.pic),
                                         PortalMenuItem(
@@ -123,8 +123,9 @@ class _PortalState extends ConsumerState<Portal> {
                                         PortalMenuItem(
                                             portalType: PortalType.novel),
                                       ]);
-                                    } else
+                                    } else {
                                       return Container();
+                                    }
                                   },
                                   error: (error, stackTrace) =>
                                       const Icon(Icons.error),
