@@ -4,19 +4,19 @@
 
 // Setup type definitions for built-in Supabase Runtime APIs
 import "https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts"
-import {createClient} from '@supabase/supabase-js';
+import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 
 Deno.serve(async (req) => {
-    const {receipt, platform} = JSON.parse(event.body);
-
+    const {receipt, platform, productId} = await req.json();
     let response;
     if (platform === 'ios') {
-        response = await fetch('https://buy.itunes.apple.com/verifyReceipt', {
+        response = await fetch('https://sandbox.itunes.apple.com/verifyReceipt', {
+        // response = await fetch('https://buy.itunes.apple.com/verifyReceipt', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -27,10 +27,11 @@ Deno.serve(async (req) => {
             }),
         });
     } else if (platform === 'android') {
-        response = await fetch('https://androidpublisher.googleapis.com/androidpublisher/v3/applications/packageName/purchases/products/productId/tokens/token', {
+        const packageName = 'io.iconcasting.picnic.app';
+        response = await fetch(`https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${packageName}/purchases/products/${productId}/tokens/${receipt}`, {
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${process.env.GOOGLE_API_KEY}`, // Google API Key
+                'Authorization': `Bearer AIzaSyDm0_bdB3-ky3Za-7H4Ysgj1zci6Yb-NzU`
             },
         });
     }
