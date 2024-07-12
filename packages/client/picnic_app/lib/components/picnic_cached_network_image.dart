@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -7,19 +8,19 @@ import 'package:universal_platform/universal_platform.dart';
 
 class PicnicCachedNetworkImage extends StatefulWidget {
   final String imageUrl;
-  final double? width;
-  final double? height;
+  final int? width;
+  final int? height;
   final BoxFit? fit;
   final ImageWidgetBuilder? imageBuilder;
 
   const PicnicCachedNetworkImage({
-    Key? key,
+    super.key,
     required this.imageUrl,
     this.width,
     this.height,
     this.fit = BoxFit.cover,
     this.imageBuilder,
-  }) : super(key: key);
+  });
 
   @override
   _PicnicCachedNetworkImageState createState() =>
@@ -50,32 +51,22 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
     ];
 
     return SizedBox(
-      width: widget.width,
-      height: widget.height,
+      width: widget.width?.w.toDouble(),
+      height: widget.height?.h.toDouble(),
       child: Stack(alignment: Alignment.center, children: [
         buildLoadingOverlay(),
-        ...urls.asMap().entries.map((entry) {
-          int index = entry.key;
-          String url = entry.value;
-          return CachedNetworkImage(
-            imageUrl: url,
-            width: widget.width,
-            height: widget.height,
-            fit: widget.fit,
-            // imageBuilder: (context, imageProvider) {
-            //   return Container(
-            //     decoration: BoxDecoration(
-            //       image: DecorationImage(
-            //         image: imageProvider,
-            //         fit: BoxFit.cover,
-            //       ),
-            //     ),
-            //   );
-            // },
-            errorWidget: (context, url, error) => Container(),
-          );
-        }).toList(),
+        ...urls.map(_buildCachedNetworkImage).toList().toList(),
       ]),
+    );
+  }
+
+  Widget _buildCachedNetworkImage(String url) {
+    return CachedNetworkImage(
+      imageUrl: url,
+      width: widget.width?.w.toDouble(),
+      height: widget.height?.h.toDouble(),
+      fit: widget.fit,
+      errorWidget: (context, url, error) => Container(),
     );
   }
 

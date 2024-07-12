@@ -137,8 +137,8 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                   borderRadius: BorderRadius.circular(100.r),
                   child: PicnicCachedNetworkImage(
                     imageUrl: widget.voteItemModel.mystar_member.image ?? '',
-                    width: 100.w,
-                    height: 100.w,
+                    width: 100,
+                    height: 100,
                   ),
                 ),
               ),

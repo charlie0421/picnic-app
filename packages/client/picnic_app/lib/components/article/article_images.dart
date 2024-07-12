@@ -42,7 +42,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
                                 widget.article.article_image![index].image ??
                                     '',
                             fit: BoxFit.fitHeight,
-                            height: 600.w,
+                            height: 600,
                           ),
                         ),
                         Positioned(
@@ -192,7 +192,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
                     child: PicnicCachedNetworkImage(
                       imageUrl: widget.imageUrl,
                       fit: BoxFit.cover,
-                      width: getPlatformScreenSize(context).width,
+                      width: getPlatformScreenSize(context).width.toInt(),
                       // imageBuilder: (context, imageProvider) {
                       //   return Image(
                       //     image: imageProvider,
