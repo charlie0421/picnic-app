@@ -10,10 +10,10 @@ import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/components/vote/common_vote_info.dart';
 import 'package:picnic_app/components/vote/store/store_list_tile.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
-import 'package:picnic_app/screens/signup/signup_screen.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_theme.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -193,17 +193,9 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
 
             supabase.isLogged
                 ? _showRewardedAd(index)
-                : showSimpleDialog(
+                : showRequireLoginDialog(
                     context: context,
-                    content: S.of(context).dialog_content_login_required,
-                    onOk: () {
-                      Navigator.of(context).pushNamed(SignUpScreen.routeName);
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                    },
-                    onCancel: () {
-                      Navigator.of(context).pop();
-                    });
+                  );
           },
           isLoading: _isLoading[index],
           buttonScale: _buttonScaleAnimation.value,

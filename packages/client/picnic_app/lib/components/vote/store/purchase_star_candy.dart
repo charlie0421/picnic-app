@@ -7,18 +7,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:intl/intl.dart';
+import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/components/vote/common_vote_info.dart';
 import 'package:picnic_app/components/vote/store/store_list_tile.dart';
-import 'package:picnic_app/dialogs/simple_dialog.dart';
+import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/purchase_product_provider.dart';
-import 'package:picnic_app/screens/signup/signup_screen.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_theme.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PurchaseStarCandy extends ConsumerStatefulWidget {
   const PurchaseStarCandy({super.key});
@@ -29,19 +32,19 @@ class PurchaseStarCandy extends ConsumerStatefulWidget {
 
 class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
   final InAppPurchase _inAppPurchase = InAppPurchase.instance;
-  bool _available = true;
+  List<String> _productIds = []; // Initialize with actual product IDs
   List<ProductDetails> _products = [];
-  bool _purchasePending = false;
-  final List<String> _productIds = [
-    'STAR100',
-    'STAR300',
-    'STAR600',
-    'STAR1000',
-    'STAR2000',
-    'STAR3000',
-    'STAR4000',
-    'STAR5000'
-  ];
+
+  @override
+  void initState() {
+    super.initState();
+    final purchaseUpdated = _inAppPurchase.purchaseStream;
+    purchaseUpdated.listen((purchaseDetailsList) {
+      _listenToPurchaseUpdated(purchaseDetailsList);
+    });
+    _loadProducts();
+    _fetchProductsFromSupabase();
+  }
 
   void _buyProduct(ProductDetails productDetails) {
     final PurchaseParam purchaseParam =
@@ -53,12 +56,13 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
     purchaseDetailsList.forEach((PurchaseDetails purchaseDetails) async {
       if (purchaseDetails.status == PurchaseStatus.pending) {
         setState(() {
-          _purchasePending = true;
+          OverlayLoadingProgress.start(context,
+              color: AppColors.Primary500, barrierDismissible: false);
         });
       } else {
         if (purchaseDetails.status == PurchaseStatus.error) {
           setState(() {
-            _purchasePending = false;
+            OverlayLoadingProgress.stop();
           });
         } else if (purchaseDetails.status == PurchaseStatus.purchased) {
           // Verify purchase and deliver the product
@@ -70,16 +74,6 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
         }
       }
     });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    final purchaseUpdated = _inAppPurchase.purchaseStream;
-    purchaseUpdated.listen((purchaseDetailsList) {
-      _listenToPurchaseUpdated(purchaseDetailsList);
-    });
-    _loadProducts();
   }
 
   Future<void> _loadProducts() async {
@@ -111,7 +105,8 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
   }
 
   Future<void> verifyReceipt(String receipt) async {
-    final response = await supabase.functions.invoke('verify_receipt',
+    final response = await Supabase.instance.client.functions.invoke(
+        'verify_receipt',
         body: {'receipt': receipt, 'platform': Platform.isIOS});
 
     if (response.status == 200) {
@@ -136,6 +131,18 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
     }
   }
 
+  Future<List<Map<String, dynamic>>> _fetchProductsFromSupabase() async {
+    try {
+      final response =
+          await Supabase.instance.client.from('products').select('*');
+
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      print('Error fetching products: $e');
+      return [];
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final purchaseProductList = ref.watch(purchaseProductListProvider);
@@ -150,57 +157,66 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
               width: double.infinity,
               height: 100.w),
           SizedBox(height: 36.w),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemBuilder: (BuildContext context, int index) => StoreListTile(
-              icon: Image.asset(
-                'assets/icons/store/star_${purchaseProductList[index].star_candy ?? ''}.png',
-                width: 48.w,
-                height: 48.w,
-              ),
-              title: Text(purchaseProductList[index].title ?? '',
-                  style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
-              subtitle: Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                        text:
-                            '${formatNumberWithComma(purchaseProductList[index].star_candy)} +${S.of(context).label_bonus} ${formatNumberWithComma(purchaseProductList[index].bonus_star_candy)}',
-                        style: getTextStyle(
-                            AppTypo.CAPTION12B, AppColors.Point900)),
-                  ],
-                ),
-              ),
-              buttonText: '${purchaseProductList[index].price} \$',
-              buttonOnPressed: () {
-                final purchaseProduct = purchaseProductList[index];
+          FutureBuilder<List<Map<String, dynamic>>>(
+            future: _fetchProductsFromSupabase(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return Center(child: Text('No products found'));
+              } else {
+                final products = snapshot.data!;
+                logger.i('products: $products');
+                return ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemBuilder: (BuildContext context, int index) =>
+                      StoreListTile(
+                    icon: Image.asset(
+                      'assets/icons/store/star_${products[index]['star_candy'] ?? ''}.png',
+                      width: 48.w,
+                      height: 48.w,
+                    ),
+                    title: Text(products[index]['product_name'] ?? '',
+                        style:
+                            getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
+                    subtitle: Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                              text: products[index]['description']
+                                      [Intl.getCurrentLocale()] ??
+                                  '',
+                              style: getTextStyle(
+                                  AppTypo.CAPTION12B, AppColors.Point900)),
+                        ],
+                      ),
+                    ),
+                    buttonText: '${products[index]['price']} \$',
+                    buttonOnPressed: () {
+                      final purchaseProduct = products[index];
 
-                supabase.isLogged
-                    ? _buyProduct(ProductDetails(
-                        id: purchaseProduct.id,
-                        title: purchaseProduct.title,
-                        description: purchaseProduct.id,
-                        price: purchaseProduct.price.toString(),
-                        rawPrice: purchaseProduct.price,
-                        currencyCode: 'US'))
-                    : showSimpleDialog(
-                        context: context,
-                        content: S.of(context).dialog_content_login_required,
-                        onOk: () {
-                          Navigator.of(context)
-                              .pushNamed(SignUpScreen.routeName);
-                          Navigator.of(context).pop();
-                        },
-                        onCancel: () {
-                          Navigator.of(context).pop();
-                        },
-                      );
-              },
-            ),
-            separatorBuilder: (BuildContext context, int index) =>
-                const Divider(color: AppColors.Grey200, height: 32),
-            itemCount: purchaseProductList.length,
+                      supabase.isLogged
+                          ? _buyProduct(ProductDetails(
+                              id: purchaseProduct['id'],
+                              title: purchaseProduct['product_name'],
+                              description: purchaseProduct['product_name'],
+                              price: purchaseProduct['price'].toString(),
+                              rawPrice: purchaseProduct['price'],
+                              currencyCode: 'US'))
+                          : showRequireLoginDialog(
+                              context: context,
+                            );
+                    },
+                  ),
+                  separatorBuilder: (BuildContext context, int index) =>
+                      const Divider(color: AppColors.Grey200, height: 32),
+                  itemCount: products.length,
+                );
+              }
+            },
           ),
           const Divider(color: AppColors.Grey200, height: 32),
           Text(S.of(context).text_purchase_vat_included,

@@ -10,10 +10,9 @@ import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
 import 'package:picnic_app/components/vote/list/voting_dialog.dart';
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/dialogs/simple_dialog.dart';
+import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
-import 'package:picnic_app/pages/signup/login_page.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
@@ -348,18 +347,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                                 .value!,
                                             voteItemModel: item,
                                           )
-                                        : showSimpleDialog(
+                                        : showRequireLoginDialog(
                                             context: context,
-                                            content: S
-                                                .of(context)
-                                                .dialog_content_login_required,
-                                            onOk: () {
-                                              Navigator.pop(context);
-                                              Navigator.pushNamed(
-                                                  context, LoginPage.routeName);
-                                            },
-                                            onCancel: () =>
-                                                Navigator.pop(context),
                                           );
                                   },
                                   child: Container(
