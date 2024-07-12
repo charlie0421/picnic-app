@@ -76,7 +76,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("成为第一个发表评论的人！"),
         "label_bonus": MessageLookupByLibrary.simpleMessage("奖金"),
-        "label_button_agreement": MessageLookupByLibrary.simpleMessage("同意"),
+        "label_button_agreement": MessageLookupByLibrary.simpleMessage("接受"),
         "label_button_clse": MessageLookupByLibrary.simpleMessage("關閉"),
         "label_button_disagreement":
             MessageLookupByLibrary.simpleMessage("不同意"),
@@ -155,6 +155,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("最新版本"),
         "label_setting_remove_cache":
             MessageLookupByLibrary.simpleMessage("删除缓存"),
+        "label_setting_remove_cache_complete":
+            MessageLookupByLibrary.simpleMessage("完成"),
         "label_setting_storage": MessageLookupByLibrary.simpleMessage("管理存储"),
         "label_setting_update": MessageLookupByLibrary.simpleMessage("更新"),
         "label_star_candy_pouch": MessageLookupByLibrary.simpleMessage("星形糖果袋"),
@@ -244,7 +246,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("来自整个画廊的 1 张图片已确认收藏"),
         "text_hint_search": MessageLookupByLibrary.simpleMessage("搜索艺术家"),
         "text_moveto_celeb_gallery":
-            MessageLookupByLibrary.simpleMessage("导航至所选艺术家的主页。"),
+            MessageLookupByLibrary.simpleMessage("访问所选艺术家的主页。"),
         "text_need_recharge": MessageLookupByLibrary.simpleMessage("需要充电。"),
         "text_no_search_result":
             MessageLookupByLibrary.simpleMessage("没有搜索结果。"),
