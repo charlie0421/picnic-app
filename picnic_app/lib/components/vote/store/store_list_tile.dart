@@ -9,7 +9,7 @@ class StoreListTile extends StatelessWidget {
     required this.title,
     this.subtitle,
     required this.buttonText,
-    this.buttonOnPressed,
+    required this.buttonOnPressed,
     this.isLoading = false,
     this.buttonScale,
   });
@@ -18,7 +18,7 @@ class StoreListTile extends StatelessWidget {
   final Text title;
   final Text? subtitle;
   final String buttonText;
-  final Function? buttonOnPressed;
+  final Function buttonOnPressed;
   final bool? isLoading;
   final double? buttonScale;
 
@@ -43,7 +43,7 @@ class StoreListTile extends StatelessWidget {
             child: ElevatedButton(
               onPressed: isLoading == null || buttonOnPressed == null
                   ? null
-                  : () => buttonOnPressed!(),
+                  : () => buttonOnPressed(),
               child: isLoading == true
                   ? SizedBox(
                       width: 16.w,

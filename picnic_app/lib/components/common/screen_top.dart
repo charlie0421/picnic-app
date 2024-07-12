@@ -6,9 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:picnic_app/components/bounce_red_dot.dart';
 import 'package:picnic_app/components/common/common_my_point_info.dart';
 import 'package:picnic_app/components/rotate_image.dart';
-import 'package:picnic_app/dialogs/simple_dialog.dart';
-import 'package:picnic_app/generated/l10n.dart';
-import 'package:picnic_app/pages/signup/login_page.dart';
+import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -115,14 +113,8 @@ class TopScreenRight extends StatelessWidget {
                     ? ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         duration: const Duration(milliseconds: 300),
                         content: Text('로그인 되어 있습니다')))
-                    : showSimpleDialog(
+                    : showRequireLoginDialog(
                         context: context,
-                        content: S.of(context).dialog_content_login_required,
-                        onOk: () {
-                          Navigator.pop(context);
-                          Navigator.pushNamed(context, LoginPage.routeName);
-                        },
-                        onCancel: () => Navigator.pop(context),
                       );
               },
               child: Container(
@@ -159,14 +151,8 @@ class TopScreenRight extends StatelessWidget {
                 ? ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     duration: const Duration(milliseconds: 200),
                     content: Text('로그인 되어 있습니다')))
-                : showSimpleDialog(
+                : showRequireLoginDialog(
                     context: context,
-                    content: S.of(context).dialog_content_login_required,
-                    onOk: () {
-                      Navigator.pop(context);
-                      Navigator.pushNamed(context, LoginPage.routeName);
-                    },
-                    onCancel: () => Navigator.pop(context),
                   );
           },
           child: Stack(
