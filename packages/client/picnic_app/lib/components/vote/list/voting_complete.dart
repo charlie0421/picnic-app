@@ -12,6 +12,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/constants.dart';
@@ -165,21 +166,6 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
         backgroundColor: Colors.transparent,
         child: LargePopupWidget(
           backgroundColor: AppColors.Mint500,
-          closeButton: !_isSaving
-              ? GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: SvgPicture.asset(
-                    'assets/icons/cancle_style=line.svg',
-                    width: 24.w,
-                    height: 24.w,
-                    colorFilter: const ColorFilter.mode(
-                        AppColors.Grey00, BlendMode.srcIn),
-                  ),
-                )
-              : null,
           content: Container(
             padding: EdgeInsets.only(
                 top: 24.w, left: 24.w, right: 24.w, bottom: 48.w),
@@ -253,11 +239,11 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(48.r),
-                          child: PicnicCachedNetworkImage(
-                            imageUrl: userInfo.value?.avatar_url ?? '',
+                          child: ProfileImageContainer(
+                            avatarUrl: userInfo.value?.avatar_url,
                             width: 48,
                             height: 48,
-                            fit: BoxFit.cover,
+                            borderRadius: 48,
                           ),
                         ),
                         SizedBox(width: 16.w),
@@ -489,6 +475,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
               ],
             ),
           ),
+          closeButton: _isSaving ? Container() : null,
         ),
       ),
     );
