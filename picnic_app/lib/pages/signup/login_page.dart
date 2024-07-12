@@ -15,7 +15,6 @@ import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/common/custom_pagination.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
-import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/pages/signup/agreement_terms_page.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -278,24 +277,23 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
       onTap: () async {
         OverlayLoadingProgress.start(context,
             color: AppColors.Primary500, barrierDismissible: false);
-        final success = await _nativeAppleSignIn();
-        OverlayLoadingProgress.stop();
-        if (success) {
-          Navigator.of(context).pop();
-          final userInfoNotifier = ref.read(userInfoProvider.notifier);
-
-          UserProfilesModel? userProfilesModel = await userInfoNotifier.login();
-
-          if (userProfilesModel?.user_agreement == null) {
-            ref
-                .read(navigationInfoProvider.notifier)
-                .setCurrentSignUpPage(AgreementTermsPage());
-            return;
-          } else {
+        final success = await _nativeAppleSignIn().then((success) {
+          OverlayLoadingProgress.stop();
+          if (success) {
             Navigator.of(context).pop();
-            Navigator.of(context).pop();
+            final userInfoNotifier = ref.read(userInfoProvider.notifier);
+
+            userInfoNotifier.login().then((userProfilesModel) async {
+              if (userProfilesModel?.user_agreement == null) {
+                ref
+                    .read(navigationInfoProvider.notifier)
+                    .setCurrentSignUpPage(AgreementTermsPage());
+              } else {
+                Navigator.of(context).pop();
+              }
+            });
           }
-        }
+        });
       },
       child: Container(
         alignment: Alignment.center,
@@ -366,27 +364,24 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
       onTap: () async {
         OverlayLoadingProgress.start(context,
             color: AppColors.Primary500, barrierDismissible: false);
-        final success = await _KakaoSignIn().then((value) {
+        await _KakaoSignIn().then((success) async {
           OverlayLoadingProgress.stop();
-          return value;
+          if (success) {
+            Navigator.of(context).pop();
+            final userInfoNotifier = ref.read(userInfoProvider.notifier);
+
+            userInfoNotifier.login().then((userProfilesModel) async {
+              if (userProfilesModel?.user_agreement == null) {
+                ref
+                    .read(navigationInfoProvider.notifier)
+                    .setCurrentSignUpPage(AgreementTermsPage());
+              } else {
+                Navigator.of(context).pop();
+              }
+            });
+          }
         });
         OverlayLoadingProgress.stop();
-        if (success) {
-          Navigator.of(context).pop();
-          final userInfoNotifier = ref.read(userInfoProvider.notifier);
-
-          UserProfilesModel? userProfilesModel = await userInfoNotifier.login();
-
-          if (userProfilesModel?.user_agreement == null) {
-            ref
-                .read(navigationInfoProvider.notifier)
-                .setCurrentSignUpPage(AgreementTermsPage());
-            return;
-          } else {
-            Navigator.of(context).pop();
-            Navigator.of(context).pop();
-          }
-        }
       },
       child: Container(
         alignment: Alignment.center,

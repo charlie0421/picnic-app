@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/dialogs/common_dialog.dart';
+import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/pic/comment.dart';
 import 'package:picnic_app/supabase_options.dart';
@@ -24,18 +24,18 @@ class ReportPopupMenu extends StatelessWidget {
       icon: const Icon(Icons.more_vert),
       onSelected: (String result) {
         if (result == 'Report') {
-          showCommonDialog(
+          showSimpleDialog(
               context: context,
               title: S.of(context).label_title_report,
-              contents: S.of(context).message_report_confirm,
-              okBtnFn: () async {
+              content: S.of(context).message_report_confirm,
+              onOk: () async {
                 _reportComment(commentId: commentId);
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text(S.of(context).message_report_ok),
                     duration: const Duration(microseconds: 500)));
                 Navigator.pop(context);
               },
-              cancelBtnFn: () => Navigator.pop(context));
+              onCancel: () => Navigator.pop(context));
         }
       },
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[

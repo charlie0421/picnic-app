@@ -4,15 +4,30 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
 
+Widget buildDialogButton(BuildContext context, String buttonText,
+    Color textColor, Function() onPressed) {
+  return Expanded(
+    flex: 1,
+    child: SizedBox(
+      child: TextButton(
+        onPressed: onPressed,
+        child: Text(
+          buttonText,
+          style: getTextStyle(AppTypo.BODY16B, textColor),
+        ),
+      ),
+    ),
+  );
+}
+
 void showSimpleDialog({
   required BuildContext context,
   String? title,
   Widget? titleWidget,
   String? content,
   Widget? contentWidget,
-  Widget? footerWidget,
-  Function? onOk,
-  Function? onCancel,
+  Function()? onOk,
+  Function()? onCancel,
 }) {
   showDialog(
     context: context,
@@ -63,40 +78,16 @@ void showSimpleDialog({
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (onCancel != null)
-                    Expanded(
-                      flex: 1,
-                      child: SizedBox(
-                        child: TextButton(
-                          child: Text(
-                            S.of(context).dialog_button_cancel,
-                            style: getTextStyle(
-                                AppTypo.BODY16B, AppColors.Grey700),
-                          ),
-                          onPressed: () {
-                            onCancel();
-                          },
-                        ),
-                      ),
-                    ),
+                    buildDialogButton(
+                        context,
+                        S.of(context).dialog_button_cancel,
+                        AppColors.Grey700,
+                        onCancel),
                   if (onOk != null)
-                    Expanded(
-                      flex: 1,
-                      child: SizedBox(
-                        child: TextButton(
-                          child: Text(
-                            S.of(context).dialog_button_ok,
-                            style: getTextStyle(
-                                AppTypo.BODY16B, AppColors.Primary500),
-                          ),
-                          onPressed: () {
-                            onOk();
-                          },
-                        ),
-                      ),
-                    ),
+                    buildDialogButton(context, S.of(context).dialog_button_ok,
+                        AppColors.Primary500, onOk),
                 ],
               ),
-              if (footerWidget != null) footerWidget,
             ],
           ),
         ),
