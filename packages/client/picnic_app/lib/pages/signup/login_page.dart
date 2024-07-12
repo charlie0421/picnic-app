@@ -280,7 +280,6 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         final success = await _nativeAppleSignIn().then((success) {
           OverlayLoadingProgress.stop();
           if (success) {
-            Navigator.of(context).pop();
             final userInfoNotifier = ref.read(userInfoProvider.notifier);
 
             userInfoNotifier.login().then((userProfilesModel) async {
@@ -288,7 +287,9 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                 ref
                     .read(navigationInfoProvider.notifier)
                     .setCurrentSignUpPage(AgreementTermsPage());
+                Navigator.of(context).pop();
               } else {
+                Navigator.of(context).pop();
                 Navigator.of(context).pop();
               }
             });
@@ -321,7 +322,6 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         OverlayLoadingProgress.start(context,
             color: AppColors.Primary500, barrierDismissible: false);
         await _nativeGoogleSignIn().then((success) {
-          OverlayLoadingProgress.stop();
           if (success) {
             Navigator.of(context).pop();
             final userInfoNotifier = ref.read(userInfoProvider.notifier);
@@ -331,7 +331,9 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                 ref
                     .read(navigationInfoProvider.notifier)
                     .setCurrentSignUpPage(AgreementTermsPage());
+                OverlayLoadingProgress.stop();
               } else {
+                OverlayLoadingProgress.stop();
                 Navigator.of(context).pop();
               }
             });
@@ -367,7 +369,6 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         await _KakaoSignIn().then((success) async {
           OverlayLoadingProgress.stop();
           if (success) {
-            Navigator.of(context).pop();
             final userInfoNotifier = ref.read(userInfoProvider.notifier);
 
             userInfoNotifier.login().then((userProfilesModel) async {
@@ -375,7 +376,9 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                 ref
                     .read(navigationInfoProvider.notifier)
                     .setCurrentSignUpPage(AgreementTermsPage());
+                Navigator.of(context).pop();
               } else {
+                Navigator.of(context).pop();
                 Navigator.of(context).pop();
               }
             });
