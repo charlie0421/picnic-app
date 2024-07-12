@@ -24,13 +24,6 @@ class _TermsPageState extends ConsumerState<TermsPage>
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.language == 'ko') {
-        ref.read(appSettingProvider.notifier).setLocale(Locale('ko'));
-      } else {
-        ref.read(appSettingProvider.notifier).setLocale(Locale('en'));
-      }
-    });
   }
 
   @override

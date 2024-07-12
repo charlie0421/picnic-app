@@ -24,14 +24,6 @@ class _PrivacyPageState extends ConsumerState<PrivacyPage>
   @override
   void initState() {
     super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.language == 'ko') {
-        ref.read(appSettingProvider.notifier).setLocale(Locale('ko'));
-      } else {
-        ref.read(appSettingProvider.notifier).setLocale(Locale('en'));
-      }
-    });
   }
 
   @override
@@ -52,12 +44,8 @@ class _PrivacyPageState extends ConsumerState<PrivacyPage>
             Expanded(
               child: Markdown(
                   data: language == PolicyLanguage.ko
-                      ? policy
-                          .privacy_ko!
-                          .content
-                      : policy
-                          .privacy_en!
-                          .content),
+                      ? policy.privacy_ko!.content
+                      : policy.privacy_en!.content),
             ),
           ],
         );
