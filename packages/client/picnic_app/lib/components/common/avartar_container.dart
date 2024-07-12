@@ -26,21 +26,28 @@ class ProfileImageContainer extends StatelessWidget {
       height: height,
       alignment: Alignment.center,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(borderRadius!),
-        child: avatarUrl!.contains('http://') || avatarUrl!.contains('https://')
-            ? CachedNetworkImage(
-                imageUrl: avatarUrl ?? '',
-                width: width,
-                height: height,
-                fit: BoxFit.cover,
-              )
-            : PicnicCachedNetworkImage(
-                imageUrl: avatarUrl ?? '',
-                width: width?.toInt(),
-                height: height?.toInt(),
-                fit: BoxFit.cover,
-              ),
-      ),
+          borderRadius: BorderRadius.circular(borderRadius!),
+          child: avatarUrl != null &&
+                  (avatarUrl.contains('http://') ||
+                      avatarUrl.contains('https://'))
+              ? CachedNetworkImage(
+                  imageUrl: avatarUrl ?? '',
+                  width: width,
+                  height: height,
+                  fit: BoxFit.cover,
+                )
+              : avatarUrl != null
+                  ? PicnicCachedNetworkImage(
+                      imageUrl: avatarUrl ?? '',
+                      width: width?.toInt(),
+                      height: height?.toInt(),
+                      fit: BoxFit.cover,
+                    )
+                  : NoAvatar(
+                      width: width,
+                      height: height,
+                      borderRadius: borderRadius,
+                    )),
     );
   }
 }
@@ -74,18 +81,24 @@ class DefaultAvatar extends StatelessWidget {
 }
 
 class NoAvatar extends StatelessWidget {
-  const NoAvatar({
-    super.key,
-  });
+  NoAvatar(
+      {super.key,
+      required this.width,
+      required this.height,
+      required this.borderRadius});
+
+  double? borderRadius = 8.r;
+  double? width = 24.w;
+  double? height = 24.w;
 
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(8.r),
+      borderRadius: BorderRadius.circular(borderRadius!),
       child: Image.asset(
         'assets/icons/header/no_avatar.png',
-        width: 36.w,
-        height: 36.w,
+        width: width,
+        height: height,
       ),
     );
   }

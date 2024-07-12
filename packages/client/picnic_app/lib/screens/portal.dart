@@ -71,14 +71,12 @@ class _PortalState extends ConsumerState<Portal> {
                                   onTap: () {
                                     Scaffold.of(context).openDrawer();
                                   },
-                                  child: data.avatar_url != null
-                                      ? ProfileImageContainer(
-                                          avatarUrl: data.avatar_url,
-                                          width: 36.w,
-                                          height: 36.w,
-                                          borderRadius: 8.r,
-                                        )
-                                      : const NoAvatar())
+                                  child: ProfileImageContainer(
+                                    avatarUrl: data.avatar_url,
+                                    width: 36.w,
+                                    height: 36.w,
+                                    borderRadius: 8.r,
+                                  ))
                               : const DefaultAvatar(),
                           error: (error, stackTrace) => const Icon(Icons.error),
                           loading: () => SizedBox(
