@@ -14,6 +14,7 @@ import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/common/custom_pagination.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/pages/signup/agreement_terms_page.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
@@ -288,6 +289,14 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                     .read(navigationInfoProvider.notifier)
                     .setCurrentSignUpPage(AgreementTermsPage());
                 Navigator.of(context).pop();
+              } else if (userProfilesModel?.deleted_at != null) {
+                OverlayLoadingProgress.stop();
+                showSimpleDialog(
+                    context: context,
+                    content: S.of(context).error_message_withdrawal,
+                    onOk: () {
+                      Navigator.of(context).pop();
+                    });
               } else {
                 Navigator.of(context).pop();
                 Navigator.of(context).pop();
@@ -332,6 +341,14 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                     .read(navigationInfoProvider.notifier)
                     .setCurrentSignUpPage(AgreementTermsPage());
                 OverlayLoadingProgress.stop();
+              } else if (userProfilesModel?.deleted_at != null) {
+                OverlayLoadingProgress.stop();
+                showSimpleDialog(
+                    context: context,
+                    content: S.of(context).error_message_withdrawal,
+                    onOk: () {
+                      Navigator.of(context).pop();
+                    });
               } else {
                 OverlayLoadingProgress.stop();
                 Navigator.of(context).pop();
@@ -377,6 +394,14 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                     .read(navigationInfoProvider.notifier)
                     .setCurrentSignUpPage(AgreementTermsPage());
                 Navigator.of(context).pop();
+              } else if (userProfilesModel?.deleted_at != null) {
+                OverlayLoadingProgress.stop();
+                showSimpleDialog(
+                    context: context,
+                    content: S.of(context).error_message_withdrawal,
+                    onOk: () {
+                      Navigator.of(context).pop();
+                    });
               } else {
                 Navigator.of(context).pop();
                 Navigator.of(context).pop();

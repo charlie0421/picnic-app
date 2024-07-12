@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
+import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
@@ -14,6 +15,7 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/pages/mypage/privacy_page.dart';
 import 'package:picnic_app/pages/mypage/terms_page.dart';
+import 'package:picnic_app/pages/signup/login_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
@@ -159,8 +161,8 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                               BorderRadius.circular(20.w)),
                                       onPressed: () {
                                         try {
+                                          OverlayLoadingProgress.start(context);
                                           _deleteAccount().then((value) {
-                                            Navigator.of(context).pop();
                                             ScaffoldMessenger.of(context)
                                                 .showSnackBar(SnackBar(
                                               content: Text(S
@@ -169,9 +171,9 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                             ));
 
                                             ref
-                                                .read(userInfoProvider.notifier)
-                                                .logout();
-                                            Navigator.of(context).pop();
+                                                .read(navigationInfoProvider
+                                                    .notifier)
+                                                .setPortal(PortalType.vote);
                                             ref
                                                 .read(navigationInfoProvider
                                                     .notifier)
@@ -179,7 +181,13 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                             ref
                                                 .read(navigationInfoProvider
                                                     .notifier)
-                                                .setPortal(PortalType.vote);
+                                                .setCurrentMyPage(LoginPage());
+                                            ref
+                                                .read(navigationInfoProvider
+                                                    .notifier)
+                                                .setReseStackMyPage();
+                                            Navigator.of(context).pop();
+                                            Navigator.of(context).pop();
                                           });
                                         } catch (e, s) {
                                           logger.e(e, stackTrace: s);
@@ -189,6 +197,8 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                                 .of(context)
                                                 .dialog_withdraw_error),
                                           ));
+                                        } finally {
+                                          OverlayLoadingProgress.stop();
                                         }
                                       },
                                       child: Text(
@@ -265,7 +275,6 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         logger.i('User deleted successfully');
         // 로그아웃 시도
         await supabase.auth.signOut();
-        ref.read(navigationInfoProvider.notifier).setBottomNavigationIndex(0);
       } else {
         throw Exception('Failed to delete user: ${response.body}');
       }
