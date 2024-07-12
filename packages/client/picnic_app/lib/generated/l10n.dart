@@ -780,10 +780,10 @@ class S {
     );
   }
 
-  /// `Reply to a reply`
+  /// `Replying to a reply`
   String get label_reply {
     return Intl.message(
-      'Reply to a reply',
+      'Replying to a reply',
       name: 'label_reply',
       desc: '',
       args: [],
@@ -895,6 +895,16 @@ class S {
     return Intl.message(
       'Delete Cache',
       name: 'label_setting_remove_cache',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Done`
+  String get label_setting_remove_cache_complete {
+    return Intl.message(
+      'Done',
+      name: 'label_setting_remove_cache_complete',
       desc: '',
       args: [],
     );

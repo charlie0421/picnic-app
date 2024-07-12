@@ -176,13 +176,15 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               onTap: () async {
                 OverlayLoadingProgress.start(context);
                 final cacheManager = DefaultCacheManager();
-                await cacheManager.emptyCache();
-                OverlayLoadingProgress.stop();
-                showSimpleDialog(
-                    title: S.of(context).label_setting_remove_cache,
-                    context: context,
-                    content: S.of(context).label_setting_remove_cache,
-                    onOk: () {});
+                cacheManager.emptyCache().then((value) {
+                  OverlayLoadingProgress.stop();
+                  showSimpleDialog(
+                      context: context,
+                      title: S.of(context).label_setting_remove_cache,
+                      content:
+                          S.of(context).label_setting_remove_cache_complete,
+                      onOk: () => Navigator.of(context).pop());
+                });
               }),
           const Divider(color: AppColors.Grey200),
           SizedBox(height: 48.w),

@@ -158,7 +158,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Compositing an image..."),
         "label_read_more_comment":
             MessageLookupByLibrary.simpleMessage("More comments"),
-        "label_reply": MessageLookupByLibrary.simpleMessage("Reply to a reply"),
+        "label_reply":
+            MessageLookupByLibrary.simpleMessage("Replying to a reply"),
         "label_retry": MessageLookupByLibrary.simpleMessage("Retrying"),
         "label_screen_title_agreement":
             MessageLookupByLibrary.simpleMessage("Accept the terms"),
@@ -180,6 +181,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Latest version"),
         "label_setting_remove_cache":
             MessageLookupByLibrary.simpleMessage("Delete Cache"),
+        "label_setting_remove_cache_complete":
+            MessageLookupByLibrary.simpleMessage("Done"),
         "label_setting_storage":
             MessageLookupByLibrary.simpleMessage("Manage storage"),
         "label_setting_update": MessageLookupByLibrary.simpleMessage("Update"),
