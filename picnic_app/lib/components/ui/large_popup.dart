@@ -9,7 +9,6 @@ import 'package:picnic_app/ui/style.dart';
 class LargePopupWidget extends StatelessWidget {
   final String? title;
   final Widget content;
-  final Widget? footer;
   final Widget? closeButton;
   final Color? backgroundColor;
   final double? width;
@@ -18,7 +17,6 @@ class LargePopupWidget extends StatelessWidget {
     super.key,
     this.title,
     required this.content,
-    this.footer,
     this.closeButton,
     this.backgroundColor,
     this.width,
@@ -56,43 +54,36 @@ class LargePopupWidget extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 33).w,
                     child: VoteCommonTitle(title: title!)),
               ),
-            Positioned(
-              bottom: 0,
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () {
-                  Navigator.pop(context);
-                },
-                child: SizedBox(
-                  height: 24.h,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          ],
+        ),
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Container(
+            height: 24.h,
+            padding: EdgeInsets.only(right: 16.w),
+            child: closeButton != null
+                ? closeButton!
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.max,
                     children: [
-                      if (footer != null) footer!,
-                      closeButton != null
-                          ? closeButton!
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Text(S.of(context).label_button_clse,
-                                    style: getTextStyle(
-                                        AppTypo.BODY14B, AppColors.Grey00)),
-                                SizedBox(width: 4.w),
-                                SvgPicture.asset(
-                                  'assets/icons/cancle_style=line.svg',
-                                  width: 24.w,
-                                  height: 24.w,
-                                  colorFilter: const ColorFilter.mode(
-                                      AppColors.Grey00, BlendMode.srcIn),
-                                ),
-                              ],
-                            ),
+                      Text(S.of(context).label_button_clse,
+                          style:
+                              getTextStyle(AppTypo.BODY14B, AppColors.Grey00)),
+                      SizedBox(width: 4.w),
+                      SvgPicture.asset(
+                        'assets/icons/cancle_style=line.svg',
+                        width: 24.w,
+                        height: 24.w,
+                        colorFilter: const ColorFilter.mode(
+                            AppColors.Grey00, BlendMode.srcIn),
+                      ),
                     ],
                   ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ],
     ));

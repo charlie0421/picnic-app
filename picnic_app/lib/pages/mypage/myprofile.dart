@@ -336,6 +336,10 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                 behavior: HitTestBehavior.opaque,
                 onTap: () {
                   _textEditingController.clear();
+                  setState(() {
+                    isValid =
+                        validateInput(_textEditingController.text) == null;
+                  });
                 },
                 child: _textEditingController.text ==
                         ref.watch(userInfoProvider).value?.nickname
@@ -357,6 +361,11 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                         : GestureDetector(
                             onTap: () {
                               _textEditingController.clear();
+                              setState(() {
+                                isValid = validateInput(
+                                        _textEditingController.text) ==
+                                    null;
+                              });
                             },
                             child: SvgPicture.asset(
                               'assets/icons/cancle_style=fill.svg',
@@ -432,7 +441,8 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
   }
 
   String? validateInput(String? value) {
-    final regExp = RegExp(r'^[\w\s]+$');
+    // 한글, 일본어, 중국어, 영문, 숫자를 허용하는 정규 표현식 (공백과 특수문자 허용하지 않음)
+    final regExp = RegExp(r'^[\w\d가-힣ぁ-ゔァ-ヴー々〆〤一-龥]+$');
     if (value == null ||
         value.isEmpty ||
         value.length > 20 ||

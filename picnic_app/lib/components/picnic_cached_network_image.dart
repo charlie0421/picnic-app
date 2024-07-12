@@ -12,13 +12,15 @@ class PicnicCachedNetworkImage extends StatefulWidget {
   final int? height;
   final BoxFit? fit;
   final ImageWidgetBuilder? imageBuilder;
+  bool? useScreenUtil = true;
 
-  const PicnicCachedNetworkImage({
+  PicnicCachedNetworkImage({
     super.key,
     required this.imageUrl,
     this.width,
     this.height,
     this.fit = BoxFit.cover,
+    this.useScreenUtil,
     this.imageBuilder,
   });
 
@@ -49,25 +51,40 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
       getTransformedUrl(widget.imageUrl, resolutionMultiplier, 50),
       getTransformedUrl(widget.imageUrl, resolutionMultiplier * 3, 80),
     ];
-
-    return SizedBox(
-      width: widget.width?.w.toDouble(),
-      height: widget.height?.h.toDouble(),
-      child: Stack(alignment: Alignment.center, children: [
-        buildLoadingOverlay(),
-        ...urls.map(_buildCachedNetworkImage).toList().toList(),
-      ]),
-    );
+    return widget.useScreenUtil == true
+        ? SizedBox(
+            width: widget.width?.w.toDouble(),
+            height: widget.height?.h.toDouble(),
+            child: Stack(alignment: Alignment.center, children: [
+              buildLoadingOverlay(),
+              ...urls.map(_buildCachedNetworkImage).toList().toList(),
+            ]),
+          )
+        : SizedBox(
+            width: widget.width?.toDouble(),
+            height: widget.height?.toDouble(),
+            child: Stack(alignment: Alignment.center, children: [
+              buildLoadingOverlay(),
+              ...urls.map(_buildCachedNetworkImage).toList().toList(),
+            ]),
+          );
   }
 
   Widget _buildCachedNetworkImage(String url) {
-    return CachedNetworkImage(
-      imageUrl: url,
-      width: widget.width?.w.toDouble(),
-      height: widget.height?.h.toDouble(),
-      fit: widget.fit,
-      errorWidget: (context, url, error) => Container(),
-    );
+    return widget.useScreenUtil == true
+        ? CachedNetworkImage(
+            imageUrl: url,
+            width: widget.width?.w.toDouble(),
+            height: widget.height?.h.toDouble(),
+            fit: widget.fit,
+            errorWidget: (context, url, error) => Container(),
+          )
+        : CachedNetworkImage(
+            imageUrl: url,
+            width: widget.width?.toDouble(),
+            height: widget.height?.toDouble(),
+            fit: widget.fit,
+            errorWidget: (context, url, error) => Container());
   }
 
   String getTransformedUrl(

@@ -106,19 +106,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       backgroundColor: Colors.transparent,
       child: LargePopupWidget(
         // title: widget.voteModel.getTitle() ?? '',
-        closeButton: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: SvgPicture.asset(
-            'assets/icons/cancle_style=line.svg',
-            width: 24.w,
-            height: 24.w,
-            colorFilter:
-                const ColorFilter.mode(AppColors.Grey00, BlendMode.srcIn),
-          ),
-        ),
+
         content: Container(
           padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.w),
           child: Column(
@@ -127,18 +115,19 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             children: [
               Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(100.r),
+                  borderRadius: BorderRadius.circular(120),
                   border: Border.all(
                     color: AppColors.Primary500,
                     width: 1.5.r,
                   ),
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(100.r),
+                  borderRadius: BorderRadius.circular(120),
                   child: PicnicCachedNetworkImage(
                     imageUrl: widget.voteItemModel.mystar_member.image ?? '',
                     width: 100,
                     height: 100,
+                    useScreenUtil: false,
                   ),
                 ),
               ),
