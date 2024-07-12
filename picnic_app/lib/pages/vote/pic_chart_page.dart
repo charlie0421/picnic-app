@@ -117,6 +117,7 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
                     ],
                   ),
                 ),
+                closeButton: Container(),
               ),
             ),
           ),
