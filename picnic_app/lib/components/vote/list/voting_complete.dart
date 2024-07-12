@@ -255,8 +255,8 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                           borderRadius: BorderRadius.circular(48.r),
                           child: PicnicCachedNetworkImage(
                             imageUrl: userInfo.value?.avatar_url ?? '',
-                            width: 48.w,
-                            height: 48.w,
+                            width: 48,
+                            height: 48,
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -351,8 +351,8 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                         imageUrl: widget.voteItemModel
                                                 .mystar_member.image ??
                                             '',
-                                        width: 56.w,
-                                        height: 56.w,
+                                        width: 56,
+                                        height: 56,
                                       ),
                                     ),
                                     SizedBox(height: 8.w),

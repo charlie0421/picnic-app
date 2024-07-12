@@ -210,8 +210,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   child: PicnicCachedNetworkImage(
                     imageUrl: voteModel?.main_image ?? '',
                     fit: BoxFit.cover,
-                    width: width,
-                    height: height,
+                    width: width.toInt(),
+                    height: height.toInt(),
                   ),
                 ),
                 SizedBox(
@@ -410,8 +410,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                                   item.mystar_member.image ??
                                                       '',
                                               fit: BoxFit.cover,
-                                              width: 39.w,
-                                              height: 39.w,
+                                              width: 39,
+                                              height: 39,
                                             ),
                                           ),
                                         ),

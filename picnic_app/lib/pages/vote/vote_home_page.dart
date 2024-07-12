@@ -166,8 +166,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                               borderRadius: BorderRadius.circular(8.r),
                               child: PicnicCachedNetworkImage(
                                   imageUrl: data[index].thumbnail ?? '',
-                                  width: 120.w,
-                                  height: 100.w,
+                                  width: 120,
+                                  height: 100,
                                   fit: BoxFit.cover),
                             ),
                             Positioned(
@@ -248,8 +248,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                   height: height,
                   child: PicnicCachedNetworkImage(
                       imageUrl: data[index].thumbnail ?? '',
-                      width: width,
-                      height: height,
+                      width: width.toInt(),
+                      height: height.toInt(),
                       fit: BoxFit.cover),
                 ),
                 Positioned(

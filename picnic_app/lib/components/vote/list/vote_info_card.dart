@@ -236,8 +236,8 @@ class VoteCardColumnVertical extends StatelessWidget {
                   borderRadius: BorderRadius.circular(50),
                   child: PicnicCachedNetworkImage(
                       imageUrl: voteItem.mystar_member.image ?? '',
-                      width: 72.w,
-                      height: 72.w),
+                      width: 72,
+                      height: 72),
                 ),
               ),
             ),

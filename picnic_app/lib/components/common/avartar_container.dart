@@ -36,8 +36,8 @@ class ProfileImageContainer extends StatelessWidget {
               )
             : PicnicCachedNetworkImage(
                 imageUrl: avatarUrl ?? '',
-                width: width,
-                height: height,
+                width: width?.toInt(),
+                height: height?.toInt(),
                 fit: BoxFit.cover,
               ),
       ),
