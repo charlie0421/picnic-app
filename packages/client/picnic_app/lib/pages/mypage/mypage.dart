@@ -13,6 +13,7 @@ import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MyPage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_mypage';
@@ -61,7 +62,9 @@ class _MyPageState extends ConsumerState<MyPage> {
                       ListItem(
                           leading: S.of(context).label_mypage_customer_center,
                           assetPath: 'assets/icons/arrow_right_style=line.svg',
-                          onTap: () {}),
+                          onTap: () {
+                            _launchURL('https://forms.gle/VPfgdt2JSMyBisps5');
+                          }),
                       const Divider(color: AppColors.Grey200),
                       ListItem(
                           leading: S.of(context).label_mypage_setting,
@@ -189,5 +192,20 @@ class _MyPageState extends ConsumerState<MyPage> {
         ),
       ],
     );
+  }
+
+  void _launchURL(String targetUrl) async {
+    Uri url = Uri.parse(targetUrl);
+    if (await canLaunchUrl(url)) {
+      await launchUrl(
+        url,
+        mode: LaunchMode.inAppWebView,
+        webViewConfiguration: const WebViewConfiguration(
+          enableJavaScript: true,
+        ),
+      );
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 }
