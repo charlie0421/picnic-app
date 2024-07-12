@@ -52,7 +52,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("로그인이 필요합니다"),
         "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("투표 실패"),
         "dialog_withdraw_button_cancel":
-            MessageLookupByLibrary.simpleMessage("다시 한 번 생각해 볼께요"),
+            MessageLookupByLibrary.simpleMessage("다시 한 번 생각해 볼게요"),
         "dialog_withdraw_button_ok":
             MessageLookupByLibrary.simpleMessage("탈퇴하기"),
         "dialog_withdraw_error":

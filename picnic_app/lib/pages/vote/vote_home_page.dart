@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_app/components/common/custom_pagination.dart';
 import 'package:picnic_app/components/common/reward_dialog.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/picnic_cached_network_image.dart';
@@ -235,7 +236,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
 
     return SizedBox(
       width: width,
-      height: height + 30,
+      height: height + 25.h,
       child: asyncBannerListState.when(
         data: (data) => Swiper(
           itemBuilder: (BuildContext context, int index) {
@@ -253,7 +254,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                       fit: BoxFit.cover),
                 ),
                 Positioned(
-                  bottom: 30,
+                  bottom: 25.h,
                   child: Container(
                     width: MediaQuery.of(context).size.width,
                     alignment: Alignment.center,
@@ -274,12 +275,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
           containerHeight: height,
           itemHeight: height,
           autoplay: true,
-          pagination: const SwiperPagination(
-              builder: DotSwiperPaginationBuilder(
-                  size: 8,
-                  color: AppColors.Grey200,
-                  activeColor: AppColors.Grey500)),
-          layout: SwiperLayout.DEFAULT,
+          pagination: CustomPaginationBuilder(),
         ),
         loading: () => buildLoadingOverlay(),
         error: (error, stackTrace) =>
