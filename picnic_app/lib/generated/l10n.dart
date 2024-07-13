@@ -110,10 +110,10 @@ class S {
     );
   }
 
-  /// `### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, the earliest one will be used.`
+  /// `### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end will be used first.\nIf they have the same expiration date, the earliest one will be used.`
   String get candy_usage_policy_contents {
     return Intl.message(
-      '### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, the earliest one will be used.',
+      '### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end will be used first.\nIf they have the same expiration date, the earliest one will be used.',
       name: 'candy_usage_policy_contents',
       desc: '',
       args: [],
@@ -180,6 +180,26 @@ class S {
     );
   }
 
+  /// `The purchase failed.`
+  String get dialog_purchases_fail {
+    return Intl.message(
+      'The purchase failed.',
+      name: 'dialog_purchases_fail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your purchase is complete.`
+  String get dialog_purchases_success {
+    return Intl.message(
+      'Your purchase is complete.',
+      name: 'dialog_purchases_success',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Voting Failed`
   String get dialog_title_vote_fail {
     return Intl.message(
@@ -190,10 +210,10 @@ class S {
     );
   }
 
-  /// `Let me think about it again`
+  /// `Let me think about this one more time`
   String get dialog_withdraw_button_cancel {
     return Intl.message(
-      'Let me think about it again',
+      'Let me think about this one more time',
       name: 'dialog_withdraw_button_cancel',
       desc: '',
       args: [],
@@ -780,10 +800,10 @@ class S {
     );
   }
 
-  /// `Replying to a reply`
+  /// `Reply to a reply`
   String get label_reply {
     return Intl.message(
-      'Replying to a reply',
+      'Reply to a reply',
       name: 'label_reply',
       desc: '',
       args: [],
@@ -1100,10 +1120,10 @@ class S {
     );
   }
 
-  /// `PIC voting`
+  /// `PIC Voting`
   String get label_vote_tab_pic {
     return Intl.message(
-      'PIC voting',
+      'PIC Voting',
       name: 'label_vote_tab_pic',
       desc: '',
       args: [],

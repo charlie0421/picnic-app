@@ -39,7 +39,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_ok": MessageLookupByLibrary.simpleMessage("確認"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("保存する"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
-            "### 有効期限\n\n- 星飴は獲得日から1年間有効です。\n\n星飴獲得 ### 星飴獲得\n\nログイン : 1日1回\n- 投票 : 1回につき1個\n購入星飴 : なし (無制限)\nボーナス星飴：獲得した翌月の15日に一括消滅\n\n##### 星飴を使う\n\n消滅日が迫っている星飴から使用されます。\n有効期限が同じ場合は、獲得日が早い順に使用されます。"),
+            "### 有効期限\n\n- 星飴は獲得日から1年間有効です。\n\n星飴獲得 ### 星飴獲得\n\nログイン : 1日1回\n- 投票 : 1回につき1個\n購入星飴 : なし (無制限)\nボーナス星飴：獲得した次の月の15日に一括消滅\n\n##### 星飴を使う\n\n消滅日が迫っている星飴から使用されます。\n有効期限が同じ場合は、獲得日が早い順に使用されます。"),
         "candy_usage_policy_guide":
             MessageLookupByLibrary.simpleMessage("*ボーナスは獲得した翌月に無くなります！ ⓘ※ボーナス"),
         "candy_usage_policy_title":
@@ -50,9 +50,13 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("広告の読み込み中です。"),
         "dialog_content_login_required":
             MessageLookupByLibrary.simpleMessage("ログインが必要です"),
+        "dialog_purchases_fail":
+            MessageLookupByLibrary.simpleMessage("購入に失敗しました。"),
+        "dialog_purchases_success":
+            MessageLookupByLibrary.simpleMessage("購入が完了しました。"),
         "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("投票失敗"),
         "dialog_withdraw_button_cancel":
-            MessageLookupByLibrary.simpleMessage("もう一度考えてみます。"),
+            MessageLookupByLibrary.simpleMessage("もう一度考えてみます"),
         "dialog_withdraw_button_ok":
             MessageLookupByLibrary.simpleMessage("退会する"),
         "dialog_withdraw_error":
@@ -181,7 +185,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_tabbar_picchart_daily":
             MessageLookupByLibrary.simpleMessage("日足チャート"),
         "label_tabbar_picchart_monthly":
-            MessageLookupByLibrary.simpleMessage("月間チャート"),
+            MessageLookupByLibrary.simpleMessage("月次チャート"),
         "label_tabbar_picchart_weekly":
             MessageLookupByLibrary.simpleMessage("週間チャート"),
         "label_tabbar_vote_active": MessageLookupByLibrary.simpleMessage("進行中"),
@@ -262,8 +266,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("星飴が支給されました。"),
         "text_dialog_vote_amount_should_not_zero":
             MessageLookupByLibrary.simpleMessage("投票数は0にすることはできません。"),
-        "text_draw_image":
-            MessageLookupByLibrary.simpleMessage("全ギャラリーのうち、1枚の画像を確定的に所蔵"),
+        "text_draw_image": MessageLookupByLibrary.simpleMessage(
+            "全ギャラリーのうち、1つの画像を確定的に所蔵しています。"),
         "text_hint_search":
             MessageLookupByLibrary.simpleMessage("アーティストを検索してください。"),
         "text_moveto_celeb_gallery":
