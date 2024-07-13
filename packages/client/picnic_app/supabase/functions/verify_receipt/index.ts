@@ -1,118 +1,167 @@
-// Follow this setup guide to integrate the Deno language server with your editor:
-// https://deno.land/manual/getting_started/setup_your_environment
-// This enables autocomplete, go to definition, etc.
-
-// Setup type definitions for built-in Supabase Runtime APIs
 import "https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts"
-import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.44.3';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 const supabase = createClient(supabaseUrl, supabaseKey);
+console.log("Supabase client created");
+const SANDBOX_URL = 'https://sandbox.itunes.apple.com/verifyReceipt';
+const PRODUCTION_URL = 'https://buy.itunes.apple.com/verifyReceipt';
 
+// 환경 변수로 설정하거나, 요청에서 전달받은 환경 정보를 사용
 
-Deno.serve(async (req) => {
-    const {receipt, platform, productId} = await req.json();
-    let response;
-    if (platform === 'ios') {
-        response = await fetch('https://sandbox.itunes.apple.com/verifyReceipt', {
-        // response = await fetch('https://buy.itunes.apple.com/verifyReceipt', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                'receipt-data': receipt,
-                'password': '52468d297ebc4777a3daefb2d12aabce', // App Store Connect에서 생성한 공유 비밀번호
-            }),
+Deno.serve(async (request: Request) => {
+    try {
+        console.log("Received request");
+        const { receipt, platform, productId , user_id, environment} = await request.json();
+        console.log(`Received receipt for platform: ${platform}, productId: ${productId}`);
+        let verificationUrl;
+
+          verificationUrl = SANDBOX_URL;
+        // 클라이언트에서 전송한 환경 정보를 사용할 경우
+        // if (environment === 'production') {
+        //   verificationUrl = PRODUCTION_URL;
+        // } else {
+        //   verificationUrl = SANDBOX_URL;
+        // }
+
+        let response;
+        if (platform === 'ios') {
+            console.log("Verifying iOS receipt");
+            response = await fetch(verificationUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    'receipt-data': receipt,
+                    'password': '52468d297ebc4777a3daefb2d12aabce',
+                }),
+            });
+        } else if (platform === 'android') {
+            console.log("Verifying Android receipt");
+            const packageName = 'io.iconcasting.picnic.app';
+            response = await fetch(`https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${packageName}/purchases/products/${productId}/tokens/${receipt}`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer AIzaSyDm0_bdB3-ky3Za-7H4Ysgj1zci6Yb-NzU` },
+            });
+        } else {
+            throw new Error(`Invalid platform: ${platform}`);
+        }
+
+        const data = await response.json();
+        console.log("Verification response:", data);
+
+        if (response.status === 200 && (platform === 'ios' ? data.status === 0 : true)) {
+            console.log("Receipt is valid");
+            await supabase.from('receipts').insert([{receipt_data: receipt, status: 'valid', platform}]);
+
+            // Generate a unique transaction ID
+            const transactionId = `${platform}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+            await grantReward(user_id, productId, transactionId);
+
+            return new Response(JSON.stringify({success: true, data: data}), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        } else {
+            console.log("Receipt is invalid");
+            await supabase.from('receipts').insert([{receipt_data: receipt, status: 'invalid', platform}]);
+
+            return new Response(JSON.stringify({success: false, data: data}), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+    } catch (error) {
+        console.error("Error processing request:", error);
+        return new Response(JSON.stringify({ error: "Internal server error", details: error.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
         });
-    } else if (platform === 'android') {
-        const packageName = 'io.iconcasting.picnic.app';
-        response = await fetch(`https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${packageName}/purchases/products/${productId}/tokens/${receipt}`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer AIzaSyDm0_bdB3-ky3Za-7H4Ysgj1zci6Yb-NzU`
-            },
-        });
+    }
+});
+
+async function grantReward(userId: string, productId: string, transactionId: string) {
+    try {
+        const rewardMap = {
+        'STAR100': { star_candy: 100, star_candy_bonus: 0 },
+        'STAR200': { star_candy: 200, star_candy_bonus: 25 },
+        'STAR600': { star_candy: 600, star_candy_bonus: 85 },
+        'STAR1000': { star_candy: 1000, star_candy_bonus: 150 },
+        'STAR2000': { star_candy: 2000, star_candy_bonus: 320 },
+        'STAR3000': { star_candy: 3000, star_candy_bonus: 540 },
+        'STAR4000': { star_candy: 4000, star_candy_bonus: 760 },
+        'STAR5000': { star_candy: 5000, star_candy_bonus: 1000 },
+    };
+
+    const reward = rewardMap[productId];
+    if (!reward) {
+        console.error(`Unknown product ID: ${productId}`);
+        return;
     }
 
-    const data = await response.json();
+    const { star_candy, star_candy_bonus } = reward;
 
-    if (response.status === 200 && (platform === 'ios' ? data.status === 0 : true)) {
-        // 영수증이 유효함
-        await supabase
-            .from('receipts')
-            .insert([{receipt_data: receipt, status: 'valid', platform}]);
+    // Calculate next month's 15th
+    const now = new Date();
+    const expireDate = new Date(now.getFullYear(), now.getMonth() + 1, 15);
 
-        grantReward(data.userId, data.productId);
+        // Update user_profiles
+        const { data: profileData, error: profileError } = await supabase
+            .from('user_profiles')
+            .select('star_candy, star_candy_bonus')
+            .eq('id', userId)
+            .single();
 
-        return {
-            statusCode: 200,
-            body: JSON.stringify({success: true, data: data}),
-        };
-    } else {
-        // 영수증이 유효하지 않음
-        await supabase
-            .from('receipts')
-            .insert([{receipt_data: receipt, status: 'invalid', platform}]);
+        if (profileError) throw profileError;
 
-        return {
-            statusCode: 400,
-            body: JSON.stringify({success: false, data: data}),
-        };
+        const updatedStarCandy = (profileData.star_candy || 0) + star_candy;
+        const updatedStarCandyBonus = (profileData.star_candy_bonus || 0) + star_candy_bonus;
+
+        const { error: updateError } = await supabase
+            .from('user_profiles')
+            .update({
+                star_candy: updatedStarCandy,
+                star_candy_bonus: updatedStarCandyBonus
+            })
+            .eq('id', userId);
+
+        if (updateError) throw updateError;
+
+        // Insert into star_candy_history
+        const { error: historyError } = await supabase
+            .from('star_candy_history')
+            .insert({
+                user_id: userId,
+                amount: star_candy,
+                type: 'PURCHASE',
+                transaction_id: transactionId
+            });
+
+        if (historyError) throw historyError;
+
+        // Insert into star_candy_bonus_history if bonus > 0
+        if (star_candy_bonus > 0) {
+            const { error: bonusHistoryError } = await supabase
+                .from('star_candy_bonus_history')
+                .insert({
+                    user_id: userId,
+                    amount: star_candy_bonus,
+                    type: 'PURCHASE',
+                    expired_dt: expireDate.toISOString(),
+                    transaction_id: transactionId,
+                    remain_amount: star_candy_bonus
+                });
+
+            if (bonusHistoryError) throw bonusHistoryError;
+        }
+
+        console.log(`Reward granted for user ${userId}: ${JSON.stringify(reward)}, Expiry: ${expireDate.toISOString()}`);
+    } catch (error) {
+        console.error(`Error granting reward for user ${userId}:`, error);
+        throw error;  // Re-throw the error to be handled by the caller
     }
-
-})
-
-async function grantReward(userId: string, productId: string) {
-    // 제품 ID에 따른 보상 로직
-    if (productId === 'STAR100') {
-        // 사용자 프로필 업데이트 예제
-        await supabase
-            .from('user_profiles')
-            .update({star_candy: 100})
-            .eq('id', userId);
-    } else if (productId === 'STAR200') {
-        await supabase
-            .from('user_profiles')
-            .update({star_candy: 200, star_candy_bonus: 25})
-            .eq('id', userId);
-    } else if (productId === 'STAR600') {
-        await supabase
-            .from('user_profiles')
-            .update({star_candy: 600, star_candy_bonus: 85})
-            .eq('id', userId);
-    } else if (productId === 'STAR1000') {
-        await supabase
-            .from('user_profiles')
-            .update({star_candy: 1000, star_candy_bonus: 150})
-            .eq('id', userId);
-    } else if (productId === 'STAR2000') {
-        await supabase
-            .from('user_profiles')
-            .update({star_candy: 2000, star_candy_bonus: 320})
-            .eq('id', userId);
-
-    } else if ( productId === 'STAR3000') {
-        await supabase
-            .from('user_profiles')
-            .update({star_candy: 3000, star_candy_bonus: 540})
-            .eq('id', userId);
-    } else if ( productId === 'STAR4000') {
-        await supabase
-            .from('user_profiles')
-            .update({star_candy: 4000, star_candy_bonus: 760})
-            .eq('id', userId);
-    } else if (productId === 'STAR5000') {
-        await supabase
-            .from('user_profiles')
-            .update({star_candy: 5000, star_candy_bonus: 1000})
-            .eq('id', userId);
-    }
-
-
 }
-
 
 /* To invoke locally:
 

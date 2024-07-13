@@ -39,7 +39,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("Save"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
-            "### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, the earliest one will be used."),
+            "### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end will be used first.\nIf they have the same expiration date, the earliest one will be used."),
         "candy_usage_policy_guide": MessageLookupByLibrary.simpleMessage(
             "*Bonuses disappear the month after you earn them! ⓘ"),
         "candy_usage_policy_title":
@@ -50,10 +50,14 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Ads are loading."),
         "dialog_content_login_required":
             MessageLookupByLibrary.simpleMessage("Login required"),
+        "dialog_purchases_fail":
+            MessageLookupByLibrary.simpleMessage("The purchase failed."),
+        "dialog_purchases_success":
+            MessageLookupByLibrary.simpleMessage("Your purchase is complete."),
         "dialog_title_vote_fail":
             MessageLookupByLibrary.simpleMessage("Voting Failed"),
-        "dialog_withdraw_button_cancel":
-            MessageLookupByLibrary.simpleMessage("Let me think about it again"),
+        "dialog_withdraw_button_cancel": MessageLookupByLibrary.simpleMessage(
+            "Let me think about this one more time"),
         "dialog_withdraw_button_ok":
             MessageLookupByLibrary.simpleMessage("Unsubscribing"),
         "dialog_withdraw_error": MessageLookupByLibrary.simpleMessage(
@@ -158,8 +162,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Compositing an image..."),
         "label_read_more_comment":
             MessageLookupByLibrary.simpleMessage("More comments"),
-        "label_reply":
-            MessageLookupByLibrary.simpleMessage("Replying to a reply"),
+        "label_reply": MessageLookupByLibrary.simpleMessage("Reply to a reply"),
         "label_retry": MessageLookupByLibrary.simpleMessage("Retrying"),
         "label_screen_title_agreement":
             MessageLookupByLibrary.simpleMessage("Accept the terms"),
@@ -216,7 +219,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("Birthday polls"),
         "label_vote_tab_pic":
-            MessageLookupByLibrary.simpleMessage("PIC voting"),
+            MessageLookupByLibrary.simpleMessage("PIC Voting"),
         "label_vote_vote_gather":
             MessageLookupByLibrary.simpleMessage("Collecting votes"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("View ads"),

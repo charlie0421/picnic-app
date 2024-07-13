@@ -50,6 +50,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("광고 로딩중입니다."),
         "dialog_content_login_required":
             MessageLookupByLibrary.simpleMessage("로그인이 필요합니다"),
+        "dialog_purchases_fail":
+            MessageLookupByLibrary.simpleMessage("구매에 실패했습니다."),
+        "dialog_purchases_success":
+            MessageLookupByLibrary.simpleMessage("구매가 완료되었습니다."),
         "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("투표 실패"),
         "dialog_withdraw_button_cancel":
             MessageLookupByLibrary.simpleMessage("다시 한 번 생각해 볼게요"),
