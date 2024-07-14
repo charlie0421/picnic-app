@@ -50,7 +50,7 @@ class _RewardDialogState extends State<RewardDialog> {
                   foregroundColor: AppColors.Grey500,
                   child: Icon(
                     Icons.close,
-                    size: 24.w,
+                    size: 24,
                   ),
                 ),
               ),
