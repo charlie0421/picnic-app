@@ -7,7 +7,7 @@ void closeDialogWithResult(BuildContext context, bool result) {
   Navigator.of(context).pop(result);
 }
 
-void showRequireLoginDialog({ required BuildContext context }) {
+void showRequireLoginDialog({required BuildContext context}) {
   showSimpleDialog(
     context: context,
     content: S.of(context).dialog_content_login_required,
