@@ -53,9 +53,9 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   Widget build(BuildContext context) {
     return ListView(children: [
       _buildVoteHomeBanner(context),
-      SizedBox(height: 48.w),
+      SizedBox(height: 36.w),
       _buildRewardList(context),
-      SizedBox(height: 48.w),
+      SizedBox(height: 36.w),
       GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
@@ -145,7 +145,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
             return Container(
               alignment: Alignment.centerLeft,
               padding: const EdgeInsets.only(left: 16),
-              height: 100.w,
+              height: 100,
               child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: data.length,
@@ -174,7 +174,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                             Positioned(
                               bottom: 0,
                               child: Container(
-                                width: 120.w,
+                                width: 120,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.only(
                                       bottomLeft: Radius.circular(8.r),
@@ -202,7 +202,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
           },
           loading: () => Container(
                 width: double.infinity,
-                height: 100.w,
+                height: 100.h,
                 margin: const EdgeInsets.only(left: 16),
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
@@ -213,7 +213,6 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                     highlightColor: AppColors.Grey100,
                     child: Container(
                       width: 120.w,
-                      height: 120.w,
                       margin: const EdgeInsets.only(right: 16),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8.r),

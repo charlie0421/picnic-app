@@ -179,7 +179,7 @@ class VoteCardColumnVertical extends StatelessWidget {
       children: [
         Container(
           color: AppColors.Grey100,
-          height: barHeight.w,
+          height: barHeight.h,
           child: Container(
             width: 80.w,
             height: 160.h,
@@ -218,13 +218,13 @@ class VoteCardColumnVertical extends StatelessWidget {
                   : rank == 2
                       ? silverGradient
                       : bronzeGradient,
-              borderRadius: BorderRadius.circular(50),
+              borderRadius: BorderRadius.circular(100),
             ),
             child: Container(
               width: 72.w,
               height: 72.w,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(50),
+                borderRadius: BorderRadius.circular(100),
                 border: Border.all(
                   color: AppColors.Grey00,
                   width: 1.w,
@@ -233,11 +233,12 @@ class VoteCardColumnVertical extends StatelessWidget {
               child: FadeTransition(
                 opacity: opacityAnimation,
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(50),
+                  borderRadius: BorderRadius.circular(100),
                   child: PicnicCachedNetworkImage(
                       imageUrl: voteItem.mystar_member.image ?? '',
-                      width: 72,
-                      height: 72),
+                      useScreenUtil: true,
+                      width: 100,
+                      height: 100),
                 ),
               ),
             ),
