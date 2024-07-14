@@ -5,7 +5,7 @@ class PrivacyScreen extends StatelessWidget {
   static const String routeName = '/privacy';
   final String? language;
 
-  PrivacyScreen({super.key, this.language});
+  const PrivacyScreen({super.key, this.language});
 
   @override
   Widget build(BuildContext context) {

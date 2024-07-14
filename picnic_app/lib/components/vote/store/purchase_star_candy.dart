@@ -188,7 +188,7 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
       }
     } catch (e) {
       print('Error verifying receipt: $e');
-      throw e; // 이 예외는 _listenToPurchaseUpdated에서 잡힙니다.
+      rethrow; // 이 예외는 _listenToPurchaseUpdated에서 잡힙니다.
     }
   }
 

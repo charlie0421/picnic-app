@@ -142,11 +142,11 @@ class NavigationInfo extends _$NavigationInfo {
       return;
     }
 
-    if (topNavigationStack?.peek() == page) {
+    if (topNavigationStack.peek() == page) {
       return;
     }
 
-    topNavigationStack?.push(page);
+    topNavigationStack.push(page);
     state = state.copyWith(
       topNavigationStack: topNavigationStack,
       showTopMenu: showTopMenu,

@@ -432,7 +432,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
+                        SizedBox(
                             width: 200.w,
                             child: AspectRatio(
                                 aspectRatio: 5.5 / 8.5,

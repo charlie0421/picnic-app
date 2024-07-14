@@ -287,7 +287,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               if (userProfilesModel?.user_agreement == null) {
                 ref
                     .read(navigationInfoProvider.notifier)
-                    .setCurrentSignUpPage(AgreementTermsPage());
+                    .setCurrentSignUpPage(const AgreementTermsPage());
                 Navigator.of(context).pop();
               } else if (userProfilesModel?.deleted_at != null) {
                 OverlayLoadingProgress.stop();
@@ -339,7 +339,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               if (userProfilesModel?.user_agreement == null) {
                 ref
                     .read(navigationInfoProvider.notifier)
-                    .setCurrentSignUpPage(AgreementTermsPage());
+                    .setCurrentSignUpPage(const AgreementTermsPage());
                 OverlayLoadingProgress.stop();
               } else if (userProfilesModel?.deleted_at != null) {
                 OverlayLoadingProgress.stop();
@@ -392,7 +392,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               if (userProfilesModel?.user_agreement == null) {
                 ref
                     .read(navigationInfoProvider.notifier)
-                    .setCurrentSignUpPage(AgreementTermsPage());
+                    .setCurrentSignUpPage(const AgreementTermsPage());
                 Navigator.of(context).pop();
               } else if (userProfilesModel?.deleted_at != null) {
                 OverlayLoadingProgress.stop();

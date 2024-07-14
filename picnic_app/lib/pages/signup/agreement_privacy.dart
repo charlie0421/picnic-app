@@ -51,7 +51,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
 
     return Column(
       children: [
-        Container(
+        SizedBox(
           height: 25.h,
           child: Stack(
             fit: StackFit.expand,

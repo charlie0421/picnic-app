@@ -80,7 +80,7 @@ class _ArticleListState extends ConsumerState<ArticleList> {
 
   Widget _buildArticle(
       BuildContext context, WidgetRef ref, ArticleModel article) {
-    logger.i('ArticleList: ${article}');
+    logger.i('ArticleList: $article');
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       child: Column(

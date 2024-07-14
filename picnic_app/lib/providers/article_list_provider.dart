@@ -31,6 +31,7 @@ Future<List<ArticleModel>?> fetchArticleList(
   } catch (e, stackTrace) {
     logger.e(e, stackTrace: stackTrace);
   }
+  return null;
 }
 
 @riverpod
