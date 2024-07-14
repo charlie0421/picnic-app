@@ -34,12 +34,12 @@ class UserInfo extends _$UserInfo {
       logger.i('response.data: $response');
       state = AsyncValue.data(UserProfilesModel.fromJson(response));
 
-      ScreenProtector.preventScreenshotOff();
-      // if (response['is_admin'] == true) {
-      //   ScreenProtector.preventScreenshotOff();
-      // } else {
-      //   ScreenProtector.preventScreenshotOn();
-      // }
+      // ScreenProtector.preventScreenshotOff();
+      if (response['is_admin'] == true) {
+        ScreenProtector.preventScreenshotOff();
+      } else {
+        ScreenProtector.preventScreenshotOn();
+      }
 
       return UserProfilesModel.fromJson(response);
     } catch (e, s) {
