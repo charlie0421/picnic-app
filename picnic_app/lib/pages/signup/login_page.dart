@@ -237,9 +237,10 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         _buildGoogleLogin(
           context,
         ),
-        _buildKakaoLogin(
-          context,
-        ),
+        if (isIOS())
+          _buildKakaoLogin(
+            context,
+          ),
       ],
     );
   }
