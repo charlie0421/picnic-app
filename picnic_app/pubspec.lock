@@ -1237,14 +1237,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
-  kakao_flutter_sdk:
-    dependency: "direct main"
-    description:
-      name: kakao_flutter_sdk
-      sha256: "0c6684a066b61864b2cda1b94019309d104d37a2ce8b030e83662320fdd94689"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.9.4"
   kakao_flutter_sdk_auth:
     dependency: transitive
     description:
@@ -1261,48 +1253,8 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.9.4"
-  kakao_flutter_sdk_friend:
-    dependency: transitive
-    description:
-      name: kakao_flutter_sdk_friend
-      sha256: "2539e52695842e3cba88eaaa5a9b14f7c83b5d0a76e3265ac0017d18a6dadd39"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.9.4"
-  kakao_flutter_sdk_navi:
-    dependency: transitive
-    description:
-      name: kakao_flutter_sdk_navi
-      sha256: "1e8d56c91ab0cc828fddef76569530a16ed09021e1b4975952e866a7ef81aec5"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.9.4"
-  kakao_flutter_sdk_share:
-    dependency: transitive
-    description:
-      name: kakao_flutter_sdk_share
-      sha256: "84d7f9c1ae1e282bb3a04c111ccc4cdd6c81ed7dd37ca68a30ffa370e261d007"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.9.4"
-  kakao_flutter_sdk_talk:
-    dependency: transitive
-    description:
-      name: kakao_flutter_sdk_talk
-      sha256: e95b31dd2970ec040e0d9591169246fcd01742725649ade0e8c63cafef1d7bcc
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.9.4"
-  kakao_flutter_sdk_template:
-    dependency: transitive
-    description:
-      name: kakao_flutter_sdk_template
-      sha256: cfd411f95a08879f6a56b27d4e4a9a5876c8453adff8f294d04d905f48da9705
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.9.4"
   kakao_flutter_sdk_user:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: kakao_flutter_sdk_user
       sha256: "9e5851c1782cc08e6c9696bf37fc2246334f42181095188390bb34e3910432be"
