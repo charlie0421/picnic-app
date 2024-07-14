@@ -62,13 +62,13 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
         logger.i('Terms link');
 
         uri.pathSegments.contains('ko')
-            ? initScreen = TermsScreen(language: 'ko')
-            : initScreen = TermsScreen(language: 'en');
+            ? initScreen = const TermsScreen(language: 'ko')
+            : initScreen = const TermsScreen(language: 'en');
       } else if (uri.pathSegments.contains('privacy')) {
         logger.i('Privacy link');
         uri.pathSegments.contains('ko')
-            ? initScreen = PrivacyScreen(language: 'ko')
-            : initScreen = PrivacyScreen(language: 'en');
+            ? initScreen = const PrivacyScreen(language: 'ko')
+            : initScreen = const PrivacyScreen(language: 'en');
       } else {
         ref.read(userInfoProvider.notifier).getUserProfiles();
       }
@@ -132,8 +132,8 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
               Portal.routeName: (context) => const Portal(),
               SignUpScreen.routeName: (context) => const SignUpScreen(),
               '/pic-camera': (context) => const PicCameraScreen(),
-              TermsScreen.routeName: (context) => TermsScreen(),
-              PrivacyScreen.routeName: (context) => PrivacyScreen(),
+              TermsScreen.routeName: (context) => const TermsScreen(),
+              PrivacyScreen.routeName: (context) => const PrivacyScreen(),
             },
             home: UniversalPlatform.isWeb
                 ? initScreen ?? const Portal()

@@ -33,10 +33,6 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
     });
   }
 
-  @override
-  dispose() {
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {

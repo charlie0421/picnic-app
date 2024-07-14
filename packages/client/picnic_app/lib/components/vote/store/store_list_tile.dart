@@ -41,7 +41,7 @@ class StoreListTile extends StatelessWidget {
           SizedBox(
             height: 32.w,
             child: ElevatedButton(
-              onPressed: isLoading == null || buttonOnPressed == null
+              onPressed: isLoading == null
                   ? null
                   : () => buttonOnPressed(),
               child: isLoading == true

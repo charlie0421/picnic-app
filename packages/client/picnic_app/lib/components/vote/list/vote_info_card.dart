@@ -433,7 +433,7 @@ class VoteCardColumnHorizontal extends StatelessWidget {
         Container(
           color: AppColors.Grey00,
           width: double.infinity,
-          child: Container(
+          child: SizedBox(
             width: barWidth.w,
             height: 50.w,
           ),

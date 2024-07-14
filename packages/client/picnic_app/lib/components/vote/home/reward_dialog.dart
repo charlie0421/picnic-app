@@ -48,7 +48,7 @@ class _RewardDialogState extends State<RewardDialog> {
                 child: CircleAvatar(
                   backgroundColor: Colors.white.withOpacity(0.8),
                   foregroundColor: AppColors.Grey500,
-                  child: Icon(
+                  child: const Icon(
                     Icons.close,
                     size: 24,
                   ),

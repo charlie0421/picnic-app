@@ -6,7 +6,7 @@ class TermsScreen extends StatelessWidget {
 
   final String? language;
 
-  TermsScreen({super.key, this.language});
+  const TermsScreen({super.key, this.language});
 
   @override
   Widget build(BuildContext context) {

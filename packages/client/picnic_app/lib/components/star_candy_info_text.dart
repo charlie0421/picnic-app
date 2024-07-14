@@ -9,9 +9,9 @@ class StarCandyInfoText extends ConsumerStatefulWidget {
   final MainAxisAlignment alignment;
 
   const StarCandyInfoText({
-    Key? key,
+    super.key,
     this.alignment = MainAxisAlignment.center,
-  }) : super(key: key);
+  });
 
   @override
   _StarCandyInfoTextState createState() => _StarCandyInfoTextState();

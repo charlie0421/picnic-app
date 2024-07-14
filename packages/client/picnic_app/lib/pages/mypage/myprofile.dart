@@ -181,7 +181,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                             ref
                                                 .read(navigationInfoProvider
                                                     .notifier)
-                                                .setCurrentMyPage(LoginPage());
+                                                .setCurrentMyPage(const LoginPage());
                                             ref
                                                 .read(navigationInfoProvider
                                                     .notifier)

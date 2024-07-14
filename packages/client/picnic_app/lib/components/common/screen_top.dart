@@ -117,8 +117,8 @@ class TopScreenRight extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 supabase.isLogged
-                    ? ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        duration: const Duration(milliseconds: 300),
+                    ? ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        duration: Duration(milliseconds: 300),
                         content: Text('로그인 되어 있습니다')))
                     : showRequireLoginDialog(
                         context: context,
@@ -155,8 +155,8 @@ class TopScreenRight extends StatelessWidget {
         GestureDetector(
           onTap: () {
             supabase.isLogged
-                ? ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    duration: const Duration(milliseconds: 200),
+                ? ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    duration: Duration(milliseconds: 200),
                     content: Text('로그인 되어 있습니다')))
                 : showRequireLoginDialog(
                     context: context,
@@ -164,7 +164,7 @@ class TopScreenRight extends StatelessWidget {
           },
           child: Stack(
             children: [
-              Container(
+              SizedBox(
                 width: 24.w,
                 height: 24.h,
                 child: SvgPicture.asset(
@@ -178,7 +178,7 @@ class TopScreenRight extends StatelessWidget {
                 right: 0.w,
                 left: 0.w,
                 bottom: 3.w,
-                child: BounceRedDot(),
+                child: const BounceRedDot(),
               ),
             ],
           ),

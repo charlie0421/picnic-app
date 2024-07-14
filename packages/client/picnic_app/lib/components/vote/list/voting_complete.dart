@@ -128,7 +128,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
         logger.d('이미지 공유 결과: $result');
         if (result == 'ERROR_APP_NOT_AVAILABLE') {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              duration: const Duration(milliseconds: 300),
+              duration: Duration(milliseconds: 300),
               content: Text('트위터 앱이 없습니다.')));
         } else {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(

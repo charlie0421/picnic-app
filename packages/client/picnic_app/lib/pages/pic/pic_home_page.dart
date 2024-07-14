@@ -66,7 +66,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
             return const SizedBox.shrink();
           }
           // if (selectedCelebState == null) {
-          WidgetsBinding.instance!.addPostFrameCallback((_) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
             selectedCelebNotifier.setSelectedCeleb(data.first);
           });
 

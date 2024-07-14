@@ -49,7 +49,7 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
     final navigationInfoNotifier = ref.read(navigationInfoProvider.notifier);
     return Column(
       children: [
-        Container(
+        SizedBox(
           height: 25.h,
           child: Stack(
             fit: StackFit.expand,
@@ -97,7 +97,7 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
             children: [
               ElevatedButton(
                   onPressed: () => navigationInfoNotifier
-                      .setCurrentSignUpPage(AgreementPrivacyPage()),
+                      .setCurrentSignUpPage(const AgreementPrivacyPage()),
                   child: Text(Intl.message('label_button_agreement'),
                       style:
                           getTextStyle(AppTypo.BODY16B, AppColors.Primary500))),

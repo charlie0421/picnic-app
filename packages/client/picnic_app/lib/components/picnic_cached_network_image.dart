@@ -57,7 +57,7 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
             height: widget.height?.h.toDouble(),
             child: Stack(alignment: Alignment.center, children: [
               buildLoadingOverlay(),
-              ...urls.map(_buildCachedNetworkImage).toList().toList(),
+              ...urls.map(_buildCachedNetworkImage),
             ]),
           )
         : SizedBox(
@@ -65,7 +65,7 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
             height: widget.height?.toDouble(),
             child: Stack(alignment: Alignment.center, children: [
               buildLoadingOverlay(),
-              ...urls.map(_buildCachedNetworkImage).toList().toList(),
+              ...urls.map(_buildCachedNetworkImage),
             ]),
           );
   }

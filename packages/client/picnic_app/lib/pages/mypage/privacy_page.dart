@@ -44,8 +44,8 @@ class _PrivacyPageState extends ConsumerState<PrivacyPage>
             Expanded(
               child: Markdown(
                   data: language == PolicyLanguage.ko
-                      ? policy.privacy_ko!.content
-                      : policy.privacy_en!.content),
+                      ? policy.privacy_ko.content
+                      : policy.privacy_en.content),
             ),
           ],
         );
