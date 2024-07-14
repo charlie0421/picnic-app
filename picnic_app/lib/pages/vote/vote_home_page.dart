@@ -273,8 +273,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
           itemCount: data.length,
           containerHeight: height,
           itemHeight: height,
-          autoplay: true,
-          pagination: CustomPaginationBuilder(),
+          autoplay: data.length > 1,
+          pagination: data.length > 1 ? CustomPaginationBuilder() : null,
         ),
         loading: () => buildLoadingOverlay(),
         error: (error, stackTrace) =>
