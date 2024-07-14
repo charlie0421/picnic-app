@@ -105,7 +105,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
             ),
             Container(
               width: double.infinity,
-              height: 220.w,
+              height: 220.h,
               padding: const EdgeInsets.only(left: 36, right: 36, top: 16),
               clipBehavior: Clip.hardEdge,
               // 추가
@@ -174,22 +174,18 @@ class VoteCardColumnVertical extends StatelessWidget {
             ? 104
             : 92;
     return Stack(
-      alignment: Alignment.center,
+      alignment: Alignment.bottomCenter,
       clipBehavior: Clip.none,
       children: [
-        Container(
-          color: AppColors.Grey100,
-          height: barHeight.h,
-          child: Container(
-            width: 80.w,
-            height: 160.h,
-          ),
+        SizedBox(
+          width: 80.w,
+          height: 220.h,
         ),
         Positioned(
+          bottom: 0,
           height: barHeight.h,
+          width: 80.w,
           child: Container(
-            width: 80.w,
-            height: 100.h,
             decoration: const BoxDecoration(
               gradient: commonGradient,
             ),
