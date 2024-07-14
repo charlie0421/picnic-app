@@ -209,6 +209,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   height: height,
                   child: PicnicCachedNetworkImage(
                     imageUrl: voteModel?.main_image ?? '',
+                    useScreenUtil: true,
                     fit: BoxFit.cover,
                     width: width.toInt(),
                     height: height.toInt(),
@@ -397,21 +398,21 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                                 ? AppColors.Grey200
                                                 : null,
                                             borderRadius:
-                                                BorderRadius.circular(22.5.r),
+                                                BorderRadius.circular(27.5),
                                           ),
                                           padding: const EdgeInsets.all(3),
                                           width: 45.w,
                                           height: 45.w,
                                           child: ClipRRect(
                                             borderRadius:
-                                                BorderRadius.circular(22.5.r),
+                                                BorderRadius.circular(39),
                                             child: PicnicCachedNetworkImage(
                                               imageUrl:
                                                   item.mystar_member.image ??
                                                       '',
-                                              fit: BoxFit.cover,
-                                              width: 39,
-                                              height: 39,
+                                              useScreenUtil: true,
+                                              width: 55,
+                                              height: 55,
                                             ),
                                           ),
                                         ),
