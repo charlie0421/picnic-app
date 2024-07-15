@@ -39,21 +39,27 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_ok": MessageLookupByLibrary.simpleMessage("确认"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("节省"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
-            "### 有效期\n\n- 自获得之日起，Star Candy 的有效期为一年。\n\n### 赚取的星星糖\n\n登录：每天 1 个\n- 投票：每天 1 次\n购买糖果：无（无限制）\n奖励星星糖果：在获得后的当月 15 日分批过期\n\n在 ##### 上兑换星星糖\n\n有效期即将结束的星星糖果将优先使用。\n如果有效期相同，则使用最早的一个。"),
+            "### 有效期\n\n- 自获得之日起，Star Candy 的有效期为一年。\n\n### 赚取的星星糖\n\n登录：每天 1 个\n- 投票：每天 1 次\n购买糖果：无（无限制）\n奖励星星糖果：在获得后的当月 15 日分批过期\n\n在 ##### 上兑换星星糖\n\n有效期即将结束的星星糖将优先使用。\n如果有效期相同，则使用最早的一个。"),
         "candy_usage_policy_guide":
             MessageLookupByLibrary.simpleMessage("*奖金将在您获得奖金的次月消失！ ⓘ"),
         "candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("星糖使用政策"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("取消"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("确认"),
+        "dialog_content_ads_exhausted":
+            MessageLookupByLibrary.simpleMessage("所有广告已用尽。请稍后再试。"),
         "dialog_content_ads_loading":
             MessageLookupByLibrary.simpleMessage("广告正在加载。"),
+        "dialog_content_ads_retrying":
+            MessageLookupByLibrary.simpleMessage("广告正在重新加载。请稍后再试。"),
         "dialog_content_login_required":
             MessageLookupByLibrary.simpleMessage("需要登录"),
         "dialog_purchases_fail": MessageLookupByLibrary.simpleMessage("购买失败。"),
         "dialog_purchases_success":
             MessageLookupByLibrary.simpleMessage("购买完成。"),
-        "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("投票失败"),
+        "dialog_title_ads_exhausted":
+            MessageLookupByLibrary.simpleMessage("用尽所有广告"),
+        "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("表决失败"),
         "dialog_withdraw_button_cancel":
             MessageLookupByLibrary.simpleMessage("让我再想一想"),
         "dialog_withdraw_button_ok": MessageLookupByLibrary.simpleMessage("退订"),
@@ -79,7 +85,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("成为第一个发表评论的人！"),
         "label_bonus": MessageLookupByLibrary.simpleMessage("奖金"),
-        "label_button_agreement": MessageLookupByLibrary.simpleMessage("同意"),
+        "label_button_agreement": MessageLookupByLibrary.simpleMessage("接受"),
         "label_button_clse": MessageLookupByLibrary.simpleMessage("關閉"),
         "label_button_disagreement":
             MessageLookupByLibrary.simpleMessage("不同意"),
@@ -129,6 +135,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_mypage_vote_history":
             MessageLookupByLibrary.simpleMessage("投票历史"),
         "label_mypage_withdrawal": MessageLookupByLibrary.simpleMessage("退出"),
+        "label_no_ads": MessageLookupByLibrary.simpleMessage("无广告"),
         "label_no_celeb": MessageLookupByLibrary.simpleMessage("您还没有收藏任何艺术家！"),
         "label_pic_image_cropping":
             MessageLookupByLibrary.simpleMessage("裁剪图像"),

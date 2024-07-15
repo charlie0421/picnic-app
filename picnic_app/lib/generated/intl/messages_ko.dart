@@ -46,14 +46,20 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("별사탕 사용정책"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("취소"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("확인"),
+        "dialog_content_ads_exhausted": MessageLookupByLibrary.simpleMessage(
+            "광고가 모두 소진되었습니다. 다음에 다시 시도해주세요."),
         "dialog_content_ads_loading":
             MessageLookupByLibrary.simpleMessage("광고 로딩중입니다."),
+        "dialog_content_ads_retrying": MessageLookupByLibrary.simpleMessage(
+            "광고를 다시 불러오는 중입니다. 잠시 후 다시 시도해 주세요."),
         "dialog_content_login_required":
             MessageLookupByLibrary.simpleMessage("로그인이 필요합니다"),
         "dialog_purchases_fail":
             MessageLookupByLibrary.simpleMessage("구매에 실패했습니다."),
         "dialog_purchases_success":
             MessageLookupByLibrary.simpleMessage("구매가 완료되었습니다."),
+        "dialog_title_ads_exhausted":
+            MessageLookupByLibrary.simpleMessage("광고 모두 소진"),
         "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("투표 실패"),
         "dialog_withdraw_button_cancel":
             MessageLookupByLibrary.simpleMessage("다시 한 번 생각해 볼게요"),
@@ -140,6 +146,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_mypage_vote_history":
             MessageLookupByLibrary.simpleMessage("투표내역"),
         "label_mypage_withdrawal": MessageLookupByLibrary.simpleMessage("회원탈퇴"),
+        "label_no_ads": MessageLookupByLibrary.simpleMessage("광고 없음"),
         "label_no_celeb":
             MessageLookupByLibrary.simpleMessage("아직 북마크한 아티스트가 없습니다!"),
         "label_pic_image_cropping":

@@ -110,10 +110,10 @@ class S {
     );
   }
 
-  /// `### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end will be used first.\nIf they have the same expiration date, the earliest one will be used.`
+  /// `### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, the earliest one will be used.`
   String get candy_usage_policy_contents {
     return Intl.message(
-      '### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end will be used first.\nIf they have the same expiration date, the earliest one will be used.',
+      '### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, the earliest one will be used.',
       name: 'candy_usage_policy_contents',
       desc: '',
       args: [],
@@ -160,11 +160,31 @@ class S {
     );
   }
 
+  /// `All ads have been exhausted. Please try again next time.`
+  String get dialog_content_ads_exhausted {
+    return Intl.message(
+      'All ads have been exhausted. Please try again next time.',
+      name: 'dialog_content_ads_exhausted',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Ads are loading.`
   String get dialog_content_ads_loading {
     return Intl.message(
       'Ads are loading.',
       name: 'dialog_content_ads_loading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The ad is reloading. Please try again in a moment.`
+  String get dialog_content_ads_retrying {
+    return Intl.message(
+      'The ad is reloading. Please try again in a moment.',
+      name: 'dialog_content_ads_retrying',
       desc: '',
       args: [],
     );
@@ -195,6 +215,16 @@ class S {
     return Intl.message(
       'Your purchase is complete.',
       name: 'dialog_purchases_success',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Exhausted all ads`
+  String get dialog_title_ads_exhausted {
+    return Intl.message(
+      'Exhausted all ads',
+      name: 'dialog_title_ads_exhausted',
       desc: '',
       args: [],
     );
@@ -740,6 +770,16 @@ class S {
     );
   }
 
+  /// `No ads`
+  String get label_no_ads {
+    return Intl.message(
+      'No ads',
+      name: 'label_no_ads',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `You don't have any artists bookmarked yet!`
   String get label_no_celeb {
     return Intl.message(
@@ -800,10 +840,10 @@ class S {
     );
   }
 
-  /// `Reply to a reply`
+  /// `Reply`
   String get label_reply {
     return Intl.message(
-      'Reply to a reply',
+      'Reply',
       name: 'label_reply',
       desc: '',
       args: [],
@@ -1120,10 +1160,10 @@ class S {
     );
   }
 
-  /// `PIC Voting`
+  /// `PIC voting`
   String get label_vote_tab_pic {
     return Intl.message(
-      'PIC Voting',
+      'PIC voting',
       name: 'label_vote_tab_pic',
       desc: '',
       args: [],

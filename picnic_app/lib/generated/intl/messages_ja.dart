@@ -39,21 +39,27 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_ok": MessageLookupByLibrary.simpleMessage("確認"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("保存する"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
-            "### 有効期限\n\n- 星飴は獲得日から1年間有効です。\n\n星飴獲得 ### 星飴獲得\n\nログイン : 1日1回\n- 投票 : 1回につき1個\n購入星飴 : なし (無制限)\nボーナス星飴：獲得した次の月の15日に一括消滅\n\n##### 星飴を使う\n\n消滅日が迫っている星飴から使用されます。\n有効期限が同じ場合は、獲得日が早い順に使用されます。"),
+            "### 有効期限\n\n- 星飴は獲得日から1年間有効です。\n\n星飴獲得 ### 星飴獲得\n\nログイン : 1日1回\n- 投票 : 1回につき1個\n購入星飴 : なし(無制限)\nボーナス星飴：獲得した翌月の15日に一括消滅\n\n##### 星飴を使う\n\n消滅日が迫っている星飴から使用されます。\n有効期限が同じ場合は、獲得日が早い順に使用されます。"),
         "candy_usage_policy_guide":
-            MessageLookupByLibrary.simpleMessage("*ボーナスは獲得した翌月に無くなります！ ⓘ※ボーナス"),
+            MessageLookupByLibrary.simpleMessage("*ボーナスは獲得した翌月に消えます！ ⓘ ⓘ ⓘ ⓘ"),
         "candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("スターキャンディー使用ポリシー"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("キャンセル"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("確認"),
+        "dialog_content_ads_exhausted":
+            MessageLookupByLibrary.simpleMessage("広告がなくなりました。次回、もう一度お試しください。"),
         "dialog_content_ads_loading":
             MessageLookupByLibrary.simpleMessage("広告の読み込み中です。"),
+        "dialog_content_ads_retrying": MessageLookupByLibrary.simpleMessage(
+            "広告を再呼び出し中です。しばらくしてからもう一度お試しください。"),
         "dialog_content_login_required":
             MessageLookupByLibrary.simpleMessage("ログインが必要です"),
         "dialog_purchases_fail":
             MessageLookupByLibrary.simpleMessage("購入に失敗しました。"),
         "dialog_purchases_success":
             MessageLookupByLibrary.simpleMessage("購入が完了しました。"),
+        "dialog_title_ads_exhausted":
+            MessageLookupByLibrary.simpleMessage("広告完売しました"),
         "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("投票失敗"),
         "dialog_withdraw_button_cancel":
             MessageLookupByLibrary.simpleMessage("もう一度考えてみます"),
@@ -62,7 +68,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialog_withdraw_error":
             MessageLookupByLibrary.simpleMessage("退会中にエラーが発生しました。"),
         "dialog_withdraw_message": MessageLookupByLibrary.simpleMessage(
-            "退会すると、ピクニックで保有している星キャンディーとアカウント情報は即座に削除されます。"),
+            "退会時、ピクニックで保有している星キャンディーとアカウント情報は直ちに削除されます。"),
         "dialog_withdraw_success":
             MessageLookupByLibrary.simpleMessage("退会が正常に処理されました。"),
         "dialog_withdraw_title":
@@ -133,13 +139,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_mypage_mystar": MessageLookupByLibrary.simpleMessage("マイスター"),
         "label_mypage_notice": MessageLookupByLibrary.simpleMessage("お知らせ"),
         "label_mypage_privacy_policy":
-            MessageLookupByLibrary.simpleMessage("プライバシーポリシー"),
+            MessageLookupByLibrary.simpleMessage("個人情報保護方針"),
         "label_mypage_setting": MessageLookupByLibrary.simpleMessage("設定"),
         "label_mypage_terms_of_use":
             MessageLookupByLibrary.simpleMessage("利用規約"),
         "label_mypage_vote_history":
             MessageLookupByLibrary.simpleMessage("投票履歴"),
         "label_mypage_withdrawal": MessageLookupByLibrary.simpleMessage("退会する"),
+        "label_no_ads": MessageLookupByLibrary.simpleMessage("広告なし"),
         "label_no_celeb":
             MessageLookupByLibrary.simpleMessage("まだブックマークしたアーティストはいません！"),
         "label_pic_image_cropping":
@@ -185,7 +192,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_tabbar_picchart_daily":
             MessageLookupByLibrary.simpleMessage("日足チャート"),
         "label_tabbar_picchart_monthly":
-            MessageLookupByLibrary.simpleMessage("月次チャート"),
+            MessageLookupByLibrary.simpleMessage("月間チャート"),
         "label_tabbar_picchart_weekly":
             MessageLookupByLibrary.simpleMessage("週間チャート"),
         "label_tabbar_vote_active": MessageLookupByLibrary.simpleMessage("進行中"),
