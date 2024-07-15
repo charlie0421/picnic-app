@@ -27,19 +27,23 @@ class _CommonBottomNavigationBarState
     final userInfoState = ref.watch(userInfoProvider);
 
     final bool? isAdmin = userInfoState.value?.is_admin;
+    // background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.8) 62%, #FFFFFF 78.5%);
+    // background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.8) 62%, #FFFFFF 78.5%);
+    // background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.8) 62%, #FFFFFF 78.5%);
 
     return Container(
-      padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 40.h),
-      decoration: BoxDecoration(
+      height: 102.h,
+      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 50).r,
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            AppColors.Grey200.withOpacity(0),
-            AppColors.Grey200.withOpacity(0.8),
-            AppColors.Grey200.withOpacity(1),
+            Color.fromRGBO(255, 255, 255, 0),
+            Color.fromRGBO(255, 255, 255, 0.8),
+            Color.fromRGBO(255, 255, 255, 1),
           ],
-          stops: const [0.0, 0.62, 0.785],
+          stops: [0.0, 0.62, 0.78],
         ),
       ),
       child: Container(
