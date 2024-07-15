@@ -303,28 +303,26 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         ),
         borderRadius: BorderRadius.circular(24).r,
       ),
-      padding: EdgeInsets.only(left: 24.w, right: 16.w),
+      padding: EdgeInsets.only(right: 16.w),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
             child: TextFormField(
-              cursorHeight: 16.w,
+              cursorHeight: 16.h,
               cursorColor: AppColors.Primary500,
               focusNode: _focusNode,
               controller: _textEditingController,
               keyboardType: TextInputType.number,
+              textAlign: TextAlign.left, // 왼쪽 정렬
               decoration: InputDecoration(
                 hintText: S.of(context).label_input_input,
                 hintStyle: getTextStyle(AppTypo.BODY16R, AppColors.Grey300),
                 border: InputBorder.none,
                 focusColor: AppColors.Primary500,
                 fillColor: AppColors.Grey900,
-                suffixIcon: _buildClearButton(),
-                suffixIconConstraints: BoxConstraints(
-                  minWidth: 20.w,
-                  minHeight: 20.w,
-                ),
+                isCollapsed: true,
+                contentPadding: EdgeInsets.symmetric(
+                    horizontal: 24.w, vertical: 5.h), // 수직 패딩 조정
               ),
               onChanged: (_) => _validateVote(),
               inputFormatters: [
@@ -362,6 +360,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
               style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
             ),
           ),
+          _buildClearButton(),
         ],
       ),
     );
