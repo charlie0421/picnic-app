@@ -42,6 +42,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
         ? 'ca-app-pub-1539304887624918/7505348989'
         : 'ca-app-pub-1539304887624918/4571289807',
   ];
+  final List<bool> _adLoadFailed = [false, false];
 
   static const AdRequest request = AdRequest();
   late AnimationController _animationController;
@@ -179,15 +180,36 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
               ],
             ),
           ),
-          buttonText: S.of(context).label_watch_ads,
+          buttonText: _adLoadFailed[index]
+              ? S.of(context).label_no_ads
+              : S.of(context).label_watch_ads,
           buttonOnPressed: () async {
-            if (_rewardedAds[index] == null) {
-              // await _createRewardedAd(index);
+            if (_adLoadFailed[index]) {
               showSimpleDialog(
                 context: context,
-                content: S.of(context).dialog_content_ads_loading,
+                title: S.of(context).dialog_title_ads_exhausted,
+                content: S.of(context).dialog_content_ads_exhausted,
                 onOk: () => Navigator.of(context).pop(),
               );
+              return;
+            }
+
+            if (_rewardedAds[index] == null) {
+              if (_isLoading[index]) {
+                showSimpleDialog(
+                  context: context,
+                  content: S.of(context).dialog_content_ads_loading,
+                  onOk: () => Navigator.of(context).pop(),
+                );
+              } else {
+                // 광고가 로드되지 않았고 로딩 중도 아니라면 다시 로드 시도
+                _createRewardedAd(index);
+                showSimpleDialog(
+                  context: context,
+                  content: S.of(context).dialog_content_ads_retrying,
+                  onOk: () => Navigator.of(context).pop(),
+                );
+              }
               return;
             }
 
@@ -197,7 +219,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
                     context: context,
                   );
           },
-          isLoading: _isLoading[index],
+          isLoading: _isLoading[index] && !_adLoadFailed[index],
           buttonScale: _buttonScaleAnimation.value,
         );
       },
@@ -207,6 +229,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
   Future<void> _createRewardedAd(int index) async {
     setState(() {
       _isLoading[index] = true;
+      _adLoadFailed[index] = false;
     });
 
     await RewardedAd.load(
@@ -219,6 +242,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
             _rewardedAds[index] = ad;
             _isLoading[index] = false;
             _numRewardedLoadAttempts[index] = 0;
+            _adLoadFailed[index] = false;
           });
         },
         onAdFailedToLoad: (LoadAdError error) {
@@ -227,6 +251,9 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
             _rewardedAds[index] = null;
             _isLoading[index] = false;
             _numRewardedLoadAttempts[index] += 1;
+            if (_numRewardedLoadAttempts[index] >= maxFailedLoadAttempts) {
+              _adLoadFailed[index] = true;
+            }
           });
           if (_numRewardedLoadAttempts[index] < maxFailedLoadAttempts) {
             _createRewardedAd(index);

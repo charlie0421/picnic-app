@@ -39,21 +39,27 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("Save"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
-            "### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end will be used first.\nIf they have the same expiration date, the earliest one will be used."),
+            "### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, the earliest one will be used."),
         "candy_usage_policy_guide": MessageLookupByLibrary.simpleMessage(
             "*Bonuses disappear the month after you earn them! ⓘ"),
         "candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("Stardust Usage Policy"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
+        "dialog_content_ads_exhausted": MessageLookupByLibrary.simpleMessage(
+            "All ads have been exhausted. Please try again next time."),
         "dialog_content_ads_loading":
             MessageLookupByLibrary.simpleMessage("Ads are loading."),
+        "dialog_content_ads_retrying": MessageLookupByLibrary.simpleMessage(
+            "The ad is reloading. Please try again in a moment."),
         "dialog_content_login_required":
             MessageLookupByLibrary.simpleMessage("Login required"),
         "dialog_purchases_fail":
             MessageLookupByLibrary.simpleMessage("The purchase failed."),
         "dialog_purchases_success":
             MessageLookupByLibrary.simpleMessage("Your purchase is complete."),
+        "dialog_title_ads_exhausted":
+            MessageLookupByLibrary.simpleMessage("Exhausted all ads"),
         "dialog_title_vote_fail":
             MessageLookupByLibrary.simpleMessage("Voting Failed"),
         "dialog_withdraw_button_cancel": MessageLookupByLibrary.simpleMessage(
@@ -150,6 +156,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Voting history"),
         "label_mypage_withdrawal":
             MessageLookupByLibrary.simpleMessage("Withdrawal"),
+        "label_no_ads": MessageLookupByLibrary.simpleMessage("No ads"),
         "label_no_celeb": MessageLookupByLibrary.simpleMessage(
             "You don\'t have any artists bookmarked yet!"),
         "label_pic_image_cropping":
@@ -162,7 +169,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Compositing an image..."),
         "label_read_more_comment":
             MessageLookupByLibrary.simpleMessage("More comments"),
-        "label_reply": MessageLookupByLibrary.simpleMessage("Reply to a reply"),
+        "label_reply": MessageLookupByLibrary.simpleMessage("Reply"),
         "label_retry": MessageLookupByLibrary.simpleMessage("Retrying"),
         "label_screen_title_agreement":
             MessageLookupByLibrary.simpleMessage("Accept the terms"),
@@ -219,7 +226,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("Birthday polls"),
         "label_vote_tab_pic":
-            MessageLookupByLibrary.simpleMessage("PIC Voting"),
+            MessageLookupByLibrary.simpleMessage("PIC voting"),
         "label_vote_vote_gather":
             MessageLookupByLibrary.simpleMessage("Collecting votes"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("View ads"),
