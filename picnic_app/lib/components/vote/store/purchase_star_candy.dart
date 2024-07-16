@@ -16,7 +16,6 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
-import 'package:picnic_app/providers/purchase_product_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_theme.dart';
@@ -197,6 +196,8 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
       final response = await supabase
           .from('products')
           .select()
+          .lt('start_at', 'now()')
+          .gt('end_at', 'now()')
           .order('price', ascending: true);
       logger.i('response: $response');
 
@@ -225,8 +226,6 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
 
   @override
   Widget build(BuildContext context) {
-    final purchaseProductList = ref.watch(purchaseProductListProvider);
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListView(
