@@ -1232,3 +1232,435 @@ abstract class _MyStarGroupModel extends MyStarGroupModel {
   _$$MyStarGroupModelImplCopyWith<_$MyStarGroupModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
+
+ArtistMemberModel _$ArtistMemberModelFromJson(Map<String, dynamic> json) {
+  return _ArtistMemberModel.fromJson(json);
+}
+
+/// @nodoc
+mixin _$ArtistMemberModel {
+  int get id => throw _privateConstructorUsedError;
+  Map<String, dynamic> get name => throw _privateConstructorUsedError;
+  String get gender => throw _privateConstructorUsedError;
+  String? get image => throw _privateConstructorUsedError;
+  ArtistGroupModel? get mystar_group => throw _privateConstructorUsedError;
+
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $ArtistMemberModelCopyWith<ArtistMemberModel> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ArtistMemberModelCopyWith<$Res> {
+  factory $ArtistMemberModelCopyWith(
+          ArtistMemberModel value, $Res Function(ArtistMemberModel) then) =
+      _$ArtistMemberModelCopyWithImpl<$Res, ArtistMemberModel>;
+  @useResult
+  $Res call(
+      {int id,
+      Map<String, dynamic> name,
+      String gender,
+      String? image,
+      ArtistGroupModel? mystar_group});
+
+  $ArtistGroupModelCopyWith<$Res>? get mystar_group;
+}
+
+/// @nodoc
+class _$ArtistMemberModelCopyWithImpl<$Res, $Val extends ArtistMemberModel>
+    implements $ArtistMemberModelCopyWith<$Res> {
+  _$ArtistMemberModelCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? name = null,
+    Object? gender = null,
+    Object? image = freezed,
+    Object? mystar_group = freezed,
+  }) {
+    return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int,
+      name: null == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>,
+      gender: null == gender
+          ? _value.gender
+          : gender // ignore: cast_nullable_to_non_nullable
+              as String,
+      image: freezed == image
+          ? _value.image
+          : image // ignore: cast_nullable_to_non_nullable
+              as String?,
+      mystar_group: freezed == mystar_group
+          ? _value.mystar_group
+          : mystar_group // ignore: cast_nullable_to_non_nullable
+              as ArtistGroupModel?,
+    ) as $Val);
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $ArtistGroupModelCopyWith<$Res>? get mystar_group {
+    if (_value.mystar_group == null) {
+      return null;
+    }
+
+    return $ArtistGroupModelCopyWith<$Res>(_value.mystar_group!, (value) {
+      return _then(_value.copyWith(mystar_group: value) as $Val);
+    });
+  }
+}
+
+/// @nodoc
+abstract class _$$ArtistMemberModelImplCopyWith<$Res>
+    implements $ArtistMemberModelCopyWith<$Res> {
+  factory _$$ArtistMemberModelImplCopyWith(_$ArtistMemberModelImpl value,
+          $Res Function(_$ArtistMemberModelImpl) then) =
+      __$$ArtistMemberModelImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {int id,
+      Map<String, dynamic> name,
+      String gender,
+      String? image,
+      ArtistGroupModel? mystar_group});
+
+  @override
+  $ArtistGroupModelCopyWith<$Res>? get mystar_group;
+}
+
+/// @nodoc
+class __$$ArtistMemberModelImplCopyWithImpl<$Res>
+    extends _$ArtistMemberModelCopyWithImpl<$Res, _$ArtistMemberModelImpl>
+    implements _$$ArtistMemberModelImplCopyWith<$Res> {
+  __$$ArtistMemberModelImplCopyWithImpl(_$ArtistMemberModelImpl _value,
+      $Res Function(_$ArtistMemberModelImpl) _then)
+      : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? name = null,
+    Object? gender = null,
+    Object? image = freezed,
+    Object? mystar_group = freezed,
+  }) {
+    return _then(_$ArtistMemberModelImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int,
+      name: null == name
+          ? _value._name
+          : name // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>,
+      gender: null == gender
+          ? _value.gender
+          : gender // ignore: cast_nullable_to_non_nullable
+              as String,
+      image: freezed == image
+          ? _value.image
+          : image // ignore: cast_nullable_to_non_nullable
+              as String?,
+      mystar_group: freezed == mystar_group
+          ? _value.mystar_group
+          : mystar_group // ignore: cast_nullable_to_non_nullable
+              as ArtistGroupModel?,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$ArtistMemberModelImpl extends _ArtistMemberModel {
+  const _$ArtistMemberModelImpl(
+      {required this.id,
+      required final Map<String, dynamic> name,
+      required this.gender,
+      required this.image,
+      this.mystar_group})
+      : _name = name,
+        super._();
+
+  factory _$ArtistMemberModelImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ArtistMemberModelImplFromJson(json);
+
+  @override
+  final int id;
+  final Map<String, dynamic> _name;
+  @override
+  Map<String, dynamic> get name {
+    if (_name is EqualUnmodifiableMapView) return _name;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_name);
+  }
+
+  @override
+  final String gender;
+  @override
+  final String? image;
+  @override
+  final ArtistGroupModel? mystar_group;
+
+  @override
+  String toString() {
+    return 'ArtistMemberModel(id: $id, name: $name, gender: $gender, image: $image, mystar_group: $mystar_group)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ArtistMemberModelImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            const DeepCollectionEquality().equals(other._name, _name) &&
+            (identical(other.gender, gender) || other.gender == gender) &&
+            (identical(other.image, image) || other.image == image) &&
+            (identical(other.mystar_group, mystar_group) ||
+                other.mystar_group == mystar_group));
+  }
+
+  @JsonKey(ignore: true)
+  @override
+  int get hashCode => Object.hash(runtimeType, id,
+      const DeepCollectionEquality().hash(_name), gender, image, mystar_group);
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ArtistMemberModelImplCopyWith<_$ArtistMemberModelImpl> get copyWith =>
+      __$$ArtistMemberModelImplCopyWithImpl<_$ArtistMemberModelImpl>(
+          this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$ArtistMemberModelImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _ArtistMemberModel extends ArtistMemberModel {
+  const factory _ArtistMemberModel(
+      {required final int id,
+      required final Map<String, dynamic> name,
+      required final String gender,
+      required final String? image,
+      final ArtistGroupModel? mystar_group}) = _$ArtistMemberModelImpl;
+  const _ArtistMemberModel._() : super._();
+
+  factory _ArtistMemberModel.fromJson(Map<String, dynamic> json) =
+      _$ArtistMemberModelImpl.fromJson;
+
+  @override
+  int get id;
+  @override
+  Map<String, dynamic> get name;
+  @override
+  String get gender;
+  @override
+  String? get image;
+  @override
+  ArtistGroupModel? get mystar_group;
+  @override
+  @JsonKey(ignore: true)
+  _$$ArtistMemberModelImplCopyWith<_$ArtistMemberModelImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+ArtistGroupModel _$ArtistGroupModelFromJson(Map<String, dynamic> json) {
+  return _ArtistGroupModel.fromJson(json);
+}
+
+/// @nodoc
+mixin _$ArtistGroupModel {
+  int get id => throw _privateConstructorUsedError;
+  Map<String, dynamic> get name => throw _privateConstructorUsedError;
+  String? get image => throw _privateConstructorUsedError;
+
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $ArtistGroupModelCopyWith<ArtistGroupModel> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ArtistGroupModelCopyWith<$Res> {
+  factory $ArtistGroupModelCopyWith(
+          ArtistGroupModel value, $Res Function(ArtistGroupModel) then) =
+      _$ArtistGroupModelCopyWithImpl<$Res, ArtistGroupModel>;
+  @useResult
+  $Res call({int id, Map<String, dynamic> name, String? image});
+}
+
+/// @nodoc
+class _$ArtistGroupModelCopyWithImpl<$Res, $Val extends ArtistGroupModel>
+    implements $ArtistGroupModelCopyWith<$Res> {
+  _$ArtistGroupModelCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? name = null,
+    Object? image = freezed,
+  }) {
+    return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int,
+      name: null == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>,
+      image: freezed == image
+          ? _value.image
+          : image // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$ArtistGroupModelImplCopyWith<$Res>
+    implements $ArtistGroupModelCopyWith<$Res> {
+  factory _$$ArtistGroupModelImplCopyWith(_$ArtistGroupModelImpl value,
+          $Res Function(_$ArtistGroupModelImpl) then) =
+      __$$ArtistGroupModelImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({int id, Map<String, dynamic> name, String? image});
+}
+
+/// @nodoc
+class __$$ArtistGroupModelImplCopyWithImpl<$Res>
+    extends _$ArtistGroupModelCopyWithImpl<$Res, _$ArtistGroupModelImpl>
+    implements _$$ArtistGroupModelImplCopyWith<$Res> {
+  __$$ArtistGroupModelImplCopyWithImpl(_$ArtistGroupModelImpl _value,
+      $Res Function(_$ArtistGroupModelImpl) _then)
+      : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? name = null,
+    Object? image = freezed,
+  }) {
+    return _then(_$ArtistGroupModelImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int,
+      name: null == name
+          ? _value._name
+          : name // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>,
+      image: freezed == image
+          ? _value.image
+          : image // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$ArtistGroupModelImpl extends _ArtistGroupModel {
+  const _$ArtistGroupModelImpl(
+      {required this.id, required final Map<String, dynamic> name, this.image})
+      : _name = name,
+        super._();
+
+  factory _$ArtistGroupModelImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ArtistGroupModelImplFromJson(json);
+
+  @override
+  final int id;
+  final Map<String, dynamic> _name;
+  @override
+  Map<String, dynamic> get name {
+    if (_name is EqualUnmodifiableMapView) return _name;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_name);
+  }
+
+  @override
+  final String? image;
+
+  @override
+  String toString() {
+    return 'ArtistGroupModel(id: $id, name: $name, image: $image)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ArtistGroupModelImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            const DeepCollectionEquality().equals(other._name, _name) &&
+            (identical(other.image, image) || other.image == image));
+  }
+
+  @JsonKey(ignore: true)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType, id, const DeepCollectionEquality().hash(_name), image);
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ArtistGroupModelImplCopyWith<_$ArtistGroupModelImpl> get copyWith =>
+      __$$ArtistGroupModelImplCopyWithImpl<_$ArtistGroupModelImpl>(
+          this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$ArtistGroupModelImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _ArtistGroupModel extends ArtistGroupModel {
+  const factory _ArtistGroupModel(
+      {required final int id,
+      required final Map<String, dynamic> name,
+      final String? image}) = _$ArtistGroupModelImpl;
+  const _ArtistGroupModel._() : super._();
+
+  factory _ArtistGroupModel.fromJson(Map<String, dynamic> json) =
+      _$ArtistGroupModelImpl.fromJson;
+
+  @override
+  int get id;
+  @override
+  Map<String, dynamic> get name;
+  @override
+  String? get image;
+  @override
+  @JsonKey(ignore: true)
+  _$$ArtistGroupModelImplCopyWith<_$ArtistGroupModelImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
