@@ -46,3 +46,4 @@ app.*.map.json
 /android/app/release
 /aws/resize_image_lambda/node_modules/
 .vercel
+/custom_build/
