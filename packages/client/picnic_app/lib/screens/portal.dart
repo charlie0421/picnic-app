@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -36,19 +37,10 @@ class _PortalState extends ConsumerState<Portal> {
     }));
     final userInfoState = ref.watch(userInfoProvider);
     return Container(
-      decoration: const BoxDecoration(
-        gradient: commonGradient,
-      ),
-      child: Center(
-        child: Container(
-          color: voteMainColor,
-          constraints: BoxConstraints(
-            maxWidth: getPlatformScreenSize(context).width,
-            minWidth: getPlatformScreenSize(context).width,
-            minHeight: getPlatformScreenSize(context).height,
-            // maxHeight: getPlatformScreenSize(context).height
-          ),
-          child: Scaffold(
+        decoration: const BoxDecoration(
+          gradient: commonGradient,
+        ),
+        child: Scaffold(
             drawer: const Drawer(
               width: double.infinity,
               child: MyPageScreen(),
@@ -59,8 +51,8 @@ class _PortalState extends ConsumerState<Portal> {
                   ? 56.h
                   : 0,
               leading: Container(
-                width: 24.w,
-                height: 24.w,
+                width: 24.h,
+                height: 24.h,
                 alignment: Alignment.center,
                 child: Builder(
                   builder: (context) => supabase.isLogged
@@ -81,7 +73,6 @@ class _PortalState extends ConsumerState<Portal> {
                           error: (error, stackTrace) => const Icon(Icons.error),
                           loading: () => SizedBox(
                             width: 36.w,
-                            height: 36.w,
                             child: ClipRRect(
                                 borderRadius: BorderRadius.circular(8.r),
                                 child: buildPlaceholderImage()),
@@ -98,12 +89,12 @@ class _PortalState extends ConsumerState<Portal> {
               leadingWidth: 52.w,
               titleSpacing: 0,
               title: SizedBox(
-                height: 26.w,
+                height: 26.h,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: [
                     SizedBox(
-                      height: 26.w,
+                      height: 26.h,
                       width: getPlatformScreenSize(context).width,
                       child: ListView(
                         scrollDirection: Axis.horizontal,
@@ -137,15 +128,43 @@ class _PortalState extends ConsumerState<Portal> {
                 ),
               ),
             ),
-            body: Column(
-              children: [
-                const ScreenTop(),
-                Expanded(child: currentScreen),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+            body: LayoutBuilder(builder: (context, constraints) {
+              return kIsWeb
+                  ? Center(
+                      child: Container(
+                      width: webDesignSize.width,
+                      child: Column(children: [
+                        const ScreenTop(),
+                        Expanded(child: currentScreen),
+                      ]),
+                    ))
+                  : Container(
+                      width: constraints.maxWidth,
+                      height: constraints.maxHeight,
+                      child: Column(children: [
+                        const ScreenTop(),
+                        Expanded(child: currentScreen),
+                      ]),
+                    );
+            })));
+  }
+
+  double _getResponsiveWidth(double screenWidth) {
+    // 모바일 (0-600px)
+    if (screenWidth <= 600) {
+      return screenWidth * 0.95; // 95% of screen width
+    }
+    // 태블릿 (601-960px)
+    else if (screenWidth <= 960) {
+      return screenWidth * 0.8; // 80% of screen width
+    }
+    // 소형 데스크톱 (961-1280px)
+    else if (screenWidth <= 1280) {
+      return screenWidth * 0.7; // 70% of screen width
+    }
+    // 대형 데스크톱 (1281px+)
+    else {
+      return 900; // 최대 900px
+    }
   }
 }

@@ -118,3 +118,42 @@ Map<String, dynamic> _$$MyStarGroupModelImplToJson(
       'name_en': instance.name_en,
       'image': instance.image,
     };
+
+_$ArtistMemberModelImpl _$$ArtistMemberModelImplFromJson(
+        Map<String, dynamic> json) =>
+    _$ArtistMemberModelImpl(
+      id: (json['id'] as num).toInt(),
+      name: json['name'] as Map<String, dynamic>,
+      gender: json['gender'] as String,
+      image: json['image'] as String?,
+      mystar_group: json['mystar_group'] == null
+          ? null
+          : ArtistGroupModel.fromJson(
+              json['mystar_group'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$$ArtistMemberModelImplToJson(
+        _$ArtistMemberModelImpl instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'gender': instance.gender,
+      'image': instance.image,
+      'mystar_group': instance.mystar_group,
+    };
+
+_$ArtistGroupModelImpl _$$ArtistGroupModelImplFromJson(
+        Map<String, dynamic> json) =>
+    _$ArtistGroupModelImpl(
+      id: (json['id'] as num).toInt(),
+      name: json['name'] as Map<String, dynamic>,
+      image: json['image'] as String?,
+    );
+
+Map<String, dynamic> _$$ArtistGroupModelImplToJson(
+        _$ArtistGroupModelImpl instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'image': instance.image,
+    };

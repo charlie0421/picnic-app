@@ -40,15 +40,15 @@ class VoteHeader extends StatelessWidget {
                     onTap: onRefresh,
                     child: SvgPicture.asset(
                       'assets/icons/reset_style=line.svg',
-                      width: 20.w,
-                      height: 20.h,
+                      width: 20,
+                      height: 20,
                     ),
                   )),
             ],
           ),
         ),
         SizedBox(
-          width: 4.h,
+          width: 4.w,
         ),
         CountdownTimer(stopAt: stopAt),
       ],

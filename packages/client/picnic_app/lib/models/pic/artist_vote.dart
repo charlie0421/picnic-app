@@ -115,3 +115,39 @@ class MyStarGroupModel with _$MyStarGroupModel {
   factory MyStarGroupModel.fromJson(Map<String, dynamic> json) =>
       _$MyStarGroupModelFromJson(json);
 }
+
+@reflector
+@freezed
+class ArtistMemberModel with _$ArtistMemberModel {
+  const ArtistMemberModel._();
+
+  const factory ArtistMemberModel({
+    required int id,
+    required Map<String, String> name,
+    required String gender,
+    required String? image,
+    ArtistGroupModel mystar_group,
+  }) = _ArtistMemberModel;
+
+  getGroupTitle() {
+    return mystar_group?.name ?? '';
+  }
+
+  factory ArtistMemberModel.fromJson(Map<String, dynamic> json) =>
+      _$ArtistMemberModelFromJson(json);
+}
+
+@reflector
+@freezed
+class ArtistGroupModel with _$ArtistGroupModel {
+  const ArtistGroupModel._();
+
+  const factory ArtistGroupModel({
+    required int id,
+    required Map<String, String> name,
+    String? image,
+  }) = _ArtistGroupModel;
+
+  factory ArtistGroupModel.fromJson(Map<String, dynamic> json) =>
+      _$ArtistGroupModelFromJson(json);
+}

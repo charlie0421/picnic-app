@@ -1,5 +1,6 @@
 import 'package:another_flutter_splash_screen/another_flutter_splash_screen.dart';
 import 'package:app_links/app_links.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -109,10 +110,9 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final appSettingState = ref.watch(appSettingProvider);
-    ScreenUtil.init(
-      context,
-      designSize: getPlatformScreenSize(context),
-    );
+
+    ScreenUtil.init(context,
+        designSize: kIsWeb ? webDesignSize : const Size(393, 892));
 
     return ScreenUtilInit(
       child: OverlaySupport.global(

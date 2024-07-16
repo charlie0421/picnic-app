@@ -6,7 +6,7 @@ part of 'article_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$fetchArticleListHash() => r'4ba7b17ec7941bb7be506164cd83260bb98dcb56';
+String _$fetchArticleListHash() => r'b2f60d9c93a53a2a7525b995cae71435f2fff078';
 
 /// Copied from Dart SDK
 class _SystemHash {

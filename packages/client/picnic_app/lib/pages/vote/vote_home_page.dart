@@ -1,4 +1,5 @@
 import 'package:card_swiper/card_swiper.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,6 +11,7 @@ import 'package:picnic_app/components/common/reward_dialog.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/pages/vote/vote_list_page.dart';
@@ -53,9 +55,9 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   Widget build(BuildContext context) {
     return ListView(children: [
       _buildVoteHomeBanner(context),
-      SizedBox(height: 36.w),
+      SizedBox(height: 36.h),
       _buildRewardList(context),
-      SizedBox(height: 36.w),
+      SizedBox(height: 36.h),
       GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
@@ -72,8 +74,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                   style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900)),
               SvgPicture.asset(
                 'assets/icons/arrow_right_style=line.svg',
-                width: 8.w,
-                height: 15.w,
+                width: 8,
+                height: 15,
                 colorFilter:
                     const ColorFilter.mode(AppColors.Grey900, BlendMode.srcIn),
               ),
@@ -81,7 +83,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
           ),
         ),
       ),
-      SizedBox(height: 24.w),
+      SizedBox(height: 24.h),
       PagedListView<int, VoteModel>(
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
@@ -230,12 +232,12 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   SizedBox _buildVoteHomeBanner(BuildContext context) {
     final asyncBannerListState =
         ref.watch(asyncBannerListProvider(location: 'vote_home'));
-    final width = MediaQuery.of(context).size.width;
-    final height = width * 0.5;
+    final width =
+        kIsWeb ? webDesignSize.width : MediaQuery.of(context).size.width;
 
     return SizedBox(
       width: width,
-      height: height + 25.h,
+      height: width / 2,
       child: asyncBannerListState.when(
         data: (data) => Swiper(
           itemBuilder: (BuildContext context, int index) {
@@ -244,18 +246,17 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
               children: [
                 Container(
                   alignment: Alignment.center,
-                  width: width,
-                  height: height,
+                  width: width.w,
                   child: PicnicCachedNetworkImage(
                       imageUrl: data[index].thumbnail ?? '',
                       width: width.toInt(),
-                      height: height.toInt(),
-                      fit: BoxFit.cover),
+                      height: (width / 2).toInt(),
+                      fit: BoxFit.fitWidth),
                 ),
                 Positioned(
-                  bottom: 25.h,
+                  bottom: 0,
                   child: Container(
-                    width: MediaQuery.of(context).size.width,
+                    width: width,
                     alignment: Alignment.center,
                     padding:
                         const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
@@ -264,6 +265,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                       title,
                       style: getTextStyle(AppTypo.BODY14R, Colors.white)
                           .copyWith(overflow: TextOverflow.ellipsis),
+                      textAlign: TextAlign.center,
                     ),
                   ),
                 )
@@ -271,8 +273,6 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
             );
           },
           itemCount: data.length,
-          containerHeight: height,
-          itemHeight: height,
           autoplay: data.length > 1,
           pagination: data.length > 1 ? CustomPaginationBuilder() : null,
         ),
