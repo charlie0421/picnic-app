@@ -245,7 +245,7 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
                   itemBuilder: (BuildContext context, int index) =>
                       StoreListTile(
                     icon: Image.asset(
-                      'assets/icons/store/star_${_storeProducts[index].id.replaceAll('STAR', '')}.png',
+                      'assets/icons/store/star_${_serverProducts[index]['id'].replaceAll('STAR', '')}.png',
                       width: 48.w,
                       height: 48.w,
                     ),
