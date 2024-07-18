@@ -630,10 +630,10 @@ class S {
     );
   }
 
-  /// `Recent use`
+  /// `Recent logins`
   String get label_last_provider {
     return Intl.message(
-      'Recent use',
+      'Recent logins',
       name: 'label_last_provider',
       desc: '',
       args: [],
@@ -870,10 +870,10 @@ class S {
     );
   }
 
-  /// `Reply to a reply`
+  /// `Replying to a reply`
   String get label_reply {
     return Intl.message(
-      'Reply to a reply',
+      'Replying to a reply',
       name: 'label_reply',
       desc: '',
       args: [],
@@ -1760,10 +1760,10 @@ class S {
     );
   }
 
-  /// `{rank}위`
+  /// `rank {rank}`
   String text_vote_rank(Object rank) {
     return Intl.message(
-      '$rank위',
+      'rank $rank',
       name: 'text_vote_rank',
       desc: '',
       args: [rank],
@@ -1839,7 +1839,7 @@ class AppLocalizationDelegate extends LocalizationsDelegate<S> {
       Locale.fromSubtags(languageCode: 'en'),
       Locale.fromSubtags(languageCode: 'ja'),
       Locale.fromSubtags(languageCode: 'ko'),
-      Locale.fromSubtags(languageCode: 'zh', countryCode: 'CN'),
+      Locale.fromSubtags(languageCode: 'zh'),
     ];
   }
 

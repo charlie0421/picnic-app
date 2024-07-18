@@ -95,7 +95,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
         child: Column(
           children: [
             VoteHeader(
-              title: widget.vote.title[Intl.getCurrentLocale()],
+              title: widget.vote.title[Intl.getCurrentLocale().split('_')[0]],
               stopAt: widget.vote.stop_at,
               onRefresh: _restartAnimation,
             ),

@@ -31,7 +31,7 @@ void main(List<String> arguments) async {
     final List<String> outputFiles = [
       'lib/l10n/intl_en.arb',
       'lib/l10n/intl_ja.arb',
-      'lib/l10n/intl_zh_CN.arb'
+      'lib/l10n/intl_zh.arb'
     ];
 
     if (!watch) {
@@ -368,5 +368,6 @@ Map<String, dynamic> sortKeys(Map<String, dynamic> map) {
 Future<String> translateText(
     Translator translator, String text, String targetLang) async {
   final translation = await translator.translateTextSingular(text, targetLang);
+  Future.delayed(const Duration(milliseconds: 200));
   return translation.text;
 }
