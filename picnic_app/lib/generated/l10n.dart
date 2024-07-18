@@ -300,6 +300,16 @@ class S {
     );
   }
 
+  /// `An error occurred during login.`
+  String get error_message_login_failed {
+    return Intl.message(
+      'An error occurred during login.',
+      name: 'error_message_login_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `The membership information doesn't exist.`
   String get error_message_no_user {
     return Intl.message(
@@ -315,6 +325,16 @@ class S {
     return Intl.message(
       'A member who has unsubscribed.',
       name: 'error_message_withdrawal',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Errors`
+  String get error_title {
+    return Intl.message(
+      'Errors',
+      name: 'error_title',
       desc: '',
       args: [],
     );
@@ -610,6 +630,16 @@ class S {
     );
   }
 
+  /// `Recent use`
+  String get label_last_provider {
+    return Intl.message(
+      'Recent use',
+      name: 'label_last_provider',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Save the library`
   String get label_library_save {
     return Intl.message(
@@ -840,10 +870,10 @@ class S {
     );
   }
 
-  /// `Reply`
+  /// `Reply to a reply`
   String get label_reply {
     return Intl.message(
-      'Reply',
+      'Reply to a reply',
       name: 'label_reply',
       desc: '',
       args: [],
@@ -1160,10 +1190,10 @@ class S {
     );
   }
 
-  /// `PIC voting`
+  /// `PIC Voting`
   String get label_vote_tab_pic {
     return Intl.message(
-      'PIC voting',
+      'PIC Voting',
       name: 'label_vote_tab_pic',
       desc: '',
       args: [],
@@ -1200,10 +1230,10 @@ class S {
     );
   }
 
-  /// `Acceptance of the terms is complete.`
+  /// `You've accepted the terms.`
   String get message_agreement_success {
     return Intl.message(
-      'Acceptance of the terms is complete.',
+      'You\'ve accepted the terms.',
       name: 'message_agreement_success',
       desc: '',
       args: [],

@@ -39,9 +39,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_ok": MessageLookupByLibrary.simpleMessage("確認"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("保存する"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
-            "### 有効期限\n\n- 星飴は獲得日から1年間有効です。\n\n星飴獲得 ### 星飴獲得\n\nログイン : 1日1回\n- 投票 : 1回につき1個\n購入星飴 : なし(無制限)\nボーナス星飴：獲得した翌月の15日に一括消滅\n\n##### 星飴を使う\n\n消滅日が迫っている星飴から使用されます。\n有効期限が同じ場合は、獲得日が早い順に使用されます。"),
+            "### 有効期限\n\n- 星飴は獲得日から1年間有効です。\n\n星飴獲得 ### 星飴獲得\n\nログイン : 1日1回\n- 投票 : 1回につき1個\n購入星飴 : なし (無制限)\nボーナス星飴：獲得した翌月の15日に一括消滅\n\n##### 星飴を使う\n\n消滅日が迫っている星飴から使用されます。\n有効期限が同じ場合は、獲得日が早い順に使用されます。"),
         "candy_usage_policy_guide":
-            MessageLookupByLibrary.simpleMessage("*ボーナスは獲得した翌月に消えます！ ⓘ ⓘ ⓘ ⓘ"),
+            MessageLookupByLibrary.simpleMessage("*ボーナスは獲得した翌月に無くなります！ ⓘ※ボーナス"),
         "candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("スターキャンディー使用ポリシー"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("キャンセル"),
@@ -68,15 +68,18 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialog_withdraw_error":
             MessageLookupByLibrary.simpleMessage("退会中にエラーが発生しました。"),
         "dialog_withdraw_message": MessageLookupByLibrary.simpleMessage(
-            "退会時、ピクニックで保有している星キャンディーとアカウント情報は直ちに削除されます。"),
+            "退会すると、ピクニックで保有している星キャンディーとアカウント情報は即座に削除されます。"),
         "dialog_withdraw_success":
             MessageLookupByLibrary.simpleMessage("退会が正常に処理されました。"),
         "dialog_withdraw_title":
             MessageLookupByLibrary.simpleMessage("本当に退会しますか？"),
+        "error_message_login_failed":
+            MessageLookupByLibrary.simpleMessage("ログイン中にエラーが発生しました。"),
         "error_message_no_user":
             MessageLookupByLibrary.simpleMessage("会員情報が存在しません。"),
         "error_message_withdrawal":
             MessageLookupByLibrary.simpleMessage("退会した会員です。"),
+        "error_title": MessageLookupByLibrary.simpleMessage("エラー"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("アルバム名"),
         "hint_nickname_input":
             MessageLookupByLibrary.simpleMessage("ニックネームを入力してください。"),
@@ -121,6 +124,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_hint_comment":
             MessageLookupByLibrary.simpleMessage("コメントを残してください。"),
         "label_input_input": MessageLookupByLibrary.simpleMessage("入力"),
+        "label_last_provider": MessageLookupByLibrary.simpleMessage("最近の使用状況"),
         "label_library_save": MessageLookupByLibrary.simpleMessage("ライブラリ保存"),
         "label_library_tab_ai_photo":
             MessageLookupByLibrary.simpleMessage("AIフォト"),
@@ -245,7 +249,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("マイページ"),
         "page_title_myprofile":
             MessageLookupByLibrary.simpleMessage("私のプロフィール"),
-        "page_title_privacy": MessageLookupByLibrary.simpleMessage("個人情報保護方針"),
+        "page_title_privacy":
+            MessageLookupByLibrary.simpleMessage("プライバシーポリシー"),
         "page_title_setting": MessageLookupByLibrary.simpleMessage("環境設定"),
         "page_title_terms_of_use": MessageLookupByLibrary.simpleMessage("利用規約"),
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("投票する"),
@@ -273,8 +278,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("星飴が支給されました。"),
         "text_dialog_vote_amount_should_not_zero":
             MessageLookupByLibrary.simpleMessage("投票数は0にすることはできません。"),
-        "text_draw_image": MessageLookupByLibrary.simpleMessage(
-            "全ギャラリーのうち、1つの画像を確定的に所蔵しています。"),
+        "text_draw_image":
+            MessageLookupByLibrary.simpleMessage("全ギャラリーのうち、1枚の画像を確定的に所蔵"),
         "text_hint_search":
             MessageLookupByLibrary.simpleMessage("アーティストを検索してください。"),
         "text_moveto_celeb_gallery":

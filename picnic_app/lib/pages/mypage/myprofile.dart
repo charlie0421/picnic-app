@@ -181,7 +181,8 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                             ref
                                                 .read(navigationInfoProvider
                                                     .notifier)
-                                                .setCurrentMyPage(const LoginPage());
+                                                .setCurrentMyPage(
+                                                    const LoginPage());
                                             ref
                                                 .read(navigationInfoProvider
                                                     .notifier)
@@ -273,7 +274,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
 
       if (response.statusCode == 200) {
         logger.i('User deleted successfully');
-        // 로그아웃 시도
+        ref.read(navigationInfoProvider.notifier).setBottomNavigationIndex(0);
         await supabase.auth.signOut();
       } else {
         throw Exception('Failed to delete user: ${response.body}');

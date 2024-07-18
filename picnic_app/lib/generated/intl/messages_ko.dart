@@ -73,10 +73,13 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("탈퇴가 성공적으로 처리 되었습니다."),
         "dialog_withdraw_title":
             MessageLookupByLibrary.simpleMessage("정말 탈퇴하시겠어요?"),
+        "error_message_login_failed":
+            MessageLookupByLibrary.simpleMessage("로그인 중 오류가 발생했습니다."),
         "error_message_no_user":
             MessageLookupByLibrary.simpleMessage("회원 정보가 존재하지 않습니다."),
         "error_message_withdrawal":
             MessageLookupByLibrary.simpleMessage("탈퇴한 회원입니다."),
+        "error_title": MessageLookupByLibrary.simpleMessage("에러"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("앨범명"),
         "hint_nickname_input":
             MessageLookupByLibrary.simpleMessage("닉네임을 입력해주세요."),
@@ -121,6 +124,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_hint_comment":
             MessageLookupByLibrary.simpleMessage("댓글을 남겨주세요."),
         "label_input_input": MessageLookupByLibrary.simpleMessage("입력"),
+        "label_last_provider": MessageLookupByLibrary.simpleMessage("최근 사용"),
         "label_library_save": MessageLookupByLibrary.simpleMessage("라이브러리 저장"),
         "label_library_tab_ai_photo":
             MessageLookupByLibrary.simpleMessage("AI 포토"),
