@@ -124,7 +124,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_hint_comment":
             MessageLookupByLibrary.simpleMessage("댓글을 남겨주세요."),
         "label_input_input": MessageLookupByLibrary.simpleMessage("입력"),
-        "label_last_provider": MessageLookupByLibrary.simpleMessage("최근 사용"),
+        "label_last_provider": MessageLookupByLibrary.simpleMessage("최근 로그인"),
         "label_library_save": MessageLookupByLibrary.simpleMessage("라이브러리 저장"),
         "label_library_tab_ai_photo":
             MessageLookupByLibrary.simpleMessage("AI 포토"),

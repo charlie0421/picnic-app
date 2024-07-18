@@ -348,7 +348,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
           Positioned(
             top: 0,
             bottom: 0,
-            left: 50.w,
+            left: 30.w,
             child: Bubble(
               color: AppColors.Primary500.withOpacity(.9),
               alignment: Alignment.center,
@@ -401,7 +401,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
             Positioned(
               top: 0,
               bottom: 0,
-              left: 50.w,
+              left: 30.w,
               child: Bubble(
                 color: AppColors.Primary500.withOpacity(.9),
                 alignment: Alignment.center,
@@ -455,7 +455,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
           Positioned(
             top: 0,
             bottom: 0,
-            left: 50.w,
+            left: 30.w,
             child: Bubble(
               color: AppColors.Primary500.withOpacity(.9),
               alignment: Alignment.center,
