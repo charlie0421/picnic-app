@@ -97,7 +97,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_bonus": MessageLookupByLibrary.simpleMessage("Bonuses"),
         "label_button_agreement":
             MessageLookupByLibrary.simpleMessage("Accept"),
-        "label_button_clse": MessageLookupByLibrary.simpleMessage("关闭"),
+        "label_button_clse": MessageLookupByLibrary.simpleMessage("Close"),
         "label_button_disagreement":
             MessageLookupByLibrary.simpleMessage("Non-Consent"),
         "label_button_recharge":

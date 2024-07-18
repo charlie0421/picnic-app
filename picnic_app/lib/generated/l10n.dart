@@ -430,10 +430,10 @@ class S {
     );
   }
 
-  /// `关闭`
+  /// `Close`
   String get label_button_clse {
     return Intl.message(
-      '关闭',
+      'Close',
       name: 'label_button_clse',
       desc: '',
       args: [],
