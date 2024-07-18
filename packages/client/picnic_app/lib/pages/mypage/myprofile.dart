@@ -141,6 +141,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                 S.of(context).dialog_withdraw_message,
                                 style: getTextStyle(
                                     AppTypo.CAPTION12R, AppColors.Grey700),
+                                textAlign: TextAlign.center,
                               ),
                             ),
                             SizedBox(height: 32.h),
@@ -151,7 +152,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                   flex: 2,
                                   child: MaterialButton(
                                       padding: EdgeInsets.symmetric(
-                                          horizontal: 20.w),
+                                          horizontal: 10.w),
                                       color: AppColors.Grey00,
                                       shape: RoundedRectangleBorder(
                                           side: BorderSide(
@@ -214,7 +215,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                   flex: 3,
                                   child: MaterialButton(
                                       padding: EdgeInsets.symmetric(
-                                          horizontal: 20.w),
+                                          horizontal: 10.w),
                                       color: AppColors.Primary500,
                                       shape: RoundedRectangleBorder(
                                           side: BorderSide(
@@ -226,11 +227,13 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                         Navigator.of(context).pop();
                                       },
                                       child: Text(
-                                          S
-                                              .of(context)
-                                              .dialog_withdraw_button_cancel,
-                                          style: getTextStyle(AppTypo.BODY14B,
-                                              AppColors.Grey00))),
+                                        S
+                                            .of(context)
+                                            .dialog_withdraw_button_cancel,
+                                        style: getTextStyle(
+                                            AppTypo.BODY14B, AppColors.Grey00),
+                                        textAlign: TextAlign.center,
+                                      )),
                                 ),
                               ],
                             )
