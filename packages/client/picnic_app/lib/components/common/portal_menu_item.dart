@@ -21,19 +21,19 @@ class PortalMenuItem extends ConsumerWidget {
     final bool isSelected = navigationInfo.portalType == portalType;
 
     return Container(
-      height: 26.w,
-      margin: EdgeInsets.only(left: 16.w),
+      height: 26.h,
+      margin: const EdgeInsets.only(left: 16).r,
       child: InkWell(
-        borderRadius: BorderRadius.circular(13.r),
+        borderRadius: BorderRadius.circular(13).r,
         onTap: () {
           navigationInfoNotifier.setPortal(portalType);
         },
         child: Container(
-          height: 26.w,
+          height: 26.h,
           alignment: Alignment.center,
-          padding: EdgeInsets.symmetric(horizontal: 12.w),
+          padding: EdgeInsets.symmetric(horizontal: 12).r,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(13.r),
+            borderRadius: BorderRadius.circular(13).r,
             border: Border.all(
               color: AppColors.Grey900,
               width: 1.r,
