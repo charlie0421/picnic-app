@@ -319,7 +319,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                     padding: const EdgeInsets.only(top: 56).w,
                     child: filteredIndices.isEmpty
                         ? SizedBox(
-                            height: 200.w,
+                            height: 200.h,
                             child: Center(
                               child: Text(S.of(context).text_no_search_result),
                             ),
@@ -354,7 +354,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                   },
                                   child: Container(
                                     key: ValueKey<int>(index),
-                                    height: 45.w,
+                                    height: 40.h,
                                     margin: const EdgeInsets.only(
                                             left: 16, right: 16, bottom: 36)
                                         .r,
@@ -378,6 +378,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                                 style: getTextStyle(
                                                     AppTypo.CAPTION12B,
                                                     AppColors.Point900),
+                                                textAlign: TextAlign.center,
                                               ),
                                             ],
                                           ),
