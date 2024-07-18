@@ -230,9 +230,9 @@ class AuthService {
       }
 
       return await _recoverOAuthSession(Supabase.OAuthProvider.values
-          .firstWhere((e) => e.toString() == lastProvider));
-    } catch (e) {
-      logger.e('Error during session recovery: $e');
+          .firstWhere((e) => e.name == lastProvider));
+    } catch (e, s) {
+      logger.e('Error during session recovery: $e', stackTrace: s);
       return false;
     }
   }
