@@ -1240,7 +1240,7 @@ ArtistMemberModel _$ArtistMemberModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$ArtistMemberModel {
   int get id => throw _privateConstructorUsedError;
-  Map<String, dynamic> get name => throw _privateConstructorUsedError;
+  Map<String, String> get name => throw _privateConstructorUsedError;
   String get gender => throw _privateConstructorUsedError;
   String? get image => throw _privateConstructorUsedError;
   ArtistGroupModel? get mystar_group => throw _privateConstructorUsedError;
@@ -1259,7 +1259,7 @@ abstract class $ArtistMemberModelCopyWith<$Res> {
   @useResult
   $Res call(
       {int id,
-      Map<String, dynamic> name,
+      Map<String, String> name,
       String gender,
       String? image,
       ArtistGroupModel? mystar_group});
@@ -1294,7 +1294,7 @@ class _$ArtistMemberModelCopyWithImpl<$Res, $Val extends ArtistMemberModel>
       name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>,
+              as Map<String, String>,
       gender: null == gender
           ? _value.gender
           : gender // ignore: cast_nullable_to_non_nullable
@@ -1333,7 +1333,7 @@ abstract class _$$ArtistMemberModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {int id,
-      Map<String, dynamic> name,
+      Map<String, String> name,
       String gender,
       String? image,
       ArtistGroupModel? mystar_group});
@@ -1367,7 +1367,7 @@ class __$$ArtistMemberModelImplCopyWithImpl<$Res>
       name: null == name
           ? _value._name
           : name // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>,
+              as Map<String, String>,
       gender: null == gender
           ? _value.gender
           : gender // ignore: cast_nullable_to_non_nullable
@@ -1389,7 +1389,7 @@ class __$$ArtistMemberModelImplCopyWithImpl<$Res>
 class _$ArtistMemberModelImpl extends _ArtistMemberModel {
   const _$ArtistMemberModelImpl(
       {required this.id,
-      required final Map<String, dynamic> name,
+      required final Map<String, String> name,
       required this.gender,
       required this.image,
       this.mystar_group})
@@ -1401,9 +1401,9 @@ class _$ArtistMemberModelImpl extends _ArtistMemberModel {
 
   @override
   final int id;
-  final Map<String, dynamic> _name;
+  final Map<String, String> _name;
   @override
-  Map<String, dynamic> get name {
+  Map<String, String> get name {
     if (_name is EqualUnmodifiableMapView) return _name;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableMapView(_name);
@@ -1457,7 +1457,7 @@ class _$ArtistMemberModelImpl extends _ArtistMemberModel {
 abstract class _ArtistMemberModel extends ArtistMemberModel {
   const factory _ArtistMemberModel(
       {required final int id,
-      required final Map<String, dynamic> name,
+      required final Map<String, String> name,
       required final String gender,
       required final String? image,
       final ArtistGroupModel? mystar_group}) = _$ArtistMemberModelImpl;
@@ -1469,7 +1469,7 @@ abstract class _ArtistMemberModel extends ArtistMemberModel {
   @override
   int get id;
   @override
-  Map<String, dynamic> get name;
+  Map<String, String> get name;
   @override
   String get gender;
   @override
@@ -1489,7 +1489,7 @@ ArtistGroupModel _$ArtistGroupModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$ArtistGroupModel {
   int get id => throw _privateConstructorUsedError;
-  Map<String, dynamic> get name => throw _privateConstructorUsedError;
+  Map<String, String> get name => throw _privateConstructorUsedError;
   String? get image => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1504,7 +1504,7 @@ abstract class $ArtistGroupModelCopyWith<$Res> {
           ArtistGroupModel value, $Res Function(ArtistGroupModel) then) =
       _$ArtistGroupModelCopyWithImpl<$Res, ArtistGroupModel>;
   @useResult
-  $Res call({int id, Map<String, dynamic> name, String? image});
+  $Res call({int id, Map<String, String> name, String? image});
 }
 
 /// @nodoc
@@ -1532,7 +1532,7 @@ class _$ArtistGroupModelCopyWithImpl<$Res, $Val extends ArtistGroupModel>
       name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>,
+              as Map<String, String>,
       image: freezed == image
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
@@ -1549,7 +1549,7 @@ abstract class _$$ArtistGroupModelImplCopyWith<$Res>
       __$$ArtistGroupModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int id, Map<String, dynamic> name, String? image});
+  $Res call({int id, Map<String, String> name, String? image});
 }
 
 /// @nodoc
@@ -1575,7 +1575,7 @@ class __$$ArtistGroupModelImplCopyWithImpl<$Res>
       name: null == name
           ? _value._name
           : name // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>,
+              as Map<String, String>,
       image: freezed == image
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
@@ -1588,7 +1588,7 @@ class __$$ArtistGroupModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$ArtistGroupModelImpl extends _ArtistGroupModel {
   const _$ArtistGroupModelImpl(
-      {required this.id, required final Map<String, dynamic> name, this.image})
+      {required this.id, required final Map<String, String> name, this.image})
       : _name = name,
         super._();
 
@@ -1597,9 +1597,9 @@ class _$ArtistGroupModelImpl extends _ArtistGroupModel {
 
   @override
   final int id;
-  final Map<String, dynamic> _name;
+  final Map<String, String> _name;
   @override
-  Map<String, dynamic> get name {
+  Map<String, String> get name {
     if (_name is EqualUnmodifiableMapView) return _name;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableMapView(_name);
@@ -1646,7 +1646,7 @@ class _$ArtistGroupModelImpl extends _ArtistGroupModel {
 abstract class _ArtistGroupModel extends ArtistGroupModel {
   const factory _ArtistGroupModel(
       {required final int id,
-      required final Map<String, dynamic> name,
+      required final Map<String, String> name,
       final String? image}) = _$ArtistGroupModelImpl;
   const _ArtistGroupModel._() : super._();
 
@@ -1656,7 +1656,7 @@ abstract class _ArtistGroupModel extends ArtistGroupModel {
   @override
   int get id;
   @override
-  Map<String, dynamic> get name;
+  Map<String, String> get name;
   @override
   String? get image;
   @override
