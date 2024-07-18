@@ -74,10 +74,13 @@ class MessageLookup extends MessageLookupByLibrary {
             "The unsubscribe was processed successfully."),
         "dialog_withdraw_title": MessageLookupByLibrary.simpleMessage(
             "Are you sure you want to leave?"),
+        "error_message_login_failed": MessageLookupByLibrary.simpleMessage(
+            "An error occurred during login."),
         "error_message_no_user": MessageLookupByLibrary.simpleMessage(
             "The membership information doesn\'t exist."),
         "error_message_withdrawal": MessageLookupByLibrary.simpleMessage(
             "A member who has unsubscribed."),
+        "error_title": MessageLookupByLibrary.simpleMessage("Errors"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("Album name"),
         "hint_nickname_input":
             MessageLookupByLibrary.simpleMessage("Please enter a nickname."),
@@ -127,6 +130,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_hint_comment":
             MessageLookupByLibrary.simpleMessage("Leave a comment."),
         "label_input_input": MessageLookupByLibrary.simpleMessage("Input"),
+        "label_last_provider":
+            MessageLookupByLibrary.simpleMessage("Recent use"),
         "label_library_save":
             MessageLookupByLibrary.simpleMessage("Save the library"),
         "label_library_tab_ai_photo":
@@ -169,7 +174,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Compositing an image..."),
         "label_read_more_comment":
             MessageLookupByLibrary.simpleMessage("More comments"),
-        "label_reply": MessageLookupByLibrary.simpleMessage("Reply"),
+        "label_reply": MessageLookupByLibrary.simpleMessage("Reply to a reply"),
         "label_retry": MessageLookupByLibrary.simpleMessage("Retrying"),
         "label_screen_title_agreement":
             MessageLookupByLibrary.simpleMessage("Accept the terms"),
@@ -226,13 +231,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("Birthday polls"),
         "label_vote_tab_pic":
-            MessageLookupByLibrary.simpleMessage("PIC voting"),
+            MessageLookupByLibrary.simpleMessage("PIC Voting"),
         "label_vote_vote_gather":
             MessageLookupByLibrary.simpleMessage("Collecting votes"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("View ads"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("My Artists"),
-        "message_agreement_success": MessageLookupByLibrary.simpleMessage(
-            "Acceptance of the terms is complete."),
+        "message_agreement_success":
+            MessageLookupByLibrary.simpleMessage("You\'ve accepted the terms."),
         "message_error_occurred":
             MessageLookupByLibrary.simpleMessage("An error occurred."),
         "message_pic_pic_save_fail":

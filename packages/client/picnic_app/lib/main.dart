@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 // import 'package:http/http.dart' as http;
 import 'package:picnic_app/app.dart';
+import 'package:picnic_app/auth_service.dart';
 import 'package:picnic_app/firebase_options.dart';
 // import 'package:picnic_app/logging_http_client.dart';
 import 'package:picnic_app/main.reflectable.dart';
@@ -23,8 +24,7 @@ void main() async {
     url: supabaseOptions.url,
     anonKey: supabaseOptions.anonKey,
     authOptions: const FlutterAuthClientOptions(
-      autoRefreshToken: true,
-    ),
+        autoRefreshToken: true, detectSessionInUri: false),
     debug: true,
     // httpClient: kDebugMode ? LoggingHttpClient(http.Client()) : null)
   );
@@ -32,6 +32,9 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  final authService = AuthService();
+  final isSessionRecovered = await authService.recoverSession();
 
   if (isMobile()) {
     await initializeWidgetsAndDeviceOrientation(widgetsBinding);
