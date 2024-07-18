@@ -28,7 +28,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m3(num1) => "${num1}개 +${num1}개 보너스";
 
-  static String m4(rank) => "${rank}위";
+  static String m4(rank) => "rank ${rank}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -131,7 +131,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Leave a comment."),
         "label_input_input": MessageLookupByLibrary.simpleMessage("Input"),
         "label_last_provider":
-            MessageLookupByLibrary.simpleMessage("Recent use"),
+            MessageLookupByLibrary.simpleMessage("Recent logins"),
         "label_library_save":
             MessageLookupByLibrary.simpleMessage("Save the library"),
         "label_library_tab_ai_photo":
@@ -174,7 +174,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Compositing an image..."),
         "label_read_more_comment":
             MessageLookupByLibrary.simpleMessage("More comments"),
-        "label_reply": MessageLookupByLibrary.simpleMessage("Reply to a reply"),
+        "label_reply":
+            MessageLookupByLibrary.simpleMessage("Replying to a reply"),
         "label_retry": MessageLookupByLibrary.simpleMessage("Retrying"),
         "label_screen_title_agreement":
             MessageLookupByLibrary.simpleMessage("Accept the terms"),

@@ -234,14 +234,14 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         ref.watch(asyncBannerListProvider(location: 'vote_home'));
     final width =
         kIsWeb ? webDesignSize.width : MediaQuery.of(context).size.width;
-
     return SizedBox(
       width: width,
       height: width / 2,
       child: asyncBannerListState.when(
         data: (data) => Swiper(
           itemBuilder: (BuildContext context, int index) {
-            String title = data[index].title[Intl.getCurrentLocale()];
+            String title =
+                data[index].title[Intl.getCurrentLocale().split('_')[0]];
             return Stack(
               children: [
                 Container(

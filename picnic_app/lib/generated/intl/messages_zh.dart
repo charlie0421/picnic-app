@@ -1,5 +1,5 @@
 // DO NOT EDIT. This is code generated via package:intl/generate_localized.dart
-// This is a library that provides messages for a cn locale. All the
+// This is a library that provides messages for a zh locale. All the
 // messages from the main program should be duplicated here with the same
 // function name.
 
@@ -18,7 +18,7 @@ final messages = new MessageLookup();
 typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 
 class MessageLookup extends MessageLookupByLibrary {
-  String get localeName => 'cn';
+  String get localeName => 'zh';
 
   static String m0(day) => "${day}일 전";
 
@@ -39,7 +39,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_ok": MessageLookupByLibrary.simpleMessage("确认"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("节省"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
-            "### 有效期\n\n- 自获得之日起，Star Candy 的有效期为一年。\n\n### 赚取的星星糖\n\n登录：每天 1 个\n- 投票：每天 1 次\n购买糖果：无（无限制）\n奖励星星糖果：在获得后的当月 15 日分批过期\n\n在 ##### 上兑换星星糖\n\n有效期即将结束的星星糖果将优先使用。\n如果有效期相同，则使用最早的一个。"),
+            "### 有效期\n\n- 自获得之日起，Star Candy 的有效期为一年。\n\n### 赚取的星星糖\n\n登录：每天 1 个\n- 投票：每天 1 次\n购买糖果：无（无限制）\n奖励星星糖果：在获得后的当月 15 日分批过期\n\n在 ##### 上兑换星星糖\n\n有效期即将结束的星星糖将优先使用。\n如果有效期相同，则按获得日期的先后顺序使用。"),
         "candy_usage_policy_guide":
             MessageLookupByLibrary.simpleMessage("*奖金将在您获得奖金的次月消失！ ⓘ"),
         "candy_usage_policy_title":
@@ -72,7 +72,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialog_withdraw_title":
             MessageLookupByLibrary.simpleMessage("您确定要取消订阅吗？"),
         "error_message_login_failed":
-            MessageLookupByLibrary.simpleMessage("登录时发生错误。"),
+            MessageLookupByLibrary.simpleMessage("登录时出现错误。"),
         "error_message_no_user":
             MessageLookupByLibrary.simpleMessage("会员信息不存在。"),
         "error_message_withdrawal":
@@ -113,8 +113,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("聊天"),
         "label_hint_comment": MessageLookupByLibrary.simpleMessage("发表评论。"),
         "label_input_input": MessageLookupByLibrary.simpleMessage("输入"),
-        "label_last_provider":
-            MessageLookupByLibrary.simpleMessage("您最后登录的账户~。"),
+        "label_last_provider": MessageLookupByLibrary.simpleMessage("最近登录"),
         "label_library_save": MessageLookupByLibrary.simpleMessage("保存图书馆"),
         "label_library_tab_ai_photo":
             MessageLookupByLibrary.simpleMessage("人工智能照片"),
@@ -141,7 +140,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("投票历史"),
         "label_mypage_withdrawal": MessageLookupByLibrary.simpleMessage("退出"),
         "label_no_ads": MessageLookupByLibrary.simpleMessage("无广告"),
-        "label_no_celeb": MessageLookupByLibrary.simpleMessage("您还没有收藏任何艺术家！"),
+        "label_no_celeb":
+            MessageLookupByLibrary.simpleMessage("您还没有将任何艺术家加入书签！"),
         "label_pic_image_cropping":
             MessageLookupByLibrary.simpleMessage("裁剪图像"),
         "label_pic_pic_initializing_camera":
@@ -245,13 +245,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_ads_random": MessageLookupByLibrary.simpleMessage("查看广告并收集随机图片。"),
         "text_bonus": MessageLookupByLibrary.simpleMessage("奖金"),
         "text_comming_soon_pic_chart1": MessageLookupByLibrary.simpleMessage(
-            "欢迎来到 Peek Charts！\n2024 年 8 月再见！"),
+            "핔 차트에 오신 여러분을 환영합니다!\n2024년 8월에 만나요!"),
         "text_comming_soon_pic_chart2": MessageLookupByLibrary.simpleMessage(
-            "饼图是 Peeknick 独有的一种新图表，可反映每日、每周和每月的分数。"),
-        "text_comming_soon_pic_chart3":
-            MessageLookupByLibrary.simpleMessage("实时查看艺术家的品牌声誉！"),
+            "핔차트는 일간, 주간, 월간 점수를 반영하는\n피크닠만의 새로운 차트입니다."),
+        "text_comming_soon_pic_chart3": MessageLookupByLibrary.simpleMessage(
+            "실시간으로 반영되는\n아티스트의 브랜드 평판을 확인해 보세요!"),
         "text_comming_soon_pic_chart_title":
-            MessageLookupByLibrary.simpleMessage("Pic Chart?"),
+            MessageLookupByLibrary.simpleMessage("핔차트란?"),
         "text_copied_address": MessageLookupByLibrary.simpleMessage("地址已复制。"),
         "text_dialog_star_candy_received":
             MessageLookupByLibrary.simpleMessage("已颁发星形糖果。"),
@@ -261,7 +261,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("来自整个画廊的 1 张图片已确认收藏"),
         "text_hint_search": MessageLookupByLibrary.simpleMessage("搜索艺术家"),
         "text_moveto_celeb_gallery":
-            MessageLookupByLibrary.simpleMessage("访问所选艺术家的主页。"),
+            MessageLookupByLibrary.simpleMessage("导航至所选艺术家的主页。"),
         "text_need_recharge": MessageLookupByLibrary.simpleMessage("需要充电。"),
         "text_no_search_result":
             MessageLookupByLibrary.simpleMessage("没有搜索结果。"),
