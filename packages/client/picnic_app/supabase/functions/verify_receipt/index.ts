@@ -15,15 +15,15 @@ Deno.serve(async (request: Request) => {
         console.log("Received request");
         const { receipt, platform, productId , user_id, environment} = await request.json();
         console.log(`Received receipt for platform: ${platform}, productId: ${productId}`);
-        let verificationUrl;
+        let verificationUrl: RequestInfo | URL;
 
-          verificationUrl = SANDBOX_URL;
+          // verificationUrl = SANDBOX_URL;
         // 클라이언트에서 전송한 환경 정보를 사용할 경우
-        // if (environment === 'production') {
-        //   verificationUrl = PRODUCTION_URL;
-        // } else {
-        //   verificationUrl = SANDBOX_URL;
-        // }
+        if (environment === 'production') {
+          verificationUrl = PRODUCTION_URL;
+        } else {
+          verificationUrl = SANDBOX_URL;
+        }
 
         let response;
         if (platform === 'ios') {

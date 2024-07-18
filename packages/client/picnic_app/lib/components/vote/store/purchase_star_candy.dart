@@ -9,6 +9,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/components/vote/common_vote_info.dart';
 import 'package:picnic_app/components/vote/store/store_list_tile.dart';
@@ -156,9 +157,26 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
     }
   }
 
+  Future<String> getEnvironment() async {
+    if (kDebugMode) {
+      return 'sandbox';
+    }
+
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    String buildNumber = packageInfo.buildNumber;
+
+    // TestFlight 빌드 번호는 일반적으로 1.0.0 형식이 아닙니다.
+    // 여기서는 간단히 점(.)이 포함되어 있는지로 구분합니다.
+    bool isTestFlight = buildNumber.contains('.');
+    logger.i(isTestFlight);
+
+    return isTestFlight ? 'sandbox' : 'production';
+  }
+
   Future<void> verifyReceipt(String receipt, String productId) async {
     try {
-      const environment = kReleaseMode ? 'production' : 'sandbox';
+      final environment = await getEnvironment();
+      print('Current environment: $environment'); // Log the environment
 
       final response = await Supabase.instance.client.functions
           .invoke('verify_receipt', body: {
