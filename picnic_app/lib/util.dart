@@ -196,7 +196,7 @@ void copyToClipboard(BuildContext context, String text) {
   showSimpleDialog(
       context: context,
       content: S.of(context).text_copied_address,
-      onOk: () {});
+      onOk: () => Navigator.of(context).pop());
 }
 
 Size getPlatformScreenSize(BuildContext context) {
