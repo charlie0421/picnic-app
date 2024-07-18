@@ -11,6 +11,7 @@ import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
 import 'package:picnic_app/components/vote/list/voting_dialog.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
+import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';
@@ -39,6 +40,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   late FocusNode _focusNode;
   bool _hasFocus = false;
   String _searchQuery = '';
+  bool is_ended = false;
 
   @override
   initState() {
@@ -52,9 +54,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         _hasFocus = _focusNode.hasFocus;
       });
 
-      if (_hasFocus) {
-        _scrollToTarget(_searchBoxKey);
-      }
+      // if (_hasFocus) {
+      //   _scrollToTarget(_searchBoxKey);
+      // }
     });
 
     _textEditingController.addListener(() {
@@ -202,6 +204,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     final height = width * 0.5;
     return ref.watch(asyncVoteDetailProvider(voteId: widget.voteId)).when(
           data: (voteModel) {
+            WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {
+                  is_ended = voteModel!.is_ended!;
+                }));
             return Column(
               children: [
                 SizedBox(
@@ -339,6 +344,13 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                 child: GestureDetector(
                                   behavior: HitTestBehavior.opaque,
                                   onTap: () {
+                                    if (is_ended) {
+                                      showSimpleDialog(
+                                          context: context,
+                                          content: '종료된 투표입니다.');
+                                      return;
+                                    }
+
                                     supabase.isLogged
                                         ? showVotingDialog(
                                             context: context,
@@ -482,12 +494,13 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                         SizedBox(
                                           width: 16.w,
                                         ),
-                                        SizedBox(
-                                          width: 24.w,
-                                          height: 24.w,
-                                          child: SvgPicture.asset(
-                                              'assets/icons/star_candy_icon.svg'),
-                                        ),
+                                        if (!is_ended)
+                                          SizedBox(
+                                            width: 24.w,
+                                            height: 24.w,
+                                            child: SvgPicture.asset(
+                                                'assets/icons/star_candy_icon.svg'),
+                                          ),
                                       ],
                                     ),
                                   ),

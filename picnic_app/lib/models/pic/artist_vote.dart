@@ -126,7 +126,7 @@ class ArtistMemberModel with _$ArtistMemberModel {
     required Map<String, String> name,
     required String gender,
     required String? image,
-    ArtistGroupModel mystar_group,
+    ArtistGroupModel? mystar_group,
   }) = _ArtistMemberModel;
 
   getGroupTitle() {

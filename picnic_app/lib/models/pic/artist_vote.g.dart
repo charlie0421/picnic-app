@@ -123,7 +123,7 @@ _$ArtistMemberModelImpl _$$ArtistMemberModelImplFromJson(
         Map<String, dynamic> json) =>
     _$ArtistMemberModelImpl(
       id: (json['id'] as num).toInt(),
-      name: json['name'] as Map<String, dynamic>,
+      name: Map<String, String>.from(json['name'] as Map),
       gender: json['gender'] as String,
       image: json['image'] as String?,
       mystar_group: json['mystar_group'] == null
@@ -146,7 +146,7 @@ _$ArtistGroupModelImpl _$$ArtistGroupModelImplFromJson(
         Map<String, dynamic> json) =>
     _$ArtistGroupModelImpl(
       id: (json['id'] as num).toInt(),
-      name: json['name'] as Map<String, dynamic>,
+      name: Map<String, String>.from(json['name'] as Map),
       image: json['image'] as String?,
     );
 

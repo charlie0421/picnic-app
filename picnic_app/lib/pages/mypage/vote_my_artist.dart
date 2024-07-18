@@ -62,7 +62,7 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtist> {
                   ),
                 ),
                 title: Text(
-                  item.name[Intl.getCurrentLocale()],
+                  item.name[Intl.getCurrentLocale().split('_')[0]]!,
                 ),
                 // subtitle: Text(item.mystar_group!.id.toString())
               )),

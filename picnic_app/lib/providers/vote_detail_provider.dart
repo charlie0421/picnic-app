@@ -20,6 +20,11 @@ class AsyncVoteDetail extends _$AsyncVoteDetail {
           .eq('id', voteId)
           .single();
 
+      final now = DateTime.now().toUtc();
+
+      // Add a new field to indicate if the current time is after end_at
+      response['is_ended'] = now.isAfter(DateTime.parse(response['stop_at']));
+
       return VoteModel.fromJson(response);
     } catch (e, s) {
       logger.e('Failed to load vote detail: $e');
