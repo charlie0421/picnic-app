@@ -168,13 +168,6 @@ async function performTransaction(connection: any, vote_id: string, vote_item_id
             throw new Error('Insufficient star_candy and star_candy_bonus to vote');
         }
 
-        // Update vote_item table with the new vote total
-        await queryDatabase(`
-            UPDATE vote_item
-            SET vote_total = vote_total + $1
-            WHERE id = $2
-        `, amount, vote_item_id);
-
         // Get existing vote total for the specified vote_item_id
         const voteTotalResult = await queryDatabase(`
             SELECT vote_total
@@ -182,6 +175,13 @@ async function performTransaction(connection: any, vote_id: string, vote_item_id
             WHERE id = $1
         `, vote_item_id);
         const existingVoteTotal = voteTotalResult.rows.length > 0 ? voteTotalResult.rows[0].vote_total : 0;
+
+        // Update vote_item table with the new vote total
+        await queryDatabase(`
+            UPDATE vote_item
+            SET vote_total = vote_total + $1
+            WHERE id = $2
+        `, amount, vote_item_id);
 
         // Commit the transaction
         await connection.queryObject('COMMIT');
