@@ -129,8 +129,12 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
         return;
       }
 
-      final productIds =
-          _serverProducts.map((product) => product['id'] as String).toSet();
+      final productIds = isIOS()
+          ? _serverProducts.map((product) => product['id'].toString()).toSet()
+          : _serverProducts
+              .map((product) => product['id'].toString().toLowerCase())
+              .toSet();
+
       final response = await _inAppPurchase.queryProductDetails(productIds);
 
       logger.i(productIds);
