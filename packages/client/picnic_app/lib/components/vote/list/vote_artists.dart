@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -48,7 +49,7 @@ class VoteArtists extends StatelessWidget {
                       Stack(
                         children: [
                           Image.network(
-                            '${artist.value.mystar_member.image}?w=100',
+                            '${artist.value.artist?.image}?w=100',
                           ),
                           Positioned(
                             left: 0,
@@ -75,7 +76,9 @@ class VoteArtists extends StatelessWidget {
                         height: 2.w,
                       ),
                       Text(
-                        artist.value.mystar_member.getTitle(),
+                        artist.value.artist
+                                ?.name[Intl.getCurrentLocale().split('_')[0]] ??
+                            '',
                         style: getTextStyle(AppTypo.CAPTION12B),
                       ),
                     ],

@@ -48,7 +48,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         SizedBox(
           height: 43.w,
           child: TabBar(
-            indicatorWeight: 1,
+            indicatorWeight: 3,
             indicator: const UnderlineTabIndicator(
               borderSide: BorderSide(width: 2.0, color: AppColors.Grey900),
             ),

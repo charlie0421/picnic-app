@@ -22,7 +22,7 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
   initState() {
     super.initState();
     _tabController = TabController(
-      length: 2,
+      length: 3,
       vsync: this,
     );
   }
@@ -33,18 +33,20 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
       children: [
         SizedBox(
           height: 50,
-          child: TabBar(controller: _tabController, tabs: [
+          child: TabBar(controller: _tabController, indicatorWeight: 3, tabs: [
             Tab(text: S.of(context).label_tabbar_vote_active),
             Tab(text: S.of(context).label_tabbar_vote_end),
+            Tab(text: S.of(context).label_tabbar_vote_upcoming),
           ]),
         ),
         SizedBox(
-          height: 36.w,
+          height: 36.h,
         ),
         Expanded(
             child: TabBarView(controller: _tabController, children: const [
           VoteList(VoteStatus.active, VoteCategory.all),
           VoteList(VoteStatus.end, VoteCategory.all),
+          VoteList(VoteStatus.upcoming, VoteCategory.all),
         ]))
       ],
     );

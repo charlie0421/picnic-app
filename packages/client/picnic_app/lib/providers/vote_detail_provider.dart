@@ -16,7 +16,7 @@ class AsyncVoteDetail extends _$AsyncVoteDetail {
     try {
       final response = await supabase
           .from('vote')
-          .select('*, vote_item(*, mystar_member(*)), reward(*))')
+          .select('*, vote_item(*, artist(*, artist_group(*))), reward(*)')
           .eq('id', voteId)
           .single();
 
@@ -45,7 +45,7 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
     try {
       final response = await supabase
           .from('vote_item')
-          .select('*, mystar_member!left(*,mystar_group(*))')
+          .select('*, artist(*,artist_group(*))')
           .eq('vote_id', voteId)
           .order('vote_total', ascending: false);
 

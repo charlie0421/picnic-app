@@ -126,13 +126,14 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     return List<int>.generate(data.length, (index) => index)
         .where((index) =>
             data[index]!
-                .mystar_member
-                .getTitle()
+                .artist
+                ?.name[Intl.getCurrentLocale().split('_').first]
                 .toLowerCase()
                 .contains(_searchQuery.toLowerCase()) ||
             data[index]!
-                .mystar_member
-                .getGroupTitle()
+                .artist
+                ?.artist_group
+                .name[Intl.getCurrentLocale().split('_').first]
                 .toLowerCase()
                 .contains(_searchQuery.toLowerCase()))
         .toList();
@@ -204,6 +205,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     final height = width * 0.5;
     return ref.watch(asyncVoteDetailProvider(voteId: widget.voteId)).when(
           data: (voteModel) {
+            if (voteModel == null) {
+              return _buildLoadingShimmer();
+            }
             WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {
                   is_ended = voteModel!.is_ended!;
                 }));
@@ -236,15 +240,15 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   child: Text.rich(
                     TextSpan(children: [
                       TextSpan(
-                        text: DateFormat('yyyy.MM.dd HH:mm')
-                            .format(voteModel?.start_at ?? DateTime.now()),
+                        text: DateFormat('yyyy.MM.dd HH:mm').format(
+                            voteModel?.start_at ?? DateTime.now().toUtc()),
                         style:
                             getTextStyle(AppTypo.CAPTION12R, AppColors.Grey900),
                       ),
                       const TextSpan(text: ' ~ '),
                       TextSpan(
-                        text: DateFormat('yyyy.MM.dd HH:mm')
-                            .format(voteModel?.stop_at ?? DateTime.now()),
+                        text: DateFormat('yyyy.MM.dd HH:mm').format(
+                            voteModel?.stop_at ?? DateTime.now().toUtc()),
                         style:
                             getTextStyle(AppTypo.CAPTION12R, AppColors.Grey900),
                       ),
@@ -421,8 +425,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                                 BorderRadius.circular(39),
                                             child: PicnicCachedNetworkImage(
                                               imageUrl:
-                                                  item.mystar_member.image ??
-                                                      '',
+                                                  item.artist?.image ?? '',
                                               useScreenUtil: true,
                                               width: 55,
                                               height: 55,
@@ -442,8 +445,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                               Row(children: [
                                                 RichText(
                                                   text: _highlightText(
-                                                      item.mystar_member
-                                                          .getTitle(),
+                                                      item.artist?.name[
+                                                          Intl.getCurrentLocale()
+                                                              .split('_')
+                                                              .first],
                                                       _searchQuery,
                                                       getTextStyle(
                                                           AppTypo.BODY14B,
@@ -454,8 +459,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                                 ),
                                                 RichText(
                                                   text: _highlightText(
-                                                      item.mystar_member
-                                                          .getGroupTitle(),
+                                                      item.artist?.artist_group
+                                                              .name[
+                                                          Intl.getCurrentLocale()
+                                                              .split('_')
+                                                              .first],
                                                       _searchQuery,
                                                       getTextStyle(
                                                           AppTypo.CAPTION10SB,

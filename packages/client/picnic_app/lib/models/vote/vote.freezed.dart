@@ -651,7 +651,7 @@ mixin _$VoteItemModel {
   int get id => throw _privateConstructorUsedError;
   int get vote_total => throw _privateConstructorUsedError;
   int get vote_id => throw _privateConstructorUsedError;
-  MyStarMemberModel get mystar_member => throw _privateConstructorUsedError;
+  ArtistModel get artist => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -665,10 +665,9 @@ abstract class $VoteItemModelCopyWith<$Res> {
           VoteItemModel value, $Res Function(VoteItemModel) then) =
       _$VoteItemModelCopyWithImpl<$Res, VoteItemModel>;
   @useResult
-  $Res call(
-      {int id, int vote_total, int vote_id, MyStarMemberModel mystar_member});
+  $Res call({int id, int vote_total, int vote_id, ArtistModel artist});
 
-  $MyStarMemberModelCopyWith<$Res> get mystar_member;
+  $ArtistModelCopyWith<$Res> get artist;
 }
 
 /// @nodoc
@@ -687,7 +686,7 @@ class _$VoteItemModelCopyWithImpl<$Res, $Val extends VoteItemModel>
     Object? id = null,
     Object? vote_total = null,
     Object? vote_id = null,
-    Object? mystar_member = null,
+    Object? artist = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -702,18 +701,18 @@ class _$VoteItemModelCopyWithImpl<$Res, $Val extends VoteItemModel>
           ? _value.vote_id
           : vote_id // ignore: cast_nullable_to_non_nullable
               as int,
-      mystar_member: null == mystar_member
-          ? _value.mystar_member
-          : mystar_member // ignore: cast_nullable_to_non_nullable
-              as MyStarMemberModel,
+      artist: null == artist
+          ? _value.artist
+          : artist // ignore: cast_nullable_to_non_nullable
+              as ArtistModel,
     ) as $Val);
   }
 
   @override
   @pragma('vm:prefer-inline')
-  $MyStarMemberModelCopyWith<$Res> get mystar_member {
-    return $MyStarMemberModelCopyWith<$Res>(_value.mystar_member, (value) {
-      return _then(_value.copyWith(mystar_member: value) as $Val);
+  $ArtistModelCopyWith<$Res> get artist {
+    return $ArtistModelCopyWith<$Res>(_value.artist, (value) {
+      return _then(_value.copyWith(artist: value) as $Val);
     });
   }
 }
@@ -726,11 +725,10 @@ abstract class _$$VoteItemModelImplCopyWith<$Res>
       __$$VoteItemModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {int id, int vote_total, int vote_id, MyStarMemberModel mystar_member});
+  $Res call({int id, int vote_total, int vote_id, ArtistModel artist});
 
   @override
-  $MyStarMemberModelCopyWith<$Res> get mystar_member;
+  $ArtistModelCopyWith<$Res> get artist;
 }
 
 /// @nodoc
@@ -747,7 +745,7 @@ class __$$VoteItemModelImplCopyWithImpl<$Res>
     Object? id = null,
     Object? vote_total = null,
     Object? vote_id = null,
-    Object? mystar_member = null,
+    Object? artist = null,
   }) {
     return _then(_$VoteItemModelImpl(
       id: null == id
@@ -762,10 +760,10 @@ class __$$VoteItemModelImplCopyWithImpl<$Res>
           ? _value.vote_id
           : vote_id // ignore: cast_nullable_to_non_nullable
               as int,
-      mystar_member: null == mystar_member
-          ? _value.mystar_member
-          : mystar_member // ignore: cast_nullable_to_non_nullable
-              as MyStarMemberModel,
+      artist: null == artist
+          ? _value.artist
+          : artist // ignore: cast_nullable_to_non_nullable
+              as ArtistModel,
     ));
   }
 }
@@ -777,7 +775,7 @@ class _$VoteItemModelImpl extends _VoteItemModel {
       {required this.id,
       required this.vote_total,
       required this.vote_id,
-      required this.mystar_member})
+      required this.artist})
       : super._();
 
   factory _$VoteItemModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -790,11 +788,11 @@ class _$VoteItemModelImpl extends _VoteItemModel {
   @override
   final int vote_id;
   @override
-  final MyStarMemberModel mystar_member;
+  final ArtistModel artist;
 
   @override
   String toString() {
-    return 'VoteItemModel(id: $id, vote_total: $vote_total, vote_id: $vote_id, mystar_member: $mystar_member)';
+    return 'VoteItemModel(id: $id, vote_total: $vote_total, vote_id: $vote_id, artist: $artist)';
   }
 
   @override
@@ -806,14 +804,12 @@ class _$VoteItemModelImpl extends _VoteItemModel {
             (identical(other.vote_total, vote_total) ||
                 other.vote_total == vote_total) &&
             (identical(other.vote_id, vote_id) || other.vote_id == vote_id) &&
-            (identical(other.mystar_member, mystar_member) ||
-                other.mystar_member == mystar_member));
+            (identical(other.artist, artist) || other.artist == artist));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, vote_total, vote_id, mystar_member);
+  int get hashCode => Object.hash(runtimeType, id, vote_total, vote_id, artist);
 
   @JsonKey(ignore: true)
   @override
@@ -834,7 +830,7 @@ abstract class _VoteItemModel extends VoteItemModel {
       {required final int id,
       required final int vote_total,
       required final int vote_id,
-      required final MyStarMemberModel mystar_member}) = _$VoteItemModelImpl;
+      required final ArtistModel artist}) = _$VoteItemModelImpl;
   const _VoteItemModel._() : super._();
 
   factory _VoteItemModel.fromJson(Map<String, dynamic> json) =
@@ -847,53 +843,57 @@ abstract class _VoteItemModel extends VoteItemModel {
   @override
   int get vote_id;
   @override
-  MyStarMemberModel get mystar_member;
+  ArtistModel get artist;
   @override
   @JsonKey(ignore: true)
   _$$VoteItemModelImplCopyWith<_$VoteItemModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
-MyStarMemberModel _$MyStarMemberModelFromJson(Map<String, dynamic> json) {
-  return _MyStarMemberModel.fromJson(json);
+ArtistModel _$ArtistModelFromJson(Map<String, dynamic> json) {
+  return _ArtistModel.fromJson(json);
 }
 
 /// @nodoc
-mixin _$MyStarMemberModel {
+mixin _$ArtistModel {
   int get id => throw _privateConstructorUsedError;
-  String get name_ko => throw _privateConstructorUsedError;
-  String get name_en => throw _privateConstructorUsedError;
+  Map<String, dynamic> get name => throw _privateConstructorUsedError;
+  int get yy => throw _privateConstructorUsedError;
+  int get mm => throw _privateConstructorUsedError;
+  int get dd => throw _privateConstructorUsedError;
   String get gender => throw _privateConstructorUsedError;
-  String? get image => throw _privateConstructorUsedError;
-  MyStarGroupModel? get mystar_group => throw _privateConstructorUsedError;
+  String get image => throw _privateConstructorUsedError;
+  ArtistGroupModel get artist_group => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $MyStarMemberModelCopyWith<MyStarMemberModel> get copyWith =>
+  $ArtistModelCopyWith<ArtistModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $MyStarMemberModelCopyWith<$Res> {
-  factory $MyStarMemberModelCopyWith(
-          MyStarMemberModel value, $Res Function(MyStarMemberModel) then) =
-      _$MyStarMemberModelCopyWithImpl<$Res, MyStarMemberModel>;
+abstract class $ArtistModelCopyWith<$Res> {
+  factory $ArtistModelCopyWith(
+          ArtistModel value, $Res Function(ArtistModel) then) =
+      _$ArtistModelCopyWithImpl<$Res, ArtistModel>;
   @useResult
   $Res call(
       {int id,
-      String name_ko,
-      String name_en,
+      Map<String, dynamic> name,
+      int yy,
+      int mm,
+      int dd,
       String gender,
-      String? image,
-      MyStarGroupModel? mystar_group});
+      String image,
+      ArtistGroupModel artist_group});
 
-  $MyStarGroupModelCopyWith<$Res>? get mystar_group;
+  $ArtistGroupModelCopyWith<$Res> get artist_group;
 }
 
 /// @nodoc
-class _$MyStarMemberModelCopyWithImpl<$Res, $Val extends MyStarMemberModel>
-    implements $MyStarMemberModelCopyWith<$Res> {
-  _$MyStarMemberModelCopyWithImpl(this._value, this._then);
+class _$ArtistModelCopyWithImpl<$Res, $Val extends ArtistModel>
+    implements $ArtistModelCopyWith<$Res> {
+  _$ArtistModelCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
@@ -904,248 +904,292 @@ class _$MyStarMemberModelCopyWithImpl<$Res, $Val extends MyStarMemberModel>
   @override
   $Res call({
     Object? id = null,
-    Object? name_ko = null,
-    Object? name_en = null,
+    Object? name = null,
+    Object? yy = null,
+    Object? mm = null,
+    Object? dd = null,
     Object? gender = null,
-    Object? image = freezed,
-    Object? mystar_group = freezed,
+    Object? image = null,
+    Object? artist_group = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      name_ko: null == name_ko
-          ? _value.name_ko
-          : name_ko // ignore: cast_nullable_to_non_nullable
-              as String,
-      name_en: null == name_en
-          ? _value.name_en
-          : name_en // ignore: cast_nullable_to_non_nullable
-              as String,
+      name: null == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>,
+      yy: null == yy
+          ? _value.yy
+          : yy // ignore: cast_nullable_to_non_nullable
+              as int,
+      mm: null == mm
+          ? _value.mm
+          : mm // ignore: cast_nullable_to_non_nullable
+              as int,
+      dd: null == dd
+          ? _value.dd
+          : dd // ignore: cast_nullable_to_non_nullable
+              as int,
       gender: null == gender
           ? _value.gender
           : gender // ignore: cast_nullable_to_non_nullable
               as String,
-      image: freezed == image
+      image: null == image
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
-              as String?,
-      mystar_group: freezed == mystar_group
-          ? _value.mystar_group
-          : mystar_group // ignore: cast_nullable_to_non_nullable
-              as MyStarGroupModel?,
+              as String,
+      artist_group: null == artist_group
+          ? _value.artist_group
+          : artist_group // ignore: cast_nullable_to_non_nullable
+              as ArtistGroupModel,
     ) as $Val);
   }
 
   @override
   @pragma('vm:prefer-inline')
-  $MyStarGroupModelCopyWith<$Res>? get mystar_group {
-    if (_value.mystar_group == null) {
-      return null;
-    }
-
-    return $MyStarGroupModelCopyWith<$Res>(_value.mystar_group!, (value) {
-      return _then(_value.copyWith(mystar_group: value) as $Val);
+  $ArtistGroupModelCopyWith<$Res> get artist_group {
+    return $ArtistGroupModelCopyWith<$Res>(_value.artist_group, (value) {
+      return _then(_value.copyWith(artist_group: value) as $Val);
     });
   }
 }
 
 /// @nodoc
-abstract class _$$MyStarMemberModelImplCopyWith<$Res>
-    implements $MyStarMemberModelCopyWith<$Res> {
-  factory _$$MyStarMemberModelImplCopyWith(_$MyStarMemberModelImpl value,
-          $Res Function(_$MyStarMemberModelImpl) then) =
-      __$$MyStarMemberModelImplCopyWithImpl<$Res>;
+abstract class _$$ArtistModelImplCopyWith<$Res>
+    implements $ArtistModelCopyWith<$Res> {
+  factory _$$ArtistModelImplCopyWith(
+          _$ArtistModelImpl value, $Res Function(_$ArtistModelImpl) then) =
+      __$$ArtistModelImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
       {int id,
-      String name_ko,
-      String name_en,
+      Map<String, dynamic> name,
+      int yy,
+      int mm,
+      int dd,
       String gender,
-      String? image,
-      MyStarGroupModel? mystar_group});
+      String image,
+      ArtistGroupModel artist_group});
 
   @override
-  $MyStarGroupModelCopyWith<$Res>? get mystar_group;
+  $ArtistGroupModelCopyWith<$Res> get artist_group;
 }
 
 /// @nodoc
-class __$$MyStarMemberModelImplCopyWithImpl<$Res>
-    extends _$MyStarMemberModelCopyWithImpl<$Res, _$MyStarMemberModelImpl>
-    implements _$$MyStarMemberModelImplCopyWith<$Res> {
-  __$$MyStarMemberModelImplCopyWithImpl(_$MyStarMemberModelImpl _value,
-      $Res Function(_$MyStarMemberModelImpl) _then)
+class __$$ArtistModelImplCopyWithImpl<$Res>
+    extends _$ArtistModelCopyWithImpl<$Res, _$ArtistModelImpl>
+    implements _$$ArtistModelImplCopyWith<$Res> {
+  __$$ArtistModelImplCopyWithImpl(
+      _$ArtistModelImpl _value, $Res Function(_$ArtistModelImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
   @override
   $Res call({
     Object? id = null,
-    Object? name_ko = null,
-    Object? name_en = null,
+    Object? name = null,
+    Object? yy = null,
+    Object? mm = null,
+    Object? dd = null,
     Object? gender = null,
-    Object? image = freezed,
-    Object? mystar_group = freezed,
+    Object? image = null,
+    Object? artist_group = null,
   }) {
-    return _then(_$MyStarMemberModelImpl(
+    return _then(_$ArtistModelImpl(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      name_ko: null == name_ko
-          ? _value.name_ko
-          : name_ko // ignore: cast_nullable_to_non_nullable
-              as String,
-      name_en: null == name_en
-          ? _value.name_en
-          : name_en // ignore: cast_nullable_to_non_nullable
-              as String,
+      name: null == name
+          ? _value._name
+          : name // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>,
+      yy: null == yy
+          ? _value.yy
+          : yy // ignore: cast_nullable_to_non_nullable
+              as int,
+      mm: null == mm
+          ? _value.mm
+          : mm // ignore: cast_nullable_to_non_nullable
+              as int,
+      dd: null == dd
+          ? _value.dd
+          : dd // ignore: cast_nullable_to_non_nullable
+              as int,
       gender: null == gender
           ? _value.gender
           : gender // ignore: cast_nullable_to_non_nullable
               as String,
-      image: freezed == image
+      image: null == image
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
-              as String?,
-      mystar_group: freezed == mystar_group
-          ? _value.mystar_group
-          : mystar_group // ignore: cast_nullable_to_non_nullable
-              as MyStarGroupModel?,
+              as String,
+      artist_group: null == artist_group
+          ? _value.artist_group
+          : artist_group // ignore: cast_nullable_to_non_nullable
+              as ArtistGroupModel,
     ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$MyStarMemberModelImpl extends _MyStarMemberModel {
-  const _$MyStarMemberModelImpl(
+class _$ArtistModelImpl extends _ArtistModel {
+  const _$ArtistModelImpl(
       {required this.id,
-      required this.name_ko,
-      required this.name_en,
+      required final Map<String, dynamic> name,
+      required this.yy,
+      required this.mm,
+      required this.dd,
       required this.gender,
       required this.image,
-      this.mystar_group})
-      : super._();
+      required this.artist_group})
+      : _name = name,
+        super._();
 
-  factory _$MyStarMemberModelImpl.fromJson(Map<String, dynamic> json) =>
-      _$$MyStarMemberModelImplFromJson(json);
+  factory _$ArtistModelImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ArtistModelImplFromJson(json);
 
   @override
   final int id;
+  final Map<String, dynamic> _name;
   @override
-  final String name_ko;
+  Map<String, dynamic> get name {
+    if (_name is EqualUnmodifiableMapView) return _name;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_name);
+  }
+
   @override
-  final String name_en;
+  final int yy;
+  @override
+  final int mm;
+  @override
+  final int dd;
   @override
   final String gender;
   @override
-  final String? image;
+  final String image;
   @override
-  final MyStarGroupModel? mystar_group;
+  final ArtistGroupModel artist_group;
 
   @override
   String toString() {
-    return 'MyStarMemberModel(id: $id, name_ko: $name_ko, name_en: $name_en, gender: $gender, image: $image, mystar_group: $mystar_group)';
+    return 'ArtistModel(id: $id, name: $name, yy: $yy, mm: $mm, dd: $dd, gender: $gender, image: $image, artist_group: $artist_group)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$MyStarMemberModelImpl &&
+            other is _$ArtistModelImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.name_ko, name_ko) || other.name_ko == name_ko) &&
-            (identical(other.name_en, name_en) || other.name_en == name_en) &&
+            const DeepCollectionEquality().equals(other._name, _name) &&
+            (identical(other.yy, yy) || other.yy == yy) &&
+            (identical(other.mm, mm) || other.mm == mm) &&
+            (identical(other.dd, dd) || other.dd == dd) &&
             (identical(other.gender, gender) || other.gender == gender) &&
             (identical(other.image, image) || other.image == image) &&
-            (identical(other.mystar_group, mystar_group) ||
-                other.mystar_group == mystar_group));
+            (identical(other.artist_group, artist_group) ||
+                other.artist_group == artist_group));
   }
 
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
-      runtimeType, id, name_ko, name_en, gender, image, mystar_group);
+      runtimeType,
+      id,
+      const DeepCollectionEquality().hash(_name),
+      yy,
+      mm,
+      dd,
+      gender,
+      image,
+      artist_group);
 
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$MyStarMemberModelImplCopyWith<_$MyStarMemberModelImpl> get copyWith =>
-      __$$MyStarMemberModelImplCopyWithImpl<_$MyStarMemberModelImpl>(
-          this, _$identity);
+  _$$ArtistModelImplCopyWith<_$ArtistModelImpl> get copyWith =>
+      __$$ArtistModelImplCopyWithImpl<_$ArtistModelImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$MyStarMemberModelImplToJson(
+    return _$$ArtistModelImplToJson(
       this,
     );
   }
 }
 
-abstract class _MyStarMemberModel extends MyStarMemberModel {
-  const factory _MyStarMemberModel(
+abstract class _ArtistModel extends ArtistModel {
+  const factory _ArtistModel(
       {required final int id,
-      required final String name_ko,
-      required final String name_en,
+      required final Map<String, dynamic> name,
+      required final int yy,
+      required final int mm,
+      required final int dd,
       required final String gender,
-      required final String? image,
-      final MyStarGroupModel? mystar_group}) = _$MyStarMemberModelImpl;
-  const _MyStarMemberModel._() : super._();
+      required final String image,
+      required final ArtistGroupModel artist_group}) = _$ArtistModelImpl;
+  const _ArtistModel._() : super._();
 
-  factory _MyStarMemberModel.fromJson(Map<String, dynamic> json) =
-      _$MyStarMemberModelImpl.fromJson;
+  factory _ArtistModel.fromJson(Map<String, dynamic> json) =
+      _$ArtistModelImpl.fromJson;
 
   @override
   int get id;
   @override
-  String get name_ko;
+  Map<String, dynamic> get name;
   @override
-  String get name_en;
+  int get yy;
+  @override
+  int get mm;
+  @override
+  int get dd;
   @override
   String get gender;
   @override
-  String? get image;
+  String get image;
   @override
-  MyStarGroupModel? get mystar_group;
+  ArtistGroupModel get artist_group;
   @override
   @JsonKey(ignore: true)
-  _$$MyStarMemberModelImplCopyWith<_$MyStarMemberModelImpl> get copyWith =>
+  _$$ArtistModelImplCopyWith<_$ArtistModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
-MyStarGroupModel _$MyStarGroupModelFromJson(Map<String, dynamic> json) {
-  return _MyStarGroupModel.fromJson(json);
+ArtistGroupModel _$ArtistGroupModelFromJson(Map<String, dynamic> json) {
+  return _ArtistGroupModel.fromJson(json);
 }
 
 /// @nodoc
-mixin _$MyStarGroupModel {
+mixin _$ArtistGroupModel {
   int get id => throw _privateConstructorUsedError;
-  String get name_ko => throw _privateConstructorUsedError;
-  String get name_en => throw _privateConstructorUsedError;
-  String? get image => throw _privateConstructorUsedError;
+  Map<String, dynamic> get name => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $MyStarGroupModelCopyWith<MyStarGroupModel> get copyWith =>
+  $ArtistGroupModelCopyWith<ArtistGroupModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $MyStarGroupModelCopyWith<$Res> {
-  factory $MyStarGroupModelCopyWith(
-          MyStarGroupModel value, $Res Function(MyStarGroupModel) then) =
-      _$MyStarGroupModelCopyWithImpl<$Res, MyStarGroupModel>;
+abstract class $ArtistGroupModelCopyWith<$Res> {
+  factory $ArtistGroupModelCopyWith(
+          ArtistGroupModel value, $Res Function(ArtistGroupModel) then) =
+      _$ArtistGroupModelCopyWithImpl<$Res, ArtistGroupModel>;
   @useResult
-  $Res call({int id, String name_ko, String name_en, String? image});
+  $Res call({int id, Map<String, dynamic> name});
 }
 
 /// @nodoc
-class _$MyStarGroupModelCopyWithImpl<$Res, $Val extends MyStarGroupModel>
-    implements $MyStarGroupModelCopyWith<$Res> {
-  _$MyStarGroupModelCopyWithImpl(this._value, this._then);
+class _$ArtistGroupModelCopyWithImpl<$Res, $Val extends ArtistGroupModel>
+    implements $ArtistGroupModelCopyWith<$Res> {
+  _$ArtistGroupModelCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
@@ -1156,157 +1200,129 @@ class _$MyStarGroupModelCopyWithImpl<$Res, $Val extends MyStarGroupModel>
   @override
   $Res call({
     Object? id = null,
-    Object? name_ko = null,
-    Object? name_en = null,
-    Object? image = freezed,
+    Object? name = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      name_ko: null == name_ko
-          ? _value.name_ko
-          : name_ko // ignore: cast_nullable_to_non_nullable
-              as String,
-      name_en: null == name_en
-          ? _value.name_en
-          : name_en // ignore: cast_nullable_to_non_nullable
-              as String,
-      image: freezed == image
-          ? _value.image
-          : image // ignore: cast_nullable_to_non_nullable
-              as String?,
+      name: null == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>,
     ) as $Val);
   }
 }
 
 /// @nodoc
-abstract class _$$MyStarGroupModelImplCopyWith<$Res>
-    implements $MyStarGroupModelCopyWith<$Res> {
-  factory _$$MyStarGroupModelImplCopyWith(_$MyStarGroupModelImpl value,
-          $Res Function(_$MyStarGroupModelImpl) then) =
-      __$$MyStarGroupModelImplCopyWithImpl<$Res>;
+abstract class _$$ArtistGroupModelImplCopyWith<$Res>
+    implements $ArtistGroupModelCopyWith<$Res> {
+  factory _$$ArtistGroupModelImplCopyWith(_$ArtistGroupModelImpl value,
+          $Res Function(_$ArtistGroupModelImpl) then) =
+      __$$ArtistGroupModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int id, String name_ko, String name_en, String? image});
+  $Res call({int id, Map<String, dynamic> name});
 }
 
 /// @nodoc
-class __$$MyStarGroupModelImplCopyWithImpl<$Res>
-    extends _$MyStarGroupModelCopyWithImpl<$Res, _$MyStarGroupModelImpl>
-    implements _$$MyStarGroupModelImplCopyWith<$Res> {
-  __$$MyStarGroupModelImplCopyWithImpl(_$MyStarGroupModelImpl _value,
-      $Res Function(_$MyStarGroupModelImpl) _then)
+class __$$ArtistGroupModelImplCopyWithImpl<$Res>
+    extends _$ArtistGroupModelCopyWithImpl<$Res, _$ArtistGroupModelImpl>
+    implements _$$ArtistGroupModelImplCopyWith<$Res> {
+  __$$ArtistGroupModelImplCopyWithImpl(_$ArtistGroupModelImpl _value,
+      $Res Function(_$ArtistGroupModelImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
   @override
   $Res call({
     Object? id = null,
-    Object? name_ko = null,
-    Object? name_en = null,
-    Object? image = freezed,
+    Object? name = null,
   }) {
-    return _then(_$MyStarGroupModelImpl(
+    return _then(_$ArtistGroupModelImpl(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      name_ko: null == name_ko
-          ? _value.name_ko
-          : name_ko // ignore: cast_nullable_to_non_nullable
-              as String,
-      name_en: null == name_en
-          ? _value.name_en
-          : name_en // ignore: cast_nullable_to_non_nullable
-              as String,
-      image: freezed == image
-          ? _value.image
-          : image // ignore: cast_nullable_to_non_nullable
-              as String?,
+      name: null == name
+          ? _value._name
+          : name // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>,
     ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$MyStarGroupModelImpl extends _MyStarGroupModel {
-  const _$MyStarGroupModelImpl(
-      {required this.id,
-      required this.name_ko,
-      required this.name_en,
-      this.image})
-      : super._();
+class _$ArtistGroupModelImpl extends _ArtistGroupModel {
+  const _$ArtistGroupModelImpl(
+      {required this.id, required final Map<String, dynamic> name})
+      : _name = name,
+        super._();
 
-  factory _$MyStarGroupModelImpl.fromJson(Map<String, dynamic> json) =>
-      _$$MyStarGroupModelImplFromJson(json);
+  factory _$ArtistGroupModelImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ArtistGroupModelImplFromJson(json);
 
   @override
   final int id;
+  final Map<String, dynamic> _name;
   @override
-  final String name_ko;
-  @override
-  final String name_en;
-  @override
-  final String? image;
+  Map<String, dynamic> get name {
+    if (_name is EqualUnmodifiableMapView) return _name;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_name);
+  }
 
   @override
   String toString() {
-    return 'MyStarGroupModel(id: $id, name_ko: $name_ko, name_en: $name_en, image: $image)';
+    return 'ArtistGroupModel(id: $id, name: $name)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$MyStarGroupModelImpl &&
+            other is _$ArtistGroupModelImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.name_ko, name_ko) || other.name_ko == name_ko) &&
-            (identical(other.name_en, name_en) || other.name_en == name_en) &&
-            (identical(other.image, image) || other.image == image));
+            const DeepCollectionEquality().equals(other._name, _name));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name_ko, name_en, image);
+  int get hashCode =>
+      Object.hash(runtimeType, id, const DeepCollectionEquality().hash(_name));
 
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$MyStarGroupModelImplCopyWith<_$MyStarGroupModelImpl> get copyWith =>
-      __$$MyStarGroupModelImplCopyWithImpl<_$MyStarGroupModelImpl>(
+  _$$ArtistGroupModelImplCopyWith<_$ArtistGroupModelImpl> get copyWith =>
+      __$$ArtistGroupModelImplCopyWithImpl<_$ArtistGroupModelImpl>(
           this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$MyStarGroupModelImplToJson(
+    return _$$ArtistGroupModelImplToJson(
       this,
     );
   }
 }
 
-abstract class _MyStarGroupModel extends MyStarGroupModel {
-  const factory _MyStarGroupModel(
+abstract class _ArtistGroupModel extends ArtistGroupModel {
+  const factory _ArtistGroupModel(
       {required final int id,
-      required final String name_ko,
-      required final String name_en,
-      final String? image}) = _$MyStarGroupModelImpl;
-  const _MyStarGroupModel._() : super._();
+      required final Map<String, dynamic> name}) = _$ArtistGroupModelImpl;
+  const _ArtistGroupModel._() : super._();
 
-  factory _MyStarGroupModel.fromJson(Map<String, dynamic> json) =
-      _$MyStarGroupModelImpl.fromJson;
+  factory _ArtistGroupModel.fromJson(Map<String, dynamic> json) =
+      _$ArtistGroupModelImpl.fromJson;
 
   @override
   int get id;
   @override
-  String get name_ko;
-  @override
-  String get name_en;
-  @override
-  String? get image;
+  Map<String, dynamic> get name;
   @override
   @JsonKey(ignore: true)
-  _$$MyStarGroupModelImplCopyWith<_$MyStarGroupModelImpl> get copyWith =>
+  _$$ArtistGroupModelImplCopyWith<_$ArtistGroupModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

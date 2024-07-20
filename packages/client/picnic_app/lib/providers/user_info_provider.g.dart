@@ -20,7 +20,7 @@ final setAgreementProvider = AutoDisposeFutureProvider<bool>.internal(
 );
 
 typedef SetAgreementRef = AutoDisposeFutureProviderRef<bool>;
-String _$agreementHash() => r'a94ff0db8a9196f275e29a92bc6489822ed94ef2';
+String _$agreementHash() => r'fbae75d56e2875a22303b960a5317c95e4c9c23a';
 
 /// See also [agreement].
 @ProviderFor(agreement)

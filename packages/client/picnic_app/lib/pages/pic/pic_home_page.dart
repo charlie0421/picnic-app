@@ -18,6 +18,7 @@ import 'package:picnic_app/pages/pic/landing_page.dart';
 import 'package:picnic_app/providers/banner_list_provider.dart';
 import 'package:picnic_app/providers/gallery_list_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
@@ -252,8 +253,11 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                           return ErrorView(context,
                               error: 'No Items Found', stackTrace: null);
                         },
-                        itemBuilder: (context, item, index) =>
-                            PicVoteInfoCard(context: context, vote: item)),
+                        itemBuilder: (context, item, index) => PicVoteInfoCard(
+                              context: context,
+                              vote: item,
+                              status: VoteStatus.active,
+                            )),
                   ),
                 ],
               )),

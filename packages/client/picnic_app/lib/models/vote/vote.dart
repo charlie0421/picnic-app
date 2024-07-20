@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/models/reward.dart';
 import 'package:picnic_app/reflector.dart';
@@ -52,12 +51,11 @@ class VoteModel with _$VoteModel {
 class VoteItemModel with _$VoteItemModel {
   const VoteItemModel._();
 
-  const factory VoteItemModel({
-    required int id,
-    required int vote_total,
-    required int vote_id,
-    required MyStarMemberModel mystar_member,
-  }) = _VoteItemModel;
+  const factory VoteItemModel(
+      {required int id,
+      required int vote_total,
+      required int vote_id,
+      required ArtistModel artist}) = _VoteItemModel;
 
   factory VoteItemModel.fromJson(Map<String, dynamic> json) =>
       _$VoteItemModelFromJson(json);
@@ -65,58 +63,33 @@ class VoteItemModel with _$VoteItemModel {
 
 @reflector
 @freezed
-class MyStarMemberModel with _$MyStarMemberModel {
-  const MyStarMemberModel._();
+class ArtistModel with _$ArtistModel {
+  const ArtistModel._();
 
-  const factory MyStarMemberModel({
+  const factory ArtistModel({
     required int id,
-    required String name_ko,
-    required String name_en,
+    required Map<String, dynamic> name,
+    required int yy,
+    required int mm,
+    required int dd,
     required String gender,
-    required String? image,
-    MyStarGroupModel? mystar_group,
-  }) = _MyStarMemberModel;
+    required String image,
+    required ArtistGroupModel artist_group,
+  }) = _ArtistModel;
 
-  getTitle() {
-    String title = '';
-    if (Intl.getCurrentLocale() == 'ko') {
-      title = name_ko;
-    } else {
-      title = name_en;
-    }
-    return title;
-  }
-
-  getGroupTitle() {
-    return mystar_group?.getTitle() ?? '';
-  }
-
-  factory MyStarMemberModel.fromJson(Map<String, dynamic> json) =>
-      _$MyStarMemberModelFromJson(json);
+  factory ArtistModel.fromJson(Map<String, dynamic> json) =>
+      _$ArtistModelFromJson(json);
 }
 
 @reflector
 @freezed
-class MyStarGroupModel with _$MyStarGroupModel {
-  const MyStarGroupModel._();
+class ArtistGroupModel with _$ArtistGroupModel {
+  const ArtistGroupModel._();
 
-  const factory MyStarGroupModel({
-    required int id,
-    required String name_ko,
-    required String name_en,
-    String? image,
-  }) = _MyStarGroupModel;
+  const factory ArtistGroupModel(
+      {required int id,
+      required Map<String, dynamic> name}) = _ArtistGroupModel;
 
-  String getTitle() {
-    String title = '';
-    if (Intl.getCurrentLocale() == 'ko') {
-      title = name_ko;
-    } else {
-      title = name_en;
-    }
-    return title;
-  }
-
-  factory MyStarGroupModel.fromJson(Map<String, dynamic> json) =>
-      _$MyStarGroupModelFromJson(json);
+  factory ArtistGroupModel.fromJson(Map<String, dynamic> json) =>
+      _$ArtistGroupModelFromJson(json);
 }

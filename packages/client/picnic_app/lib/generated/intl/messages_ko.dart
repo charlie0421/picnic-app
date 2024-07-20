@@ -201,6 +201,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("주간차트"),
         "label_tabbar_vote_active": MessageLookupByLibrary.simpleMessage("진행중"),
         "label_tabbar_vote_end": MessageLookupByLibrary.simpleMessage("종료"),
+        "label_tabbar_vote_upcoming":
+            MessageLookupByLibrary.simpleMessage("예정"),
         "label_time_ago_day": m0,
         "label_time_ago_hour": m1,
         "label_time_ago_minute": m2,
@@ -214,6 +216,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("생일 투표"),
         "label_vote_tab_pic": MessageLookupByLibrary.simpleMessage("PIC 투표"),
+        "label_vote_upcoming": MessageLookupByLibrary.simpleMessage("투표 시작까지"),
         "label_vote_vote_gather":
             MessageLookupByLibrary.simpleMessage("투표 모아보기"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("광고보기"),
@@ -222,6 +225,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("약관 동의가 완료되었습니다."),
         "message_error_occurred":
             MessageLookupByLibrary.simpleMessage("오류가 발생했습니다."),
+        "message_noitem_vote_active":
+            MessageLookupByLibrary.simpleMessage("현재 진행중인 투표가 없습니다."),
+        "message_noitem_vote_end":
+            MessageLookupByLibrary.simpleMessage("현재 종료된 투표가 없습니다."),
+        "message_noitem_vote_upcoming":
+            MessageLookupByLibrary.simpleMessage("현재 예정중인 투표가 없습니다."),
         "message_pic_pic_save_fail":
             MessageLookupByLibrary.simpleMessage("이미지 저장에 실패했습니다."),
         "message_pic_pic_save_success":
