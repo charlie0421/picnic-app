@@ -23,6 +23,7 @@ import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class VoteHomePage extends ConsumerStatefulWidget {
   const VoteHomePage({super.key});
@@ -32,21 +33,30 @@ class VoteHomePage extends ConsumerStatefulWidget {
 }
 
 class _VoteHomePageState extends ConsumerState<VoteHomePage> {
-  final PagingController<int, VoteModel> _pagingController =
+  final PagingController<int, VoteModel> _upcomingPagingController =
+      PagingController(firstPageKey: 1);
+  final PagingController<int, VoteModel> _activePagingController =
       PagingController(firstPageKey: 1);
 
   @override
   void initState() {
     super.initState();
-    _pagingController.addPageRequestListener((pageKey) {
+    _initPagingController(_upcomingPagingController, 'upcoming');
+    _initPagingController(_activePagingController, 'active');
+  }
+
+  void _initPagingController(
+      PagingController<int, VoteModel> controller, String type) {
+    controller.addPageRequestListener((pageKey) {
       _fetch(pageKey, 10, 'id', "DESC").then((newItems) {
+        final typeItems = newItems[type]!;
         final isLastPage =
-            newItems.meta.currentPage == newItems.meta.totalPages;
+            typeItems.meta.currentPage == typeItems.meta.totalPages;
         if (isLastPage) {
-          _pagingController.appendLastPage(newItems.items);
+          controller.appendLastPage(typeItems.items);
         } else {
-          final nextPageKey = newItems.meta.currentPage + 1;
-          _pagingController.appendPage(newItems.items, nextPageKey);
+          final nextPageKey = typeItems.meta.currentPage + 1;
+          controller.appendPage(typeItems.items, nextPageKey);
         }
       });
     });
@@ -84,18 +94,33 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
           ),
         ),
       ),
-      SizedBox(height: 24.h),
-      PagedListView<int, VoteModel>(
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        pagingController: _pagingController,
-        scrollDirection: Axis.vertical,
-        builderDelegate: PagedChildBuilderDelegate<VoteModel>(
+      _buildVoteSection(context, "Upcoming Votes", _upcomingPagingController),
+      _buildVoteSection(context, "Active Votes", _activePagingController),
+    ]);
+  }
+
+  Widget _buildVoteSection(BuildContext context, String title,
+      PagingController<int, VoteModel> controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        PagedListView<int, VoteModel>.separated(
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          pagingController: controller,
+          builderDelegate: PagedChildBuilderDelegate<VoteModel>(
+            itemBuilder: (context, item, index) => VoteInfoCard(
+              context: context,
+              vote: item,
+              status: title == "Upcoming Votes"
+                  ? VoteStatus.upcoming
+                  : VoteStatus.active,
+            ),
             firstPageErrorIndicatorBuilder: (context) {
               return ErrorView(context,
-                  error: _pagingController.error.toString(),
-                  retryFunction: () => _pagingController.refresh(),
-                  stackTrace: _pagingController.error.stackTrace);
+                  error: controller.error.toString(),
+                  retryFunction: () => controller.refresh(),
+                  stackTrace: controller.error.stackTrace);
             },
             firstPageProgressIndicatorBuilder: (context) {
               return buildLoadingOverlay();
@@ -104,36 +129,64 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
               return ErrorView(context,
                   error: 'No Items Found', stackTrace: null);
             },
-            itemBuilder: (context, item, index) => VoteInfoCard(
-                  context: context,
-                  vote: item,
-                  status: VoteStatus.active,
-                )),
-      ),
-    ]);
+          ),
+          separatorBuilder: (BuildContext context, int index) => Divider(
+            height: 1.h,
+            color: AppColors.Grey300,
+          ),
+        ),
+        Divider(
+          color: AppColors.Grey300,
+          thickness: 1.h,
+          height: 1.h,
+        ),
+      ],
+    );
   }
 
-  _fetch(int page, int limit, String sort, String order) async {
-    final response = await supabase
+  Future<Map<String, VoteListModel>> _fetch(
+      int page, int limit, String sort, String order) async {
+    final now = DateTime.now().toIso8601String();
+
+    final upcomingResponse = await supabase
         .from('vote')
         .select('*, vote_item(*, artist(*, artist_group(*)))')
-        .lt('start_at', 'now()')
-        .gt('stop_at', 'now()')
-        .order('id', ascending: false)
-        .order('vote_total', ascending: false, referencedTable: 'vote_item')
+        .gt('start_at', now)
+        .order('start_at', ascending: true)
         .range((page - 1) * limit, page * limit - 1)
         .limit(limit)
         .count();
 
-    final meta = {
+    final activeResponse = await supabase
+        .from('vote')
+        .select('*, vote_item(*, artist(*, artist_group(*)))')
+        .lte('start_at', now)
+        .gt('stop_at', now)
+        .order('stop_at', ascending: true)
+        .range((page - 1) * limit, page * limit - 1)
+        .limit(limit)
+        .count();
+
+    final upcomingMeta = _createMeta(upcomingResponse, page, limit);
+    final activeMeta = _createMeta(activeResponse, page, limit);
+
+    return {
+      'upcoming': VoteListModel.fromJson(
+          {'items': upcomingResponse.data, 'meta': upcomingMeta}),
+      'active': VoteListModel.fromJson(
+          {'items': activeResponse.data, 'meta': activeMeta}),
+    };
+  }
+
+  Map<String, dynamic> _createMeta(
+      PostgrestResponse response, int page, int limit) {
+    return {
       'totalItems': response.count,
       'currentPage': page,
       'itemCount': response.data.length,
       'itemsPerPage': limit,
       'totalPages': response.count ~/ limit + 1,
     };
-
-    return VoteListModel.fromJson({'items': response.data, 'meta': meta});
   }
 
   Widget _buildRewardList(BuildContext context) {
