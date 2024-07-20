@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import 'package:picnic_app/components/vote/list/vote_header.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_horizontal.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_vertical.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/pic/artist_vote.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/pages/vote/vote_detail_page.dart';
@@ -85,7 +84,6 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
 
   @override
   Widget build(BuildContext context) {
-    logger.i(widget.status);
     final List<VoteItemModel>? items = widget.vote.vote_item;
     final no1 = items?[0];
     final no2 = items?[1];

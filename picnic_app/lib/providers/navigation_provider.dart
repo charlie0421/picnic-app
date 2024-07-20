@@ -197,10 +197,9 @@ class NavigationInfo extends _$NavigationInfo {
 
     state = state.copyWith(topNavigationStack: topNavigationStack);
 
-    // topNavigationStack != null && topNavigationStack.length == 1
-    //     ? showPortal()
-    //     : hidePortal();
-    showPortal();
+    topNavigationStack != null && topNavigationStack.length == 1
+        ? showPortal()
+        : hidePortal();
   }
 
   goBackMy() {
