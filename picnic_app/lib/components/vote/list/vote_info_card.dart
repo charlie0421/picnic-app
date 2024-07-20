@@ -102,7 +102,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16).r,
-        margin: const EdgeInsets.only(bottom: 32).r,
+        margin: const EdgeInsets.only(top: 24, bottom: 32).r,
         child: Column(
           children: [
             VoteHeader(

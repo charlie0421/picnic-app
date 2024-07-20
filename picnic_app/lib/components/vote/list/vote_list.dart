@@ -93,9 +93,6 @@ class _VoteListState extends State<VoteList> {
                     height: 1.h,
                     color: AppColors.Grey300,
                   ),
-                  SizedBox(
-                    height: 32.h,
-                  )
                 ],
               )),
     );
