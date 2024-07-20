@@ -6,7 +6,7 @@ part of 'navigation_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$navigationInfoHash() => r'8c568a131259b83597df8b4f3e05b6a883096c2c';
+String _$navigationInfoHash() => r'4f3557fe94078cc300f48363d6807ec6809a8883';
 
 /// See also [NavigationInfo].
 @ProviderFor(NavigationInfo)

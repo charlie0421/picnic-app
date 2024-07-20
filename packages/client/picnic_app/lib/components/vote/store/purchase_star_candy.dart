@@ -17,11 +17,13 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/providers/product_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_theme.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -42,7 +44,7 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
     super.initState();
     final purchaseUpdated = _inAppPurchase.purchaseStream;
     purchaseUpdated.listen(_listenToPurchaseUpdated);
-    _fetchProductsFromSupabase();
+    // _fetchProductsFromSupabase();
 
     // 미완료 트랜잭션 확인
     _inAppPurchase.purchaseStream.listen((purchaseDetailsList) {
@@ -52,17 +54,6 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
         }
       }
     });
-  }
-
-  void _buyProduct(ProductDetails productDetails) {
-    if (_storeProducts.isEmpty) {
-      logger.i('Products not loaded');
-      return;
-    }
-    logger.i('Trying to buy product: ${productDetails.id}');
-    final PurchaseParam purchaseParam =
-        PurchaseParam(productDetails: productDetails);
-    _inAppPurchase.buyConsumable(purchaseParam: purchaseParam);
   }
 
   void _listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) {
@@ -120,47 +111,6 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
     });
   }
 
-  Future<void> _loadProducts() async {
-    try {
-      final bool available = await _inAppPurchase.isAvailable();
-      if (!available) {
-        // Store가 사용 가능하지 않음
-        logger.i('Store is not available');
-        return;
-      }
-
-      final productIds = isIOS()
-          ? _serverProducts.map((product) => product['id'].toString()).toSet()
-          : _serverProducts
-              .map((product) => product['id'].toString().toLowerCase())
-              .toSet();
-
-      final response = await _inAppPurchase.queryProductDetails(productIds);
-
-      logger.i(productIds);
-
-      if (response.error != null) {
-        // 에러 처리
-        logger.i('Error fetching products: ${response.error}');
-        return;
-      }
-
-      if (response.productDetails.isEmpty) {
-        // 제품이 없음
-        logger.i('No products found');
-        return;
-      }
-
-      setState(() {
-        _storeProducts = response.productDetails;
-      });
-
-      logger.i('Products loaded: $_storeProducts');
-    } catch (e, s) {
-      logger.i(e, stackTrace: s);
-    }
-  }
-
   Future<String> getEnvironment() async {
     if (kDebugMode) {
       return 'sandbox';
@@ -213,38 +163,7 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
     }
   }
 
-  Future<void> _fetchProductsFromSupabase() async {
-    try {
-      final response = await supabase
-          .from('products')
-          .select()
-          .lt('start_at', 'now()')
-          .gt('end_at', 'now()')
-          .order('price', ascending: true);
-      logger.i('response: $response');
-
-      final List<Map<String, dynamic>> products =
-          List<Map<String, dynamic>>.from(response);
-
-      logger.i(products);
-
-      if (products.isEmpty) {
-        logger.i('No products found');
-        return;
-      }
-
-      setState(() {
-        _serverProducts = products;
-      });
-
-      logger.i(_serverProducts);
-
-      // 제품 ID를 가져온 후 제품 로드
-      await _loadProducts();
-    } catch (e) {
-      logger.i('Error fetching products: $e');
-    }
-  }
+  /*
 
   @override
   Widget build(BuildContext context) {
@@ -358,6 +277,190 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
           ),
           SizedBox(height: 36.w),
         ],
+      ),
+    );
+  }
+*/
+  @override
+  Widget build(BuildContext context) {
+    final serverProductsAsyncValue = ref.watch(serverProductsProvider);
+    final storeProductsAsyncValue = ref.watch(storeProductsProvider);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: ListView(
+        children: [
+          SizedBox(height: 36.w),
+          StorePointInfo(
+            title: S.of(context).label_star_candy_pouch,
+            width: double.infinity,
+            height: 100.w,
+          ),
+          SizedBox(height: 36.w),
+          serverProductsAsyncValue.when(
+            loading: () => _buildShimmer(),
+            error: (error, _) => Text('Error: $error'),
+            data: (serverProducts) {
+              return storeProductsAsyncValue.when(
+                loading: () => _buildShimmer(),
+                error: (error, _) => Text('Error: $error'),
+                data: (storeProducts) {
+                  return _buildProductList(
+                      context, ref, serverProducts, storeProducts);
+                },
+              );
+            },
+          ),
+          const Divider(color: AppColors.Grey200, height: 32),
+          Text(S.of(context).text_purchase_vat_included,
+              style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600)),
+          SizedBox(height: 2.w),
+          GestureDetector(
+            onTap: () => _showCandyUsagePolicy(context),
+            child: Text(S.of(context).candy_usage_policy_guide,
+                style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600)),
+          ),
+          SizedBox(height: 36.w),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShimmer() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemBuilder: (context, index) {
+          return ListTile(
+            leading: Container(
+              width: 48.w,
+              height: 48.w,
+              color: Colors.white,
+            ),
+            title: Container(
+              height: 16,
+              color: Colors.white,
+            ),
+            subtitle: Container(
+              height: 16,
+              color: Colors.white,
+            ),
+          );
+        },
+        separatorBuilder: (context, index) =>
+            const Divider(color: AppColors.Grey200, height: 32),
+        itemCount: 5,
+      ),
+    );
+  }
+
+  Widget _buildProductList(
+      BuildContext context,
+      WidgetRef ref,
+      List<Map<String, dynamic>> serverProducts,
+      List<ProductDetails> storeProducts) {
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemBuilder: (BuildContext context, int index) => StoreListTile(
+        icon: Image.asset(
+          'assets/icons/store/star_${serverProducts[index]['id'].replaceAll('STAR', '')}.png',
+          width: 48.w,
+          height: 48.w,
+        ),
+        title: Text(serverProducts[index]['id'],
+            style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
+        subtitle: Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                  text: serverProducts[index]['description']
+                      [Intl.getCurrentLocale()],
+                  style: getTextStyle(AppTypo.CAPTION12B, AppColors.Point900)),
+            ],
+          ),
+        ),
+        buttonText: '${serverProducts[index]['price']} \$',
+        buttonOnPressed: () {
+          final productDetails = storeProducts[index];
+          supabase.isLogged
+              ? _buyProduct(productDetails)
+              : showRequireLoginDialog(context: context);
+        },
+      ),
+      separatorBuilder: (BuildContext context, int index) =>
+          const Divider(color: AppColors.Grey200, height: 32),
+      itemCount: storeProducts.length,
+    );
+  }
+
+  void _buyProduct(ProductDetails productDetails) {
+    if (_storeProducts.isEmpty) {
+      logger.i('Products not loaded');
+      return;
+    }
+    logger.i('Trying to buy product: ${productDetails.id}');
+    final PurchaseParam purchaseParam =
+        PurchaseParam(productDetails: productDetails);
+    _inAppPurchase.buyConsumable(purchaseParam: purchaseParam);
+  }
+
+  void _showCandyUsagePolicy(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => LargePopupWidget(
+        width: getPlatformScreenSize(context).width - 32.w,
+        content: Container(
+          padding: EdgeInsets.symmetric(horizontal: 40.w, vertical: 64.w),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset(
+                    'assets/icons/play_style=fill.svg',
+                    width: 16.w,
+                    height: 16.w,
+                    colorFilter: const ColorFilter.mode(
+                        AppColors.Primary500, BlendMode.srcIn),
+                  ),
+                  SizedBox(width: 8.w),
+                  Text(S.of(context).candy_usage_policy_title,
+                      style:
+                          getTextStyle(AppTypo.BODY14B, AppColors.Primary500)),
+                  SizedBox(width: 8.w),
+                  Transform.rotate(
+                    angle: 3.14,
+                    child: SvgPicture.asset(
+                      'assets/icons/play_style=fill.svg',
+                      width: 16.w,
+                      height: 16.w,
+                      colorFilter: const ColorFilter.mode(
+                          AppColors.Primary500, BlendMode.srcIn),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16.w),
+              Markdown(
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                data: S.of(context).candy_usage_policy_contents,
+                styleSheet: commonMarkdownStyleSheet,
+              ),
+              SizedBox(height: 16.w),
+              StorePointInfo(
+                title: S.of(context).label_star_candy_pouch,
+                width: 231.w,
+                titlePadding: 10.w,
+                height: 78.w,
+              )
+            ],
+          ),
+        ),
       ),
     );
   }
