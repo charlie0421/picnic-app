@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
@@ -102,8 +101,6 @@ class _VoteListState extends State<VoteList> {
       {required VoteStatus status}) async {
     PostgrestResponse<PostgrestList> response;
 
-    logger.i(status);
-
     if (status == VoteStatus.active) {
       response = await supabase
           .from('vote')
@@ -115,8 +112,6 @@ class _VoteListState extends State<VoteList> {
           .range((page - 1) * limit, page * limit - 1)
           .limit(limit)
           .count();
-
-      logger.i(response.data);
     } else if (status == VoteStatus.end) {
       response = await supabase
           .from('vote')
