@@ -11,6 +11,7 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/overlays.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/providers/product_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/screens/pic/pic_camera_screen.dart';
 import 'package:picnic_app/screens/portal.dart';
@@ -110,6 +111,10 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final appSettingState = ref.watch(appSettingProvider);
+    Future.microtask(() {
+      ref.read(serverProductsProvider);
+      ref.read(storeProductsProvider);
+    });
 
     ScreenUtil.init(context,
         designSize: kIsWeb ? webDesignSize : const Size(393, 892));
