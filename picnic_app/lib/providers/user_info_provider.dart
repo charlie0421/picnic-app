@@ -104,8 +104,8 @@ Future<bool> agreement(AgreementRef ref) async {
   try {
     final response = await supabase.from('user_agreement').insert({
       'id': supabase.auth.currentUser?.id,
-      'terms': DateTime.now(),
-      'privacy': DateTime.now(),
+      'terms': DateTime.now().toUtc(),
+      'privacy': DateTime.now().toUtc(),
     }).select();
 
     return true;

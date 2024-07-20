@@ -245,10 +245,10 @@ packages:
     dependency: transitive
     description:
       name: camera_avfoundation
-      sha256: "95c2f40b4d06cdb0fd2ad893c762d1f2c931a5e370793ec34c939eb4fcbf96bb"
+      sha256: b5093a82537b64bb88d4244f8e00b5ba69e822a5994f47b31d11400e1db975e5
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.17"
+    version: "0.9.17+1"
   camera_platform_interface:
     dependency: transitive
     description:
@@ -849,10 +849,10 @@ packages:
     dependency: transitive
     description:
       name: graphs
-      sha256: aedc5a15e78fc65a6e23bcd927f24c64dd995062bcd1ca6eda65a3cff92a4d19
+      sha256: "741bbf84165310a68ff28fe9e727332eef1407342fca52759cb21ad8177bb8d0"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.1"
+    version: "2.3.2"
   gtk:
     dependency: transitive
     description:
@@ -945,10 +945,10 @@ packages:
     dependency: transitive
     description:
       name: image_picker_android
-      sha256: ff39a10ab4f48f4ac70776d0494a97bf073cd2570892cd46bc8a5cac162c25db
+      sha256: cea2bd5b9fcff039a4901d3b13c67fe747f940be9ba76bde1bcd218d168eeb7f
       url: "https://pub.dev"
     source: hosted
-    version: "0.8.12+4"
+    version: "0.8.12+6"
   image_picker_for_web:
     dependency: transitive
     description:
@@ -1009,10 +1009,10 @@ packages:
     dependency: transitive
     description:
       name: in_app_purchase_android
-      sha256: b18871cffd4ec8911171864bfc0060c983be96215080a0847c29ef9147f439ef
+      sha256: f3f3ded26d08d13383b8c9952d1cf1422f0a3440b04d27f9838adee86f2ce899
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.6+1"
+    version: "0.3.6+2"
   in_app_purchase_platform_interface:
     dependency: transitive
     description:
@@ -1025,10 +1025,10 @@ packages:
     dependency: transitive
     description:
       name: in_app_purchase_storekit
-      sha256: "9a087c3c051266642468f031737c5a09f6fd90ff2b21d953e130563f3fd4cb34"
+      sha256: a4b523cdad26d9c81fe1f35636b9d46c459f6c07b84a93ae5cbdd93b21670eea
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.17"
+    version: "0.3.17+2"
   infinite_scroll_pagination:
     dependency: "direct main"
     description:
@@ -1113,26 +1113,26 @@ packages:
     dependency: transitive
     description:
       name: kakao_flutter_sdk_auth
-      sha256: "7b5d13cba8e7780da7665500faf98f47043a20b22432feacb4319dcc5bd0e47a"
+      sha256: "409c99c2bffe58f3be9078e6d4b25f64c7a789ef72110d6b8951e3e88e65e06a"
       url: "https://pub.dev"
     source: hosted
-    version: "1.9.4"
+    version: "1.9.5"
   kakao_flutter_sdk_common:
     dependency: transitive
     description:
       name: kakao_flutter_sdk_common
-      sha256: dd8ac2a3b60f3a4691ca22a90817d01a90c114b36b1986140c2dfbd444b1c643
+      sha256: "1bbfd232830732f92d5837de6f9085c678059f42f075f80433ae2986fe8ea598"
       url: "https://pub.dev"
     source: hosted
-    version: "1.9.4"
+    version: "1.9.5"
   kakao_flutter_sdk_user:
     dependency: "direct main"
     description:
       name: kakao_flutter_sdk_user
-      sha256: "9e5851c1782cc08e6c9696bf37fc2246334f42181095188390bb34e3910432be"
+      sha256: "17037c3b0d7812b5438bcd6a58907a28f7603e8615c3f5ce2b3f1f38129df800"
       url: "https://pub.dev"
     source: hosted
-    version: "1.9.4"
+    version: "1.9.5"
   leak_tracker:
     dependency: transitive
     description:
@@ -1409,10 +1409,10 @@ packages:
     dependency: "direct main"
     description:
       name: photo_manager
-      sha256: "91abfc4881ed8b97092ceb290fc5a591dcd53262052dd7a9dc7b3928e2bd4838"
+      sha256: "2f98fed8fede27eaf55021a1ce382609a715b52096a94a315f99ae33b6d2eaab"
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.1"
+    version: "3.2.2"
   platform:
     dependency: transitive
     description:
@@ -1585,10 +1585,10 @@ packages:
     dependency: transitive
     description:
       name: shared_preferences_platform_interface
-      sha256: "22e2ecac9419b4246d7c22bfbbda589e3acf5c0351137d87dd2939d984d37c3b"
+      sha256: "034650b71e73629ca08a0bd789fd1d83cc63c2d1e405946f7cef7bc37432f93a"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.2"
+    version: "2.4.0"
   shared_preferences_web:
     dependency: transitive
     description:
@@ -1870,10 +1870,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_android
-      sha256: ceb2625f0c24ade6ef6778d1de0b2e44f2db71fded235eb52295247feba8c5cf
+      sha256: "95d8027db36a0e52caf55680f91e33ea6aa12a3ce608c90b06f4e429a21067ac"
       url: "https://pub.dev"
     source: hosted
-    version: "6.3.3"
+    version: "6.3.5"
   url_launcher_ios:
     dependency: transitive
     description:
@@ -1966,10 +1966,10 @@ packages:
     dependency: transitive
     description:
       name: vm_service
-      sha256: f652077d0bdf60abe4c1f6377448e8655008eef28f128bc023f7b5e8dfeb48fc
+      sha256: "3923c89304b715fb1eb6423f017651664a03bf5f4b29983627c4da791f74a4ec"
       url: "https://pub.dev"
     source: hosted
-    version: "14.2.4"
+    version: "14.2.1"
   watcher:
     dependency: "direct main"
     description:

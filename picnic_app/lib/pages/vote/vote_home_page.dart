@@ -18,6 +18,7 @@ import 'package:picnic_app/pages/vote/vote_list_page.dart';
 import 'package:picnic_app/providers/banner_list_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/reward_list_provider.dart';
+import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
@@ -103,8 +104,11 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
               return ErrorView(context,
                   error: 'No Items Found', stackTrace: null);
             },
-            itemBuilder: (context, item, index) =>
-                VoteInfoCard(context: context, vote: item)),
+            itemBuilder: (context, item, index) => VoteInfoCard(
+                  context: context,
+                  vote: item,
+                  status: VoteStatus.active,
+                )),
       ),
     ]);
   }
@@ -112,7 +116,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   _fetch(int page, int limit, String sort, String order) async {
     final response = await supabase
         .from('vote')
-        .select('*, vote_item(*, mystar_member(*, mystar_group(*)))')
+        .select('*, vote_item(*, artist(*, artist_group(*)))')
         .lt('start_at', 'now()')
         .gt('stop_at', 'now()')
         .order('id', ascending: false)

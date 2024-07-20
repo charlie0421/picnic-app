@@ -334,8 +334,8 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(64.r),
                                       child: PicnicCachedNetworkImage(
-                                        imageUrl: widget.voteItemModel
-                                                .mystar_member.image ??
+                                        imageUrl: widget
+                                                .voteItemModel.artist?.image ??
                                             '',
                                         width: 56,
                                         height: 56,
@@ -343,16 +343,19 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                     ),
                                     SizedBox(height: 8.w),
                                     Text(
-                                      widget.voteItemModel.mystar_member
-                                              .getTitle() ??
+                                      widget.voteItemModel.artist?.name[
+                                              Intl.getCurrentLocale()
+                                                  .split('_')[0]] ??
                                           '',
                                       style: getTextStyle(
                                           AppTypo.BODY16B, AppColors.Grey900),
                                     ),
                                     SizedBox(height: 5.w),
                                     Text(
-                                      widget.voteItemModel.mystar_member
-                                          .getGroupTitle(),
+                                      widget.voteItemModel.artist?.artist_group
+                                              .name[
+                                          Intl.getCurrentLocale()
+                                              .split('_')[0]],
                                       style: getTextStyle(AppTypo.CAPTION12R,
                                           AppColors.Grey600),
                                     ),

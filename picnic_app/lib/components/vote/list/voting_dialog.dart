@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
@@ -133,7 +134,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(120),
             child: PicnicCachedNetworkImage(
-              imageUrl: widget.voteItemModel.mystar_member.image ?? '',
+              imageUrl: widget.voteItemModel.artist?.image ?? '',
               width: 100,
               height: 100,
               useScreenUtil: false,
@@ -147,14 +148,17 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                widget.voteItemModel.mystar_member.getTitle() ?? '',
+                widget.voteItemModel.artist
+                        ?.name[Intl.getCurrentLocale().split('_')[0]] ??
+                    '',
                 style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
               ),
               SizedBox(width: 8.w),
               Align(
                 alignment: Alignment.center,
                 child: Text(
-                  widget.voteItemModel.mystar_member.getGroupTitle(),
+                  widget.voteItemModel.artist?.artist_group
+                      .name[Intl.getCurrentLocale().split('_')[0]],
                   style: getTextStyle(AppTypo.CAPTION12R, AppColors.Grey600),
                 ),
               ),

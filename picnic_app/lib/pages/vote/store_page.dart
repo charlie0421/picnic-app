@@ -30,6 +30,7 @@ class _StorePageState extends State<StorePage>
       children: [
         TabBar(
           controller: _tabController,
+          indicatorWeight: 3,
           tabs: [
             Tab(text: S.of(context).label_tab_buy_star_candy),
             Tab(text: S.of(context).label_tab_free_charge_station),

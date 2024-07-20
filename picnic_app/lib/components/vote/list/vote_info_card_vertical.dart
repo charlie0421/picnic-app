@@ -90,7 +90,7 @@ class VoteCardColumnVertical extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(100),
                   child: PicnicCachedNetworkImage(
-                      imageUrl: voteItem.mystar_member.image ?? '',
+                      imageUrl: voteItem.artist?.image ?? '',
                       useScreenUtil: true,
                       width: 100,
                       height: 100),
@@ -106,14 +106,16 @@ class VoteCardColumnVertical extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  voteItem.mystar_member.getTitle(),
+                  voteItem
+                      .artist?.name[Intl.getCurrentLocale().split('_').first],
                   style: getTextStyle(
                     AppTypo.BODY14B,
                     AppColors.Grey900,
                   ),
                 ),
                 Text(
-                  voteItem.mystar_member.getGroupTitle(),
+                  voteItem.artist?.artist_group
+                      .name[Intl.getCurrentLocale().split('_')[0]],
                   style: getTextStyle(
                     AppTypo.CAPTION10SB,
                     AppColors.Grey00,

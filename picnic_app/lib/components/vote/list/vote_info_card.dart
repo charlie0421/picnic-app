@@ -5,21 +5,25 @@ import 'package:intl/intl.dart';
 import 'package:picnic_app/components/vote/list/vote_header.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_horizontal.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_vertical.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/pic/artist_vote.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/pages/vote/vote_detail_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class VoteInfoCard extends ConsumerStatefulWidget {
   const VoteInfoCard({
-    super.key,
+    Key? key,
     required this.context,
     required this.vote,
-  });
+    required this.status,
+  }) : super(key: key);
 
   final BuildContext context;
   final VoteModel vote;
+  final VoteStatus status;
 
   @override
   ConsumerState<VoteInfoCard> createState() => _VoteInfoCardState();
@@ -29,7 +33,8 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<Offset> _offsetAnimation;
-  late final Animation<double> _opacityAnimation; // 텍스트 위젯용 페이드 애니메이션
+  late final Animation<double> _opacityAnimation;
+  bool _showRanking = false;
 
   void _restartAnimation() {
     _controller.reset();
@@ -41,7 +46,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
     super.initState();
 
     _controller = AnimationController(
-      duration: const Duration(seconds: 1), // 총 지속 시간
+      duration: const Duration(seconds: 1),
       vsync: this,
     )..forward();
 
@@ -55,7 +60,6 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
       ),
     );
 
-    // 텍스트에만 적용할 페이드 애니메이션
     _opacityAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -68,13 +72,20 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   }
 
   @override
-  dispose() {
+  void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
+  void _onTimerEnd() {
+    setState(() {
+      _showRanking = true;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    logger.i(widget.status);
     final List<VoteItemModel>? items = widget.vote.vote_item;
     final no1 = items?[0];
     final no2 = items?[1];
@@ -95,55 +106,55 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
         child: Column(
           children: [
             VoteHeader(
-              title: widget.vote.title[Intl.getCurrentLocale().split('_')[0]],
-              stopAt: widget.vote.stop_at,
-              onRefresh: _restartAnimation,
-            ),
-            SizedBox(
-              height: 24.h,
-            ),
-            Container(
-              width: double.infinity,
-              height: 220.h,
-              padding: const EdgeInsets.only(left: 24, right: 24, top: 16).r,
-              clipBehavior: Clip.hardEdge,
-              // 추가
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(40).r,
-                border: Border.all(
-                  color: AppColors.Primary500,
-                  width: 1.5.w,
+                title: widget.vote.title[Intl.getCurrentLocale().split('_')[0]],
+                stopAt: widget.status == VoteStatus.upcoming
+                    ? widget.vote.start_at
+                    : widget.vote.stop_at,
+                onRefresh: widget.status == VoteStatus.active
+                    ? _restartAnimation
+                    : null,
+                status: widget.status),
+            if (widget.status == VoteStatus.active ||
+                widget.status == VoteStatus.end)
+              Container(
+                width: double.infinity,
+                height: 220.h,
+                padding: const EdgeInsets.only(left: 36, right: 36, top: 16).r,
+                margin: EdgeInsets.only(top: 24.h),
+                clipBehavior: Clip.hardEdge,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(40).r,
+                  border: Border.all(
+                    color: AppColors.Primary500,
+                    width: 1.5.w,
+                  ),
                 ),
-              ),
-              child: Visibility(
-                visible: _controller.status == AnimationStatus.forward ||
-                    _controller.status == AnimationStatus.completed,
-                child: SlideTransition(
-                  position: _offsetAnimation,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      VoteCardColumnVertical(
-                          rank: 2,
-                          voteItem: no2!,
-                          opacityAnimation: _opacityAnimation),
-                      VoteCardColumnVertical(
-                          rank: 1,
-                          voteItem: no1!,
-                          opacityAnimation: _opacityAnimation),
-                      VoteCardColumnVertical(
-                          rank: 3,
-                          voteItem: no3!,
-                          opacityAnimation: _opacityAnimation),
-                    ],
+                child: Visibility(
+                  visible: _controller.status == AnimationStatus.forward ||
+                      _controller.status == AnimationStatus.completed,
+                  child: SlideTransition(
+                    position: _offsetAnimation,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        VoteCardColumnVertical(
+                            rank: 2,
+                            voteItem: no2!,
+                            opacityAnimation: _opacityAnimation),
+                        VoteCardColumnVertical(
+                            rank: 1,
+                            voteItem: no1!,
+                            opacityAnimation: _opacityAnimation),
+                        VoteCardColumnVertical(
+                            rank: 3,
+                            voteItem: no3!,
+                            opacityAnimation: _opacityAnimation),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            SizedBox(
-              height: 10.w,
-            ),
           ],
         ),
       ),
@@ -152,14 +163,15 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
 }
 
 class PicVoteInfoCard extends ConsumerStatefulWidget {
-  const PicVoteInfoCard({
-    super.key,
-    required this.context,
-    required this.vote,
-  });
+  const PicVoteInfoCard(
+      {super.key,
+      required this.context,
+      required this.vote,
+      required this.status});
 
   final BuildContext context;
   final ArtistVoteModel vote;
+  final VoteStatus status;
 
   @override
   ConsumerState<PicVoteInfoCard> createState() =>
@@ -230,10 +242,10 @@ class _VoteInfoCardHorizontalState extends ConsumerState<PicVoteInfoCard>
         child: Column(
           children: [
             VoteHeader(
-              title: widget.vote.title[Intl.getCurrentLocale()],
-              stopAt: widget.vote.stop_at,
-              onRefresh: _restartAnimation,
-            ),
+                title: widget.vote.title[Intl.getCurrentLocale()],
+                stopAt: widget.vote.stop_at,
+                onRefresh: _restartAnimation,
+                status: widget.status),
             SizedBox(
               height: 24.h,
             ),

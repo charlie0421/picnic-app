@@ -65,8 +65,7 @@ _$VoteItemModelImpl _$$VoteItemModelImplFromJson(Map<String, dynamic> json) =>
       id: (json['id'] as num).toInt(),
       vote_total: (json['vote_total'] as num).toInt(),
       vote_id: (json['vote_id'] as num).toInt(),
-      mystar_member: MyStarMemberModel.fromJson(
-          json['mystar_member'] as Map<String, dynamic>),
+      artist: ArtistModel.fromJson(json['artist'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$$VoteItemModelImplToJson(_$VoteItemModelImpl instance) =>
@@ -74,48 +73,44 @@ Map<String, dynamic> _$$VoteItemModelImplToJson(_$VoteItemModelImpl instance) =>
       'id': instance.id,
       'vote_total': instance.vote_total,
       'vote_id': instance.vote_id,
-      'mystar_member': instance.mystar_member,
+      'artist': instance.artist,
     };
 
-_$MyStarMemberModelImpl _$$MyStarMemberModelImplFromJson(
-        Map<String, dynamic> json) =>
-    _$MyStarMemberModelImpl(
+_$ArtistModelImpl _$$ArtistModelImplFromJson(Map<String, dynamic> json) =>
+    _$ArtistModelImpl(
       id: (json['id'] as num).toInt(),
-      name_ko: json['name_ko'] as String,
-      name_en: json['name_en'] as String,
+      name: json['name'] as Map<String, dynamic>,
+      yy: (json['yy'] as num).toInt(),
+      mm: (json['mm'] as num).toInt(),
+      dd: (json['dd'] as num).toInt(),
       gender: json['gender'] as String,
-      image: json['image'] as String?,
-      mystar_group: json['mystar_group'] == null
-          ? null
-          : MyStarGroupModel.fromJson(
-              json['mystar_group'] as Map<String, dynamic>),
+      image: json['image'] as String,
+      artist_group: ArtistGroupModel.fromJson(
+          json['artist_group'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$$MyStarMemberModelImplToJson(
-        _$MyStarMemberModelImpl instance) =>
+Map<String, dynamic> _$$ArtistModelImplToJson(_$ArtistModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'name_ko': instance.name_ko,
-      'name_en': instance.name_en,
+      'name': instance.name,
+      'yy': instance.yy,
+      'mm': instance.mm,
+      'dd': instance.dd,
       'gender': instance.gender,
       'image': instance.image,
-      'mystar_group': instance.mystar_group,
+      'artist_group': instance.artist_group,
     };
 
-_$MyStarGroupModelImpl _$$MyStarGroupModelImplFromJson(
+_$ArtistGroupModelImpl _$$ArtistGroupModelImplFromJson(
         Map<String, dynamic> json) =>
-    _$MyStarGroupModelImpl(
+    _$ArtistGroupModelImpl(
       id: (json['id'] as num).toInt(),
-      name_ko: json['name_ko'] as String,
-      name_en: json['name_en'] as String,
-      image: json['image'] as String?,
+      name: json['name'] as Map<String, dynamic>,
     );
 
-Map<String, dynamic> _$$MyStarGroupModelImplToJson(
-        _$MyStarGroupModelImpl instance) =>
+Map<String, dynamic> _$$ArtistGroupModelImplToJson(
+        _$ArtistGroupModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'name_ko': instance.name_ko,
-      'name_en': instance.name_en,
-      'image': instance.image,
+      'name': instance.name,
     };

@@ -7,7 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'vote_list_provider.g.dart';
 
-enum VoteStatus { all, active, end }
+enum VoteStatus { all, active, end, upcoming }
 
 enum VoteCategory { all, birthday }
 
@@ -27,7 +27,7 @@ class AsyncVoteList extends _$AsyncVoteList {
 
       PostgrestResponse<PostgrestList> response;
 // status가 'all'이 아닌 경우에만 start_at과 end_at 필드를 기준으로 필터링합니다.
-      if (status == 'active') {
+      if (status == VoteStatus.active.name) {
         // status가 'active'인 경우, start_at은 현재 시간보다 이전이고 end_at은 현재 시간보다 이후여야 합니다.
         response = await supabase
             .from('vote')
@@ -37,13 +37,21 @@ class AsyncVoteList extends _$AsyncVoteList {
             .gt('stop_at', now)
             .order(sort, ascending: order == 'ASC')
             .count();
-      } else if (status == 'end') {
+      } else if (status == VoteStatus.end.name) {
         // status가 'end'인 경우, stop_at은 현재 시간보다 이전이어야 합니다.
         response = await supabase
             .from('vote')
             .select('*, vote_item(*, mystar_member(*, mystar_group(*)))')
             // .eq('vote_category', category == 'all' ? '' : category)
             .lt('stop_at', now)
+            .order(sort, ascending: order == 'ASC')
+            .count();
+      } else if (status == VoteStatus.upcoming.name) {
+        response = await supabase
+            .from('vote')
+            .select('*, vote_item(*, artist(*, artist_group(*)))')
+            // .eq('vote_category', category == 'all' ? '' : category)
+            .gt('start_at', now)
             .order(sort, ascending: order == 'ASC')
             .count();
       } else {
