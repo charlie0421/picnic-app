@@ -145,15 +145,12 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
             },
             home: UniversalPlatform.isWeb
                 ? initScreen ?? const Portal()
-                : FlutterSplashScreen.fadeIn(
+                : FlutterSplashScreen.gif(
+                    gifPath: 'assets/splash.gif',
+                    gifWidth: 768,
+                    gifHeight: 1704,
                     useImmersiveMode: true,
                     duration: const Duration(milliseconds: 3000),
-                    animationDuration: const Duration(milliseconds: 3000),
-                    childWidget: SizedBox(
-                        width: getPlatformScreenSize(context).width,
-                        height: getPlatformScreenSize(context).height,
-                        child: Image.asset("assets/splash.png",
-                            fit: BoxFit.cover)),
                     nextScreen: initScreen ?? const Portal())),
       ),
     );
