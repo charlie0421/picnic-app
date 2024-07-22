@@ -125,15 +125,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     }
     return List<int>.generate(data.length, (index) => index)
         .where((index) =>
-            data[index]!
-                .artist
-                ?.name[Intl.getCurrentLocale().split('_').first]
+            getLocaleTextFromJson(data[index]!.artist.name)
                 .toLowerCase()
                 .contains(_searchQuery.toLowerCase()) ||
-            data[index]!
-                .artist
-                ?.artist_group
-                .name[Intl.getCurrentLocale().split('_').first]
+            getLocaleTextFromJson(data[index]!.artist.artist_group.name)
                 .toLowerCase()
                 .contains(_searchQuery.toLowerCase()))
         .toList();

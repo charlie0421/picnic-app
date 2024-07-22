@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/custom_pagination.dart';
 import 'package:picnic_app/components/common/reward_dialog.dart';
 import 'package:picnic_app/components/error.dart';
@@ -69,34 +68,40 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
       SizedBox(height: 36.h),
       _buildRewardList(context),
       SizedBox(height: 36.h),
-      GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () {
-          ref
-              .read(navigationInfoProvider.notifier)
-              .setCurrentPage(const VoteListPage(), showTopMenu: false);
-        },
-        child: Container(
-          padding: const EdgeInsets.only(left: 16),
-          alignment: Alignment.centerLeft,
-          child: Row(
-            children: [
-              Text(S.of(context).label_vote_vote_gather,
-                  style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900)),
-              SvgPicture.asset(
-                'assets/icons/arrow_right_style=line.svg',
-                width: 8,
-                height: 15,
-                colorFilter:
-                    const ColorFilter.mode(AppColors.Grey900, BlendMode.srcIn),
-              ),
-            ],
-          ),
-        ),
-      ),
+      _buildVoteListTitle(),
+
+      //TODO 구분을 enum 으로 변경
       _buildVoteSection(context, "Upcoming Votes", _upcomingPagingController),
       _buildVoteSection(context, "Active Votes", _activePagingController),
     ]);
+  }
+
+  Widget _buildVoteListTitle() {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        ref
+            .read(navigationInfoProvider.notifier)
+            .setCurrentPage(const VoteListPage(), showTopMenu: false);
+      },
+      child: Container(
+        padding: const EdgeInsets.only(left: 16),
+        alignment: Alignment.centerLeft,
+        child: Row(
+          children: [
+            Text(S.of(context).label_vote_vote_gather,
+                style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900)),
+            SvgPicture.asset(
+              'assets/icons/arrow_right_style=line.svg',
+              width: 8,
+              height: 15,
+              colorFilter:
+                  const ColorFilter.mode(AppColors.Grey900, BlendMode.srcIn),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildVoteSection(BuildContext context, String title,
@@ -218,12 +223,12 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                       child: Container(
                         margin: const EdgeInsets.only(right: 16),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8.r),
+                          borderRadius: BorderRadius.circular(8).r,
                         ),
                         child: Stack(
                           children: [
                             ClipRRect(
-                              borderRadius: BorderRadius.circular(8.r),
+                              borderRadius: BorderRadius.circular(8).r,
                               child: PicnicCachedNetworkImage(
                                   imageUrl: data[index].thumbnail ?? '',
                                   width: 120,
@@ -236,8 +241,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                                 width: 120,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.only(
-                                      bottomLeft: Radius.circular(8.r),
-                                      bottomRight: Radius.circular(8.r)),
+                                      bottomLeft: const Radius.circular(8).r,
+                                      bottomRight: const Radius.circular(8).r),
                                   color: Colors.black.withOpacity(0.5),
                                 ),
                                 alignment: Alignment.center,
@@ -262,7 +267,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
           loading: () => Container(
                 width: double.infinity,
                 height: 100.h,
-                margin: const EdgeInsets.only(left: 16),
+                margin: const EdgeInsets.only(left: 16).r,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: 5,
@@ -271,10 +276,10 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                     baseColor: AppColors.Grey300,
                     highlightColor: AppColors.Grey100,
                     child: Container(
-                      width: 120.w,
-                      margin: const EdgeInsets.only(right: 16),
+                      height: 100.h,
+                      margin: const EdgeInsets.only(right: 16).r,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8.r),
+                        borderRadius: BorderRadius.circular(8).r,
                         color: Colors.white,
                       ),
                     ),
@@ -297,8 +302,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
       child: asyncBannerListState.when(
         data: (data) => Swiper(
           itemBuilder: (BuildContext context, int index) {
-            String title =
-                data[index].title[Intl.getCurrentLocale().split('_')[0]];
+            String title = getLocaleTextFromJson(data[index].title);
             return Stack(
               children: [
                 Container(
@@ -310,22 +314,23 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                       height: (width / 2).toInt(),
                       fit: BoxFit.fitWidth),
                 ),
-                Positioned(
-                  bottom: 0,
-                  child: Container(
-                    width: width,
-                    alignment: Alignment.center,
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                    color: Colors.black.withOpacity(0.5),
-                    child: Text(
-                      title,
-                      style: getTextStyle(AppTypo.BODY14R, Colors.white)
-                          .copyWith(overflow: TextOverflow.ellipsis),
-                      textAlign: TextAlign.center,
+                if (title.isNotEmpty)
+                  Positioned(
+                    bottom: 0,
+                    child: Container(
+                      width: width,
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 4, horizontal: 8),
+                      color: Colors.black.withOpacity(0.5),
+                      child: Text(
+                        title,
+                        style: getTextStyle(AppTypo.BODY14R, Colors.white)
+                            .copyWith(overflow: TextOverflow.ellipsis),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
-                  ),
-                )
+                  )
               ],
             );
           },
