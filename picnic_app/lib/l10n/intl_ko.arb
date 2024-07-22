@@ -25,8 +25,10 @@
   "dialog_withdraw_message": "회원 탈퇴 시 피크닠에 보유하고 계신 별사탕과 계정정보는 즉시 삭제됩니다.",
   "dialog_withdraw_success": "탈퇴가 성공적으로 처리 되었습니다.",
   "dialog_withdraw_title": "정말 탈퇴하시겠어요?",
+  "error_message_login_failed": "로그인 중 오류가 발생했습니다.",
   "error_message_no_user": "회원 정보가 존재하지 않습니다.",
   "error_message_withdrawal": "탈퇴한 회원입니다.",
+  "error_title": "에러",
   "hint_library_add": "앨범명",
   "hint_nickname_input": "닉네임을 입력해주세요.",
   "image_save_success": "이미지가 저장되었습니다.",
@@ -56,10 +58,12 @@
   "label_gallery_tab_chat": "채팅",
   "label_hint_comment": "댓글을 남겨주세요.",
   "label_input_input": "입력",
+  "label_last_provider": "최근 로그인",
   "label_library_save": "라이브러리 저장",
   "label_library_tab_ai_photo": "AI 포토",
   "label_library_tab_library": "라이브러리",
   "label_library_tab_pic": "PIC",
+  "label_loading_ads": "광고 로딩중",
   "label_moveto_celeb_gallery": "아티스트 갤러리로 이동",
   "label_mypage_charge_history": "충전내역",
   "label_mypage_customer_center": "고객센터",
@@ -103,10 +107,6 @@
   "label_tabbar_vote_active": "진행중",
   "label_tabbar_vote_end": "종료",
   "label_tabbar_vote_upcoming": "예정",
-  "label_vote_upcoming": "투표 시작까지",
-  "message_noitem_vote_active":"현재 진행중인 투표가 없습니다.",
-  "message_noitem_vote_end":"현재 종료된 투표가 없습니다.",
-  "message_noitem_vote_upcoming":"현재 예정중인 투표가 없습니다.",
   "label_time_ago_day": "{day}일 전",
   "label_time_ago_hour": "{hour}시간 전",
   "label_time_ago_minute": "{minute}분 전",
@@ -117,11 +117,15 @@
   "label_vote_screen_title": "투표",
   "label_vote_tab_birthday": "생일 투표",
   "label_vote_tab_pic": "PIC 투표",
+  "label_vote_upcoming": "투표 시작까지",
   "label_vote_vote_gather": "투표 모아보기",
   "label_watch_ads": "광고보기",
   "lable_my_celeb": "나의 아티스트",
   "message_agreement_success": "약관 동의가 완료되었습니다.",
   "message_error_occurred": "오류가 발생했습니다.",
+  "message_noitem_vote_active": "현재 진행중인 투표가 없습니다.",
+  "message_noitem_vote_end": "현재 종료된 투표가 없습니다.",
+  "message_noitem_vote_upcoming": "현재 예정중인 투표가 없습니다.",
   "message_pic_pic_save_fail": "이미지 저장에 실패했습니다.",
   "message_pic_pic_save_success": "이미지가 저장되었습니다.",
   "message_report_confirm": "신고하시겠습니까?",
@@ -143,9 +147,6 @@
   "nav_subscription": "구독",
   "nav_vote": "투표",
   "nickname_validation_error": "20자 이내, 특수문자 제외 가능합니다.",
-  "error_title":"에러",
-  "error_message_login_failed": "로그인 중 오류가 발생했습니다.",
-  "label_last_provider": "최근 로그인",
   "page_title_mypage": "마이페이지",
   "page_title_myprofile": "나의 프로필",
   "page_title_privacy": "개인정보처리방침",
@@ -165,6 +166,8 @@
   "text_comming_soon_pic_chart_title": "핔차트란?",
   "text_copied_address": "주소가 복사되었습니다.",
   "text_dialog_star_candy_received": "별사탕이 지급되었습니다.",
+  "text_dialog_ad_failed_to_show": "광고 불러오기 실패",
+  "text_dialog_ad_dismissed": "광고를 중간에 멈추었습니다.",
   "text_dialog_vote_amount_should_not_zero": "투표수량은 0이 될 수 없습니다.",
   "text_draw_image": "전체 갤러리 중 이미지 1개 확정 소장",
   "text_hint_search": "아티스트를 검색하세요.",
@@ -184,538 +187,565 @@
   "title_select_language": "언어 선택",
   "toast_max_five_celeb": "내 아티스트를 최대 5개까지 추가할 수 있습니다.",
   "@app_name": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@button_cancel": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@button_complete": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@button_login": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@button_ok": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@button_pic_pic_save": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@candy_usage_policy_contents": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@candy_usage_policy_guide": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@candy_usage_policy_title": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@dialog_button_cancel": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@dialog_button_ok": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@dialog_content_ads_exhausted": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@dialog_content_ads_loading": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@dialog_content_ads_retrying": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@dialog_content_login_required": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@dialog_purchases_fail": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@dialog_purchases_success": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@dialog_title_ads_exhausted": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@dialog_title_vote_fail": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@dialog_withdraw_button_cancel": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@dialog_withdraw_button_ok": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@dialog_withdraw_error": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@dialog_withdraw_message": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@dialog_withdraw_success": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@dialog_withdraw_title": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
+  },
+  "@error_message_login_failed": {
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@error_message_no_user": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@error_message_withdrawal": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
+  },
+  "@error_title": {
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@hint_library_add": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@hint_nickname_input": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@image_save_success": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_agreement_privacy": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_agreement_terms": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_album_add": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_article_comment_empty": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_bonus": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_button_agreement": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_button_clse": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_button_disagreement": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_button_recharge": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_button_save_vote_paper": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_button_share": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_button_vote": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_button_watch_and_charge": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_celeb_ask_to_you": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_celeb_gallery": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_celeb_recommend": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_checkbox_entire_use": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_current_language": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_draw_image": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_dropdown_oldest": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_dropdown_recent": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_find_celeb": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_gallery_tab_article": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_gallery_tab_chat": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_hint_comment": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_input_input": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
+  },
+  "@label_last_provider": {
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_library_save": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_library_tab_ai_photo": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_library_tab_library": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_library_tab_pic": {
     "manualTranslationKey": true,
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
+  },
+  "@label_loading_ads": {
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_moveto_celeb_gallery": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_mypage_charge_history": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_mypage_customer_center": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_mypage_logout": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_mypage_membership_history": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_mypage_mystar": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_mypage_notice": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_mypage_privacy_policy": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_mypage_setting": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_mypage_terms_of_use": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_mypage_vote_history": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_mypage_withdrawal": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_no_ads": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_no_celeb": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_pic_image_cropping": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_pic_pic_initializing_camera": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_pic_pic_save_gallery": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_pic_pic_synthesizing_image": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_read_more_comment": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_reply": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_retry": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_screen_title_agreement": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_setting_alarm": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_setting_appinfo": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_setting_current_version": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_setting_event_alarm": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_setting_event_alarm_desc": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_setting_language": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_setting_push_alarm": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_setting_recent_version": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_setting_remove_cache": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_setting_remove_cache_complete": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_setting_storage": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_setting_update": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_star_candy_pouch": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_tab_buy_star_candy": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_tab_free_charge_station": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_tabbar_picchart_daily": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_tabbar_picchart_monthly": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_tabbar_picchart_weekly": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_tabbar_vote_active": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_tabbar_vote_end": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
+  },
+  "@label_tabbar_vote_upcoming": {
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_time_ago_day": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_time_ago_hour": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_time_ago_minute": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_time_ago_right_now": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_title_comment": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_title_report": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_vote_reward_list": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_vote_screen_title": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_vote_tab_birthday": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_vote_tab_pic": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
+  },
+  "@label_vote_upcoming": {
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_vote_vote_gather": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_watch_ads": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@lable_my_celeb": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@message_agreement_success": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@message_error_occurred": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
+  },
+  "@message_noitem_vote_active": {
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
+  },
+  "@message_noitem_vote_end": {
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
+  },
+  "@message_noitem_vote_upcoming": {
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@message_pic_pic_save_fail": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@message_pic_pic_save_success": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@message_report_confirm": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@message_report_ok": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@mypage_comment": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@mypage_language": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@mypage_purchases": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@mypage_setting": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@mypage_subscription": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@nav_ads": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@nav_gallery": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@nav_home": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@nav_library": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@nav_media": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@nav_picchart": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@nav_purchases": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@nav_setting": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@nav_store": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@nav_subscription": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@nav_vote": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@nickname_validation_error": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@page_title_mypage": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@page_title_myprofile": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@page_title_privacy": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@page_title_setting": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@page_title_terms_of_use": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@page_title_vote_detail": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@page_title_vote_gather": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@share_image_fail": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@share_image_success": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@share_no_twitter": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@share_twitter": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_ads_random": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_bonus": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_comming_soon_pic_chart1": {
     "manualTranslationKey": true,
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_comming_soon_pic_chart2": {
     "manualTranslationKey": true,
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_comming_soon_pic_chart3": {
     "manualTranslationKey": true,
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_comming_soon_pic_chart_title": {
     "manualTranslationKey": true,
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_copied_address": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_dialog_star_candy_received": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_dialog_vote_amount_should_not_zero": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_draw_image": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_hint_search": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_moveto_celeb_gallery": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_need_recharge": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_no_search_result": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_purchase_vat_included": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_star_candy": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_star_candy_with_bonus": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_this_time_vote": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_unit_star_candy": {
     "translationTimestamp": "2024-06-29T17:41:46.209630"
   },
   "@text_vote_complete": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_vote_rank": {
     "manualTranslationKey": true,
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_vote_rank_in_reward": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_vote_where_is_my_bias": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@title_dialog_library_add": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@title_dialog_success": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@title_select_language": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@toast_max_five_celeb": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@translationTimestamp": {
     "translationTimestamp": "2024-06-24T07:51:27.596378"

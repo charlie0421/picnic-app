@@ -216,7 +216,7 @@ class AuthService {
         key: 'supabase_access_token', value: session.accessToken);
     await storage.write(key: 'last_provider', value: provider.name);
     await storage.write(
-        key: '${provider.toString().toLowerCase()}_id_token', value: idToken);
+        key: '${provider.name.toLowerCase()}_id_token', value: idToken);
   }
 
   Future<bool> recoverSession() async {
@@ -239,11 +239,9 @@ class AuthService {
 
   Future<bool> _recoverOAuthSession(Supabase.OAuthProvider provider) async {
     final storage = FlutterSecureStorage();
-    logger.i(provider);
-    logger.i(provider.toString().toLowerCase());
-    final idToken = await storage.read(
-        key: '${provider.toString().toLowerCase()}_id_token');
-
+    final idToken =
+        await storage.read(key: '${provider.name.toLowerCase()}_id_token');
+    logger.i(idToken);
     if (idToken != null) {
       logger.i('Attempting to re-authenticate with ID token for $provider');
 

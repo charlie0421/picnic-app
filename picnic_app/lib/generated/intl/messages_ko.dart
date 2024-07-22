@@ -131,6 +131,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_library_tab_library":
             MessageLookupByLibrary.simpleMessage("라이브러리"),
         "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("PIC"),
+        "label_loading_ads": MessageLookupByLibrary.simpleMessage("광고 로딩중"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("아티스트 갤러리로 이동"),
         "label_mypage_charge_history":
@@ -283,6 +284,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("핔차트란?"),
         "text_copied_address":
             MessageLookupByLibrary.simpleMessage("주소가 복사되었습니다."),
+        "text_dialog_ad_dismissed":
+            MessageLookupByLibrary.simpleMessage("광고를 중간에 멈추었습니다."),
+        "text_dialog_ad_failed_to_show":
+            MessageLookupByLibrary.simpleMessage("광고 불러오기 실패"),
         "text_dialog_star_candy_received":
             MessageLookupByLibrary.simpleMessage("별사탕이 지급되었습니다."),
         "text_dialog_vote_amount_should_not_zero":

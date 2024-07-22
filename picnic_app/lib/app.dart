@@ -9,6 +9,7 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/overlays.dart';
+import 'package:picnic_app/providers/ad_providers.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/product_provider.dart';
@@ -44,6 +45,8 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref.read(appSettingProvider.notifier).loadSettings();
       await ScreenProtector.preventScreenshotOn();
+      ref.read(rewardedAdsProvider.notifier).loadAd(0);
+      ref.read(rewardedAdsProvider.notifier).loadAd(1);
     });
     WidgetsBinding.instance.addObserver(this);
 
