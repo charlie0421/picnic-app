@@ -53,22 +53,23 @@ Future<void> requestAppTrackingTransparency() async {
       await AppTrackingTransparency.trackingAuthorizationStatus;
 
   if (trackingStatus == TrackingStatus.notDetermined) {
-    final status = await AppTrackingTransparency.requestTrackingAuthorization();
-    if (status == TrackingStatus.authorized) {
-      // IDFA 접근 권한이 부여된 경우 AdMob 초기화
-      MobileAds.instance.initialize();
-    } else {
-      // 권한이 거부된 경우 초기화는 진행하되 비개인화 광고 설정
-      MobileAds.instance.updateRequestConfiguration(
-        RequestConfiguration(
-          tagForChildDirectedTreatment:
-              TagForChildDirectedTreatment.unspecified,
-          tagForUnderAgeOfConsent: TagForUnderAgeOfConsent.unspecified,
-          maxAdContentRating: MaxAdContentRating.g,
-        ),
-      );
-      MobileAds.instance.initialize();
-    }
+    await AppTrackingTransparency.requestTrackingAuthorization();
+  }
+
+  // 권한 상태와 관계없이 항상 광고 초기화
+  if (trackingStatus == TrackingStatus.authorized) {
+    // IDFA 접근 권한이 부여된 경우 AdMob 초기화
+    await MobileAds.instance.initialize();
+  } else {
+    // 권한이 거부되거나 결정되지 않은 경우 비개인화 광고 설정
+    await MobileAds.instance.updateRequestConfiguration(
+      RequestConfiguration(
+        tagForChildDirectedTreatment: TagForChildDirectedTreatment.unspecified,
+        tagForUnderAgeOfConsent: TagForUnderAgeOfConsent.unspecified,
+        maxAdContentRating: MaxAdContentRating.g,
+      ),
+    );
+    await MobileAds.instance.initialize();
   }
 }
 
@@ -104,6 +105,11 @@ class LoggingObserver extends ProviderObserver {
   }
 
   void detectChanges(Object oldObj, Object newObj) {
+    if (oldObj.runtimeType.toString().contains('Impl') ||
+        newObj.runtimeType.toString().contains('Impl')) {
+      return;
+    }
+
     // 객체의 실제 타입에 기반한 리플렉션
     InstanceMirror oldMirror = reflector.reflect(oldObj);
     InstanceMirror newMirror = reflector.reflect(newObj);

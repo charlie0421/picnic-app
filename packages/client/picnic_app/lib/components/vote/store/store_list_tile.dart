@@ -4,28 +4,33 @@ import 'package:picnic_app/ui/style.dart';
 
 class StoreListTile extends StatelessWidget {
   const StoreListTile({
-    super.key,
+    Key? key,
     required this.icon,
     required this.title,
     this.subtitle,
     required this.buttonText,
     required this.buttonOnPressed,
     this.isLoading = false,
+    this.index,
     this.buttonScale,
-  });
+  }) : super(key: key);
 
   final Image icon;
   final Text title;
   final Text? subtitle;
   final String buttonText;
-  final Function buttonOnPressed;
-  final bool? isLoading;
+  final VoidCallback? buttonOnPressed; // 여기를 VoidCallback?로 변경
+  final bool isLoading;
+  final int? index;
   final double? buttonScale;
 
   @override
   Widget build(BuildContext context) {
+    // logger
+    //     .i('StoreListTile: ${title.data} index: $index, isLoading: $isLoading');
     return SizedBox(
       height: 48.w,
+      width: buttonScale,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -35,21 +40,21 @@ class StoreListTile extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [title, subtitle ?? Container()],
+              children: [title, if (subtitle != null) subtitle!],
             ),
           ),
           SizedBox(
             height: 32.w,
             child: ElevatedButton(
-              onPressed: isLoading == null
-                  ? null
-                  : () => buttonOnPressed(),
-              child: isLoading == true
+              onPressed: isLoading ? null : buttonOnPressed,
+              child: isLoading
                   ? SizedBox(
                       width: 16.w,
                       height: 16.w,
                       child: const CircularProgressIndicator(
-                        color: AppColors.Primary500,
+                        strokeWidth: 2,
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(AppColors.Primary500),
                       ),
                     )
                   : Text(

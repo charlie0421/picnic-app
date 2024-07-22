@@ -1,729 +1,755 @@
 {
   "@@locale": "ja",
-  "app_name": "피크닠",
-  "button_cancel": "취소",
-  "button_complete": "완료",
-  "button_login": "로그인",
-  "button_ok": "확인",
-  "button_pic_pic_save": "저장하기",
-  "candy_usage_policy_contents": "### 유효기간\n\n- 별사탕은 획득일로부터 1년간 유효합니다.\n\n### 별사탕 획득\n\n로그인 : 1일 1회\n- 투표 : 1회당 1개\n구매 별사탕 : 없음 (무제한)\n보너스 별사탕 : 획득한 다음 달 15일에 일괄 소멸\n\n##### 별사탕 사용\n\n소멸일자가 임박한 별사탕부터 사용됩니다.\n유효기간이 동일한 경우, 그 중 획득일자가 빠른 순으로 사용됩니다.",
-  "candy_usage_policy_guide": "*보너스는 획득한 다음달에 사라져요! ⓘ",
-  "candy_usage_policy_title": "별사탕 사용정책",
-  "dialog_button_cancel": "취소",
-  "dialog_button_ok": "확인",
-  "dialog_content_ads_exhausted": "광고가 모두 소진되었습니다. 다음에 다시 시도해주세요.",
-  "dialog_content_ads_loading": "광고 로딩중입니다.",
-  "dialog_content_ads_retrying": "광고를 다시 불러오는 중입니다. 잠시 후 다시 시도해 주세요.",
-  "dialog_content_login_required": "로그인이 필요합니다",
-  "dialog_purchases_fail": "구매에 실패했습니다.",
-  "dialog_purchases_success": "구매가 완료되었습니다.",
-  "dialog_title_ads_exhausted": "광고 모두 소진",
-  "dialog_title_vote_fail": "투표 실패",
-  "dialog_withdraw_button_cancel": "다시 한 번 생각해 볼게요",
-  "dialog_withdraw_button_ok": "탈퇴하기",
-  "dialog_withdraw_error": "탈퇴중 에러가 발생했습니다.",
-  "dialog_withdraw_message": "회원 탈퇴 시 피크닠에 보유하고 계신 별사탕과 계정정보는 즉시 삭제됩니다.",
-  "dialog_withdraw_success": "탈퇴가 성공적으로 처리 되었습니다.",
-  "dialog_withdraw_title": "정말 탈퇴하시겠어요?",
-  "error_message_login_failed": "로그인 중 오류가 발생했습니다.",
-  "error_message_no_user": "회원 정보가 존재하지 않습니다.",
-  "error_message_withdrawal": "탈퇴한 회원입니다.",
-  "error_title": "에러",
-  "hint_library_add": "앨범명",
-  "hint_nickname_input": "닉네임을 입력해주세요.",
-  "image_save_success": "이미지가 저장되었습니다.",
-  "label_agreement_privacy": "개인정보 수집 및 이용 동의",
-  "label_agreement_terms": "이용 약관 동의",
-  "label_album_add": "새로운 앨범 추가",
-  "label_article_comment_empty": "첫 댓글의 주인공이 되세요!",
-  "label_bonus": "보너스",
-  "label_button_agreement": "동의",
-  "label_button_clse": "닫기",
-  "label_button_disagreement": "비동의",
-  "label_button_recharge": "충전하기",
-  "label_button_save_vote_paper": "투표증 저장",
-  "label_button_share": "공유하기",
-  "label_button_vote": "투표하기",
-  "label_button_watch_and_charge": "광고보고 충전하기",
-  "label_celeb_ask_to_you": "아티스트가 당신에게 묻다!",
-  "label_celeb_gallery": "아티스트 갤러리",
-  "label_celeb_recommend": "아티스트 추천",
-  "label_checkbox_entire_use": "전체사용",
-  "label_current_language": "현재 언어",
-  "label_draw_image": "랜덤 이미지 획득 기회",
-  "label_dropdown_oldest": "오래된순",
-  "label_dropdown_recent": "최신순",
-  "label_find_celeb": "더 많은 아티스트 찾기",
-  "label_gallery_tab_article": "아티클",
-  "label_gallery_tab_chat": "채팅",
-  "label_hint_comment": "댓글을 남겨주세요.",
-  "label_input_input": "입력",
-  "label_last_provider": "최근 로그인",
-  "label_library_save": "라이브러리 저장",
-  "label_library_tab_ai_photo": "AI 포토",
-  "label_library_tab_library": "라이브러리",
+  "app_name": "ピクニック",
+  "button_cancel": "キャンセル",
+  "button_complete": "完了",
+  "button_login": "ログイン",
+  "button_ok": "確認",
+  "button_pic_pic_save": "保存する",
+  "candy_usage_policy_contents": "### 有効期限\n\n- 星飴は獲得日から1年間有効です。\n\n星飴獲得 ### 星飴獲得\n\nログイン : 1日1回\n- 投票 : 1回につき1個\n購入星飴 : なし(無制限)\nボーナス星飴：獲得した翌月の15日に一括消滅\n\n##### 星飴を使う\n\n消滅日が迫っている星飴から使用されます。\n有効期限が同じ場合は、獲得日が早い順に使用されます。",
+  "candy_usage_policy_guide": "*ボーナスは獲得した翌月に無くなります！ ⓘ※ボーナス",
+  "candy_usage_policy_title": "スターキャンディー使用ポリシー",
+  "dialog_button_cancel": "キャンセル",
+  "dialog_button_ok": "確認",
+  "dialog_content_ads_exhausted": "広告がなくなりました。次回、もう一度お試しください。",
+  "dialog_content_ads_loading": "広告の読み込み中です。",
+  "dialog_content_ads_retrying": "広告を再呼び出し中です。しばらくしてからもう一度お試しください。",
+  "dialog_content_login_required": "ログインが必要です",
+  "dialog_purchases_fail": "購入に失敗しました。",
+  "dialog_purchases_success": "購入が完了しました。",
+  "dialog_title_ads_exhausted": "広告完売しました",
+  "dialog_title_vote_fail": "投票失敗",
+  "dialog_withdraw_button_cancel": "もう一度考えてみます",
+  "dialog_withdraw_button_ok": "退会する",
+  "dialog_withdraw_error": "退会中にエラーが発生しました。",
+  "dialog_withdraw_message": "退会すると、ピクニックで保有している星キャンディーとアカウント情報は即座に削除されます。",
+  "dialog_withdraw_success": "退会が正常に処理されました。",
+  "dialog_withdraw_title": "本当に退会しますか？",
+  "error_message_login_failed": "ログイン中にエラーが発生しました。",
+  "error_message_no_user": "会員情報が存在しません。",
+  "error_message_withdrawal": "退会した会員です。",
+  "error_title": "エラー",
+  "hint_library_add": "アルバム名",
+  "hint_nickname_input": "ニックネームを入力してください。",
+  "image_save_success": "画像が保存されました。",
+  "label_agreement_privacy": "個人情報収集及び利用同意",
+  "label_agreement_terms": "利用規約に同意する",
+  "label_album_add": "新しいアルバムを追加",
+  "label_article_comment_empty": "最初のコメントの主人公になりましょう！",
+  "label_bonus": "ボーナス",
+  "label_button_agreement": "同意する",
+  "label_button_clse": "閉じる",
+  "label_button_disagreement": "非同意",
+  "label_button_recharge": "充電する",
+  "label_button_save_vote_paper": "投票券の保存",
+  "label_button_share": "シェアする",
+  "label_button_vote": "投票する",
+  "label_button_watch_and_charge": "広告を見てチャージする",
+  "label_celeb_ask_to_you": "アーティストがあなたに尋ねる！",
+  "label_celeb_gallery": "アーティストギャラリー",
+  "label_celeb_recommend": "アーティスト推薦",
+  "label_checkbox_entire_use": "全体使用",
+  "label_current_language": "現在の言語",
+  "label_draw_image": "ランダム画像獲得チャンス",
+  "label_dropdown_oldest": "古い順",
+  "label_dropdown_recent": "最新順",
+  "label_find_celeb": "その他のアーティストを探す",
+  "label_gallery_tab_article": "記事",
+  "label_gallery_tab_chat": "チャット",
+  "label_hint_comment": "コメントを残してください。",
+  "label_input_input": "入力",
+  "label_last_provider": "最近のログイン",
+  "label_library_save": "ライブラリ保存",
+  "label_library_tab_ai_photo": "AIフォト",
+  "label_library_tab_library": "ライブラリ",
   "label_library_tab_pic": "PIC",
-  "label_moveto_celeb_gallery": "아티스트 갤러리로 이동",
-  "label_mypage_charge_history": "충전내역",
-  "label_mypage_customer_center": "고객센터",
-  "label_mypage_logout": "로그아웃",
-  "label_mypage_membership_history": "멤버십 내역",
-  "label_mypage_mystar": "마이 스타",
-  "label_mypage_notice": "공지사항",
-  "label_mypage_privacy_policy": "개인정보처리방침",
-  "label_mypage_setting": "설정",
-  "label_mypage_terms_of_use": "이용약관",
-  "label_mypage_vote_history": "투표내역",
-  "label_mypage_withdrawal": "회원탈퇴",
-  "label_no_ads": "광고 없음",
-  "label_no_celeb": "아직 북마크한 아티스트가 없습니다!",
-  "label_pic_image_cropping": "이미지 자르기",
-  "label_pic_pic_initializing_camera": "카메라 초기화중...",
-  "label_pic_pic_save_gallery": "갤러리에 저장",
-  "label_pic_pic_synthesizing_image": "이미지 합성중...",
-  "label_read_more_comment": "댓글 더보기",
-  "label_reply": "답글 달기",
-  "label_retry": "재시도 하기",
-  "label_screen_title_agreement": "약관 동의",
-  "label_setting_alarm": "알림",
-  "label_setting_appinfo": "앱정보",
-  "label_setting_current_version": "현재버전",
-  "label_setting_event_alarm": "이벤트알림",
-  "label_setting_event_alarm_desc": "각종 이벤트와 행사를 안내드려요.",
-  "label_setting_language": "언어설정",
-  "label_setting_push_alarm": "푸시알림",
-  "label_setting_recent_version": "최신버전",
-  "label_setting_remove_cache": "캐시삭제",
-  "label_setting_remove_cache_complete": "완료",
-  "label_setting_storage": "저장공간 관리",
-  "label_setting_update": "업데이트",
-  "label_star_candy_pouch": "별사탕 주머니",
-  "label_tab_buy_star_candy": "별사탕 구매",
-  "label_tab_free_charge_station": "무료충전소",
-  "label_tabbar_picchart_daily": "일간차트",
-  "label_tabbar_picchart_monthly": "월간차트",
-  "label_tabbar_picchart_weekly": "주간차트",
-  "label_tabbar_vote_active": "진행중",
-  "label_tabbar_vote_end": "종료",
-  "label_tabbar_vote_upcoming": "예정",
+  "label_loading_ads": "広告読み込み中",
+  "label_moveto_celeb_gallery": "アーティストギャラリーへ",
+  "label_mypage_charge_history": "料金内訳",
+  "label_mypage_customer_center": "お客様センター",
+  "label_mypage_logout": "ログアウト",
+  "label_mypage_membership_history": "メンバーシップ履歴",
+  "label_mypage_mystar": "マイスター",
+  "label_mypage_notice": "お知らせ",
+  "label_mypage_privacy_policy": "個人情報保護方針",
+  "label_mypage_setting": "設定",
+  "label_mypage_terms_of_use": "利用規約",
+  "label_mypage_vote_history": "投票履歴",
+  "label_mypage_withdrawal": "退会する",
+  "label_no_ads": "広告なし",
+  "label_no_celeb": "まだブックマークしたアーティストはいません！",
+  "label_pic_image_cropping": "画像の切り抜き",
+  "label_pic_pic_initializing_camera": "カメラの初期化中...",
+  "label_pic_pic_save_gallery": "ギャラリーに保存",
+  "label_pic_pic_synthesizing_image": "画像合成中...",
+  "label_read_more_comment": "コメントをもっと見る",
+  "label_reply": "返信する",
+  "label_retry": "再試行する",
+  "label_screen_title_agreement": "規約に同意する",
+  "label_setting_alarm": "お知らせ",
+  "label_setting_appinfo": "アプリ情報",
+  "label_setting_current_version": "現在のバージョン",
+  "label_setting_event_alarm": "イベントお知らせ",
+  "label_setting_event_alarm_desc": "各種イベントや行事をご案内します。",
+  "label_setting_language": "言語設定",
+  "label_setting_push_alarm": "プッシュ通知",
+  "label_setting_recent_version": "最新バージョン",
+  "label_setting_remove_cache": "キャッシュ削除",
+  "label_setting_remove_cache_complete": "完了",
+  "label_setting_storage": "ストレージスペース管理",
+  "label_setting_update": "最新情報",
+  "label_star_candy_pouch": "スターキャンディーの袋",
+  "label_tab_buy_star_candy": "スターキャンディーの購入",
+  "label_tab_free_charge_station": "無料充電ステーション",
+  "label_tabbar_picchart_daily": "日足チャート",
+  "label_tabbar_picchart_monthly": "月間チャート",
+  "label_tabbar_picchart_weekly": "週間チャート",
+  "label_tabbar_vote_active": "進行中",
+  "label_tabbar_vote_end": "終了",
+  "label_tabbar_vote_upcoming": "予定",
   "label_time_ago_day": "{day}일 전",
   "label_time_ago_hour": "{hour}시간 전",
   "label_time_ago_minute": "{minute}분 전",
-  "label_time_ago_right_now": "방금 전",
-  "label_title_comment": "댓글",
-  "label_title_report": "신고하기",
-  "label_vote_reward_list": "리워드 리스트",
-  "label_vote_screen_title": "투표",
-  "label_vote_tab_birthday": "생일 투표",
-  "label_vote_tab_pic": "PIC 투표",
-  "label_vote_upcoming": "투표 시작까지",
-  "label_vote_vote_gather": "투표 모아보기",
-  "label_watch_ads": "광고보기",
-  "lable_my_celeb": "나의 아티스트",
-  "message_agreement_success": "약관 동의가 완료되었습니다.",
-  "message_error_occurred": "오류가 발생했습니다.",
-  "message_noitem_vote_active": "현재 진행중인 투표가 없습니다.",
-  "message_noitem_vote_end": "현재 종료된 투표가 없습니다.",
-  "message_noitem_vote_upcoming": "현재 예정중인 투표가 없습니다.",
-  "message_pic_pic_save_fail": "이미지 저장에 실패했습니다.",
-  "message_pic_pic_save_success": "이미지가 저장되었습니다.",
-  "message_report_confirm": "신고하시겠습니까?",
-  "message_report_ok": "신고가 완료되었습니다.",
-  "mypage_comment": "댓글관리",
-  "mypage_language": "언어설정",
-  "mypage_purchases": "내 구매",
-  "mypage_setting": "설정",
-  "mypage_subscription": "구독정보",
-  "nav_ads": "광고",
-  "nav_gallery": "갤러리",
+  "label_time_ago_right_now": "先ほど",
+  "label_title_comment": "コメント",
+  "label_title_report": "報告する",
+  "label_vote_reward_list": "リワードリスト",
+  "label_vote_screen_title": "投票",
+  "label_vote_tab_birthday": "誕生日投票",
+  "label_vote_tab_pic": "PIC投票",
+  "label_vote_upcoming": "投票開始まで",
+  "label_vote_vote_gather": "投票集を見る",
+  "label_watch_ads": "広告を見る",
+  "lable_my_celeb": "私のアーティスト",
+  "message_agreement_success": "規約の同意が完了しました。",
+  "message_error_occurred": "エラーが発生しました。",
+  "message_noitem_vote_active": "現在進行中の投票はありません。",
+  "message_noitem_vote_end": "現在、終了した投票はありません。",
+  "message_noitem_vote_upcoming": "現在予定されている投票はありません。",
+  "message_pic_pic_save_fail": "画像の保存に失敗しました。",
+  "message_pic_pic_save_success": "画像が保存されました。",
+  "message_report_confirm": "申告しますか？",
+  "message_report_ok": "申告が完了しました。",
+  "mypage_comment": "コメント管理",
+  "mypage_language": "言語設定",
+  "mypage_purchases": "私の購入",
+  "mypage_setting": "設定",
+  "mypage_subscription": "購読情報",
+  "nav_ads": "広告",
+  "nav_gallery": "ギャラリー",
   "nav_home": "홈",
-  "nav_library": "라이브러리",
-  "nav_media": "미디어",
-  "nav_picchart": "PIC차트",
-  "nav_purchases": "구매",
-  "nav_setting": "설정",
-  "nav_store": "상점",
-  "nav_subscription": "구독",
-  "nav_vote": "투표",
-  "nickname_validation_error": "20자 이내, 특수문자 제외 가능합니다.",
-  "page_title_mypage": "마이페이지",
-  "page_title_myprofile": "나의 프로필",
-  "page_title_privacy": "개인정보처리방침",
-  "page_title_setting": "환경설정",
-  "page_title_terms_of_use": "이용약관",
-  "page_title_vote_detail": "투표하기",
-  "page_title_vote_gather": "투표 모아보기",
-  "share_image_fail": "이미지 공유 실패",
-  "share_image_success": "이미지 공유 성공",
-  "share_no_twitter": "트위터 앱이 없습니다",
-  "share_twitter": "트위터 공유",
-  "text_ads_random": "광고 보기 및 무작위 이미지 수집.",
-  "text_bonus": "보너스",
+  "nav_library": "ライブラリ",
+  "nav_media": "メディア",
+  "nav_picchart": "PICチャート",
+  "nav_purchases": "購入",
+  "nav_setting": "設定",
+  "nav_store": "ショップ",
+  "nav_subscription": "サブスクリプション",
+  "nav_vote": "投票",
+  "nickname_validation_error": "20文字以内、特殊文字を除くことができます。",
+  "page_title_mypage": "マイページ",
+  "page_title_myprofile": "私のプロフィール",
+  "page_title_privacy": "個人情報保護方針",
+  "page_title_setting": "環境設定",
+  "page_title_terms_of_use": "利用規約",
+  "page_title_vote_detail": "投票する",
+  "page_title_vote_gather": "投票集を見る",
+  "share_image_fail": "画像共有に失敗",
+  "share_image_success": "画像共有成功",
+  "share_no_twitter": "Twitterアプリがありません",
+  "share_twitter": "Twitter共有",
+  "text_ads_random": "広告表示とランダム画像収集。",
+  "text_bonus": "ボーナス",
   "text_comming_soon_pic_chart1": "핔 차트에 오신 여러분을 환영합니다!\n2024년 8월에 만나요!",
   "text_comming_soon_pic_chart2": "핔차트는 일간, 주간, 월간 점수를 반영하는\n피크닠만의 새로운 차트입니다.",
   "text_comming_soon_pic_chart3": "실시간으로 반영되는\n아티스트의 브랜드 평판을 확인해 보세요!",
   "text_comming_soon_pic_chart_title": "핔차트란?",
-  "text_copied_address": "주소가 복사되었습니다.",
-  "text_dialog_star_candy_received": "별사탕이 지급되었습니다.",
-  "text_dialog_vote_amount_should_not_zero": "투표수량은 0이 될 수 없습니다.",
-  "text_draw_image": "전체 갤러리 중 이미지 1개 확정 소장",
-  "text_hint_search": "아티스트를 검색하세요.",
-  "text_moveto_celeb_gallery": "선택한 아티스트의 집으로 이동합니다.",
-  "text_need_recharge": "충전이 필요합니다.",
-  "text_no_search_result": "검색결과가 없어요.",
-  "text_purchase_vat_included": "*VAT 포함 가격입니다.",
-  "text_star_candy": "별사탕",
+  "text_copied_address": "アドレスがコピーされました。",
+  "text_dialog_ad_dismissed": "광고를 중간에 멈추었습니다.",
+  "text_dialog_ad_failed_to_show": "広告の読み込みに失敗",
+  "text_dialog_star_candy_received": "星飴が支給されました。",
+  "text_dialog_vote_amount_should_not_zero": "投票数は0にすることはできません。",
+  "text_draw_image": "全ギャラリーのうち、1枚の画像を確定的に所蔵",
+  "text_hint_search": "アーティストを検索してください。",
+  "text_moveto_celeb_gallery": "選択したアーティストの家に移動します。",
+  "text_need_recharge": "充電が必要です。",
+  "text_no_search_result": "検索結果がありません。",
+  "text_purchase_vat_included": "*価格はVAT込みの価格です。",
+  "text_star_candy": "スターキャンディー",
   "text_star_candy_with_bonus": "{num1}개 +{num1}개 보너스",
-  "text_this_time_vote": "이번 투표",
-  "text_vote_complete": "투표 완료",
+  "text_this_time_vote": "今回の投票",
+  "text_vote_complete": "投票完了",
   "text_vote_rank": "{rank}위",
-  "text_vote_rank_in_reward": "랭크 인 리워드",
-  "text_vote_where_is_my_bias": "나의 최애는 어디에?",
-  "title_dialog_library_add": "새로운 앨범 추가",
-  "title_dialog_success": "성공",
-  "title_select_language": "언어 선택",
-  "toast_max_five_celeb": "내 아티스트를 최대 5개까지 추가할 수 있습니다.",
+  "text_vote_rank_in_reward": "ランクインリワード",
+  "text_vote_where_is_my_bias": "私のお気に入りはどこ？",
+  "title_dialog_library_add": "新しいアルバムを追加",
+  "title_dialog_success": "成功",
+  "title_select_language": "言語の選択",
+  "toast_max_five_celeb": "マイアーティストは最大5人まで追加できます。",
   "@app_name": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@button_cancel": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@button_complete": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@button_login": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@button_ok": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@button_pic_pic_save": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@candy_usage_policy_contents": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@candy_usage_policy_guide": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@candy_usage_policy_title": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@dialog_button_cancel": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@dialog_button_ok": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@dialog_content_ads_exhausted": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@dialog_content_ads_loading": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@dialog_content_ads_retrying": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@dialog_content_login_required": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@dialog_purchases_fail": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@dialog_purchases_success": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@dialog_title_ads_exhausted": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@dialog_title_vote_fail": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@dialog_withdraw_button_cancel": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@dialog_withdraw_button_ok": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@dialog_withdraw_error": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@dialog_withdraw_message": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@dialog_withdraw_success": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@dialog_withdraw_title": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
-  "@error_message_login_failed": {},
+  "@error_message_login_failed": {
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
+  },
   "@error_message_no_user": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@error_message_withdrawal": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
-  "@error_title": {},
+  "@error_title": {
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
+  },
   "@hint_library_add": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@hint_nickname_input": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@image_save_success": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_agreement_privacy": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_agreement_terms": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_album_add": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_article_comment_empty": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_bonus": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_button_agreement": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_button_clse": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_button_disagreement": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_button_recharge": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_button_save_vote_paper": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_button_share": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_button_vote": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_button_watch_and_charge": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_celeb_ask_to_you": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_celeb_gallery": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_celeb_recommend": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_checkbox_entire_use": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_current_language": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_draw_image": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_dropdown_oldest": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_dropdown_recent": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_find_celeb": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_gallery_tab_article": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_gallery_tab_chat": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_hint_comment": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_input_input": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
-  "@label_last_provider": {},
+  "@label_last_provider": {
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
+  },
   "@label_library_save": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_library_tab_ai_photo": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_library_tab_library": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_library_tab_pic": {
     "manualTranslationKey": true,
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
+  },
+  "@label_loading_ads": {
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_moveto_celeb_gallery": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_mypage_charge_history": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_mypage_customer_center": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_mypage_logout": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_mypage_membership_history": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_mypage_mystar": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_mypage_notice": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_mypage_privacy_policy": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_mypage_setting": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_mypage_terms_of_use": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_mypage_vote_history": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_mypage_withdrawal": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_no_ads": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_no_celeb": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_pic_image_cropping": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_pic_pic_initializing_camera": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_pic_pic_save_gallery": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_pic_pic_synthesizing_image": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_read_more_comment": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_reply": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_retry": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_screen_title_agreement": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_setting_alarm": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_setting_appinfo": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_setting_current_version": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_setting_event_alarm": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_setting_event_alarm_desc": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_setting_language": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_setting_push_alarm": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_setting_recent_version": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_setting_remove_cache": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_setting_remove_cache_complete": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_setting_storage": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_setting_update": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_star_candy_pouch": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_tab_buy_star_candy": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_tab_free_charge_station": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_tabbar_picchart_daily": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_tabbar_picchart_monthly": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_tabbar_picchart_weekly": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_tabbar_vote_active": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_tabbar_vote_end": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
-  "@label_tabbar_vote_upcoming": {},
+  "@label_tabbar_vote_upcoming": {
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
+  },
   "@label_time_ago_day": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_time_ago_hour": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_time_ago_minute": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_time_ago_right_now": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_title_comment": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_title_report": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_vote_reward_list": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_vote_screen_title": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_vote_tab_birthday": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_vote_tab_pic": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
-  "@label_vote_upcoming": {},
+  "@label_vote_upcoming": {
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
+  },
   "@label_vote_vote_gather": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@label_watch_ads": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@lable_my_celeb": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@message_agreement_success": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@message_error_occurred": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
-  "@message_noitem_vote_active": {},
-  "@message_noitem_vote_end": {},
-  "@message_noitem_vote_upcoming": {},
+  "@message_noitem_vote_active": {
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
+  },
+  "@message_noitem_vote_end": {
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
+  },
+  "@message_noitem_vote_upcoming": {
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
+  },
   "@message_pic_pic_save_fail": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@message_pic_pic_save_success": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@message_report_confirm": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@message_report_ok": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@mypage_comment": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@mypage_language": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@mypage_purchases": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@mypage_setting": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@mypage_subscription": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@nav_ads": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@nav_gallery": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@nav_home": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@nav_library": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@nav_media": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@nav_picchart": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@nav_purchases": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@nav_setting": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@nav_store": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@nav_subscription": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@nav_vote": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@nickname_validation_error": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@page_title_mypage": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@page_title_myprofile": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@page_title_privacy": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@page_title_setting": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@page_title_terms_of_use": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@page_title_vote_detail": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@page_title_vote_gather": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@share_image_fail": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@share_image_success": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@share_no_twitter": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@share_twitter": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@text_ads_random": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@text_bonus": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@text_comming_soon_pic_chart1": {
     "manualTranslationKey": true,
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_comming_soon_pic_chart2": {
     "manualTranslationKey": true,
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_comming_soon_pic_chart3": {
     "manualTranslationKey": true,
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_comming_soon_pic_chart_title": {
     "manualTranslationKey": true,
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_copied_address": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
+  },
+  "@text_dialog_ad_dismissed": {},
+  "@text_dialog_ad_failed_to_show": {
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@text_dialog_star_candy_received": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@text_dialog_vote_amount_should_not_zero": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@text_draw_image": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@text_hint_search": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@text_moveto_celeb_gallery": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@text_need_recharge": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@text_no_search_result": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@text_purchase_vat_included": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@text_star_candy": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@text_star_candy_with_bonus": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_this_time_vote": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@text_unit_star_candy": {
     "translationTimestamp": "2024-06-29T17:41:46.209630"
   },
   "@text_vote_complete": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@text_vote_rank": {
     "manualTranslationKey": true,
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@text_vote_rank_in_reward": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@text_vote_where_is_my_bias": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@title_dialog_library_add": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@title_dialog_success": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@title_select_language": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@toast_max_five_celeb": {
-    "translationTimestamp": "2024-07-15T16:59:25.093635"
+    "translationTimestamp": "2024-07-22T16:21:51.691584"
   },
   "@translationTimestamp": {
     "translationTimestamp": "2024-06-24T07:51:27.596378"
