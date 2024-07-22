@@ -1,4 +1,6 @@
 // product_providers.dart
+import 'dart:io';
+
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -54,8 +56,15 @@ class StoreProducts extends _$StoreProducts {
         throw Exception('Store is not available');
       }
 
-      final productIds =
-          serverProducts.map((product) => product['id'].toString()).toSet();
+      final productIds = serverProducts
+          .map((product) =>
+                  Platform.isAndroid // check if the operating system is Android
+                      ? product['id']
+                          .toString()
+                          .toLowerCase() // convert to lowercase for Android
+                      : product['id'].toString() // use original ID for the rest
+              )
+          .toSet();
 
       final ProductDetailsResponse response =
           await inAppPurchase.queryProductDetails(productIds);
