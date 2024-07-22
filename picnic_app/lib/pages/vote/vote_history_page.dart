@@ -129,13 +129,12 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
                         RichText(
                             text: TextSpan(children: [
                           TextSpan(
-                              text: item.vote.title[
-                                  Intl.getCurrentLocale().split('_').first],
+                              text: getLocaleTextFromJson(item.vote.title),
                               style: getTextStyle(
                                   AppTypo.BODY14M, AppColors.Grey900)),
                           TextSpan(
                               text:
-                                  '${item.vote_item.artist?.name[Intl.getCurrentLocale().split('_').first]}_${item.vote_item.artist?.artist_group.name[Intl.getCurrentLocale().split('_').first]}',
+                                  '${getLocaleTextFromJson(item.vote_item.artist.name)}_${getLocaleTextFromJson(item.vote_item.artist.artist_group.name)}',
                               style: getTextStyle(
                                   AppTypo.BODY14M, AppColors.Grey900)),
                         ])),

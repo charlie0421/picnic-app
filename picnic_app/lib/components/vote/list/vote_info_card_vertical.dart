@@ -7,6 +7,7 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util.dart';
 
 class VoteCardColumnVertical extends StatelessWidget {
   const VoteCardColumnVertical({
@@ -106,16 +107,14 @@ class VoteCardColumnVertical extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  voteItem
-                      .artist?.name[Intl.getCurrentLocale().split('_').first],
+                  getLocaleTextFromJson(voteItem.artist.name),
                   style: getTextStyle(
                     AppTypo.BODY14B,
                     AppColors.Grey900,
                   ),
                 ),
                 Text(
-                  voteItem.artist?.artist_group
-                      .name[Intl.getCurrentLocale().split('_')[0]],
+                  getLocaleTextFromJson(voteItem.artist.artist_group.name),
                   style: getTextStyle(
                     AppTypo.CAPTION10SB,
                     AppColors.Grey00,
