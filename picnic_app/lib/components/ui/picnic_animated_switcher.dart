@@ -1,36 +1,98 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 
-class PicnicAnimatedSwitcher extends ConsumerWidget {
-  const PicnicAnimatedSwitcher({
-    super.key,
-  });
+class PicnicAnimatedSwitcher extends ConsumerStatefulWidget {
+  const PicnicAnimatedSwitcher({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  _PicnicAnimatedSwitcherState createState() => _PicnicAnimatedSwitcherState();
+}
+
+class _PicnicAnimatedSwitcherState
+    extends ConsumerState<PicnicAnimatedSwitcher> {
+  bool _showAnimation = false;
+  Widget? _previousTopWidget;
+  Uint8List? _gifBytes;
+  Key _animationKey = UniqueKey();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGifBytes();
+  }
+
+  Future<void> _loadGifBytes() async {
+    final ByteData data = await rootBundle.load('assets/splash.gif');
+    setState(() {
+      _gifBytes = data.buffer.asUint8List();
+    });
+  }
+
+  void _triggerAnimation() {
+    if (mounted) {
+      setState(() {
+        _showAnimation = true;
+        _animationKey = UniqueKey();
+      });
+
+      Future.delayed(const Duration(milliseconds: 400), () {
+        if (mounted) {
+          setState(() {
+            _showAnimation = false;
+          });
+        }
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final navigationInfo = ref.watch(navigationInfoProvider);
-    return AnimatedSwitcher(
-        duration: const Duration(milliseconds: 500),
-        transitionBuilder: (Widget child, Animation<double> animation) {
-          return FadeTransition(
-            opacity: animation,
-            child: child,
-          );
-        },
-        layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
-          return currentChild ?? Container();
-        },
-        child: Container(
+    final currentTopWidget = navigationInfo.topNavigationStack?.peek();
+
+    // 스택의 최상위 위젯이 변경될 때마다 애니메이션을 트리거합니다.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (currentTopWidget != null && currentTopWidget != _previousTopWidget) {
+        _triggerAnimation();
+        _previousTopWidget = currentTopWidget;
+      }
+    });
+
+    return Stack(
+      children: [
+        AnimatedSwitcher(
+          key: ValueKey(currentTopWidget.hashCode),
+          duration: const Duration(milliseconds: 500),
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+          child: Container(
             margin: navigationInfo.showBottomNavigation
                 ? const EdgeInsets.only(bottom: 102).r
                 : null,
-            child: navigationInfo.topNavigationStack != null &&
-                    navigationInfo.topNavigationStack!.length > 0
-                ? navigationInfo.topNavigationStack?.peek()
-                : Container()));
+            child: currentTopWidget ?? Container(),
+          ),
+        ),
+        if (_showAnimation && _gifBytes != null)
+          Positioned.fill(
+            key: _animationKey,
+            child: Image.memory(
+              _gifBytes!,
+              fit: BoxFit.fitWidth,
+              gaplessPlayback: true,
+            ),
+          ),
+      ],
+    );
   }
 }
 
