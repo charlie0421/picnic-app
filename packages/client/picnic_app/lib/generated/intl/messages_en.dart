@@ -149,13 +149,16 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_mypage_logout": MessageLookupByLibrary.simpleMessage("Log out"),
         "label_mypage_membership_history":
             MessageLookupByLibrary.simpleMessage("Membership history"),
-        "label_mypage_mystar": MessageLookupByLibrary.simpleMessage("My Star"),
+        "label_mypage_my_artist":
+            MessageLookupByLibrary.simpleMessage("My Artists"),
         "label_mypage_notice":
             MessageLookupByLibrary.simpleMessage("Announcements"),
         "label_mypage_privacy_policy":
             MessageLookupByLibrary.simpleMessage("Privacy Policy"),
         "label_mypage_setting":
             MessageLookupByLibrary.simpleMessage("Settings"),
+        "label_mypage_should_login":
+            MessageLookupByLibrary.simpleMessage("Please sign in"),
         "label_mypage_terms_of_use":
             MessageLookupByLibrary.simpleMessage("Terms of Use"),
         "label_mypage_vote_history":
@@ -235,15 +238,15 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("Birthday polls"),
         "label_vote_tab_pic":
-            MessageLookupByLibrary.simpleMessage("PIC voting"),
+            MessageLookupByLibrary.simpleMessage("PIC Voting"),
         "label_vote_upcoming":
             MessageLookupByLibrary.simpleMessage("Until voting begins"),
         "label_vote_vote_gather":
             MessageLookupByLibrary.simpleMessage("Collecting votes"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("View ads"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("My Artists"),
-        "message_agreement_success":
-            MessageLookupByLibrary.simpleMessage("You\'ve accepted the terms."),
+        "message_agreement_success": MessageLookupByLibrary.simpleMessage(
+            "Acceptance of the terms is complete."),
         "message_error_occurred":
             MessageLookupByLibrary.simpleMessage("An error occurred."),
         "message_noitem_vote_active": MessageLookupByLibrary.simpleMessage(

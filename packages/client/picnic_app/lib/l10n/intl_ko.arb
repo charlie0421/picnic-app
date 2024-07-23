@@ -69,7 +69,7 @@
   "label_mypage_customer_center": "고객센터",
   "label_mypage_logout": "로그아웃",
   "label_mypage_membership_history": "멤버십 내역",
-  "label_mypage_mystar": "마이 스타",
+  "label_mypage_my_artist": "나의 아티스트",
   "label_mypage_notice": "공지사항",
   "label_mypage_privacy_policy": "개인정보처리방침",
   "label_mypage_setting": "설정",
@@ -167,6 +167,8 @@
   "text_copied_address": "주소가 복사되었습니다.",
   "text_dialog_star_candy_received": "별사탕이 지급되었습니다.",
   "text_dialog_ad_failed_to_show": "광고 불러오기 실패",
+  "label_mypage_should_login": "로그인 해 주세요",
+
   "text_dialog_ad_dismissed": "광고를 중간에 멈추었습니다.",
   "text_dialog_vote_amount_should_not_zero": "투표수량은 0이 될 수 없습니다.",
   "text_draw_image": "전체 갤러리 중 이미지 1개 확정 소장",

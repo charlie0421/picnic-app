@@ -141,11 +141,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_mypage_logout": MessageLookupByLibrary.simpleMessage("로그아웃"),
         "label_mypage_membership_history":
             MessageLookupByLibrary.simpleMessage("멤버십 내역"),
-        "label_mypage_mystar": MessageLookupByLibrary.simpleMessage("마이 스타"),
+        "label_mypage_my_artist":
+            MessageLookupByLibrary.simpleMessage("나의 아티스트"),
         "label_mypage_notice": MessageLookupByLibrary.simpleMessage("공지사항"),
         "label_mypage_privacy_policy":
             MessageLookupByLibrary.simpleMessage("개인정보처리방침"),
         "label_mypage_setting": MessageLookupByLibrary.simpleMessage("설정"),
+        "label_mypage_should_login":
+            MessageLookupByLibrary.simpleMessage("로그인 해 주세요"),
         "label_mypage_terms_of_use":
             MessageLookupByLibrary.simpleMessage("이용약관"),
         "label_mypage_vote_history":

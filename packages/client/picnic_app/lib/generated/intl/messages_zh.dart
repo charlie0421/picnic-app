@@ -88,7 +88,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("成为第一个发表评论的人！"),
         "label_bonus": MessageLookupByLibrary.simpleMessage("奖金"),
-        "label_button_agreement": MessageLookupByLibrary.simpleMessage("同意"),
+        "label_button_agreement": MessageLookupByLibrary.simpleMessage("接受"),
         "label_button_clse": MessageLookupByLibrary.simpleMessage("關閉"),
         "label_button_disagreement":
             MessageLookupByLibrary.simpleMessage("不同意"),
@@ -130,11 +130,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_mypage_logout": MessageLookupByLibrary.simpleMessage("退出"),
         "label_mypage_membership_history":
             MessageLookupByLibrary.simpleMessage("会员历史"),
-        "label_mypage_mystar": MessageLookupByLibrary.simpleMessage("我的明星"),
+        "label_mypage_my_artist": MessageLookupByLibrary.simpleMessage("我的艺术家"),
         "label_mypage_notice": MessageLookupByLibrary.simpleMessage("公告"),
         "label_mypage_privacy_policy":
             MessageLookupByLibrary.simpleMessage("隐私政策"),
         "label_mypage_setting": MessageLookupByLibrary.simpleMessage("设置"),
+        "label_mypage_should_login":
+            MessageLookupByLibrary.simpleMessage("请登录"),
         "label_mypage_terms_of_use":
             MessageLookupByLibrary.simpleMessage("条款和条件"),
         "label_mypage_vote_history":
@@ -289,7 +291,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("奖励排名"),
         "text_vote_where_is_my_bias":
-            MessageLookupByLibrary.simpleMessage("我的最爱在哪里？"),
+            MessageLookupByLibrary.simpleMessage("我的最爱呢？"),
         "title_dialog_library_add":
             MessageLookupByLibrary.simpleMessage("添加新相册"),
         "title_dialog_success": MessageLookupByLibrary.simpleMessage("成功"),
