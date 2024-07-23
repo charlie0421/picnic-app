@@ -26,8 +26,8 @@ class VoteCardColumnVertical extends StatelessWidget {
     BuildContext context,
   ) {
     final width = kIsWeb
-        ? webDesignSize.width / 5
-        : MediaQuery.of(context).size.width / 5;
+        ? webDesignSize.width / 4.5
+        : MediaQuery.of(context).size.width / 4.5;
     final barHeight = (rank == 1
         ? 220 * .65
         : rank == 2
@@ -101,26 +101,31 @@ class VoteCardColumnVertical extends StatelessWidget {
           ),
         ),
         Positioned(
-          bottom: (barHeight * .3).h,
+          bottom: 10.h,
           child: FadeTransition(
             opacity: opacityAnimation,
-            child: Column(
-              children: [
-                Text(
-                  getLocaleTextFromJson(voteItem.artist.name),
-                  style: getTextStyle(
-                    AppTypo.BODY14B,
-                    AppColors.Grey900,
+            child: Container(
+              width: width,
+              child: Column(
+                children: [
+                  Text(
+                    getLocaleTextFromJson(voteItem.artist.name),
+                    style: getTextStyle(
+                      AppTypo.BODY14B,
+                      AppColors.Grey900,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                ),
-                Text(
-                  getLocaleTextFromJson(voteItem.artist.artist_group.name),
-                  style: getTextStyle(
-                    AppTypo.CAPTION10SB,
-                    AppColors.Grey00,
+                  Text(
+                    getLocaleTextFromJson(voteItem.artist.artist_group.name),
+                    style: getTextStyle(
+                      AppTypo.CAPTION10SB,
+                      AppColors.Grey00,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
