@@ -36,8 +36,8 @@ class PurchaseStarCandy extends ConsumerStatefulWidget {
 
 class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
   final InAppPurchase _inAppPurchase = InAppPurchase.instance;
-  List<Map<String, dynamic>> _serverProducts = [];
-  List<ProductDetails> _storeProducts = [];
+  final List<Map<String, dynamic>> _serverProducts = [];
+  final List<ProductDetails> _storeProducts = [];
 
   @override
   void initState() {

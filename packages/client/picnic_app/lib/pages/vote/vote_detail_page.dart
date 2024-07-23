@@ -41,6 +41,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   bool _hasFocus = false;
   String _searchQuery = '';
   bool is_ended = false;
+  bool is_upcoming = false;
 
   @override
   initState() {
@@ -204,7 +205,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
               return _buildLoadingShimmer();
             }
             WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {
-                  is_ended = voteModel!.is_ended!;
+                  is_ended = voteModel.is_ended!;
+                  is_upcoming = voteModel.is_upcoming!;
                 }));
             return Column(
               children: [
@@ -212,7 +214,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   width: width,
                   height: height,
                   child: PicnicCachedNetworkImage(
-                    imageUrl: voteModel?.main_image ?? '',
+                    imageUrl: voteModel.main_image ?? '',
                     useScreenUtil: true,
                     fit: BoxFit.cover,
                     width: width.toInt(),
@@ -225,7 +227,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 57).r,
                   child: VoteCommonTitle(
-                      title: voteModel?.title[Intl.getCurrentLocale()] ?? ''),
+                      title: voteModel.title[Intl.getCurrentLocale()] ?? ''),
                 ),
                 SizedBox(
                   height: 12.h,
@@ -236,14 +238,14 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                     TextSpan(children: [
                       TextSpan(
                         text: DateFormat('yyyy.MM.dd HH:mm').format(
-                            voteModel?.start_at ?? DateTime.now().toUtc()),
+                            voteModel.start_at ?? DateTime.now().toUtc()),
                         style:
                             getTextStyle(AppTypo.CAPTION12R, AppColors.Grey900),
                       ),
                       const TextSpan(text: ' ~ '),
                       TextSpan(
                         text: DateFormat('yyyy.MM.dd HH:mm').format(
-                            voteModel?.stop_at ?? DateTime.now().toUtc()),
+                            voteModel.stop_at ?? DateTime.now().toUtc()),
                         style:
                             getTextStyle(AppTypo.CAPTION12R, AppColors.Grey900),
                       ),
@@ -268,9 +270,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 SizedBox(
                   height: 4.h,
                 ),
-                voteModel?.reward != null
+                voteModel.reward != null
                     ? Column(
-                        children: voteModel!.reward!
+                        children: voteModel.reward!
                             .map((rewardModel) => GestureDetector(
                                   behavior: HitTestBehavior.opaque,
                                   onTap: () {
@@ -346,7 +348,18 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                     if (is_ended) {
                                       showSimpleDialog(
                                           context: context,
-                                          content: '종료된 투표입니다.');
+                                          content: S
+                                              .of(context)
+                                              .message_vote_is_ended);
+                                      return;
+                                    }
+
+                                    if (is_upcoming) {
+                                      showSimpleDialog(
+                                          context: context,
+                                          content: S
+                                              .of(context)
+                                              .message_vote_is_upcoming);
                                       return;
                                     }
 
@@ -420,7 +433,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                                 BorderRadius.circular(39),
                                             child: PicnicCachedNetworkImage(
                                               imageUrl:
-                                                  item.artist?.image ?? '',
+                                                  item.artist.image ?? '',
                                               useScreenUtil: true,
                                               width: 55,
                                               height: 55,
@@ -440,7 +453,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                               Row(children: [
                                                 RichText(
                                                   text: _highlightText(
-                                                      item.artist?.name[
+                                                      item.artist.name[
                                                           Intl.getCurrentLocale()
                                                               .split('_')
                                                               .first],
@@ -454,7 +467,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                                 ),
                                                 RichText(
                                                   text: _highlightText(
-                                                      item.artist?.artist_group
+                                                      item.artist.artist_group
                                                               .name[
                                                           Intl.getCurrentLocale()
                                                               .split('_')

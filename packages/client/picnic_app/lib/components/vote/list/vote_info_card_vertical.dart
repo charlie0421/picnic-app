@@ -91,7 +91,7 @@ class VoteCardColumnVertical extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(100),
                   child: PicnicCachedNetworkImage(
-                      imageUrl: voteItem.artist?.image ?? '',
+                      imageUrl: voteItem.artist.image ?? '',
                       useScreenUtil: true,
                       width: 100,
                       height: 100),
@@ -104,7 +104,7 @@ class VoteCardColumnVertical extends StatelessWidget {
           bottom: 10.h,
           child: FadeTransition(
             opacity: opacityAnimation,
-            child: Container(
+            child: SizedBox(
               width: width,
               child: Column(
                 children: [

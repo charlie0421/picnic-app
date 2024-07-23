@@ -134,7 +134,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(120),
             child: PicnicCachedNetworkImage(
-              imageUrl: widget.voteItemModel.artist?.image ?? '',
+              imageUrl: widget.voteItemModel.artist.image ?? '',
               width: 100,
               height: 100,
               useScreenUtil: false,
@@ -149,7 +149,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             children: [
               Text(
                 widget.voteItemModel.artist
-                        ?.name[Intl.getCurrentLocale().split('_')[0]] ??
+                        .name[Intl.getCurrentLocale().split('_')[0]] ??
                     '',
                 style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
               ),
@@ -157,7 +157,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
               Align(
                 alignment: Alignment.center,
                 child: Text(
-                  widget.voteItemModel.artist?.artist_group
+                  widget.voteItemModel.artist.artist_group
                       .name[Intl.getCurrentLocale().split('_')[0]],
                   style: getTextStyle(AppTypo.CAPTION12R, AppColors.Grey600),
                 ),

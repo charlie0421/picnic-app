@@ -40,10 +40,10 @@ class CustomPagination extends StatelessWidget {
   final int activeIndex;
 
   const CustomPagination({
-    Key? key,
+    super.key,
     required this.itemCount,
     required this.activeIndex,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

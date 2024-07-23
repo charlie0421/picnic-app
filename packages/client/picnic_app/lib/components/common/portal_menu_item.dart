@@ -31,7 +31,7 @@ class PortalMenuItem extends ConsumerWidget {
         child: Container(
           height: 26.h,
           alignment: Alignment.center,
-          padding: EdgeInsets.symmetric(horizontal: 12).r,
+          padding: const EdgeInsets.symmetric(horizontal: 12).r,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(13).r,
             border: Border.all(

@@ -4,7 +4,7 @@ import 'package:picnic_app/ui/style.dart';
 
 class StoreListTile extends StatelessWidget {
   const StoreListTile({
-    Key? key,
+    super.key,
     required this.icon,
     required this.title,
     this.subtitle,
@@ -13,7 +13,7 @@ class StoreListTile extends StatelessWidget {
     this.isLoading = false,
     this.index,
     this.buttonScale,
-  }) : super(key: key);
+  });
 
   final Image icon;
   final Text title;

@@ -800,10 +800,10 @@ class S {
     );
   }
 
-  /// `Star voting history`
+  /// `Star Candy Voting History`
   String get label_mypage_vote_history {
     return Intl.message(
-      'Star voting history',
+      'Star Candy Voting History',
       name: 'label_mypage_vote_history',
       desc: '',
       args: [],
@@ -890,10 +890,10 @@ class S {
     );
   }
 
-  /// `Reply to a reply`
+  /// `Replying to a reply`
   String get label_reply {
     return Intl.message(
-      'Reply to a reply',
+      'Replying to a reply',
       name: 'label_reply',
       desc: '',
       args: [],
@@ -1360,6 +1360,26 @@ class S {
     );
   }
 
+  /// `Poll closed`
+  String get message_vote_is_ended {
+    return Intl.message(
+      'Poll closed',
+      name: 'message_vote_is_ended',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This is an upcoming vote`
+  String get message_vote_is_upcoming {
+    return Intl.message(
+      'This is an upcoming vote',
+      name: 'message_vote_is_upcoming',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Manage comments`
   String get mypage_comment {
     return Intl.message(
@@ -1400,10 +1420,10 @@ class S {
     );
   }
 
-  /// `Subscriptions`
+  /// `Subscription information`
   String get mypage_subscription {
     return Intl.message(
-      'Subscriptions',
+      'Subscription information',
       name: 'mypage_subscription',
       desc: '',
       args: [],
@@ -1660,40 +1680,40 @@ class S {
     );
   }
 
-  /// `핔 차트에 오신 여러분을 환영합니다!\n2024년 8월에 만나요!`
+  /// `Welcome to PikChart!\nSee you in August 2024!`
   String get text_comming_soon_pic_chart1 {
     return Intl.message(
-      '핔 차트에 오신 여러분을 환영합니다!\n2024년 8월에 만나요!',
+      'Welcome to PikChart!\nSee you in August 2024!',
       name: 'text_comming_soon_pic_chart1',
       desc: '',
       args: [],
     );
   }
 
-  /// `핔차트는 일간, 주간, 월간 점수를 반영하는\n피크닠만의 새로운 차트입니다.`
+  /// `Pie charts are a new chart unique to Peeknick that reflects daily, weekly, and monthly scores.\nPeeknick's new chart that reflects daily, weekly, and monthly scores.`
   String get text_comming_soon_pic_chart2 {
     return Intl.message(
-      '핔차트는 일간, 주간, 월간 점수를 반영하는\n피크닠만의 새로운 차트입니다.',
+      'Pie charts are a new chart unique to Peeknick that reflects daily, weekly, and monthly scores.\nPeeknick\'s new chart that reflects daily, weekly, and monthly scores.',
       name: 'text_comming_soon_pic_chart2',
       desc: '',
       args: [],
     );
   }
 
-  /// `실시간으로 반영되는\n아티스트의 브랜드 평판을 확인해 보세요!`
+  /// `Get a real-time reflection\nartist's brand reputation in real-time!`
   String get text_comming_soon_pic_chart3 {
     return Intl.message(
-      '실시간으로 반영되는\n아티스트의 브랜드 평판을 확인해 보세요!',
+      'Get a real-time reflection\nartist\'s brand reputation in real-time!',
       name: 'text_comming_soon_pic_chart3',
       desc: '',
       args: [],
     );
   }
 
-  /// `핔차트란?`
+  /// `What is a Pie Chart?`
   String get text_comming_soon_pic_chart_title {
     return Intl.message(
-      '핔차트란?',
+      'What is a Pie Chart?',
       name: 'text_comming_soon_pic_chart_title',
       desc: '',
       args: [],

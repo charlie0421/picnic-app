@@ -7,12 +7,12 @@ import 'package:picnic_app/ui/style.dart';
 
 class VoteHeader extends StatelessWidget {
   const VoteHeader({
-    Key? key,
+    super.key,
     required this.title,
     required this.stopAt,
     this.onRefresh,
     required this.status, // 새로운 파라미터 추가
-  }) : super(key: key);
+  });
 
   final String title;
   final DateTime stopAt;
@@ -22,7 +22,7 @@ class VoteHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(mainAxisSize: MainAxisSize.min, children: [
-      Container(
+      SizedBox(
           height: 32.h,
           child: Stack(children: [
             Container(

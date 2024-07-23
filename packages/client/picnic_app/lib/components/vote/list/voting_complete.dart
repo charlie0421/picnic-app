@@ -335,7 +335,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                       borderRadius: BorderRadius.circular(64.r),
                                       child: PicnicCachedNetworkImage(
                                         imageUrl: widget
-                                                .voteItemModel.artist?.image ??
+                                                .voteItemModel.artist.image ??
                                             '',
                                         width: 56,
                                         height: 56,
@@ -343,7 +343,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                     ),
                                     SizedBox(height: 8.w),
                                     Text(
-                                      widget.voteItemModel.artist?.name[
+                                      widget.voteItemModel.artist.name[
                                               Intl.getCurrentLocale()
                                                   .split('_')[0]] ??
                                           '',
@@ -352,7 +352,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                     ),
                                     SizedBox(height: 5.w),
                                     Text(
-                                      widget.voteItemModel.artist?.artist_group
+                                      widget.voteItemModel.artist.artist_group
                                               .name[
                                           Intl.getCurrentLocale()
                                               .split('_')[0]],

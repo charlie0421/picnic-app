@@ -41,7 +41,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
             "### 有效期\n\n- 自获得之日起，Star Candy 的有效期为一年。\n\n### 赚取的星星糖\n\n登录：每天 1 个\n- 投票：每天 1 次\n购买糖果：无（无限制）\n奖励星星糖果：在获得后的当月 15 日分批过期\n\n在 ##### 上兑换星星糖\n\n有效期即将结束的星星糖果将优先使用。\n如果有效期相同，则使用最早的一个。"),
         "candy_usage_policy_guide":
-            MessageLookupByLibrary.simpleMessage("*获得奖金的次月，奖金就会消失！ ⓘ"),
+            MessageLookupByLibrary.simpleMessage("*奖金将在您获得奖金的次月消失！ ⓘ"),
         "candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("星糖使用政策"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("取消"),
@@ -94,7 +94,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("不同意"),
         "label_button_recharge": MessageLookupByLibrary.simpleMessage("充电"),
         "label_button_save_vote_paper":
-            MessageLookupByLibrary.simpleMessage("保存您的选票"),
+            MessageLookupByLibrary.simpleMessage("存储您的选票"),
         "label_button_share": MessageLookupByLibrary.simpleMessage("分享"),
         "label_button_vote": MessageLookupByLibrary.simpleMessage("投票"),
         "label_button_watch_and_charge":
@@ -140,7 +140,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_mypage_terms_of_use":
             MessageLookupByLibrary.simpleMessage("条款和条件"),
         "label_mypage_vote_history":
-            MessageLookupByLibrary.simpleMessage("明星投票历史"),
+            MessageLookupByLibrary.simpleMessage("星星糖投票历史"),
         "label_mypage_withdrawal": MessageLookupByLibrary.simpleMessage("退出"),
         "label_no_ads": MessageLookupByLibrary.simpleMessage("无广告"),
         "label_no_celeb":
@@ -223,6 +223,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "message_report_confirm":
             MessageLookupByLibrary.simpleMessage("你想报告吗？"),
         "message_report_ok": MessageLookupByLibrary.simpleMessage("报告已完成。"),
+        "message_vote_is_ended": MessageLookupByLibrary.simpleMessage("投票结束"),
+        "message_vote_is_upcoming":
+            MessageLookupByLibrary.simpleMessage("即将进行投票"),
         "mypage_comment": MessageLookupByLibrary.simpleMessage("管理评论"),
         "mypage_language": MessageLookupByLibrary.simpleMessage("语言设置"),
         "mypage_purchases": MessageLookupByLibrary.simpleMessage("我的采购"),
@@ -257,13 +260,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_ads_random": MessageLookupByLibrary.simpleMessage("查看广告并收集随机图片。"),
         "text_bonus": MessageLookupByLibrary.simpleMessage("奖金"),
         "text_comming_soon_pic_chart1": MessageLookupByLibrary.simpleMessage(
-            "핔 차트에 오신 여러분을 환영합니다!\n2024년 8월에 만나요!"),
+            "欢迎访问 Pik Charts！\n2024 年 8 月再见！"),
         "text_comming_soon_pic_chart2": MessageLookupByLibrary.simpleMessage(
-            "핔차트는 일간, 주간, 월간 점수를 반영하는\n피크닠만의 새로운 차트입니다."),
-        "text_comming_soon_pic_chart3": MessageLookupByLibrary.simpleMessage(
-            "실시간으로 반영되는\n아티스트의 브랜드 평판을 확인해 보세요!"),
+            "饼图是 Peeknick 独有的新图表，可反映每日、每周和每月的分数。\nPiknick 反映每日、每周和每月得分的新图表。"),
+        "text_comming_soon_pic_chart3":
+            MessageLookupByLibrary.simpleMessage("实时查看您的品牌声誉\n实时反映艺术家的品牌声誉！"),
         "text_comming_soon_pic_chart_title":
-            MessageLookupByLibrary.simpleMessage("핔차트란?"),
+            MessageLookupByLibrary.simpleMessage("什么是饼图？"),
         "text_copied_address": MessageLookupByLibrary.simpleMessage("地址已复制。"),
         "text_dialog_ad_dismissed":
             MessageLookupByLibrary.simpleMessage("广告中途停止。"),

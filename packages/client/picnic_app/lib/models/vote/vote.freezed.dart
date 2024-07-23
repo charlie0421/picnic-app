@@ -211,6 +211,7 @@ mixin _$VoteModel {
   DateTime get stop_at => throw _privateConstructorUsedError;
   DateTime get start_at => throw _privateConstructorUsedError;
   bool? get is_ended => throw _privateConstructorUsedError;
+  bool? get is_upcoming => throw _privateConstructorUsedError;
   List<RewardModel>? get reward => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -238,6 +239,7 @@ abstract class $VoteModelCopyWith<$Res> {
       DateTime stop_at,
       DateTime start_at,
       bool? is_ended,
+      bool? is_upcoming,
       List<RewardModel>? reward});
 }
 
@@ -267,6 +269,7 @@ class _$VoteModelCopyWithImpl<$Res, $Val extends VoteModel>
     Object? stop_at = null,
     Object? start_at = null,
     Object? is_ended = freezed,
+    Object? is_upcoming = freezed,
     Object? reward = freezed,
   }) {
     return _then(_value.copyWith(
@@ -322,6 +325,10 @@ class _$VoteModelCopyWithImpl<$Res, $Val extends VoteModel>
           ? _value.is_ended
           : is_ended // ignore: cast_nullable_to_non_nullable
               as bool?,
+      is_upcoming: freezed == is_upcoming
+          ? _value.is_upcoming
+          : is_upcoming // ignore: cast_nullable_to_non_nullable
+              as bool?,
       reward: freezed == reward
           ? _value.reward
           : reward // ignore: cast_nullable_to_non_nullable
@@ -352,6 +359,7 @@ abstract class _$$VoteModelImplCopyWith<$Res>
       DateTime stop_at,
       DateTime start_at,
       bool? is_ended,
+      bool? is_upcoming,
       List<RewardModel>? reward});
 }
 
@@ -379,6 +387,7 @@ class __$$VoteModelImplCopyWithImpl<$Res>
     Object? stop_at = null,
     Object? start_at = null,
     Object? is_ended = freezed,
+    Object? is_upcoming = freezed,
     Object? reward = freezed,
   }) {
     return _then(_$VoteModelImpl(
@@ -434,6 +443,10 @@ class __$$VoteModelImplCopyWithImpl<$Res>
           ? _value.is_ended
           : is_ended // ignore: cast_nullable_to_non_nullable
               as bool?,
+      is_upcoming: freezed == is_upcoming
+          ? _value.is_upcoming
+          : is_upcoming // ignore: cast_nullable_to_non_nullable
+              as bool?,
       reward: freezed == reward
           ? _value._reward
           : reward // ignore: cast_nullable_to_non_nullable
@@ -459,6 +472,7 @@ class _$VoteModelImpl extends _VoteModel {
       required this.stop_at,
       required this.start_at,
       required this.is_ended,
+      required this.is_upcoming,
       required final List<RewardModel>? reward})
       : _title = title,
         _vote_item = vote_item,
@@ -508,6 +522,8 @@ class _$VoteModelImpl extends _VoteModel {
   final DateTime start_at;
   @override
   final bool? is_ended;
+  @override
+  final bool? is_upcoming;
   final List<RewardModel>? _reward;
   @override
   List<RewardModel>? get reward {
@@ -520,7 +536,7 @@ class _$VoteModelImpl extends _VoteModel {
 
   @override
   String toString() {
-    return 'VoteModel(id: $id, title: $title, vote_category: $vote_category, main_image: $main_image, wait_image: $wait_image, result_image: $result_image, vote_content: $vote_content, vote_item: $vote_item, created_at: $created_at, visible_at: $visible_at, stop_at: $stop_at, start_at: $start_at, is_ended: $is_ended, reward: $reward)';
+    return 'VoteModel(id: $id, title: $title, vote_category: $vote_category, main_image: $main_image, wait_image: $wait_image, result_image: $result_image, vote_content: $vote_content, vote_item: $vote_item, created_at: $created_at, visible_at: $visible_at, stop_at: $stop_at, start_at: $start_at, is_ended: $is_ended, is_upcoming: $is_upcoming, reward: $reward)';
   }
 
   @override
@@ -551,6 +567,8 @@ class _$VoteModelImpl extends _VoteModel {
                 other.start_at == start_at) &&
             (identical(other.is_ended, is_ended) ||
                 other.is_ended == is_ended) &&
+            (identical(other.is_upcoming, is_upcoming) ||
+                other.is_upcoming == is_upcoming) &&
             const DeepCollectionEquality().equals(other._reward, _reward));
   }
 
@@ -571,6 +589,7 @@ class _$VoteModelImpl extends _VoteModel {
       stop_at,
       start_at,
       is_ended,
+      is_upcoming,
       const DeepCollectionEquality().hash(_reward));
 
   @JsonKey(ignore: true)
@@ -602,6 +621,7 @@ abstract class _VoteModel extends VoteModel {
       required final DateTime stop_at,
       required final DateTime start_at,
       required final bool? is_ended,
+      required final bool? is_upcoming,
       required final List<RewardModel>? reward}) = _$VoteModelImpl;
   const _VoteModel._() : super._();
 
@@ -634,6 +654,8 @@ abstract class _VoteModel extends VoteModel {
   DateTime get start_at;
   @override
   bool? get is_ended;
+  @override
+  bool? get is_upcoming;
   @override
   List<RewardModel>? get reward;
   @override
