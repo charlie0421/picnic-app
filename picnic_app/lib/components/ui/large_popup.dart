@@ -70,7 +70,7 @@ class LargePopupWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      Text(S.of(context).label_button_clse,
+                      Text(S.of(context).label_button_close,
                           style:
                               getTextStyle(AppTypo.BODY14B, AppColors.Grey00)),
                       SizedBox(width: 4.w),

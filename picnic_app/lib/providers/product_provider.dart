@@ -2,6 +2,7 @@
 import 'dart:io';
 
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -42,12 +43,20 @@ class ServerProducts extends _$ServerProducts {
 class StoreProducts extends _$StoreProducts {
   @override
   FutureOr<List<ProductDetails>> build() async {
-    final serverProducts = await ref.watch(serverProductsProvider.future);
-    return _loadProducts(serverProducts);
+    logger.i('StoreProducts build method called');
+    try {
+      final serverProducts = await ref.watch(serverProductsProvider.future);
+      logger.i('Server products fetched: ${serverProducts.length}');
+      return _loadProducts(serverProducts);
+    } catch (e) {
+      logger.e('Error in StoreProducts build: $e');
+      rethrow;
+    }
   }
 
   Future<List<ProductDetails>> _loadProducts(
       List<Map<String, dynamic>> serverProducts) async {
+    logger.i('_loadProducts method called');
     final InAppPurchase inAppPurchase = InAppPurchase.instance;
 
     try {
@@ -66,6 +75,8 @@ class StoreProducts extends _$StoreProducts {
               )
           .toSet();
 
+      logger.i('Product IDs: $productIds');
+
       final ProductDetailsResponse response =
           await inAppPurchase.queryProductDetails(productIds);
 
@@ -77,8 +88,10 @@ class StoreProducts extends _$StoreProducts {
         throw Exception('No products found in the store');
       }
 
+      logger.i('Store products loaded: ${response.productDetails.length}');
       return response.productDetails;
     } catch (e) {
+      logger.e('Error loading products: $e');
       throw Exception('Error loading products: $e');
     }
   }

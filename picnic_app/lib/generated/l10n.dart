@@ -431,10 +431,10 @@ class S {
   }
 
   /// `关闭`
-  String get label_button_clse {
+  String get label_button_close {
     return Intl.message(
       '关闭',
-      name: 'label_button_clse',
+      name: 'label_button_close',
       desc: '',
       args: [],
     );

@@ -94,7 +94,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("첫 댓글의 주인공이 되세요!"),
         "label_bonus": MessageLookupByLibrary.simpleMessage("보너스"),
         "label_button_agreement": MessageLookupByLibrary.simpleMessage("동의"),
-        "label_button_clse": MessageLookupByLibrary.simpleMessage("닫기"),
+        "label_button_close": MessageLookupByLibrary.simpleMessage("닫기"),
         "label_button_disagreement":
             MessageLookupByLibrary.simpleMessage("비동의"),
         "label_button_recharge": MessageLookupByLibrary.simpleMessage("충전하기"),
