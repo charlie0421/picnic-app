@@ -800,10 +800,10 @@ class S {
     );
   }
 
-  /// `Voting history`
+  /// `Star voting history`
   String get label_mypage_vote_history {
     return Intl.message(
-      'Voting history',
+      'Star voting history',
       name: 'label_mypage_vote_history',
       desc: '',
       args: [],
@@ -890,10 +890,10 @@ class S {
     );
   }
 
-  /// `Replying to a reply`
+  /// `Reply to a reply`
   String get label_reply {
     return Intl.message(
-      'Replying to a reply',
+      'Reply to a reply',
       name: 'label_reply',
       desc: '',
       args: [],
@@ -1220,10 +1220,10 @@ class S {
     );
   }
 
-  /// `PIC Voting`
+  /// `PIC voting`
   String get label_vote_tab_pic {
     return Intl.message(
-      'PIC Voting',
+      'PIC voting',
       name: 'label_vote_tab_pic',
       desc: '',
       args: [],
@@ -1400,10 +1400,10 @@ class S {
     );
   }
 
-  /// `Subscription information`
+  /// `Subscriptions`
   String get mypage_subscription {
     return Intl.message(
-      'Subscription information',
+      'Subscriptions',
       name: 'mypage_subscription',
       desc: '',
       args: [],

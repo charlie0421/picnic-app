@@ -31,8 +31,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
     _pagingController.addPageRequestListener((pageKey) {
       _fetch(pageKey, 10, 'id', _sortOrder).then((newItems) {
         logger.i(newItems.meta);
-        final isLastPage =
-            newItems.meta.currentPage == newItems.meta.totalPages;
+        final isLastPage = newItems.meta.itemCount < 10;
         if (isLastPage) {
           _pagingController.appendLastPage(newItems.items);
         } else {
@@ -46,7 +45,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
   _fetch(int page, int limit, String sort, String order) async {
     final response = await supabase
         .from('vote_pick')
-        .select('*, vote(*), vote_item(*, mystar_member(*, mystar_group(*)))')
+        .select('*, vote(*), vote_item(*, artist(*, artist_group(*)))')
         .order(
           sort,
           ascending: order == 'ASC',
