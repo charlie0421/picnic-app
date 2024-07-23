@@ -38,8 +38,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_login": MessageLookupByLibrary.simpleMessage("로그인"),
         "button_ok": MessageLookupByLibrary.simpleMessage("확인"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("저장하기"),
+        "candy_disappear_next_month":
+            MessageLookupByLibrary.simpleMessage("다음 달 사라지는 별사탕😢"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
-            "### 유효기간\n\n- 별사탕은 획득일로부터 1년간 유효합니다.\n\n### 별사탕 획득\n\n로그인 : 1일 1회\n- 투표 : 1회당 1개\n구매 별사탕 : 없음 (무제한)\n보너스 별사탕 : 획득한 다음 달 15일에 일괄 소멸\n\n##### 별사탕 사용\n\n소멸일자가 임박한 별사탕부터 사용됩니다.\n유효기간이 동일한 경우, 그 중 획득일자가 빠른 순으로 사용됩니다."),
+            "구매한 별사탕은 무제한으로 사용 가능하지만 보너스 별사탕은 획득한 달의 다음 달 15일에 일괄 소멸됩니다."),
+        "candy_usage_policy_contents2": MessageLookupByLibrary.simpleMessage(
+            "별사탕 사용 시, 소멸이 임박한 별사탕이 우선적으로 사용됩니다."),
         "candy_usage_policy_guide":
             MessageLookupByLibrary.simpleMessage("*보너스는 획득한 다음달에 사라져요! ⓘ"),
         "candy_usage_policy_title":

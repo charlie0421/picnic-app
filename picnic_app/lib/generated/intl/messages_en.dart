@@ -38,8 +38,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_login": MessageLookupByLibrary.simpleMessage("Sign in"),
         "button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("Save"),
+        "candy_disappear_next_month": MessageLookupByLibrary.simpleMessage(
+            "Next month\'s disappearing star candy 😢"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
-            "### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, they will be used in the order of the earliest acquisition date."),
+            "You can spend an unlimited amount of purchased Star Candy, but bonus Star Candy expires in bulk on the 15th of the month following the month in which it was earned."),
+        "candy_usage_policy_contents2": MessageLookupByLibrary.simpleMessage(
+            "When using Star Candy, Star Candy that is about to expire is prioritized."),
         "candy_usage_policy_guide": MessageLookupByLibrary.simpleMessage(
             "*Bonuses disappear the month after you earn them! ⓘ"),
         "candy_usage_policy_title":

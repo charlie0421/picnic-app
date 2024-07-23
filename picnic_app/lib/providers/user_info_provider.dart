@@ -114,3 +114,21 @@ Future<bool> agreement(AgreementRef ref) async {
     return false;
   }
 }
+
+@riverpod
+Future<int> expireBonus(ExpireBonusRef ref) async {
+  try {
+    final response = await supabase
+        .from('star_candy_bonus_history')
+        .select('sum_remain_amount: sum(remain_amount::int)')
+        .gte('created_at', "date_trunc('month', CURRENT_DATE)")
+        .lt('created_at',
+            "date_trunc('month', CURRENT_DATE + INTERVAL '1 month')")
+        .single();
+
+    return (response['sum_remain_amount'] as num?)?.toInt() ?? 0;
+  } catch (e, s) {
+    logger.e(e, stackTrace: s);
+    return 0;
+  }
+}

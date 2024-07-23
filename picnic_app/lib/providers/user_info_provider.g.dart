@@ -34,6 +34,20 @@ final agreementProvider = AutoDisposeFutureProvider<bool>.internal(
 );
 
 typedef AgreementRef = AutoDisposeFutureProviderRef<bool>;
+String _$expireBonusHash() => r'5eab9a05e7133a14c31db76a3d49bfbc4eddceab';
+
+/// See also [expireBonus].
+@ProviderFor(expireBonus)
+final expireBonusProvider = AutoDisposeFutureProvider<int>.internal(
+  expireBonus,
+  name: r'expireBonusProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$expireBonusHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef ExpireBonusRef = AutoDisposeFutureProviderRef<int>;
 String _$userInfoHash() => r'0ca541aaba95009515b7c6a1aa07f829c4276c82';
 
 /// See also [UserInfo].
