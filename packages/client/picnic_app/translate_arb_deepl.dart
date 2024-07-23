@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:deepl_dart/deepl_dart.dart';
+import 'package:pool/pool.dart';
 import 'package:watcher/watcher.dart';
 
 // Constants
@@ -24,8 +25,8 @@ void main(List<String> arguments) async {
 
   try {
     final translator = Translator(authKey: deeplApiKey);
-    print('apiKey: $deeplApiKey');
-    print('Translating...');
+    print('Starting translation process...');
+    print('API Key: $deeplApiKey');
 
     const String inputFile = 'lib/l10n/intl_ko.arb';
     final List<String> outputFiles = [
@@ -41,15 +42,18 @@ void main(List<String> arguments) async {
     await synchronizeKeys(inputFile, outputFiles, modifyTimestamps: !watch);
 
     if (translateAll || !watch) {
+      print('Translating all languages...');
       await translateAllLanguages(
           translator, inputFile, outputFiles, translateAll);
+      print('All languages translated successfully.');
     }
 
     if (watch) {
+      print('Watching for changes...');
       await watchForChanges(translator, inputFile, outputFiles);
     }
   } catch (e, s) {
-    print('Error: $e');
+    print('Error occurred during translation process: $e');
     print('Stack trace:\n$s');
   }
 }
@@ -156,7 +160,7 @@ Future<void> synchronizeKeys(String inputFile, List<String> outputFiles,
       final keys = List<String>.from(originalArbContent.keys);
       final currentTimestamp = DateTime.now().toIso8601String();
 
-      // 오리지널 ARB 파일에 존재하지 않는 키를 타겟 ARB 파일에서 제거
+      // Remove keys from target ARB file that don't exist in the original ARB file
       final keysToRemove = translatedArbContent.keys
           .where((key) =>
               !originalArbContent.containsKey(key) && !key.startsWith("@"))
@@ -202,10 +206,15 @@ Future<void> synchronizeKeys(String inputFile, List<String> outputFiles,
   }
 }
 
-// ARB 파일 번역
+// Translate ARB file
 Future<void> translateArbFile(Translator translator, String inputFile,
     String outputFile, String targetLanguage,
     {bool translateAll = false}) async {
+  print(
+      'Starting translation for $outputFile (Target language: $targetLanguage)');
+
+  final pool = Pool(5);
+
   try {
     final originalArbContent = await readJsonFile(inputFile);
     final translatedArbContent = await readJsonFile(outputFile);
@@ -213,10 +222,9 @@ Future<void> translateArbFile(Translator translator, String inputFile,
     final currentTimestamp = DateTime.now().toIso8601String();
     final keys = List<String>.from(originalArbContent.keys);
 
-    // 캐시를 위한 맵
     final Map<String, String> translationCache = {};
 
-    // 오리지널 ARB 파일에 존재하지 않는 키를 타겟 ARB 파일에서 제거
+    // Remove keys from target ARB file that don't exist in the original ARB file
     final keysToRemove = translatedArbContent.keys
         .where((key) =>
             !originalArbContent.containsKey(key) && !key.startsWith("@"))
@@ -231,7 +239,8 @@ Future<void> translateArbFile(Translator translator, String inputFile,
     for (var key in keys) {
       if (!key.startsWith('@')) {
         if (!isValidKey(key)) {
-          print("경고: '$key' 키는 네이밍 규칙에 맞지 않아 무시됩니다.");
+          print(
+              "Warning: Key '$key' does not match naming rules and will be ignored.");
           continue;
         }
 
@@ -239,63 +248,59 @@ Future<void> translateArbFile(Translator translator, String inputFile,
         final hasTimestamp = originalArbContent.containsKey(metaKey) &&
             originalArbContent[metaKey][timestampKey] != null;
         final isManualTranslation = translatedArbContent.containsKey(metaKey) &&
-            translatedArbContent[metaKey]['manualTranslationKey'] == true;
+            translatedArbContent[metaKey][manualTranslationKey] == true;
 
         if (isManualTranslation) {
-          // 수동 번역일 경우 타겟의 내용을 그대로 사용하고 건너뜀
-          print("수동 번역 키 발견: $targetLanguage $key, 번역을 건너뜁니다.");
+          print(
+              "Manual translation key found: $targetLanguage $key, skipping translation.");
           continue;
         }
 
-        if (translateAll ||
-            !hasTimestamp ||
-            originalArbContent[metaKey][timestampKey] !=
-                translatedArbContent[metaKey][timestampKey]) {
-          // {}가 포함된 텍스트는 번역하지 않고 그대로 유지
-          if (!originalArbContent[key].contains('{') &&
-              !originalArbContent[key].contains('}')) {
-            if (containsKorean(originalArbContent[key])) {
-              if (!translationCache.containsKey(originalArbContent[key])) {
-                translationFutures.add(() async {
-                  final translatedText = await translateText(
-                      translator, originalArbContent[key], targetLanguage);
-                  translationCache[originalArbContent[key]] = translatedText;
-                  updatedArbContent[key] = translatedText;
+        final originalTimestamp = originalArbContent[metaKey]?[timestampKey];
+        final translatedTimestamp =
+            translatedArbContent[metaKey]?[timestampKey];
 
-                  if (!originalArbContent.containsKey(metaKey)) {
-                    updatedArbContent[metaKey] = {};
-                  } else {
-                    updatedArbContent[metaKey] = originalArbContent[metaKey];
-                  }
+        if (translateAll) {
+          print('Translating key: $key (Reason: translateAll is true)');
+        } else if (!hasTimestamp) {
+          print('Translating key: $key (Reason: no timestamp)');
+        } else if (originalTimestamp != translatedTimestamp) {
+          print('Translating key: $key (Reason: timestamps do not match)');
+          print('  Original timestamp: $originalTimestamp');
+          print('  Translated timestamp: $translatedTimestamp');
+        } else {
+          print(
+              'Skipping translation for key: $key (Reason: timestamps match)');
+          continue;
+        }
 
-                  updatedArbContent[metaKey][timestampKey] = currentTimestamp;
-                }());
-              } else {
-                updatedArbContent[key] =
-                    translationCache[originalArbContent[key]];
-              }
+        if (!originalArbContent[key].contains('{') &&
+            !originalArbContent[key].contains('}')) {
+          if (containsKorean(originalArbContent[key])) {
+            if (!translationCache.containsKey(originalArbContent[key])) {
+              translationFutures.add(pool.withResource(() async {
+                final translatedText = await translateText(
+                    translator, originalArbContent[key], targetLanguage);
+                translationCache[originalArbContent[key]] = translatedText;
+                updatedArbContent[key] = translatedText;
+
+                if (!updatedArbContent.containsKey(metaKey)) {
+                  updatedArbContent[metaKey] = {};
+                }
+                updatedArbContent[metaKey][timestampKey] = currentTimestamp;
+              }));
             } else {
-              updatedArbContent[key] = originalArbContent[key];
-
-              if (originalArbContent.containsKey(metaKey)) {
-                updatedArbContent[metaKey] = originalArbContent[metaKey];
-              }
+              updatedArbContent[key] =
+                  translationCache[originalArbContent[key]];
+              print('Using cached translation for key: $key');
             }
           } else {
             updatedArbContent[key] = originalArbContent[key];
-
-            if (translatedArbContent.containsKey(metaKey)) {
-              updatedArbContent[metaKey] = translatedArbContent[metaKey];
-            }
+            print('Skipping non-Korean text for key: $key');
           }
         } else {
-          if (translatedArbContent.containsKey(key)) {
-            updatedArbContent[key] = translatedArbContent[key];
-          }
-
-          if (translatedArbContent.containsKey(metaKey)) {
-            updatedArbContent[metaKey] = translatedArbContent[metaKey];
-          }
+          updatedArbContent[key] = originalArbContent[key];
+          print('Skipping text with placeholders for key: $key');
         }
       } else {
         updatedArbContent[key] = originalArbContent[key];
@@ -314,9 +319,9 @@ Future<void> translateArbFile(Translator translator, String inputFile,
     });
 
     await File(outputFile).writeAsString(formattedJson);
-    print('$outputFile 번역 완료 및 저장 완료');
+    print('$outputFile translation completed and saved');
   } catch (e) {
-    print('$outputFile 번역 중 오류 발생: $e');
+    print('Error occurred while translating $outputFile: $e');
   }
 }
 
@@ -367,7 +372,9 @@ Map<String, dynamic> sortKeys(Map<String, dynamic> map) {
 
 Future<String> translateText(
     Translator translator, String text, String targetLang) async {
+  print('Translating: "$text" to $targetLang');
   final translation = await translator.translateTextSingular(text, targetLang);
-  Future.delayed(const Duration(milliseconds: 200));
+  print('Translated: "$text" -> "${translation.text}"');
+  await Future.delayed(const Duration(seconds: 1));
   return translation.text;
 }
