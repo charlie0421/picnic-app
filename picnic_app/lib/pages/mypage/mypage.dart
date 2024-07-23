@@ -194,7 +194,7 @@ class _MyPageState extends ConsumerState<MyPage> {
       onTap: () {
         ref
             .read(navigationInfoProvider.notifier)
-            .setCurrentMyPage(VoteMyArtist());
+            .setCurrentMyPage(const VoteMyArtist());
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -116,6 +116,7 @@ class KakaoLogin implements SocialLogin {
         return null;
       }
     }
+    return null;
   }
 
   @override
@@ -130,9 +131,7 @@ class KakaoLogin implements SocialLogin {
         token = await _tryLogin(UserApi.instance.loginWithKakaoTalk);
       }
 
-      if (token == null) {
-        token = await _tryLogin(UserApi.instance.loginWithKakaoAccount);
-      }
+      token ??= await _tryLogin(UserApi.instance.loginWithKakaoAccount);
 
       if (token == null) {
         return SocialLoginResult();
@@ -140,8 +139,8 @@ class KakaoLogin implements SocialLogin {
 
       final user = await UserApi.instance.me();
       return SocialLoginResult(
-        idToken: token?.idToken,
-        accessToken: token?.accessToken,
+        idToken: token.idToken,
+        accessToken: token.accessToken,
         userData: {
           'email': user.kakaoAccount?.email,
           'name': user.kakaoAccount?.profile?.nickname,
@@ -199,6 +198,7 @@ class AuthService {
     } catch (e) {
       logger.e('Error during sign in: $e');
     }
+    return null;
   }
 
   Future<void> signOut() async {
@@ -211,7 +211,7 @@ class AuthService {
 
   Future<void> _storeSession(
       Session session, Supabase.OAuthProvider provider, String idToken) async {
-    final storage = FlutterSecureStorage();
+    const storage = FlutterSecureStorage();
     await storage.write(
         key: 'supabase_access_token', value: session.accessToken);
     await storage.write(key: 'last_provider', value: provider.name);
@@ -221,7 +221,7 @@ class AuthService {
 
   Future<bool> recoverSession() async {
     try {
-      final storage = FlutterSecureStorage();
+      const storage = FlutterSecureStorage();
       final lastProvider = await storage.read(key: 'last_provider');
 
       if (lastProvider == null) {
@@ -238,7 +238,7 @@ class AuthService {
   }
 
   Future<bool> _recoverOAuthSession(Supabase.OAuthProvider provider) async {
-    final storage = FlutterSecureStorage();
+    const storage = FlutterSecureStorage();
     final idToken =
         await storage.read(key: '${provider.name.toLowerCase()}_id_token');
     logger.i(idToken);
@@ -270,7 +270,7 @@ class AuthService {
   }
 
   Future<void> _clearStoredSession() async {
-    final storage = FlutterSecureStorage();
+    const storage = FlutterSecureStorage();
     await storage.delete(key: 'supabase_access_token');
     await storage.delete(key: 'google_id_token');
     await storage.delete(key: 'apple_id_token');

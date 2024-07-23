@@ -8,7 +8,7 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 
 class PicnicAnimatedSwitcher extends ConsumerStatefulWidget {
-  const PicnicAnimatedSwitcher({Key? key}) : super(key: key);
+  const PicnicAnimatedSwitcher({super.key});
 
   @override
   _PicnicAnimatedSwitcherState createState() => _PicnicAnimatedSwitcherState();

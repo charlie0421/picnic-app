@@ -77,6 +77,8 @@
   "label_mypage_vote_history": "별사탕 투표내역",
   "label_mypage_withdrawal": "회원탈퇴",
   "label_no_ads": "광고 없음",
+  "message_vote_is_ended": "종료된 투표입니다",
+  "message_vote_is_upcoming": "예정된 투표입니다",
   "label_no_celeb": "아직 북마크한 아티스트가 없습니다!",
   "label_pic_image_cropping": "이미지 자르기",
   "label_pic_pic_initializing_camera": "카메라 초기화중...",
@@ -168,7 +170,6 @@
   "text_dialog_star_candy_received": "별사탕이 지급되었습니다.",
   "text_dialog_ad_failed_to_show": "광고 불러오기 실패",
   "label_mypage_should_login": "로그인 해 주세요",
-
   "text_dialog_ad_dismissed": "광고를 중간에 멈추었습니다.",
   "text_dialog_vote_amount_should_not_zero": "투표수량은 0이 될 수 없습니다.",
   "text_draw_image": "전체 갤러리 중 이미지 1개 확정 소장",

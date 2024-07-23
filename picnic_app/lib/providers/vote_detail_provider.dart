@@ -24,6 +24,8 @@ class AsyncVoteDetail extends _$AsyncVoteDetail {
 
       // Add a new field to indicate if the current time is after end_at
       response['is_ended'] = now.isAfter(DateTime.parse(response['stop_at']));
+      response['is_upcoming'] =
+          now.isBefore(DateTime.parse(response['start_at']));
 
       return VoteModel.fromJson(response);
     } catch (e, s) {

@@ -39,6 +39,7 @@ class VoteModel with _$VoteModel {
     required DateTime stop_at,
     required DateTime start_at,
     required bool? is_ended,
+    required bool? is_upcoming,
     required List<RewardModel>? reward,
   }) = _VoteModel;
 

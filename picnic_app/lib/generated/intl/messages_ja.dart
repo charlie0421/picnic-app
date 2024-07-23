@@ -152,7 +152,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_mypage_terms_of_use":
             MessageLookupByLibrary.simpleMessage("利用規約"),
         "label_mypage_vote_history":
-            MessageLookupByLibrary.simpleMessage("スター投票履歴"),
+            MessageLookupByLibrary.simpleMessage("スターキャンディーの投票履歴"),
         "label_mypage_withdrawal": MessageLookupByLibrary.simpleMessage("退会する"),
         "label_no_ads": MessageLookupByLibrary.simpleMessage("広告なし"),
         "label_no_celeb":
@@ -241,6 +241,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "message_report_confirm":
             MessageLookupByLibrary.simpleMessage("申告しますか？"),
         "message_report_ok": MessageLookupByLibrary.simpleMessage("申告が完了しました。"),
+        "message_vote_is_ended":
+            MessageLookupByLibrary.simpleMessage("投票は終了しました"),
+        "message_vote_is_upcoming":
+            MessageLookupByLibrary.simpleMessage("予定されている投票です"),
         "mypage_comment": MessageLookupByLibrary.simpleMessage("コメント管理"),
         "mypage_language": MessageLookupByLibrary.simpleMessage("言語設定"),
         "mypage_purchases": MessageLookupByLibrary.simpleMessage("私の購入"),
@@ -277,13 +281,13 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("広告表示とランダム画像収集。"),
         "text_bonus": MessageLookupByLibrary.simpleMessage("ボーナス"),
         "text_comming_soon_pic_chart1": MessageLookupByLibrary.simpleMessage(
-            "핔 차트에 오신 여러분을 환영합니다!\n2024년 8월에 만나요!"),
+            "ピックチャートへようこそ！\n2024年8月にお会いしましょう！"),
         "text_comming_soon_pic_chart2": MessageLookupByLibrary.simpleMessage(
-            "핔차트는 일간, 주간, 월간 점수를 반영하는\n피크닠만의 새로운 차트입니다."),
+            "ピックチャートは、日次、週次、月次のスコアを反映している\nピクニックならではの新しいチャートです。"),
         "text_comming_soon_pic_chart3": MessageLookupByLibrary.simpleMessage(
-            "실시간으로 반영되는\n아티스트의 브랜드 평판을 확인해 보세요!"),
+            "リアルタイムで反映される\nアーティストのブランド評判をご確認ください！"),
         "text_comming_soon_pic_chart_title":
-            MessageLookupByLibrary.simpleMessage("핔차트란?"),
+            MessageLookupByLibrary.simpleMessage("ピクチャーチャートとは？"),
         "text_copied_address":
             MessageLookupByLibrary.simpleMessage("アドレスがコピーされました。"),
         "text_dialog_ad_dismissed":

@@ -162,7 +162,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_mypage_terms_of_use":
             MessageLookupByLibrary.simpleMessage("Terms of Use"),
         "label_mypage_vote_history":
-            MessageLookupByLibrary.simpleMessage("Star voting history"),
+            MessageLookupByLibrary.simpleMessage("Star Candy Voting History"),
         "label_mypage_withdrawal":
             MessageLookupByLibrary.simpleMessage("Withdrawal"),
         "label_no_ads": MessageLookupByLibrary.simpleMessage("No ads"),
@@ -178,7 +178,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Compositing an image..."),
         "label_read_more_comment":
             MessageLookupByLibrary.simpleMessage("More comments"),
-        "label_reply": MessageLookupByLibrary.simpleMessage("Reply to a reply"),
+        "label_reply":
+            MessageLookupByLibrary.simpleMessage("Replying to a reply"),
         "label_retry": MessageLookupByLibrary.simpleMessage("Retrying"),
         "label_screen_title_agreement":
             MessageLookupByLibrary.simpleMessage("Accept the terms"),
@@ -262,6 +263,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Want to report?"),
         "message_report_ok":
             MessageLookupByLibrary.simpleMessage("The report is complete."),
+        "message_vote_is_ended":
+            MessageLookupByLibrary.simpleMessage("Poll closed"),
+        "message_vote_is_upcoming":
+            MessageLookupByLibrary.simpleMessage("This is an upcoming vote"),
         "mypage_comment":
             MessageLookupByLibrary.simpleMessage("Manage comments"),
         "mypage_language":
@@ -270,7 +275,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("My purchases"),
         "mypage_setting": MessageLookupByLibrary.simpleMessage("Settings"),
         "mypage_subscription":
-            MessageLookupByLibrary.simpleMessage("Subscriptions"),
+            MessageLookupByLibrary.simpleMessage("Subscription information"),
         "nav_ads": MessageLookupByLibrary.simpleMessage("Ads"),
         "nav_gallery": MessageLookupByLibrary.simpleMessage("Gallery"),
         "nav_home": MessageLookupByLibrary.simpleMessage("홈"),
@@ -309,13 +314,13 @@ class MessageLookup extends MessageLookupByLibrary {
             "Viewing ads and collecting random images."),
         "text_bonus": MessageLookupByLibrary.simpleMessage("Bonuses"),
         "text_comming_soon_pic_chart1": MessageLookupByLibrary.simpleMessage(
-            "핔 차트에 오신 여러분을 환영합니다!\n2024년 8월에 만나요!"),
+            "Welcome to PikChart!\nSee you in August 2024!"),
         "text_comming_soon_pic_chart2": MessageLookupByLibrary.simpleMessage(
-            "핔차트는 일간, 주간, 월간 점수를 반영하는\n피크닠만의 새로운 차트입니다."),
+            "Pie charts are a new chart unique to Peeknick that reflects daily, weekly, and monthly scores.\nPeeknick\'s new chart that reflects daily, weekly, and monthly scores."),
         "text_comming_soon_pic_chart3": MessageLookupByLibrary.simpleMessage(
-            "실시간으로 반영되는\n아티스트의 브랜드 평판을 확인해 보세요!"),
+            "Get a real-time reflection\nartist\'s brand reputation in real-time!"),
         "text_comming_soon_pic_chart_title":
-            MessageLookupByLibrary.simpleMessage("핔차트란?"),
+            MessageLookupByLibrary.simpleMessage("What is a Pie Chart?"),
         "text_copied_address": MessageLookupByLibrary.simpleMessage(
             "The address has been copied."),
         "text_dialog_ad_dismissed": MessageLookupByLibrary.simpleMessage(

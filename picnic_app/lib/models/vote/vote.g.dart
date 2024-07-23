@@ -37,6 +37,7 @@ _$VoteModelImpl _$$VoteModelImplFromJson(Map<String, dynamic> json) =>
       stop_at: DateTime.parse(json['stop_at'] as String),
       start_at: DateTime.parse(json['start_at'] as String),
       is_ended: json['is_ended'] as bool?,
+      is_upcoming: json['is_upcoming'] as bool?,
       reward: (json['reward'] as List<dynamic>?)
           ?.map((e) => RewardModel.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -57,6 +58,7 @@ Map<String, dynamic> _$$VoteModelImplToJson(_$VoteModelImpl instance) =>
       'stop_at': instance.stop_at.toIso8601String(),
       'start_at': instance.start_at.toIso8601String(),
       'is_ended': instance.is_ended,
+      'is_upcoming': instance.is_upcoming,
       'reward': instance.reward,
     };
 

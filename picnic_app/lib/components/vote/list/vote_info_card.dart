@@ -14,11 +14,11 @@ import 'package:picnic_app/ui/style.dart';
 
 class VoteInfoCard extends ConsumerStatefulWidget {
   const VoteInfoCard({
-    Key? key,
+    super.key,
     required this.context,
     required this.vote,
     required this.status,
-  }) : super(key: key);
+  });
 
   final BuildContext context;
   final VoteModel vote;

@@ -129,14 +129,14 @@ class _PortalState extends ConsumerState<Portal> {
             body: LayoutBuilder(builder: (context, constraints) {
               return kIsWeb
                   ? Center(
-                      child: Container(
+                      child: SizedBox(
                       width: webDesignSize.width,
                       child: Column(children: [
                         const ScreenTop(),
                         Expanded(child: currentScreen),
                       ]),
                     ))
-                  : Container(
+                  : SizedBox(
                       width: constraints.maxWidth,
                       height: constraints.maxHeight,
                       child: Column(children: [
