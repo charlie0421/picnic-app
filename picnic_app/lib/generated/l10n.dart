@@ -740,11 +740,11 @@ class S {
     );
   }
 
-  /// `My Star`
-  String get label_mypage_mystar {
+  /// `My Artists`
+  String get label_mypage_my_artist {
     return Intl.message(
-      'My Star',
-      name: 'label_mypage_mystar',
+      'My Artists',
+      name: 'label_mypage_my_artist',
       desc: '',
       args: [],
     );
@@ -775,6 +775,16 @@ class S {
     return Intl.message(
       'Settings',
       name: 'label_mypage_setting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please sign in`
+  String get label_mypage_should_login {
+    return Intl.message(
+      'Please sign in',
+      name: 'label_mypage_should_login',
       desc: '',
       args: [],
     );
@@ -1210,10 +1220,10 @@ class S {
     );
   }
 
-  /// `PIC voting`
+  /// `PIC Voting`
   String get label_vote_tab_pic {
     return Intl.message(
-      'PIC voting',
+      'PIC Voting',
       name: 'label_vote_tab_pic',
       desc: '',
       args: [],
@@ -1260,10 +1270,10 @@ class S {
     );
   }
 
-  /// `You've accepted the terms.`
+  /// `Acceptance of the terms is complete.`
   String get message_agreement_success {
     return Intl.message(
-      'You\'ve accepted the terms.',
+      'Acceptance of the terms is complete.',
       name: 'message_agreement_success',
       desc: '',
       args: [],

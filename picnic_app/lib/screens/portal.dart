@@ -9,7 +9,6 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/screens/mypage_screen.dart';
-import 'package:picnic_app/screens/signup/signup_screen.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/util.dart';
@@ -80,8 +79,7 @@ class _PortalState extends ConsumerState<Portal> {
                         )
                       : GestureDetector(
                           behavior: HitTestBehavior.opaque,
-                          onTap: () => Navigator.of(context)
-                              .pushNamed(SignUpScreen.routeName),
+                          onTap: () => Scaffold.of(context).openDrawer(),
                           child: const DefaultAvatar(),
                         ),
                 ),
