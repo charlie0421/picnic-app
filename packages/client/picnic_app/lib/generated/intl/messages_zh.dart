@@ -38,8 +38,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_login": MessageLookupByLibrary.simpleMessage("登录"),
         "button_ok": MessageLookupByLibrary.simpleMessage("确认"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("节省"),
+        "candy_disappear_next_month":
+            MessageLookupByLibrary.simpleMessage("下个月消失的星星糖果 😢"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
-            "### 有效期\n\n- 自获得之日起，Star Candy 的有效期为一年。\n\n### 赚取的星星糖\n\n登录：每天 1 个\n- 投票：每天 1 次\n购买糖果：无（无限制）\n奖励星星糖果：在获得后的当月 15 日分批过期\n\n在 ##### 上兑换星星糖\n\n有效期即将结束的星星糖将优先使用。\n如果有效期相同，则按获得日期的先后顺序使用。"),
+            "您可以无限量地消费购买的 \"星糖\"，但奖励的 \"星糖 \"将在获得 \"星糖 \"当月的下一个月 15 日大量过期。"),
+        "candy_usage_policy_contents2": MessageLookupByLibrary.simpleMessage(
+            "使用 \"星星糖 \"时，即将过期的 \"星星糖 \"会被优先处理。"),
         "candy_usage_policy_guide":
             MessageLookupByLibrary.simpleMessage("*奖金将在您获得奖金的次月消失！ ⓘ"),
         "candy_usage_policy_title":
@@ -94,7 +98,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("不同意"),
         "label_button_recharge": MessageLookupByLibrary.simpleMessage("充电"),
         "label_button_save_vote_paper":
-            MessageLookupByLibrary.simpleMessage("存储您的选票"),
+            MessageLookupByLibrary.simpleMessage("保存您的选票"),
         "label_button_share": MessageLookupByLibrary.simpleMessage("分享"),
         "label_button_vote": MessageLookupByLibrary.simpleMessage("投票"),
         "label_button_watch_and_charge":
@@ -294,7 +298,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("奖励排名"),
         "text_vote_where_is_my_bias":
-            MessageLookupByLibrary.simpleMessage("我的最爱呢？"),
+            MessageLookupByLibrary.simpleMessage("我的最爱在哪里？"),
         "title_dialog_library_add":
             MessageLookupByLibrary.simpleMessage("添加新相册"),
         "title_dialog_success": MessageLookupByLibrary.simpleMessage("成功"),

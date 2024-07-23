@@ -114,14 +114,25 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
     }
 
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    String buildNumber = packageInfo.buildNumber;
 
-    // TestFlight 빌드 번호는 일반적으로 1.0.0 형식이 아닙니다.
-    // 여기서는 간단히 점(.)이 포함되어 있는지로 구분합니다.
-    bool isTestFlight = buildNumber.contains('.');
-    logger.i(isTestFlight);
+    if (Platform.isIOS) {
+      // iOS에서는 appStoreReceipt를 확인합니다
+      return packageInfo.installerStore == 'com.apple.testflight'
+          ? 'sandbox'
+          : 'production';
+    } else if (Platform.isAndroid) {
+      // Android에서는 installerStore를 확인합니다
+      String? installer = packageInfo.installerStore;
+      if (installer == null || installer == 'com.android.vending') {
+        return 'production'; // Google Play Store
+      } else if (installer == 'com.google.android.apps.internal.testing') {
+        return 'sandbox'; // Internal Test Track
+      } else {
+        return 'sandbox'; // 다른 모든 경우(예: 개발자 테스트)
+      }
+    }
 
-    return isTestFlight ? 'sandbox' : 'production';
+    return 'unknown';
   }
 
   Future<void> verifyReceipt(String receipt, String productId) async {

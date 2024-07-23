@@ -14,7 +14,7 @@ Deno.serve(async (request: Request) => {
     try {
         console.log("Received request");
         const { receipt, platform, productId , user_id, environment} = await request.json();
-        console.log(`Received receipt for platform: ${platform}, productId: ${productId}`);
+        console.log(`Received receipt for platform: ${platform}, productId: ${productId}, environment: ${environment}`);
         let verificationUrl: RequestInfo | URL;
 
           // verificationUrl = SANDBOX_URL;

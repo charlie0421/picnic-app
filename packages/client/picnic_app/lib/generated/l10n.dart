@@ -110,11 +110,31 @@ class S {
     );
   }
 
-  /// `### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, they will be used in the order of the earliest acquisition date.`
+  /// `Next month's disappearing star candy 😢`
+  String get candy_disappear_next_month {
+    return Intl.message(
+      'Next month\'s disappearing star candy 😢',
+      name: 'candy_disappear_next_month',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You can spend an unlimited amount of purchased Star Candy, but bonus Star Candy expires in bulk on the 15th of the month following the month in which it was earned.`
   String get candy_usage_policy_contents {
     return Intl.message(
-      '### Validity\n\n- Star Candies are valid for one year from the date of acquisition.\n\n### Earned Star Candy\n\nLogin: 1 per day\n- Votes: 1 per day\nStar Candy Purchases: None (unlimited)\nBonus Star Candy: Expires in batches on the 15th of the month after earned\n\n##### Redeem Star Candy\n\nStar Candies with an expiration date nearing the end of the month will be used first.\nIf they have the same expiration date, they will be used in the order of the earliest acquisition date.',
+      'You can spend an unlimited amount of purchased Star Candy, but bonus Star Candy expires in bulk on the 15th of the month following the month in which it was earned.',
       name: 'candy_usage_policy_contents',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `When using Star Candy, Star Candy that is about to expire is prioritized.`
+  String get candy_usage_policy_contents2 {
+    return Intl.message(
+      'When using Star Candy, Star Candy that is about to expire is prioritized.',
+      name: 'candy_usage_policy_contents2',
       desc: '',
       args: [],
     );

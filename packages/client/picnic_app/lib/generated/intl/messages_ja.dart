@@ -38,8 +38,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_login": MessageLookupByLibrary.simpleMessage("ログイン"),
         "button_ok": MessageLookupByLibrary.simpleMessage("確認"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("保存する"),
+        "candy_disappear_next_month":
+            MessageLookupByLibrary.simpleMessage("来月で消える星飴😢."),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
-            "### 有効期限\n\n- 星飴は獲得日から1年間有効です。\n\n星飴獲得 ### 星飴獲得\n\nログイン : 1日1回\n- 投票 : 1回につき1個\n購入星飴 : なし (無制限)\nボーナス星飴：獲得した次の月の15日に一括消滅\n\n##### 星飴を使う\n\n消滅日が迫っている星飴から使用されます。\n有効期限が同じ場合は、獲得日が早い順に使用されます。"),
+            "購入した星飴は無制限に使用できますが、ボーナス星飴は獲得した月の翌月15日に一括消滅します。"),
+        "candy_usage_policy_contents2": MessageLookupByLibrary.simpleMessage(
+            "星飴を使用する場合、消滅が近い星飴が優先的に使用されます。"),
         "candy_usage_policy_guide":
             MessageLookupByLibrary.simpleMessage("*ボーナスは獲得した翌月に無くなります！ ⓘ※ボーナス"),
         "candy_usage_policy_title":
