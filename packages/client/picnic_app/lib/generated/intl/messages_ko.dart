@@ -152,7 +152,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_mypage_terms_of_use":
             MessageLookupByLibrary.simpleMessage("이용약관"),
         "label_mypage_vote_history":
-            MessageLookupByLibrary.simpleMessage("투표내역"),
+            MessageLookupByLibrary.simpleMessage("별사탕 투표내역"),
         "label_mypage_withdrawal": MessageLookupByLibrary.simpleMessage("회원탈퇴"),
         "label_no_ads": MessageLookupByLibrary.simpleMessage("광고 없음"),
         "label_no_celeb":

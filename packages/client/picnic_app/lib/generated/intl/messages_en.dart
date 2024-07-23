@@ -162,7 +162,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_mypage_terms_of_use":
             MessageLookupByLibrary.simpleMessage("Terms of Use"),
         "label_mypage_vote_history":
-            MessageLookupByLibrary.simpleMessage("Voting history"),
+            MessageLookupByLibrary.simpleMessage("Star voting history"),
         "label_mypage_withdrawal":
             MessageLookupByLibrary.simpleMessage("Withdrawal"),
         "label_no_ads": MessageLookupByLibrary.simpleMessage("No ads"),
@@ -178,8 +178,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Compositing an image..."),
         "label_read_more_comment":
             MessageLookupByLibrary.simpleMessage("More comments"),
-        "label_reply":
-            MessageLookupByLibrary.simpleMessage("Replying to a reply"),
+        "label_reply": MessageLookupByLibrary.simpleMessage("Reply to a reply"),
         "label_retry": MessageLookupByLibrary.simpleMessage("Retrying"),
         "label_screen_title_agreement":
             MessageLookupByLibrary.simpleMessage("Accept the terms"),
@@ -238,7 +237,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("Birthday polls"),
         "label_vote_tab_pic":
-            MessageLookupByLibrary.simpleMessage("PIC Voting"),
+            MessageLookupByLibrary.simpleMessage("PIC voting"),
         "label_vote_upcoming":
             MessageLookupByLibrary.simpleMessage("Until voting begins"),
         "label_vote_vote_gather":
@@ -271,7 +270,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("My purchases"),
         "mypage_setting": MessageLookupByLibrary.simpleMessage("Settings"),
         "mypage_subscription":
-            MessageLookupByLibrary.simpleMessage("Subscription information"),
+            MessageLookupByLibrary.simpleMessage("Subscriptions"),
         "nav_ads": MessageLookupByLibrary.simpleMessage("Ads"),
         "nav_gallery": MessageLookupByLibrary.simpleMessage("Gallery"),
         "nav_home": MessageLookupByLibrary.simpleMessage("홈"),
