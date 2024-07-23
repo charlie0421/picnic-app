@@ -36,15 +36,12 @@ class PurchaseStarCandy extends ConsumerStatefulWidget {
 
 class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
   final InAppPurchase _inAppPurchase = InAppPurchase.instance;
-  final List<Map<String, dynamic>> _serverProducts = [];
-  final List<ProductDetails> _storeProducts = [];
 
   @override
   void initState() {
     super.initState();
     final purchaseUpdated = _inAppPurchase.purchaseStream;
     purchaseUpdated.listen(_listenToPurchaseUpdated);
-    // _fetchProductsFromSupabase();
 
     // 미완료 트랜잭션 확인
     _inAppPurchase.purchaseStream.listen((purchaseDetailsList) {
@@ -163,126 +160,24 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
     }
   }
 
-  /*
+  @override
+  Widget build(BuildContext context) {
+    ref.listen<AsyncValue<List<Map<String, dynamic>>>>(serverProductsProvider,
+        (previous, next) {
+      next.whenOrNull(
+        error: (error, stackTrace) => logger.e('Server products error: $error'),
+        data: (data) => logger.i('Server products loaded: ${data.length}'),
+      );
+    });
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ListView(
-        children: [
-          SizedBox(height: 36.w),
-          StorePointInfo(
-              title: S.of(context).label_star_candy_pouch,
-              width: double.infinity,
-              height: 100.w),
-          SizedBox(height: 36.w),
-          _storeProducts.isEmpty
-              ? Center(child: buildLoadingOverlay())
-              : ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemBuilder: (BuildContext context, int index) =>
-                      StoreListTile(
-                    icon: Image.asset(
-                      'assets/icons/store/star_${_serverProducts[index]['id'].replaceAll('STAR', '')}.png',
-                      width: 48.w,
-                      height: 48.w,
-                    ),
-                    title: Text(_serverProducts[index]['id'],
-                        style:
-                            getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
-                    subtitle: Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                              text: _serverProducts[index]['description']
-                                  [Intl.getCurrentLocale()],
-                              style: getTextStyle(
-                                  AppTypo.CAPTION12B, AppColors.Point900)),
-                        ],
-                      ),
-                    ),
-                    buttonText: '${_serverProducts[index]['price']} \$',
-                    buttonOnPressed: () {
-                      final productDetails = _storeProducts[index];
-                      supabase.isLogged
-                          ? _buyProduct(productDetails)
-                          : showRequireLoginDialog(context: context);
-                    },
-                  ),
-                  separatorBuilder: (BuildContext context, int index) =>
-                      const Divider(color: AppColors.Grey200, height: 32),
-                  itemCount: _storeProducts.length,
-                ),
-          const Divider(color: AppColors.Grey200, height: 32),
-          Text(S.of(context).text_purchase_vat_included,
-              style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600)),
-          SizedBox(height: 2.w),
-          GestureDetector(
-            onTap: () {
-              showDialog(
-                  context: context,
-                  builder: (context) => LargePopupWidget(
-                        width: getPlatformScreenSize(context).width - 32.w,
-                        content: Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 40.w, vertical: 64.w),
-                          child: Column(children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SvgPicture.asset(
-                                    'assets/icons/play_style=fill.svg',
-                                    width: 16.w,
-                                    height: 16.w,
-                                    colorFilter: const ColorFilter.mode(
-                                        AppColors.Primary500, BlendMode.srcIn)),
-                                SizedBox(width: 8.w),
-                                Text(S.of(context).candy_usage_policy_title,
-                                    style: getTextStyle(
-                                        AppTypo.BODY14B, AppColors.Primary500)),
-                                SizedBox(width: 8.w),
-                                Transform.rotate(
-                                  angle: 3.14,
-                                  child: SvgPicture.asset(
-                                      'assets/icons/play_style=fill.svg',
-                                      width: 16.w,
-                                      height: 16.w,
-                                      colorFilter: const ColorFilter.mode(
-                                          AppColors.Primary500,
-                                          BlendMode.srcIn)),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 16.w),
-                            Markdown(
-                              padding: EdgeInsets.zero,
-                              shrinkWrap: true,
-                              data: S.of(context).candy_usage_policy_contents,
-                              styleSheet: commonMarkdownStyleSheet,
-                            ),
-                            SizedBox(height: 16.w),
-                            StorePointInfo(
-                                title: S.of(context).label_star_candy_pouch,
-                                width: 231.w,
-                                titlePadding: 10.w,
-                                height: 78.w)
-                          ]),
-                        ),
-                      ));
-            },
-            child: Text(S.of(context).candy_usage_policy_guide,
-                style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600)),
-          ),
-          SizedBox(height: 36.w),
-        ],
-      ),
-    );
-  }
-*/
-  @override
-  Widget build(BuildContext context) {
+    ref.listen<AsyncValue<List<ProductDetails>>>(storeProductsProvider,
+        (previous, next) {
+      next.whenOrNull(
+        error: (error, stackTrace) => logger.e('Store products error: $error'),
+        data: (data) => logger.i('Store products loaded: ${data.length}'),
+      );
+    });
+
     final serverProductsAsyncValue = ref.watch(serverProductsProvider);
     final storeProductsAsyncValue = ref.watch(storeProductsProvider);
 
@@ -299,11 +194,13 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
           SizedBox(height: 36.w),
           serverProductsAsyncValue.when(
             loading: () => _buildShimmer(),
-            error: (error, _) => Text('Error: $error'),
+            error: (error, stackTrace) =>
+                Text('Error loading server products: $error'),
             data: (serverProducts) {
               return storeProductsAsyncValue.when(
                 loading: () => _buildShimmer(),
-                error: (error, _) => Text('Error: $error'),
+                error: (error, stackTrace) =>
+                    Text('Error loading store products: $error'),
                 data: (storeProducts) {
                   return _buildProductList(
                       context, ref, serverProducts, storeProducts);
@@ -398,10 +295,6 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
   }
 
   void _buyProduct(ProductDetails productDetails) {
-    if (_storeProducts.isEmpty) {
-      logger.i('Products not loaded');
-      return;
-    }
     logger.i('Trying to buy product: ${productDetails.id}');
     final PurchaseParam purchaseParam =
         PurchaseParam(productDetails: productDetails);
