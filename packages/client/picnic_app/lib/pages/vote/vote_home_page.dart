@@ -203,12 +203,12 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         child: Text(S.of(context).label_vote_reward_list,
             style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900)),
       ),
-      SizedBox(height: 16.w),
+      SizedBox(height: 16.h),
       asyncRewardListState.when(
           data: (data) {
             return Container(
               alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.only(left: 16),
+              padding: const EdgeInsets.only(left: 16).r,
               height: 100,
               child: ListView.builder(
                   scrollDirection: Axis.horizontal,
@@ -221,7 +221,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                         showRewardDialog(context, data[index]);
                       },
                       child: Container(
-                        margin: const EdgeInsets.only(right: 16),
+                        margin: const EdgeInsets.only(right: 16).r,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8).r,
                         ),
@@ -233,12 +233,13 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                                   imageUrl: data[index].thumbnail ?? '',
                                   width: 120,
                                   height: 100,
+                                  useScreenUtil: true,
                                   fit: BoxFit.cover),
                             ),
                             Positioned(
                               bottom: 0,
                               child: Container(
-                                width: 120,
+                                width: 120.w,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.only(
                                       bottomLeft: const Radius.circular(8).r,
