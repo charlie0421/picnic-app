@@ -91,7 +91,7 @@ class _RewardDialogState extends State<RewardDialog> {
           right: 0,
           child: Container(
             height: 48.w,
-            margin: const EdgeInsets.symmetric(horizontal: 57).r,
+            margin: const EdgeInsets.symmetric(horizontal: 30).r,
             child: VoteCommonTitle(
               title: widget.data.getTitle(),
             ),
