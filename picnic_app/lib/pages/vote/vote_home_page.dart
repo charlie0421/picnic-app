@@ -291,57 +291,78 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
     ]);
   }
 
-  SizedBox _buildVoteHomeBanner(BuildContext context) {
+  int _currentIndex = 0;
+
+  Widget _buildVoteHomeBanner(BuildContext context) {
     final asyncBannerListState =
         ref.watch(asyncBannerListProvider(location: 'vote_home'));
     final width =
         kIsWeb ? webDesignSize.width : MediaQuery.of(context).size.width;
-    return SizedBox(
-      width: width,
-      height: width / 2,
-      child: asyncBannerListState.when(
-        data: (data) => Swiper(
-          itemBuilder: (BuildContext context, int index) {
-            String title = getLocaleTextFromJson(data[index].title);
-            return Stack(
-              children: [
-                Container(
-                  alignment: Alignment.center,
-                  width: width.w,
-                  child: PicnicCachedNetworkImage(
-                      imageUrl: data[index].thumbnail ?? '',
-                      width: width.toInt(),
-                      height: (width / 2).toInt(),
-                      fit: BoxFit.fitWidth),
-                ),
-                if (title.isNotEmpty)
-                  Positioned(
-                    bottom: 0,
-                    child: Container(
+    return asyncBannerListState.when(
+      data: (data) => Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: width,
+            height: width / 2,
+            child: Swiper(
+              itemBuilder: (BuildContext context, int index) {
+                String title = getLocaleTextFromJson(data[index].title);
+                return Stack(
+                  children: [
+                    Container(
+                      alignment: Alignment.topCenter,
                       width: width,
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 4, horizontal: 8),
-                      color: Colors.black.withOpacity(0.5),
-                      child: Text(
-                        title,
-                        style: getTextStyle(AppTypo.BODY14R, Colors.white)
-                            .copyWith(overflow: TextOverflow.ellipsis),
-                        textAlign: TextAlign.center,
-                      ),
+                      child: PicnicCachedNetworkImage(
+                          imageUrl: data[index].thumbnail ?? '',
+                          width: width.toInt(),
+                          height: (width / 2).toInt(),
+                          fit: BoxFit.fitWidth),
                     ),
-                  )
-              ],
-            );
-          },
-          itemCount: data.length,
-          autoplay: data.length > 1,
-          pagination: data.length > 1 ? CustomPaginationBuilder() : null,
-        ),
-        loading: () => buildLoadingOverlay(),
-        error: (error, stackTrace) =>
-            ErrorView(context, error: error.toString(), stackTrace: stackTrace),
+                    if (title.isNotEmpty)
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          alignment: Alignment.center,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 4, horizontal: 8),
+                          color: Colors.black.withOpacity(0.5),
+                          child: Text(
+                            title,
+                            style: getTextStyle(AppTypo.BODY14R, Colors.white)
+                                .copyWith(overflow: TextOverflow.ellipsis),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              },
+              itemCount: data.length,
+              onIndexChanged: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+              autoplay: data.length > 1,
+            ),
+          ),
+          if (data.length > 1)
+            SizedBox(
+              height: 20.h,
+              child: CustomPagination(
+                itemCount: data.length,
+                activeIndex: _currentIndex,
+              ),
+            ),
+        ],
       ),
+      loading: () => buildLoadingOverlay(),
+      error: (error, stackTrace) =>
+          ErrorView(context, error: error.toString(), stackTrace: stackTrace),
     );
   }
 }
