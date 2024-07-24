@@ -3,12 +3,12 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/util.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as Supabase;
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -83,8 +83,8 @@ class AppleLogin implements SocialLogin {
             AppleIDAuthorizationScopes.fullName
           ],
           webAuthenticationOptions: WebAuthenticationOptions(
-            clientId: dotenv.env['APPLE_CLIENT_ID'] ?? '',
-            redirectUri: Uri.parse(dotenv.env['APPLE_REDIRECT_URI'] ?? ''),
+            clientId: getEnv('APPLE_CLIENT_ID'),
+            redirectUri: Uri.parse(getEnv('APPLE_REDIRECT_URI')),
           ),
           state: rawNonce);
       return SocialLoginResult(
@@ -124,8 +124,8 @@ class KakaoLogin implements SocialLogin {
   Future<SocialLoginResult> login() async {
     try {
       KakaoSdk.init(
-          nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY'] ?? '',
-          javaScriptAppKey: dotenv.env['KAKAO_JS_APP_KEY'] ?? '');
+          nativeAppKey: getEnv('KAKAO_NATIVE_APP_KEY'),
+          javaScriptAppKey: getEnv('KAKAO_JS_APP_KEY'));
       OAuthToken? token;
 
       if (await isKakaoTalkInstalled()) {
@@ -161,9 +161,8 @@ class KakaoLogin implements SocialLogin {
 class AuthService {
   final Map<Supabase.OAuthProvider, SocialLogin> _loginProviders = {
     Supabase.OAuthProvider.google: GoogleLogin(GoogleSignIn(
-      clientId: dotenv.env['GOOGLE_CLIENT_ID'],
-      serverClientId: dotenv.env['GOOGLE_SERVER_CLIENT_ID'],
-    )),
+        clientId: getEnv('GOOGLE_CLIENT_ID'),
+        serverClientId: getEnv('GOOGLE_SERVER_CLIENT_ID'))),
     Supabase.OAuthProvider.apple: AppleLogin(),
     Supabase.OAuthProvider.kakao: KakaoLogin(),
   };
