@@ -1,4 +1,4 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:picnic_app/util.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseOptions {
@@ -12,7 +12,5 @@ class SupabaseOptions {
 }
 
 final SupabaseOptions supabaseOptions = SupabaseOptions(
-  url: dotenv.env['SUPABASE_URL'] ?? '',
-  anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
-);
+    url: getEnv('SUPABASE_URL'), anonKey: getEnv('SUPABASE_ANON_KEY'));
 final supabase = SupabaseClient(supabaseOptions.url, supabaseOptions.anonKey);

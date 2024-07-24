@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
@@ -229,4 +230,15 @@ String getLocaleTextFromJson(Map<String, dynamic> json) {
     return json[locale];
   }
   return json['en'];
+}
+
+String getEnv(String key) {
+  // 1. Platform.environment를 사용하여 시스템 환경 변수 확인
+  final value = Platform.environment[key];
+  if (value != null && value.isNotEmpty) {
+    return value;
+  }
+
+  // 2. dotenv 환경 변수 확인
+  return dotenv.env[key] ?? '';
 }
