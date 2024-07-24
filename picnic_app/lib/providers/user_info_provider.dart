@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -34,8 +35,7 @@ class UserInfo extends _$UserInfo {
       logger.i('response.data: $response');
       state = AsyncValue.data(UserProfilesModel.fromJson(response));
 
-      // ScreenProtector.preventScreenshotOff();
-      if (response['is_admin'] == true) {
+      if (kDebugMode || response['is_admin'] == true) {
         ScreenProtector.preventScreenshotOff();
       } else {
         ScreenProtector.preventScreenshotOn();
