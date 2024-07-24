@@ -44,7 +44,7 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref.read(appSettingProvider.notifier).loadSettings();
-      await ScreenProtector.preventScreenshotOn();
+      if (!kDebugMode) await ScreenProtector.preventScreenshotOn();
       ref.read(rewardedAdsProvider.notifier).loadAd(0);
       ref.read(rewardedAdsProvider.notifier).loadAd(1);
     });

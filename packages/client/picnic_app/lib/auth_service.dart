@@ -149,7 +149,7 @@ class KakaoLogin implements SocialLogin {
         },
       );
     } catch (e) {
-      print('Kakao login error: $e');
+      print('login error: $e');
       return SocialLoginResult();
     }
   }
