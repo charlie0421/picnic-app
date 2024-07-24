@@ -41,7 +41,7 @@ class _PicnicAnimatedSwitcherState
         _animationKey = UniqueKey();
       });
 
-      Future.delayed(const Duration(milliseconds: 400), () {
+      Future.delayed(const Duration(milliseconds: 500), () {
         if (mounted) {
           setState(() {
             _showAnimation = false;
@@ -87,7 +87,7 @@ class _PicnicAnimatedSwitcherState
             key: _animationKey,
             child: Image.memory(
               _gifBytes!,
-              fit: BoxFit.fitWidth,
+              fit: BoxFit.fill,
               gaplessPlayback: true,
             ),
           ),
