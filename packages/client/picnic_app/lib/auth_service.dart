@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
@@ -82,8 +83,8 @@ class AppleLogin implements SocialLogin {
             AppleIDAuthorizationScopes.fullName
           ],
           webAuthenticationOptions: WebAuthenticationOptions(
-            clientId: 'io.iconcasting.picnic.app.apple',
-            redirectUri: Uri.parse('https://api.picnic.fan/auth/v1/callback'),
+            clientId: dotenv.env['APPLE_CLIENT_ID'] ?? '',
+            redirectUri: Uri.parse(dotenv.env['APPLE_REDIRECT_URI'] ?? ''),
           ),
           state: rawNonce);
       return SocialLoginResult(
@@ -123,8 +124,8 @@ class KakaoLogin implements SocialLogin {
   Future<SocialLoginResult> login() async {
     try {
       KakaoSdk.init(
-          nativeAppKey: '08a8a85e49aa423ff34ddc11a61db3ac',
-          javaScriptAppKey: '0c6601457b7eb75b96967728abd638cb');
+          nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY'] ?? '',
+          javaScriptAppKey: dotenv.env['KAKAO_JS_APP_KEY'] ?? '');
       OAuthToken? token;
 
       if (await isKakaoTalkInstalled()) {
@@ -160,10 +161,8 @@ class KakaoLogin implements SocialLogin {
 class AuthService {
   final Map<Supabase.OAuthProvider, SocialLogin> _loginProviders = {
     Supabase.OAuthProvider.google: GoogleLogin(GoogleSignIn(
-      clientId:
-          '853406219989-ntnler0e2qe0gfheh3qdjt3k2h4kpvj4.apps.googleusercontent.com',
-      serverClientId:
-          '853406219989-jrfkss5a0lqe5sq43t4uhm7n6i0g6s1b.apps.googleusercontent.com',
+      clientId: dotenv.env['GOOGLE_CLIENT_ID'],
+      serverClientId: dotenv.env['GOOGLE_SERVER_CLIENT_ID'],
     )),
     Supabase.OAuthProvider.apple: AppleLogin(),
     Supabase.OAuthProvider.kakao: KakaoLogin(),
