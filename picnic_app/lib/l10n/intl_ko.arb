@@ -13,6 +13,10 @@
   "candy_disappear_next_month": "다음 달 사라지는 별사탕\uD83D\uDE22",
   "dialog_button_cancel": "취소",
   "dialog_button_ok": "확인",
+  "dialog_message_purchase_failed": "구매 중 오류가 발생했습니다. 나중에 다시 시도해 주세요.",
+    "dialog_message_purchase_success": "구매가 성공적으로 완료되었습니다.",
+    "dialog_message_purchase_canceled": "구매가 취소되었습니다.",
+
   "dialog_content_ads_exhausted": "광고가 모두 소진되었습니다. 다음에 다시 시도해주세요.",
   "dialog_content_ads_loading": "광고 로딩중입니다.",
   "dialog_content_ads_retrying": "광고를 다시 불러오는 중입니다. 잠시 후 다시 시도해 주세요.",

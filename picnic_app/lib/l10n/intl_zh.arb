@@ -17,6 +17,9 @@
   "dialog_content_ads_loading": "广告正在加载。",
   "dialog_content_ads_retrying": "广告正在重新加载。请稍后再试。",
   "dialog_content_login_required": "需要登录",
+  "dialog_message_purchase_canceled": "구매가 취소되었습니다.",
+  "dialog_message_purchase_failed": "구매 중 오류가 발생했습니다. 나중에 다시 시도해 주세요.",
+  "dialog_message_purchase_success": "구매가 성공적으로 완료되었습니다.",
   "dialog_purchases_fail": "购买失败。",
   "dialog_purchases_success": "购买完成。",
   "dialog_title_ads_exhausted": "所有广告已用尽",
@@ -242,6 +245,9 @@
   "@dialog_content_login_required": {
     "translationTimestamp": "2024-07-23T18:56:38.429340"
   },
+  "@dialog_message_purchase_canceled": {},
+  "@dialog_message_purchase_failed": {},
+  "@dialog_message_purchase_success": {},
   "@dialog_purchases_fail": {
     "translationTimestamp": "2024-07-23T18:56:38.429340"
   },

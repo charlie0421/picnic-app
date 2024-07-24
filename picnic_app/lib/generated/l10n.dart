@@ -220,6 +220,36 @@ class S {
     );
   }
 
+  /// `구매가 취소되었습니다.`
+  String get dialog_message_purchase_canceled {
+    return Intl.message(
+      '구매가 취소되었습니다.',
+      name: 'dialog_message_purchase_canceled',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `구매 중 오류가 발생했습니다. 나중에 다시 시도해 주세요.`
+  String get dialog_message_purchase_failed {
+    return Intl.message(
+      '구매 중 오류가 발생했습니다. 나중에 다시 시도해 주세요.',
+      name: 'dialog_message_purchase_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `구매가 성공적으로 완료되었습니다.`
+  String get dialog_message_purchase_success {
+    return Intl.message(
+      '구매가 성공적으로 완료되었습니다.',
+      name: 'dialog_message_purchase_success',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `The purchase failed.`
   String get dialog_purchases_fail {
     return Intl.message(
