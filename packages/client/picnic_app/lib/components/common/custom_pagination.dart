@@ -11,26 +11,21 @@ class CustomPaginationBuilder extends SwiperPlugin {
   @override
   Widget build(BuildContext context, SwiperPluginConfig config) {
     final int count = itemCount ?? config.itemCount;
-    return Positioned(
-      bottom: 10.h,
-      left: 0,
-      right: 0,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(count, (index) {
-          bool active = index == config.activeIndex;
-          return AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            margin: const EdgeInsets.symmetric(horizontal: 2),
-            width: active ? 12 : 8,
-            height: active ? 12 : 8,
-            decoration: BoxDecoration(
-              color: active ? AppColors.Primary500 : Colors.grey,
-              shape: BoxShape.circle,
-            ),
-          );
-        }),
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(count, (index) {
+        bool active = index == config.activeIndex;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          margin: const EdgeInsets.symmetric(horizontal: 2),
+          width: active ? 12 : 8,
+          height: active ? 12 : 8,
+          decoration: BoxDecoration(
+            color: active ? AppColors.Primary500 : Colors.grey,
+            shape: BoxShape.circle,
+          ),
+        );
+      }),
     );
   }
 }
