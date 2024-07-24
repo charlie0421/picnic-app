@@ -53,37 +53,54 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
     });
   }
 
-  void _listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) {
-    purchaseDetailsList.forEach((PurchaseDetails purchaseDetails) async {
-      if (purchaseDetails.status == PurchaseStatus.pending) {
-        _startLoading();
-      } else {
-        try {
-          if (purchaseDetails.status == PurchaseStatus.error) {
+  Future<void> _listenToPurchaseUpdated(
+      List<PurchaseDetails> purchaseDetailsList) async {
+    for (final purchaseDetails in purchaseDetailsList) {
+      _startLoading(); // 모든 상태 처리 시작 시 로딩 시작
+
+      try {
+        switch (purchaseDetails.status) {
+          case PurchaseStatus.pending:
+            // 대기 중 상태 처리
+            break;
+          case PurchaseStatus.error:
             showSimpleDialog(
                 context: context,
-                content: 'Purchase failed: ${purchaseDetails.error!.message}');
-          } else if (purchaseDetails.status == PurchaseStatus.purchased ||
-              purchaseDetails.status == PurchaseStatus.restored) {
+                content: S.of(context).dialog_message_purchase_failed);
+            print('Purchase error: ${purchaseDetails.error!.message}');
+            break;
+          case PurchaseStatus.purchased:
+          case PurchaseStatus.restored:
             await verifyReceipt(
                 purchaseDetails.verificationData.serverVerificationData,
                 purchaseDetails.productID);
-            ref.read(userInfoProvider.notifier).getUserProfiles();
-          } else if (purchaseDetails.status == PurchaseStatus.canceled) {
+            await ref.read(userInfoProvider.notifier).getUserProfiles();
             showSimpleDialog(
-                context: context, content: 'Purchase was canceled.');
-          }
-        } catch (e) {
-          showSimpleDialog(
-              context: context, content: 'Error processing purchase: $e');
-        } finally {
-          _stopLoading();
-          if (purchaseDetails.pendingCompletePurchase) {
-            await _inAppPurchase.completePurchase(purchaseDetails);
-          }
+                context: context,
+                content: S.of(context).dialog_message_purchase_success);
+            break;
+          case PurchaseStatus.canceled:
+            showSimpleDialog(
+                context: context,
+                content: S.of(context).dialog_message_purchase_canceled);
+            break;
+          default:
+            // 기타 상태 처리
+            break;
         }
+
+        if (purchaseDetails.pendingCompletePurchase) {
+          await _inAppPurchase.completePurchase(purchaseDetails);
+        }
+      } catch (e) {
+        showSimpleDialog(
+            context: context,
+            content: S.of(context).dialog_message_purchase_failed);
+        print('Error processing purchase: $e');
+      } finally {
+        _stopLoading(); // 모든 처리가 완료된 후 로딩 중지
       }
-    });
+    }
   }
 
   int _loadingCounter = 0;
@@ -158,7 +175,6 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
 
         print('Receipt is valid: $data');
         if (data is Map<String, dynamic> && data['success'] == true) {
-          showSimpleDialog(context: context, content: 'Purchase successful!');
         } else {
           throw Exception('Invalid response format');
         }

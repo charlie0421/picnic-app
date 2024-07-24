@@ -17,6 +17,9 @@
   "dialog_content_ads_loading": "広告の読み込み中です。",
   "dialog_content_ads_retrying": "広告を再呼び出し中です。しばらくしてからもう一度お試しください。",
   "dialog_content_login_required": "ログインが必要です",
+  "dialog_message_purchase_canceled": "구매가 취소되었습니다.",
+  "dialog_message_purchase_failed": "구매 중 오류가 발생했습니다. 나중에 다시 시도해 주세요.",
+  "dialog_message_purchase_success": "구매가 성공적으로 완료되었습니다.",
   "dialog_purchases_fail": "購入に失敗しました。",
   "dialog_purchases_success": "購入が完了しました。",
   "dialog_title_ads_exhausted": "広告完売しました",
@@ -242,6 +245,9 @@
   "@dialog_content_login_required": {
     "translationTimestamp": "2024-07-23T18:56:38.436905"
   },
+  "@dialog_message_purchase_canceled": {},
+  "@dialog_message_purchase_failed": {},
+  "@dialog_message_purchase_success": {},
   "@dialog_purchases_fail": {
     "translationTimestamp": "2024-07-23T18:56:38.436905"
   },
