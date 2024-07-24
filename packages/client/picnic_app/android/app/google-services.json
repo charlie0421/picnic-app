@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "853406219989-b8f17rtdgh5ab2r8vdp2bnrfqs2ludv4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.iconcasting.picnic.app",
+            "certificate_hash": "02160f81457c81d0d06108bbf227ca45cf4982b4"
+          }
+        },
+        {
           "client_id": "853406219989-jrfkss5a0lqe5sq43t4uhm7n6i0g6s1b.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -39,7 +47,8 @@
             }
           ]
         }
-      }
+      },
+      "admob_app_id": "ca-app-pub-1539304887624918~5060975477"
     }
   ],
   "configuration_version": "1"
