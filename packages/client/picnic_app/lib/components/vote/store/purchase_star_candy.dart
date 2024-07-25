@@ -13,6 +13,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/components/vote/common_vote_info.dart';
 import 'package:picnic_app/components/vote/store/store_list_tile.dart';
+import 'package:picnic_app/components/vote/store/usagePolicyDialog.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
@@ -240,7 +241,7 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
               style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600)),
           SizedBox(height: 2.w),
           GestureDetector(
-            onTap: () => _showCandyUsagePolicy(context),
+            onTap: () => showUsagePolicyDialog(context, ref),
             child: Text(S.of(context).candy_usage_policy_guide,
                 style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600)),
           ),

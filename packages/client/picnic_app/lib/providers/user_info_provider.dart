@@ -118,15 +118,23 @@ Future<bool> agreement(AgreementRef ref) async {
 @riverpod
 Future<int> expireBonus(ExpireBonusRef ref) async {
   try {
+    // 현재 월의 시작일과 다음 월의 시작일을 계산합니다.
+    final now = DateTime.now();
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    final startOfNextMonth = DateTime(now.year, now.month + 1, 1);
+
     final response = await supabase
         .from('star_candy_bonus_history')
-        .select('sum_remain_amount: sum(remain_amount::int)')
-        .gte('created_at', "date_trunc('month', CURRENT_DATE)")
-        .lt('created_at',
-            "date_trunc('month', CURRENT_DATE + INTERVAL '1 month')")
-        .single();
+        .select('remain_amount')
+        .gte('created_at', startOfMonth.toIso8601String())
+        .lt('created_at', startOfNextMonth.toIso8601String());
+    final List<dynamic> data = response;
+    int sum = data.fold(
+        0,
+        (sum, item) =>
+            sum + (int.tryParse(item['remain_amount'].toString()) ?? 0));
 
-    return (response['sum_remain_amount'] as num?)?.toInt() ?? 0;
+    return sum;
   } catch (e, s) {
     logger.e(e, stackTrace: s);
     return 0;

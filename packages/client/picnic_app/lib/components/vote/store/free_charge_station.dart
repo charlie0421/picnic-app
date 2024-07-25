@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_app/components/common/bullet_point.dart';
 import 'package:picnic_app/components/vote/common_vote_info.dart';
 import 'package:picnic_app/components/vote/store/store_list_tile.dart';
+import 'package:picnic_app/components/vote/store/usagePolicyDialog.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
@@ -74,70 +74,13 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
           _buildStoreListTile(1),
           Divider(height: 32.h, thickness: 1, color: AppColors.Grey200),
           GestureDetector(
-            onTap: () => _showUsagePolicyDialog(context),
+            onTap: () => showUsagePolicyDialog(context, ref),
             child: Text(S.of(context).candy_usage_policy_guide,
                 style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600)),
           ),
         ],
       ),
     );
-  }
-
-  void _showUsagePolicyDialog(BuildContext context) {
-    showModalBottomSheet(
-        context: context,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(48).r,
-            topRight: const Radius.circular(48).r,
-          ),
-        ),
-        builder: (context) => StatefulBuilder(
-              builder: (context, setState) => Container(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 40.h),
-                child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  Text(
-                    S.of(context).candy_disappear_next_month,
-                    style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
-                  ),
-                  SizedBox(height: 12.h),
-                  FutureBuilder(
-                      future: ref.read(expireBonusProvider.future),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done) {
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset('assets/icons/store/star_100.png',
-                                  width: 48.w, height: 48.w),
-                              snapshot.data == null
-                                  ? Text(
-                                      '0',
-                                      style: getTextStyle(
-                                          AppTypo.BODY16B, AppColors.Grey900),
-                                    )
-                                  : Text(
-                                      '${snapshot.data}',
-                                      style: getTextStyle(
-                                          AppTypo.BODY16B, AppColors.Grey900),
-                                    ),
-                            ],
-                          );
-                        } else {
-                          return CircularProgressIndicator();
-                        }
-                      }),
-                  SizedBox(height: 48.h),
-                  BulletPoint(
-                    S.of(context).candy_usage_policy_contents,
-                  ),
-                  SizedBox(height: 48.h),
-                  BulletPoint(
-                    S.of(context).candy_usage_policy_contents2,
-                  ),
-                ]),
-              ),
-            ));
   }
 
   Widget _buildStoreListTile(int index) {
