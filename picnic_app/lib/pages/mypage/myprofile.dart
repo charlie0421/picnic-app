@@ -279,7 +279,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                   ),
                   SizedBox(height: 24.h),
                   Text(
-                    '삭제 예정 별사탕',
+                    S.of(context).dialog_will_delete_star_candy,
                     style: getTextStyle(AppTypo.BODY14B, AppColors.Grey900),
                   ),
                   const StarCandyInfoText(),
@@ -289,7 +289,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                           getTextStyle(AppTypo.CAPTION12R, AppColors.Grey700),
                       textAlign: TextAlign.center),
                   SizedBox(height: 24.h),
-                  Text('지금 회원 탈퇴 시 재 가입 가능 일자',
+                  Text(S.of(context).dialog_message_can_resignup,
                       style:
                           getTextStyle(AppTypo.CAPTION12R, AppColors.Grey700),
                       textAlign: TextAlign.center),
@@ -315,7 +315,8 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                   color: AppColors.Grey300,
                                   borderRadius: BorderRadius.circular(30.w),
                                 ),
-                                child: Text('탈퇴하기',
+                                child: Text(
+                                    S.of(context).dialog_withdraw_button_ok,
                                     style: getTextStyle(
                                         AppTypo.TITLE18SB, AppColors.Grey00)))),
                       ),
@@ -336,7 +337,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                       color: AppColors.Primary500,
                                       width: 1.5.w),
                                 ),
-                                child: Text('취소',
+                                child: Text(S.of(context).dialog_button_cancel,
                                     style: getTextStyle(AppTypo.TITLE18SB,
                                         AppColors.Primary500)))),
                       ),

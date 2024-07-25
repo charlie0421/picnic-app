@@ -39,7 +39,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("Save"),
         "candy_disappear_next_month": MessageLookupByLibrary.simpleMessage(
-            "Next month\'s disappearing star candy 😢"),
+            "Next month\'s disappearing star candy😢"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
             "You can spend an unlimited amount of purchased Star Candy, but bonus Star Candy expires in bulk on the 15th of the month following the month in which it was earned."),
         "candy_usage_policy_contents2": MessageLookupByLibrary.simpleMessage(
@@ -58,12 +58,15 @@ class MessageLookup extends MessageLookupByLibrary {
             "The ad is reloading. Please try again in a moment."),
         "dialog_content_login_required":
             MessageLookupByLibrary.simpleMessage("Login required"),
+        "dialog_message_can_resignup": MessageLookupByLibrary.simpleMessage(
+            "When you can rejoin if you cancel your membership now"),
         "dialog_message_purchase_canceled":
-            MessageLookupByLibrary.simpleMessage("구매가 취소되었습니다."),
+            MessageLookupByLibrary.simpleMessage(
+                "Your purchase has been canceled."),
         "dialog_message_purchase_failed": MessageLookupByLibrary.simpleMessage(
-            "구매 중 오류가 발생했습니다. 나중에 다시 시도해 주세요."),
-        "dialog_message_purchase_success":
-            MessageLookupByLibrary.simpleMessage("구매가 성공적으로 완료되었습니다."),
+            "There was an error with your purchase, please try again later."),
+        "dialog_message_purchase_success": MessageLookupByLibrary.simpleMessage(
+            "Your purchase has been successfully completed."),
         "dialog_purchases_fail":
             MessageLookupByLibrary.simpleMessage("The purchase failed."),
         "dialog_purchases_success":
@@ -72,6 +75,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Exhausted all ads"),
         "dialog_title_vote_fail":
             MessageLookupByLibrary.simpleMessage("Voting Failed"),
+        "dialog_will_delete_star_candy":
+            MessageLookupByLibrary.simpleMessage("Starscapes to be deleted"),
         "dialog_withdraw_button_cancel": MessageLookupByLibrary.simpleMessage(
             "Let me think about this one more time"),
         "dialog_withdraw_button_ok":
@@ -79,7 +84,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialog_withdraw_error": MessageLookupByLibrary.simpleMessage(
             "An error occurred during unsubscribe."),
         "dialog_withdraw_message": MessageLookupByLibrary.simpleMessage(
-            "If you cancel your membership, any Star Candy you have on Picnic and your account information will be deleted immediately."),
+            "If you cancel your membership, your star candy and account information on Picnic will be deleted immediately, and your existing information and data will not be restored when you rejoin."),
         "dialog_withdraw_success": MessageLookupByLibrary.simpleMessage(
             "The unsubscribe was processed successfully."),
         "dialog_withdraw_title": MessageLookupByLibrary.simpleMessage(
