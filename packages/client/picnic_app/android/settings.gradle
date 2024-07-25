@@ -27,3 +27,5 @@ plugins {
 }
 
 include ":app"
+include ':flutter_config'
+project(':flutter_config').projectDir = new File(rootProject.projectDir, '.symlinks/plugins/flutter_config/android')
