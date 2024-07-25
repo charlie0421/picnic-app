@@ -79,7 +79,7 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
       }
     }, onError: (err) {
       // Handle error
-      print('Error: $err');
+      logger.e('Error: $err');
     });
   }
 
