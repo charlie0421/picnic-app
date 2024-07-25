@@ -24,7 +24,7 @@ class _PicnicAnimatedSwitcherState
   @override
   void initState() {
     super.initState();
-    _loadGifBytes();
+    // _loadGifBytes();
   }
 
   Future<void> _loadGifBytes() async {
