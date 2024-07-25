@@ -33,7 +33,7 @@
 				</array>
 				<key>CFBundleURLSchemes</key>
 				<array>
-                    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+					<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 					<string>kakao75e247f5d29512f84749e64aac77ebfa</string>
 					<string>com.googleusercontent.apps.853406219989-ntnler0e2qe0gfheh3qdjt3k2h4kpvj4</string>
 					<string>io.iconcasting.picnic.app</string>
