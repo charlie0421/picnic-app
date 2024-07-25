@@ -2,7 +2,7 @@ name: picnic_app
 description: "Picnic App"
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.5+10505
+version: 1.0.5+10503
 
 environment:
   sdk: '>=3.3.1 <4.0.0'
@@ -13,7 +13,6 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   shimmer: ^3.0.0
-  firebase_crashlytics: ^4.0.3
   universal_platform: ^1.1.0
   url_launcher: ^6.3.0
   flutter_cache_manager: ^3.3.3
@@ -58,7 +57,6 @@ dependencies:
   kakao_flutter_sdk: ^1.9.5
   kakao_flutter_sdk_user: ^1.9.5
   firebase_core: ^3.2.0
-  firebase_analytics: ^11.2.0
   image: ^4.2.0
   image_gallery_saver: ^2.0.3
   in_app_purchase: ^3.2.0
