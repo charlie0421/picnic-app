@@ -109,6 +109,7 @@ class _MyPageState extends ConsumerState<MyPage> {
 
   Widget _buildNonLogin() {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () => Navigator.of(context).pushNamed(SignUpScreen.routeName),
       child: Row(
         children: [
@@ -149,6 +150,7 @@ class _MyPageState extends ConsumerState<MyPage> {
   Widget _buildProfile() {
     final userInfo = ref.watch(userInfoProvider);
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () => ref
           .read(navigationInfoProvider.notifier)
           .setCurrentMyPage(const MyProfilePage()),
