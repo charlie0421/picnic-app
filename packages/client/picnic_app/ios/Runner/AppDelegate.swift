@@ -1,6 +1,6 @@
 import UIKit
 import Flutter
-import flutter_config
+import FlutterConfig
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
@@ -8,7 +8,7 @@ import flutter_config
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    FlutterConfigPlugin.env(for: "default")
+    FlutterConfig.shared.loadDotEnv()
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
