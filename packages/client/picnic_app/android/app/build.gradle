@@ -2,7 +2,6 @@ plugins {
     id "com.android.application"
     // START: FlutterFire Configuration
     id 'com.google.gms.google-services'
-apply plugin: 'com.google.firebase.crashlytics'
     // END: FlutterFire Configuration
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
@@ -10,6 +9,7 @@ apply plugin: 'com.google.firebase.crashlytics'
 
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
 
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
