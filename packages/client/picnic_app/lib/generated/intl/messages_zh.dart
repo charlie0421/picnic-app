@@ -39,7 +39,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_ok": MessageLookupByLibrary.simpleMessage("确认"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("节省"),
         "candy_disappear_next_month":
-            MessageLookupByLibrary.simpleMessage("下个月消失的星星糖果 😢"),
+            MessageLookupByLibrary.simpleMessage("下个月消失的星星糖果😢"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
             "您可以无限量地消费购买的 \"星糖\"，但奖励的 \"星糖 \"将在获得 \"星糖 \"当月的下一个月 15 日大量过期。"),
         "candy_usage_policy_contents2": MessageLookupByLibrary.simpleMessage(
@@ -58,25 +58,29 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("广告正在重新加载。请稍后再试。"),
         "dialog_content_login_required":
             MessageLookupByLibrary.simpleMessage("需要登录"),
+        "dialog_message_can_resignup":
+            MessageLookupByLibrary.simpleMessage("如果您现在离开，何时可以重新加入"),
         "dialog_message_purchase_canceled":
-            MessageLookupByLibrary.simpleMessage("구매가 취소되었습니다."),
-        "dialog_message_purchase_failed": MessageLookupByLibrary.simpleMessage(
-            "구매 중 오류가 발생했습니다. 나중에 다시 시도해 주세요."),
+            MessageLookupByLibrary.simpleMessage("您的购买已被取消。"),
+        "dialog_message_purchase_failed":
+            MessageLookupByLibrary.simpleMessage("您的购买出现错误，请稍后再试。"),
         "dialog_message_purchase_success":
-            MessageLookupByLibrary.simpleMessage("구매가 성공적으로 완료되었습니다."),
+            MessageLookupByLibrary.simpleMessage("您的购买已成功完成。"),
         "dialog_purchases_fail": MessageLookupByLibrary.simpleMessage("购买失败。"),
         "dialog_purchases_success":
             MessageLookupByLibrary.simpleMessage("购买完成。"),
         "dialog_title_ads_exhausted":
             MessageLookupByLibrary.simpleMessage("所有广告已用尽"),
         "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("表决失败"),
+        "dialog_will_delete_star_candy":
+            MessageLookupByLibrary.simpleMessage("将被删除的星星糖果"),
         "dialog_withdraw_button_cancel":
             MessageLookupByLibrary.simpleMessage("让我再想一想"),
         "dialog_withdraw_button_ok": MessageLookupByLibrary.simpleMessage("退订"),
         "dialog_withdraw_error":
             MessageLookupByLibrary.simpleMessage("取消订阅时发生错误。"),
         "dialog_withdraw_message": MessageLookupByLibrary.simpleMessage(
-            "如果您取消会员资格，您的 Star Candy 和账户信息将被立即删除。"),
+            "如果您取消会员资格，您的星星糖果和账户信息将被立即删除，重新加入时将无法恢复您的现有信息和数据。"),
         "dialog_withdraw_success":
             MessageLookupByLibrary.simpleMessage("取款已成功处理。"),
         "dialog_withdraw_title":
@@ -104,7 +108,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("不同意"),
         "label_button_recharge": MessageLookupByLibrary.simpleMessage("充电"),
         "label_button_save_vote_paper":
-            MessageLookupByLibrary.simpleMessage("保存您的选票"),
+            MessageLookupByLibrary.simpleMessage("存储您的选票"),
         "label_button_share": MessageLookupByLibrary.simpleMessage("分享"),
         "label_button_vote": MessageLookupByLibrary.simpleMessage("投票"),
         "label_button_watch_and_charge":
@@ -304,7 +308,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("奖励排名"),
         "text_vote_where_is_my_bias":
-            MessageLookupByLibrary.simpleMessage("我的最爱在哪里？"),
+            MessageLookupByLibrary.simpleMessage("我的最爱呢？"),
         "title_dialog_library_add":
             MessageLookupByLibrary.simpleMessage("添加新相册"),
         "title_dialog_success": MessageLookupByLibrary.simpleMessage("成功"),

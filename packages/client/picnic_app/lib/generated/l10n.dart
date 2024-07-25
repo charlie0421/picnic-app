@@ -110,10 +110,10 @@ class S {
     );
   }
 
-  /// `Next month's disappearing star candy 😢`
+  /// `Next month's disappearing star candy😢`
   String get candy_disappear_next_month {
     return Intl.message(
-      'Next month\'s disappearing star candy 😢',
+      'Next month\'s disappearing star candy😢',
       name: 'candy_disappear_next_month',
       desc: '',
       args: [],
@@ -220,30 +220,40 @@ class S {
     );
   }
 
-  /// `구매가 취소되었습니다.`
+  /// `When you can rejoin if you cancel your membership now`
+  String get dialog_message_can_resignup {
+    return Intl.message(
+      'When you can rejoin if you cancel your membership now',
+      name: 'dialog_message_can_resignup',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your purchase has been canceled.`
   String get dialog_message_purchase_canceled {
     return Intl.message(
-      '구매가 취소되었습니다.',
+      'Your purchase has been canceled.',
       name: 'dialog_message_purchase_canceled',
       desc: '',
       args: [],
     );
   }
 
-  /// `구매 중 오류가 발생했습니다. 나중에 다시 시도해 주세요.`
+  /// `There was an error with your purchase, please try again later.`
   String get dialog_message_purchase_failed {
     return Intl.message(
-      '구매 중 오류가 발생했습니다. 나중에 다시 시도해 주세요.',
+      'There was an error with your purchase, please try again later.',
       name: 'dialog_message_purchase_failed',
       desc: '',
       args: [],
     );
   }
 
-  /// `구매가 성공적으로 완료되었습니다.`
+  /// `Your purchase has been successfully completed.`
   String get dialog_message_purchase_success {
     return Intl.message(
-      '구매가 성공적으로 완료되었습니다.',
+      'Your purchase has been successfully completed.',
       name: 'dialog_message_purchase_success',
       desc: '',
       args: [],
@@ -290,6 +300,16 @@ class S {
     );
   }
 
+  /// `Starscapes to be deleted`
+  String get dialog_will_delete_star_candy {
+    return Intl.message(
+      'Starscapes to be deleted',
+      name: 'dialog_will_delete_star_candy',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Let me think about this one more time`
   String get dialog_withdraw_button_cancel {
     return Intl.message(
@@ -320,10 +340,10 @@ class S {
     );
   }
 
-  /// `If you cancel your membership, any Star Candy you have on Picnic and your account information will be deleted immediately.`
+  /// `If you cancel your membership, your star candy and account information on Picnic will be deleted immediately, and your existing information and data will not be restored when you rejoin.`
   String get dialog_withdraw_message {
     return Intl.message(
-      'If you cancel your membership, any Star Candy you have on Picnic and your account information will be deleted immediately.',
+      'If you cancel your membership, your star candy and account information on Picnic will be deleted immediately, and your existing information and data will not be restored when you rejoin.',
       name: 'dialog_withdraw_message',
       desc: '',
       args: [],

@@ -58,6 +58,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "광고를 다시 불러오는 중입니다. 잠시 후 다시 시도해 주세요."),
         "dialog_content_login_required":
             MessageLookupByLibrary.simpleMessage("로그인이 필요합니다"),
+        "dialog_message_can_resignup":
+            MessageLookupByLibrary.simpleMessage("지금 회원 탈퇴 시 재 가입 가능 일자"),
         "dialog_message_purchase_canceled":
             MessageLookupByLibrary.simpleMessage("구매가 취소되었습니다."),
         "dialog_message_purchase_failed": MessageLookupByLibrary.simpleMessage(
@@ -71,6 +73,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialog_title_ads_exhausted":
             MessageLookupByLibrary.simpleMessage("광고 모두 소진"),
         "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("투표 실패"),
+        "dialog_will_delete_star_candy":
+            MessageLookupByLibrary.simpleMessage("삭제 예정 별사탕"),
         "dialog_withdraw_button_cancel":
             MessageLookupByLibrary.simpleMessage("다시 한 번 생각해 볼게요"),
         "dialog_withdraw_button_ok":

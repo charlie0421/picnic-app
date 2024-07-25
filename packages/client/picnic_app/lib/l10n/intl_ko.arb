@@ -31,6 +31,8 @@
   "dialog_withdraw_message": "회원 탈퇴 시 피크닠에 보유하신 별사탕과 계정 정보는 즉시 삭제되며, 재 가입시 기존 정보 및 데이터는 복구가 되지 않습니다.",
   "dialog_withdraw_success": "탈퇴가 성공적으로 처리 되었습니다.",
   "dialog_withdraw_title": "정말 탈퇴하시겠어요?",
+  "dialog_will_delete_star_candy": "삭제 예정 별사탕",
+  "dialog_message_can_resignup": "지금 회원 탈퇴 시 재 가입 가능 일자",
   "error_message_login_failed": "로그인 중 오류가 발생했습니다.",
   "error_message_no_user": "회원 정보가 존재하지 않습니다.",
   "error_message_withdrawal": "탈퇴한 회원입니다.",

@@ -39,7 +39,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_ok": MessageLookupByLibrary.simpleMessage("確認"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("保存する"),
         "candy_disappear_next_month":
-            MessageLookupByLibrary.simpleMessage("来月で消える星飴😢."),
+            MessageLookupByLibrary.simpleMessage("来月で消える星空キャンディー😢。"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
             "購入した星飴は無制限に使用できますが、ボーナス星飴は獲得した月の翌月15日に一括消滅します。"),
         "candy_usage_policy_contents2": MessageLookupByLibrary.simpleMessage(
@@ -58,12 +58,14 @@ class MessageLookup extends MessageLookupByLibrary {
             "広告を再呼び出し中です。しばらくしてからもう一度お試しください。"),
         "dialog_content_login_required":
             MessageLookupByLibrary.simpleMessage("ログインが必要です"),
+        "dialog_message_can_resignup":
+            MessageLookupByLibrary.simpleMessage("今すぐ退会した場合、再入会可能日"),
         "dialog_message_purchase_canceled":
-            MessageLookupByLibrary.simpleMessage("구매가 취소되었습니다."),
+            MessageLookupByLibrary.simpleMessage("購入がキャンセルされました。"),
         "dialog_message_purchase_failed": MessageLookupByLibrary.simpleMessage(
-            "구매 중 오류가 발생했습니다. 나중에 다시 시도해 주세요."),
+            "購入中にエラーが発生しました。 後ほど再試行してください。"),
         "dialog_message_purchase_success":
-            MessageLookupByLibrary.simpleMessage("구매가 성공적으로 완료되었습니다."),
+            MessageLookupByLibrary.simpleMessage("購入が正常に完了しました。"),
         "dialog_purchases_fail":
             MessageLookupByLibrary.simpleMessage("購入に失敗しました。"),
         "dialog_purchases_success":
@@ -71,6 +73,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialog_title_ads_exhausted":
             MessageLookupByLibrary.simpleMessage("広告完売しました"),
         "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("投票失敗"),
+        "dialog_will_delete_star_candy":
+            MessageLookupByLibrary.simpleMessage("削除予定 星飴"),
         "dialog_withdraw_button_cancel":
             MessageLookupByLibrary.simpleMessage("もう一度考えてみます"),
         "dialog_withdraw_button_ok":
@@ -78,7 +82,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialog_withdraw_error":
             MessageLookupByLibrary.simpleMessage("退会中にエラーが発生しました。"),
         "dialog_withdraw_message": MessageLookupByLibrary.simpleMessage(
-            "退会すると、ピクニックで保有している星キャンディーとアカウント情報は即座に削除されます。"),
+            "退会時、ピクニックで保有している星キャンディーとアカウント情報は即座に削除され、再入会時、既存の情報及びデータは復旧されません。"),
         "dialog_withdraw_success":
             MessageLookupByLibrary.simpleMessage("退会が正常に処理されました。"),
         "dialog_withdraw_title":
