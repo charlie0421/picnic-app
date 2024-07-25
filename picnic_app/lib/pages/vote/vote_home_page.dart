@@ -131,8 +131,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
               return buildLoadingOverlay();
             },
             noItemsFoundIndicatorBuilder: (context) {
-              return ErrorView(context,
-                  error: 'No Items Found', stackTrace: null);
+              return Container();
             },
           ),
           separatorBuilder: (BuildContext context, int index) => Divider(
