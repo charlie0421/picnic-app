@@ -18,6 +18,7 @@ import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future showVotingDialog({
@@ -148,8 +149,8 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                widget.voteItemModel.artist
-                        .name[Intl.getCurrentLocale().split('_')[0]] ??
+                getLocaleTextFromJson(widget.voteItemModel.artist
+                        .name[Intl.getCurrentLocale().split('_')[0]]) ??
                     '',
                 style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
               ),
@@ -157,8 +158,8 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
               Align(
                 alignment: Alignment.center,
                 child: Text(
-                  widget.voteItemModel.artist.artist_group
-                      .name[Intl.getCurrentLocale().split('_')[0]],
+                  getLocaleTextFromJson(
+                      widget.voteItemModel.artist.artist_group.name),
                   style: getTextStyle(AppTypo.CAPTION12R, AppColors.Grey600),
                 ),
               ),

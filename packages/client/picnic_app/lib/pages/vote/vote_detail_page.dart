@@ -432,8 +432,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                             borderRadius:
                                                 BorderRadius.circular(39),
                                             child: PicnicCachedNetworkImage(
-                                              imageUrl:
-                                                  item.artist.image ?? '',
+                                              imageUrl: item.artist.image ?? '',
                                               useScreenUtil: true,
                                               width: 55,
                                               height: 55,
@@ -453,10 +452,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                               Row(children: [
                                                 RichText(
                                                   text: _highlightText(
-                                                      item.artist.name[
-                                                          Intl.getCurrentLocale()
-                                                              .split('_')
-                                                              .first],
+                                                      getLocaleTextFromJson(
+                                                          item.artist.name),
                                                       _searchQuery,
                                                       getTextStyle(
                                                           AppTypo.BODY14B,
@@ -467,11 +464,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                                 ),
                                                 RichText(
                                                   text: _highlightText(
-                                                      item.artist.artist_group
-                                                              .name[
-                                                          Intl.getCurrentLocale()
-                                                              .split('_')
-                                                              .first],
+                                                      getLocaleTextFromJson(item
+                                                          .artist
+                                                          .artist_group
+                                                          .name),
                                                       _searchQuery,
                                                       getTextStyle(
                                                           AppTypo.CAPTION10SB,

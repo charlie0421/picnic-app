@@ -160,7 +160,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_mypage_notice": MessageLookupByLibrary.simpleMessage("공지사항"),
         "label_mypage_privacy_policy":
             MessageLookupByLibrary.simpleMessage("개인정보처리방침"),
-        "label_mypage_setting": MessageLookupByLibrary.simpleMessage("설정"),
+        "label_mypage_setting":
+            MessageLookupByLibrary.simpleMessage("Settings"),
         "label_mypage_should_login":
             MessageLookupByLibrary.simpleMessage("로그인 해 주세요"),
         "label_mypage_terms_of_use":
@@ -199,7 +200,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_setting_recent_version":
             MessageLookupByLibrary.simpleMessage("최신버전"),
         "label_setting_remove_cache":
-            MessageLookupByLibrary.simpleMessage("캐시삭제"),
+            MessageLookupByLibrary.simpleMessage("캐시메모리 삭제가 완료되었습니다"),
         "label_setting_remove_cache_complete":
             MessageLookupByLibrary.simpleMessage("완료"),
         "label_setting_storage":
