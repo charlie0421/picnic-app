@@ -65,9 +65,10 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
         children: [
           SizedBox(height: 36.w),
           StorePointInfo(
-              title: S.of(context).label_star_candy_pouch,
-              width: double.infinity,
-              height: 100.h),
+            title: S.of(context).label_star_candy_pouch,
+            width: double.infinity,
+            height: 70.h,
+          ),
           SizedBox(height: 36.h),
           _buildStoreListTile(0),
           Divider(height: 32.h, thickness: 1, color: AppColors.Grey200),

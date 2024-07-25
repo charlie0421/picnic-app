@@ -78,7 +78,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialog_withdraw_error":
             MessageLookupByLibrary.simpleMessage("탈퇴중 에러가 발생했습니다."),
         "dialog_withdraw_message": MessageLookupByLibrary.simpleMessage(
-            "회원 탈퇴 시 피크닠에 보유하고 계신 별사탕과 계정정보는 즉시 삭제됩니다."),
+            "회원 탈퇴 시 피크닠에 보유하신 별사탕과 계정 정보는 즉시 삭제되며, 재 가입시 기존 정보 및 데이터는 복구가 되지 않습니다."),
         "dialog_withdraw_success":
             MessageLookupByLibrary.simpleMessage("탈퇴가 성공적으로 처리 되었습니다."),
         "dialog_withdraw_title":

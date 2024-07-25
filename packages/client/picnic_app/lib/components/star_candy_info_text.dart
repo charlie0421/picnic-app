@@ -47,7 +47,6 @@ class _StarCandyInfoTextState extends ConsumerState<StarCandyInfoText> {
       secondPart = ' +$starCandyBonus 奖金';
     }
     return Container(
-      padding: EdgeInsets.only(top: 16.w),
       child: Row(
         mainAxisAlignment: widget.alignment,
         children: [

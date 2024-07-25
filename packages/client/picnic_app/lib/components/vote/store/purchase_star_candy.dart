@@ -217,7 +217,7 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
           StorePointInfo(
             title: S.of(context).label_star_candy_pouch,
             width: double.infinity,
-            height: 100.w,
+            height: 70.h,
           ),
           SizedBox(height: 36.w),
           serverProductsAsyncValue.when(
@@ -377,7 +377,7 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
                 title: S.of(context).label_star_candy_pouch,
                 width: 231.w,
                 titlePadding: 10.w,
-                height: 78.w,
+                height: 48.w,
               )
             ],
           ),

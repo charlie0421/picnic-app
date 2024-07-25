@@ -5,22 +5,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
-import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
-import 'package:picnic_app/components/ui/large_popup.dart';
-import 'package:picnic_app/components/vote/common_vote_info.dart';
+import 'package:picnic_app/components/star_candy_info_text.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/pages/mypage/privacy_page.dart';
 import 'package:picnic_app/pages/mypage/terms_page.dart';
-import 'package:picnic_app/pages/signup/login_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util.dart';
 
 class MyProfilePage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_myprofile';
@@ -115,131 +112,132 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
           ListItem(
               leading: S.of(context).label_mypage_withdrawal,
               assetPath: 'assets/icons/arrow_right_style=line.svg',
-              onTap: () => showDialog(
-                  context: context,
-                  builder: (context) => LargePopupWidget(
-                        width: getPlatformScreenSize(context).width - 32.w,
-                        content: Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 40.w, vertical: 64.h),
-                          child: Column(children: [
-                            Text(
-                              S.of(context).dialog_withdraw_title,
-                              style: getTextStyle(
-                                  AppTypo.TITLE18SB, AppColors.Grey900),
-                            ),
-                            SizedBox(height: 32.h),
-                            StorePointInfo(
-                                title: S.of(context).label_star_candy_pouch,
-                                width: 231.w,
-                                titlePadding: 10.w,
-                                height: 78.h),
-                            SizedBox(height: 44.w),
-                            SizedBox(
-                              width: 216.w,
-                              child: Text(
-                                S.of(context).dialog_withdraw_message,
-                                style: getTextStyle(
-                                    AppTypo.CAPTION12R, AppColors.Grey700),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                            SizedBox(height: 32.h),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: MaterialButton(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 10.w),
-                                      color: AppColors.Grey00,
-                                      shape: RoundedRectangleBorder(
-                                          side: BorderSide(
-                                              color: AppColors.Primary500,
-                                              width: 1.5.w),
-                                          borderRadius:
-                                              BorderRadius.circular(20.w)),
-                                      onPressed: () {
-                                        try {
-                                          OverlayLoadingProgress.start(context);
-                                          _deleteAccount().then((value) {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(SnackBar(
-                                              content: Text(S
-                                                  .of(context)
-                                                  .dialog_withdraw_success),
-                                            ));
-
-                                            ref
-                                                .read(navigationInfoProvider
-                                                    .notifier)
-                                                .setPortal(PortalType.vote);
-                                            ref
-                                                .read(navigationInfoProvider
-                                                    .notifier)
-                                                .setBottomNavigationIndex(0);
-                                            ref
-                                                .read(navigationInfoProvider
-                                                    .notifier)
-                                                .setCurrentMyPage(
-                                                    const LoginPage());
-                                            ref
-                                                .read(navigationInfoProvider
-                                                    .notifier)
-                                                .setReseStackMyPage();
-                                            Navigator.of(context).pop();
-                                            Navigator.of(context).pop();
-                                          });
-                                        } catch (e, s) {
-                                          logger.e(e, stackTrace: s);
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(SnackBar(
-                                            content: Text(S
-                                                .of(context)
-                                                .dialog_withdraw_error),
-                                          ));
-                                        } finally {
-                                          OverlayLoadingProgress.stop();
-                                        }
-                                      },
-                                      child: Text(
-                                          S
-                                              .of(context)
-                                              .dialog_withdraw_button_ok,
-                                          style: getTextStyle(AppTypo.BODY14B,
-                                              AppColors.Primary500))),
-                                ),
-                                SizedBox(width: 10.w),
-                                Expanded(
-                                  flex: 3,
-                                  child: MaterialButton(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 10.w),
-                                      color: AppColors.Primary500,
-                                      shape: RoundedRectangleBorder(
-                                          side: BorderSide(
-                                              color: AppColors.Primary500,
-                                              width: 1.5.w),
-                                          borderRadius:
-                                              BorderRadius.circular(20.w)),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: Text(
-                                        S
-                                            .of(context)
-                                            .dialog_withdraw_button_cancel,
-                                        style: getTextStyle(
-                                            AppTypo.BODY14B, AppColors.Grey00),
-                                        textAlign: TextAlign.center,
-                                      )),
-                                ),
-                              ],
-                            )
-                          ]),
-                        ),
-                      ))),
+              onTap: () => _showWithdrawalModal()),
+          // showDialog(
+          // context: context,
+          // builder: (context) => LargePopupWidget(
+          //       width: getPlatformScreenSize(context).width - 32.w,
+          //       content: Container(
+          //         padding: EdgeInsets.symmetric(
+          //             horizontal: 40.w, vertical: 64.h),
+          //         child: Column(children: [
+          //           Text(
+          //             S.of(context).dialog_withdraw_title,
+          //             style: getTextStyle(
+          //                 AppTypo.TITLE18SB, AppColors.Grey900),
+          //           ),
+          //           SizedBox(height: 32.h),
+          //           StorePointInfo(
+          //               title: S.of(context).label_star_candy_pouch,
+          //               width: 231.w,
+          //               titlePadding: 10.w,
+          //               height: 78.h),
+          //           SizedBox(height: 44.w),
+          //           SizedBox(
+          //             width: 216.w,
+          //             child: Text(
+          //               S.of(context).dialog_withdraw_message,
+          //               style: getTextStyle(
+          //                   AppTypo.CAPTION12R, AppColors.Grey700),
+          //               textAlign: TextAlign.center,
+          //             ),
+          //           ),
+          //           SizedBox(height: 32.h),
+          //           Row(
+          //             mainAxisAlignment: MainAxisAlignment.center,
+          //             children: [
+          //               Expanded(
+          //                 flex: 2,
+          //                 child: MaterialButton(
+          //                     padding: EdgeInsets.symmetric(
+          //                         horizontal: 10.w),
+          //                     color: AppColors.Grey00,
+          //                     shape: RoundedRectangleBorder(
+          //                         side: BorderSide(
+          //                             color: AppColors.Primary500,
+          //                             width: 1.5.w),
+          //                         borderRadius:
+          //                             BorderRadius.circular(20.w)),
+          //                     onPressed: () {
+          //                       try {
+          //                         OverlayLoadingProgress.start(context);
+          //                         _deleteAccount().then((value) {
+          //                           ScaffoldMessenger.of(context)
+          //                               .showSnackBar(SnackBar(
+          //                             content: Text(S
+          //                                 .of(context)
+          //                                 .dialog_withdraw_success),
+          //                           ));
+          //
+          //                           ref
+          //                               .read(navigationInfoProvider
+          //                                   .notifier)
+          //                               .setPortal(PortalType.vote);
+          //                           ref
+          //                               .read(navigationInfoProvider
+          //                                   .notifier)
+          //                               .setBottomNavigationIndex(0);
+          //                           ref
+          //                               .read(navigationInfoProvider
+          //                                   .notifier)
+          //                               .setCurrentMyPage(
+          //                                   const LoginPage());
+          //                           ref
+          //                               .read(navigationInfoProvider
+          //                                   .notifier)
+          //                               .setReseStackMyPage();
+          //                           Navigator.of(context).pop();
+          //                           Navigator.of(context).pop();
+          //                         });
+          //                       } catch (e, s) {
+          //                         logger.e(e, stackTrace: s);
+          //                         ScaffoldMessenger.of(context)
+          //                             .showSnackBar(SnackBar(
+          //                           content: Text(S
+          //                               .of(context)
+          //                               .dialog_withdraw_error),
+          //                         ));
+          //                       } finally {
+          //                         OverlayLoadingProgress.stop();
+          //                       }
+          //                     },
+          //                     child: Text(
+          //                         S
+          //                             .of(context)
+          //                             .dialog_withdraw_button_ok,
+          //                         style: getTextStyle(AppTypo.BODY14B,
+          //                             AppColors.Primary500))),
+          //               ),
+          //               SizedBox(width: 10.w),
+          //               Expanded(
+          //                 flex: 3,
+          //                 child: MaterialButton(
+          //                     padding: EdgeInsets.symmetric(
+          //                         horizontal: 10.w),
+          //                     color: AppColors.Primary500,
+          //                     shape: RoundedRectangleBorder(
+          //                         side: BorderSide(
+          //                             color: AppColors.Primary500,
+          //                             width: 1.5.w),
+          //                         borderRadius:
+          //                             BorderRadius.circular(20.w)),
+          //                     onPressed: () {
+          //                       Navigator.of(context).pop();
+          //                     },
+          //                     child: Text(
+          //                       S
+          //                           .of(context)
+          //                           .dialog_withdraw_button_cancel,
+          //                       style: getTextStyle(
+          //                           AppTypo.BODY14B, AppColors.Grey00),
+          //                       textAlign: TextAlign.center,
+          //                     )),
+          //               ),
+          //             ],
+          //           )
+          //         ]),
+          //       ),
+          //     ))),
           Divider(
             color: AppColors.Grey300,
             thickness: 1,
@@ -248,6 +246,105 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         ],
       ),
     );
+  }
+
+  _showWithdrawalModal() {
+    DateTime now = DateTime.now();
+
+    // 30일을 더합니다
+    DateTime futureDate = now.add(const Duration(days: 30));
+
+    // 로케일을 가져옵니다
+    String locale = Localizations.localeOf(context).toString();
+
+    // DateFormat을 사용하여 로케일에 맞는 형식으로 날짜를 포맷팅합니다
+    String formattedDate =
+        DateFormat.yMMMMd(locale).add_jm().format(futureDate);
+
+    showModalBottomSheet(
+        context: context,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(48).r,
+            topRight: const Radius.circular(48).r,
+          ),
+        ),
+        builder: (context) => StatefulBuilder(
+              builder: (context, setState) => Container(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 40.h),
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  Text(
+                    S.of(context).dialog_withdraw_title,
+                    style: getTextStyle(AppTypo.TITLE18SB, AppColors.Grey900),
+                  ),
+                  SizedBox(height: 24.h),
+                  Text(
+                    '삭제 예정 별사탕',
+                    style: getTextStyle(AppTypo.BODY14B, AppColors.Grey900),
+                  ),
+                  const StarCandyInfoText(),
+                  SizedBox(height: 24.h),
+                  Text(S.of(context).dialog_withdraw_message,
+                      style:
+                          getTextStyle(AppTypo.CAPTION12R, AppColors.Grey700),
+                      textAlign: TextAlign.center),
+                  SizedBox(height: 24.h),
+                  Text('지금 회원 탈퇴 시 재 가입 가능 일자',
+                      style:
+                          getTextStyle(AppTypo.CAPTION12R, AppColors.Grey700),
+                      textAlign: TextAlign.center),
+                  Text(formattedDate,
+                      style:
+                          getTextStyle(AppTypo.CAPTION12B, AppColors.Grey700),
+                      textAlign: TextAlign.center),
+                  SizedBox(height: 24.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: MaterialButton(
+                            onPressed: () => _deleteAccount(),
+                            child: Container(
+                                alignment: Alignment.center,
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20.w, vertical: 8.h),
+                                constraints: BoxConstraints(
+                                  minWidth: 100.w,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.Grey300,
+                                  borderRadius: BorderRadius.circular(30.w),
+                                ),
+                                child: Text('탈퇴하기',
+                                    style: getTextStyle(
+                                        AppTypo.TITLE18SB, AppColors.Grey00)))),
+                      ),
+                      Expanded(
+                        child: MaterialButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: Container(
+                                alignment: Alignment.center,
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20.w, vertical: 8.h),
+                                constraints: BoxConstraints(
+                                  minWidth: 100.w,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.Grey00,
+                                  borderRadius: BorderRadius.circular(30.w),
+                                  border: Border.all(
+                                      color: AppColors.Primary500,
+                                      width: 1.5.w),
+                                ),
+                                child: Text('취소',
+                                    style: getTextStyle(AppTypo.TITLE18SB,
+                                        AppColors.Primary500)))),
+                      ),
+                    ],
+                  )
+                ]),
+              ),
+            ));
   }
 
   Future<void> _deleteAccount() async {
