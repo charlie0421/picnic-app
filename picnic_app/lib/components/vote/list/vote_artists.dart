@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util.dart';
 
 class VoteArtists extends StatelessWidget {
   final VoteModel vote;
@@ -76,9 +76,7 @@ class VoteArtists extends StatelessWidget {
                         height: 2.w,
                       ),
                       Text(
-                        artist.value.artist
-                                .name[Intl.getCurrentLocale().split('_')[0]] ??
-                            '',
+                        getLocaleTextFromJson(artist.value.artist.name) ?? '',
                         style: getTextStyle(AppTypo.CAPTION12B),
                       ),
                     ],

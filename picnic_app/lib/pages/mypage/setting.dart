@@ -192,10 +192,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                           OverlayLoadingProgress.stop();
                           showSimpleDialog(
                               context: context,
-                              title: S.of(context).label_setting_remove_cache,
-                              content: S
-                                  .of(context)
-                                  .label_setting_remove_cache_complete,
+                              content: S.of(context).label_setting_remove_cache,
                               onOk: () => Navigator.of(context).pop());
                         });
                       }),

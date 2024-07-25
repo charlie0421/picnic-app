@@ -160,7 +160,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_mypage_notice": MessageLookupByLibrary.simpleMessage("お知らせ"),
         "label_mypage_privacy_policy":
             MessageLookupByLibrary.simpleMessage("個人情報保護方針"),
-        "label_mypage_setting": MessageLookupByLibrary.simpleMessage("設定"),
+        "label_mypage_setting":
+            MessageLookupByLibrary.simpleMessage("Settings"),
         "label_mypage_should_login":
             MessageLookupByLibrary.simpleMessage("ログインしてください"),
         "label_mypage_terms_of_use":
@@ -199,7 +200,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_setting_recent_version":
             MessageLookupByLibrary.simpleMessage("最新バージョン"),
         "label_setting_remove_cache":
-            MessageLookupByLibrary.simpleMessage("キャッシュ削除"),
+            MessageLookupByLibrary.simpleMessage("キャッシュメモリの削除が完了しました"),
         "label_setting_remove_cache_complete":
             MessageLookupByLibrary.simpleMessage("完了"),
         "label_setting_storage":

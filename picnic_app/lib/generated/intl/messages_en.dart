@@ -214,8 +214,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Push notifications"),
         "label_setting_recent_version":
             MessageLookupByLibrary.simpleMessage("Latest version"),
-        "label_setting_remove_cache":
-            MessageLookupByLibrary.simpleMessage("Delete Cache"),
+        "label_setting_remove_cache": MessageLookupByLibrary.simpleMessage(
+            "Cache memory deletion is complete"),
         "label_setting_remove_cache_complete":
             MessageLookupByLibrary.simpleMessage("Done"),
         "label_setting_storage":

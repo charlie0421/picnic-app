@@ -80,7 +80,7 @@
   "label_mypage_my_artist": "나의 아티스트",
   "label_mypage_notice": "공지사항",
   "label_mypage_privacy_policy": "개인정보처리방침",
-  "label_mypage_setting": "설정",
+  "label_mypage_setting": "Settings",
   "label_mypage_terms_of_use": "이용약관",
   "label_mypage_vote_history": "별사탕 투표내역",
   "label_mypage_withdrawal": "회원탈퇴",
@@ -104,7 +104,7 @@
   "label_setting_language": "언어설정",
   "label_setting_push_alarm": "푸시알림",
   "label_setting_recent_version": "최신버전",
-  "label_setting_remove_cache": "캐시삭제",
+  "label_setting_remove_cache": "캐시메모리 삭제가 완료되었습니다",
   "label_setting_remove_cache_complete": "완료",
   "label_setting_storage": "저장공간 관리",
   "label_setting_update": "업데이트",
@@ -415,6 +415,7 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_mypage_setting": {
+    "manualTranslationKey": true,
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "@label_mypage_terms_of_use": {

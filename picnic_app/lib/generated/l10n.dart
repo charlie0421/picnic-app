@@ -1070,10 +1070,10 @@ class S {
     );
   }
 
-  /// `Delete Cache`
+  /// `Cache memory deletion is complete`
   String get label_setting_remove_cache {
     return Intl.message(
-      'Delete Cache',
+      'Cache memory deletion is complete',
       name: 'label_setting_remove_cache',
       desc: '',
       args: [],

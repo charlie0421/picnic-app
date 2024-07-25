@@ -11,6 +11,7 @@ import 'package:picnic_app/pages/vote/vote_detail_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util.dart';
 
 class VoteInfoCard extends ConsumerStatefulWidget {
   const VoteInfoCard({
@@ -104,7 +105,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
         child: Column(
           children: [
             VoteHeader(
-                title: widget.vote.title[Intl.getCurrentLocale().split('_')[0]],
+                title: getLocaleTextFromJson(widget.vote.title) ?? '',
                 stopAt: widget.status == VoteStatus.upcoming
                     ? widget.vote.start_at
                     : widget.vote.stop_at,

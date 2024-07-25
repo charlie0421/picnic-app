@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/models/pic/artist_vote.dart';
@@ -62,7 +61,7 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtist> {
                   ),
                 ),
                 title: Text(
-                  item.name[Intl.getCurrentLocale().split('_')[0]]!,
+                  getLocaleTextFromJson(item.name),
                 ),
                 // subtitle: Text(item.mystar_group!.id.toString())
               )),

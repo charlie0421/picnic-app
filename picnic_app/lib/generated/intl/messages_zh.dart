@@ -108,7 +108,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("不同意"),
         "label_button_recharge": MessageLookupByLibrary.simpleMessage("充电"),
         "label_button_save_vote_paper":
-            MessageLookupByLibrary.simpleMessage("存储您的选票"),
+            MessageLookupByLibrary.simpleMessage("保存您的选票"),
         "label_button_share": MessageLookupByLibrary.simpleMessage("分享"),
         "label_button_vote": MessageLookupByLibrary.simpleMessage("投票"),
         "label_button_watch_and_charge":
@@ -141,21 +141,22 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("收费"),
         "label_mypage_customer_center":
             MessageLookupByLibrary.simpleMessage("帮助中心"),
-        "label_mypage_logout": MessageLookupByLibrary.simpleMessage("退出"),
+        "label_mypage_logout": MessageLookupByLibrary.simpleMessage("退出登录"),
         "label_mypage_membership_history":
             MessageLookupByLibrary.simpleMessage("会员历史"),
         "label_mypage_my_artist": MessageLookupByLibrary.simpleMessage("我的艺术家"),
         "label_mypage_notice": MessageLookupByLibrary.simpleMessage("公告"),
         "label_mypage_privacy_policy":
             MessageLookupByLibrary.simpleMessage("隐私政策"),
-        "label_mypage_setting": MessageLookupByLibrary.simpleMessage("设置"),
+        "label_mypage_setting":
+            MessageLookupByLibrary.simpleMessage("Settings"),
         "label_mypage_should_login":
             MessageLookupByLibrary.simpleMessage("请登录"),
         "label_mypage_terms_of_use":
             MessageLookupByLibrary.simpleMessage("条款和条件"),
         "label_mypage_vote_history":
             MessageLookupByLibrary.simpleMessage("星星糖投票历史"),
-        "label_mypage_withdrawal": MessageLookupByLibrary.simpleMessage("退出"),
+        "label_mypage_withdrawal": MessageLookupByLibrary.simpleMessage("退出会员"),
         "label_no_ads": MessageLookupByLibrary.simpleMessage("无广告"),
         "label_no_celeb":
             MessageLookupByLibrary.simpleMessage("您还没有将任何艺术家加入书签！"),
@@ -186,7 +187,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_setting_recent_version":
             MessageLookupByLibrary.simpleMessage("最新版本"),
         "label_setting_remove_cache":
-            MessageLookupByLibrary.simpleMessage("删除缓存"),
+            MessageLookupByLibrary.simpleMessage("缓存清除完毕"),
         "label_setting_remove_cache_complete":
             MessageLookupByLibrary.simpleMessage("完成"),
         "label_setting_storage": MessageLookupByLibrary.simpleMessage("管理存储"),
