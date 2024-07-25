@@ -18,15 +18,15 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		ThyV5OKCrY4qcg8FbRahgn8nwz8=
+		N6WHYeKXSHlKZDpOpCn+qgy3l0g=
 		</data>
 		<key>Modules/app_tracking_transparency.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		bvKsMgyqstdRC1HUesI9PbzpkPw=
+		tPZKsFcG3Jqhx3bSzX/A/qbs/Sg=
 		</data>
 		<key>Modules/app_tracking_transparency.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		cJJUnuEGulIiVz9BA4yQpttF2X4=
+		8oBhverl5t3pwlW0dFqWSIUCoyg=
 		</data>
 		<key>Modules/app_tracking_transparency.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -34,11 +34,11 @@
 		</data>
 		<key>Modules/app_tracking_transparency.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		NZsBNTE0bAnCIqWKyzmjhhLfGxQ=
+		8+/znZqTlNVvYit3hLLUlVv2Qz8=
 		</data>
 		<key>Modules/app_tracking_transparency.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		HAu63OXpqjPMqkP00sOGWi8CM6U=
+		PwFH1+hSXh5M0bOaacAFD/kf3Is=
 		</data>
 		<key>Modules/app_tracking_transparency.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -46,11 +46,11 @@
 		</data>
 		<key>Modules/app_tracking_transparency.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		IPr032u9UeimuCnjVJ1HA7XyF+Q=
+		5d/W/9JjKYzNYrVsOsMH50I6hyw=
 		</data>
 		<key>Modules/app_tracking_transparency.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		/iYsF3o0BLkgp69Xzj/YlIMCD7E=
+		HbKdYnSGg0zOZD33SaC5DnXbS0Q=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -92,14 +92,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			Yt7rYIvGh4OhqOf8TT7cJqnXRGtgbI04zBw0XqQeR0k=
+			41soDd5Xgdic87XYTCaVS7emwcFZOMaVkk5VO9l1HaA=
 			</data>
 		</dict>
 		<key>Modules/app_tracking_transparency.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			nqTzm5bxRr76O77zVG/FUderZcpnjyjWBB3iG/jxuz4=
+			qT0GPa59WhvQ+PQbHOtXy3I2bZB8NmzYQyBZBuva+rw=
 			</data>
 		</dict>
 		<key>Modules/app_tracking_transparency.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
@@ -113,14 +113,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			tV+4i8jbhuT5ksp/O0/BJ4IB3T8MYeg2OVWSOV6hsqg=
+			dzb0h8mTIPSc/07HNNr/yJY/6Ku9NzTW8BzhMonRvF4=
 			</data>
 		</dict>
 		<key>Modules/app_tracking_transparency.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			7OJCMhBr05uGXJbh3CC2ADlhqn0ULU1j3keMKuEImzs=
+			3ueqgAqMT9SiwQtG+vkIu2lJuHDyeEX8sTwxosGyB3U=
 			</data>
 		</dict>
 		<key>Modules/app_tracking_transparency.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
@@ -134,14 +134,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			Q9Q5tAun2ltXYhTiQhJ5UhlEfur/Jh3EcKQlUg+Flbs=
+			dY1/IoOr93XZwodgp0NcBlqJ89HJfnhMB1LnOfYiJ2g=
 			</data>
 		</dict>
 		<key>Modules/app_tracking_transparency.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			rNIbdYPp3eObHXuTSwlLfd82H6hoqddcIZwbodYIiaw=
+			sl/sOhBgalcmdOcrb0oVwe9B/EZewQak2g8dto76bS0=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>

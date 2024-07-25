@@ -18,15 +18,15 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		UbLejxzFUWoWzJl5BnhUtIndlbc=
+		HEvQrxurZybA8+YdoRI2jLw1gRM=
 		</data>
 		<key>Modules/appinio_social_share.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		1f/vPbR/rO+OoGDqn+PWp7F57ZM=
+		AsOaY7F5UGX1s6onwgkbo1oaC90=
 		</data>
 		<key>Modules/appinio_social_share.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		kHCuHDYY3J27P1zyEetWV9wdF4w=
+		sYPqlrmqhsJq9FfTOgtc9YRnAPE=
 		</data>
 		<key>Modules/appinio_social_share.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -34,11 +34,11 @@
 		</data>
 		<key>Modules/appinio_social_share.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		uX7qi3fQsX/uI64g7ZVYVR5q4ac=
+		ENlEMn0ou4pSlFyOdgTOCa11FvY=
 		</data>
 		<key>Modules/appinio_social_share.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		F7tIXCGYX1C2uFBd6vfu57kOzIA=
+		PudPNaXWXf17EiS2DlUNJ2QCuOg=
 		</data>
 		<key>Modules/appinio_social_share.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -46,11 +46,11 @@
 		</data>
 		<key>Modules/appinio_social_share.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		yNpN92akcpboiBkKO4w8D/aEYvQ=
+		093ViDLbqG0pR0qQehSKGZGrPBM=
 		</data>
 		<key>Modules/appinio_social_share.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		Ori18JF8xRJLdezyPBKfoa3x8vU=
+		vrMIJnxPdEdJ5fLtsua1sgjzuQ8=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -96,22 +96,22 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			1f/vPbR/rO+OoGDqn+PWp7F57ZM=
+			AsOaY7F5UGX1s6onwgkbo1oaC90=
 			</data>
 			<key>hash2</key>
 			<data>
-			nEXwLeqS/TbjkFUUzCDcCy5lWSS5dyqGV75RyswyZZE=
+			OqTYKhTLLIT6bbr82nZdMDrDRAx4G1derMp5oX3ORZU=
 			</data>
 		</dict>
 		<key>Modules/appinio_social_share.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			kHCuHDYY3J27P1zyEetWV9wdF4w=
+			sYPqlrmqhsJq9FfTOgtc9YRnAPE=
 			</data>
 			<key>hash2</key>
 			<data>
-			3uaqltsf2nF+1028awBLGExxYVuZbCFgSFUGPft2J4o=
+			xg7dfYeSohYfpgpmiH44b2XceyEy9As5EjyhyP13GZQ=
 			</data>
 		</dict>
 		<key>Modules/appinio_social_share.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
@@ -129,22 +129,22 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			uX7qi3fQsX/uI64g7ZVYVR5q4ac=
+			ENlEMn0ou4pSlFyOdgTOCa11FvY=
 			</data>
 			<key>hash2</key>
 			<data>
-			FFa2JOVzTf9YtaB3RlMo0QoIYa/9PXwlXzKy3HkAntM=
+			4tHmiJoWXGcnhVSadsAnYALGiQrEVcEifv6C+PxRfPs=
 			</data>
 		</dict>
 		<key>Modules/appinio_social_share.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			F7tIXCGYX1C2uFBd6vfu57kOzIA=
+			PudPNaXWXf17EiS2DlUNJ2QCuOg=
 			</data>
 			<key>hash2</key>
 			<data>
-			5OECsQvZ+u9nqFzYnU8J3aSgds4RbkpoN8cqJZz2k4Y=
+			9GfOdyXcZgg8V/P0gmVPb50ugVXPhAjmPtn53GOQ+Qk=
 			</data>
 		</dict>
 		<key>Modules/appinio_social_share.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
@@ -162,22 +162,22 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			yNpN92akcpboiBkKO4w8D/aEYvQ=
+			093ViDLbqG0pR0qQehSKGZGrPBM=
 			</data>
 			<key>hash2</key>
 			<data>
-			9oNI7bmczr2bIyZuRo19ILSyFW3j1olRnETgiTs72L8=
+			ZenJGtFVclKbU/pcqzSShcW8HLPgiFMPRzhhu2zgPAw=
 			</data>
 		</dict>
 		<key>Modules/appinio_social_share.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			Ori18JF8xRJLdezyPBKfoa3x8vU=
+			vrMIJnxPdEdJ5fLtsua1sgjzuQ8=
 			</data>
 			<key>hash2</key>
 			<data>
-			BuxHfhwoG3J+kGNADst+sH+kVzXt+B8kRE/gE4TgKHY=
+			FHicqbZafUrra3sCIYoEjjlO/yQCHqQmjsHXsQY0ivY=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>

@@ -3,12 +3,12 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_config/flutter_config.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/supabase_options.dart';
-import 'package:picnic_app/util.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as Supabase;
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -83,8 +83,8 @@ class AppleLogin implements SocialLogin {
             AppleIDAuthorizationScopes.fullName
           ],
           webAuthenticationOptions: WebAuthenticationOptions(
-            clientId: getEnv('APPLE_CLIENT_ID'),
-            redirectUri: Uri.parse(getEnv('APPLE_REDIRECT_URI')),
+            clientId: FlutterConfig.get('APPLE_CLIENT_ID'),
+            redirectUri: Uri.parse(FlutterConfig.get('APPLE_REDIRECT_URI')),
           ),
           state: rawNonce);
       return SocialLoginResult(
@@ -124,8 +124,8 @@ class KakaoLogin implements SocialLogin {
   Future<SocialLoginResult> login() async {
     try {
       KakaoSdk.init(
-          nativeAppKey: getEnv('KAKAO_NATIVE_APP_KEY'),
-          javaScriptAppKey: getEnv('KAKAO_JS_APP_KEY'));
+          nativeAppKey: FlutterConfig.get('KAKAO_NATIVE_APP_KEY'),
+          javaScriptAppKey: FlutterConfig.get('KAKAO_JS_APP_KEY'));
       OAuthToken? token;
 
       if (await isKakaoTalkInstalled()) {
@@ -161,8 +161,8 @@ class KakaoLogin implements SocialLogin {
 class AuthService {
   final Map<Supabase.OAuthProvider, SocialLogin> _loginProviders = {
     Supabase.OAuthProvider.google: GoogleLogin(GoogleSignIn(
-        clientId: getEnv('GOOGLE_CLIENT_ID'),
-        serverClientId: getEnv('GOOGLE_SERVER_CLIENT_ID'))),
+        clientId: FlutterConfig.get('GOOGLE_CLIENT_ID'),
+        serverClientId: FlutterConfig.get('GOOGLE_SERVER_CLIENT_ID'))),
     Supabase.OAuthProvider.apple: AppleLogin(),
     Supabase.OAuthProvider.kakao: KakaoLogin(),
   };
