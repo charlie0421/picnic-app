@@ -37,7 +37,6 @@ target 'Runner' do
   end
 end
 
-pod 'flutter_config', :path => '.symlinks/plugins/flutter_config/ios'
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|
