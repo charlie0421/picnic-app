@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
 import 'package:picnic_app/components/star_candy_info_text.dart';
@@ -54,196 +55,78 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
   @override
   Widget build(BuildContext context) {
     final userInfo = ref.watch(userInfoProvider);
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: ListView(
-        children: [
-          SizedBox(height: 24.w),
-          buildProfileImage(userInfo),
-          SizedBox(height: 24.w),
-          buildNicknameInput(context),
-          SizedBox(height: 4.w),
-          buildValidationMsg(context),
-          SizedBox(height: 26.w),
-          Divider(
-            color: AppColors.Grey300,
-            thickness: 1,
-            height: 24.w,
-          ),
-          ListItem(
-              leading: S.of(context).label_mypage_terms_of_use,
-              assetPath: 'assets/icons/arrow_right_style=line.svg',
-              onTap: () {
-                ref
-                    .read(navigationInfoProvider.notifier)
-                    .setCurrentMyPage(TermsPage());
-              }),
-          Divider(
-            color: AppColors.Grey300,
-            thickness: 1,
-            height: 24.w,
-          ),
-          ListItem(
-              leading: S.of(context).label_mypage_privacy_policy,
-              assetPath: 'assets/icons/arrow_right_style=line.svg',
-              onTap: () {
-                ref
-                    .read(navigationInfoProvider.notifier)
-                    .setCurrentMyPage(PrivacyPage());
-              }),
-          Divider(
-            color: AppColors.Grey300,
-            thickness: 1,
-            height: 24.w,
-          ),
-          ListItem(
-              leading: S.of(context).label_mypage_logout,
-              assetPath: 'assets/icons/arrow_right_style=line.svg',
-              onTap: () {
-                ref.read(userInfoProvider.notifier).logout();
-                ref.read(navigationInfoProvider.notifier).setReseStackMyPage();
-                Navigator.of(context).pop();
-              }),
-          Divider(
-            color: AppColors.Grey300,
-            thickness: 1,
-            height: 24.w,
-          ),
-          ListItem(
-              leading: S.of(context).label_mypage_withdrawal,
-              assetPath: 'assets/icons/arrow_right_style=line.svg',
-              onTap: () => _showWithdrawalModal()),
-          // showDialog(
-          // context: context,
-          // builder: (context) => LargePopupWidget(
-          //       width: getPlatformScreenSize(context).width - 32.w,
-          //       content: Container(
-          //         padding: EdgeInsets.symmetric(
-          //             horizontal: 40.w, vertical: 64.h),
-          //         child: Column(children: [
-          //           Text(
-          //             S.of(context).dialog_withdraw_title,
-          //             style: getTextStyle(
-          //                 AppTypo.TITLE18SB, AppColors.Grey900),
-          //           ),
-          //           SizedBox(height: 32.h),
-          //           StorePointInfo(
-          //               title: S.of(context).label_star_candy_pouch,
-          //               width: 231.w,
-          //               titlePadding: 10.w,
-          //               height: 78.h),
-          //           SizedBox(height: 44.w),
-          //           SizedBox(
-          //             width: 216.w,
-          //             child: Text(
-          //               S.of(context).dialog_withdraw_message,
-          //               style: getTextStyle(
-          //                   AppTypo.CAPTION12R, AppColors.Grey700),
-          //               textAlign: TextAlign.center,
-          //             ),
-          //           ),
-          //           SizedBox(height: 32.h),
-          //           Row(
-          //             mainAxisAlignment: MainAxisAlignment.center,
-          //             children: [
-          //               Expanded(
-          //                 flex: 2,
-          //                 child: MaterialButton(
-          //                     padding: EdgeInsets.symmetric(
-          //                         horizontal: 10.w),
-          //                     color: AppColors.Grey00,
-          //                     shape: RoundedRectangleBorder(
-          //                         side: BorderSide(
-          //                             color: AppColors.Primary500,
-          //                             width: 1.5.w),
-          //                         borderRadius:
-          //                             BorderRadius.circular(20.w)),
-          //                     onPressed: () {
-          //                       try {
-          //                         OverlayLoadingProgress.start(context);
-          //                         _deleteAccount().then((value) {
-          //                           ScaffoldMessenger.of(context)
-          //                               .showSnackBar(SnackBar(
-          //                             content: Text(S
-          //                                 .of(context)
-          //                                 .dialog_withdraw_success),
-          //                           ));
-          //
-          //                           ref
-          //                               .read(navigationInfoProvider
-          //                                   .notifier)
-          //                               .setPortal(PortalType.vote);
-          //                           ref
-          //                               .read(navigationInfoProvider
-          //                                   .notifier)
-          //                               .setBottomNavigationIndex(0);
-          //                           ref
-          //                               .read(navigationInfoProvider
-          //                                   .notifier)
-          //                               .setCurrentMyPage(
-          //                                   const LoginPage());
-          //                           ref
-          //                               .read(navigationInfoProvider
-          //                                   .notifier)
-          //                               .setReseStackMyPage();
-          //                           Navigator.of(context).pop();
-          //                           Navigator.of(context).pop();
-          //                         });
-          //                       } catch (e, s) {
-          //                         logger.e(e, stackTrace: s);
-          //                         ScaffoldMessenger.of(context)
-          //                             .showSnackBar(SnackBar(
-          //                           content: Text(S
-          //                               .of(context)
-          //                               .dialog_withdraw_error),
-          //                         ));
-          //                       } finally {
-          //                         OverlayLoadingProgress.stop();
-          //                       }
-          //                     },
-          //                     child: Text(
-          //                         S
-          //                             .of(context)
-          //                             .dialog_withdraw_button_ok,
-          //                         style: getTextStyle(AppTypo.BODY14B,
-          //                             AppColors.Primary500))),
-          //               ),
-          //               SizedBox(width: 10.w),
-          //               Expanded(
-          //                 flex: 3,
-          //                 child: MaterialButton(
-          //                     padding: EdgeInsets.symmetric(
-          //                         horizontal: 10.w),
-          //                     color: AppColors.Primary500,
-          //                     shape: RoundedRectangleBorder(
-          //                         side: BorderSide(
-          //                             color: AppColors.Primary500,
-          //                             width: 1.5.w),
-          //                         borderRadius:
-          //                             BorderRadius.circular(20.w)),
-          //                     onPressed: () {
-          //                       Navigator.of(context).pop();
-          //                     },
-          //                     child: Text(
-          //                       S
-          //                           .of(context)
-          //                           .dialog_withdraw_button_cancel,
-          //                       style: getTextStyle(
-          //                           AppTypo.BODY14B, AppColors.Grey00),
-          //                       textAlign: TextAlign.center,
-          //                     )),
-          //               ),
-          //             ],
-          //           )
-          //         ]),
-          //       ),
-          //     ))),
-          Divider(
-            color: AppColors.Grey300,
-            thickness: 1,
-            height: 24.w,
-          ),
-        ],
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        child: ListView(
+          children: [
+            SizedBox(height: 24.w),
+            buildProfileImage(userInfo),
+            SizedBox(height: 24.w),
+            buildNicknameInput(context),
+            SizedBox(height: 4.w),
+            buildValidationMsg(context),
+            SizedBox(height: 26.w),
+            Divider(
+              color: AppColors.Grey300,
+              thickness: 1,
+              height: 24.w,
+            ),
+            ListItem(
+                leading: S.of(context).label_mypage_terms_of_use,
+                assetPath: 'assets/icons/arrow_right_style=line.svg',
+                onTap: () {
+                  ref
+                      .read(navigationInfoProvider.notifier)
+                      .setCurrentMyPage(TermsPage());
+                }),
+            Divider(
+              color: AppColors.Grey300,
+              thickness: 1,
+              height: 24.w,
+            ),
+            ListItem(
+                leading: S.of(context).label_mypage_privacy_policy,
+                assetPath: 'assets/icons/arrow_right_style=line.svg',
+                onTap: () {
+                  ref
+                      .read(navigationInfoProvider.notifier)
+                      .setCurrentMyPage(PrivacyPage());
+                }),
+            Divider(
+              color: AppColors.Grey300,
+              thickness: 1,
+              height: 24.w,
+            ),
+            ListItem(
+                leading: S.of(context).label_mypage_logout,
+                assetPath: 'assets/icons/arrow_right_style=line.svg',
+                onTap: () {
+                  ref.read(userInfoProvider.notifier).logout();
+                  ref
+                      .read(navigationInfoProvider.notifier)
+                      .setReseStackMyPage();
+                  Navigator.of(context).pop();
+                }),
+            Divider(
+              color: AppColors.Grey300,
+              thickness: 1,
+              height: 24.w,
+            ),
+            ListItem(
+                leading: S.of(context).label_mypage_withdrawal,
+                assetPath: 'assets/icons/arrow_right_style=line.svg',
+                onTap: () => _showWithdrawalModal()),
+            Divider(
+              color: AppColors.Grey300,
+              thickness: 1,
+              height: 24.w,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -401,106 +284,127 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
     );
   }
 
-  Container buildNicknameInput(BuildContext context) {
-    return Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24.w),
-          border: Border.all(
-              color: isValid ? AppColors.Primary500 : AppColors.StatusError,
-              strokeAlign: BorderSide.strokeAlignInside,
-              width: 1.5.w),
-        ),
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        margin: EdgeInsets.symmetric(horizontal: 57.w),
-        alignment: Alignment.center,
-        height: 48.w,
-        child: Form(
-          key: _formKey,
-          child: TextFormField(
-            controller: _textEditingController,
-            // autovalidateMode: AutovalidateMode.onUserInteraction,
-            onChanged: (value) {
-              logger.d('onChanged');
-              setState(() {
-                isValid = validateInput(value) == null;
-              });
-            },
-            cursorColor: AppColors.Primary500,
-            focusNode: _focusNode,
-            cursorHeight: 16.w,
-            keyboardType: TextInputType.text,
-            style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
-            decoration: InputDecoration(
-              hintText: S.of(context).hint_nickname_input,
-              hintStyle: getTextStyle(AppTypo.BODY14B, AppColors.Grey300),
-              border: InputBorder.none,
-              fillColor: AppColors.Grey900,
-              focusColor: AppColors.Primary500,
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              errorBorder: InputBorder.none,
-              suffixIconConstraints: BoxConstraints(
-                minWidth: 20.w,
-                minHeight: 20.w,
-              ),
-              suffixIcon: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () {
-                  _textEditingController.clear();
+  Widget buildNicknameInput(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24.w),
+              border: Border.all(
+                  color: isValid ? AppColors.Primary500 : AppColors.StatusError,
+                  strokeAlign: BorderSide.strokeAlignInside,
+                  width: 1.5.w),
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            alignment: Alignment.center,
+            height: 48.w,
+            width: 200.w,
+            child: Form(
+              key: _formKey,
+              child: TextFormField(
+                controller: _textEditingController,
+                // autovalidateMode: AutovalidateMode.onUserInteraction,
+                onChanged: (value) {
+                  logger.d('onChanged');
                   setState(() {
-                    isValid =
-                        validateInput(_textEditingController.text) == null;
+                    isValid = validateInput(value) == null;
                   });
                 },
-                child: _textEditingController.text ==
-                        ref.watch(userInfoProvider).value?.nickname
-                    ? SvgPicture.asset('assets/icons/pencil_style=fill.svg',
-                        colorFilter: const ColorFilter.mode(
-                          AppColors.Grey700,
-                          BlendMode.srcIn,
-                        ))
-                    : _textEditingController.text.isEmpty
-                        ? SvgPicture.asset(
-                            'assets/icons/cancle_style=fill.svg',
-                            colorFilter: const ColorFilter.mode(
-                              AppColors.Grey300,
-                              BlendMode.srcIn,
-                            ),
-                            width: 20.w,
-                            height: 20.w,
-                          )
-                        : GestureDetector(
-                            onTap: () {
-                              _textEditingController.clear();
-                              setState(() {
-                                isValid = validateInput(
-                                        _textEditingController.text) ==
-                                    null;
-                              });
-                            },
-                            child: SvgPicture.asset(
-                              'assets/icons/cancle_style=fill.svg',
-                              colorFilter: const ColorFilter.mode(
-                                AppColors.Grey700,
-                                BlendMode.srcIn,
-                              ),
-                              width: 20.w,
-                              height: 20.w,
-                            ),
-                          ),
+                cursorColor: AppColors.Primary500,
+                focusNode: _focusNode,
+                cursorHeight: 16.w,
+                keyboardType: TextInputType.text,
+                style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
+                decoration: InputDecoration(
+                  hintText: S.of(context).hint_nickname_input,
+                  hintStyle: getTextStyle(AppTypo.BODY14B, AppColors.Grey300),
+                  border: InputBorder.none,
+                  fillColor: AppColors.Grey900,
+                  focusColor: AppColors.Primary500,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  errorBorder: InputBorder.none,
+                  suffixIconConstraints: BoxConstraints(
+                    minWidth: 20.w,
+                    minHeight: 20.w,
+                  ),
+                  suffixIcon: _focusNode.hasFocus
+                      ? GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            _textEditingController.clear();
+                            setState(() {
+                              isValid =
+                                  validateInput(_textEditingController.text) ==
+                                      null;
+                            });
+                          },
+                          child: _textEditingController.text.isEmpty
+                              ? SvgPicture.asset(
+                                  'assets/icons/cancle_style=fill.svg',
+                                  colorFilter: const ColorFilter.mode(
+                                    AppColors.Grey300,
+                                    BlendMode.srcIn,
+                                  ),
+                                  width: 20.w,
+                                  height: 20.w,
+                                )
+                              : GestureDetector(
+                                  onTap: () {
+                                    _textEditingController.clear();
+                                    setState(() {
+                                      isValid = validateInput(
+                                              _textEditingController.text) ==
+                                          null;
+                                    });
+                                  },
+                                  child: SvgPicture.asset(
+                                    'assets/icons/cancle_style=fill.svg',
+                                    colorFilter: const ColorFilter.mode(
+                                      AppColors.Grey700,
+                                      BlendMode.srcIn,
+                                    ),
+                                    width: 20.w,
+                                    height: 20.w,
+                                  ),
+                                ),
+                        )
+                      : null,
+                ),
               ),
+            )),
+        GestureDetector(
+          onTap: () async {
+            _focusNode.unfocus();
+            if (isValid) {
+              OverlayLoadingProgress.start(context);
+              await ref
+                  .read(userInfoProvider.notifier)
+                  .updateNickname(_textEditingController.text);
+              OverlayLoadingProgress.stop();
+            }
+          },
+          child: Container(
+            width: 48.w,
+            height: 48.w,
+            alignment: Alignment.center,
+            margin: EdgeInsets.only(left: 8.w),
+            decoration: BoxDecoration(
+              color: isValid &&
+                      _textEditingController.text !=
+                          ref.watch(userInfoProvider).value?.nickname
+                  ? AppColors.Primary500
+                  : AppColors.Grey300,
+              borderRadius: BorderRadius.circular(24.w),
             ),
-            onFieldSubmitted: (value) {
-              logger.d('onFieldSubmitted');
-              _focusNode.unfocus();
-              if (isValid) {
-                ref
-                    .read(userInfoProvider.notifier)
-                    .updateNickname(_textEditingController.text);
-              }
-            },
+            child: SvgPicture.asset('assets/icons/pencil_style=fill.svg',
+                color: AppColors.Grey900, width: 24.w, height: 24.w),
           ),
-        ));
+        ),
+      ],
+    );
   }
 
   Container buildProfileImage(AsyncValue<UserProfilesModel?> userInfo) {
