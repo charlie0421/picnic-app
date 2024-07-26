@@ -105,6 +105,7 @@ class _VoteListState extends State<VoteList> {
       response = await supabase
           .from('vote')
           .select('*, vote_item(*, artist(*, artist_group(*)))')
+          .filter('deleted_at', 'is', null)
           .lt('start_at', 'now()')
           .gt('stop_at', 'now()')
           .order('id', ascending: false)
@@ -116,6 +117,7 @@ class _VoteListState extends State<VoteList> {
       response = await supabase
           .from('vote')
           .select('*, vote_item(*, artist(*, artist_group(*)))')
+          .filter('deleted_at', 'is', null)
           .lt('stop_at', 'now()')
           .order(
             sort,
@@ -129,6 +131,7 @@ class _VoteListState extends State<VoteList> {
       response = await supabase
           .from('vote')
           .select('*, vote_item(*, artist(*, artist_group(*)))')
+          .filter('deleted_at', 'is', null)
           .lt('visible_at', 'now()')
           .gt('start_at', 'now()')
           .order(
