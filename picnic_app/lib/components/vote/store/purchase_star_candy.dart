@@ -225,6 +225,7 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
             error: (error, stackTrace) =>
                 Text('Error loading server products: $error'),
             data: (serverProducts) {
+              logger.i('Server products: $serverProducts');
               return storeProductsAsyncValue.when(
                 loading: () => _buildShimmer(),
                 error: (error, stackTrace) =>
@@ -310,7 +311,8 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
         ),
         buttonText: '${serverProducts[index]['price']} \$',
         buttonOnPressed: () {
-          final productDetails = storeProducts[index];
+          final productDetails = storeProducts.firstWhere(
+              (element) => element.id == serverProducts[index]['id']);
           supabase.isLogged
               ? _buyProduct(productDetails)
               : showRequireLoginDialog(context: context);
