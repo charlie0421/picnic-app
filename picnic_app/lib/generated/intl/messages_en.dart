@@ -214,8 +214,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Push notifications"),
         "label_setting_recent_version":
             MessageLookupByLibrary.simpleMessage("Latest version"),
-        "label_setting_remove_cache": MessageLookupByLibrary.simpleMessage(
-            "Cache memory deletion is complete"),
+        "label_setting_remove_cache":
+            MessageLookupByLibrary.simpleMessage("Delete cache memory"),
         "label_setting_remove_cache_complete":
             MessageLookupByLibrary.simpleMessage("Done"),
         "label_setting_storage":
@@ -278,6 +278,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Want to report?"),
         "message_report_ok":
             MessageLookupByLibrary.simpleMessage("The report is complete."),
+        "message_setting_remove_cache": MessageLookupByLibrary.simpleMessage(
+            "Cache memory deletion is complete"),
         "message_vote_is_ended":
             MessageLookupByLibrary.simpleMessage("Poll closed"),
         "message_vote_is_upcoming":

@@ -200,7 +200,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_setting_recent_version":
             MessageLookupByLibrary.simpleMessage("最新バージョン"),
         "label_setting_remove_cache":
-            MessageLookupByLibrary.simpleMessage("キャッシュメモリの削除が完了しました"),
+            MessageLookupByLibrary.simpleMessage("キャッシュメモリの削除"),
         "label_setting_remove_cache_complete":
             MessageLookupByLibrary.simpleMessage("完了"),
         "label_setting_storage":
@@ -256,6 +256,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "message_report_confirm":
             MessageLookupByLibrary.simpleMessage("申告しますか？"),
         "message_report_ok": MessageLookupByLibrary.simpleMessage("申告が完了しました。"),
+        "message_setting_remove_cache":
+            MessageLookupByLibrary.simpleMessage("キャッシュメモリの削除が完了しました"),
         "message_vote_is_ended":
             MessageLookupByLibrary.simpleMessage("投票は終了しました"),
         "message_vote_is_upcoming":
