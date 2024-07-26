@@ -200,7 +200,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_setting_recent_version":
             MessageLookupByLibrary.simpleMessage("최신버전"),
         "label_setting_remove_cache":
-            MessageLookupByLibrary.simpleMessage("캐시메모리 삭제가 완료되었습니다"),
+            MessageLookupByLibrary.simpleMessage("캐시메모리 삭제"),
         "label_setting_remove_cache_complete":
             MessageLookupByLibrary.simpleMessage("완료"),
         "label_setting_storage":
@@ -258,6 +258,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("신고하시겠습니까?"),
         "message_report_ok":
             MessageLookupByLibrary.simpleMessage("신고가 완료되었습니다."),
+        "message_setting_remove_cache":
+            MessageLookupByLibrary.simpleMessage("캐시메모리 삭제가 완료되었습니다"),
         "message_vote_is_ended":
             MessageLookupByLibrary.simpleMessage("종료된 투표입니다"),
         "message_vote_is_upcoming":

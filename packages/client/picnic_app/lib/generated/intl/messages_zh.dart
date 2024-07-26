@@ -108,7 +108,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("不同意"),
         "label_button_recharge": MessageLookupByLibrary.simpleMessage("充电"),
         "label_button_save_vote_paper":
-            MessageLookupByLibrary.simpleMessage("保存您的选票"),
+            MessageLookupByLibrary.simpleMessage("存储您的选票"),
         "label_button_share": MessageLookupByLibrary.simpleMessage("分享"),
         "label_button_vote": MessageLookupByLibrary.simpleMessage("投票"),
         "label_button_watch_and_charge":
@@ -141,7 +141,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("收费"),
         "label_mypage_customer_center":
             MessageLookupByLibrary.simpleMessage("帮助中心"),
-        "label_mypage_logout": MessageLookupByLibrary.simpleMessage("退出登录"),
+        "label_mypage_logout": MessageLookupByLibrary.simpleMessage("退出"),
         "label_mypage_membership_history":
             MessageLookupByLibrary.simpleMessage("会员历史"),
         "label_mypage_my_artist": MessageLookupByLibrary.simpleMessage("我的艺术家"),
@@ -156,7 +156,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("条款和条件"),
         "label_mypage_vote_history":
             MessageLookupByLibrary.simpleMessage("星星糖投票历史"),
-        "label_mypage_withdrawal": MessageLookupByLibrary.simpleMessage("退出会员"),
+        "label_mypage_withdrawal": MessageLookupByLibrary.simpleMessage("退出"),
         "label_no_ads": MessageLookupByLibrary.simpleMessage("无广告"),
         "label_no_celeb":
             MessageLookupByLibrary.simpleMessage("您还没有将任何艺术家加入书签！"),
@@ -187,7 +187,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_setting_recent_version":
             MessageLookupByLibrary.simpleMessage("最新版本"),
         "label_setting_remove_cache":
-            MessageLookupByLibrary.simpleMessage("缓存清除完毕"),
+            MessageLookupByLibrary.simpleMessage("删除高速缓冲存储器"),
         "label_setting_remove_cache_complete":
             MessageLookupByLibrary.simpleMessage("完成"),
         "label_setting_storage": MessageLookupByLibrary.simpleMessage("管理存储"),
@@ -238,6 +238,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "message_report_confirm":
             MessageLookupByLibrary.simpleMessage("你想报告吗？"),
         "message_report_ok": MessageLookupByLibrary.simpleMessage("报告已完成。"),
+        "message_setting_remove_cache":
+            MessageLookupByLibrary.simpleMessage("缓存清除完毕"),
         "message_vote_is_ended": MessageLookupByLibrary.simpleMessage("投票结束"),
         "message_vote_is_upcoming":
             MessageLookupByLibrary.simpleMessage("即将进行投票"),
