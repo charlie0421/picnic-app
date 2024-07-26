@@ -74,7 +74,6 @@ dependencies:
   watcher: ^1.1.0
   jwt_decoder: ^2.0.1
   pool: ^1.5.1
-  flutter_config: ^2.0.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -110,8 +109,6 @@ flutter:
     - assets/mockup/gallery/
     - assets/mockup/pic/
     - assets/landing/
-    - .env.development
-    - .env.production
   fonts:
     - family: Pretendard
       fonts:
