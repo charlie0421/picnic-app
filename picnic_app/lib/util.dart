@@ -230,3 +230,5 @@ String getLocaleTextFromJson(Map<String, dynamic> json) {
   }
   return json['en'];
 }
+
+final numberFormatter = NumberFormat('#,###');

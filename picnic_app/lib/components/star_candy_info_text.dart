@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util.dart';
 
 class StarCandyInfoText extends ConsumerStatefulWidget {
   final MainAxisAlignment alignment;
@@ -34,17 +35,17 @@ class _StarCandyInfoTextState extends ConsumerState<StarCandyInfoText> {
     String secondPart = '';
 
     if (Intl.getCurrentLocale() == 'ko') {
-      firstPart = '$starCandy개';
-      secondPart = ' +$starCandyBonus개 보너스';
+      firstPart = '${numberFormatter.format(starCandy)}개';
+      secondPart = ' +${numberFormatter.format(starCandyBonus)}개 보너스';
     } else if (Intl.getCurrentLocale() == 'en') {
-      firstPart = '$starCandy';
-      secondPart = ' +$starCandyBonus bonus';
+      firstPart = numberFormatter.format(starCandy);
+      secondPart = ' +${numberFormatter.format(starCandyBonus)} bonus';
     } else if (Intl.getCurrentLocale() == 'ja') {
-      firstPart = '$starCandy個';
-      secondPart = ' +$starCandyBonus個ボーナス';
-    } else if (Intl.getCurrentLocale() == 'zh_CN') {
-      firstPart = '$starCandy';
-      secondPart = ' +$starCandyBonus 奖金';
+      firstPart = '${numberFormatter.format(starCandy)}個';
+      secondPart = ' +${numberFormatter.format(starCandyBonus)}個ボーナス';
+    } else if (Intl.getCurrentLocale() == 'zh') {
+      firstPart = numberFormatter.format(starCandy);
+      secondPart = ' +${numberFormatter.format(starCandyBonus)} 奖金';
     }
     return Container(
       child: Row(

@@ -311,8 +311,10 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
         ),
         buttonText: '${serverProducts[index]['price']} \$',
         buttonOnPressed: () {
-          final productDetails = storeProducts.firstWhere(
-              (element) => element.id == serverProducts[index]['id']);
+          final productDetails = storeProducts.firstWhere((element) =>
+              Platform.isAndroid
+                  ? element.id.toUpperCase() == serverProducts[index]['id']
+                  : element.id == serverProducts[index]['id']);
           supabase.isLogged
               ? _buyProduct(productDetails)
               : showRequireLoginDialog(context: context);
