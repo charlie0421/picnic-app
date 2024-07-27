@@ -15,6 +15,7 @@ import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
 import 'package:picnic_app/components/star_candy_info_text.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/pages/mypage/privacy_page.dart';
 import 'package:picnic_app/pages/mypage/terms_page.dart';
@@ -49,7 +50,6 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
     });
 
     _textEditingController.addListener(() {
-      logger.d('addListener');
       setState(() {
         isValid = validateInput(_textEditingController.text) == null;
       });
@@ -456,9 +456,20 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             _focusNode.unfocus();
             if (isValid) {
               OverlayLoadingProgress.start(context);
-              await ref
+              bool success = await ref
                   .read(userInfoProvider.notifier)
                   .updateNickname(_textEditingController.text);
+              if (success) {
+                // 닉네임 변경 성공
+                showSimpleDialog(
+                    context: context,
+                    content: S.of(context).message_update_nickname_success);
+              } else {
+                // 닉네임 변경 실패 (중복 또는 오류)
+                showSimpleDialog(
+                    context: context,
+                    content: S.of(context).message_update_nickname_fail);
+              }
               OverlayLoadingProgress.stop();
             }
           },

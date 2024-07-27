@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/user_profiles.dart';
@@ -61,24 +63,28 @@ class UserInfo extends _$UserInfo {
     state = const AsyncValue.data(null);
   }
 
-  Future<void> updateNickname(
-    String nickname,
-  ) async {
+  Future<bool> updateNickname(String nickname) async {
     try {
-      final response = await supabase
-          .from('user_profiles')
-          .update({
-            'nickname': nickname,
-          })
-          .eq('id', state.value!.id ?? 0)
-          .select()
-          .single();
-      logger.i('response.data: $response');
-      logger.i(UserProfilesModel.fromJson(response));
-      state = AsyncValue.data(UserProfilesModel.fromJson(response));
+      final response = await supabase.functions.invoke(
+        'update-nickname',
+        body: {'nickname': nickname},
+      );
+
+      if (response.status != 200) {
+        final error = jsonDecode(response.data)['error'];
+        logger.e('Error updating nickname: $error');
+        return false;
+      }
+
+      final updatedProfile =
+          UserProfilesModel.fromJson(jsonDecode(response.data)['data']);
+      state = AsyncValue.data(updatedProfile);
+      logger.i('Nickname updated successfully: ${updatedProfile.nickname}');
+      return true;
     } catch (e, s) {
-      logger.e(e);
+      logger.e('Error calling update-nickname function: $e');
       logger.e(s);
+      return false;
     }
   }
 

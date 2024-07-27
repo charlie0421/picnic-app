@@ -1440,6 +1440,26 @@ class S {
     );
   }
 
+  /// `Nickname change failed.\nPlease select a different nickname.`
+  String get message_update_nickname_fail {
+    return Intl.message(
+      'Nickname change failed.\nPlease select a different nickname.',
+      name: 'message_update_nickname_fail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your nickname has been successfully changed.`
+  String get message_update_nickname_success {
+    return Intl.message(
+      'Your nickname has been successfully changed.',
+      name: 'message_update_nickname_success',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Poll closed`
   String get message_vote_is_ended {
     return Intl.message(

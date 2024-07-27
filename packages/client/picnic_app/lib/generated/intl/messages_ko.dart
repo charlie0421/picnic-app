@@ -260,6 +260,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("신고가 완료되었습니다."),
         "message_setting_remove_cache":
             MessageLookupByLibrary.simpleMessage("캐시메모리 삭제가 완료되었습니다"),
+        "message_update_nickname_fail": MessageLookupByLibrary.simpleMessage(
+            "닉네임 변경에 실패했습니다.\n다른 닉네임을 선택해주세요."),
+        "message_update_nickname_success":
+            MessageLookupByLibrary.simpleMessage("닉네임이 성공적으로 변경되었습니다."),
         "message_vote_is_ended":
             MessageLookupByLibrary.simpleMessage("종료된 투표입니다"),
         "message_vote_is_upcoming":

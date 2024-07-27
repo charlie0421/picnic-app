@@ -280,6 +280,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("The report is complete."),
         "message_setting_remove_cache": MessageLookupByLibrary.simpleMessage(
             "Cache memory deletion is complete"),
+        "message_update_nickname_fail": MessageLookupByLibrary.simpleMessage(
+            "Nickname change failed.\nPlease select a different nickname."),
+        "message_update_nickname_success": MessageLookupByLibrary.simpleMessage(
+            "Your nickname has been successfully changed."),
         "message_vote_is_ended":
             MessageLookupByLibrary.simpleMessage("Poll closed"),
         "message_vote_is_upcoming":

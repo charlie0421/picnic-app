@@ -106,6 +106,8 @@
   "label_setting_recent_version": "최신버전",
   "label_setting_remove_cache": "캐시메모리 삭제",
   "message_setting_remove_cache": "캐시메모리 삭제가 완료되었습니다",
+  "message_update_nickname_success": "닉네임이 성공적으로 변경되었습니다.",
+  "message_update_nickname_fail": "닉네임 변경에 실패했습니다.\n다른 닉네임을 선택해주세요.",
   "label_setting_remove_cache_complete": "완료",
   "label_setting_storage": "저장공간 관리",
   "label_setting_update": "업데이트",
