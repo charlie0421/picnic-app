@@ -240,6 +240,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "message_report_ok": MessageLookupByLibrary.simpleMessage("报告已完成。"),
         "message_setting_remove_cache":
             MessageLookupByLibrary.simpleMessage("缓存清除完毕"),
+        "message_update_nickname_fail":
+            MessageLookupByLibrary.simpleMessage("昵称更改失败。\n请选择其他昵称。"),
+        "message_update_nickname_success":
+            MessageLookupByLibrary.simpleMessage("您的昵称已成功更改。"),
         "message_vote_is_ended": MessageLookupByLibrary.simpleMessage("投票结束"),
         "message_vote_is_upcoming":
             MessageLookupByLibrary.simpleMessage("即将进行投票"),

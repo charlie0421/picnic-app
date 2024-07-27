@@ -258,6 +258,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "message_report_ok": MessageLookupByLibrary.simpleMessage("申告が完了しました。"),
         "message_setting_remove_cache":
             MessageLookupByLibrary.simpleMessage("キャッシュメモリの削除が完了しました"),
+        "message_update_nickname_fail": MessageLookupByLibrary.simpleMessage(
+            "ニックネームの変更に失敗しました。\n別のニックネームを選択してください。"),
+        "message_update_nickname_success":
+            MessageLookupByLibrary.simpleMessage("ニックネームが正常に変更されました。"),
         "message_vote_is_ended":
             MessageLookupByLibrary.simpleMessage("投票は終了しました"),
         "message_vote_is_upcoming":
