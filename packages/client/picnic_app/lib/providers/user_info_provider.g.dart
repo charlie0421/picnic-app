@@ -34,7 +34,7 @@ final agreementProvider = AutoDisposeFutureProvider<bool>.internal(
 );
 
 typedef AgreementRef = AutoDisposeFutureProviderRef<bool>;
-String _$expireBonusHash() => r'5eab9a05e7133a14c31db76a3d49bfbc4eddceab';
+String _$expireBonusHash() => r'1055106026ac6607418e5e87c6783351fee500dd';
 
 /// See also [expireBonus].
 @ProviderFor(expireBonus)
@@ -48,7 +48,7 @@ final expireBonusProvider = AutoDisposeFutureProvider<int>.internal(
 );
 
 typedef ExpireBonusRef = AutoDisposeFutureProviderRef<int>;
-String _$userInfoHash() => r'0ca541aaba95009515b7c6a1aa07f829c4276c82';
+String _$userInfoHash() => r'05651103f1ece72091c7f8b405212189e8304795';
 
 /// See also [UserInfo].
 @ProviderFor(UserInfo)

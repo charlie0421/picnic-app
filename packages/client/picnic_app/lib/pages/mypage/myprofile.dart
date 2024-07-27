@@ -1,24 +1,28 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:path/path.dart' as path;
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
 import 'package:picnic_app/components/star_candy_info_text.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
-import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/pages/mypage/privacy_page.dart';
 import 'package:picnic_app/pages/mypage/terms_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MyProfilePage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_myprofile';
@@ -64,7 +68,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         child: ListView(
           children: [
             SizedBox(height: 24.w),
-            buildProfileImage(userInfo),
+            buildProfileImage(),
             SizedBox(height: 24.w),
             buildNicknameInput(context),
             SizedBox(height: 4.w),
@@ -129,6 +133,78 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         ),
       ),
     );
+  }
+
+  Future<void> _uploadProfileImage() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    final userId = supabase.auth.currentUser?.id;
+
+    logger.d('image: $image');
+    if (image != null) {
+      // 이미지 크롭
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: image.path,
+        aspectRatio: CropAspectRatio(ratioX: 1, ratioY: 1),
+        uiSettings: [
+          AndroidUiSettings(
+              toolbarTitle: '',
+              toolbarColor: AppColors.Primary500,
+              toolbarWidgetColor: Colors.white,
+              initAspectRatio: CropAspectRatioPreset.square,
+              lockAspectRatio: true),
+          IOSUiSettings(title: ''),
+        ],
+      );
+
+      logger.d('croppedFile: $croppedFile');
+      if (croppedFile != null) {
+        try {
+          OverlayLoadingProgress.start(context);
+          final Uint8List fileBytes = await croppedFile.readAsBytes();
+
+          // 파일 이름 생성
+          final String fileName =
+              '$userId/avatar_${DateTime.now().millisecondsSinceEpoch}${path.extension(croppedFile.path)}';
+
+          logger.d('fileName: $fileName');
+
+          // Supabase Storage에 이미지 업로드
+          final storageResponse =
+              await supabase.storage.from('avatars').uploadBinary(
+                    fileName,
+                    fileBytes,
+                    fileOptions: FileOptions(
+                      cacheControl: '3600',
+                      upsert: true,
+                    ),
+                  );
+
+          logger.d('storageResponse: $storageResponse');
+
+          if (storageResponse.isNotEmpty) {
+            // 업로드된 이미지의 공개 URL 가져오기
+            final String imageUrl =
+                supabase.storage.from('avatars').getPublicUrl(fileName);
+
+            // 사용자 프로필 업데이트
+            await ref.read(userInfoProvider.notifier).updateAvatar(imageUrl);
+
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('성공'), duration: const Duration(seconds: 2)));
+          } else {
+            throw Exception('Failed to upload image');
+          }
+        } catch (e, s) {
+          logger.e(e, stackTrace: s);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('실패'),
+          ));
+        } finally {
+          OverlayLoadingProgress.stop();
+        }
+      }
+    }
   }
 
   _showWithdrawalModal() {
@@ -407,7 +483,8 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
     );
   }
 
-  Container buildProfileImage(AsyncValue<UserProfilesModel?> userInfo) {
+  Container buildProfileImage() {
+    final userInfo = ref.watch(userInfoProvider);
     return userInfo.when(
         data: (data) => data != null
             ? Container(
@@ -426,10 +503,11 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                         height: 100.w,
                       ),
                     ),
-                    if (userInfo.value!.is_admin)
-                      Positioned(
-                        right: 0,
-                        bottom: 0,
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: GestureDetector(
+                        onTap: () => _uploadProfileImage(),
                         child: Container(
                             width: 24.w,
                             height: 24.w,
@@ -447,6 +525,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                   BlendMode.srcIn,
                                 ))),
                       ),
+                    ),
                   ],
                 ),
               )
