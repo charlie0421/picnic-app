@@ -2,15 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/components/vote/common_vote_info.dart';
 import 'package:picnic_app/components/vote/store/store_list_tile.dart';
 import 'package:picnic_app/components/vote/store/usagePolicyDialog.dart';
@@ -21,9 +18,7 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/product_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
-import 'package:picnic_app/ui/common_theme.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -65,6 +60,7 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
             // 대기 중 상태 처리
             break;
           case PurchaseStatus.error:
+            _stopLoading();
             showSimpleDialog(
                 context: context,
                 content: S.of(context).dialog_message_purchase_failed);
@@ -76,11 +72,13 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
                 purchaseDetails.verificationData.serverVerificationData,
                 purchaseDetails.productID);
             await ref.read(userInfoProvider.notifier).getUserProfiles();
+            _stopLoading();
             showSimpleDialog(
                 context: context,
                 content: S.of(context).dialog_message_purchase_success);
             break;
           case PurchaseStatus.canceled:
+            _stopLoading();
             showSimpleDialog(
                 context: context,
                 content: S.of(context).dialog_message_purchase_canceled);
@@ -328,65 +326,9 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
 
   void _buyProduct(ProductDetails productDetails) {
     logger.i('Trying to buy product: ${productDetails.id}');
+    _startLoading();
     final PurchaseParam purchaseParam =
         PurchaseParam(productDetails: productDetails);
     _inAppPurchase.buyConsumable(purchaseParam: purchaseParam);
-  }
-
-  void _showCandyUsagePolicy(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => LargePopupWidget(
-        width: getPlatformScreenSize(context).width - 32.w,
-        content: Container(
-          padding: EdgeInsets.symmetric(horizontal: 40.w, vertical: 64.w),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SvgPicture.asset(
-                    'assets/icons/play_style=fill.svg',
-                    width: 16.w,
-                    height: 16.w,
-                    colorFilter: const ColorFilter.mode(
-                        AppColors.Primary500, BlendMode.srcIn),
-                  ),
-                  SizedBox(width: 8.w),
-                  Text(S.of(context).candy_usage_policy_title,
-                      style:
-                          getTextStyle(AppTypo.BODY14B, AppColors.Primary500)),
-                  SizedBox(width: 8.w),
-                  Transform.rotate(
-                    angle: 3.14,
-                    child: SvgPicture.asset(
-                      'assets/icons/play_style=fill.svg',
-                      width: 16.w,
-                      height: 16.w,
-                      colorFilter: const ColorFilter.mode(
-                          AppColors.Primary500, BlendMode.srcIn),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16.w),
-              Markdown(
-                padding: EdgeInsets.zero,
-                shrinkWrap: true,
-                data: S.of(context).candy_usage_policy_contents,
-                styleSheet: commonMarkdownStyleSheet,
-              ),
-              SizedBox(height: 16.w),
-              StorePointInfo(
-                title: S.of(context).label_star_candy_pouch,
-                width: 231.w,
-                titlePadding: 10.w,
-                height: 48.w,
-              )
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }
