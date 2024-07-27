@@ -454,7 +454,9 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         GestureDetector(
           onTap: () async {
             _focusNode.unfocus();
-            if (isValid) {
+            if (isValid &&
+                _textEditingController.text !=
+                    ref.watch(userInfoProvider).value?.nickname) {
               OverlayLoadingProgress.start(context);
               bool success = await ref
                   .read(userInfoProvider.notifier)
