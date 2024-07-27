@@ -291,6 +291,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         Navigator.of(context).pop();
       } else {
         // 정상적인 로그인 완료
+        ref.read(navigationInfoProvider.notifier).setResetStackMyPage();
         Navigator.of(context).pop();
         Navigator.of(context).pop();
       }

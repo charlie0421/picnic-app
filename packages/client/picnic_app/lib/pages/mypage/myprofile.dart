@@ -112,7 +112,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                   ref.read(userInfoProvider.notifier).logout();
                   ref
                       .read(navigationInfoProvider.notifier)
-                      .setReseStackMyPage();
+                      .setResetStackMyPage();
                   Navigator.of(context).pop();
                 }),
             Divider(

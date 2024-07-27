@@ -155,9 +155,15 @@ class NavigationInfo extends _$NavigationInfo {
     // topNavigationStack.length == 1 ? showPortal() : hidePortal();
   }
 
-  setReseStackMyPage() {
+  setResetStackMyPage() {
     state = state.copyWith(
       drawerNavigationStack: NavigationStack()..push(const MyPage()),
+    );
+  }
+
+  setResetStackSignUp() {
+    state = state.copyWith(
+      signUpNavigationStack: NavigationStack()..push(const LoginPage()),
     );
   }
 

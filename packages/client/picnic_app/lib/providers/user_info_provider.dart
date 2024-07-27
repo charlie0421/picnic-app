@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:picnic_app/auth_service.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -57,7 +58,9 @@ class UserInfo extends _$UserInfo {
   }
 
   Future<void> logout() async {
-    await supabase.auth.signOut();
+    final authService = AuthService();
+    authService.signOut();
+
     ref.read(navigationInfoProvider.notifier).setBottomNavigationIndex(0);
 
     state = const AsyncValue.data(null);
