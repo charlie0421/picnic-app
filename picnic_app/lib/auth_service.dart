@@ -208,9 +208,9 @@ class AuthService {
   }
 
   Future<void> signOut() async {
-    for (var socialLogin in _loginProviders.values) {
-      await socialLogin.logout();
-    }
+    // for (var socialLogin in _loginProviders.values) {
+    //   await socialLogin.logout();
+    // }
     await supabase.auth.signOut();
     await _clearStoredSession();
   }
@@ -277,10 +277,12 @@ class AuthService {
 
   Future<void> _clearStoredSession() async {
     const storage = FlutterSecureStorage();
+    await storage.readAll().then((value) => logger.i(value));
     await storage.delete(key: 'supabase_access_token');
     await storage.delete(key: 'google_id_token');
     await storage.delete(key: 'apple_id_token');
     await storage.delete(key: 'kakao_id_token');
+    await storage.readAll().then((value) => logger.i(value));
     logger.i('Stored session cleared');
   }
 }

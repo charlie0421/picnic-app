@@ -75,8 +75,6 @@ class StoreProducts extends _$StoreProducts {
               )
           .toSet();
 
-      logger.i('Product IDs: $productIds');
-
       final ProductDetailsResponse response =
           await inAppPurchase.queryProductDetails(productIds);
 

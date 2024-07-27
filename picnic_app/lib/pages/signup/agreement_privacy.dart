@@ -126,6 +126,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                                 ],
                               ),
                               onOk: () {
+                                navigationInfoNotifier.setResetStackSignUp();
                                 Navigator.pop(context);
                                 Navigator.pop(context);
                                 // Navigator.pop(context, true);
