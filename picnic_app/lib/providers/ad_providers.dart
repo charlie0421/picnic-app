@@ -169,7 +169,7 @@ class RewardedAds extends _$RewardedAds {
   }
 
   void _onAdFailedToLoad(int index, LoadAdError error) {
-    logger.e('onAdFailedToLoad: $index, $error');
+    // logger.e('onAdFailedToLoad: $index, $error');
     _updateAdState(index, isLoading: false);
     _scheduleRetry(index);
   }

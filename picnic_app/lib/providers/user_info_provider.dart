@@ -81,6 +81,13 @@ class UserInfo extends _$UserInfo {
       logger.e(s);
     }
   }
+
+  Future<void> updateAvatar(String url) async {
+    await supabase.from('user_profiles').update({
+      'avatar_url': url,
+    });
+    state = AsyncValue.data(state.value!.copyWith(avatar_url: url));
+  }
 }
 
 @riverpod
