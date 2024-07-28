@@ -237,20 +237,20 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   child: Text.rich(
                     TextSpan(children: [
                       TextSpan(
-                        text: DateFormat('yyyy.MM.dd HH:mm').format(
-                            voteModel.start_at ?? DateTime.now().toUtc()),
+                        text: DateFormat('yyyy.MM.dd HH:mm')
+                            .format(voteModel.start_at.toLocal()),
                         style:
                             getTextStyle(AppTypo.CAPTION12R, AppColors.Grey900),
                       ),
                       const TextSpan(text: ' ~ '),
                       TextSpan(
-                        text: DateFormat('yyyy.MM.dd HH:mm').format(
-                            voteModel.stop_at ?? DateTime.now().toUtc()),
+                        text: DateFormat('yyyy.MM.dd HH:mm')
+                            .format(voteModel.stop_at.toLocal()),
                         style:
                             getTextStyle(AppTypo.CAPTION12R, AppColors.Grey900),
                       ),
                       TextSpan(
-                        text: '(KST)',
+                        text: '(${getShortTimeZoneIdentifier()})',
                         style:
                             getTextStyle(AppTypo.CAPTION12R, AppColors.Grey900),
                       )
