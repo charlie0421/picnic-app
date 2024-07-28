@@ -1,5 +1,6 @@
 import 'package:another_flutter_splash_screen/another_flutter_splash_screen.dart';
 import 'package:app_links/app_links.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -38,6 +39,10 @@ class App extends ConsumerStatefulWidget {
 
 class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
   Widget? initScreen;
+
+  static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  static FirebaseAnalyticsObserver observer =
+      FirebaseAnalyticsObserver(analytics: analytics);
 
   @override
   void initState() {
@@ -143,6 +148,7 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
               TermsScreen.routeName: (context) => const TermsScreen(),
               PrivacyScreen.routeName: (context) => const PrivacyScreen(),
             },
+            navigatorObservers: [observer],
             home: UniversalPlatform.isWeb
                 ? initScreen ?? const Portal()
                 : FlutterSplashScreen.fadeIn(

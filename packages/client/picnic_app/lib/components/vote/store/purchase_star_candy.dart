@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -324,11 +325,25 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
     );
   }
 
-  void _buyProduct(ProductDetails productDetails) {
+  void _buyProduct(ProductDetails productDetails) async {
     logger.i('Trying to buy product: ${productDetails.id}');
     _startLoading();
     final PurchaseParam purchaseParam =
         PurchaseParam(productDetails: productDetails);
-    _inAppPurchase.buyConsumable(purchaseParam: purchaseParam);
+    bool purchaseResult =
+        await _inAppPurchase.buyConsumable(purchaseParam: purchaseParam);
+    await FirebaseAnalytics.instance.logPurchase(
+      currency: productDetails.currencyCode,
+      value: productDetails.rawPrice,
+      items: [
+        AnalyticsEventItem(
+          itemId: productDetails.id,
+          itemName: productDetails.title,
+          price: productDetails.rawPrice,
+        ),
+      ],
+      transactionId:
+          DateTime.now().millisecondsSinceEpoch.toString(), // 고유 트랜잭션 ID 생성
+    );
   }
 }
