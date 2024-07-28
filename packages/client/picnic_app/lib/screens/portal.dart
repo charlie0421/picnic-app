@@ -40,6 +40,7 @@ class _PortalState extends ConsumerState<Portal> {
           gradient: commonGradient,
         ),
         child: Scaffold(
+            drawerEnableOpenDragGesture: false,
             drawer: const Drawer(
               width: double.infinity,
               child: MyPageScreen(),
