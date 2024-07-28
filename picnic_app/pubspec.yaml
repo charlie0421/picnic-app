@@ -74,6 +74,7 @@ dependencies:
   watcher: ^1.1.0
   jwt_decoder: ^2.0.1
   pool: ^1.5.1
+  firebase_analytics: ^11.2.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
