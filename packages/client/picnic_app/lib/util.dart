@@ -9,6 +9,7 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:timezone/timezone.dart' as tz;
 import 'package:universal_platform/universal_platform.dart';
 
 String formatCount(int number, String labelName) {
@@ -232,3 +233,22 @@ String getLocaleTextFromJson(Map<String, dynamic> json) {
 }
 
 final numberFormatter = NumberFormat('#,###');
+
+String getCurrentTimeZoneIdentifier() {
+  try {
+    String systemTimeZone = DateTime.now().timeZoneName;
+
+    tz.Location location = tz.getLocation(systemTimeZone);
+
+    return location.name; // 예: 'Europe/London', 'Asia/Seoul' 등
+  } catch (e) {
+    // 오류 발생 시 시스템 시간대 이름 또는 UTC 반환
+    return DateTime.now().timeZoneName ?? 'UTC';
+  }
+}
+
+String getShortTimeZoneIdentifier() {
+  String fullIdentifier = getCurrentTimeZoneIdentifier();
+  List<String> parts = fullIdentifier.split('/');
+  return parts.last; // 예: 'London', 'Seoul' 등
+}

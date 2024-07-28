@@ -16,6 +16,7 @@ import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util.dart';
 import 'package:reflectable/reflectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +36,8 @@ void main() async {
 
   final authService = AuthService();
   final isSessionRecovered = await authService.recoverSession();
+
+  tz.initializeTimeZones();
 
   if (isMobile()) {
     await initializeWidgetsAndDeviceOrientation(widgetsBinding);
