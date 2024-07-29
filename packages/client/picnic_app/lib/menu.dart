@@ -6,6 +6,7 @@ import 'package:picnic_app/pages/pic/pic_home_page.dart';
 import 'package:picnic_app/pages/vote/pic_chart_page.dart';
 import 'package:picnic_app/pages/vote/store_page.dart';
 import 'package:picnic_app/pages/vote/vote_home_page.dart';
+import 'package:picnic_app/pages/vote/vote_media_list_page.dart';
 
 ScreenInfo voteScreenInfo = ScreenInfo(
   type: PortalType.vote,
@@ -44,11 +45,11 @@ List<BottomNavigationItem> votePages = [
     index: 1,
     pageWidget: PicChartPage(),
   ),
-  BottomNavigationItem(
+  const BottomNavigationItem(
     title: 'nav_media',
     assetPath: 'assets/icons/bottom/media.svg',
     index: 2,
-    pageWidget: Container(),
+    pageWidget: VoteMediaListPage(),
   ),
   const BottomNavigationItem(
     title: 'nav_store',
