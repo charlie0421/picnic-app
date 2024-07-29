@@ -212,12 +212,14 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListView(
         children: [
-          SizedBox(height: 36.w),
-          StorePointInfo(
-            title: S.of(context).label_star_candy_pouch,
-            width: double.infinity,
-            height: 70.h,
-          ),
+          if (supabase.isLogged) ...[
+            SizedBox(height: 36.w),
+            StorePointInfo(
+              title: S.of(context).label_star_candy_pouch,
+              width: double.infinity,
+              height: 70.h,
+            ),
+          ],
           SizedBox(height: 36.w),
           serverProductsAsyncValue.when(
             loading: () => _buildShimmer(),

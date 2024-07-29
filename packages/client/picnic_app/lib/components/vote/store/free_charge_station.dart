@@ -9,7 +9,9 @@ import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/ad_providers.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:supabase_extensions/supabase_extensions.dart';
 
 class FreeChargeStation extends ConsumerStatefulWidget {
   const FreeChargeStation({super.key});
@@ -63,12 +65,14 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListView(
         children: [
-          SizedBox(height: 36.w),
-          StorePointInfo(
-            title: S.of(context).label_star_candy_pouch,
-            width: double.infinity,
-            height: 70.h,
-          ),
+          if (supabase.isLogged) ...[
+            SizedBox(height: 36.w),
+            StorePointInfo(
+              title: S.of(context).label_star_candy_pouch,
+              width: double.infinity,
+              height: 70.h,
+            ),
+          ],
           SizedBox(height: 36.h),
           _buildStoreListTile(0),
           Divider(height: 32.h, thickness: 1, color: AppColors.Grey200),
