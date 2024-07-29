@@ -119,6 +119,7 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final appSettingState = ref.watch(appSettingProvider);
+
     Future.microtask(() {
       ref.read(serverProductsProvider);
       ref.read(storeProductsProvider);
