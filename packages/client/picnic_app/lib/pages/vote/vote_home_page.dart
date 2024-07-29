@@ -127,9 +127,39 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                   retryFunction: () => controller.refresh(),
                   stackTrace: controller.error.stackTrace);
             },
-            firstPageProgressIndicatorBuilder: (context) {
-              return buildLoadingOverlay();
-            },
+            firstPageProgressIndicatorBuilder: (context) => Shimmer.fromColors(
+              baseColor: AppColors.Grey300,
+              highlightColor: AppColors.Grey100,
+              child: ListView.separated(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: 5,
+                itemBuilder: (context, index) => Container(
+                  height: 100.h,
+                  padding: EdgeInsets.all(16.r),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 200.w,
+                        height: 20.h,
+                        color: Colors.white,
+                      ),
+                      SizedBox(height: 8.h),
+                      Container(
+                        width: 100.w,
+                        height: 16.h,
+                        color: Colors.white,
+                      ),
+                    ],
+                  ),
+                ),
+                separatorBuilder: (BuildContext context, int index) => Divider(
+                  height: 1.h,
+                  color: AppColors.Grey300,
+                ),
+              ),
+            ),
             noItemsFoundIndicatorBuilder: (context) {
               return Container();
             },
@@ -264,22 +294,21 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                   }),
             );
           },
-          loading: () => Container(
-                width: double.infinity,
-                height: 100.h,
-                margin: const EdgeInsets.only(left: 16).r,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 5,
-                  itemBuilder: (BuildContext context, int index) =>
-                      Shimmer.fromColors(
-                    baseColor: AppColors.Grey300,
-                    highlightColor: AppColors.Grey100,
-                    child: Container(
+          loading: () => Shimmer.fromColors(
+                baseColor: AppColors.Grey300,
+                highlightColor: AppColors.Grey100,
+                child: Container(
+                  height: 100.h,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: 5,
+                    itemBuilder: (BuildContext context, int index) => Container(
+                      width: 120.w,
                       height: 100.h,
-                      margin: const EdgeInsets.only(right: 16).r,
+                      margin: EdgeInsets.only(
+                          left: 16.r, right: index == 4 ? 16.r : 0),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8).r,
+                        borderRadius: BorderRadius.circular(8.r),
                         color: Colors.white,
                       ),
                     ),
@@ -360,7 +389,35 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
             ),
         ],
       ),
-      loading: () => buildLoadingOverlay(),
+      loading: () => Shimmer.fromColors(
+        baseColor: AppColors.Grey300,
+        highlightColor: AppColors.Grey100,
+        child: Column(
+          children: [
+            Container(
+              width: width,
+              height: width / 2,
+              color: Colors.white,
+            ),
+            SizedBox(height: 20.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                3,
+                (index) => Container(
+                  width: 8.w,
+                  height: 8.w,
+                  margin: EdgeInsets.symmetric(horizontal: 4.w),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
       error: (error, stackTrace) =>
           ErrorView(context, error: error.toString(), stackTrace: stackTrace),
     );
