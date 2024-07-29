@@ -46,6 +46,7 @@ void main() async {
 
   final authService = AuthService();
   final isSessionRecovered = await authService.recoverSession();
+  checkSession();
 
   tz.initializeTimeZones();
 
@@ -59,6 +60,16 @@ void main() async {
 
   runApp(ProviderScope(observers: [LoggingObserver()], child: const App()));
   requestAppTrackingTransparency();
+}
+
+Future<void> checkSession() async {
+  try {
+    final session = supabase.auth.currentSession;
+  } catch (error) {
+    print('세션 확인 중 오류 발생: $error');
+    final authService = AuthService();
+    await authService.signOut();
+  }
 }
 
 Future<void> requestAppTrackingTransparency() async {

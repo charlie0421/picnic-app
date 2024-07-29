@@ -252,3 +252,14 @@ String getShortTimeZoneIdentifier() {
   List<String> parts = fullIdentifier.split('/');
   return parts.last; // 예: 'London', 'Seoul' 등
 }
+
+Future<bool> checkSession() async {
+  try {
+    final session = await supabase.auth.currentSession;
+    return session != null;
+  } catch (error) {
+    print('세션 확인 중 오류 발생: $error');
+    await supabase.auth.signOut();
+    return false;
+  }
+}

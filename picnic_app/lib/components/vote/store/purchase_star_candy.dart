@@ -106,23 +106,32 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
   int _loadingCounter = 0;
 
   void _startLoading() {
-    setState(() {
-      if (_loadingCounter == 0) {
-        OverlayLoadingProgress.start(context,
-            color: AppColors.Primary500, barrierDismissible: false);
-      }
-      _loadingCounter++;
-    });
+    try {
+      setState(() {
+        if (_loadingCounter == 0) {
+          OverlayLoadingProgress.start(context,
+              color: AppColors.Primary500, barrierDismissible: false);
+        }
+        _loadingCounter++;
+      });
+    } catch (e) {
+      print('Error starting loading: $e');
+      OverlayLoadingProgress.stop();
+    }
   }
 
   void _stopLoading() {
-    setState(() {
-      _loadingCounter--;
-      if (_loadingCounter <= 0) {
-        _loadingCounter = 0;
-        OverlayLoadingProgress.stop();
-      }
-    });
+    try {
+      setState(() {
+        _loadingCounter--;
+        if (_loadingCounter <= 0) {
+          _loadingCounter = 0;
+          OverlayLoadingProgress.stop();
+        }
+      });
+    } catch (e) {
+      print('Error stopping loading: $e');
+    }
   }
 
   Future<String> getEnvironment() async {
