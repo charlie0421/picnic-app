@@ -25,56 +25,57 @@ class _CommonBottomNavigationBarState
   Widget build(BuildContext context) {
     ref.watch(appSettingProvider.select((value) => value.locale));
     final userInfoState = ref.watch(userInfoProvider);
-
-    final bool? isAdmin = userInfoState.value?.is_admin;
-    // background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.8) 62%, #FFFFFF 78.5%);
-    // background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.8) 62%, #FFFFFF 78.5%);
-    // background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.8) 62%, #FFFFFF 78.5%);
-
-    return Container(
-      height: 102.h,
-      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 50).r,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color.fromRGBO(255, 255, 255, 0),
-            Color.fromRGBO(255, 255, 255, 0.8),
-            Color.fromRGBO(255, 255, 255, 1),
-          ],
-          stops: [0.0, 0.62, 0.78],
-        ),
-      ),
-      child: Container(
-        height: 52.h,
-        padding: const EdgeInsets.symmetric(horizontal: 24).r,
-        decoration: ShapeDecoration(
-          color: widget.screenInfo.color,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20).r,
+    return userInfoState.when(
+      data: (data) {
+        final bool? isAdmin = data?.is_admin;
+        return Container(
+          height: 102.h,
+          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 50).r,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color.fromRGBO(255, 255, 255, 0),
+                Color.fromRGBO(255, 255, 255, 0.8),
+                Color.fromRGBO(255, 255, 255, 1),
+              ],
+              stops: [0.0, 0.62, 0.78],
+            ),
           ),
-          shadows: [
-            BoxShadow(
-              color: const Color(0x3F000000),
-              blurRadius: 8.r,
-              offset: const Offset(0, 0),
-              spreadRadius: 0,
-            )
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: widget.screenInfo.pages
-              .where((e) => e.title != 'nav_media' || isAdmin == true)
-              .map((e) => MenuItem(
-                    title: e.title,
-                    assetPath: e.assetPath,
-                    index: e.index,
-                  ))
-              .toList(),
-        ),
-      ),
+          child: Container(
+            height: 52.h,
+            padding: const EdgeInsets.symmetric(horizontal: 24).r,
+            decoration: ShapeDecoration(
+              color: widget.screenInfo.color,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20).r,
+              ),
+              shadows: [
+                BoxShadow(
+                  color: const Color(0x3F000000),
+                  blurRadius: 8.r,
+                  offset: const Offset(0, 0),
+                  spreadRadius: 0,
+                )
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: widget.screenInfo.pages
+                  .where((e) => e.title != 'nav_media' || isAdmin == true)
+                  .map((e) => MenuItem(
+                        title: e.title,
+                        assetPath: e.assetPath,
+                        index: e.index,
+                      ))
+                  .toList(),
+            ),
+          ),
+        );
+      },
+      loading: () => const SizedBox(),
+      error: (e, s) => const SizedBox(),
     );
   }
 }
