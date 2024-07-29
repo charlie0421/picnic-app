@@ -12,6 +12,7 @@ class LargePopupWidget extends StatelessWidget {
   final Widget? closeButton;
   final Color? backgroundColor;
   final double? width;
+  final showCloseButton;
 
   const LargePopupWidget({
     super.key,
@@ -20,6 +21,7 @@ class LargePopupWidget extends StatelessWidget {
     this.closeButton,
     this.backgroundColor,
     this.width,
+    this.showCloseButton = true,
   });
 
   @override
@@ -59,31 +61,34 @@ class LargePopupWidget extends StatelessWidget {
         GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () {
-            Navigator.pop(context);
+            if (closeButton != null) {
+              Navigator.pop(context);
+            }
           },
           child: Container(
-            height: 24.h,
-            padding: EdgeInsets.only(right: 16.w),
-            child: closeButton != null
-                ? closeButton!
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Text(S.of(context).label_button_close,
-                          style:
-                              getTextStyle(AppTypo.BODY14B, AppColors.Grey00)),
-                      SizedBox(width: 4.w),
-                      SvgPicture.asset(
-                        'assets/icons/cancle_style=line.svg',
-                        width: 24.w,
-                        height: 24.w,
-                        colorFilter: const ColorFilter.mode(
-                            AppColors.Grey00, BlendMode.srcIn),
-                      ),
-                    ],
-                  ),
-          ),
+              height: 24.h,
+              padding: EdgeInsets.only(right: 16.w),
+              child: closeButton != null
+                  ? closeButton!
+                  : showCloseButton
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Text(S.of(context).label_button_close,
+                                style: getTextStyle(
+                                    AppTypo.BODY14B, AppColors.Grey00)),
+                            SizedBox(width: 4.w),
+                            SvgPicture.asset(
+                              'assets/icons/cancle_style=line.svg',
+                              width: 24.w,
+                              height: 24.w,
+                              colorFilter: const ColorFilter.mode(
+                                  AppColors.Grey00, BlendMode.srcIn),
+                            ),
+                          ],
+                        )
+                      : const SizedBox.shrink()),
         ),
       ],
     ));
