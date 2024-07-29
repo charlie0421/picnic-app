@@ -33,7 +33,6 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -113,7 +112,8 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
                     ],
                   ),
                 ),
-                closeButton: Container(),
+                closeButton: null,
+                showCloseButton: false,
               ),
             ),
           ),
