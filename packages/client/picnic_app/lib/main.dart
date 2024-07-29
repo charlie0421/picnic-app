@@ -5,10 +5,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 // import 'package:http/http.dart' as http;
 import 'package:picnic_app/app.dart';
 import 'package:picnic_app/auth_service.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/firebase_options.dart';
 // import 'package:picnic_app/logging_http_client.dart';
 import 'package:picnic_app/main.reflectable.dart';
@@ -43,10 +45,13 @@ void main() async {
     FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
     return true;
   };
-
+  logStorageData();
   final authService = AuthService();
   final isSessionRecovered = await authService.recoverSession();
-  checkSession();
+  if (!isSessionRecovered) {
+    authService.signOut();
+  }
+  logStorageData();
 
   tz.initializeTimeZones();
 
@@ -60,6 +65,16 @@ void main() async {
 
   runApp(ProviderScope(observers: [LoggingObserver()], child: const App()));
   requestAppTrackingTransparency();
+}
+
+void logStorageData() async {
+  const storage = FlutterSecureStorage();
+  final storageData = await storage.readAll();
+
+  storageData.forEach((key, value) {
+    FirebaseCrashlytics.instance.log('key: $key, value: $value');
+    logger.i('key: $key, value: $value');
+  });
 }
 
 Future<void> checkSession() async {

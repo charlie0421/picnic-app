@@ -247,7 +247,7 @@ class AuthService {
     const storage = FlutterSecureStorage();
     final idToken =
         await storage.read(key: '${provider.name.toLowerCase()}_id_token');
-    logger.i(idToken);
+    logger.i('idToken:$idToken');
     if (idToken != null) {
       logger.i('Attempting to re-authenticate with ID token for $provider');
 
@@ -278,10 +278,23 @@ class AuthService {
   Future<void> _clearStoredSession() async {
     const storage = FlutterSecureStorage();
     await storage.readAll().then((value) => logger.i(value));
-    await storage.delete(key: 'supabase_access_token');
-    await storage.delete(key: 'google_id_token');
-    await storage.delete(key: 'apple_id_token');
-    await storage.delete(key: 'kakao_id_token');
+    try {
+      final allValues = await storage.readAll();
+      logger.i('Before clearing: $allValues');
+
+      for (var entry in allValues.entries) {
+        if (entry.key != 'last_provider') {
+          await storage.delete(key: entry.key);
+        }
+      }
+
+      final remainingValues = await storage.readAll();
+      logger.i('After clearing: $remainingValues');
+      logger.i('Stored session cleared except last_provider');
+    } catch (e) {
+      logger.e('Error while clearing storage: $e');
+    }
+
     await storage.readAll().then((value) => logger.i(value));
     logger.i('Stored session cleared');
   }

@@ -1,6 +1,7 @@
 import 'package:another_flutter_splash_screen/another_flutter_splash_screen.dart';
 import 'package:app_links/app_links.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -56,10 +57,14 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
 
     supabase.auth.onAuthStateChange.listen((data) {
+      FirebaseCrashlytics.instance.log('Auth state changed: ${data.event}');
+
+      logger.i('Auth state changed: ${data.event}');
+      logger.i('User: ${data.session}');
       final session = data.session;
       if (session != null) {
         final jwtToken = session.accessToken;
-        logger.d(jwtToken);
+        logger.d('jwtToken: $jwtToken');
       }
     });
 
