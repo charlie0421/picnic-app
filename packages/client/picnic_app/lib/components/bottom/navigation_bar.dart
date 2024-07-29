@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/menu.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -75,7 +76,11 @@ class _CommonBottomNavigationBarState
         );
       },
       loading: () => const SizedBox(),
-      error: (e, s) => const SizedBox(),
+      error: (e, s) {
+        showSimpleDialog(context: context, content: e.toString());
+        showSimpleDialog(context: context, content: s.toString());
+        return const SizedBox();
+      },
     );
   }
 }
