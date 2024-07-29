@@ -48,7 +48,7 @@ final expireBonusProvider = AutoDisposeFutureProvider<int>.internal(
 );
 
 typedef ExpireBonusRef = AutoDisposeFutureProviderRef<int>;
-String _$userInfoHash() => r'8d93cfcb23d56390b0df2534dd219887c4b03888';
+String _$userInfoHash() => r'51420edd84da63efb45f39f7e7bbc48bc390ce70';
 
 /// See also [UserInfo].
 @ProviderFor(UserInfo)
