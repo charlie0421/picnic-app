@@ -11,6 +11,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:path/path.dart' as path;
+import 'package:picnic_app/auth_service.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
 import 'package:picnic_app/components/star_candy_info_text.dart';
@@ -335,7 +336,8 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
       if (response.statusCode == 200) {
         logger.i('User deleted successfully');
         ref.read(navigationInfoProvider.notifier).setBottomNavigationIndex(0);
-        await supabase.auth.signOut();
+        final authService = AuthService();
+        await authService.signOut();
       } else {
         throw Exception('Failed to delete user: ${response.body}');
       }
