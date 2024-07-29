@@ -611,38 +611,111 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     return Shimmer.fromColors(
       baseColor: Colors.grey[300]!,
       highlightColor: Colors.grey[100]!,
-      child: Column(
-        children: [
-          Container(
-            height: 160.w,
-            color: AppColors.Grey200,
-          ),
-          SizedBox(height: 16.w),
-          Container(
-            height: 20.w,
-            width: 200.w,
-            color: Colors.white,
-          ),
-          SizedBox(height: 8.w),
-          Container(
-            height: 18.w,
-            width: 100.w,
-            color: Colors.white,
-          ),
-          SizedBox(height: 16.w),
-          Container(
-            height: 20.w,
-            width: 200.w,
-            color: Colors.white,
-          ),
-          SizedBox(height: 8.w),
-          Container(
-            height: 18.w,
-            width: 100.w,
-            color: Colors.white,
-          ),
-          SizedBox(height: 16.w),
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 메인 이미지 영역
+            Container(
+              height: 200.h,
+              color: Colors.white,
+            ),
+            SizedBox(height: 24.h),
+
+            // 제목 영역
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: Container(
+                height: 24.h,
+                width: 250.w,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(height: 12.h),
+
+            // 날짜 영역
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: Container(
+                height: 16.h,
+                width: 200.w,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(height: 24.h),
+
+            // 리워드 정보 영역
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: Container(
+                height: 18.h,
+                width: 180.w,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: Container(
+                height: 16.h,
+                width: 150.w,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(height: 32.h),
+
+            // 검색 박스 영역
+            Center(
+              child: Container(
+                width: 280.w,
+                height: 48.h,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24.r),
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            SizedBox(height: 24.h),
+
+            // 투표 항목 리스트
+            for (int i = 0; i < 5; i++) ...[
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 45.w,
+                      height: 45.w,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(width: 16.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            height: 16.h,
+                            width: 120.w,
+                            color: Colors.white,
+                          ),
+                          SizedBox(height: 8.h),
+                          Container(
+                            height: 14.h,
+                            color: Colors.white,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 24.h),
+            ],
+          ],
+        ),
       ),
     );
   }
