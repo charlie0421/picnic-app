@@ -34,22 +34,30 @@ class UserInfo extends _$UserInfo {
       final response = await supabase
           .from('user_profiles')
           .select('*, user_agreement(*)')
-          .single();
+          .maybeSingle();
+
       logger.i('response.data: $response');
-      state = AsyncValue.data(UserProfilesModel.fromJson(response));
+      if (response != null) {
+        final userProfile = UserProfilesModel.fromJson(response);
+        state = AsyncValue.data(userProfile);
 
-      if (kDebugMode || response['is_admin'] == true) {
-        ScreenProtector.preventScreenshotOff();
+        if (kDebugMode || userProfile.is_admin == true) {
+          ScreenProtector.preventScreenshotOff();
+        } else {
+          ScreenProtector.preventScreenshotOn();
+        }
+
+        return userProfile;
       } else {
-        ScreenProtector.preventScreenshotOn();
+        logger.w('User profile not found');
+        return null;
       }
-
-      return UserProfilesModel.fromJson(response);
     } catch (e, s) {
       logger.e(e);
       logger.e(s);
 
-      rethrow;
+      state = AsyncValue.error(e, s);
+      return null;
     } finally {}
   }
 
