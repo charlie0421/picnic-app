@@ -14,8 +14,10 @@ import 'package:picnic_app/pages/vote/vote_history_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/screens/signup/signup_screen.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
+import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MyPage extends ConsumerStatefulWidget {
@@ -42,10 +44,13 @@ class _MyPageState extends ConsumerState<MyPage> {
                     // 프로필
                     data != null ? _buildProfile() : _buildNonLogin(),
                     // 캔디 정보
-                    const Align(
-                        alignment: Alignment.centerLeft,
-                        child: StarCandyInfoText(
-                            alignment: MainAxisAlignment.start)),
+                    supabase.isLogged
+                        ? const Align(
+                            alignment: Alignment.centerLeft,
+                            child: StarCandyInfoText(
+                                alignment: MainAxisAlignment.start))
+                        : SizedBox(height: 16.h),
+
                     const Divider(color: AppColors.Grey200),
                     // 공지사항
                     if (data != null && data.is_admin)
