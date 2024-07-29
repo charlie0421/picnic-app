@@ -27,7 +27,7 @@ class _CommonBottomNavigationBarState
     final userInfoState = ref.watch(userInfoProvider);
     return userInfoState.when(
       data: (data) {
-        final bool? isAdmin = data?.is_admin;
+        final bool isAdmin = data == null ? false : data.is_admin;
         return Container(
           height: 102.h,
           padding: const EdgeInsets.only(left: 16, right: 16, bottom: 50).r,
