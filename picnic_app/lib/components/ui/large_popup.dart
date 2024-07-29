@@ -61,7 +61,7 @@ class LargePopupWidget extends StatelessWidget {
         GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () {
-            if (closeButton != null) {
+            if (closeButton == null) {
               Navigator.pop(context);
             }
           },

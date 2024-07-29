@@ -125,6 +125,10 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   }
 
   Widget _buildMemberInfo() {
+    logger.i(
+        'widget.voteItemModel.artist.name: ${widget.voteItemModel.artist.name}');
+    final test = Intl.getCurrentLocale().split('_')[0];
+    logger.i('test: $test');
     return Column(
       children: [
         Container(
@@ -149,9 +153,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                getLocaleTextFromJson(widget.voteItemModel.artist
-                        .name[Intl.getCurrentLocale().split('_')[0]]) ??
-                    '',
+                getLocaleTextFromJson(widget.voteItemModel.artist.name),
                 style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
               ),
               SizedBox(width: 8.w),

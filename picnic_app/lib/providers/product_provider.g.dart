@@ -22,7 +22,7 @@ final serverProductsProvider =
 );
 
 typedef _$ServerProducts = AsyncNotifier<List<Map<String, dynamic>>>;
-String _$storeProductsHash() => r'f7bb22aecffb450707ce55a0bd7fb14adb0fd14d';
+String _$storeProductsHash() => r'7a294d4f86c3d3ad3134e567531bd2b65a3f72b4';
 
 /// See also [StoreProducts].
 @ProviderFor(StoreProducts)
