@@ -9,6 +9,7 @@ import 'package:picnic_app/models/pic/artist_vote.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/pages/vote/vote_detail_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/providers/vote_detail_provider.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util.dart';
@@ -83,12 +84,29 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
     });
   }
 
+  Future<void> _handleRefresh() async {
+    await ref.refresh(asyncVoteDetailProvider(voteId: widget.vote.id).future);
+    await ref.refresh(asyncVoteItemListProvider(voteId: widget.vote.id).future);
+    _restartAnimation();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final List<VoteItemModel>? items = widget.vote.vote_item;
-    final no1 = items?[0];
-    final no2 = items?[1];
-    final no3 = items?[2];
+    final asyncVoteDetail =
+        ref.watch(asyncVoteDetailProvider(voteId: widget.vote.id));
+    final asyncVoteItemList =
+        ref.watch(asyncVoteItemListProvider(voteId: widget.vote.id));
+
+    return asyncVoteDetail.when(
+      data: (vote) => _buildCard(context, vote, asyncVoteItemList),
+      loading: () => buildLoadingOverlay(),
+      error: (error, stack) => Text('Error: $error'),
+    );
+  }
+
+  Widget _buildCard(BuildContext context, VoteModel? vote,
+      AsyncValue<List<VoteItemModel?>> asyncVoteItemList) {
+    if (vote == null) return const SizedBox.shrink();
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -105,58 +123,63 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
         child: Column(
           children: [
             VoteHeader(
-                title: getLocaleTextFromJson(widget.vote.title) ?? '',
-                stopAt: widget.status == VoteStatus.upcoming
-                    ? widget.vote.start_at
-                    : widget.vote.stop_at,
-                onRefresh: widget.status == VoteStatus.active
-                    ? _restartAnimation
-                    : null,
-                status: widget.status),
+              title: getLocaleTextFromJson(vote.title) ?? '',
+              stopAt: widget.status == VoteStatus.upcoming
+                  ? vote.start_at
+                  : vote.stop_at,
+              onRefresh:
+                  widget.status == VoteStatus.active ? _handleRefresh : null,
+              status: widget.status,
+            ),
             if (widget.status == VoteStatus.active ||
                 widget.status == VoteStatus.end)
-              Container(
-                width: double.infinity,
-                height: 220.h,
-                padding: const EdgeInsets.only(left: 36, right: 36, top: 16).r,
-                margin: EdgeInsets.only(top: 24.h),
-                clipBehavior: Clip.hardEdge,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(40).r,
-                  border: Border.all(
-                    color: AppColors.Primary500,
-                    width: 1.5.w,
-                  ),
-                ),
-                child: Visibility(
-                  visible: _controller.status == AnimationStatus.forward ||
-                      _controller.status == AnimationStatus.completed,
-                  child: SlideTransition(
-                    position: _offsetAnimation,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        VoteCardColumnVertical(
-                            rank: 2,
-                            voteItem: no2!,
-                            opacityAnimation: _opacityAnimation),
-                        VoteCardColumnVertical(
-                            rank: 1,
-                            voteItem: no1!,
-                            opacityAnimation: _opacityAnimation),
-                        VoteCardColumnVertical(
-                            rank: 3,
-                            voteItem: no3!,
-                            opacityAnimation: _opacityAnimation),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              _buildVoteItemList(asyncVoteItemList),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildVoteItemList(
+      AsyncValue<List<VoteItemModel?>> asyncVoteItemList) {
+    return asyncVoteItemList.when(
+      data: (voteItems) => Container(
+        width: double.infinity,
+        height: 220.h,
+        padding: const EdgeInsets.only(left: 36, right: 36, top: 16).r,
+        margin: EdgeInsets.only(top: 24.h),
+        clipBehavior: Clip.hardEdge,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(40).r,
+          border: Border.all(
+            color: AppColors.Primary500,
+            width: 1.5.w,
+          ),
+        ),
+        child: SlideTransition(
+          position: _offsetAnimation,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              VoteCardColumnVertical(
+                  rank: 2,
+                  voteItem: voteItems[1]!,
+                  opacityAnimation: _opacityAnimation),
+              VoteCardColumnVertical(
+                  rank: 1,
+                  voteItem: voteItems[0]!,
+                  opacityAnimation: _opacityAnimation),
+              VoteCardColumnVertical(
+                  rank: 3,
+                  voteItem: voteItems[2]!,
+                  opacityAnimation: _opacityAnimation),
+            ],
+          ),
+        ),
+      ),
+      loading: () => const CircularProgressIndicator(),
+      error: (error, stack) => Text('Error: $error'),
     );
   }
 }
