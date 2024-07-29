@@ -142,7 +142,7 @@ Future<int> expireBonus(ExpireBonusRef ref) async {
     final response = await supabase
         .from('star_candy_bonus_history')
         .select('remain_amount')
-        .gte('created_at', startOfMonth.toIso8601String())
+        .gte('created_at', startOfMonth.toUtc())
         .lt('created_at', startOfNextMonth.toIso8601String());
     final List<dynamic> data = response;
     int sum = data.fold(
