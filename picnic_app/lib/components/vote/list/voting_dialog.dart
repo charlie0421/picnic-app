@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
@@ -125,10 +124,6 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   }
 
   Widget _buildMemberInfo() {
-    logger.i(
-        'widget.voteItemModel.artist.name: ${widget.voteItemModel.artist.name}');
-    final test = Intl.getCurrentLocale().split('_')[0];
-    logger.i('test: $test');
     return Column(
       children: [
         Container(
