@@ -20,6 +20,7 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util.dart';
 
 const Duration _duration = Duration(milliseconds: 1000);
 
@@ -295,7 +296,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                             SizedBox(width: 16.w),
                             Expanded(
                               child: Text(
-                                widget.voteModel.title[Intl.getCurrentLocale()],
+                                getLocaleTextFromJson(widget.voteModel.title),
                                 style: getTextStyle(
                                   AppTypo.BODY14B,
                                   AppColors.Grey900,
@@ -334,32 +335,31 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(64.r),
                                       child: PicnicCachedNetworkImage(
-                                        imageUrl: widget
-                                                .voteItemModel.artist.image ??
-                                            '',
+                                        imageUrl:
+                                            widget.voteItemModel.artist.image ??
+                                                '',
                                         width: 56,
                                         height: 56,
                                       ),
                                     ),
                                     SizedBox(height: 8.w),
                                     Text(
-                                      widget.voteItemModel.artist.name[
-                                              Intl.getCurrentLocale()
-                                                  .split('_')[0]] ??
-                                          '',
+                                      getLocaleTextFromJson(
+                                          widget.voteItemModel.artist.name),
                                       style: getTextStyle(
                                           AppTypo.BODY16B, AppColors.Grey900),
+                                      textAlign: TextAlign.center,
                                     ),
-                                    SizedBox(height: 5.w),
+                                    SizedBox(height: 4.h),
                                     Text(
-                                      widget.voteItemModel.artist.artist_group
-                                              .name[
-                                          Intl.getCurrentLocale()
-                                              .split('_')[0]],
+                                      getLocaleTextFromJson(widget.voteItemModel
+                                          .artist.artist_group.name),
                                       style: getTextStyle(AppTypo.CAPTION12R,
-                                          AppColors.Grey600),
+                                              AppColors.Grey600)
+                                          .copyWith(height: .8),
+                                      textAlign: TextAlign.center,
                                     ),
-                                    SizedBox(height: 4.5.w),
+                                    SizedBox(height: 3.h),
                                     AnimatedDigitWidget(
                                         value:
                                             widget.result['updatedVoteTotal'],

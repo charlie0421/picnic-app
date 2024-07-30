@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:picnic_app/components/vote/common_vote_info.dart';
@@ -20,6 +19,7 @@ import 'package:picnic_app/providers/product_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -313,8 +313,8 @@ class _PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
           TextSpan(
             children: [
               TextSpan(
-                  text: serverProducts[index]['description']
-                      [Intl.getCurrentLocale()],
+                  text: getLocaleTextFromJson(
+                      serverProducts[index]['description']),
                   style: getTextStyle(AppTypo.CAPTION12B, AppColors.Point900)),
             ],
           ),

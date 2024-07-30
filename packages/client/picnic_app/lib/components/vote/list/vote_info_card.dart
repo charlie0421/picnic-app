@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_app/components/vote/list/vote_header.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_horizontal.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_vertical.dart';
@@ -264,7 +263,7 @@ class _VoteInfoCardHorizontalState extends ConsumerState<PicVoteInfoCard>
         child: Column(
           children: [
             VoteHeader(
-                title: widget.vote.title[Intl.getCurrentLocale()],
+                title: getLocaleTextFromJson(widget.vote.title),
                 stopAt: widget.vote.stop_at,
                 onRefresh: _restartAnimation,
                 status: widget.status),

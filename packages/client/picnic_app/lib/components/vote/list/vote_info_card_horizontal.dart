@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:picnic_app/models/pic/artist_vote.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util.dart';
 
 class VoteCardColumnHorizontal extends StatelessWidget {
   const VoteCardColumnHorizontal({
@@ -73,14 +74,14 @@ class VoteCardColumnHorizontal extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  voteItem.title[Intl.getCurrentLocale()],
+                  getLocaleTextFromJson(voteItem.title),
                   style: getTextStyle(
                     AppTypo.BODY14B,
                     AppColors.Grey900,
                   ),
                 ),
                 Text(
-                  voteItem.description[Intl.getCurrentLocale()],
+                  getLocaleTextFromJson(voteItem.description),
                   style: getTextStyle(
                     AppTypo.CAPTION10SB,
                     AppColors.Grey00,

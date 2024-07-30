@@ -214,7 +214,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   width: width,
                   height: height,
                   child: PicnicCachedNetworkImage(
-                    imageUrl: voteModel.main_image ?? '',
+                    imageUrl: voteModel.main_image,
                     useScreenUtil: true,
                     fit: BoxFit.cover,
                     width: width.toInt(),
@@ -227,7 +227,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 57).r,
                   child: VoteCommonTitle(
-                      title: voteModel.title[Intl.getCurrentLocale()] ?? ''),
+                      title: getLocaleTextFromJson(voteModel.title)),
                 ),
                 SizedBox(
                   height: 12.h,
@@ -408,7 +408,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                           ),
                                         ),
                                         SizedBox(
-                                          width: 16.w,
+                                          width: 8.w,
                                         ),
                                         Container(
                                           decoration: BoxDecoration(
@@ -432,7 +432,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                             borderRadius:
                                                 BorderRadius.circular(39),
                                             child: PicnicCachedNetworkImage(
-                                              imageUrl: item.artist.image ?? '',
+                                              imageUrl: item.artist.image,
                                               useScreenUtil: true,
                                               width: 55,
                                               height: 55,
@@ -449,31 +449,36 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              Row(children: [
-                                                RichText(
-                                                  text: _highlightText(
-                                                      getLocaleTextFromJson(
-                                                          item.artist.name),
-                                                      _searchQuery,
-                                                      getTextStyle(
+                                              RichText(
+                                                overflow: TextOverflow.ellipsis,
+                                                softWrap: false,
+                                                text: TextSpan(
+                                                  children: [
+                                                    TextSpan(
+                                                      text:
+                                                          getLocaleTextFromJson(
+                                                              item.artist.name),
+                                                      style: getTextStyle(
                                                           AppTypo.BODY14B,
-                                                          AppColors.Grey900)),
-                                                ),
-                                                SizedBox(
-                                                  width: 8.w,
-                                                ),
-                                                RichText(
-                                                  text: _highlightText(
-                                                      getLocaleTextFromJson(item
-                                                          .artist
-                                                          .artist_group
-                                                          .name),
-                                                      _searchQuery,
-                                                      getTextStyle(
+                                                          AppColors.Grey900),
+                                                    ),
+                                                    const TextSpan(
+                                                      text: ' ',
+                                                    ),
+                                                    TextSpan(
+                                                      text:
+                                                          getLocaleTextFromJson(
+                                                              item
+                                                                  .artist
+                                                                  .artist_group
+                                                                  .name),
+                                                      style: getTextStyle(
                                                           AppTypo.CAPTION10SB,
-                                                          AppColors.Grey500)),
+                                                          AppColors.Grey500),
+                                                    ),
+                                                  ],
                                                 ),
-                                              ]),
+                                              ),
                                               Container(
                                                 width: double.infinity,
                                                 height: 20.w,
@@ -686,7 +691,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                     Container(
                       width: 45.w,
                       height: 45.w,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.white,
                       ),
