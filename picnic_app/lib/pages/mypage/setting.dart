@@ -14,7 +14,7 @@ import 'package:picnic_app/providers/platform_info_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class SettingPage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_setting';

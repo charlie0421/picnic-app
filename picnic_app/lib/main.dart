@@ -16,7 +16,7 @@ import 'package:picnic_app/firebase_options.dart';
 import 'package:picnic_app/main.reflectable.dart';
 import 'package:picnic_app/reflector.dart';
 import 'package:picnic_app/supabase_options.dart';
-import 'package:picnic_app/util.dart';
+import 'package:picnic_app/util/ui.dart';
 import 'package:reflectable/reflectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timezone/data/latest.dart' as tz;

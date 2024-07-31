@@ -27,7 +27,7 @@ import 'package:picnic_app/ui/mypage_theme.dart';
 import 'package:picnic_app/ui/novel_theme.dart';
 import 'package:picnic_app/ui/pic_theme.dart';
 import 'package:picnic_app/ui/vote_theme.dart';
-import 'package:picnic_app/util.dart';
+import 'package:picnic_app/util/ui.dart';
 import 'package:screen_protector/screen_protector.dart';
 import 'package:universal_platform/universal_platform.dart';
 

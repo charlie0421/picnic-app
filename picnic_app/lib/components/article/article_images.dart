@@ -4,11 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/library/library_list.dart';
 import 'package:picnic_app/components/picnic_cached_network_image.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/pic/article.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
-import 'package:picnic_app/util.dart';
-
-import '../../constants.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class ArticleImages extends ConsumerStatefulWidget {
   final ArticleModel article;

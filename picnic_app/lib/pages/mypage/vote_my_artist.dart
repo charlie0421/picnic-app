@@ -5,7 +5,8 @@ import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/models/pic/artist_vote.dart';
 import 'package:picnic_app/supabase_options.dart';
-import 'package:picnic_app/util.dart';
+import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class VoteMyArtist extends ConsumerStatefulWidget {
   const VoteMyArtist({super.key});

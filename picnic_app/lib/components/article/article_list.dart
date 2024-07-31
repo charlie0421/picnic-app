@@ -12,7 +12,7 @@ import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/pic/article.dart';
 import 'package:picnic_app/providers/article_list_provider.dart';
-import 'package:picnic_app/util.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class ArticleList extends ConsumerStatefulWidget {
   final int galleryId;

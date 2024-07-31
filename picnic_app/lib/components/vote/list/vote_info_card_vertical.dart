@@ -7,7 +7,7 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util.dart';
+import 'package:picnic_app/util/i18n.dart';
 
 class VoteCardColumnVertical extends StatelessWidget {
   const VoteCardColumnVertical({

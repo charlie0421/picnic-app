@@ -9,7 +9,8 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote_pick.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util.dart';
+import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/number.dart';
 
 class VoteHistoryPage extends ConsumerStatefulWidget {
   final String pageName = 'label_mypage_vote_history';

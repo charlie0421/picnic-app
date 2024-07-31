@@ -5,7 +5,7 @@ import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/models/policy.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/policy_provider.dart';
-import 'package:picnic_app/util.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class TermsPage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_terms_of_use';
@@ -23,7 +23,6 @@ class _TermsPageState extends ConsumerState<TermsPage>
   @override
   void initState() {
     super.initState();
-
   }
 
   @override

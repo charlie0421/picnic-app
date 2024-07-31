@@ -9,7 +9,7 @@ import 'package:picnic_app/pages/pic/gallery_detail_page.dart';
 import 'package:picnic_app/providers/gallery_list_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class GalleryPage extends ConsumerStatefulWidget {
   const GalleryPage({super.key});
