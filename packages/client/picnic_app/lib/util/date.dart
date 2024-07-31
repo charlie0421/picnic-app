@@ -27,6 +27,11 @@ String formatCurrentTime() {
   return formatter.format(now);
 }
 
+String formatDateTimeYYYYMMDD(DateTime dateTime) {
+  var formatter = DateFormat('yyyy.MM.dd', Intl.getCurrentLocale());
+  return formatter.format(dateTime);
+}
+
 String getCurrentTimeZoneIdentifier() {
   try {
     String systemTimeZone = DateTime.now().timeZoneName;

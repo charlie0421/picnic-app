@@ -63,7 +63,6 @@ class _CommonBottomNavigationBarState
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: widget.screenInfo.pages
-                  .where((e) => e.title != 'nav_media' || isAdmin == true)
                   .map((e) => MenuItem(
                         title: e.title,
                         assetPath: e.assetPath,
