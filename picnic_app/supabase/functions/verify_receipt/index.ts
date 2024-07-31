@@ -21,7 +21,7 @@ Deno.serve(async (request: Request) => {
     try {
         console.log("Received request");
         const {receipt, platform, productId, user_id, environment} = await request.json();
-        console.log(`Received receipt for platform: ${platform}, productId: ${productId}, environment: ${environment}`);
+        console.log(`Received receipt for platform: ${platform}, productId: ${productId}, environment: ${environment}, user_id: ${user_id}`);
 
         let data;
         if (platform === 'ios') {
@@ -36,7 +36,7 @@ Deno.serve(async (request: Request) => {
 
         if (data.success) {
             console.log("Receipt is valid");
-            await supabase.from('receipts').insert([{receipt_data: receipt, status: 'valid', platform}]);
+            await supabase.from('receipts').insert([{receipt_data: receipt, status: 'valid', platform, user_id: user_id, product_id: productId, environment: environment}]);
 
             // Generate a unique transaction ID
             const transactionId = `${platform}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;

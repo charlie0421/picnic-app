@@ -21,6 +21,7 @@ VideoInfo _$VideoInfoFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$VideoInfo {
   int get id => throw _privateConstructorUsedError;
+  String get video_id => throw _privateConstructorUsedError;
   String get video_url => throw _privateConstructorUsedError;
   Map<String, String> get title => throw _privateConstructorUsedError;
   String get thumbnail_url => throw _privateConstructorUsedError;
@@ -39,6 +40,7 @@ abstract class $VideoInfoCopyWith<$Res> {
   @useResult
   $Res call(
       {int id,
+      String video_id,
       String video_url,
       Map<String, String> title,
       String thumbnail_url,
@@ -59,6 +61,7 @@ class _$VideoInfoCopyWithImpl<$Res, $Val extends VideoInfo>
   @override
   $Res call({
     Object? id = null,
+    Object? video_id = null,
     Object? video_url = null,
     Object? title = null,
     Object? thumbnail_url = null,
@@ -69,6 +72,10 @@ class _$VideoInfoCopyWithImpl<$Res, $Val extends VideoInfo>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
+      video_id: null == video_id
+          ? _value.video_id
+          : video_id // ignore: cast_nullable_to_non_nullable
+              as String,
       video_url: null == video_url
           ? _value.video_url
           : video_url // ignore: cast_nullable_to_non_nullable
@@ -99,6 +106,7 @@ abstract class _$$VideoInfoImplCopyWith<$Res>
   @useResult
   $Res call(
       {int id,
+      String video_id,
       String video_url,
       Map<String, String> title,
       String thumbnail_url,
@@ -117,6 +125,7 @@ class __$$VideoInfoImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
+    Object? video_id = null,
     Object? video_url = null,
     Object? title = null,
     Object? thumbnail_url = null,
@@ -127,6 +136,10 @@ class __$$VideoInfoImplCopyWithImpl<$Res>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
+      video_id: null == video_id
+          ? _value.video_id
+          : video_id // ignore: cast_nullable_to_non_nullable
+              as String,
       video_url: null == video_url
           ? _value.video_url
           : video_url // ignore: cast_nullable_to_non_nullable
@@ -152,6 +165,7 @@ class __$$VideoInfoImplCopyWithImpl<$Res>
 class _$VideoInfoImpl implements _VideoInfo {
   const _$VideoInfoImpl(
       {required this.id,
+      required this.video_id,
       required this.video_url,
       required final Map<String, String> title,
       required this.thumbnail_url,
@@ -163,6 +177,8 @@ class _$VideoInfoImpl implements _VideoInfo {
 
   @override
   final int id;
+  @override
+  final String video_id;
   @override
   final String video_url;
   final Map<String, String> _title;
@@ -180,7 +196,7 @@ class _$VideoInfoImpl implements _VideoInfo {
 
   @override
   String toString() {
-    return 'VideoInfo(id: $id, video_url: $video_url, title: $title, thumbnail_url: $thumbnail_url, created_at: $created_at)';
+    return 'VideoInfo(id: $id, video_id: $video_id, video_url: $video_url, title: $title, thumbnail_url: $thumbnail_url, created_at: $created_at)';
   }
 
   @override
@@ -189,6 +205,8 @@ class _$VideoInfoImpl implements _VideoInfo {
         (other.runtimeType == runtimeType &&
             other is _$VideoInfoImpl &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.video_id, video_id) ||
+                other.video_id == video_id) &&
             (identical(other.video_url, video_url) ||
                 other.video_url == video_url) &&
             const DeepCollectionEquality().equals(other._title, _title) &&
@@ -200,7 +218,7 @@ class _$VideoInfoImpl implements _VideoInfo {
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, id, video_url,
+  int get hashCode => Object.hash(runtimeType, id, video_id, video_url,
       const DeepCollectionEquality().hash(_title), thumbnail_url, created_at);
 
   @JsonKey(ignore: true)
@@ -220,6 +238,7 @@ class _$VideoInfoImpl implements _VideoInfo {
 abstract class _VideoInfo implements VideoInfo {
   const factory _VideoInfo(
       {required final int id,
+      required final String video_id,
       required final String video_url,
       required final Map<String, String> title,
       required final String thumbnail_url,
@@ -230,6 +249,8 @@ abstract class _VideoInfo implements VideoInfo {
 
   @override
   int get id;
+  @override
+  String get video_id;
   @override
   String get video_url;
   @override
