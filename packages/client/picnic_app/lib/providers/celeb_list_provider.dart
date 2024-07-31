@@ -2,6 +2,7 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/pic/celeb.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
 part 'celeb_list_provider.g.dart';
@@ -71,10 +72,13 @@ class AsyncMyCelebList extends _$AsyncMyCelebList {
       state = AsyncValue.data(celebList);
 
       return celebList;
-    } catch (e, stackTrace) {
-      state = AsyncValue.error(e, stackTrace);
-      logger.i('fetchMyCelebList error: $e');
-      logger.i('fetchMyCelebList stackTrace: $stackTrace');
+    } catch (e, s) {
+      state = AsyncValue.error(e, s);
+      logger.e(e, stackTrace: s);
+      Sentry.captureException(
+        e,
+        stackTrace: s,
+      );
     }
     return null;
   }

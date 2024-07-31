@@ -3,6 +3,7 @@ import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/reflector.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'vote_list_provider.g.dart';
@@ -83,8 +84,13 @@ class AsyncVoteList extends _$AsyncVoteList {
           'totalPages': (response.count + 1) ~/ limit,
         }
       });
-    } catch (e, stackTrace) {
-      logger.e(e, stackTrace: stackTrace);
+    } catch (e, s) {
+      logger.e(e, stackTrace: s);
+      Sentry.captureException(
+        e,
+        stackTrace: s,
+      );
+
       rethrow;
     } finally {}
   }

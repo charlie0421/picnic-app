@@ -8,6 +8,7 @@ import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/auth_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:screen_protector/screen_protector.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
 part 'user_info_provider.g.dart';
@@ -51,8 +52,11 @@ class UserInfo extends _$UserInfo {
         return null;
       }
     } catch (e, s) {
-      logger.e(e);
-      logger.e(s);
+      logger.e(e, stackTrace: s);
+      Sentry.captureException(
+        e,
+        stackTrace: s,
+      );
 
       state = AsyncValue.error(e, s);
       return null;
@@ -117,6 +121,11 @@ Future<bool> setAgreement(AgreementRef ref) async {
     return true;
   } catch (e, s) {
     logger.e(e, stackTrace: s);
+    Sentry.captureException(
+      e,
+      stackTrace: s,
+    );
+
     return false;
   }
 }
@@ -133,6 +142,11 @@ Future<bool> agreement(AgreementRef ref) async {
     return true;
   } catch (e, s) {
     logger.e(e, stackTrace: s);
+    Sentry.captureException(
+      e,
+      stackTrace: s,
+    );
+
     return false;
   }
 }
@@ -159,6 +173,11 @@ Future<int> expireBonus(ExpireBonusRef ref) async {
     return sum;
   } catch (e, s) {
     logger.e(e, stackTrace: s);
+    Sentry.captureException(
+      e,
+      stackTrace: s,
+    );
+
     return 0;
   }
 }

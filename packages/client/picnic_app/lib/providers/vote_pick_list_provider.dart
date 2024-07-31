@@ -3,6 +3,7 @@ import 'package:picnic_app/models/vote/vote_pick.dart';
 import 'package:picnic_app/reflector.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 part 'vote_pick_list_provider.g.dart';
 
@@ -35,8 +36,13 @@ class AsyncVotePickList extends _$AsyncVotePickList {
       logger.d(meta);
 
       return VotePickListModel.fromJson({'items': response.data, 'meta': meta});
-    } catch (e, stackTrace) {
-      logger.e(e, stackTrace: stackTrace);
+    } catch (e, s) {
+      logger.e(e, stackTrace: s);
+      Sentry.captureException(
+        e,
+        stackTrace: s,
+      );
+
       rethrow;
     } finally {}
   }

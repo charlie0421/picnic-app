@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_app/generated/l10n.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../constants.dart';
 
@@ -7,8 +8,12 @@ Widget ErrorView(final BuildContext context,
     {void Function()? retryFunction,
     required Object? error,
     required StackTrace? stackTrace}) {
-  logger.e('error: $error');
-  logger.e('stackTrace: $stackTrace');
+  logger.e(error, stackTrace: stackTrace);
+  Sentry.captureException(
+    error,
+    stackTrace: stackTrace,
+  );
+
   return Center(
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,

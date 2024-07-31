@@ -9,6 +9,7 @@ import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 part 'ad_providers.freezed.dart';
 part 'ad_providers.g.dart';
@@ -150,6 +151,11 @@ class RewardedAds extends _$RewardedAds {
       );
     } catch (e, s) {
       logger.e(e, stackTrace: s);
+      Sentry.captureException(
+        e,
+        stackTrace: s,
+      );
+
       _updateAdState(index, isShowing: false, ad: null);
       resultCompleter.complete(AdResult.error);
     }
