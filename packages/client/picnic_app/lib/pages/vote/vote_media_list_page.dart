@@ -10,8 +10,7 @@ import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:visibility_detector/visibility_detector.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class VoteMediaListPage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_vote_gather';
@@ -27,8 +26,6 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
 
   final PagingController<int, VideoInfo> _pagingController =
       PagingController(firstPageKey: 0);
-
-  String? _currentPlayingVideoId;
 
   @override
   void initState() {
@@ -51,9 +48,7 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
       builderDelegate: PagedChildBuilderDelegate<VideoInfo>(
         itemBuilder: (context, item, index) => VideoListItem(
           item: item,
-          isPlaying: _currentPlayingVideoId ==
-              YoutubePlayer.convertUrlToId(item.video_url),
-          onTap: () => _toggleVideoPlay(item.video_url),
+          onTap: () {},
         ),
         firstPageErrorIndicatorBuilder: (context) {
           return ErrorView(
@@ -87,28 +82,15 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
       _pagingController.error = error;
     }
   }
-
-  void _toggleVideoPlay(String videoUrl) {
-    final videoId = YoutubePlayer.convertUrlToId(videoUrl);
-    setState(() {
-      if (_currentPlayingVideoId == videoId) {
-        _currentPlayingVideoId = null;
-      } else {
-        _currentPlayingVideoId = videoId;
-      }
-    });
-  }
 }
 
 class VideoListItem extends StatefulWidget {
   final VideoInfo item;
-  final bool isPlaying;
   final VoidCallback onTap;
 
   const VideoListItem({
     Key? key,
     required this.item,
-    required this.isPlaying,
     required this.onTap,
   }) : super(key: key);
 
@@ -117,10 +99,36 @@ class VideoListItem extends StatefulWidget {
 }
 
 class _VideoListItemState extends State<VideoListItem> {
-  late final YoutubePlayerController _controller;
+  late final WebViewController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    final videoId = widget.item.video_id;
+    _controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(const Color(0x00000000))
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onProgress: (int progress) {
+            // Update loading bar.
+          },
+          onPageStarted: (String url) {},
+          onPageFinished: (String url) {},
+          onWebResourceError: (WebResourceError error) {},
+          onNavigationRequest: (NavigationRequest request) {
+            if (request.url.startsWith('https://www.youtube.com/')) {
+              return NavigationDecision.navigate;
+            }
+            return NavigationDecision.prevent;
+          },
+        ),
+      )
+      ..loadRequest(Uri.parse('https://www.youtube.com/embed/$videoId'));
+  }
+
   Future<void> _launchYouTube(BuildContext context) async {
-    final youtubeUrl =
-        'https://www.youtube.com/watch?v=${YoutubePlayer.convertUrlToId(widget.item.video_url)}';
+    final youtubeUrl = widget.item.video_url;
     final uri = Uri.parse(youtubeUrl);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -132,84 +140,46 @@ class _VideoListItemState extends State<VideoListItem> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    _controller = YoutubePlayerController(
-      initialVideoId: YoutubePlayer.convertUrlToId(widget.item.video_url) ?? '',
-      flags: const YoutubePlayerFlags(
-        mute: false,
-        autoPlay: false,
-        forceHD: true,
-        loop: true,
-      ),
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return VisibilityDetector(
-      key: Key(widget.item.video_url),
-      onVisibilityChanged: (visibilityInfo) {
-        if (visibilityInfo.visibleFraction == 0) {
-          _controller.pause();
-        } else {
-          _controller.play();
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.all(16).r,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            YoutubePlayer(
-              controller: _controller,
-              bottomActions: [
-                CurrentPosition(),
-                ProgressBar(
-                  isExpanded: true,
-                  colors: const ProgressBarColors(
-                    playedColor: AppColors.Mint500,
-                    handleColor: AppColors.Primary500,
-                    bufferedColor: AppColors.Grey500,
-                    backgroundColor: AppColors.Grey200,
-                  ),
+    return Container(
+      padding: const EdgeInsets.all(16).r,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AspectRatio(
+            aspectRatio: 16 / 9,
+            child: WebViewWidget(controller: _controller),
+          ),
+          SizedBox(height: 8.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      getLocaleTextFromJson(widget.item.title),
+                      style: getTextStyle(AppTypo.BODY14B, AppColors.Grey900),
+                    ),
+                    Text(
+                      formatDateTimeYYYYMMDD(widget.item.created_at),
+                      style:
+                          getTextStyle(AppTypo.CAPTION12M, AppColors.Grey900),
+                    ),
+                  ],
                 ),
-                IconButton(
-                  icon: const Icon(FontAwesomeIcons.youtube,
-                      color: Color.fromRGBO(255, 0, 0, 1)),
-                  onPressed: () => _launchYouTube(context),
-                ),
-              ],
-              showVideoProgressIndicator: true,
-              progressColors: const ProgressBarColors(
-                playedColor: AppColors.Primary500,
-                handleColor: AppColors.Mint500,
-                bufferedColor: AppColors.Grey500,
-                backgroundColor: AppColors.Grey200,
               ),
-              onReady: () {
-                // _controller.load(snapshot.data.videoId);
-              },
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              getLocaleTextFromJson(widget.item.title),
-              style: getTextStyle(AppTypo.BODY14B, AppColors.Grey900),
-            ),
-            Text(
-              formatDateTimeYYYYMMDD(widget.item.created_at),
-              style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey900),
-            ),
-          ],
-        ),
+              IconButton(
+                icon: const Icon(FontAwesomeIcons.youtube,
+                    color: Color.fromRGBO(255, 0, 0, 1)),
+                onPressed: () => _launchYouTube(context),
+              ),
+            ],
+          ),
+        ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 }
