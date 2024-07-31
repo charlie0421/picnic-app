@@ -13,6 +13,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   shimmer: ^3.0.0
+  sentry_flutter: ^8.5.0
   flutter_native_splash: ^2.4.1
   firebase_crashlytics: ^4.0.3
   universal_platform: ^1.1.0

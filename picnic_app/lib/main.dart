@@ -20,6 +20,7 @@ import 'package:picnic_app/util/network.dart';
 import 'package:picnic_app/util/token_refresh_manager.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:reflectable/reflectable.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
@@ -69,7 +70,21 @@ void main() async {
 
   // MobileAds.instance.initialize();
 
-  runApp(ProviderScope(observers: [LoggingObserver()], child: const App()));
+  await SentryFlutter.init(
+    (options) {
+      options.dsn =
+          'https://2a10b0168b427bbdc6eb3a1f16a1f2a2@o4507695222685696.ingest.us.sentry.io/4507695242739712';
+      // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
+      // We recommend adjusting this value in production.
+      options.tracesSampleRate = 1.0;
+      // The sampling rate for profiling is relative to tracesSampleRate
+      // Setting to 1.0 will profile 100% of sampled transactions:
+      options.profilesSampleRate = 1.0;
+    },
+    appRunner: () => runApp(
+        ProviderScope(observers: [LoggingObserver()], child: const App())),
+  );
+
   requestAppTrackingTransparency();
 }
 
