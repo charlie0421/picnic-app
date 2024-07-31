@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/models/vote/video_info.dart';
@@ -8,6 +9,7 @@ import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class VoteMediaListPage extends ConsumerStatefulWidget {
@@ -120,6 +122,19 @@ class VideoListItem extends StatelessWidget {
     );
   }
 
+  Future<void> _launchYouTube(BuildContext context) async {
+    final youtubeUrl =
+        'https://www.youtube.com/watch?v=${YoutubePlayer.convertUrlToId(item.video_url)}';
+    final uri = Uri.parse(youtubeUrl);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('YouTube를 열 수 없습니다.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -140,6 +155,11 @@ class VideoListItem extends StatelessWidget {
                   bufferedColor: AppColors.Grey500,
                   backgroundColor: AppColors.Grey200,
                 ),
+              ),
+              IconButton(
+                icon: const Icon(FontAwesomeIcons.youtube,
+                    color: Color.fromRGBO(255, 0, 0, 1)),
+                onPressed: () => _launchYouTube(context),
               ),
             ],
             showVideoProgressIndicator: true,
