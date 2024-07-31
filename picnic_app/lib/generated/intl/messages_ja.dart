@@ -20,15 +20,15 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ja';
 
-  static String m0(day) => "${day}일 전";
+  static String m0(day) => "PH0___日前";
 
-  static String m1(hour) => "${hour}시간 전";
+  static String m1(hour) => "PH0___時間前";
 
-  static String m2(minute) => "${minute}분 전";
+  static String m2(minute) => "PH0__分前";
 
-  static String m3(num1) => "${num1}개 +${num1}개 보너스";
+  static String m3(num1) => "PH0___個 +${num1}_個のボーナス";
 
-  static String m4(rank) => "${rank}위";
+  static String m4(rank) => "${rank}位";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{

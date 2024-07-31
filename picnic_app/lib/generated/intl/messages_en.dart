@@ -20,15 +20,15 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static String m0(day) => "${day}일 전";
+  static String m0(day) => "${day} days ago";
 
-  static String m1(hour) => "${hour}시간 전";
+  static String m1(hour) => "${hour} hours ago";
 
-  static String m2(minute) => "${minute}분 전";
+  static String m2(minute) => "${minute} minutes ago";
 
-  static String m3(num1) => "${num1}개 +${num1}개 보너스";
+  static String m3(num1) => "${num1} +${num1} Bonus";
 
-  static String m4(rank) => "${rank}위";
+  static String m4(rank) => "Rank ${rank}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -112,7 +112,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_bonus": MessageLookupByLibrary.simpleMessage("Bonuses"),
         "label_button_agreement":
             MessageLookupByLibrary.simpleMessage("Accept"),
-        "label_button_close": MessageLookupByLibrary.simpleMessage("关闭"),
+        "label_button_close": MessageLookupByLibrary.simpleMessage("Close"),
         "label_button_disagreement":
             MessageLookupByLibrary.simpleMessage("Non-Consent"),
         "label_button_recharge":
