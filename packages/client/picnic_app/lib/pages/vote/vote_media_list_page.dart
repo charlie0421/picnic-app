@@ -10,6 +10,7 @@ import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class VoteMediaListPage extends ConsumerStatefulWidget {
@@ -99,32 +100,27 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
   }
 }
 
-class VideoListItem extends StatelessWidget {
+class VideoListItem extends StatefulWidget {
   final VideoInfo item;
   final bool isPlaying;
   final VoidCallback onTap;
-  late final YoutubePlayerController _controller;
 
-  VideoListItem({
+  const VideoListItem({
     Key? key,
     required this.item,
     required this.isPlaying,
     required this.onTap,
-  }) : super(key: key) {
-    _controller = YoutubePlayerController(
-      initialVideoId: YoutubePlayer.convertUrlToId(item.video_url) ?? '',
-      flags: const YoutubePlayerFlags(
-        mute: false,
-        autoPlay: false,
-        forceHD: true,
-        loop: true,
-      ),
-    );
-  }
+  }) : super(key: key);
 
+  @override
+  State<VideoListItem> createState() => _VideoListItemState();
+}
+
+class _VideoListItemState extends State<VideoListItem> {
+  late final YoutubePlayerController _controller;
   Future<void> _launchYouTube(BuildContext context) async {
     final youtubeUrl =
-        'https://www.youtube.com/watch?v=${YoutubePlayer.convertUrlToId(item.video_url)}';
+        'https://www.youtube.com/watch?v=${YoutubePlayer.convertUrlToId(widget.item.video_url)}';
     final uri = Uri.parse(youtubeUrl);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -136,54 +132,84 @@ class VideoListItem extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16).r,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          YoutubePlayer(
-            controller: _controller,
-            bottomActions: [
-              CurrentPosition(),
-              ProgressBar(
-                isExpanded: true,
-                colors: const ProgressBarColors(
-                  playedColor: AppColors.Mint500,
-                  handleColor: AppColors.Primary500,
-                  bufferedColor: AppColors.Grey500,
-                  backgroundColor: AppColors.Grey200,
-                ),
-              ),
-              IconButton(
-                icon: const Icon(FontAwesomeIcons.youtube,
-                    color: Color.fromRGBO(255, 0, 0, 1)),
-                onPressed: () => _launchYouTube(context),
-              ),
-            ],
-            showVideoProgressIndicator: true,
-            progressColors: const ProgressBarColors(
-              playedColor: AppColors.Primary500,
-              handleColor: AppColors.Mint500,
-              bufferedColor: AppColors.Grey500,
-              backgroundColor: AppColors.Grey200,
-            ),
-            onReady: () {
-              // _controller.load(snapshot.data.videoId);
-            },
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            getLocaleTextFromJson(item.title),
-            style: getTextStyle(AppTypo.BODY14B, AppColors.Grey900),
-          ),
-          Text(
-            formatDateTimeYYYYMMDD(item.created_at),
-            style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey900),
-          ),
-        ],
+  void initState() {
+    super.initState();
+    _controller = YoutubePlayerController(
+      initialVideoId: YoutubePlayer.convertUrlToId(widget.item.video_url) ?? '',
+      flags: const YoutubePlayerFlags(
+        mute: false,
+        autoPlay: false,
+        forceHD: true,
+        loop: true,
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return VisibilityDetector(
+      key: Key(widget.item.video_url),
+      onVisibilityChanged: (visibilityInfo) {
+        if (visibilityInfo.visibleFraction == 0) {
+          _controller.pause();
+        } else {
+          _controller.play();
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16).r,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            YoutubePlayer(
+              controller: _controller,
+              bottomActions: [
+                CurrentPosition(),
+                ProgressBar(
+                  isExpanded: true,
+                  colors: const ProgressBarColors(
+                    playedColor: AppColors.Mint500,
+                    handleColor: AppColors.Primary500,
+                    bufferedColor: AppColors.Grey500,
+                    backgroundColor: AppColors.Grey200,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(FontAwesomeIcons.youtube,
+                      color: Color.fromRGBO(255, 0, 0, 1)),
+                  onPressed: () => _launchYouTube(context),
+                ),
+              ],
+              showVideoProgressIndicator: true,
+              progressColors: const ProgressBarColors(
+                playedColor: AppColors.Primary500,
+                handleColor: AppColors.Mint500,
+                bufferedColor: AppColors.Grey500,
+                backgroundColor: AppColors.Grey200,
+              ),
+              onReady: () {
+                // _controller.load(snapshot.data.videoId);
+              },
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              getLocaleTextFromJson(widget.item.title),
+              style: getTextStyle(AppTypo.BODY14B, AppColors.Grey900),
+            ),
+            Text(
+              formatDateTimeYYYYMMDD(widget.item.created_at),
+              style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey900),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }
