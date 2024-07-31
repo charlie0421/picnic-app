@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util.dart';
+import 'package:picnic_app/util/ui.dart';
 
 Widget buildDialogButton(BuildContext context, String buttonText,
     Color textColor, Function() onPressed) {

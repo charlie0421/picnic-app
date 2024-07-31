@@ -5,7 +5,8 @@ import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
 import 'package:picnic_app/models/reward.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util.dart';
+import 'package:picnic_app/util/ui.dart';
+import 'package:picnic_app/util/util.dart';
 
 enum RewardType { overview, location, size_guide }
 

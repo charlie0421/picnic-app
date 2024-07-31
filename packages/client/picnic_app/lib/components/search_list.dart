@@ -7,7 +7,7 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/pic/celeb.dart';
 import 'package:picnic_app/providers/celeb_search_provider.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class SearchList extends ConsumerStatefulWidget {
   const SearchList({super.key});

@@ -8,7 +8,7 @@ import 'package:picnic_app/components/search_list.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/celeb_list_provider.dart';
 import 'package:picnic_app/providers/celeb_search_provider.dart';
-import 'package:picnic_app/util.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class LandingPage extends ConsumerStatefulWidget {
   const LandingPage({super.key});

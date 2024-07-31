@@ -11,7 +11,7 @@ import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/screens/mypage_screen.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
-import 'package:picnic_app/util.dart';
+import 'package:picnic_app/util/ui.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
 class Portal extends ConsumerStatefulWidget {

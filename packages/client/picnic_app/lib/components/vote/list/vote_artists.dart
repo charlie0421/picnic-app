@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util.dart';
+import 'package:picnic_app/util/i18n.dart';
 
 class VoteArtists extends StatelessWidget {
   final VoteModel vote;

@@ -8,7 +8,7 @@ import 'package:picnic_app/components/article/comment/comment_user.dart';
 import 'package:picnic_app/components/article/comment/report_popup_menu.dart';
 import 'package:picnic_app/models/pic/comment.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class CommentItem extends ConsumerStatefulWidget {
   const CommentItem({

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:picnic_app/components/celeb_list_item.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/no_bookmark_celeb.dart';
 import 'package:picnic_app/components/picnic_cached_network_image.dart';
@@ -20,9 +21,9 @@ import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util.dart';
+import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/ui.dart';
 
-import '../../components/celeb_list_item.dart';
 import '../../components/vote/list/vote_info_card.dart';
 import '../../providers/celeb_list_provider.dart';
 

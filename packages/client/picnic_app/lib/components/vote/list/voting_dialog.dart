@@ -16,9 +16,9 @@ import 'package:picnic_app/pages/vote/store_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:picnic_app/util/i18n.dart';
 
 Future showVotingDialog({
   required BuildContext context,
@@ -448,8 +448,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         color: AppColors.Primary500, barrierDismissible: false);
 
     try {
-      final response =
-          await Supabase.instance.client.functions.invoke('voting', body: {
+      final response = await supabase.functions.invoke('voting', body: {
         'vote_id': widget.voteModel.id,
         'vote_item_id': widget.voteItemModel.id,
         'amount': voteAmount,

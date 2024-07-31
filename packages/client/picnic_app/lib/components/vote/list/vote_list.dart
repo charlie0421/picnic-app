@@ -8,7 +8,7 @@ import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util.dart';
+import 'package:picnic_app/util/ui.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class VoteList extends StatefulWidget {

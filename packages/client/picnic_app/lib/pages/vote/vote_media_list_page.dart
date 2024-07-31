@@ -4,7 +4,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/models/vote/video_info.dart';
-import 'package:picnic_app/util.dart';
+import 'package:picnic_app/util/i18n.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class VoteMediaListPage extends ConsumerStatefulWidget {
