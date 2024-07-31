@@ -1,11 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:picnic_app/auth_service.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/util/auth_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:screen_protector/screen_protector.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
@@ -16,7 +16,6 @@ part 'user_info_provider.g.dart';
 class UserInfo extends _$UserInfo {
   @override
   Future<UserProfilesModel?> build() async {
-    logger.i('supabase.isLogged: ${supabase.isLogged}');
     if (!supabase.isLogged) {
       return null;
     }
@@ -25,7 +24,6 @@ class UserInfo extends _$UserInfo {
   }
 
   Future<UserProfilesModel?> getUserProfiles() async {
-    logger.i('supabase.isLogged: ${supabase.isLogged}');
     if (!supabase.isLogged) {
       return null;
     }
