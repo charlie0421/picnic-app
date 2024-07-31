@@ -500,10 +500,10 @@ class S {
     );
   }
 
-  /// `关闭`
+  /// `Close`
   String get label_button_close {
     return Intl.message(
-      '关闭',
+      'Close',
       name: 'label_button_close',
       desc: '',
       args: [],
@@ -1200,30 +1200,30 @@ class S {
     );
   }
 
-  /// `{day}일 전`
+  /// `{day} days ago`
   String label_time_ago_day(Object day) {
     return Intl.message(
-      '$day일 전',
+      '$day days ago',
       name: 'label_time_ago_day',
       desc: '',
       args: [day],
     );
   }
 
-  /// `{hour}시간 전`
+  /// `{hour} hours ago`
   String label_time_ago_hour(Object hour) {
     return Intl.message(
-      '$hour시간 전',
+      '$hour hours ago',
       name: 'label_time_ago_hour',
       desc: '',
       args: [hour],
     );
   }
 
-  /// `{minute}분 전`
+  /// `{minute} minutes ago`
   String label_time_ago_minute(Object minute) {
     return Intl.message(
-      '$minute분 전',
+      '$minute minutes ago',
       name: 'label_time_ago_minute',
       desc: '',
       args: [minute],
@@ -1940,10 +1940,10 @@ class S {
     );
   }
 
-  /// `{num1}개 +{num1}개 보너스`
+  /// `{num1} +{num1} Bonus`
   String text_star_candy_with_bonus(Object num1) {
     return Intl.message(
-      '$num1개 +$num1개 보너스',
+      '$num1 +$num1 Bonus',
       name: 'text_star_candy_with_bonus',
       desc: '',
       args: [num1],
@@ -1970,10 +1970,10 @@ class S {
     );
   }
 
-  /// `{rank}위`
+  /// `Rank {rank}`
   String text_vote_rank(Object rank) {
     return Intl.message(
-      '$rank위',
+      'Rank $rank',
       name: 'text_vote_rank',
       desc: '',
       args: [rank],
