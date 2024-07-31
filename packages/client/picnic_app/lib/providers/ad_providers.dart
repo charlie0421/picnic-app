@@ -93,7 +93,6 @@ class RewardedAds extends _$RewardedAds {
 
   Future<void> loadAd(int index,
       {bool showWhenLoaded = false, BuildContext? context}) async {
-    logger.i('loadAd: $index');
     if (state.ads[index].isLoading) return;
 
     _updateAdState(index, isLoading: true, ad: null);
@@ -164,7 +163,6 @@ class RewardedAds extends _$RewardedAds {
   }
 
   void _onAdLoaded(int index, RewardedAd ad) {
-    logger.i('onAdLoaded: $index');
     _updateAdState(index, ad: ad, isLoading: false);
   }
 

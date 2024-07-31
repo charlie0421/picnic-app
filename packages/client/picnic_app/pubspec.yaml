@@ -78,6 +78,7 @@ dependencies:
   firebase_analytics: ^11.2.0
   timezone: ^0.9.4
   youtube_player_flutter: ^9.0.1
+  connectivity_plus: ^6.0.4
 dev_dependencies:
   flutter_test:
     sdk: flutter

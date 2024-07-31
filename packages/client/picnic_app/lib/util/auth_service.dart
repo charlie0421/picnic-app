@@ -8,6 +8,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/util/network.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as Supabase;
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -297,5 +298,20 @@ class AuthService {
 
     await storage.readAll().then((value) => logger.i(value));
     logger.i('Stored session cleared');
+  }
+
+  Future<void> refreshToken() async {
+    if (await NetworkCheck.isOnline()) {
+      try {
+        final response = await supabase.auth.refreshSession();
+        logger.i(
+            'Token refreshed successfully: ${response.session?.accessToken}');
+      } catch (e) {
+        logger.e('Token refresh failed: $e');
+        // 에러 처리 (예: 사용자에게 재로그인 요청)
+      }
+    } else {
+      logger.w('Skipping token refresh due to offline status');
+    }
   }
 }
