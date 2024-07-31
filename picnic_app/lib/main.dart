@@ -137,7 +137,6 @@ Future<void> initializeWidgetsAndDeviceOrientation(
     WidgetsBinding widgetsBinding) async {
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
   ]);
 }
 

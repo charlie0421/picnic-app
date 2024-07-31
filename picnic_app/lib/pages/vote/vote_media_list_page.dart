@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/error.dart';
-import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/models/vote/video_info.dart';
+import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
@@ -21,6 +24,8 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
 
   final PagingController<int, VideoInfo> _pagingController =
       PagingController(firstPageKey: 0);
+
+  String? _currentPlayingVideoId;
 
   @override
   void initState() {
@@ -41,20 +46,11 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
     return PagedListView<int, VideoInfo>(
       pagingController: _pagingController,
       builderDelegate: PagedChildBuilderDelegate<VideoInfo>(
-        itemBuilder: (context, item, index) => GestureDetector(
-          onTap: () {
-            Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => FullScreenVideoPlayer(videoInfo: item),
-            ));
-          },
-          child: Column(
-            children: [
-              PicnicCachedNetworkImage(
-                imageUrl: 'media/${item.id}/${item.thumbnail_url}',
-              ),
-              Text(getLocaleTextFromJson(item.title)),
-            ],
-          ),
+        itemBuilder: (context, item, index) => VideoListItem(
+          item: item,
+          isPlaying: _currentPlayingVideoId ==
+              YoutubePlayer.convertUrlToId(item.video_url),
+          onTap: () => _toggleVideoPlay(item.video_url),
         ),
         firstPageErrorIndicatorBuilder: (context) {
           return ErrorView(
@@ -69,75 +65,105 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
   }
 
   Future<void> _fetchPage(int pageKey) async {
-    // ... (이전 코드와 동일)
+    try {
+      final response = await supabase
+          .from("media")
+          .select()
+          .order('created_at', ascending: false)
+          .range(pageKey, pageKey + _pageSize - 1);
+
+      final newItems = response.map((e) => VideoInfo.fromJson(e)).toList();
+      final isLastPage = newItems.length < _pageSize;
+      if (isLastPage) {
+        _pagingController.appendLastPage(newItems);
+      } else {
+        final nextPageKey = pageKey + newItems.length;
+        _pagingController.appendPage(newItems, nextPageKey);
+      }
+    } catch (error) {
+      _pagingController.error = error;
+    }
+  }
+
+  void _toggleVideoPlay(String videoUrl) {
+    final videoId = YoutubePlayer.convertUrlToId(videoUrl);
+    setState(() {
+      if (_currentPlayingVideoId == videoId) {
+        _currentPlayingVideoId = null;
+      } else {
+        _currentPlayingVideoId = videoId;
+      }
+    });
   }
 }
 
-class FullScreenVideoPlayer extends StatefulWidget {
-  final VideoInfo videoInfo;
+class VideoListItem extends StatelessWidget {
+  final VideoInfo item;
+  final bool isPlaying;
+  final VoidCallback onTap;
+  late final YoutubePlayerController _controller;
 
-  const FullScreenVideoPlayer({Key? key, required this.videoInfo})
-      : super(key: key);
-
-  @override
-  _FullScreenVideoPlayerState createState() => _FullScreenVideoPlayerState();
-}
-
-class _FullScreenVideoPlayerState extends State<FullScreenVideoPlayer> {
-  late YoutubePlayerController _controller;
-
-  @override
-  void initState() {
-    super.initState();
+  VideoListItem({
+    Key? key,
+    required this.item,
+    required this.isPlaying,
+    required this.onTap,
+  }) : super(key: key) {
     _controller = YoutubePlayerController(
-      initialVideoId: widget.videoInfo.video_id,
+      initialVideoId: YoutubePlayer.convertUrlToId(item.video_url) ?? '',
       flags: const YoutubePlayerFlags(
-        autoPlay: true,
         mute: false,
-        enableCaption: true,
+        autoPlay: false,
+        forceHD: true,
+        loop: true,
       ),
     );
-
-    // 자동으로 풀스크린 모드로 전환
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _controller.toggleFullScreenMode();
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: YoutubePlayerBuilder(
-        onExitFullScreen: () {
-          // 풀스크린 모드 종료 시 이전 페이지로 돌아가기
-          Navigator.of(context).pop();
-        },
-        player: YoutubePlayer(
-          controller: _controller,
-          showVideoProgressIndicator: true,
-          progressIndicatorColor: Colors.blueAccent,
-          progressColors: const ProgressBarColors(
-            playedColor: Colors.blue,
-            handleColor: Colors.blueAccent,
-          ),
-          onReady: () {
-            _controller.addListener(() {});
-          },
-        ),
-        builder: (context, player) {
-          return Column(
-            children: [
-              player,
+    return Container(
+      padding: const EdgeInsets.all(16).r,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          YoutubePlayer(
+            controller: _controller,
+            bottomActions: [
+              CurrentPosition(),
+              ProgressBar(
+                isExpanded: true,
+                colors: const ProgressBarColors(
+                  playedColor: AppColors.Mint500,
+                  handleColor: AppColors.Primary500,
+                  bufferedColor: AppColors.Grey500,
+                  backgroundColor: AppColors.Grey200,
+                ),
+              ),
             ],
-          );
-        },
+            showVideoProgressIndicator: true,
+            progressColors: const ProgressBarColors(
+              playedColor: AppColors.Primary500,
+              handleColor: AppColors.Mint500,
+              bufferedColor: AppColors.Grey500,
+              backgroundColor: AppColors.Grey200,
+            ),
+            onReady: () {
+              // _controller.load(snapshot.data.videoId);
+            },
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            getLocaleTextFromJson(item.title),
+            style: getTextStyle(AppTypo.BODY14B, AppColors.Grey900),
+          ),
+          Text(
+            formatDateTimeYYYYMMDD(item.created_at),
+            style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey900),
+          ),
+        ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 }

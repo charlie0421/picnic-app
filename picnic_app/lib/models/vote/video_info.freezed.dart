@@ -21,9 +21,10 @@ VideoInfo _$VideoInfoFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$VideoInfo {
   int get id => throw _privateConstructorUsedError;
-  String get video_id => throw _privateConstructorUsedError;
+  String get video_url => throw _privateConstructorUsedError;
   Map<String, String> get title => throw _privateConstructorUsedError;
   String get thumbnail_url => throw _privateConstructorUsedError;
+  DateTime get created_at => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -38,9 +39,10 @@ abstract class $VideoInfoCopyWith<$Res> {
   @useResult
   $Res call(
       {int id,
-      String video_id,
+      String video_url,
       Map<String, String> title,
-      String thumbnail_url});
+      String thumbnail_url,
+      DateTime created_at});
 }
 
 /// @nodoc
@@ -57,18 +59,19 @@ class _$VideoInfoCopyWithImpl<$Res, $Val extends VideoInfo>
   @override
   $Res call({
     Object? id = null,
-    Object? video_id = null,
+    Object? video_url = null,
     Object? title = null,
     Object? thumbnail_url = null,
+    Object? created_at = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      video_id: null == video_id
-          ? _value.video_id
-          : video_id // ignore: cast_nullable_to_non_nullable
+      video_url: null == video_url
+          ? _value.video_url
+          : video_url // ignore: cast_nullable_to_non_nullable
               as String,
       title: null == title
           ? _value.title
@@ -78,6 +81,10 @@ class _$VideoInfoCopyWithImpl<$Res, $Val extends VideoInfo>
           ? _value.thumbnail_url
           : thumbnail_url // ignore: cast_nullable_to_non_nullable
               as String,
+      created_at: null == created_at
+          ? _value.created_at
+          : created_at // ignore: cast_nullable_to_non_nullable
+              as DateTime,
     ) as $Val);
   }
 }
@@ -92,9 +99,10 @@ abstract class _$$VideoInfoImplCopyWith<$Res>
   @useResult
   $Res call(
       {int id,
-      String video_id,
+      String video_url,
       Map<String, String> title,
-      String thumbnail_url});
+      String thumbnail_url,
+      DateTime created_at});
 }
 
 /// @nodoc
@@ -109,18 +117,19 @@ class __$$VideoInfoImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? video_id = null,
+    Object? video_url = null,
     Object? title = null,
     Object? thumbnail_url = null,
+    Object? created_at = null,
   }) {
     return _then(_$VideoInfoImpl(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      video_id: null == video_id
-          ? _value.video_id
-          : video_id // ignore: cast_nullable_to_non_nullable
+      video_url: null == video_url
+          ? _value.video_url
+          : video_url // ignore: cast_nullable_to_non_nullable
               as String,
       title: null == title
           ? _value._title
@@ -130,6 +139,10 @@ class __$$VideoInfoImplCopyWithImpl<$Res>
           ? _value.thumbnail_url
           : thumbnail_url // ignore: cast_nullable_to_non_nullable
               as String,
+      created_at: null == created_at
+          ? _value.created_at
+          : created_at // ignore: cast_nullable_to_non_nullable
+              as DateTime,
     ));
   }
 }
@@ -139,9 +152,10 @@ class __$$VideoInfoImplCopyWithImpl<$Res>
 class _$VideoInfoImpl implements _VideoInfo {
   const _$VideoInfoImpl(
       {required this.id,
-      required this.video_id,
+      required this.video_url,
       required final Map<String, String> title,
-      required this.thumbnail_url})
+      required this.thumbnail_url,
+      required this.created_at})
       : _title = title;
 
   factory _$VideoInfoImpl.fromJson(Map<String, dynamic> json) =>
@@ -150,7 +164,7 @@ class _$VideoInfoImpl implements _VideoInfo {
   @override
   final int id;
   @override
-  final String video_id;
+  final String video_url;
   final Map<String, String> _title;
   @override
   Map<String, String> get title {
@@ -161,10 +175,12 @@ class _$VideoInfoImpl implements _VideoInfo {
 
   @override
   final String thumbnail_url;
+  @override
+  final DateTime created_at;
 
   @override
   String toString() {
-    return 'VideoInfo(id: $id, video_id: $video_id, title: $title, thumbnail_url: $thumbnail_url)';
+    return 'VideoInfo(id: $id, video_url: $video_url, title: $title, thumbnail_url: $thumbnail_url, created_at: $created_at)';
   }
 
   @override
@@ -173,17 +189,19 @@ class _$VideoInfoImpl implements _VideoInfo {
         (other.runtimeType == runtimeType &&
             other is _$VideoInfoImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.video_id, video_id) ||
-                other.video_id == video_id) &&
+            (identical(other.video_url, video_url) ||
+                other.video_url == video_url) &&
             const DeepCollectionEquality().equals(other._title, _title) &&
             (identical(other.thumbnail_url, thumbnail_url) ||
-                other.thumbnail_url == thumbnail_url));
+                other.thumbnail_url == thumbnail_url) &&
+            (identical(other.created_at, created_at) ||
+                other.created_at == created_at));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, id, video_id,
-      const DeepCollectionEquality().hash(_title), thumbnail_url);
+  int get hashCode => Object.hash(runtimeType, id, video_url,
+      const DeepCollectionEquality().hash(_title), thumbnail_url, created_at);
 
   @JsonKey(ignore: true)
   @override
@@ -202,9 +220,10 @@ class _$VideoInfoImpl implements _VideoInfo {
 abstract class _VideoInfo implements VideoInfo {
   const factory _VideoInfo(
       {required final int id,
-      required final String video_id,
+      required final String video_url,
       required final Map<String, String> title,
-      required final String thumbnail_url}) = _$VideoInfoImpl;
+      required final String thumbnail_url,
+      required final DateTime created_at}) = _$VideoInfoImpl;
 
   factory _VideoInfo.fromJson(Map<String, dynamic> json) =
       _$VideoInfoImpl.fromJson;
@@ -212,11 +231,13 @@ abstract class _VideoInfo implements VideoInfo {
   @override
   int get id;
   @override
-  String get video_id;
+  String get video_url;
   @override
   Map<String, String> get title;
   @override
   String get thumbnail_url;
+  @override
+  DateTime get created_at;
   @override
   @JsonKey(ignore: true)
   _$$VideoInfoImplCopyWith<_$VideoInfoImpl> get copyWith =>
