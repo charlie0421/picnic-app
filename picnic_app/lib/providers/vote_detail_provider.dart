@@ -2,6 +2,7 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 part 'vote_detail_provider.g.dart';
 
@@ -57,9 +58,13 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
       state = AsyncValue.data(voteItemList);
 
       return voteItemList;
-    } catch (e, stackTrace) {
-      logger.e('Failed to load vote item list: $e');
-      logger.e('Failed to load vote item list: $stackTrace');
+    } catch (e, s) {
+      logger.e(s, stackTrace: s);
+      Sentry.captureException(
+        e,
+        stackTrace: s,
+      );
+
       return [];
     }
   }
@@ -82,9 +87,12 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
 
         logger.i('Updated vote item in state: $id with voteTotal: $voteTotal');
       }
-    } catch (e, stackTrace) {
-      logger.e('Failed to set vote item: $e');
-      logger.e('Failed to set vote item: $stackTrace');
+    } catch (e, s) {
+      logger.e(e, stackTrace: s);
+      Sentry.captureException(
+        e,
+        stackTrace: s,
+      );
     }
   }
 }

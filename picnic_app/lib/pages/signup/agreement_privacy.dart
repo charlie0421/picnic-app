@@ -14,6 +14,7 @@ import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/ui.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 class AgreementPrivacyPage extends ConsumerStatefulWidget {
   const AgreementPrivacyPage({super.key});
@@ -148,9 +149,13 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                               });
                         });
                       }
-                    } catch (e, stacktrace) {
-                      logger.e(e);
-                      logger.e(stacktrace);
+                    } catch (e, s) {
+                      logger.e(e, stackTrace: s);
+                      Sentry.captureException(
+                        e,
+                        stackTrace: s,
+                      );
+
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         showSimpleDialog(
                             context: context,

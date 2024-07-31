@@ -19,6 +19,7 @@ import 'package:picnic_app/providers/vote_detail_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 Future showVotingDialog({
   required BuildContext context,
@@ -470,8 +471,13 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
       logger.i('투표 완료: ${response.data}');
       logger.i(response.status);
-    } catch (e, stackTrace) {
-      logger.e('투표 실패: $e\n $stackTrace');
+    } catch (e, s) {
+      logger.e(e, stackTrace: s);
+      Sentry.captureException(
+        e,
+        stackTrace: s,
+      );
+
       showSimpleDialog(
         context: context,
         title: S.of(context).dialog_title_vote_fail,

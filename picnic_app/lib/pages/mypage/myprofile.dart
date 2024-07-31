@@ -24,6 +24,7 @@ import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/auth_service.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MyProfilePage extends ConsumerStatefulWidget {
@@ -198,6 +199,11 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
           }
         } catch (e, s) {
           logger.e(e, stackTrace: s);
+          Sentry.captureException(
+            e,
+            stackTrace: s,
+          );
+
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text('실패'),
           ));
