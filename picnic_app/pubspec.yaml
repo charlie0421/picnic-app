@@ -80,6 +80,7 @@ dependencies:
   timezone: ^0.9.4
   youtube_player_flutter: ^9.0.1
   connectivity_plus: ^6.0.4
+  visibility_detector: ^0.4.0+2
 dev_dependencies:
   flutter_test:
     sdk: flutter
