@@ -209,7 +209,8 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                         Expanded(
                           child: Text(S.of(context).text_vote_complete,
                               style: getTextStyle(
-                                  AppTypo.TITLE18B, AppColors.Point900),
+                                      AppTypo.TITLE18B, AppColors.Point900)
+                                  .copyWith(height: 1),
                               textAlign: TextAlign.center),
                         ),
                         Image.asset(
@@ -442,7 +443,8 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                 child: Text(
                                     S.of(context).label_button_save_vote_paper,
                                     style: getTextStyle(
-                                        AppTypo.BODY14B, AppColors.Grey00))),
+                                        AppTypo.BODY14B, AppColors.Grey00),
+                                    textAlign: TextAlign.center)),
                             SizedBox(width: 16.w),
                             ElevatedButton(
                                 onPressed: _shareDialogImage,
