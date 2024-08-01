@@ -2,8 +2,8 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 import { decode } from 'https://deno.land/x/djwt@v2.8/mod.ts'
 
-const HOURLY_LIMIT = parseInt(Deno.env.get('HOURLY_LIMIT') || '5', 10)
-const DAILY_LIMIT = parseInt(Deno.env.get('DAILY_LIMIT') || '20', 10)
+const HOURLY_LIMIT = parseInt(Deno.env.get('HOURLY_LIMIT') || '10', 10)
+const DAILY_LIMIT = parseInt(Deno.env.get('DAILY_LIMIT') || '120', 10)
 
 Deno.serve(async (req) => {
   const authHeader = req.headers.get('Authorization')
