@@ -95,6 +95,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "hint_library_add": MessageLookupByLibrary.simpleMessage("专辑名称"),
         "hint_nickname_input": MessageLookupByLibrary.simpleMessage("请输入昵称。"),
         "image_save_success": MessageLookupByLibrary.simpleMessage("图像已保存。"),
+        "label_ads_exceeded":
+            MessageLookupByLibrary.simpleMessage("您已用尽每个 ID 可观看的广告数量。"),
+        "label_ads_next_available_time":
+            MessageLookupByLibrary.simpleMessage("下一则广告何时发布。"),
         "label_agreement_privacy":
             MessageLookupByLibrary.simpleMessage("同意收集和使用个人信息"),
         "label_agreement_terms": MessageLookupByLibrary.simpleMessage("接受使用条款"),

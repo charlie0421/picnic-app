@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
+import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/vote/common_vote_info.dart';
 import 'package:picnic_app/components/vote/store/store_list_tile.dart';
 import 'package:picnic_app/components/vote/store/usagePolicyDialog.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
+import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/ad_providers.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
 class FreeChargeStation extends ConsumerStatefulWidget {
@@ -140,15 +144,56 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
   }
 
   void _showRewardedAd(int index) async {
-    // logger.i("Calling showAd for index $index");
+    try {
+      // logger.i("Calling showAd for index $index");
 
-    if (!mounted) return;
-    final adProvider = ref.read(rewardedAdsProvider.notifier);
+      OverlayLoadingProgress.start(context);
 
-    logger.i("Calling showAd for index $index");
-    await adProvider.loadAd(index, showWhenLoaded: true, context: context);
+      final response =
+          await supabase.functions.invoke('check-ads-count', body: {});
+      OverlayLoadingProgress.stop();
 
-    _animateButton();
+      logger.i(
+          'allowed: ${response.data['allowed']}\n message: ${response.data['message']}\n nextAvailableTime: ${response.data['nextAvailableTime']}\n hourlyCount: ${response.data['hourlyCount']}\n dailyCount: ${response.data['dailyCount']}\n hourlyLimit: ${response.data['hourlyLimit']}\n dailyLimit: ${response.data['dailyLimit']}');
+      if (response.data['allowed'] == true) {
+        final adProvider = ref.read(rewardedAdsProvider.notifier);
+
+        logger.i("Calling showAd for index $index");
+        await adProvider.loadAd(index, showWhenLoaded: true, context: context);
+
+        _animateButton();
+      } else {
+        final nextAvailableTime =
+            DateTime.parse(response.data['nextAvailableTime']).toLocal();
+        DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+
+        showSimpleDialog(
+            context: context,
+            contentWidget: Column(
+              children: [
+                Text(
+                  S.of(context).label_ads_exceeded,
+                  style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  '다음 광고 시청 가능시간',
+                  style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600),
+                  textAlign: TextAlign.center,
+                ),
+                Text(
+                  formatter.format(nextAvailableTime).toString(),
+                  style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ));
+      }
+    } catch (e, s) {
+      logger.e(e, stackTrace: s);
+      Sentry.captureException(e, stackTrace: s);
+    } finally {}
   }
 
   void _animateButton() {

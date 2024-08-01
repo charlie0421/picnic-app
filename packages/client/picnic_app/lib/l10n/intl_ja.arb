@@ -803,5 +803,9 @@
   "toast_max_five_celeb": "マイアーティストは最大5人まで追加できます。",
   "@toast_max_five_celeb": {
     "translationTimestamp": "2024-07-31T21:25:13.458979"
-  }
+  },
+  "label_ads_exceeded": "IDごとに視聴可能な広告をすべて使い切りました。",
+  "@label_ads_exceeded": {},
+  "label_ads_next_available_time": "次の広告視聴可能時間。",
+  "@label_ads_next_available_time": {}
 }

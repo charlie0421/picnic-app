@@ -2039,6 +2039,26 @@ class S {
       args: [],
     );
   }
+
+  /// `You have exhausted the ads available per ID.`
+  String get label_ads_exceeded {
+    return Intl.message(
+      'You have exhausted the ads available per ID.',
+      name: 'label_ads_exceeded',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `When the next ad will be available.`
+  String get label_ads_next_available_time {
+    return Intl.message(
+      'When the next ad will be available.',
+      name: 'label_ads_next_available_time',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

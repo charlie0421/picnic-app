@@ -8,7 +8,6 @@ import 'package:watcher/watcher.dart';
 
 // Constants
 const String deeplApiKey = 'ef2715c3-89d7-4b1b-a95b-e1fd3b7d734e:fx';
-const String timestampKey = 'translationTimestamp';
 const String manualTranslationKey = 'manualTranslation';
 final RegExp koreanRegex = RegExp(r'[가-힣]+');
 
@@ -41,7 +40,7 @@ void main(List<String> arguments) async {
       }
     }
 
-    await synchronizeKeys(inputFile, outputFiles, modifyTimestamps: !watch);
+    await synchronizeKeys(inputFile, outputFiles);
 
     if (translateAll || !watch) {
       print('Translating all languages...');
@@ -72,7 +71,6 @@ Future<void> sortAndUpdateArbFile(String filePath) async {
     final contents = await file.readAsString();
     final arbContent = json.decode(contents) as Map<String, dynamic>;
 
-    final currentTimestamp = DateTime.now().toIso8601String();
     final updatedArbContent = <String, dynamic>{};
 
     if (arbContent.containsKey("@@locale")) {
@@ -93,10 +91,6 @@ Future<void> sortAndUpdateArbFile(String filePath) async {
       } else {
         updatedArbContent[metaKey] = <String, dynamic>{};
       }
-
-      if (!updatedArbContent[metaKey].containsKey(timestampKey)) {
-        updatedArbContent[metaKey][timestampKey] = currentTimestamp;
-      }
     }
 
     const encoder = JsonEncoder.withIndent('  ');
@@ -109,8 +103,7 @@ Future<void> sortAndUpdateArbFile(String filePath) async {
   }
 }
 
-Future<void> synchronizeKeys(String inputFile, List<String> outputFiles,
-    {bool modifyTimestamps = true}) async {
+Future<void> synchronizeKeys(String inputFile, List<String> outputFiles) async {
   try {
     final originalArbContent = await readJsonFile(inputFile);
 
@@ -119,7 +112,6 @@ Future<void> synchronizeKeys(String inputFile, List<String> outputFiles,
       final updatedArbContent = Map<String, dynamic>.from(translatedArbContent);
 
       final keys = List<String>.from(originalArbContent.keys);
-      final currentTimestamp = DateTime.now().toIso8601String();
 
       final keysToRemove = translatedArbContent.keys
           .where((key) =>
@@ -140,16 +132,12 @@ Future<void> synchronizeKeys(String inputFile, List<String> outputFiles,
                 ? Map<String, dynamic>.from(originalArbContent[metaKey])
                 : {};
 
-            if (modifyTimestamps) {
-              updatedArbContent[metaKey][timestampKey] = currentTimestamp;
-            }
-
             print('Added new key to $outputFile: $key');
           }
         }
       }
 
-      await sortAndUpdateArbFile(outputFile);
+      await saveJsonFile(outputFile, updatedArbContent);
       print('Synchronized and saved to $outputFile');
     }
   } catch (e) {
@@ -183,15 +171,143 @@ Future<void> watchForChanges(
   print('Watching for changes...');
   final watcher = FileWatcher(inputFile);
 
+  Map<String, dynamic> previousContent = await readJsonFile(inputFile);
+
   await for (final event in watcher.events) {
     if (event.type == ChangeType.MODIFY) {
       print('Detected changes in $inputFile, translating...');
 
-      await synchronizeKeys(inputFile, outputFiles, modifyTimestamps: false);
-      await translateAllLanguages(translator, inputFile, outputFiles, true);
+      final currentContent = await readJsonFile(inputFile);
+      final changedKeys = getChangedKeys(previousContent, currentContent);
 
-      print('Translation completed');
+      await synchronizeKeys(inputFile, outputFiles);
+      await translateChangedKeys(
+          translator, inputFile, outputFiles, changedKeys);
+
+      previousContent = currentContent;
+      print('Translation of changed keys completed');
     }
+  }
+}
+
+Set<String> getChangedKeys(
+    Map<String, dynamic> oldContent, Map<String, dynamic> newContent) {
+  Set<String> changedKeys = {};
+
+  for (var key in newContent.keys) {
+    if (!key.startsWith('@') &&
+        (!oldContent.containsKey(key) || oldContent[key] != newContent[key])) {
+      changedKeys.add(key);
+    }
+  }
+
+  return changedKeys;
+}
+
+Future<void> translateChangedKeys(Translator translator, String inputFile,
+    List<String> outputFiles, Set<String> changedKeys) async {
+  final List<Future<void>> translations = [];
+
+  for (final outputFile in outputFiles) {
+    print(
+        'Translating changed keys for ${outputFile.split('.').first.split('/').last.split('_')[1].toUpperCase()}...');
+
+    translations.add(translateArbFilePartial(
+      translator,
+      inputFile,
+      outputFile,
+      outputFile.split('.').first.split('/').last.split('_')[1].toUpperCase(),
+      changedKeys,
+    ));
+  }
+
+  await Future.wait(translations);
+}
+
+Future<void> translateArbFilePartial(
+    Translator translator,
+    String inputFile,
+    String outputFile,
+    String targetLanguage,
+    Set<String> keysToTranslate) async {
+  print(
+      'Starting partial translation for $outputFile (Target language: $targetLanguage)');
+
+  final pool = Pool(5);
+
+  try {
+    final originalArbContent = await readJsonFile(inputFile);
+    final translatedArbContent = await readJsonFile(outputFile);
+    final updatedArbContent = Map<String, dynamic>.from(translatedArbContent);
+
+    final List<Future<void>> translationFutures = [];
+
+    for (var key in keysToTranslate) {
+      if (!originalArbContent.containsKey(key)) continue;
+
+      final metaKey = '@$key';
+      final isManualTranslation = originalArbContent.containsKey(metaKey) &&
+          originalArbContent[metaKey][manualTranslationKey] == true;
+
+      if (isManualTranslation) {
+        print(
+            "Manual translation key found in original file: $key, skipping translation.");
+        updatedArbContent[key] = originalArbContent[key];
+        updatedArbContent[metaKey] = originalArbContent[metaKey];
+        continue;
+      }
+
+      if (containsPlaceholders(originalArbContent[key])) {
+        translationFutures.add(pool.withResource(() async {
+          final translatedText = await translateTextWithPlaceholders(
+              translator, originalArbContent[key], targetLanguage);
+          updatedArbContent[key] = translatedText;
+
+          if (!updatedArbContent.containsKey(metaKey)) {
+            updatedArbContent[metaKey] = {};
+          }
+        }));
+      } else if (containsKorean(originalArbContent[key])) {
+        translationFutures.add(pool.withResource(() async {
+          final translatedText = await translateText(
+              translator, originalArbContent[key], targetLanguage);
+          if (isCorrectLanguage(translatedText, targetLanguage)) {
+            updatedArbContent[key] = translatedText;
+
+            if (!updatedArbContent.containsKey(metaKey)) {
+              updatedArbContent[metaKey] = {};
+            }
+          } else {
+            print(
+                'Warning: Incorrect language detected for key: $key. Skipping.');
+          }
+        }));
+      } else {
+        updatedArbContent[key] = originalArbContent[key];
+        print('Skipping non-Korean text for key: $key');
+      }
+    }
+
+    await Future.wait(translationFutures);
+
+    // 변경된 내용을 파일에 저장
+    await saveJsonFile(outputFile, updatedArbContent);
+
+    print('$outputFile partial translation completed and saved');
+  } catch (e) {
+    print('Error occurred while translating $outputFile: $e');
+  }
+}
+
+Future<void> saveJsonFile(String path, Map<String, dynamic> content) async {
+  try {
+    final file = File(path);
+    const encoder = JsonEncoder.withIndent('  ');
+    final formattedJson = encoder.convert(content);
+    await file.writeAsString(formattedJson);
+    print('File saved: $path');
+  } catch (e) {
+    print('Error saving file $path: $e');
   }
 }
 
@@ -207,7 +323,6 @@ Future<void> translateArbFile(Translator translator, String inputFile,
     final originalArbContent = await readJsonFile(inputFile);
     final translatedArbContent = await readJsonFile(outputFile);
     final updatedArbContent = Map<String, dynamic>.from(translatedArbContent);
-    final currentTimestamp = DateTime.now().toIso8601String();
     final keys = List<String>.from(originalArbContent.keys);
 
     final Map<String, String> translationCache = {};
@@ -223,8 +338,6 @@ Future<void> translateArbFile(Translator translator, String inputFile,
         }
 
         final metaKey = '@$key';
-        final hasTimestamp = originalArbContent.containsKey(metaKey) &&
-            originalArbContent[metaKey][timestampKey] != null;
         final isManualTranslation = originalArbContent.containsKey(metaKey) &&
             originalArbContent[metaKey][manualTranslationKey] == true;
 
@@ -237,13 +350,9 @@ Future<void> translateArbFile(Translator translator, String inputFile,
           continue;
         }
 
-        final originalTimestamp = originalArbContent[metaKey]?[timestampKey];
-        final translatedTimestamp =
-            translatedArbContent[metaKey]?[timestampKey];
-
         if (translateAll ||
-            !hasTimestamp ||
-            originalTimestamp != translatedTimestamp) {
+            !translatedArbContent.containsKey(key) ||
+            translatedArbContent[key] == originalArbContent[key]) {
           if (containsPlaceholders(originalArbContent[key])) {
             translationFutures.add(pool.withResource(() async {
               final translatedText = await translateTextWithPlaceholders(
@@ -253,7 +362,6 @@ Future<void> translateArbFile(Translator translator, String inputFile,
               if (!updatedArbContent.containsKey(metaKey)) {
                 updatedArbContent[metaKey] = {};
               }
-              updatedArbContent[metaKey][timestampKey] = currentTimestamp;
             }));
           } else if (containsKorean(originalArbContent[key])) {
             if (!translationCache.containsKey(originalArbContent[key])) {
@@ -267,7 +375,6 @@ Future<void> translateArbFile(Translator translator, String inputFile,
                   if (!updatedArbContent.containsKey(metaKey)) {
                     updatedArbContent[metaKey] = {};
                   }
-                  updatedArbContent[metaKey][timestampKey] = currentTimestamp;
                 } else {
                   print(
                       'Warning: Incorrect language detected for key: $key. Skipping.');
@@ -283,8 +390,7 @@ Future<void> translateArbFile(Translator translator, String inputFile,
             print('Skipping non-Korean text for key: $key');
           }
         } else {
-          print(
-              'Skipping translation for key: $key (Reason: timestamps match)');
+          print('Skipping translation for key: $key (Already translated)');
         }
       }
     }
@@ -370,7 +476,6 @@ bool isCorrectLanguage(String text, String targetLanguage) {
     'ZH': RegExp(r'[\p{Script=Han}]+', unicode: true),
   };
 
-  // 플레이스홀더 제거
   final textWithoutPlaceholders = text.replaceAll(RegExp(r'\{[^}]+\}'), '');
 
   final regex = languageRegexMap[targetLanguage];

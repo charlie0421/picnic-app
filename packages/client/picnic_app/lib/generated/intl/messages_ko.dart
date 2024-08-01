@@ -99,6 +99,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("닉네임을 입력해주세요."),
         "image_save_success":
             MessageLookupByLibrary.simpleMessage("이미지가 저장되었습니다."),
+        "label_ads_exceeded":
+            MessageLookupByLibrary.simpleMessage("아이디당 시청 가능한 광고를 모두 소진했습니다."),
+        "label_ads_next_available_time":
+            MessageLookupByLibrary.simpleMessage("다음 광고 시청 가능시간."),
         "label_agreement_privacy":
             MessageLookupByLibrary.simpleMessage("개인정보 수집 및 이용 동의"),
         "label_agreement_terms":
