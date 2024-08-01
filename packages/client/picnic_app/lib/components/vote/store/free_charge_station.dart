@@ -107,7 +107,8 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
           ),
           title: Text(
             S.of(context).label_button_watch_and_charge,
-            style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
+            style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)
+                .copyWith(height: 1),
           ),
           subtitle: Text.rich(
             TextSpan(
