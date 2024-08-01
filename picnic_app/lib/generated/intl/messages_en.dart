@@ -101,6 +101,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Please enter a nickname."),
         "image_save_success":
             MessageLookupByLibrary.simpleMessage("The image has been saved."),
+        "label_ads_exceeded": MessageLookupByLibrary.simpleMessage(
+            "You have exhausted the ads available per ID."),
+        "label_ads_next_available_time": MessageLookupByLibrary.simpleMessage(
+            "When the next ad will be available."),
         "label_agreement_privacy": MessageLookupByLibrary.simpleMessage(
             "Consent to the collection and use of personal information"),
         "label_agreement_terms":

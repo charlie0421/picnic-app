@@ -99,6 +99,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("ニックネームを入力してください。"),
         "image_save_success":
             MessageLookupByLibrary.simpleMessage("画像が保存されました。"),
+        "label_ads_exceeded":
+            MessageLookupByLibrary.simpleMessage("IDごとに視聴可能な広告をすべて使い切りました。"),
+        "label_ads_next_available_time":
+            MessageLookupByLibrary.simpleMessage("次の広告視聴可能時間。"),
         "label_agreement_privacy":
             MessageLookupByLibrary.simpleMessage("個人情報収集及び利用同意"),
         "label_agreement_terms":

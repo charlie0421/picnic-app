@@ -133,12 +133,12 @@ async function insertStarCandyBonusHistory(user_id: string, reward_amount: numbe
     await queryDatabase(insertHistoryQuery, 'AD', reward_amount, reward_amount, user_id, transaction_id, expired_dt);
 }
 
-async function insertTransaction(transaction_id: string, reward_type: string, reward_amount: number, signature: string, ad_network: string, key_id: string) {
+async function insertTransaction(transaction_id: string, reward_type: string, reward_amount: number, signature: string, ad_network: string, key_id: string, user_id: string) {
     console.log('Inserting transaction');
     const insertTransactionQuery = `INSERT INTO transaction_admob (transaction_id, reward_type, reward_amount,
-                                                                   signature, ad_network, key_id)
-                                    VALUES ($1, $2, $3, $4, $5, $6)`;
-    await queryDatabase(insertTransactionQuery, transaction_id, reward_type, reward_amount, signature, ad_network, key_id);
+                                                                   signature, ad_network, key_id, user_id)
+                                    VALUES ($1, $2, $3, $4, $5, $6, $7)`;
+    await queryDatabase(insertTransactionQuery, transaction_id, reward_type, reward_amount, signature, ad_network, key_id, user_id);
 }
 
 async function processTransaction(user_id: string, reward_amount: number, transaction_id: string, reward_type: string, signature: string, ad_network: string, key_id: string) {
@@ -148,7 +148,7 @@ async function processTransaction(user_id: string, reward_amount: number, transa
 
         await updateUserRewards(user_id, reward_amount);
         await insertStarCandyBonusHistory(user_id, reward_amount, transaction_id);
-        await insertTransaction(transaction_id, reward_type, reward_amount, signature, ad_network, key_id);
+        await insertTransaction(transaction_id, reward_type, reward_amount, signature, ad_network, key_id, user_id);
 
         await connection.queryObject('COMMIT');
         connection.release();
