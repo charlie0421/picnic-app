@@ -466,21 +466,23 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                 _textEditingController.text !=
                     ref.watch(userInfoProvider).value?.nickname) {
               OverlayLoadingProgress.start(context);
-              bool success = await ref
+              ref
                   .read(userInfoProvider.notifier)
-                  .updateNickname(_textEditingController.text);
-              if (success) {
-                // 닉네임 변경 성공
-                showSimpleDialog(
-                    context: context,
-                    content: S.of(context).message_update_nickname_success);
-              } else {
-                // 닉네임 변경 실패 (중복 또는 오류)
-                showSimpleDialog(
-                    context: context,
-                    content: S.of(context).message_update_nickname_fail);
-              }
-              OverlayLoadingProgress.stop();
+                  .updateNickname(_textEditingController.text)
+                  .then((success) {
+                if (success) {
+                  // 닉네임 변경 성공
+                  showSimpleDialog(
+                      context: context,
+                      content: S.of(context).message_update_nickname_success);
+                } else {
+                  // 닉네임 변경 실패 (중복 또는 오류)
+                  showSimpleDialog(
+                      context: context,
+                      content: S.of(context).message_update_nickname_fail);
+                }
+                OverlayLoadingProgress.stop();
+              });
             }
           },
           child: Container(

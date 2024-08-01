@@ -26,8 +26,6 @@ class StoreListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // logger
-    //     .i('StoreListTile: ${title.data} index: $index, isLoading: $isLoading');
     return SizedBox(
       height: 48.w,
       width: buttonScale,

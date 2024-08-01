@@ -449,28 +449,29 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         color: AppColors.Primary500, barrierDismissible: false);
 
     try {
-      final response = await supabase.functions.invoke('voting', body: {
+      supabase.functions.invoke('voting', body: {
         'vote_id': widget.voteModel.id,
         'vote_item_id': widget.voteItemModel.id,
         'amount': voteAmount,
         'user_id': userId,
+      }).then((response) {
+        ref.read(userInfoProvider.notifier).getUserProfiles();
+        ref
+            .read(
+                asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier)
+            .fetch(voteId: widget.voteModel.id);
+
+        Navigator.pop(context);
+        showVotingCompleteDialog(
+          context: context,
+          voteModel: widget.voteModel,
+          voteItemModel: widget.voteItemModel,
+          result: response.data,
+        );
+
+        logger.i('투표 완료: ${response.data}');
+        logger.i(response.status);
       });
-
-      ref.read(userInfoProvider.notifier).getUserProfiles();
-      ref
-          .read(asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier)
-          .fetch(voteId: widget.voteModel.id);
-
-      Navigator.pop(context);
-      showVotingCompleteDialog(
-        context: context,
-        voteModel: widget.voteModel,
-        voteItemModel: widget.voteItemModel,
-        result: response.data,
-      );
-
-      logger.i('투표 완료: ${response.data}');
-      logger.i(response.status);
     } catch (e, s) {
       logger.e(e, stackTrace: s);
       Sentry.captureException(
