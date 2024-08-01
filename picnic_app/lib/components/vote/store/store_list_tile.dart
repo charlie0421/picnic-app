@@ -38,13 +38,13 @@ class StoreListTile extends StatelessWidget {
           SizedBox(width: 16.w),
           Expanded(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [title, if (subtitle != null) subtitle!],
             ),
           ),
           SizedBox(
-            height: 32.w,
+            height: 32.h,
             child: ElevatedButton(
               onPressed: isLoading ? null : buttonOnPressed,
               child: isLoading
