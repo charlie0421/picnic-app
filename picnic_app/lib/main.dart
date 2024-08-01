@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:http/http.dart' as http;
 // import 'package:http/http.dart' as http;
 import 'package:picnic_app/app.dart';
 import 'package:picnic_app/constants.dart';
@@ -27,13 +28,14 @@ import 'package:timezone/data/latest.dart' as tz;
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
 
+  final customHttpClient = RetryHttpClient(http.Client());
   await Supabase.initialize(
     url: supabaseOptions.url,
     anonKey: supabaseOptions.anonKey,
     authOptions: const FlutterAuthClientOptions(
         autoRefreshToken: true, detectSessionInUri: false),
     debug: true,
-    // httpClient: kDebugMode ? LoggingHttpClient(http.Client()) : null)
+    httpClient: customHttpClient,
   );
 
   await Firebase.initializeApp(

@@ -1,8 +1,26 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:http/http.dart' as http;
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/util/auth_service.dart';
+import 'package:retry/retry.dart';
+
+class RetryHttpClient extends http.BaseClient {
+  final http.Client _inner;
+  final int maxAttempts;
+
+  RetryHttpClient(this._inner, {this.maxAttempts = 3});
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) {
+    return retry(
+      () => _inner.send(request),
+      maxAttempts: maxAttempts,
+      onRetry: (e) => print('재시도 중: $e'),
+    );
+  }
+}
 
 class NetworkCheck {
   static Future<bool> isOnline() async {
