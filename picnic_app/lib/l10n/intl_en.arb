@@ -679,7 +679,7 @@
   "@share_image_success": {
     "translationTimestamp": "2024-07-31T21:25:13.491587"
   },
-  "share_no_twitter": "I don't have the Twitter app",
+  "share_no_twitter": "X app is missing.",
   "@share_no_twitter": {
     "translationTimestamp": "2024-07-31T21:25:13.491587"
   },

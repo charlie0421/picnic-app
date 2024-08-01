@@ -279,8 +279,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "page_title_vote_gather": MessageLookupByLibrary.simpleMessage("收集选票"),
         "share_image_fail": MessageLookupByLibrary.simpleMessage("图像共享失败"),
         "share_image_success": MessageLookupByLibrary.simpleMessage("成功共享图像"),
-        "share_no_twitter":
-            MessageLookupByLibrary.simpleMessage("我没有 Twitter 应用程序"),
+        "share_no_twitter": MessageLookupByLibrary.simpleMessage("X 应用程序丢失。"),
         "share_twitter": MessageLookupByLibrary.simpleMessage("在 Twitter 上分享"),
         "text_ads_random": MessageLookupByLibrary.simpleMessage("查看广告并收集随机图片。"),
         "text_bonus": MessageLookupByLibrary.simpleMessage("奖金"),

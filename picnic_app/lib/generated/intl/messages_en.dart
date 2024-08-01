@@ -331,8 +331,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Image sharing failed"),
         "share_image_success":
             MessageLookupByLibrary.simpleMessage("Shared image successfully"),
-        "share_no_twitter": MessageLookupByLibrary.simpleMessage(
-            "I don\'t have the Twitter app"),
+        "share_no_twitter":
+            MessageLookupByLibrary.simpleMessage("X app is missing."),
         "share_twitter":
             MessageLookupByLibrary.simpleMessage("Share on Twitter"),
         "text_ads_random": MessageLookupByLibrary.simpleMessage(

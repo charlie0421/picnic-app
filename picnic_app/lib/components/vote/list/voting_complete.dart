@@ -16,6 +16,7 @@ import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
@@ -128,13 +129,10 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                 .shareToTwitter(S.of(context).share_twitter, path);
         logger.d('이미지 공유 결과: $result');
         if (result == 'ERROR_APP_NOT_AVAILABLE') {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              duration: Duration(milliseconds: 300),
-              content: Text('트위터 앱이 없습니다.')));
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              duration: const Duration(milliseconds: 300),
-              content: Text(S.of(context).share_image_success)));
+          showSimpleDialog(
+            context: context,
+            content: S.of(context).share_no_twitter,
+          );
         }
       });
     } catch (e) {
