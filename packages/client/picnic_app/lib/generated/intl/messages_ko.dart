@@ -301,7 +301,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "share_image_fail": MessageLookupByLibrary.simpleMessage("이미지 공유 실패"),
         "share_image_success":
             MessageLookupByLibrary.simpleMessage("이미지 공유 성공"),
-        "share_no_twitter": MessageLookupByLibrary.simpleMessage("트위터 앱이 없습니다"),
+        "share_no_twitter": MessageLookupByLibrary.simpleMessage("X 앱이 없습니다."),
         "share_twitter": MessageLookupByLibrary.simpleMessage("트위터 공유"),
         "text_ads_random":
             MessageLookupByLibrary.simpleMessage("광고 보기 및 무작위 이미지 수집."),

@@ -679,7 +679,7 @@
   "@share_image_success": {
     "translationTimestamp": "2024-07-31T21:25:13.486065"
   },
-  "share_no_twitter": "我没有 Twitter 应用程序",
+  "share_no_twitter": "X 应用程序丢失。",
   "@share_no_twitter": {
     "translationTimestamp": "2024-07-31T21:25:13.486065"
   },

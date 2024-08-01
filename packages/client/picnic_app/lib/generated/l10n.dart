@@ -1740,10 +1740,10 @@ class S {
     );
   }
 
-  /// `I don't have the Twitter app`
+  /// `X app is missing.`
   String get share_no_twitter {
     return Intl.message(
-      'I don\'t have the Twitter app',
+      'X app is missing.',
       name: 'share_no_twitter',
       desc: '',
       args: [],

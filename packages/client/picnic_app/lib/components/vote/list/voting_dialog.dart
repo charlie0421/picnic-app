@@ -424,14 +424,14 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           S.of(context).label_button_vote,
           style: getTextStyle(
             AppTypo.TITLE18SB,
-            _canVote ? AppColors.Grey300 : AppColors.Grey00,
+            AppColors.Grey00,
           ),
         ),
       ),
     );
   }
 
-  void _handleVote(int myStarCandy, String userId) async {
+  void _handleVote(int myStarCandy, String userId) {
     final voteAmount = _getVoteAmount();
     if (voteAmount == 0 || myStarCandy < voteAmount) {
       showSimpleDialog(
@@ -445,48 +445,70 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       return;
     }
 
+    FocusScope.of(context).unfocus();
+
     OverlayLoadingProgress.start(context,
         color: AppColors.Primary500, barrierDismissible: false);
 
+    _performVoting(voteAmount, userId);
+  }
+
+  Future<void> _performVoting(int voteAmount, String userId) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+
     try {
-      supabase.functions.invoke('voting', body: {
+      final response = await supabase.functions.invoke('voting', body: {
         'vote_id': widget.voteModel.id,
         'vote_item_id': widget.voteItemModel.id,
         'amount': voteAmount,
         'user_id': userId,
-      }).then((response) {
-        ref.read(userInfoProvider.notifier).getUserProfiles();
-        ref
-            .read(
-                asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier)
-            .fetch(voteId: widget.voteModel.id);
-
-        Navigator.pop(context);
-        showVotingCompleteDialog(
-          context: context,
-          voteModel: widget.voteModel,
-          voteItemModel: widget.voteItemModel,
-          result: response.data,
-        );
-
-        logger.i('투표 완료: ${response.data}');
-        logger.i(response.status);
       });
+
+      ref.read(userInfoProvider.notifier).getUserProfiles();
+      ref
+          .read(asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier)
+          .fetch(voteId: widget.voteModel.id);
+
+      OverlayLoadingProgress.stop();
+
+      if (!mounted) return;
+
+      Navigator.of(context).pop();
+
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      if (!mounted) return;
+
+      _showVotingCompleteDialog(response.data);
+
+      logger.i('투표 완료: ${response.data}');
+      logger.i(response.status);
     } catch (e, s) {
       logger.e(e, stackTrace: s);
-      Sentry.captureException(
-        e,
-        stackTrace: s,
-      );
-
-      showSimpleDialog(
-        context: context,
-        title: S.of(context).dialog_title_vote_fail,
-        onOk: () => Navigator.pop(context),
-      );
-    } finally {
+      Sentry.captureException(e, stackTrace: s);
       OverlayLoadingProgress.stop();
+
+      if (!mounted) return;
+
+      _showVotingFailDialog();
     }
+  }
+
+  void _showVotingCompleteDialog(dynamic result) {
+    showVotingCompleteDialog(
+      context: context,
+      voteModel: widget.voteModel,
+      voteItemModel: widget.voteItemModel,
+      result: result,
+    );
+  }
+
+  void _showVotingFailDialog() {
+    showSimpleDialog(
+      context: context,
+      content: S.of(context).dialog_title_vote_fail,
+      onOk: () => Navigator.of(context).pop(),
+    );
   }
 }
 

@@ -299,8 +299,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("投票集を見る"),
         "share_image_fail": MessageLookupByLibrary.simpleMessage("画像共有に失敗"),
         "share_image_success": MessageLookupByLibrary.simpleMessage("画像共有成功"),
-        "share_no_twitter":
-            MessageLookupByLibrary.simpleMessage("Twitterアプリがありません"),
+        "share_no_twitter": MessageLookupByLibrary.simpleMessage("Xアプリがありません。"),
         "share_twitter": MessageLookupByLibrary.simpleMessage("Twitter共有"),
         "text_ads_random":
             MessageLookupByLibrary.simpleMessage("広告表示とランダム画像収集。"),
