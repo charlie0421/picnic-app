@@ -110,16 +110,6 @@ class S {
     );
   }
 
-  /// `Next month's disappearing star candy😢`
-  String get candy_disappear_next_month {
-    return Intl.message(
-      'Next month\'s disappearing star candy😢',
-      name: 'candy_disappear_next_month',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `You can spend an unlimited amount of purchased Star Candy, but bonus Star Candy expires in bulk on the 15th of the month following the month in which it was earned.`
   String get candy_usage_policy_contents {
     return Intl.message(
@@ -140,10 +130,10 @@ class S {
     );
   }
 
-  /// `*Bonuses disappear the month after you earn them! ⓘ`
+  /// `*보너스는 획득한 다음달에 사라져요! ⓘ`
   String get candy_usage_policy_guide {
     return Intl.message(
-      '*Bonuses disappear the month after you earn them! ⓘ',
+      '*보너스는 획득한 다음달에 사라져요! ⓘ',
       name: 'candy_usage_policy_guide',
       desc: '',
       args: [],
@@ -155,6 +145,16 @@ class S {
     return Intl.message(
       'Stardust Usage Policy',
       name: 'candy_usage_policy_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `다음 달 사라지는 별사탕😢`
+  String get candy_disappear_next_month {
+    return Intl.message(
+      '다음 달 사라지는 별사탕😢',
+      name: 'candy_disappear_next_month',
       desc: '',
       args: [],
     );
@@ -175,6 +175,36 @@ class S {
     return Intl.message(
       'Confirm',
       name: 'dialog_button_ok',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `There was an error with your purchase, please try again later.`
+  String get dialog_message_purchase_failed {
+    return Intl.message(
+      'There was an error with your purchase, please try again later.',
+      name: 'dialog_message_purchase_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your purchase has been successfully completed.`
+  String get dialog_message_purchase_success {
+    return Intl.message(
+      'Your purchase has been successfully completed.',
+      name: 'dialog_message_purchase_success',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your purchase has been canceled.`
+  String get dialog_message_purchase_canceled {
+    return Intl.message(
+      'Your purchase has been canceled.',
+      name: 'dialog_message_purchase_canceled',
       desc: '',
       args: [],
     );
@@ -220,46 +250,6 @@ class S {
     );
   }
 
-  /// `When you can rejoin if you cancel your membership now`
-  String get dialog_message_can_resignup {
-    return Intl.message(
-      'When you can rejoin if you cancel your membership now',
-      name: 'dialog_message_can_resignup',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Your purchase has been canceled.`
-  String get dialog_message_purchase_canceled {
-    return Intl.message(
-      'Your purchase has been canceled.',
-      name: 'dialog_message_purchase_canceled',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `There was an error with your purchase, please try again later.`
-  String get dialog_message_purchase_failed {
-    return Intl.message(
-      'There was an error with your purchase, please try again later.',
-      name: 'dialog_message_purchase_failed',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Your purchase has been successfully completed.`
-  String get dialog_message_purchase_success {
-    return Intl.message(
-      'Your purchase has been successfully completed.',
-      name: 'dialog_message_purchase_success',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `The purchase failed.`
   String get dialog_purchases_fail {
     return Intl.message(
@@ -295,16 +285,6 @@ class S {
     return Intl.message(
       'Voting Failed',
       name: 'dialog_title_vote_fail',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Starscapes to be deleted`
-  String get dialog_will_delete_star_candy {
-    return Intl.message(
-      'Starscapes to be deleted',
-      name: 'dialog_will_delete_star_candy',
       desc: '',
       args: [],
     );
@@ -365,6 +345,26 @@ class S {
     return Intl.message(
       'Are you sure you want to leave?',
       name: 'dialog_withdraw_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Starscapes to be deleted`
+  String get dialog_will_delete_star_candy {
+    return Intl.message(
+      'Starscapes to be deleted',
+      name: 'dialog_will_delete_star_candy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `When you can rejoin if you cancel your membership now`
+  String get dialog_message_can_resignup {
+    return Intl.message(
+      'When you can rejoin if you cancel your membership now',
+      name: 'dialog_message_can_resignup',
       desc: '',
       args: [],
     );
@@ -500,11 +500,31 @@ class S {
     );
   }
 
-  /// `Close`
+  /// `닫기`
   String get label_button_close {
     return Intl.message(
-      'Close',
+      '닫기',
       name: 'label_button_close',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You have exhausted the ads available per ID.`
+  String get label_ads_exceeded {
+    return Intl.message(
+      'You have exhausted the ads available per ID.',
+      name: 'label_ads_exceeded',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `When the next ad will be available.`
+  String get label_ads_next_available_time {
+    return Intl.message(
+      'When the next ad will be available.',
+      name: 'label_ads_next_available_time',
       desc: '',
       args: [],
     );
@@ -850,16 +870,6 @@ class S {
     );
   }
 
-  /// `Please sign in`
-  String get label_mypage_should_login {
-    return Intl.message(
-      'Please sign in',
-      name: 'label_mypage_should_login',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Terms of Use`
   String get label_mypage_terms_of_use {
     return Intl.message(
@@ -895,6 +905,26 @@ class S {
     return Intl.message(
       'No ads',
       name: 'label_no_ads',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Poll closed`
+  String get message_vote_is_ended {
+    return Intl.message(
+      'Poll closed',
+      name: 'message_vote_is_ended',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This is an upcoming vote`
+  String get message_vote_is_upcoming {
+    return Intl.message(
+      'This is an upcoming vote',
+      name: 'message_vote_is_upcoming',
       desc: '',
       args: [],
     );
@@ -1075,6 +1105,36 @@ class S {
     return Intl.message(
       'Delete cache memory',
       name: 'label_setting_remove_cache',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cache memory deletion is complete`
+  String get message_setting_remove_cache {
+    return Intl.message(
+      'Cache memory deletion is complete',
+      name: 'message_setting_remove_cache',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your nickname has been successfully changed.`
+  String get message_update_nickname_success {
+    return Intl.message(
+      'Your nickname has been successfully changed.',
+      name: 'message_update_nickname_success',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Nickname change failed.\nPlease select a different nickname.`
+  String get message_update_nickname_fail {
+    return Intl.message(
+      'Nickname change failed.\nPlease select a different nickname.',
+      name: 'message_update_nickname_fail',
       desc: '',
       args: [],
     );
@@ -1430,56 +1490,6 @@ class S {
     );
   }
 
-  /// `Cache memory deletion is complete`
-  String get message_setting_remove_cache {
-    return Intl.message(
-      'Cache memory deletion is complete',
-      name: 'message_setting_remove_cache',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Nickname change failed.\nPlease select a different nickname.`
-  String get message_update_nickname_fail {
-    return Intl.message(
-      'Nickname change failed.\nPlease select a different nickname.',
-      name: 'message_update_nickname_fail',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Your nickname has been successfully changed.`
-  String get message_update_nickname_success {
-    return Intl.message(
-      'Your nickname has been successfully changed.',
-      name: 'message_update_nickname_success',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Poll closed`
-  String get message_vote_is_ended {
-    return Intl.message(
-      'Poll closed',
-      name: 'message_vote_is_ended',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `This is an upcoming vote`
-  String get message_vote_is_upcoming {
-    return Intl.message(
-      'This is an upcoming vote',
-      name: 'message_vote_is_upcoming',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Manage comments`
   String get mypage_comment {
     return Intl.message(
@@ -1760,6 +1770,26 @@ class S {
     );
   }
 
+  /// `An update is required.`
+  String get update_required_title {
+    return Intl.message(
+      'An update is required.',
+      name: 'update_required_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You need to update to the new version ({version}).`
+  String update_required_text(Object version) {
+    return Intl.message(
+      'You need to update to the new version ($version).',
+      name: 'update_required_text',
+      desc: '',
+      args: [version],
+    );
+  }
+
   /// `Viewing ads and collecting random images.`
   String get text_ads_random {
     return Intl.message(
@@ -1830,11 +1860,11 @@ class S {
     );
   }
 
-  /// `The ad stopped midway through.`
-  String get text_dialog_ad_dismissed {
+  /// `Star candy has been awarded.`
+  String get text_dialog_star_candy_received {
     return Intl.message(
-      'The ad stopped midway through.',
-      name: 'text_dialog_ad_dismissed',
+      'Star candy has been awarded.',
+      name: 'text_dialog_star_candy_received',
       desc: '',
       args: [],
     );
@@ -1850,11 +1880,21 @@ class S {
     );
   }
 
-  /// `Star candy has been awarded.`
-  String get text_dialog_star_candy_received {
+  /// `Please sign in`
+  String get label_mypage_should_login {
     return Intl.message(
-      'Star candy has been awarded.',
-      name: 'text_dialog_star_candy_received',
+      'Please sign in',
+      name: 'label_mypage_should_login',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The ad stopped midway through.`
+  String get text_dialog_ad_dismissed {
+    return Intl.message(
+      'The ad stopped midway through.',
+      name: 'text_dialog_ad_dismissed',
       desc: '',
       args: [],
     );
@@ -1970,10 +2010,10 @@ class S {
     );
   }
 
-  /// `Rank {rank}`
+  /// `{rank}위`
   String text_vote_rank(Object rank) {
     return Intl.message(
-      'Rank $rank',
+      '$rank위',
       name: 'text_vote_rank',
       desc: '',
       args: [rank],
@@ -2010,10 +2050,10 @@ class S {
     );
   }
 
-  /// `成功`
+  /// `성공`
   String get title_dialog_success {
     return Intl.message(
-      '成功',
+      '성공',
       name: 'title_dialog_success',
       desc: '',
       args: [],
@@ -2040,21 +2080,21 @@ class S {
     );
   }
 
-  /// `You have exhausted the ads available per ID.`
-  String get label_ads_exceeded {
+  /// `A new version ({version}) is available.`
+  String update_recommend_text(Object version) {
     return Intl.message(
-      'You have exhausted the ads available per ID.',
-      name: 'label_ads_exceeded',
+      'A new version ($version) is available.',
+      name: 'update_recommend_text',
       desc: '',
-      args: [],
+      args: [version],
     );
   }
 
-  /// `When the next ad will be available.`
-  String get label_ads_next_available_time {
+  /// `Update`
+  String get update_button {
     return Intl.message(
-      'When the next ad will be available.',
-      name: 'label_ads_next_available_time',
+      'Update',
+      name: 'update_button',
       desc: '',
       args: [],
     );

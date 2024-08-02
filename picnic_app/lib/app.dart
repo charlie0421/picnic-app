@@ -4,11 +4,13 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/dialogs/update_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/overlays.dart';
 import 'package:picnic_app/providers/ad_providers.dart';
@@ -28,8 +30,11 @@ import 'package:picnic_app/ui/novel_theme.dart';
 import 'package:picnic_app/ui/pic_theme.dart';
 import 'package:picnic_app/ui/vote_theme.dart';
 import 'package:picnic_app/util/ui.dart';
+import 'package:picnic_app/util/update_checker.dart';
 import 'package:screen_protector/screen_protector.dart';
 import 'package:universal_platform/universal_platform.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class App extends ConsumerStatefulWidget {
   const App({super.key});
@@ -40,14 +45,16 @@ class App extends ConsumerStatefulWidget {
 
 class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
   Widget? initScreen;
-
-  static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-  static FirebaseAnalyticsObserver observer =
+  static final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  static final FirebaseAnalyticsObserver observer =
       FirebaseAnalyticsObserver(analytics: analytics);
 
   @override
   void initState() {
     super.initState();
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      ref.read(updateCheckerProvider.notifier).checkForUpdate();
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref.read(appSettingProvider.notifier).loadSettings();
       if (!kDebugMode) await ScreenProtector.preventScreenshotOn();
@@ -58,37 +65,29 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
 
     supabase.auth.onAuthStateChange.listen((data) {
       FirebaseCrashlytics.instance.log('Auth state changed: ${data.event}');
-
       logger.i('Auth state changed: ${data.event}');
       logger.i('User: ${data.session}');
       final session = data.session;
       if (session != null) {
-        final jwtToken = session.accessToken;
-        logger.d('jwtToken: $jwtToken');
+        logger.d('jwtToken: ${session.accessToken}');
       }
     });
 
-    final appLinks = AppLinks(); // AppLinks is singleton
-
+    final appLinks = AppLinks();
     appLinks.uriLinkStream.listen((Uri uri) {
       logger.i('Incoming link: $uri');
-
       if (uri.pathSegments.contains('terms')) {
-        logger.i('Terms link');
-
-        uri.pathSegments.contains('ko')
-            ? initScreen = const TermsScreen(language: 'ko')
-            : initScreen = const TermsScreen(language: 'en');
+        initScreen = uri.pathSegments.contains('ko')
+            ? const TermsScreen(language: 'ko')
+            : const TermsScreen(language: 'en');
       } else if (uri.pathSegments.contains('privacy')) {
-        logger.i('Privacy link');
-        uri.pathSegments.contains('ko')
-            ? initScreen = const PrivacyScreen(language: 'ko')
-            : initScreen = const PrivacyScreen(language: 'en');
+        initScreen = uri.pathSegments.contains('ko')
+            ? const PrivacyScreen(language: 'ko')
+            : const PrivacyScreen(language: 'en');
       } else {
         ref.read(userInfoProvider.notifier).getUserProfiles();
       }
     }, onError: (err) {
-      // Handle error
       logger.e('Error: $err');
     });
   }
@@ -96,7 +95,6 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
   @override
   void dispose() {
     ScreenProtector.preventScreenshotOff();
-
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -107,24 +105,17 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
     if (isMobile()) {
       if (state == AppLifecycleState.inactive) {
         blackScreenOverlaySupport ??= showOverlay(
-          (BuildContext context, t) {
-            return Container(
-              color: blackScreenColor,
-            );
-          },
-          duration: Duration.zero,
-        );
+            (context, t) => Container(color: blackScreenColor),
+            duration: Duration.zero);
       } else if (state == AppLifecycleState.resumed) {
         clearBlackScreenOverlay();
       }
-      // }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final appSettingState = ref.watch(appSettingProvider);
-
     Future.microtask(() {
       ref.read(serverProductsProvider);
       ref.read(storeProductsProvider);
@@ -136,56 +127,61 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
     return ScreenUtilInit(
       child: OverlaySupport.global(
         child: MaterialApp(
-            title: 'Picnic',
-            theme: _getCurrentTheme(),
-            themeMode: appSettingState.themeMode,
-            locale: appSettingState.locale,
-            localizationsDelegates: const [
-              S.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: S.delegate.supportedLocales,
-            routes: {
-              Portal.routeName: (context) => const Portal(),
-              SignUpScreen.routeName: (context) => const SignUpScreen(),
-              '/pic-camera': (context) => const PicCameraScreen(),
-              TermsScreen.routeName: (context) => const TermsScreen(),
-              PrivacyScreen.routeName: (context) => const PrivacyScreen(),
-            },
-            navigatorObservers: [observer],
-            home: UniversalPlatform.isWeb
-                ? initScreen ?? const Portal()
-                : FlutterSplashScreen.fadeIn(
-                    useImmersiveMode: true,
-                    duration: const Duration(milliseconds: 3000),
-                    animationDuration: const Duration(milliseconds: 3000),
-                    childWidget: SizedBox(
-                        width: getPlatformScreenSize(context).width,
-                        height: getPlatformScreenSize(context).height,
-                        child: Image.asset("assets/splash.png",
-                            fit: BoxFit.cover)),
-                    nextScreen: initScreen ?? const Portal())),
+          navigatorKey: navigatorKey,
+          title: 'Picnic',
+          theme: _getCurrentTheme(),
+          themeMode: appSettingState.themeMode,
+          locale: appSettingState.locale,
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.delegate.supportedLocales,
+          routes: {
+            Portal.routeName: (context) => const Portal(),
+            SignUpScreen.routeName: (context) => const SignUpScreen(),
+            '/pic-camera': (context) => const PicCameraScreen(),
+            TermsScreen.routeName: (context) => const TermsScreen(),
+            PrivacyScreen.routeName: (context) => const PrivacyScreen(),
+          },
+          navigatorObservers: [observer],
+          builder: (context, child) =>
+              UpdateDialog(child: child ?? const SizedBox.shrink()),
+          home: UniversalPlatform.isWeb
+              ? initScreen ?? const Portal()
+              : FlutterSplashScreen.fadeIn(
+                  useImmersiveMode: true,
+                  duration: const Duration(milliseconds: 3000),
+                  animationDuration: const Duration(milliseconds: 3000),
+                  childWidget: SizedBox(
+                    width: getPlatformScreenSize(context).width,
+                    height: getPlatformScreenSize(context).height,
+                    child: Image.asset("assets/splash.png", fit: BoxFit.cover),
+                  ),
+                  nextScreen: initScreen ?? const Portal(),
+                ),
+        ),
       ),
     );
   }
 
-  _getCurrentTheme() {
+  ThemeData _getCurrentTheme() {
     final currentPortal = ref.watch(navigationInfoProvider);
-
-    if (currentPortal.portalType == PortalType.vote) {
-      return voteThemeLight;
-    } else if (currentPortal.portalType == PortalType.pic) {
-      return picThemeLight;
-    } else if (currentPortal.portalType == PortalType.community) {
-      return communityThemeLight;
-    } else if (currentPortal.portalType == PortalType.novel) {
-      return novelThemeLight;
-    } else if (currentPortal.portalType == PortalType.mypage) {
-      return mypageThemeLight;
-    } else {
-      return picThemeLight;
+    switch (currentPortal.portalType) {
+      case PortalType.vote:
+        return voteThemeLight;
+      case PortalType.pic:
+        return picThemeLight;
+      case PortalType.community:
+        return communityThemeLight;
+      case PortalType.novel:
+        return novelThemeLight;
+      case PortalType.mypage:
+        return mypageThemeLight;
+      default:
+        return picThemeLight;
     }
   }
 }
