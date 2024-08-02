@@ -15,6 +15,8 @@ import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
+import 'package:picnic_app/util/update_checker.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class SettingPage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_setting';
@@ -45,6 +47,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     final appSettingState = ref.watch(appSettingProvider);
     final appSettingNotifier = ref.read(appSettingProvider.notifier);
     final userInfoState = ref.watch(userInfoProvider);
+    final updateChecker = ref.watch(updateCheckerProvider);
 
     return userInfoState.when(
         data: (data) => Container(
@@ -202,27 +205,59 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   Text(S.of(context).label_setting_appinfo,
                       style: getTextStyle(AppTypo.BODY14B, AppColors.Grey600)),
                   const Divider(color: AppColors.Grey200),
-                  data != null && data.is_admin
-                      ? ListItem(
-                          leading:
-                              '${S.of(context).label_setting_current_version} ${asyncPlatformInfoState.value?.version ?? ''}(${asyncPlatformInfoState.value?.buildNumber ?? ''})',
-                          title: Align(
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                              S.of(context).label_setting_update,
-                              // S.of(context).label_setting_recent_version,
-                              style: getTextStyle(
-                                  AppTypo.CAPTION12B, AppColors.Primary500),
-                              textAlign: TextAlign.start,
-                            ),
-                          ),
-                          assetPath: 'assets/icons/arrow_right_style=line.svg',
-                          onTap: () {})
-                      : ListItem(
-                          leading:
-                              '${S.of(context).label_setting_current_version} ${asyncPlatformInfoState.value?.version ?? ''}',
-                          assetPath: 'assets/icons/arrow_right_style=line.svg',
-                          onTap: () {}),
+                  updateChecker.when(
+                      data: (info) {
+                        if (info == null) {
+                          return Container();
+                        }
+                        switch (info.status) {
+                          case UpdateStatus.updateRequired:
+                            return ListItem(
+                              leading:
+                                  '${S.of(context).label_setting_current_version} ${info.currentVersion}',
+                              title: Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  '${S.of(context).label_setting_recent_version} (${info.latestVersion})',
+                                  style: getTextStyle(
+                                      AppTypo.CAPTION12B, AppColors.Primary500),
+                                  textAlign: TextAlign.start,
+                                ),
+                              ),
+                              assetPath:
+                                  'assets/icons/arrow_right_style=line.svg',
+                              onTap: () async {
+                                (await canLaunchUrlString(info.url!))
+                                    ? launchUrlString(info.url!)
+                                    : throw '앱 스토어를 열 수 없습니다.';
+                              },
+                            );
+                          case UpdateStatus.updateRecommended:
+                          case UpdateStatus.upToDate:
+                            return ListItem(
+                              leading:
+                                  '${S.of(context).label_setting_current_version} ${info.currentVersion}',
+                              title: Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  '${S.of(context).label_setting_recent_version} (${info.latestVersion})',
+                                  style: getTextStyle(
+                                      AppTypo.CAPTION12B, AppColors.Primary500),
+                                  textAlign: TextAlign.start,
+                                ),
+                              ),
+                              assetPath:
+                                  'assets/icons/arrow_right_style=line.svg',
+                              onTap: () async {
+                                (await canLaunchUrlString(info.url!))
+                                    ? launchUrlString(info.url!)
+                                    : throw '앱 스토어를 열 수 없습니다.';
+                              },
+                            );
+                        }
+                      },
+                      loading: () => buildLoadingOverlay(),
+                      error: (_, __) => Container()),
                 ],
               ),
             ),
