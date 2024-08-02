@@ -13,6 +13,8 @@ class PicnicCachedNetworkImage extends StatefulWidget {
   final BoxFit? fit;
   final ImageWidgetBuilder? imageBuilder;
   bool? useScreenUtil = true;
+  final int? memCacheWidth;
+  final int? memCacheHeight;
 
   PicnicCachedNetworkImage({
     super.key,
@@ -22,6 +24,8 @@ class PicnicCachedNetworkImage extends StatefulWidget {
     this.fit = BoxFit.cover,
     this.useScreenUtil,
     this.imageBuilder,
+    this.memCacheWidth,
+    this.memCacheHeight,
   });
 
   @override

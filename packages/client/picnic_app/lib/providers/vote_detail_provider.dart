@@ -33,7 +33,6 @@ class AsyncVoteDetail extends _$AsyncVoteDetail {
       logger.e('Failed to load vote detail: $e');
       logger.e('Failed to load vote detail: $s');
     }
-    return null;
   }
 }
 
