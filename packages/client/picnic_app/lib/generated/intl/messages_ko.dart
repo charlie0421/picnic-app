@@ -30,6 +30,10 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m4(rank) => "${rank}위";
 
+  static String m5(version) => "새로운 버전(${version})이 사용 가능합니다.";
+
+  static String m6(version) => "새로운 버전(${version})으로 업데이트가 필요합니다.";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "app_name": MessageLookupByLibrary.simpleMessage("피크닠"),
@@ -350,6 +354,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "title_dialog_success": MessageLookupByLibrary.simpleMessage("성공"),
         "title_select_language": MessageLookupByLibrary.simpleMessage("언어 선택"),
         "toast_max_five_celeb":
-            MessageLookupByLibrary.simpleMessage("내 아티스트를 최대 5개까지 추가할 수 있습니다.")
+            MessageLookupByLibrary.simpleMessage("내 아티스트를 최대 5개까지 추가할 수 있습니다."),
+        "update_button": MessageLookupByLibrary.simpleMessage("업데이트"),
+        "update_recommend_text": m5,
+        "update_required_text": m6,
+        "update_required_title":
+            MessageLookupByLibrary.simpleMessage("업데이트가 필요합니다.")
       };
 }

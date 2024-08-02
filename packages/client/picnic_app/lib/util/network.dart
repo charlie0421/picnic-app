@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/util/auth_service.dart';
 import 'package:retry/retry.dart';
@@ -13,12 +15,25 @@ class RetryHttpClient extends http.BaseClient {
   RetryHttpClient(this._inner, {this.maxAttempts = 3});
 
   @override
-  Future<http.StreamedResponse> send(http.BaseRequest request) {
-    return retry(
-      () => _inner.send(request),
-      maxAttempts: maxAttempts,
-      onRetry: (e) => print('재시도 중: $e'),
-    );
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    try {
+      return await retry(
+        () => _inner.send(request).timeout(Duration(seconds: 30)),
+        maxAttempts: maxAttempts,
+        retryIf: (e) =>
+            e is SocketException ||
+            e is TimeoutException ||
+            e is ClientException,
+        onRetry: (e) => logger.e('재시도 중: $e'),
+      );
+    } on Exception catch (e, s) {
+      logger.e('HTTP 요청 실패: $e, $s');
+      return http.StreamedResponse(
+        Stream.fromIterable([]),
+        500,
+        reasonPhrase: '네트워크 오류',
+      );
+    }
   }
 }
 

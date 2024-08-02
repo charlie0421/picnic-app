@@ -28,7 +28,12 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m3(num1) => "${num1} +${num1} Bonus";
 
-  static String m4(rank) => "Rank ${rank}";
+  static String m4(rank) => "${rank}위";
+
+  static String m5(version) => "A new version (${version}) is available.";
+
+  static String m6(version) =>
+      "You need to update to the new version (${version}).";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -38,14 +43,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_login": MessageLookupByLibrary.simpleMessage("Sign in"),
         "button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("Save"),
-        "candy_disappear_next_month": MessageLookupByLibrary.simpleMessage(
-            "Next month\'s disappearing star candy😢"),
+        "candy_disappear_next_month":
+            MessageLookupByLibrary.simpleMessage("다음 달 사라지는 별사탕😢"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
             "You can spend an unlimited amount of purchased Star Candy, but bonus Star Candy expires in bulk on the 15th of the month following the month in which it was earned."),
         "candy_usage_policy_contents2": MessageLookupByLibrary.simpleMessage(
             "When using Star Candy, Star Candy that is about to expire is prioritized."),
-        "candy_usage_policy_guide": MessageLookupByLibrary.simpleMessage(
-            "*Bonuses disappear the month after you earn them! ⓘ"),
+        "candy_usage_policy_guide":
+            MessageLookupByLibrary.simpleMessage("*보너스는 획득한 다음달에 사라져요! ⓘ"),
         "candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("Stardust Usage Policy"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
@@ -116,7 +121,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_bonus": MessageLookupByLibrary.simpleMessage("Bonuses"),
         "label_button_agreement":
             MessageLookupByLibrary.simpleMessage("Accept"),
-        "label_button_close": MessageLookupByLibrary.simpleMessage("Close"),
+        "label_button_close": MessageLookupByLibrary.simpleMessage("닫기"),
         "label_button_disagreement":
             MessageLookupByLibrary.simpleMessage("Non-Consent"),
         "label_button_recharge":
@@ -382,10 +387,15 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Where\'s My Favorite?"),
         "title_dialog_library_add":
             MessageLookupByLibrary.simpleMessage("Add a new album"),
-        "title_dialog_success": MessageLookupByLibrary.simpleMessage("成功"),
+        "title_dialog_success": MessageLookupByLibrary.simpleMessage("성공"),
         "title_select_language":
             MessageLookupByLibrary.simpleMessage("Select a language"),
         "toast_max_five_celeb": MessageLookupByLibrary.simpleMessage(
-            "You can add up to five of your own artists.")
+            "You can add up to five of your own artists."),
+        "update_button": MessageLookupByLibrary.simpleMessage("Update"),
+        "update_recommend_text": m5,
+        "update_required_text": m6,
+        "update_required_title":
+            MessageLookupByLibrary.simpleMessage("An update is required.")
       };
 }

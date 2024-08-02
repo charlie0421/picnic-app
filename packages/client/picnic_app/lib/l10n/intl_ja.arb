@@ -2,280 +2,267 @@
   "@@locale": "ja",
   "app_name": "ピクニック",
   "@app_name": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "button_cancel": "キャンセル",
   "@button_cancel": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "button_complete": "完了",
   "@button_complete": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "button_login": "ログイン",
   "@button_login": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "button_ok": "確認",
   "@button_ok": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "button_pic_pic_save": "保存する",
   "@button_pic_pic_save": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
-  },
-  "candy_disappear_next_month": "来月で消える星空キャンディー😢。",
-  "@candy_disappear_next_month": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "candy_usage_policy_contents": "購入した星飴は無制限に使用できますが、ボーナス星飴は獲得した月の翌月15日に一括消滅します。",
   "@candy_usage_policy_contents": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "candy_usage_policy_contents2": "星飴を使用する場合、消滅が近い星飴が優先的に使用されます。",
-  "@candy_usage_policy_contents2": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
-  },
+  "@candy_usage_policy_contents2": {},
   "candy_usage_policy_guide": "*ボーナスは獲得した翌月に無くなります！ ⓘ※ボーナス",
   "@candy_usage_policy_guide": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "candy_usage_policy_title": "スターキャンディー使用ポリシー",
   "@candy_usage_policy_title": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "candy_disappear_next_month": "来月で消える星空キャンディー😢。",
+  "@candy_disappear_next_month": {},
   "dialog_button_cancel": "キャンセル",
   "@dialog_button_cancel": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "dialog_button_ok": "確認",
   "@dialog_button_ok": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "dialog_message_purchase_failed": "購入中にエラーが発生しました。 後ほど再試行してください。",
+  "@dialog_message_purchase_failed": {},
+  "dialog_message_purchase_success": "購入が正常に完了しました。",
+  "@dialog_message_purchase_success": {},
+  "dialog_message_purchase_canceled": "購入がキャンセルされました。",
+  "@dialog_message_purchase_canceled": {},
   "dialog_content_ads_exhausted": "広告がなくなりました。次回、もう一度お試しください。",
   "@dialog_content_ads_exhausted": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "dialog_content_ads_loading": "広告の読み込み中です。",
   "@dialog_content_ads_loading": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "dialog_content_ads_retrying": "広告を再呼び出し中です。しばらくしてからもう一度お試しください。",
   "@dialog_content_ads_retrying": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "dialog_content_login_required": "ログインが必要です",
   "@dialog_content_login_required": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
-  },
-  "dialog_message_can_resignup": "今すぐ退会した場合、再入会可能日",
-  "@dialog_message_can_resignup": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
-  },
-  "dialog_message_purchase_canceled": "購入がキャンセルされました。",
-  "@dialog_message_purchase_canceled": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
-  },
-  "dialog_message_purchase_failed": "購入中にエラーが発生しました。 後ほど再試行してください。",
-  "@dialog_message_purchase_failed": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
-  },
-  "dialog_message_purchase_success": "購入が正常に完了しました。",
-  "@dialog_message_purchase_success": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "dialog_purchases_fail": "購入に失敗しました。",
   "@dialog_purchases_fail": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "dialog_purchases_success": "購入が完了しました。",
   "@dialog_purchases_success": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "dialog_title_ads_exhausted": "広告完売しました",
   "@dialog_title_ads_exhausted": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "dialog_title_vote_fail": "投票失敗",
   "@dialog_title_vote_fail": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
-  },
-  "dialog_will_delete_star_candy": "削除予定 星飴",
-  "@dialog_will_delete_star_candy": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "dialog_withdraw_button_cancel": "もう一度考えてみます",
   "@dialog_withdraw_button_cancel": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "dialog_withdraw_button_ok": "退会する",
   "@dialog_withdraw_button_ok": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "dialog_withdraw_error": "退会中にエラーが発生しました。",
   "@dialog_withdraw_error": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "dialog_withdraw_message": "退会時、ピクニックで保有している星キャンディーとアカウント情報は即座に削除され、再入会時、既存の情報及びデータは復旧されません。",
   "@dialog_withdraw_message": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "dialog_withdraw_success": "退会が正常に処理されました。",
   "@dialog_withdraw_success": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "dialog_withdraw_title": "本当に退会しますか？",
   "@dialog_withdraw_title": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "dialog_will_delete_star_candy": "削除予定 星飴",
+  "@dialog_will_delete_star_candy": {},
+  "dialog_message_can_resignup": "今すぐ退会した場合、再入会可能日",
+  "@dialog_message_can_resignup": {},
   "error_message_login_failed": "ログイン中にエラーが発生しました。",
   "@error_message_login_failed": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "error_message_no_user": "会員情報が存在しません。",
   "@error_message_no_user": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "error_message_withdrawal": "退会した会員です。",
   "@error_message_withdrawal": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "error_title": "エラー",
   "@error_title": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "hint_library_add": "アルバム名",
   "@hint_library_add": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "hint_nickname_input": "ニックネームを入力してください。",
   "@hint_nickname_input": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "image_save_success": "画像が保存されました。",
   "@image_save_success": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_agreement_privacy": "個人情報収集及び利用同意",
   "@label_agreement_privacy": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_agreement_terms": "利用規約に同意する",
   "@label_agreement_terms": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_album_add": "新しいアルバムを追加",
   "@label_album_add": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_article_comment_empty": "最初のコメントの主人公になりましょう！",
   "@label_article_comment_empty": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_bonus": "ボーナス",
   "@label_bonus": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_button_agreement": "同意する",
   "@label_button_agreement": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_button_close": "閉じる",
-  "@label_button_close": {
-    "manualTranslationKey": true,
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
-  },
+  "@label_button_close": {},
+  "label_ads_exceeded": "IDごとに視聴可能な広告を使い切りました。",
+  "@label_ads_exceeded": {},
+  "label_ads_next_available_time": "次の広告視聴可能時間。",
+  "@label_ads_next_available_time": {},
   "label_button_disagreement": "非同意",
   "@label_button_disagreement": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_button_recharge": "充電する",
   "@label_button_recharge": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_button_save_vote_paper": "投票券の保存",
   "@label_button_save_vote_paper": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_button_share": "シェアする",
   "@label_button_share": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_button_vote": "投票する",
   "@label_button_vote": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_button_watch_and_charge": "広告を見てチャージする",
   "@label_button_watch_and_charge": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_celeb_ask_to_you": "アーティストがあなたに尋ねる！",
   "@label_celeb_ask_to_you": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_celeb_gallery": "アーティストギャラリー",
   "@label_celeb_gallery": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_celeb_recommend": "アーティスト推薦",
   "@label_celeb_recommend": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_checkbox_entire_use": "全体使用",
   "@label_checkbox_entire_use": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_current_language": "現在の言語",
   "@label_current_language": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_draw_image": "ランダム画像獲得チャンス",
   "@label_draw_image": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_dropdown_oldest": "古い順",
   "@label_dropdown_oldest": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_dropdown_recent": "最新順",
   "@label_dropdown_recent": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_find_celeb": "その他のアーティストを探す",
   "@label_find_celeb": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_gallery_tab_article": "記事",
   "@label_gallery_tab_article": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_gallery_tab_chat": "チャット",
   "@label_gallery_tab_chat": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_hint_comment": "コメントを残してください。",
   "@label_hint_comment": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_input_input": "入力",
   "@label_input_input": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_last_provider": "最近のログイン",
   "@label_last_provider": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_library_save": "ライブラリ保存",
   "@label_library_save": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_library_tab_ai_photo": "AIフォト",
   "@label_library_tab_ai_photo": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_library_tab_library": "ライブラリ",
   "@label_library_tab_library": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_library_tab_pic": "PIC",
   "@label_library_tab_pic": {
@@ -284,324 +271,308 @@
   },
   "label_loading_ads": "広告読み込み中",
   "@label_loading_ads": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_moveto_celeb_gallery": "アーティストギャラリーへ",
   "@label_moveto_celeb_gallery": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_mypage_charge_history": "料金内訳",
   "@label_mypage_charge_history": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_mypage_customer_center": "お客様センター",
   "@label_mypage_customer_center": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_mypage_logout": "ログアウト",
   "@label_mypage_logout": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_mypage_membership_history": "メンバーシップ履歴",
   "@label_mypage_membership_history": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_mypage_my_artist": "私のアーティスト",
-  "@label_mypage_my_artist": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
-  },
+  "@label_mypage_my_artist": {},
   "label_mypage_notice": "お知らせ",
   "@label_mypage_notice": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_mypage_privacy_policy": "個人情報保護方針",
   "@label_mypage_privacy_policy": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_mypage_setting": "Settings",
   "@label_mypage_setting": {
     "manualTranslationKey": true,
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_mypage_should_login": "ログインしてください",
-  "@label_mypage_should_login": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
-  },
   "label_mypage_terms_of_use": "利用規約",
   "@label_mypage_terms_of_use": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_mypage_vote_history": "スターキャンディーの投票履歴",
   "@label_mypage_vote_history": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_mypage_withdrawal": "退会する",
   "@label_mypage_withdrawal": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_no_ads": "広告なし",
   "@label_no_ads": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "message_vote_is_ended": "投票は終了しました",
+  "@message_vote_is_ended": {},
+  "message_vote_is_upcoming": "予定されている投票です",
+  "@message_vote_is_upcoming": {},
   "label_no_celeb": "まだブックマークしたアーティストはいません！",
   "@label_no_celeb": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_pic_image_cropping": "画像の切り抜き",
   "@label_pic_image_cropping": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_pic_pic_initializing_camera": "カメラの初期化中...",
   "@label_pic_pic_initializing_camera": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_pic_pic_save_gallery": "ギャラリーに保存",
   "@label_pic_pic_save_gallery": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_pic_pic_synthesizing_image": "画像合成中...",
   "@label_pic_pic_synthesizing_image": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_read_more_comment": "コメントをもっと見る",
   "@label_read_more_comment": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_reply": "返信する",
   "@label_reply": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_retry": "再試行する",
   "@label_retry": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_screen_title_agreement": "規約に同意する",
   "@label_screen_title_agreement": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_setting_alarm": "お知らせ",
   "@label_setting_alarm": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_setting_appinfo": "アプリ情報",
   "@label_setting_appinfo": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_setting_current_version": "現在のバージョン",
   "@label_setting_current_version": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_setting_event_alarm": "イベントお知らせ",
   "@label_setting_event_alarm": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_setting_event_alarm_desc": "各種イベントや行事をご案内します。",
   "@label_setting_event_alarm_desc": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_setting_language": "言語設定",
   "@label_setting_language": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_setting_push_alarm": "プッシュ通知",
   "@label_setting_push_alarm": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_setting_recent_version": "最新バージョン",
   "@label_setting_recent_version": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_setting_remove_cache": "キャッシュメモリの削除",
   "@label_setting_remove_cache": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "message_setting_remove_cache": "キャッシュメモリの削除が完了しました",
+  "@message_setting_remove_cache": {},
+  "message_update_nickname_success": "ニックネームが正常に変更されました。",
+  "@message_update_nickname_success": {},
+  "message_update_nickname_fail": "ニックネームの変更に失敗しました。\n別のニックネームを選択してください。",
+  "@message_update_nickname_fail": {},
   "label_setting_remove_cache_complete": "完了",
   "@label_setting_remove_cache_complete": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_setting_storage": "ストレージスペース管理",
   "@label_setting_storage": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_setting_update": "最新情報",
   "@label_setting_update": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_star_candy_pouch": "スターキャンディーの袋",
   "@label_star_candy_pouch": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_tab_buy_star_candy": "スターキャンディーの購入",
   "@label_tab_buy_star_candy": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_tab_free_charge_station": "無料充電ステーション",
   "@label_tab_free_charge_station": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_tabbar_picchart_daily": "日足チャート",
   "@label_tabbar_picchart_daily": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_tabbar_picchart_monthly": "月間チャート",
   "@label_tabbar_picchart_monthly": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_tabbar_picchart_weekly": "週間チャート",
   "@label_tabbar_picchart_weekly": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_tabbar_vote_active": "進行中",
   "@label_tabbar_vote_active": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_tabbar_vote_end": "終了",
   "@label_tabbar_vote_end": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_tabbar_vote_upcoming": "予定",
   "@label_tabbar_vote_upcoming": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_time_ago_day": "PH0___日前",
   "@label_time_ago_day": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_time_ago_hour": "PH0___時間前",
   "@label_time_ago_hour": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_time_ago_minute": "PH0__分前",
   "@label_time_ago_minute": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_time_ago_right_now": "先ほど",
   "@label_time_ago_right_now": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_title_comment": "コメント",
   "@label_title_comment": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_title_report": "報告する",
   "@label_title_report": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_vote_reward_list": "リワードリスト",
   "@label_vote_reward_list": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_vote_screen_title": "投票",
   "@label_vote_screen_title": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_vote_tab_birthday": "誕生日投票",
   "@label_vote_tab_birthday": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_vote_tab_pic": "PIC投票",
   "@label_vote_tab_pic": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_vote_upcoming": "投票開始まで",
   "@label_vote_upcoming": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_vote_vote_gather": "投票集を見る",
   "@label_vote_vote_gather": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_watch_ads": "広告を見る",
   "@label_watch_ads": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "lable_my_celeb": "私のアーティスト",
   "@lable_my_celeb": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "message_agreement_success": "規約の同意が完了しました。",
   "@message_agreement_success": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "message_error_occurred": "エラーが発生しました。",
   "@message_error_occurred": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "message_noitem_vote_active": "現在進行中の投票はありません。",
   "@message_noitem_vote_active": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "message_noitem_vote_end": "現在、終了した投票はありません。",
   "@message_noitem_vote_end": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "message_noitem_vote_upcoming": "現在予定されている投票はありません。",
   "@message_noitem_vote_upcoming": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "message_pic_pic_save_fail": "画像の保存に失敗しました。",
   "@message_pic_pic_save_fail": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "message_pic_pic_save_success": "画像が保存されました。",
   "@message_pic_pic_save_success": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "message_report_confirm": "申告しますか？",
   "@message_report_confirm": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "message_report_ok": "申告が完了しました。",
   "@message_report_ok": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
-  },
-  "message_setting_remove_cache": "キャッシュメモリの削除が完了しました",
-  "@message_setting_remove_cache": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
-  },
-  "message_update_nickname_fail": "ニックネームの変更に失敗しました。\n別のニックネームを選択してください。",
-  "@message_update_nickname_fail": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
-  },
-  "message_update_nickname_success": "ニックネームが正常に変更されました。",
-  "@message_update_nickname_success": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
-  },
-  "message_vote_is_ended": "投票は終了しました",
-  "@message_vote_is_ended": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
-  },
-  "message_vote_is_upcoming": "予定されている投票です",
-  "@message_vote_is_upcoming": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "mypage_comment": "コメント管理",
   "@mypage_comment": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "mypage_language": "言語設定",
   "@mypage_language": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "mypage_purchases": "私の購入",
   "@mypage_purchases": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "mypage_setting": "設定",
   "@mypage_setting": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "mypage_subscription": "購読情報",
   "@mypage_subscription": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "nav_ads": "広告",
   "@nav_ads": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "nav_gallery": "ギャラリー",
   "@nav_gallery": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "nav_home": "홈",
   "@nav_home": {
@@ -609,203 +580,205 @@
   },
   "nav_library": "ライブラリ",
   "@nav_library": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "nav_media": "メディア",
   "@nav_media": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "nav_picchart": "PICチャート",
   "@nav_picchart": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "nav_purchases": "購入",
   "@nav_purchases": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "nav_setting": "設定",
   "@nav_setting": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "nav_store": "ショップ",
   "@nav_store": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "nav_subscription": "サブスクリプション",
   "@nav_subscription": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "nav_vote": "投票",
   "@nav_vote": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "nickname_validation_error": "20文字以内、特殊文字を除くことができます。",
   "@nickname_validation_error": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "page_title_mypage": "マイページ",
   "@page_title_mypage": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "page_title_myprofile": "私のプロフィール",
   "@page_title_myprofile": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "page_title_privacy": "個人情報保護方針",
   "@page_title_privacy": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "page_title_setting": "環境設定",
   "@page_title_setting": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "page_title_terms_of_use": "利用規約",
   "@page_title_terms_of_use": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "page_title_vote_detail": "投票する",
   "@page_title_vote_detail": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "page_title_vote_gather": "投票集を見る",
   "@page_title_vote_gather": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "share_image_fail": "画像共有に失敗",
   "@share_image_fail": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "share_image_success": "画像共有成功",
   "@share_image_success": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "share_no_twitter": "Xアプリがありません。",
   "@share_no_twitter": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "share_twitter": "Twitter共有",
   "@share_twitter": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "update_required_title": "アップデートが必要です。",
+  "@update_required_title": {},
+  "update_required_text": "新しいバージョン({version})へのアップデートが必要です。",
+  "@update_required_text": {},
   "text_ads_random": "広告表示とランダム画像収集。",
   "@text_ads_random": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "text_bonus": "ボーナス",
   "@text_bonus": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "text_comming_soon_pic_chart1": "ピックチャートへようこそ！\n2024年8月にお会いしましょう！",
   "@text_comming_soon_pic_chart1": {
     "manualTranslationKey": true,
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "text_comming_soon_pic_chart2": "ピックチャートは、日次、週次、月次のスコアを反映している\nピクニックならではの新しいチャートです。",
   "@text_comming_soon_pic_chart2": {
     "manualTranslationKey": true,
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "text_comming_soon_pic_chart3": "リアルタイムで反映される\nアーティストのブランド評判をご確認ください！",
   "@text_comming_soon_pic_chart3": {
     "manualTranslationKey": true,
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "text_comming_soon_pic_chart_title": "ピクチャーチャートとは？",
   "@text_comming_soon_pic_chart_title": {
     "manualTranslationKey": true,
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "text_copied_address": "アドレスがコピーされました。",
   "@text_copied_address": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
-  },
-  "text_dialog_ad_dismissed": "広告を途中で止めました。",
-  "@text_dialog_ad_dismissed": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
-  },
-  "text_dialog_ad_failed_to_show": "広告の読み込みに失敗",
-  "@text_dialog_ad_failed_to_show": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "text_dialog_star_candy_received": "星飴が支給されました。",
   "@text_dialog_star_candy_received": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "text_dialog_ad_failed_to_show": "広告の読み込みに失敗",
+  "@text_dialog_ad_failed_to_show": {},
+  "label_mypage_should_login": "ログインしてください",
+  "@label_mypage_should_login": {},
+  "text_dialog_ad_dismissed": "広告を途中で止めました。",
+  "@text_dialog_ad_dismissed": {},
   "text_dialog_vote_amount_should_not_zero": "投票数は0にすることはできません。",
   "@text_dialog_vote_amount_should_not_zero": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "text_draw_image": "全ギャラリーのうち、1枚の画像を確定的に所蔵",
   "@text_draw_image": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "text_hint_search": "アーティストを検索してください。",
   "@text_hint_search": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "text_moveto_celeb_gallery": "選択したアーティストの家に移動します。",
   "@text_moveto_celeb_gallery": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "text_need_recharge": "充電が必要です。",
   "@text_need_recharge": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "text_no_search_result": "検索結果がありません。",
   "@text_no_search_result": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "text_purchase_vat_included": "*価格はVAT込みの価格です。",
   "@text_purchase_vat_included": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "text_star_candy": "スターキャンディー",
   "@text_star_candy": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "text_star_candy_with_bonus": "PH0___個 +{num1}_個のボーナス",
   "@text_star_candy_with_bonus": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "text_this_time_vote": "今回の投票",
   "@text_this_time_vote": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "text_vote_complete": "投票完了",
   "@text_vote_complete": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "text_vote_rank": "{rank}位",
+  "text_vote_rank": "PH0__위",
   "@text_vote_rank": {
     "manualTranslationKey": true,
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "text_vote_rank_in_reward": "ランクインリワード",
   "@text_vote_rank_in_reward": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "text_vote_where_is_my_bias": "私のお気に入りはどこ？",
   "@text_vote_where_is_my_bias": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "title_dialog_library_add": "新しいアルバムを追加",
   "@title_dialog_library_add": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "title_dialog_success": "成功",
   "@title_dialog_success": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "title_select_language": "言語の選択",
   "@title_select_language": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "toast_max_five_celeb": "マイアーティストは最大5人まで追加できます。",
   "@toast_max_five_celeb": {
-    "translationTimestamp": "2024-07-31T21:25:13.458979"
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_ads_exceeded": "IDごとに視聴可能な広告をすべて使い切りました。",
-  "@label_ads_exceeded": {},
-  "label_ads_next_available_time": "次の広告視聴可能時間。",
-  "@label_ads_next_available_time": {}
+  "update_recommend_text": "新しいバージョン({version})が利用可能です。",
+  "@update_recommend_text": {},
+  "update_button": "最新情報",
+  "@update_button": {}
 }

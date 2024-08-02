@@ -28,7 +28,11 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m3(num1) => "PH0___個 +${num1}_個のボーナス";
 
-  static String m4(rank) => "${rank}位";
+  static String m4(rank) => "PH0__위";
+
+  static String m5(version) => "新しいバージョン(${version})が利用可能です。";
+
+  static String m6(version) => "新しいバージョン(${version})へのアップデートが必要です。";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -100,7 +104,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "image_save_success":
             MessageLookupByLibrary.simpleMessage("画像が保存されました。"),
         "label_ads_exceeded":
-            MessageLookupByLibrary.simpleMessage("IDごとに視聴可能な広告をすべて使い切りました。"),
+            MessageLookupByLibrary.simpleMessage("IDごとに視聴可能な広告を使い切りました。"),
         "label_ads_next_available_time":
             MessageLookupByLibrary.simpleMessage("次の広告視聴可能時間。"),
         "label_agreement_privacy":
@@ -347,6 +351,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "title_dialog_success": MessageLookupByLibrary.simpleMessage("成功"),
         "title_select_language": MessageLookupByLibrary.simpleMessage("言語の選択"),
         "toast_max_five_celeb":
-            MessageLookupByLibrary.simpleMessage("マイアーティストは最大5人まで追加できます。")
+            MessageLookupByLibrary.simpleMessage("マイアーティストは最大5人まで追加できます。"),
+        "update_button": MessageLookupByLibrary.simpleMessage("最新情報"),
+        "update_recommend_text": m5,
+        "update_required_text": m6,
+        "update_required_title":
+            MessageLookupByLibrary.simpleMessage("アップデートが必要です。")
       };
 }

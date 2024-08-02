@@ -28,7 +28,11 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m3(num1) => "${num1}+${num1}奖金";
 
-  static String m4(rank) => "第${rank}名";
+  static String m4(rank) => "${rank}위";
+
+  static String m5(version) => "新版本（${version}）已发布。";
+
+  static String m6(version) => "您需要更新到新版本 (${version})。";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -324,6 +328,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "title_dialog_success": MessageLookupByLibrary.simpleMessage("成功"),
         "title_select_language": MessageLookupByLibrary.simpleMessage("选择语言"),
         "toast_max_five_celeb":
-            MessageLookupByLibrary.simpleMessage("您最多可以添加五位自己的艺术家。")
+            MessageLookupByLibrary.simpleMessage("您最多可以添加五位自己的艺术家。"),
+        "update_button": MessageLookupByLibrary.simpleMessage("更新"),
+        "update_recommend_text": m5,
+        "update_required_text": m6,
+        "update_required_title": MessageLookupByLibrary.simpleMessage("需要更新。")
       };
 }
