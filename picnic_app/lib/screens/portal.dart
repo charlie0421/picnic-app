@@ -50,40 +50,43 @@ class _PortalState extends ConsumerState<Portal> {
                       .select((value) => value.showTopMenu))
                   ? 56.h
                   : 0,
-              leading: Container(
-                width: 24.h,
-                height: 24.h,
-                alignment: Alignment.center,
-                child: Builder(
-                  builder: (context) => supabase.isLogged
-                      ? userInfoState.when(
-                          data: (data) => data != null
-                              ? GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onTap: () {
-                                    Scaffold.of(context).openDrawer();
-                                  },
-                                  child: ProfileImageContainer(
-                                    avatarUrl: data.avatar_url,
-                                    width: 36.w,
-                                    height: 36.w,
-                                    borderRadius: 8.r,
-                                  ))
-                              : const DefaultAvatar(),
-                          error: (error, stackTrace) => const Icon(Icons.error),
-                          loading: () => SizedBox(
-                            width: 36.w,
-                            child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8.r),
-                                child: buildPlaceholderImage()),
+              leading: Builder(
+                builder: (BuildContext context) {
+                  return Container(
+                    width: 24.h,
+                    height: 24.h,
+                    alignment: Alignment.center,
+                    child: supabase.isLogged
+                        ? userInfoState.when(
+                            data: (data) => data != null
+                                ? GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () {
+                                      Scaffold.of(context).openDrawer();
+                                    },
+                                    child: ProfileImageContainer(
+                                      avatarUrl: data.avatar_url,
+                                      width: 36.w,
+                                      height: 36.w,
+                                      borderRadius: 8.r,
+                                    ))
+                                : const DefaultAvatar(),
+                            error: (error, stackTrace) =>
+                                const Icon(Icons.error),
+                            loading: () => SizedBox(
+                              width: 36.w,
+                              child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8.r),
+                                  child: buildPlaceholderImage()),
+                            ),
+                          )
+                        : GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => Scaffold.of(context).openDrawer(),
+                            child: const DefaultAvatar(),
                           ),
-                        )
-                      : GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => Scaffold.of(context).openDrawer(),
-                          child: const DefaultAvatar(),
-                        ),
-                ),
+                  );
+                },
               ),
               leadingWidth: 52.w,
               titleSpacing: 0,
@@ -146,24 +149,5 @@ class _PortalState extends ConsumerState<Portal> {
                       ]),
                     );
             })));
-  }
-
-  double _getResponsiveWidth(double screenWidth) {
-    // 모바일 (0-600px)
-    if (screenWidth <= 600) {
-      return screenWidth * 0.95; // 95% of screen width
-    }
-    // 태블릿 (601-960px)
-    else if (screenWidth <= 960) {
-      return screenWidth * 0.8; // 80% of screen width
-    }
-    // 소형 데스크톱 (961-1280px)
-    else if (screenWidth <= 1280) {
-      return screenWidth * 0.7; // 70% of screen width
-    }
-    // 대형 데스크톱 (1281px+)
-    else {
-      return 900; // 최대 900px
-    }
   }
 }
