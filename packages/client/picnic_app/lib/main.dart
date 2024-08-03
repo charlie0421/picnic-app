@@ -10,6 +10,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 // import 'package:http/http.dart' as http;
 import 'package:picnic_app/app.dart';
+import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/firebase_options.dart';
 // import 'package:picnic_app/logging_http_client.dart';
@@ -27,11 +28,14 @@ import 'package:timezone/data/latest.dart' as tz;
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  const String environment =
+      String.fromEnvironment('ENVIRONMENT', defaultValue: 'prod');
+  await Environment.initConfig(environment);
 
   final customHttpClient = RetryHttpClient(http.Client());
   await Supabase.initialize(
-    url: supabaseOptions.url,
-    anonKey: supabaseOptions.anonKey,
+    url: Environment.supabaseUrl,
+    anonKey: Environment.supabaseAnonKey,
     authOptions: const FlutterAuthClientOptions(
         autoRefreshToken: true, detectSessionInUri: false),
     debug: true,
@@ -76,12 +80,16 @@ void main() async {
     (options) {
       options.dsn =
           'https://2a10b0168b427bbdc6eb3a1f16a1f2a2@o4507695222685696.ingest.us.sentry.io/4507695242739712';
-      // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
-      // We recommend adjusting this value in production.
       options.tracesSampleRate = 1.0;
-      // The sampling rate for profiling is relative to tracesSampleRate
-      // Setting to 1.0 will profile 100% of sampled transactions:
       options.profilesSampleRate = 1.0;
+      options.beforeSend = (event, hint) {
+        if (!Environment.enableSentry) {
+          print(
+              'Sentry event in local environment (not sent): ${event.eventId}');
+          return null; // null을 반환하면 이벤트가 Sentry로 전송되지 않습니다.
+        }
+        return event;
+      };
     },
     appRunner: () => runApp(
         ProviderScope(observers: [LoggingObserver()], child: const App())),

@@ -102,7 +102,7 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
           : null,
       quality: quality,
     );
-    return supabase.storage
+    return supabaseStorage.storage
         .from('picnic')
         .getPublicUrl(key, transform: transformOptions);
   }

@@ -14,6 +14,7 @@ import 'package:path/path.dart' as path;
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
 import 'package:picnic_app/components/star_candy_info_text.dart';
+import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
@@ -325,7 +326,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
 
       // Edge Function 호출
       final response = await http.post(
-        Uri.parse('${supabaseOptions.url}/functions/v1/delete-user'),
+        Uri.parse('${Environment.supabaseUrl}/functions/v1/delete-user'),
         headers: <String, String>{
           'Content-Type': 'application/json',
           'Authorization':
