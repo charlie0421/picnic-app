@@ -1,0 +1,16 @@
+List all Functions in the linked Supabase project.
+
+Usage:
+  supabase functions list [flags]
+
+Flags:
+  -h, --help                 help for list
+      --project-ref string   Project ref of the Supabase project.
+
+Global Flags:
+      --create-ticket                     create a support ticket for any CLI error
+      --debug                             output debug logs to stderr
+      --dns-resolver [ native | https ]   lookup domain names using the specified resolver (default native)
+      --experimental                      enable experimental features
+      --network-id string                 use the specified docker network instead of a generated one
+      --workdir string                    path to a Supabase project directory

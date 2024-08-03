@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/network.dart';
@@ -83,11 +84,10 @@ class AppleLogin implements SocialLogin {
             AppleIDAuthorizationScopes.fullName
           ],
           webAuthenticationOptions: WebAuthenticationOptions(
-            clientId: const String.fromEnvironment('APPLE_CLIENT_ID',
-                defaultValue: 'io.iconcasting.picnic.app.apple'),
-            redirectUri: Uri.parse(const String.fromEnvironment(
-                'APPLE_REDIRECT_URI',
-                defaultValue: 'https://api.picnic.fan/auth/v1/callback')),
+            clientId: Environment.appleClientId,
+            redirectUri: Uri.parse(
+              Environment.appleRedirectUri,
+            ),
           ),
           state: rawNonce);
       return SocialLoginResult(
@@ -127,10 +127,8 @@ class KakaoLogin implements SocialLogin {
   Future<SocialLoginResult> login() async {
     try {
       KakaoSdk.init(
-          nativeAppKey: const String.fromEnvironment('KAKAO_NATIVE_APP_KEY',
-              defaultValue: '75e247f5d29512f84749e64aac77ebfa'),
-          javaScriptAppKey: const String.fromEnvironment('KAKAO_JS_APP_KEY',
-              defaultValue: 'fe170eb02c6ff6a488a5848f9db41335'));
+          nativeAppKey: Environment.kakaoNativeAppKey,
+          javaScriptAppKey: Environment.kakaoJavascriptKey);
       OAuthToken? token;
 
       if (await isKakaoTalkInstalled()) {
@@ -166,12 +164,8 @@ class KakaoLogin implements SocialLogin {
 class AuthService {
   final Map<Supabase.OAuthProvider, SocialLogin> _loginProviders = {
     Supabase.OAuthProvider.google: GoogleLogin(GoogleSignIn(
-        clientId: const String.fromEnvironment('GOOGLE_CLIENT_ID',
-            defaultValue:
-                '853406219989-ntnler0e2qe0gfheh3qdjt3k2h4kpvj4.apps.googleusercontent.com'),
-        serverClientId: const String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID',
-            defaultValue:
-                '853406219989-jrfkss5a0lqe5sq43t4uhm7n6i0g6s1b.apps.googleusercontent.com'))),
+        clientId: Environment.googleClientId,
+        serverClientId: Environment.googleServerClientId)),
     Supabase.OAuthProvider.apple: AppleLogin(),
     Supabase.OAuthProvider.kakao: KakaoLogin(),
   };

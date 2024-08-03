@@ -122,6 +122,7 @@ flutter:
     - assets/mockup/gallery/
     - assets/mockup/pic/
     - assets/landing/
+    - config/
   fonts:
     - family: Pretendard
       fonts:
