@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:animated_digit/animated_digit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -45,6 +48,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   bool isEnded = false;
   bool isUpcoming = false;
   final _searchSubject = BehaviorSubject<String>();
+  Timer? _updateTimer;
+  Map<int, int> _previousVoteCounts = {};
+  Map<int, int> _previousRanks = {};
 
   @override
   void initState() {
@@ -61,6 +67,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         .debounceTime(const Duration(milliseconds: 300))
         .listen((query) {
       ref.read(searchQueryProvider.notifier).state = query;
+    });
+
+    _updateTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      ref.refresh(asyncVoteItemListProvider(voteId: widget.voteId));
     });
   }
 
@@ -273,55 +283,78 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   }
 
   Widget _buildVoteItem(BuildContext context, VoteItemModel item, int index) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => _handleVoteItemTap(context, item),
-      child: SizedBox(
-        height: 40.h,
-        child: Row(
-          children: [
-            SizedBox(
-              width: 35.w,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  if (index < 3)
-                    SvgPicture.asset('assets/icons/vote/crown${index + 1}.svg'),
-                  Text(
-                    Intl.message('text_vote_rank', args: [index + 1])
-                        .toString(),
-                    style: getTextStyle(AppTypo.CAPTION12B, AppColors.Point900),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(width: 8.w),
-            _buildArtistImage(item, index),
-            SizedBox(width: 8.w),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${getLocaleTextFromJson(item.artist.name)} ${getLocaleTextFromJson(item.artist.artist_group.name)}',
-                    style: getTextStyle(AppTypo.BODY14B, AppColors.Grey900),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  _buildVoteCountContainer(item),
-                ],
-              ),
-            ),
-            SizedBox(width: 16.w),
-            if (!isEnded)
+    final previousVoteCount = _previousVoteCounts[item.id] ?? item.vote_total;
+    final voteCountDiff = item.vote_total - previousVoteCount;
+
+    final previousRank = _previousRanks[item.id] ?? index + 1;
+    final rankChanged = previousRank != index + 1;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _previousVoteCounts[item.id] = item.vote_total;
+      _previousRanks[item.id] = index + 1;
+    });
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+      decoration: BoxDecoration(
+        color: rankChanged
+            ? AppColors.Primary500.withOpacity(0.3)
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => _handleVoteItemTap(context, item),
+        child: SizedBox(
+          height: 40.h,
+          child: Row(
+            children: [
               SizedBox(
-                width: 24.w,
-                height: 24.w,
-                child: SvgPicture.asset('assets/icons/star_candy_icon.svg'),
+                width: 35.w,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    if (index < 3)
+                      SvgPicture.asset(
+                          'assets/icons/vote/crown${index + 1}.svg'),
+                    Text(
+                      Intl.message('text_vote_rank', args: [index + 1])
+                          .toString(),
+                      style:
+                          getTextStyle(AppTypo.CAPTION12B, AppColors.Point900),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
-          ],
+              SizedBox(width: 8.w),
+              _buildArtistImage(item, index),
+              SizedBox(width: 8.w),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${getLocaleTextFromJson(item.artist.name)} ${getLocaleTextFromJson(item.artist.artist_group.name)}',
+                      style: getTextStyle(AppTypo.BODY14B, AppColors.Grey900),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    _buildVoteCountContainer(item, voteCountDiff),
+                  ],
+                ),
+              ),
+              SizedBox(width: 16.w),
+              if (!isEnded)
+                SizedBox(
+                  width: 24.w,
+                  height: 24.w,
+                  child: SvgPicture.asset('assets/icons/star_candy_icon.svg'),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -353,21 +386,64 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     );
   }
 
-  Widget _buildVoteCountContainer(VoteItemModel item) {
-    return Container(
-      width: double.infinity,
-      height: 20.w,
-      padding: const EdgeInsets.only(right: 16, bottom: 3).r,
-      decoration: BoxDecoration(
-        gradient: commonGradient,
-        color: AppColors.Grey100,
-        borderRadius: BorderRadius.circular(10.r),
-      ),
-      alignment: Alignment.centerRight,
-      child: Text(
-        NumberFormat('#,###').format(item.vote_total),
-        style: getTextStyle(AppTypo.CAPTION10SB, AppColors.Grey00),
-      ),
+  Widget _buildVoteCountContainer(VoteItemModel item, int voteCountDiff) {
+    final hasChanged = voteCountDiff != 0;
+
+    return Stack(
+      children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 1000),
+          width: double.infinity,
+          height: 20.w,
+          decoration: BoxDecoration(
+            gradient: commonGradient,
+            borderRadius: BorderRadius.circular(10.r),
+          ),
+          // 변화가 있을 때 key를 변경하여 새로운 애니메이션 트리거
+          key: ValueKey(hasChanged ? item.vote_total : 'static'),
+        ),
+        Container(
+          width: double.infinity,
+          height: 20.w,
+          padding: const EdgeInsets.only(right: 16, bottom: 3).r,
+          alignment: Alignment.centerRight,
+          child: hasChanged
+              ? AnimatedDigitWidget(
+                  value: item.vote_total,
+                  enableSeparator: true,
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                  textStyle:
+                      getTextStyle(AppTypo.CAPTION10SB, AppColors.Grey00),
+                )
+              : Text(
+                  NumberFormat('#,###').format(item.vote_total),
+                  style: getTextStyle(AppTypo.CAPTION10SB, AppColors.Grey00),
+                ),
+        ),
+        if (voteCountDiff > 0)
+          Positioned(
+            right: 16.w,
+            top: -15.h,
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: 1),
+              duration: const Duration(seconds: 1),
+              builder: (context, value, child) {
+                return Opacity(
+                  opacity: 1 - value,
+                  child: Transform.translate(
+                    offset: Offset(0, -10 * value),
+                    child: Text(
+                      '+$voteCountDiff',
+                      style: getTextStyle(
+                          AppTypo.CAPTION10SB, AppColors.Primary500),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+      ],
     );
   }
 
@@ -560,5 +636,33 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         ),
       ),
     );
+  }
+}
+
+class GradientProgressPainter extends CustomPainter {
+  final double progress;
+  final Gradient gradient;
+
+  GradientProgressPainter({required this.progress, required this.gradient});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..shader =
+          gradient.createShader(Rect.fromLTWH(0, 0, size.width, size.height))
+      ..style = PaintingStyle.fill;
+
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, 0, size.width * progress, size.height),
+        Radius.circular(10.r),
+      ),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(GradientProgressPainter oldDelegate) {
+    return progress != oldDelegate.progress;
   }
 }
