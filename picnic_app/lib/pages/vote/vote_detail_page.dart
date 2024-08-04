@@ -44,7 +44,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   late TextEditingController _textEditingController;
   late FocusNode _focusNode;
   bool _hasFocus = false;
-  String _searchQuery = '';
   bool isEnded = false;
   bool isUpcoming = false;
   final _searchSubject = BehaviorSubject<String>();
@@ -172,14 +171,14 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             memCacheHeight: height.toInt(),
           ),
         ),
-        SizedBox(height: 36.h),
+        SizedBox(height: 36),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 57).r,
+          padding: EdgeInsets.symmetric(horizontal: 57.w),
           child: VoteCommonTitle(title: getLocaleTextFromJson(voteModel.title)),
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: 12),
         SizedBox(
-          height: 18.h,
+          height: 18,
           child: Text(
             '${DateFormat('yyyy.MM.dd HH:mm').format(voteModel.start_at.toLocal())} ~ '
             '${DateFormat('yyyy.MM.dd HH:mm').format(voteModel.stop_at.toLocal())} '
@@ -187,12 +186,12 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             style: getTextStyle(AppTypo.CAPTION12R, AppColors.Grey900),
           ),
         ),
-        SizedBox(height: 26.h),
+        SizedBox(height: 36),
         Text(
           S.of(context).text_vote_rank_in_reward,
           style: getTextStyle(AppTypo.BODY14B, AppColors.Primary500),
         ),
-        SizedBox(height: 4.h),
+        SizedBox(height: 4),
         if (voteModel.reward != null)
           Column(
             children: voteModel.reward!
@@ -208,7 +207,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                     ))
                 .toList(),
           ),
-        SizedBox(height: 16.h),
+        SizedBox(height: 36),
       ],
     );
   }
@@ -227,8 +226,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                       Container(
                         width: double.infinity,
                         margin:
-                            const EdgeInsets.only(top: 24, left: 16, right: 16)
-                                .r,
+                            EdgeInsets.only(top: 24, left: 16.w, right: 16.w),
                         decoration: BoxDecoration(
                           border: Border.all(
                               color: AppColors.Primary500, width: 1.r),
@@ -240,13 +238,13 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                           ),
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.only(
-                                  top: 56, left: 16, right: 16)
-                              .r,
+                          padding:
+                              EdgeInsets.only(top: 56, left: 16.w, right: 16.w)
+                                  .r,
                           child: filteredIndices.isEmpty &&
                                   searchQuery.isNotEmpty
                               ? SizedBox(
-                                  height: 200.h,
+                                  height: 200,
                                   child: Center(
                                     child: Text(
                                         S.of(context).text_no_search_result),
@@ -257,7 +255,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                   physics: const NeverScrollableScrollPhysics(),
                                   itemCount: filteredIndices.length,
                                   separatorBuilder: (context, index) =>
-                                      SizedBox(height: 36.h),
+                                      SizedBox(height: 36),
                                   itemBuilder: (context, index) {
                                     final itemIndex = filteredIndices[index];
                                     final item = data[itemIndex]!;
@@ -307,7 +305,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         behavior: HitTestBehavior.opaque,
         onTap: () => _handleVoteItemTap(context, item),
         child: SizedBox(
-          height: 40.h,
+          height: 45,
           child: Row(
             children: [
               SizedBox(
@@ -337,10 +335,25 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      '${getLocaleTextFromJson(item.artist.name)} ${getLocaleTextFromJson(item.artist.artist_group.name)}',
-                      style: getTextStyle(AppTypo.BODY14B, AppColors.Grey900),
-                      overflow: TextOverflow.ellipsis,
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: getLocaleTextFromJson(item.artist.name),
+                            style: getTextStyle(
+                                AppTypo.BODY14B, AppColors.Grey900),
+                          ),
+                          const TextSpan(
+                            text: ' ',
+                          ),
+                          TextSpan(
+                            text: getLocaleTextFromJson(
+                                item.artist.artist_group.name),
+                            style: getTextStyle(
+                                AppTypo.CAPTION10SB, AppColors.Grey600),
+                          ),
+                        ],
+                      ),
                     ),
                     _buildVoteCountContainer(item, voteCountDiff),
                   ],
@@ -350,7 +363,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
               if (!isEnded)
                 SizedBox(
                   width: 24.w,
-                  height: 24.w,
+                  height: 24,
                   child: SvgPicture.asset('assets/icons/star_candy_icon.svg'),
                 ),
             ],
@@ -370,8 +383,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         borderRadius: BorderRadius.circular(27.5),
       ),
       padding: const EdgeInsets.all(3),
-      width: 45.w,
-      height: 45.w,
+      width: 45,
+      height: 45,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(39),
         child: PicnicCachedNetworkImage(
@@ -394,7 +407,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         AnimatedContainer(
           duration: const Duration(milliseconds: 1000),
           width: double.infinity,
-          height: 20.w,
+          height: 20,
           decoration: BoxDecoration(
             gradient: commonGradient,
             borderRadius: BorderRadius.circular(10.r),
@@ -404,8 +417,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         ),
         Container(
           width: double.infinity,
-          height: 20.w,
-          padding: const EdgeInsets.only(right: 16, bottom: 3).r,
+          height: 20,
+          padding: EdgeInsets.only(right: 16.w, bottom: 3),
           alignment: Alignment.centerRight,
           child: hasChanged
               ? AnimatedDigitWidget(
@@ -424,7 +437,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         if (voteCountDiff > 0)
           Positioned(
             right: 16.w,
-            top: -15.h,
+            top: -15,
             child: TweenAnimationBuilder<double>(
               tween: Tween(begin: 0, end: 1),
               duration: const Duration(seconds: 1),
@@ -475,9 +488,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
       child: Align(
         alignment: Alignment.topCenter,
         child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16).r,
+          margin: EdgeInsets.symmetric(horizontal: 16.w),
           width: 280.w,
-          height: 48.w,
+          height: 48,
           decoration: BoxDecoration(
             border: Border.all(
               color: AppColors.Primary500,
@@ -490,11 +503,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Padding(
-                padding: const EdgeInsets.only(left: 16, right: 8).w,
+                padding: EdgeInsets.only(left: 16.w, right: 8.w),
                 child: SvgPicture.asset(
                   'assets/icons/vote/search_icon.svg',
-                  width: 20.w,
-                  height: 20.w,
+                  width: 20,
+                  height: 20,
                 ),
               ),
               Expanded(
@@ -515,11 +528,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 behavior: HitTestBehavior.opaque,
                 onTap: () => _textEditingController.clear(),
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 8, right: 16).w,
+                  padding: EdgeInsets.only(left: 8.w, right: 16.w),
                   child: SvgPicture.asset(
                     'assets/icons/cancle_style=fill.svg',
-                    width: 20.w,
-                    height: 20.w,
+                    width: 20,
+                    height: 20,
                     colorFilter: ColorFilter.mode(
                       _textEditingController.text.isNotEmpty
                           ? AppColors.Grey700
@@ -545,57 +558,57 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              height: 200.h,
+              height: 200,
               color: Colors.white,
             ),
-            SizedBox(height: 24.h),
+            SizedBox(height: 24),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Container(
-                height: 24.h,
+                height: 24,
                 width: 250.w,
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 12.h),
+            SizedBox(height: 12),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Container(
-                height: 16.h,
+                height: 16,
                 width: 200.w,
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 24.h),
+            SizedBox(height: 24),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Container(
-                height: 18.h,
+                height: 18,
                 width: 180.w,
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: 8),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Container(
-                height: 16.h,
+                height: 16,
                 width: 150.w,
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 32.h),
+            SizedBox(height: 32),
             Center(
               child: Container(
                 width: 280.w,
-                height: 48.h,
+                height: 48,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(24.r),
                   color: Colors.white,
                 ),
               ),
             ),
-            SizedBox(height: 24.h),
+            SizedBox(height: 24),
             for (int i = 0; i < 5; i++) ...[
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -603,7 +616,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   children: [
                     Container(
                       width: 45.w,
-                      height: 45.w,
+                      height: 45,
                       decoration: const BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.white,
@@ -615,13 +628,13 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            height: 16.h,
+                            height: 16,
                             width: 120.w,
                             color: Colors.white,
                           ),
-                          SizedBox(height: 8.h),
+                          SizedBox(height: 8),
                           Container(
-                            height: 14.h,
+                            height: 14,
                             color: Colors.white,
                           ),
                         ],
@@ -630,7 +643,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   ],
                 ),
               ),
-              SizedBox(height: 24.h),
+              SizedBox(height: 24),
             ],
           ],
         ),

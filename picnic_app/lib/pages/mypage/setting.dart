@@ -54,16 +54,16 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: ListView(
                 children: [
-                  SizedBox(height: 16.w),
+                  SizedBox(height: 16),
                   Text(S.of(context).label_setting_alarm,
                       style: getTextStyle(AppTypo.BODY14B, AppColors.Grey600)),
-                  SizedBox(height: 4.w),
+                  SizedBox(height: 4),
                   ListItem(
                     leading: S.of(context).label_setting_push_alarm,
                     assetPath: 'assets/icons/arrow_right_style=line.svg',
                     tailing: LoadSwitch(
                       width: 48.w,
-                      height: 28.w,
+                      height: 28,
                       value: value1,
                       future: _getFuture1,
                       style: SpinStyle.material,
@@ -109,7 +109,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     assetPath: 'assets/icons/arrow_right_style=line.svg',
                     tailing: LoadSwitch(
                       width: 48.w,
-                      height: 28.w,
+                      height: 28,
                       value: value2,
                       future: _getFuture2,
                       style: SpinStyle.material,
@@ -140,7 +140,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     ),
                   ),
                   const Divider(color: AppColors.Grey200),
-                  SizedBox(height: 48.w),
+                  SizedBox(height: 48),
                   Text(S.of(context).label_setting_language,
                       style: getTextStyle(AppTypo.BODY14B, AppColors.Grey600)),
                   DropdownButtonFormField(
@@ -182,7 +182,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     },
                   ),
                   const Divider(color: AppColors.Grey200),
-                  SizedBox(height: 48.w),
+                  SizedBox(height: 48),
                   Text(S.of(context).label_setting_storage,
                       style: getTextStyle(AppTypo.BODY14B, AppColors.Grey600)),
                   ListItem(
@@ -201,7 +201,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         });
                       }),
                   const Divider(color: AppColors.Grey200),
-                  SizedBox(height: 48.h),
+                  SizedBox(height: 48),
                   Text(S.of(context).label_setting_appinfo,
                       style: getTextStyle(AppTypo.BODY14B, AppColors.Grey600)),
                   const Divider(color: AppColors.Grey200),

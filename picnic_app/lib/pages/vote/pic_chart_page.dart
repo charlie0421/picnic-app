@@ -64,14 +64,14 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
                       Divider(
                         color: AppColors.Grey300,
                         thickness: 1,
-                        height: 40.h,
+                        height: 40,
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SvgPicture.asset('assets/icons/play_style=fill.svg',
                               width: 16.w,
-                              height: 16.w,
+                              height: 16,
                               color: AppColors.Primary500),
                           Text(
                             'COMING SOON',
@@ -86,12 +86,12 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
                             child: SvgPicture.asset(
                                 'assets/icons/play_style=fill.svg',
                                 width: 16.w,
-                                height: 16.w,
+                                height: 16,
                                 color: AppColors.Primary500),
                           ),
                         ],
                       ),
-                      SizedBox(height: 16.h),
+                      SizedBox(height: 16),
                       Text(
                         S.of(context).text_comming_soon_pic_chart2,
                         style: getTextStyle(
@@ -100,7 +100,7 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      SizedBox(height: 16.h),
+                      SizedBox(height: 16),
                       Text(
                         S.of(context).text_comming_soon_pic_chart3,
                         style: getTextStyle(

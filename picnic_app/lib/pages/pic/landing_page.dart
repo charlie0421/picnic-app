@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/celeb_list_item.dart';
 import 'package:picnic_app/components/error.dart';
@@ -91,7 +92,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
               child: Align(
                 alignment: Alignment.centerRight,
                 child: Padding(
-                  padding: const EdgeInsets.only(right: 8),
+                  padding: EdgeInsets.only(right: 8.w),
                   child: SvgPicture.asset(
                     'assets/landing/search_icon.svg',
                     width: 24,

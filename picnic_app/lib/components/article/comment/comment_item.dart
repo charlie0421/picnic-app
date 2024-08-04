@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/article/comment/comment_actions.dart';
 import 'package:picnic_app/components/article/comment/comment_contents.dart';
@@ -93,7 +94,7 @@ class _CommentItemState extends ConsumerState<CommentItem>
           ],
         ),
         child: Container(
-          padding: const EdgeInsets.only(left: 20),
+          padding: EdgeInsets.only(left: 20.w),
           margin: const EdgeInsets.only(bottom: 20),
           width: getPlatformScreenSize(context).width,
           child: Row(

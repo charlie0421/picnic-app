@@ -102,20 +102,20 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       child: LargePopupWidget(
         content: Container(
           padding:
-              const EdgeInsets.only(top: 32, bottom: 24, left: 24, right: 24).r,
+              EdgeInsets.only(top: 32, bottom: 24, left: 24.w, right: 24.w),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(height: 8.h),
+              SizedBox(height: 8),
               _buildMemberInfo(),
               _buildStarCandyInfo(myStarCandy),
-              SizedBox(height: 8.h),
+              SizedBox(height: 8),
               _buildCheckAllOption(),
-              SizedBox(height: 8.h),
+              SizedBox(height: 8),
               _buildVoteAmountInput(),
               _buildErrorMessage(),
-              SizedBox(height: 9.h),
+              SizedBox(height: 9),
               _buildVoteButton(myStarCandy, userId),
             ],
           ),
@@ -142,9 +142,9 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             ),
           ),
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: 12),
         SizedBox(
-          height: 24.h,
+          height: 24,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -177,15 +177,15 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         children: [
           Container(
             width: 32.w,
-            height: 32.w,
+            height: 32,
             alignment: Alignment.centerLeft,
             child: Image.asset('assets/icons/store/star_100.png',
-                width: 32.w, height: 32.w),
+                width: 32.w, height: 32),
           ),
           SizedBox(width: 2.w),
           Expanded(
             child: Container(
-              height: 26.h,
+              height: 26,
               alignment: Alignment.topLeft,
               child: AnimatedDigitWidget(
                 autoSize: false,
@@ -221,7 +221,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         Navigator.pop(context);
       },
       child: Container(
-        height: 32.h,
+        height: 32,
         padding: EdgeInsets.symmetric(horizontal: 12.w),
         decoration: BoxDecoration(
           color: AppColors.Mint500,
@@ -239,7 +239,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             SvgPicture.asset(
               'assets/icons/plus_style=fill.svg',
               width: 16.w,
-              height: 16.w,
+              height: 16,
               colorFilter:
                   const ColorFilter.mode(AppColors.Primary500, BlendMode.srcIn),
             ),
@@ -266,7 +266,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         _validateVote();
       },
       child: SizedBox(
-        height: 20.h,
+        height: 20,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -274,7 +274,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             SvgPicture.asset(
               'assets/icons/check_style=line.svg',
               width: 20.w,
-              height: 20.w,
+              height: 20,
               colorFilter: ColorFilter.mode(
                 _checkAll ? AppColors.Primary500 : AppColors.Grey300,
                 BlendMode.srcIn,
@@ -296,7 +296,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
   Widget _buildVoteAmountInput() {
     return Container(
-      height: 36.h,
+      height: 36,
       decoration: BoxDecoration(
         border: Border.all(
           color: !_canVote && _hasValue
@@ -325,7 +325,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                 fillColor: AppColors.Grey900,
                 isCollapsed: true,
                 contentPadding: EdgeInsets.symmetric(
-                    horizontal: 24.w, vertical: 5.h), // 수직 패딩 조정
+                    horizontal: 24.w, vertical: 5), // 수직 패딩 조정
               ),
               onChanged: (_) => _validateVote(),
               inputFormatters: [
@@ -387,7 +387,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           BlendMode.srcIn,
         ),
         width: 20.w,
-        height: 20.w,
+        height: 20,
       ),
     );
   }
@@ -397,7 +397,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       return Container(
         padding: EdgeInsets.only(left: 24.w, top: 4.w),
         width: double.infinity,
-        height: 15.w,
+        height: 15,
         child: Text(
           S.of(context).text_need_recharge,
           style: getTextStyle(AppTypo.CAPTION10SB, AppColors.StatusError),
@@ -405,7 +405,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         ),
       );
     }
-    return SizedBox(height: 15.w);
+    return SizedBox(height: 15);
   }
 
   Widget _buildVoteButton(int myStarCandy, String userId) {
@@ -414,7 +414,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       onTap: _canVote ? () => _handleVote(myStarCandy, userId) : null,
       child: Container(
         width: 172.w,
-        height: 52.w,
+        height: 52,
         decoration: BoxDecoration(
           color: _canVote ? AppColors.Primary500 : AppColors.Grey300,
           borderRadius: BorderRadius.circular(24).r,

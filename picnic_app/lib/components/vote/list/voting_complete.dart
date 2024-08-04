@@ -166,15 +166,15 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
         child: LargePopupWidget(
           backgroundColor: AppColors.Mint500,
           content: Container(
-            padding: EdgeInsets.only(
-                top: 24.w, left: 24.w, right: 24.w, bottom: 48.w),
+            padding:
+                EdgeInsets.only(top: 24, left: 24.w, right: 24.w, bottom: 48),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
                   width: 203.w,
-                  height: 51.w,
+                  height: 51,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: AppColors.Grey00,
@@ -187,7 +187,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                   child: Container(
                     alignment: Alignment.center,
                     width: 195.w,
-                    height: 43.w,
+                    height: 43,
                     padding: EdgeInsets.symmetric(horizontal: 24.w),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(26.r),
@@ -202,7 +202,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                         Image.asset(
                           'assets/icons/header/star.png',
                           width: 24.w,
-                          height: 24.w,
+                          height: 24,
                         ),
                         Expanded(
                           child: Text(S.of(context).text_vote_complete,
@@ -214,16 +214,16 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                         Image.asset(
                           'assets/icons/header/star.png',
                           width: 24.w,
-                          height: 24.w,
+                          height: 24,
                         ),
                       ],
                     ),
                   ),
                 ),
-                SizedBox(height: 12.w),
+                SizedBox(height: 12),
                 Container(
                     width: 291.w,
-                    height: 70.w,
+                    height: 70,
                     padding: EdgeInsets.only(left: 12.w),
                     decoration: BoxDecoration(
                       color: AppColors.Grey00,
@@ -256,7 +256,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                               style: getTextStyle(
                                   AppTypo.CAPTION12B, AppColors.Grey900),
                             ),
-                            SizedBox(height: 2.w),
+                            SizedBox(height: 2),
                             Text(
                               '${DateFormat('yyyy.MM.dd HH:mm').format(DateTime.tryParse(widget.result['updatedAt'])!.add(const Duration(hours: 9)))}(KST)',
                               style: getTextStyle(
@@ -267,7 +267,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                         ),
                       ],
                     )),
-                SizedBox(height: 12.w),
+                SizedBox(height: 12),
                 Container(
                   width: 291.w,
                   decoration: BoxDecoration(
@@ -313,9 +313,9 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                         indent: 13.w,
                         endIndent: 13.w,
                         thickness: 1,
-                        height: 1.w,
+                        height: 1,
                       ),
-                      SizedBox(height: 12.w),
+                      SizedBox(height: 12),
                       Container(
                         padding: EdgeInsets.only(right: 16.w),
                         child: Row(
@@ -326,7 +326,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                               flex: 1,
                               child: SizedBox(
                                 width: 120.w,
-                                height: 140.w,
+                                height: 140,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -341,7 +341,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                         height: 56,
                                       ),
                                     ),
-                                    SizedBox(height: 8.w),
+                                    SizedBox(height: 8),
                                     Text(
                                       getLocaleTextFromJson(
                                           widget.voteItemModel.artist.name),
@@ -349,7 +349,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                           AppTypo.BODY16B, AppColors.Grey900),
                                       textAlign: TextAlign.center,
                                     ),
-                                    SizedBox(height: 4.h),
+                                    SizedBox(height: 4),
                                     Text(
                                       getLocaleTextFromJson(widget.voteItemModel
                                           .artist.artist_group.name),
@@ -358,7 +358,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                           .copyWith(height: .8),
                                       textAlign: TextAlign.center,
                                     ),
-                                    SizedBox(height: 3.h),
+                                    SizedBox(height: 3),
                                     AnimatedDigitWidget(
                                         value:
                                             widget.result['updatedVoteTotal'],
@@ -379,7 +379,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                 children: [
                                   SizedBox(
                                     width: 120.w,
-                                    height: 120.w,
+                                    height: 120,
                                     child: GradientCircularProgressIndicator(
                                       value: widget.result['addedVoteTotal'] /
                                           widget.result['updatedVoteTotal'],
@@ -422,10 +422,10 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                     ],
                   ),
                 ),
-                SizedBox(height: 16.w),
+                SizedBox(height: 16),
                 !_isSaving
                     ? SizedBox(
-                        height: 32.w,
+                        height: 32,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -463,7 +463,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                     SvgPicture.asset(
                                       'assets/icons/twitter_style=fill.svg',
                                       width: 16.w,
-                                      height: 16.w,
+                                      height: 16,
                                     ),
                                   ],
                                 )),
@@ -473,7 +473,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                     : Image.asset(
                         'assets/images/logo.png',
                         width: 75.w,
-                        height: 57.w,
+                        height: 57,
                       ),
               ],
             ),

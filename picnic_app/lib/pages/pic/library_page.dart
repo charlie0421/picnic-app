@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/pages/pic/pic.dart';
 import 'package:picnic_app/providers/pic_provider.dart';
@@ -46,7 +45,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     return Column(
       children: [
         SizedBox(
-          height: 43.w,
+          height: 43,
           child: TabBar(
             indicatorWeight: 3,
             indicator: const UnderlineTabIndicator(

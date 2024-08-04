@@ -41,8 +41,8 @@ void showSimpleDialog({
             minWidth: 151.w,
           ),
           padding: EdgeInsets.only(
-            top: 28.h,
-            bottom: 20.h,
+            top: 28,
+            bottom: 20,
             left: 20.w,
             right: 20.w,
           ),
@@ -57,7 +57,7 @@ void showSimpleDialog({
               if (titleWidget != null) titleWidget,
               if (content != null) ...[
                 SizedBox(
-                  height: 12.h,
+                  height: 12,
                 ),
                 Text(
                   content,
@@ -67,12 +67,12 @@ void showSimpleDialog({
               ],
               if (contentWidget != null) ...[
                 SizedBox(
-                  height: 12.h,
+                  height: 12,
                 ),
                 contentWidget
               ],
               SizedBox(
-                height: 28.h,
+                height: 28,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

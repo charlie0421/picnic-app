@@ -57,7 +57,7 @@ class _SmoothCircularCountdownState extends State<SmoothCircularCountdown>
   Widget build(BuildContext context) {
     return SizedBox(
       width: 16.w,
-      height: 16.w,
+      height: 16,
       child: Stack(
         alignment: Alignment.center,
         children: [

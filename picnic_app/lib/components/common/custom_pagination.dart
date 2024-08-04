@@ -17,7 +17,7 @@ class CustomPaginationBuilder extends SwiperPlugin {
         bool active = index == config.activeIndex;
         return AnimatedContainer(
           duration: const Duration(milliseconds: 300),
-          margin: const EdgeInsets.symmetric(horizontal: 2),
+          margin: EdgeInsets.symmetric(horizontal: 2.w),
           width: active ? 12 : 8,
           height: active ? 12 : 8,
           decoration: BoxDecoration(
@@ -43,14 +43,14 @@ class CustomPagination extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(bottom: 5.h, top: 5.h),
+      padding: EdgeInsets.only(bottom: 5.h, top: 5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: List.generate(itemCount, (index) {
           bool active = index == activeIndex;
           return AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            margin: const EdgeInsets.symmetric(horizontal: 2),
+            margin: EdgeInsets.symmetric(horizontal: 2.w),
             width: active ? 12 : 8,
             height: active ? 12 : 8,
             decoration: BoxDecoration(

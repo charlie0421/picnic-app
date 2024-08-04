@@ -70,17 +70,17 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: ListView(
           children: [
-            SizedBox(height: 24.w),
+            SizedBox(height: 24),
             buildProfileImage(),
-            SizedBox(height: 24.w),
+            SizedBox(height: 24),
             buildNicknameInput(context),
-            SizedBox(height: 4.w),
+            SizedBox(height: 4),
             buildValidationMsg(context),
-            SizedBox(height: 26.w),
+            SizedBox(height: 26),
             Divider(
               color: AppColors.Grey300,
               thickness: 1,
-              height: 24.w,
+              height: 24,
             ),
             ListItem(
                 leading: S.of(context).label_mypage_terms_of_use,
@@ -93,7 +93,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             Divider(
               color: AppColors.Grey300,
               thickness: 1,
-              height: 24.w,
+              height: 24,
             ),
             ListItem(
                 leading: S.of(context).label_mypage_privacy_policy,
@@ -106,7 +106,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             Divider(
               color: AppColors.Grey300,
               thickness: 1,
-              height: 24.w,
+              height: 24,
             ),
             ListItem(
                 leading: S.of(context).label_mypage_logout,
@@ -121,7 +121,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             Divider(
               color: AppColors.Grey300,
               thickness: 1,
-              height: 24.w,
+              height: 24,
             ),
             ListItem(
                 leading: S.of(context).label_mypage_withdrawal,
@@ -130,7 +130,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             Divider(
               color: AppColors.Grey300,
               thickness: 1,
-              height: 24.w,
+              height: 24,
             ),
           ],
         ),
@@ -244,18 +244,18 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                     S.of(context).dialog_withdraw_title,
                     style: getTextStyle(AppTypo.TITLE18SB, AppColors.Grey900),
                   ),
-                  SizedBox(height: 24.h),
+                  SizedBox(height: 24),
                   Text(
                     S.of(context).dialog_will_delete_star_candy,
                     style: getTextStyle(AppTypo.BODY14B, AppColors.Grey900),
                   ),
                   const StarCandyInfoText(),
-                  SizedBox(height: 24.h),
+                  SizedBox(height: 24),
                   Text(S.of(context).dialog_withdraw_message,
                       style:
                           getTextStyle(AppTypo.CAPTION12R, AppColors.Grey700),
                       textAlign: TextAlign.center),
-                  SizedBox(height: 24.h),
+                  SizedBox(height: 24),
                   Text(S.of(context).dialog_message_can_resignup,
                       style:
                           getTextStyle(AppTypo.CAPTION12R, AppColors.Grey700),
@@ -264,7 +264,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                       style:
                           getTextStyle(AppTypo.CAPTION12B, AppColors.Grey700),
                       textAlign: TextAlign.center),
-                  SizedBox(height: 24.h),
+                  SizedBox(height: 24),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -274,7 +274,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                             child: Container(
                                 alignment: Alignment.center,
                                 padding: EdgeInsets.symmetric(
-                                    horizontal: 20.w, vertical: 8.h),
+                                    horizontal: 20.w, vertical: 8),
                                 constraints: BoxConstraints(
                                   minWidth: 100.w,
                                 ),
@@ -293,7 +293,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                             child: Container(
                                 alignment: Alignment.center,
                                 padding: EdgeInsets.symmetric(
-                                    horizontal: 20.w, vertical: 8.h),
+                                    horizontal: 20.w, vertical: 8),
                                 constraints: BoxConstraints(
                                   minWidth: 100.w,
                                 ),
@@ -356,7 +356,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
 
   Container buildValidationMsg(BuildContext context) {
     return Container(
-      height: 32.w,
+      height: 32,
       alignment: Alignment.topLeft,
       padding: EdgeInsets.only(left: 16.w),
       margin: EdgeInsets.symmetric(horizontal: 57.w),
@@ -384,7 +384,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             ),
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             alignment: Alignment.center,
-            height: 48.w,
+            height: 48,
             width: 200.w,
             child: Form(
               key: _formKey,
@@ -434,7 +434,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                     BlendMode.srcIn,
                                   ),
                                   width: 20.w,
-                                  height: 20.w,
+                                  height: 20,
                                 )
                               : GestureDetector(
                                   onTap: () {
@@ -452,7 +452,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                       BlendMode.srcIn,
                                     ),
                                     width: 20.w,
-                                    height: 20.w,
+                                    height: 20,
                                   ),
                                 ),
                         )
@@ -488,7 +488,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
           },
           child: Container(
             width: 48.w,
-            height: 48.w,
+            height: 48,
             alignment: Alignment.center,
             margin: EdgeInsets.only(left: 8.w),
             decoration: BoxDecoration(
@@ -500,7 +500,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
               borderRadius: BorderRadius.circular(24.w),
             ),
             child: SvgPicture.asset('assets/icons/pencil_style=fill.svg',
-                color: AppColors.Grey900, width: 24.w, height: 24.w),
+                color: AppColors.Grey900, width: 24.w, height: 24),
           ),
         ),
       ],
@@ -534,7 +534,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                         onTap: () => _uploadProfileImage(),
                         child: Container(
                             width: 24.w,
-                            height: 24.w,
+                            height: 24,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
                               color: AppColors.Primary500,
@@ -543,7 +543,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                             child: SvgPicture.asset(
                                 'assets/icons/camera_style=line.svg',
                                 width: 16.w,
-                                height: 16.w,
+                                height: 16,
                                 colorFilter: const ColorFilter.mode(
                                   AppColors.Grey00,
                                   BlendMode.srcIn,

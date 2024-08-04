@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/celeb_list_item.dart';
 import 'package:picnic_app/components/error.dart';
@@ -25,7 +26,7 @@ class _SearchListState extends ConsumerState<SearchList> {
     final asyncCelebSearchNotifier =
         ref.read(asyncCelebSearchProvider.notifier);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Column(
         children: [
           Container(
@@ -41,7 +42,7 @@ class _SearchListState extends ConsumerState<SearchList> {
                 hintText: S.of(context).text_hint_search,
                 hintStyle: getTextStyle(AppTypo.BODY14B, AppColors.Grey300),
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
                 suffixIcon: IconButton(
                   icon: SvgPicture.asset('assets/icons/textclear.svg'),
                   onPressed: () {

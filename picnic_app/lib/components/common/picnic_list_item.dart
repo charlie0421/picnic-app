@@ -24,7 +24,7 @@ class ListItem extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: SizedBox(
-        height: 56.w,
+        height: 56,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -35,7 +35,7 @@ class ListItem extends StatelessWidget {
                 SvgPicture.asset(
                   assetPath,
                   width: 20.w,
-                  height: 20.w,
+                  height: 20,
                   colorFilter: const ColorFilter.mode(
                     AppColors.Grey900,
                     BlendMode.srcIn,

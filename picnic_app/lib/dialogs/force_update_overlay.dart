@@ -34,9 +34,9 @@ class ForceUpdateOverlay extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(S.of(context).update_required_title),
-                        SizedBox(height: 16.h),
+                        SizedBox(height: 16),
                         Text(S.of(context).update_required_text(forceVersion)),
-                        SizedBox(height: 16.h),
+                        SizedBox(height: 16),
                         ElevatedButton(
                           child: Text(S.of(context).update_button),
                           onPressed: () => _launchAppStore(url),

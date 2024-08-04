@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/loading_view.dart';
 import 'package:picnic_app/constants.dart';
@@ -26,7 +25,7 @@ class _LibraryListState extends ConsumerState<AlbumList> {
 
     return asyncLibraryState.when(
         data: (data) => SizedBox(
-              height: 300.w,
+              height: 300,
               child: Column(
                 children: [
                   Row(
@@ -55,7 +54,7 @@ class _LibraryListState extends ConsumerState<AlbumList> {
                       itemCount: data?.length ?? 0,
                       itemBuilder: (context, index) {
                         return SizedBox(
-                          height: 50.w,
+                          height: 50,
                           width: double.infinity,
                           child: RadioListTile<int>(
                             title: Text(
@@ -76,7 +75,7 @@ class _LibraryListState extends ConsumerState<AlbumList> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.only(bottom: 30.w),
+                    margin: EdgeInsets.only(bottom: 30),
                     child: ElevatedButton(
                       onPressed: () {
                         logger.w('selectedRadioTile: $_selectedRadioTile');

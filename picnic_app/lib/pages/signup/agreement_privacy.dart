@@ -54,7 +54,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
     return Column(
       children: [
         SizedBox(
-          height: 25.h,
+          height: 25,
           child: Stack(
             fit: StackFit.expand,
             children: [
@@ -72,7 +72,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                   child: SvgPicture.asset(
                     'assets/icons/arrow_left_style=line.svg',
                     width: 24.w,
-                    height: 24.h,
+                    height: 24,
                     color: AppColors.Grey900,
                   ),
                 ),
@@ -81,7 +81,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
           ),
         ),
         SizedBox(
-          height: 5.h,
+          height: 5,
         ),
         Expanded(
           child: Container(
@@ -94,7 +94,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
           ),
         ),
         SizedBox(
-          height: 60.h,
+          height: 60,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -119,7 +119,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                                     style: getTextStyle(
                                         AppTypo.BODY16R, AppColors.Grey900),
                                   ),
-                                  SizedBox(height: 10.h),
+                                  SizedBox(height: 10),
                                   Text(
                                     formatCurrentTime(),
                                     style: getTextStyle(

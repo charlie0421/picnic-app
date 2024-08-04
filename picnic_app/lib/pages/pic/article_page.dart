@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/article/article_list.dart';
 
 class ArticlePage extends ConsumerStatefulWidget {
@@ -35,7 +34,7 @@ class _ArticlePageState extends ConsumerState<ArticlePage> {
         //   ),
         // ),
         SizedBox(
-          height: 20.w,
+          height: 20,
         ),
         Expanded(child: ArticleList(widget.galleryId)),
       ],

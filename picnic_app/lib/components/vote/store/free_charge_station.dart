@@ -66,22 +66,22 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
 
   Widget _buildContent(AdState adState) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: ListView(
         children: [
           if (supabase.isLogged) ...[
-            SizedBox(height: 36.w),
+            SizedBox(height: 36),
             StorePointInfo(
               title: S.of(context).label_star_candy_pouch,
               width: double.infinity,
-              height: 70.h,
+              height: 70,
             ),
           ],
-          SizedBox(height: 36.h),
+          SizedBox(height: 36),
           _buildStoreListTile(0),
-          Divider(height: 32.h, thickness: 1, color: AppColors.Grey200),
+          Divider(height: 32, thickness: 1, color: AppColors.Grey200),
           _buildStoreListTile(1),
-          Divider(height: 32.h, thickness: 1, color: AppColors.Grey200),
+          Divider(height: 32, thickness: 1, color: AppColors.Grey200),
           GestureDetector(
             onTap: () => showUsagePolicyDialog(context, ref),
             child: Text(S.of(context).candy_usage_policy_guide,
@@ -107,7 +107,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
           icon: Image.asset(
             'assets/icons/store/star_100.png',
             width: 48.w,
-            height: 48.w,
+            height: 48,
           ),
           title: Text(
             S.of(context).label_button_watch_and_charge,
@@ -176,7 +176,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
                   style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 8.h),
+                SizedBox(height: 8),
                 Text(
                   '다음 광고 시청 가능시간',
                   style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600),

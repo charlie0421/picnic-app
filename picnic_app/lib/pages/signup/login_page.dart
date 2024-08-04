@@ -75,15 +75,15 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                         child: SvgPicture.asset(
                           'assets/icons/arrow_left_style=line.svg',
                           width: 24.w,
-                          height: 24.h,
+                          height: 24,
                           color: AppColors.Grey900,
                         ),
                       ),
                     ),
                     Expanded(child: _buildSwiper()),
-                    SizedBox(height: 24.w),
+                    SizedBox(height: 24),
                     _buildLanguageSelector(context, ref),
-                    SizedBox(height: 24.w),
+                    SizedBox(height: 24),
                     _buildLoginButton(context, ref),
                   ],
                 ),
@@ -135,7 +135,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                     child: Container(
                       alignment: Alignment.center,
                       width: double.infinity,
-                      height: 61.w,
+                      height: 61,
                       child: Text(
                         entry.value,
                         style: getTextStyle(
@@ -153,8 +153,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         );
       },
       child: Container(
-        height: 48.h,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        height: 48,
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         decoration: BoxDecoration(
           border: Border.all(color: AppColors.Primary500, width: 1.5),
           borderRadius: BorderRadius.circular(30),
@@ -168,7 +168,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               colorFilter:
                   const ColorFilter.mode(AppColors.Primary500, BlendMode.srcIn),
               width: 20.w,
-              height: 20.w,
+              height: 20,
             ),
             SizedBox(width: 20.w),
             Expanded(
@@ -187,7 +187,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                 colorFilter:
                     const ColorFilter.mode(AppColors.Grey900, BlendMode.srcIn),
                 width: 20.w,
-                height: 20.w,
+                height: 20,
               ),
             ),
           ],
@@ -217,7 +217,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
       ),
       child: SizedBox(
         width: double.infinity,
-        height: 48.h,
+        height: 48,
         child: ElevatedButton(
           onPressed: () {
             showModalBottomSheet(
@@ -328,13 +328,13 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
             }
           },
           child: SizedBox(
-            height: 50.h,
+            height: 50,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Image.asset('assets/icons/login/apple.png',
-                    width: 20.w, height: 20.w),
+                    width: 20.w, height: 20),
                 SizedBox(width: 8.w),
                 Text('Apple',
                     style: getTextStyle(AppTypo.BODY14M, AppColors.Grey800)),
@@ -381,13 +381,13 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               }
             },
             child: SizedBox(
-              height: 50.h,
+              height: 50,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Image.asset('assets/icons/login/google.png',
-                      width: 20.w, height: 20.w),
+                      width: 20.w, height: 20),
                   SizedBox(width: 8.w),
                   Text('Google',
                       style: getTextStyle(AppTypo.BODY14M, AppColors.Grey800)),
@@ -435,13 +435,13 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
             }
           },
           child: SizedBox(
-            height: 50.h,
+            height: 50,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Image.asset('assets/icons/login/kakao.png',
-                    width: 20.w, height: 20.w),
+                    width: 20.w, height: 20),
                 SizedBox(width: 8.w),
                 Text('Kakao Talk',
                     style: getTextStyle(AppTypo.BODY14M, AppColors.Grey800)),

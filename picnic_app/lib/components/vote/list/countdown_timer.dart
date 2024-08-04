@@ -78,13 +78,13 @@ class _CountdownTimerState extends State<CountdownTimer> {
       children: [
         if (widget.status == VoteStatus.upcoming)
           Container(
-            height: 20.h,
+            height: 20,
             alignment: Alignment.center,
             child: Text(S.of(context).label_vote_upcoming,
                 style: getTextStyle(AppTypo.CAPTION12B, _color)),
           ),
         SizedBox(
-          height: 18.h,
+          height: 18,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -114,10 +114,10 @@ class _CountdownTimerState extends State<CountdownTimer> {
   Widget _buildTimeCircle(String time) {
     return Container(
       width: 18.w,
-      height: 18.h,
+      height: 18,
       alignment: Alignment.center,
       padding: EdgeInsets.symmetric(horizontal: 5.w),
-      margin: const EdgeInsets.symmetric(horizontal: 4),
+      margin: EdgeInsets.symmetric(horizontal: 4.w),
       decoration: BoxDecoration(
         color: _color,
         borderRadius: BorderRadius.circular(4),

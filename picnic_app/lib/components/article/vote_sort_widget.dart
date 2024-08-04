@@ -29,7 +29,7 @@
 //                   builder: (BuildContext context, StateSetter setState) {
 //                     return SafeArea(
 //                       child: Container(
-//                         height: 224.w,
+//                         height:224,
 //                         padding: const EdgeInsets.symmetric(horizontal: 16),
 //                         child: Column(
 //                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,14 +81,14 @@
 //                                       },
 //                                       child: Container(
 //                                         alignment: Alignment.centerLeft,
-//                                         height: 56.w,
+//                                         height:56,
 //                                         child: Row(
 //                                           children: [
 //                                             sortOptionState.sort == 'id'
 //                                                 ? SvgPicture.asset(
 //                                                     'assets/icons/check_green.svg',
 //                                                     width: 18.w,
-//                                                     height: 18.w,
+//                                                     height:18,
 //                                                   )
 //                                                 : SizedBox(width: 18.w),
 //                                             SizedBox(width: 8.w),
@@ -125,14 +125,14 @@
 //                                       },
 //                                       child: Container(
 //                                         alignment: Alignment.centerLeft,
-//                                         height: 56.w,
+//                                         height:56,
 //                                         child: Row(
 //                                           children: [
 //                                             sortOptionState.sort == 'viewCount'
 //                                                 ? SvgPicture.asset(
 //                                                     'assets/icons/check_green.svg',
 //                                                     width: 18.w,
-//                                                     height: 18.w,
+//                                                     height:18,
 //                                                   )
 //                                                 : SizedBox(width: 18.w),
 //                                             SizedBox(width: 8.w),
@@ -168,7 +168,7 @@
 //                                       },
 //                                       child: Container(
 //                                         alignment: Alignment.centerLeft,
-//                                         height: 56.w,
+//                                         height:56,
 //                                         child: Row(
 //                                           children: [
 //                                             sortOptionState.sort ==
@@ -176,7 +176,7 @@
 //                                                 ? SvgPicture.asset(
 //                                                     'assets/icons/check_green.svg',
 //                                                     width: 18.w,
-//                                                     height: 18.w,
+//                                                     height:18,
 //                                                   )
 //                                                 : SizedBox(width: 18.w),
 //                                             SizedBox(width: 8.w),
@@ -207,7 +207,7 @@
 //             ),
 //         child: Container(
 //           width: 102.w,
-//           height: 30.w,
+//           height:30,
 //           decoration: BoxDecoration(
 //             borderRadius: BorderRadius.circular(8).r,
 //             border: Border.all(color: AppColors.Grey100),
@@ -236,7 +236,7 @@
 //               SvgPicture.asset(
 //                 'assets/icons/arrow_down_style=line.svg',
 //                 width: 18.w,
-//                 height: 18.w,
+//                 height:18,
 //               )
 //             ],
 //           ),

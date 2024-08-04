@@ -56,7 +56,7 @@ class VoteArtists extends StatelessWidget {
                             top: 0,
                             child: Container(
                               width: 18.w,
-                              height: 18.w,
+                              height: 18,
                               decoration: BoxDecoration(
                                 color: picMainColor,
                                 borderRadius: BorderRadius.circular(10),
@@ -73,7 +73,7 @@ class VoteArtists extends StatelessWidget {
                         ],
                       ),
                       SizedBox(
-                        height: 2.w,
+                        height: 2,
                       ),
                       Text(
                         getLocaleTextFromJson(artist.value.artist.name) ?? '',

@@ -36,8 +36,7 @@ class _UpdateDialogState extends ConsumerState<UpdateDialog> {
             context.showOverlayNotification(
               childBuilder: (remainingSeconds) => Container(
                 color: Colors.yellow,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12).r,
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12),
                 child: Row(
                   children: [
                     Expanded(

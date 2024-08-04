@@ -81,6 +81,8 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
             width: widget.width?.w.toDouble(),
             height: widget.height?.h.toDouble(),
             fit: widget.fit,
+            memCacheWidth: widget.memCacheWidth,
+            memCacheHeight: widget.memCacheHeight,
             errorWidget: (context, url, error) => Container(),
           )
         : CachedNetworkImage(
@@ -88,6 +90,8 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
             width: widget.width?.toDouble(),
             height: widget.height?.toDouble(),
             fit: widget.fit,
+            memCacheWidth: widget.memCacheWidth,
+            memCacheHeight: widget.memCacheHeight,
             errorWidget: (context, url, error) => Container());
   }
 

@@ -22,7 +22,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 600.h,
+      height: 600,
       child: widget.article.article_image != null
           ? Swiper(
               itemBuilder: (BuildContext context, int index) {
@@ -59,7 +59,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
                     color: Colors.grey, activeColor: picMainColor),
               ),
             )
-          : SizedBox(width: 300.w, height: 300.w),
+          : SizedBox(width: 300.w, height: 300),
     );
   }
 
@@ -76,7 +76,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
   //                       child: PicnicCachedNetworkImage(
   //                         Key: widget.article.article_image![index].image ?? '',
   //                         fit: BoxFit.cover,
-  //                         height: 600.w,
+  //                         height:600,
   //                       ),
   //                     ),
   //                     _buildBookmark(widget.article, index),
@@ -90,7 +90,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
   //       color: Colors.grey, activeColor: picMainColor),
   // ),
   // )
-  // : SizedBox(width: 300.w, height: 300.w),
+  // : SizedBox(width: 300.w, height:300),
   // );
   // }
 

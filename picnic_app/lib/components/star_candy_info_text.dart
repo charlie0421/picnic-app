@@ -54,7 +54,7 @@ class _StarCandyInfoTextState extends ConsumerState<StarCandyInfoText> {
           Image.asset(
             'assets/icons/store/star_100.png',
             width: 48.w,
-            height: 48.w,
+            height: 48,
           ),
           Text.rich(
             TextSpan(

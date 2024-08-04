@@ -83,8 +83,8 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
             children: [
               Container(
                 alignment: Alignment.centerLeft,
-                height: 44.w,
-                padding: const EdgeInsets.only(left: 16, top: 8, bottom: 8).r,
+                height: 44,
+                padding: EdgeInsets.only(left: 16.w, top: 8, bottom: 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -108,7 +108,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                       child: SvgPicture.asset(
                         'assets/icons/arrow_down_style=line.svg',
                         width: 20.w,
-                        height: 20.w,
+                        height: 20,
                       ),
                     ),
                   ],
@@ -150,8 +150,8 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                                   child: Container(
                                     width: getPlatformScreenSize(context).width,
                                     alignment: Alignment.center,
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 4, horizontal: 8),
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8.w),
                                     color: Colors.black.withOpacity(0.5),
                                     child: Text(
                                       title,
@@ -192,7 +192,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                   const SizedBox(height: 20),
                   Container(
                     alignment: Alignment.centerLeft,
-                    padding: const EdgeInsets.only(left: 16).r,
+                    padding: EdgeInsets.only(left: 16.w),
                     child: Text(
                       S.of(context).label_celeb_gallery,
                       style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900),
@@ -215,7 +215,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                   const SizedBox(height: 20),
                   Container(
                     alignment: Alignment.centerLeft,
-                    padding: const EdgeInsets.only(left: 16).r,
+                    padding: EdgeInsets.only(left: 16.w),
                     child: Row(
                       children: [
                         Text(
@@ -226,14 +226,14 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                         SvgPicture.asset(
                           'assets/icons/arrow_right_style=line.svg',
                           width: 8.w,
-                          height: 15.w,
+                          height: 15,
                           colorFilter: const ColorFilter.mode(
                               AppColors.Grey900, BlendMode.srcIn),
                         ),
                       ],
                     ),
                   ),
-                  SizedBox(height: 24.w),
+                  SizedBox(height: 24),
                   PagedListView<int, ArtistVoteModel>(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
@@ -282,7 +282,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
       alignment: Alignment.centerLeft,
       height: 100,
       width: double.infinity,
-      padding: const EdgeInsets.only(left: 16),
+      padding: EdgeInsets.only(left: 16.w),
       child: ListView.separated(
           scrollDirection: Axis.horizontal,
           itemBuilder: (context, index) {
@@ -321,8 +321,8 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                         color: Colors.black.withOpacity(0.5),
                       ),
                       alignment: Alignment.center,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 4, horizontal: 8),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 4, horizontal: 8.w),
                       child: Text(
                         title,
                         style: getTextStyle(AppTypo.BODY14R, Colors.white)
@@ -425,8 +425,8 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
         ? data
             .map((e) => Container(
                 height: 70,
-                margin: const EdgeInsets.symmetric(horizontal: 32, vertical: 4),
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+                margin: EdgeInsets.symmetric(horizontal: 32.w, vertical: 4),
+                padding: EdgeInsets.symmetric(horizontal: 8.w),
                 decoration: BoxDecoration(
                   color: e.id == selectedCeleb.id
                       ? const Color(0xFF47E89B)

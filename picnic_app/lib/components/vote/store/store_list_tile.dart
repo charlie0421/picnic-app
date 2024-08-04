@@ -27,7 +27,7 @@ class StoreListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 48.w,
+      height: 48,
       width: buttonScale,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -42,13 +42,13 @@ class StoreListTile extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: 32.h,
+            height: 32,
             child: ElevatedButton(
               onPressed: isLoading ? null : buttonOnPressed,
               child: isLoading
                   ? SizedBox(
                       width: 16.w,
-                      height: 16.w,
+                      height: 16,
                       child: const CircularProgressIndicator(
                         strokeWidth: 2,
                         valueColor:

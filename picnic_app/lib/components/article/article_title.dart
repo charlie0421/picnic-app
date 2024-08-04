@@ -12,7 +12,7 @@ class ArticleTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 30.w,
+      height: 30,
       child: Row(
         children: [
           Align(

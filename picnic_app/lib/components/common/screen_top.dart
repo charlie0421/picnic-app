@@ -47,7 +47,7 @@ class _TopState extends ConsumerState<ScreenTop> {
       }
     }
     return Container(
-      height: 54.h,
+      height: 54,
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -127,11 +127,11 @@ class TopScreenRight extends StatelessWidget {
               child: Container(
                 alignment: Alignment.centerLeft,
                 width: 40.w,
-                height: 36.h,
+                height: 36,
                 child: SvgPicture.asset(
                   'assets/icons/calendar_style=line.svg',
                   width: 24.w,
-                  height: 24.h,
+                  height: 24,
                 ),
               ),
             ),
@@ -144,7 +144,7 @@ class TopScreenRight extends StatelessWidget {
                     image: Image.asset(
                       'assets/icons/store/star_100.png',
                       width: 24.w,
-                      height: 24.h,
+                      height: 24,
                     ),
                   ),
                 ],
@@ -166,11 +166,11 @@ class TopScreenRight extends StatelessWidget {
             children: [
               SizedBox(
                 width: 24.w,
-                height: 24.h,
+                height: 24,
                 child: SvgPicture.asset(
                   'assets/icons/alarm_style=line.svg',
                   width: 24.w,
-                  height: 24.h,
+                  height: 24,
                 ),
               ),
               Positioned(

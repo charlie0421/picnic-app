@@ -14,10 +14,10 @@ class VoteCommonTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16).r,
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         decoration: BoxDecoration(
             color: AppColors.Mint500,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(24).r,
             border: Border.all(
               color: AppColors.Primary500,
               width: 1.5,
@@ -25,17 +25,14 @@ class VoteCommonTitle extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SvgPicture.asset(
-              'assets/icons/vote/vote_title_left.svg',
-              width: 16.w,
-              height: 16.w,
-            ),
+            SvgPicture.asset('assets/icons/play_style=fill.svg',
+                width: 16.w, height: 16, color: AppColors.Primary500),
             SizedBox(
               width: 2.w,
             ),
             Expanded(
               child: Container(
-                height: 48.w,
+                height: 48,
                 alignment: Alignment.center,
                 child: Stack(
                   children: [
@@ -62,10 +59,10 @@ class VoteCommonTitle extends StatelessWidget {
             SizedBox(
               width: 2.w,
             ),
-            SvgPicture.asset(
-              'assets/icons/vote/vote_title_right.svg',
-              width: 16.w,
-              height: 16.w,
+            Transform.rotate(
+              angle: 3.14,
+              child: SvgPicture.asset('assets/icons/play_style=fill.svg',
+                  width: 16.w, height: 16, color: AppColors.Primary500),
             ),
           ],
         ));

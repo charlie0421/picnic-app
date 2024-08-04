@@ -47,11 +47,11 @@ class MyPageScreen extends ConsumerWidget {
           child: Container(
             padding: EdgeInsets.only(left: 16.w),
             width: 24.w,
-            height: 24.w,
+            height: 24,
             child: SvgPicture.asset(
               'assets/icons/arrow_left_style=line.svg',
               width: 24.w,
-              height: 24.w,
+              height: 24,
             ),
           ),
         ),

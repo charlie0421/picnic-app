@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/generated/l10n.dart';
 
 class MyFavItem {
@@ -67,7 +68,7 @@ class _MyPageState extends State<MyPage> {
               children: [
                 ...FabLibrary.map((item) {
                   return Container(
-                      margin: const EdgeInsets.only(right: 16),
+                      margin: EdgeInsets.only(right: 16.w),
                       child: Image.asset('assets/mockup/my/${item.image}'));
                 }),
               ],
@@ -87,7 +88,7 @@ class _MyPageState extends State<MyPage> {
               children: [
                 ...Moments.map((item) {
                   return Container(
-                      margin: const EdgeInsets.only(right: 16),
+                      margin: EdgeInsets.only(right: 16.w),
                       child: Column(
                         children: [
                           Image.asset('assets/mockup/my/${item.image}'),

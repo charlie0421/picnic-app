@@ -31,11 +31,11 @@ class _RewardDialogState extends State<RewardDialog> {
               child: Column(
                 children: [
                   buildTopSection(),
-                  SizedBox(height: 67.w),
+                  SizedBox(height: 67),
                   buildSection(RewardType.overview),
                   buildSection(RewardType.location),
                   buildSection(RewardType.size_guide),
-                  SizedBox(height: 56.w),
+                  SizedBox(height: 56),
                 ],
               ),
             ),
@@ -91,8 +91,8 @@ class _RewardDialogState extends State<RewardDialog> {
           left: 0,
           right: 0,
           child: Container(
-            height: 48.w,
-            margin: const EdgeInsets.symmetric(horizontal: 30).r,
+            height: 48,
+            margin: EdgeInsets.symmetric(horizontal: 30.w),
             child: VoteCommonTitle(
               title: widget.data.getTitle(),
             ),
@@ -109,10 +109,10 @@ class _RewardDialogState extends State<RewardDialog> {
           children: [
             Container(
               width: double.infinity,
-              margin: const EdgeInsets.only(left: 16, right: 16, top: 12).r,
-              padding: const EdgeInsets.only(
-                      left: 24, right: 24, top: 53, bottom: 41)
-                  .r,
+              margin: EdgeInsets.only(left: 16.w, right: 16.w, top: 12),
+              padding:
+                  EdgeInsets.only(left: 24.w, right: 24.w, top: 53, bottom: 41)
+                      .r,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24.r),
                 border: Border.all(color: AppColors.Primary500, width: 1.5.r),
@@ -125,11 +125,11 @@ class _RewardDialogState extends State<RewardDialog> {
               top: 0,
               left: 40.w,
               child: Image.asset('assets/images/reward_${type.name}.png',
-                  height: 24.w),
+                  height: 24),
             ),
           ],
         ),
-        SizedBox(height: 68.w),
+        SizedBox(height: 68),
       ],
     );
   }
@@ -152,15 +152,15 @@ class _RewardDialogState extends State<RewardDialog> {
               )).sublist(0, 1),
           ...buildImageList(widget.data.location?[locale]['map'].cast<String>())
               .sublist(1),
-          SizedBox(height: 24.w),
+          SizedBox(height: 24),
           ...buildTextAddress(
               widget.data.location?[locale]['address'].cast<String>(),
               getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
-          SizedBox(height: 24.w),
+          SizedBox(height: 24),
           if (widget.data.location?[locale]['images'] != null)
             ...buildImageList(
                 widget.data.location?[locale]['images'].cast<String>()),
-          SizedBox(height: 24.w),
+          SizedBox(height: 24),
           ...buildTextList(widget.data.location?[locale]['desc'].cast<String>(),
               getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
         ];
@@ -174,12 +174,12 @@ class _RewardDialogState extends State<RewardDialog> {
                 return Column(
                   children: [
                     ...buildSizeGuideImageList(value['image'].cast<String>()),
-                    SizedBox(height: 24.w),
+                    SizedBox(height: 24),
                     ...buildTextList(value['desc'].cast<String>().sublist(0, 1),
                         getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
                     ...buildTextList(value['desc'].cast<String>().sublist(1),
                         getTextStyle(AppTypo.BODY16R, AppColors.Grey900)),
-                    SizedBox(height: 24.w),
+                    SizedBox(height: 24),
                   ],
                 );
               }).toList()
@@ -204,7 +204,7 @@ class _RewardDialogState extends State<RewardDialog> {
                   child: Container(
                     alignment: Alignment.topCenter,
                     width: 300.w,
-                    height: 300.w,
+                    height: 300,
                     child: PicnicCachedNetworkImage(
                       imageUrl: images[i] ?? '',
                       width: 400,
@@ -213,7 +213,7 @@ class _RewardDialogState extends State<RewardDialog> {
                     ),
                   ),
                 )),
-            if (i != images.length - 1) SizedBox(height: 12.w),
+            if (i != images.length - 1) SizedBox(height: 12),
             // 마지막 요소가 아닐 때만 추가
           ],
         ),
@@ -237,7 +237,7 @@ class _RewardDialogState extends State<RewardDialog> {
                 fit: BoxFit.cover,
               ),
             ),
-            if (i != images.length - 1) SizedBox(height: 12.w),
+            if (i != images.length - 1) SizedBox(height: 12),
             // 마지막 요소가 아닐 때만 추가
           ],
         ),

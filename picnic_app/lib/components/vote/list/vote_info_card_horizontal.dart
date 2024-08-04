@@ -35,14 +35,14 @@ class VoteCardColumnHorizontal extends StatelessWidget {
           width: double.infinity,
           child: SizedBox(
             width: barWidth.w,
-            height: 50.w,
+            height: 50,
           ),
         ),
         Positioned(
           width: barWidth,
           child: Container(
             width: barWidth.w,
-            height: 50.w,
+            height: 50,
             decoration: const BoxDecoration(
               gradient: commonGradientReverse,
             ),
@@ -50,7 +50,7 @@ class VoteCardColumnHorizontal extends StatelessWidget {
         ),
         Positioned(
           left: barWidth + 50.w,
-          height: 50.w,
+          height: 50,
           child: Align(
             alignment: Alignment.centerRight,
             child: FadeTransition(
@@ -95,7 +95,7 @@ class VoteCardColumnHorizontal extends StatelessWidget {
           left: barWidth - 25.w,
           child: Container(
             width: 50.w,
-            height: 50.w,
+            height: 50,
             alignment: Alignment.center,
             padding: const EdgeInsets.all(2),
             decoration: BoxDecoration(
@@ -108,7 +108,7 @@ class VoteCardColumnHorizontal extends StatelessWidget {
             ),
             child: Container(
               width: 42.w,
-              height: 42.w,
+              height: 42,
               alignment: Alignment.centerRight,
               decoration: BoxDecoration(
                 color: AppColors.Grey200,

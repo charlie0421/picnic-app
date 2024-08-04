@@ -32,7 +32,7 @@ class StorePointInfo extends ConsumerWidget {
         Container(
           height: height,
           width: width,
-          margin: const EdgeInsets.only(top: 32, left: 16, right: 16).r,
+          margin: EdgeInsets.only(top: 32, left: 16.w, right: 16.w),
           decoration: BoxDecoration(
               border: Border.all(
                 color: AppColors.Primary500,

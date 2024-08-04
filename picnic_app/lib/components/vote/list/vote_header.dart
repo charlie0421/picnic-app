@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/vote/list/countdown_timer.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
@@ -23,7 +22,7 @@ class VoteHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(mainAxisSize: MainAxisSize.min, children: [
       SizedBox(
-          height: 32.h,
+          height: 32,
           child: Stack(children: [
             Container(
               alignment: Alignment.center,

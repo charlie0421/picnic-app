@@ -43,7 +43,7 @@ class CelebListItem extends ConsumerWidget {
         Navigator.pop(context);
       },
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 16),
+        margin: EdgeInsets.symmetric(vertical: 16),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
