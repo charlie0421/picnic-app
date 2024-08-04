@@ -65,9 +65,9 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   Widget build(BuildContext context) {
     return ListView(children: [
       _buildVoteHomeBanner(context),
-      SizedBox(height: 36.h),
+      const SizedBox(height: 36),
       _buildRewardList(context),
-      SizedBox(height: 36.h),
+      const SizedBox(height: 36),
       _buildVoteListTitle(),
 
       //TODO 구분을 enum 으로 변경
@@ -85,7 +85,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
             .setCurrentPage(const VoteListPage(), showTopMenu: false);
       },
       child: Container(
-        padding: const EdgeInsets.only(left: 16),
+        padding: EdgeInsets.only(left: 16.w),
         alignment: Alignment.centerLeft,
         child: Row(
           children: [
@@ -93,8 +93,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                 style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900)),
             SvgPicture.asset(
               'assets/icons/arrow_right_style=line.svg',
-              width: 8,
-              height: 15,
+              width: 24,
+              height: 24,
               colorFilter:
                   const ColorFilter.mode(AppColors.Grey900, BlendMode.srcIn),
             ),
@@ -131,48 +131,43 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
               baseColor: AppColors.Grey300,
               highlightColor: AppColors.Grey100,
               child: ListView.separated(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: 5,
-                itemBuilder: (context, index) => Container(
-                  height: 100.h,
-                  padding: EdgeInsets.all(16.r),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 200.w,
-                        height: 20.h,
-                        color: Colors.white,
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: 5,
+                  itemBuilder: (context, index) => Container(
+                        height: 100,
+                        padding: EdgeInsets.all(16.r),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 200.w,
+                              height: 20,
+                              color: Colors.white,
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              width: 100.w,
+                              height: 16,
+                              color: Colors.white,
+                            ),
+                          ],
+                        ),
                       ),
-                      SizedBox(height: 8.h),
-                      Container(
-                        width: 100.w,
-                        height: 16.h,
-                        color: Colors.white,
-                      ),
-                    ],
-                  ),
-                ),
-                separatorBuilder: (BuildContext context, int index) => Divider(
-                  height: 1.h,
-                  color: AppColors.Grey300,
-                ),
-              ),
+                  separatorBuilder: (BuildContext context, int index) =>
+                      const Divider(
+                        height: 1,
+                        color: AppColors.Grey300,
+                      )),
             ),
             noItemsFoundIndicatorBuilder: (context) {
               return Container();
             },
           ),
-          separatorBuilder: (BuildContext context, int index) => Divider(
-            height: 1.h,
+          separatorBuilder: (BuildContext context, int index) => const Divider(
+            height: 1,
             color: AppColors.Grey300,
           ),
-        ),
-        Divider(
-          color: AppColors.Grey300,
-          thickness: 1.h,
-          height: 1.h,
         ),
       ],
     );
@@ -227,17 +222,17 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
     final asyncRewardListState = ref.watch(asyncRewardListProvider);
     return Column(children: [
       Container(
-        padding: const EdgeInsets.only(left: 16),
+        padding: EdgeInsets.only(left: 16.w),
         alignment: Alignment.centerLeft,
         child: Text(S.of(context).label_vote_reward_list,
             style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900)),
       ),
-      SizedBox(height: 16.h),
+      const SizedBox(height: 16),
       asyncRewardListState.when(
           data: (data) {
             return Container(
               alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.only(left: 16).r,
+              padding: EdgeInsets.only(left: 16.w),
               height: 100,
               child: ListView.builder(
                   scrollDirection: Axis.horizontal,
@@ -250,7 +245,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                         showRewardDialog(context, data[index]);
                       },
                       child: Container(
-                        margin: const EdgeInsets.only(right: 16).r,
+                        margin: EdgeInsets.only(right: 16.w),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8).r,
                         ),
@@ -276,8 +271,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                                   color: Colors.black.withOpacity(0.5),
                                 ),
                                 alignment: Alignment.center,
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 4, horizontal: 8),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 4, horizontal: 8.w),
                                 child: Text(
                                   title,
                                   style: getTextStyle(
@@ -298,15 +293,15 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                 baseColor: AppColors.Grey300,
                 highlightColor: AppColors.Grey100,
                 child: Container(
-                  height: 100.h,
+                  height: 100,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: 5,
                     itemBuilder: (BuildContext context, int index) => Container(
                       width: 120.w,
-                      height: 100.h,
+                      height: 100,
                       margin: EdgeInsets.only(
-                          left: 16.r, right: index == 4 ? 16.r : 0),
+                          left: 16.w, right: index == 4 ? 16.w : 0),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8.r),
                         color: Colors.white,
@@ -356,8 +351,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                         right: 0,
                         child: Container(
                           alignment: Alignment.center,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 4, horizontal: 8),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 4, horizontal: 8.w),
                           color: Colors.black.withOpacity(0.5),
                           child: Text(
                             title,
@@ -381,7 +376,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
           ),
           if (data.length > 1)
             SizedBox(
-              height: 20.h,
+              height: 20,
               child: CustomPagination(
                 itemCount: data.length,
                 activeIndex: _currentIndex,
@@ -399,16 +394,16 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
               height: width / 2,
               color: Colors.white,
             ),
-            SizedBox(height: 20.h),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
                 3,
                 (index) => Container(
                   width: 8.w,
-                  height: 8.w,
+                  height: 8,
                   margin: EdgeInsets.symmetric(horizontal: 4.w),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.white,
                   ),

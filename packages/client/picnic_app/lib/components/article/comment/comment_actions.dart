@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/article/comment/like_button.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/pic/comment.dart';
@@ -35,8 +34,8 @@ class CommentActions extends ConsumerWidget {
                     child: Container(
                       alignment: Alignment.topLeft,
                       padding: EdgeInsets.only(
-                        top: 5.w,
-                        bottom: 10.w,
+                        top: 5,
+                        bottom: 10,
                       ),
                       child: Text(S.of(context).label_reply,
                           style:

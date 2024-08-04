@@ -43,7 +43,7 @@ class BottomBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 100.w,
+      height: 100,
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -81,13 +81,13 @@ class BottomBarWidget extends StatelessWidget {
               }
             },
             child: recentImage == null
-                ? Container(color: Colors.grey, width: 50.w, height: 50.w)
+                ? Container(color: Colors.grey, width: 50.w, height: 50)
                 : ClipRRect(
                     borderRadius: BorderRadius.circular(20),
                     child: Image.file(
                       recentImage!,
                       width: 50.w,
-                      height: 50.w,
+                      height: 50,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -110,7 +110,7 @@ class BottomBarWidget extends StatelessWidget {
                   },
             child: Container(
               width: 40.w,
-              height: 40.w,
+              height: 40,
               decoration: BoxDecoration(
                 color: viewType == ViewType.image ||
                         viewMode == ViewMode.saving ||
@@ -136,7 +136,7 @@ class BottomBarWidget extends StatelessWidget {
             onTap: viewMode == ViewMode.ready ? onCapture : null,
             child: Container(
               width: 70.w,
-              height: 70.w,
+              height: 70,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color:
@@ -176,7 +176,7 @@ class BottomBarWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(50),
               ),
               width: 45.w,
-              height: 45.w,
+              height: 45,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,

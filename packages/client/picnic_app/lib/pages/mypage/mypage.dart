@@ -40,7 +40,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: ListView(
                   children: [
-                    SizedBox(height: 24.h),
+                    SizedBox(height: 24),
                     // 프로필
                     data != null ? _buildProfile() : _buildNonLogin(),
                     // 캔디 정보
@@ -49,7 +49,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                             alignment: Alignment.centerLeft,
                             child: StarCandyInfoText(
                                 alignment: MainAxisAlignment.start))
-                        : SizedBox(height: 16.h),
+                        : SizedBox(height: 16),
 
                     const Divider(color: AppColors.Grey200),
                     // 공지사항
@@ -169,7 +169,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                   avatarUrl: data?.avatar_url,
                   width: 80.w,
                   height: 80.w,
-                  borderRadius: 80.w,
+                  borderRadius: 80.r,
                 ),
                 SizedBox(width: 16.w),
                 Text(
@@ -179,7 +179,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                 SizedBox(width: 8.w),
                 SvgPicture.asset('assets/icons/setting_style=line.svg',
                     width: 20.w,
-                    height: 20.w,
+                    height: 20,
                     colorFilter: const ColorFilter.mode(
                       AppColors.Grey900,
                       BlendMode.srcIn,
@@ -207,7 +207,7 @@ class _MyPageState extends ConsumerState<MyPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            height: 48.w,
+            height: 48,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -222,7 +222,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                 ),
                 SvgPicture.asset('assets/icons/arrow_right_style=line.svg',
                     width: 20.w,
-                    height: 20.w,
+                    height: 20,
                     colorFilter: const ColorFilter.mode(
                       AppColors.Grey900,
                       BlendMode.srcIn,
@@ -230,10 +230,10 @@ class _MyPageState extends ConsumerState<MyPage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
-            height: 80.w,
+            height: 80,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               shrinkWrap: true,
@@ -241,7 +241,7 @@ class _MyPageState extends ConsumerState<MyPage> {
               itemBuilder: (context, index) {
                 return Container(
                   width: 80.w,
-                  height: 80.w,
+                  height: 80,
                   margin: EdgeInsets.only(right: 14.w),
                   child: CircleAvatar(
                     radius: 30.w,

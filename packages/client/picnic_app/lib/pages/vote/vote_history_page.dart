@@ -96,7 +96,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
               builderDelegate: PagedChildBuilderDelegate<VotePickModel>(
                 itemBuilder: (context, item, index) {
                   return Container(
-                    height: 107.w,
+                    height: 107,
                     padding: EdgeInsets.all(16.w),
                     decoration: const BoxDecoration(
                         border: Border(

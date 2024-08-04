@@ -29,8 +29,8 @@ class _CommonBottomNavigationBarState
       data: (data) {
         final bool isAdmin = data == null ? false : data.is_admin;
         return Container(
-          height: 102.h,
-          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 50).r,
+          height: 102,
+          padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 50),
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
@@ -44,8 +44,8 @@ class _CommonBottomNavigationBarState
             ),
           ),
           child: Container(
-            height: 52.h,
-            padding: const EdgeInsets.symmetric(horizontal: 24).r,
+            height: 52,
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
             decoration: ShapeDecoration(
               color: widget.screenInfo.color,
               shape: RoundedRectangleBorder(
@@ -104,7 +104,7 @@ class MenuItem extends ConsumerWidget {
     final bool isSelected = index == this.index;
 
     return SizedBox(
-      height: 42.h,
+      height: 52,
       child: InkWell(
         onTap: () => navigationNotifier.setBottomNavigationIndex(this.index),
         child: Column(
@@ -112,8 +112,8 @@ class MenuItem extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             SizedBox(
-                width: 24.w,
-                height: 24.w,
+                width: 24,
+                height: 24,
                 child: SvgPicture.asset(
                   assetPath,
                   colorFilter: ColorFilter.mode(

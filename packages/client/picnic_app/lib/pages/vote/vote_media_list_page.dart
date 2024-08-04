@@ -151,7 +151,7 @@ class _VideoListItemState extends State<VideoListItem> {
             aspectRatio: 16 / 9,
             child: WebViewWidget(controller: _controller),
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

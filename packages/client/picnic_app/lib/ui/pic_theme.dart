@@ -37,7 +37,7 @@ ThemeData picThemeLight = ThemeData.light().copyWith(
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
         padding: WidgetStateProperty.all(
-            const EdgeInsets.symmetric(horizontal: 32, vertical: 0).r),
+            EdgeInsets.symmetric(horizontal: 32.w, vertical: 0)),
         backgroundColor: WidgetStateProperty.all(AppColors.Mint500),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(

@@ -44,12 +44,12 @@ class _CommonMyPointState extends ConsumerState<CommonMyPoint> {
               Image.asset(
                 'assets/icons/store/star_100.png',
                 width: 30.w,
-                height: 30.w,
+                height: 30,
               ),
               Container(
                 alignment: Alignment.centerRight,
-                padding: const EdgeInsets.only(bottom: 3).r,
-                height: 18.h,
+                padding: EdgeInsets.only(bottom: 3),
+                height: 18,
                 constraints: BoxConstraints(minWidth: 60.w),
                 child: AnimatedDigitWidget(
                     value: starCandy + starCandyBonus,
@@ -63,7 +63,7 @@ class _CommonMyPointState extends ConsumerState<CommonMyPoint> {
               Image.asset(
                 'assets/icons/header/plus.png',
                 width: 16.w,
-                height: 16.w,
+                height: 16,
               ),
               SizedBox(width: 8.w),
             ],

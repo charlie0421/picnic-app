@@ -55,7 +55,7 @@ class _PortalState extends ConsumerState<Portal> {
                 builder: (BuildContext context) {
                   return Container(
                     width: 24.h,
-                    height: 24.h,
+                    height: 24,
                     alignment: Alignment.center,
                     child: supabase.isLogged
                         ? userInfoState.when(
@@ -68,7 +68,7 @@ class _PortalState extends ConsumerState<Portal> {
                                     child: ProfileImageContainer(
                                       avatarUrl: data.avatar_url,
                                       width: 36.w,
-                                      height: 36.w,
+                                      height: 36,
                                       borderRadius: 8.r,
                                     ))
                                 : const DefaultAvatar(),
@@ -92,7 +92,7 @@ class _PortalState extends ConsumerState<Portal> {
               leadingWidth: 52.w,
               titleSpacing: 0,
               title: SizedBox(
-                height: 26.h,
+                height: 26,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: [
@@ -101,7 +101,7 @@ class _PortalState extends ConsumerState<Portal> {
                         Environment.currentEnvironment,
                       ),
                     SizedBox(
-                      height: 26.h,
+                      height: 26,
                       width: getPlatformScreenSize(context).width,
                       child: ListView(
                         scrollDirection: Axis.horizontal,

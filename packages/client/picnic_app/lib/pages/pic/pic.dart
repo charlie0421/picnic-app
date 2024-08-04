@@ -23,14 +23,14 @@ class _PicPageState extends ConsumerState<PicPage> {
       children: [
         Container(
             padding: EdgeInsets.only(
-              top: 8.w,
+              top: 8,
             ),
             child: _buildSelectArtist()),
         Flexible(
           child: Container(
             padding: EdgeInsets.only(
-              top: 8.w,
-              bottom: 52.w,
+              top: 8,
+              bottom: 52,
             ),
             child: AspectRatio(
               aspectRatio: 5.5 / 8.5,
@@ -83,7 +83,7 @@ class _PicPageState extends ConsumerState<PicPage> {
     return asyncCelebListState.when(
       data: (data) {
         return SizedBox(
-          height: 90.w,
+          height: 90,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: data?.length ?? 0,
@@ -92,7 +92,7 @@ class _PicPageState extends ConsumerState<PicPage> {
               if (index == 0) return SizedBox(width: 16.w);
               return SizedBox(
                 width: 60.w,
-                height: 60.w,
+                height: 60,
                 child: Column(
                   children: [
                     ClipRRect(
@@ -100,10 +100,10 @@ class _PicPageState extends ConsumerState<PicPage> {
                       child: Image.network(
                         data?[index - 1].thumbnail ?? '',
                         width: 60.w,
-                        height: 60.w,
+                        height: 60,
                       ),
                     ),
-                    SizedBox(height: 4.w),
+                    SizedBox(height: 4),
                     Text(data?[index - 1].name_ko ?? '',
                         style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900))
                   ],

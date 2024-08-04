@@ -62,11 +62,11 @@ class LikeButtonState extends State<LikeButton> {
       child: Container(
         alignment: Alignment.topRight,
         padding: EdgeInsets.only(
-          top: 5.w,
-          bottom: 10.w,
+          top: 5,
+          bottom: 10,
         ),
         child: SizedBox(
-          height: 40.w,
+          height: 40,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

@@ -170,29 +170,29 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: ListView(
         children: [
           if (supabase.isLogged) ...[
-            SizedBox(height: 36.w),
+            SizedBox(height: 36),
             StorePointInfo(
               title: S.of(context).label_star_candy_pouch,
               width: double.infinity,
-              height: 70.h,
+              height: 70,
             ),
           ],
-          SizedBox(height: 36.w),
+          SizedBox(height: 36),
           _buildProductsList(),
           const Divider(color: AppColors.Grey200, height: 32),
           Text(S.of(context).text_purchase_vat_included,
               style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600)),
-          SizedBox(height: 2.w),
+          SizedBox(height: 2),
           GestureDetector(
             onTap: () => showUsagePolicyDialog(context, ref),
             child: Text(S.of(context).candy_usage_policy_guide,
                 style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600)),
           ),
-          SizedBox(height: 36.w),
+          SizedBox(height: 36),
         ],
       ),
     );
@@ -237,7 +237,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
     return ListTile(
       leading: Container(
         width: 48.w,
-        height: 48.w,
+        height: 48,
         color: Colors.white,
       ),
       title: Container(
@@ -271,7 +271,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
       icon: Image.asset(
         'assets/icons/store/star_${serverProduct['id'].replaceAll('STAR', '')}.png',
         width: 48.w,
-        height: 48.w,
+        height: 48,
       ),
       title: Text(serverProduct['id'],
           style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),

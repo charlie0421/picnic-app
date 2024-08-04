@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/article/article_best_comment.dart';
 import 'package:picnic_app/components/article/article_comment_info.dart';
@@ -87,7 +86,7 @@ class _ArticleListState extends ConsumerState<ArticleList> {
         children: [
           ArticleTitle(article: article),
           SizedBox(
-            height: 10.w,
+            height: 10,
           ),
           Container(
             padding: const EdgeInsets.only(bottom: 10),
@@ -107,7 +106,7 @@ class _ArticleListState extends ConsumerState<ArticleList> {
                 ),
               ],
             ),
-            height: 800.h,
+            height: 800,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

@@ -118,8 +118,8 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
         navigationInfoNotifier.hidePortal();
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16).r,
-        margin: const EdgeInsets.only(top: 24, bottom: 32).r,
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        margin: EdgeInsets.only(top: 24.w, bottom: 32),
         child: Column(
           children: [
             VoteHeader(
@@ -145,9 +145,9 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
     return asyncVoteItemList.when(
       data: (voteItems) => Container(
         width: double.infinity,
-        height: 220.h,
-        padding: const EdgeInsets.only(left: 36, right: 36, top: 16).r,
-        margin: EdgeInsets.only(top: 24.h),
+        height: 220,
+        padding: EdgeInsets.only(left: 36.w, right: 36.w, top: 16),
+        margin: EdgeInsets.only(top: 24),
         clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(40).r,
@@ -259,8 +259,8 @@ class _VoteInfoCardHorizontalState extends ConsumerState<PicVoteInfoCard>
       behavior: HitTestBehavior.opaque,
       onTap: () {},
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16).w,
-        margin: const EdgeInsets.only(bottom: 32).r,
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        margin: const EdgeInsets.only(bottom: 32),
         child: Column(
           children: [
             VoteHeader(
@@ -269,14 +269,13 @@ class _VoteInfoCardHorizontalState extends ConsumerState<PicVoteInfoCard>
                 onRefresh: _restartAnimation,
                 status: widget.status),
             SizedBox(
-              height: 24.h,
+              height: 24,
             ),
             Container(
               width: double.infinity,
-              height: 220.h,
+              height: 220,
               padding:
-                  const EdgeInsets.only(left: 0, right: 18, top: 16, bottom: 16)
-                      .r,
+                  EdgeInsets.only(left: 0, right: 18.w, top: 16, bottom: 16),
               clipBehavior: Clip.hardEdge,
               // 추가
               decoration: BoxDecoration(
@@ -313,7 +312,7 @@ class _VoteInfoCardHorizontalState extends ConsumerState<PicVoteInfoCard>
               ),
             ),
             SizedBox(
-              height: 10.w,
+              height: 10,
             ),
           ],
         ),

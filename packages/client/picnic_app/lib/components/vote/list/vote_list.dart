@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card.dart';
@@ -61,7 +60,7 @@ class _VoteListState extends State<VoteList> {
           noItemsFoundIndicatorBuilder: (context) {
             if (widget.status == VoteStatus.active) {
               return Container(
-                  height: 100.h,
+                  height: 100,
                   alignment: Alignment.center,
                   child: Text(
                     S.of(context).message_noitem_vote_active,
@@ -69,7 +68,7 @@ class _VoteListState extends State<VoteList> {
                   ));
             } else if (widget.status == VoteStatus.end) {
               return Container(
-                  height: 100.h,
+                  height: 100,
                   alignment: Alignment.center,
                   child: Text(
                     S.of(context).message_noitem_vote_end,
@@ -77,7 +76,7 @@ class _VoteListState extends State<VoteList> {
                   ));
             } else if (widget.status == VoteStatus.upcoming) {
               return Container(
-                height: 100.h,
+                height: 100,
                 alignment: Alignment.center,
                 child: Text(
                   S.of(context).message_noitem_vote_upcoming,
@@ -95,7 +94,7 @@ class _VoteListState extends State<VoteList> {
                     status: widget.status,
                   ),
                   Divider(
-                    height: 1.h,
+                    height: 1,
                     color: AppColors.Grey300,
                   ),
                 ],

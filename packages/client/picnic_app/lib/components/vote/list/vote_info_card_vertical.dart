@@ -27,24 +27,24 @@ class VoteCardColumnVertical extends StatelessWidget {
   ) {
     final width = kIsWeb
         ? webDesignSize.width / 4.5
-        : MediaQuery.of(context).size.width / 4.5;
+        : MediaQuery.of(context).size.width / 5.5;
     final barHeight = (rank == 1
         ? 220 * .65
         : rank == 2
-            ? 220 * .5
-            : 220 * .4);
+            ? 220 * .50
+            : 220 * .40);
     return Stack(
       alignment: Alignment.bottomCenter,
       clipBehavior: Clip.none,
       children: [
         SizedBox(
           width: width,
-          height: barHeight.h,
+          height: barHeight,
         ),
         Positioned(
           bottom: 0,
           width: width,
-          height: barHeight.h,
+          height: barHeight,
           child: Container(
             decoration: const BoxDecoration(
               gradient: commonGradient,
@@ -52,7 +52,7 @@ class VoteCardColumnVertical extends StatelessWidget {
           ),
         ),
         Positioned(
-          bottom: (barHeight + width * .5).h,
+          bottom: (barHeight + width * .7),
           child: FadeTransition(
             opacity: opacityAnimation,
             child: Text(
@@ -63,7 +63,7 @@ class VoteCardColumnVertical extends StatelessWidget {
           ),
         ),
         Positioned(
-          bottom: (barHeight - width * .4).h,
+          bottom: (barHeight - width * .4),
           child: Container(
             width: width,
             height: width,
@@ -101,7 +101,7 @@ class VoteCardColumnVertical extends StatelessWidget {
           ),
         ),
         Positioned(
-          bottom: 10.h,
+          bottom: 10,
           child: FadeTransition(
             opacity: opacityAnimation,
             child: SizedBox(

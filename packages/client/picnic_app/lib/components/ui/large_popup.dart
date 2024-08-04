@@ -51,9 +51,9 @@ class LargePopupWidget extends StatelessWidget {
                 left: 0,
                 right: 0,
                 child: Container(
-                    height: 48.w,
+                    height: 48,
                     alignment: Alignment.center,
-                    padding: const EdgeInsets.symmetric(horizontal: 33).w,
+                    padding: EdgeInsets.symmetric(horizontal: 33.w),
                     child: VoteCommonTitle(title: title!)),
               ),
           ],
@@ -66,7 +66,7 @@ class LargePopupWidget extends StatelessWidget {
             }
           },
           child: Container(
-              height: 24.h,
+              height: 24,
               padding: EdgeInsets.only(right: 16.w),
               child: closeButton != null
                   ? closeButton!
@@ -82,7 +82,7 @@ class LargePopupWidget extends StatelessWidget {
                             SvgPicture.asset(
                               'assets/icons/cancle_style=line.svg',
                               width: 24.w,
-                              height: 24.w,
+                              height: 24,
                               colorFilter: const ColorFilter.mode(
                                   AppColors.Grey00, BlendMode.srcIn),
                             ),

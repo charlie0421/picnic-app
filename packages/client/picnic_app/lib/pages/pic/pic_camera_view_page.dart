@@ -106,7 +106,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
 
   Widget _buildTopBar(BuildContext context) {
     return Container(
-      height: 60.w,
+      height: 60,
       alignment: Alignment.centerRight,
       child: IconButton(
         icon: const Icon(Icons.close, size: 36),
@@ -425,7 +425,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
             title: S.of(context).label_pic_pic_save_gallery,
             content: _capturedImageBytes != null
                 ? Container(
-                    height: 500.w,
+                    height: 500,
                     padding:
                         EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.w),
                     child: Column(

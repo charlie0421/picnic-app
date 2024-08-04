@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/picnic_cached_network_image.dart';
 import 'package:picnic_app/generated/l10n.dart';
@@ -58,7 +57,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
             ),
           ),
           SizedBox(
-            height: 20.w,
+            height: 20,
           ),
           Expanded(
             child: ListView.separated(
@@ -67,7 +66,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
               itemCount: galleryList.length,
               separatorBuilder: (context, index) {
                 return SizedBox(
-                  height: 16.w,
+                  height: 16,
                 );
               },
               itemBuilder: (context, index) {
@@ -87,7 +86,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
                     children: [
                       SizedBox(
                           width: double.infinity,
-                          height: 215.w,
+                          height: 215,
                           child: PicnicCachedNetworkImage(
                             imageUrl: gallery.cover ?? '',
                             width: 361,
@@ -98,7 +97,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
                         bottom: 10,
                         left: 10,
                         child: SizedBox(
-                          height: 30.w,
+                          height: 30,
                           child: Text(
                             gallery.title_en,
                             style: getTextStyle(
