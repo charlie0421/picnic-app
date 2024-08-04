@@ -1,0 +1,13 @@
+{
+  "SUPABASE_URL": "https://msnninqpwzisbgouoifo.supabase.co",
+  "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zbm5pbnFwd3ppc2Jnb3VvaWZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjI3NjU0NTAsImV4cCI6MjAzODM0MTQ1MH0.N7N0W7skfutp6ANFZoSsLquepy6iOjQDmFCjR9ItmsI",
+  "SUPABASE_STORAGE_URL": "https://api.picnic.fan",
+  "SUPABASE_STORAGE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0aWp0ZWZjeWNvZXFsdWRsbmdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTU4OTEyNzQsImV4cCI6MjAzMTQ2NzI3NH0.k0Viu8kgOnkJ7-tnrDTmqpe6TdtZCYkqmH_5vUvcv_k",
+  "APPLE_CLIENT_ID": "io.iconcasting.picnic.app.apple",
+  "APPLE_REDIRECT_URI": "https://api.picnic.fan/auth/v1/callback",
+  "GOOGLE_CLIENT_ID": "853406219989-ntnler0e2qe0gfheh3qdjt3k2h4kpvj4.apps.googleusercontent.com",
+  "GOOGLE_SERVER_CLIENT_ID": "853406219989-jrfkss5a0lqe5sq43t4uhm7n6i0g6s1b.apps.googleusercontent.com",
+  "KAKAO_NATIVE_APP_KEY": "75e247f5d29512f84749e64aac77ebfa",
+  "KAKAO_JAVASCRIPT_KEY": "fe170eb02c6ff6a488a5848f9db41335",
+  "ENABLE_SENTRY": false
+}
