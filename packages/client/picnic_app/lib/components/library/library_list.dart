@@ -75,7 +75,7 @@ class _LibraryListState extends ConsumerState<AlbumList> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.only(bottom: 30),
+                    margin: const EdgeInsets.only(bottom: 30),
                     child: ElevatedButton(
                       onPressed: () {
                         logger.w('selectedRadioTile: $_selectedRadioTile');

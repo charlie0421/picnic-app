@@ -61,7 +61,7 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      Divider(
+                      const Divider(
                         color: AppColors.Grey300,
                         thickness: 1,
                         height: 40,
@@ -91,7 +91,7 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
                           ),
                         ],
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Text(
                         S.of(context).text_comming_soon_pic_chart2,
                         style: getTextStyle(
@@ -100,7 +100,7 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Text(
                         S.of(context).text_comming_soon_pic_chart3,
                         style: getTextStyle(

@@ -80,7 +80,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
             ],
           ),
         ),
-        SizedBox(
+        const SizedBox(
           height: 5,
         ),
         Expanded(
@@ -119,7 +119,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                                     style: getTextStyle(
                                         AppTypo.BODY16R, AppColors.Grey900),
                                   ),
-                                  SizedBox(height: 10),
+                                  const SizedBox(height: 10),
                                   Text(
                                     formatCurrentTime(),
                                     style: getTextStyle(

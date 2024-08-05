@@ -233,7 +233,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   PagedListView<int, ArtistVoteModel>(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,

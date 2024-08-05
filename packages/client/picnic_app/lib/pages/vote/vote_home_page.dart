@@ -293,7 +293,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
           loading: () => Shimmer.fromColors(
                 baseColor: AppColors.Grey300,
                 highlightColor: AppColors.Grey100,
-                child: Container(
+                child: SizedBox(
                   height: 100,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,

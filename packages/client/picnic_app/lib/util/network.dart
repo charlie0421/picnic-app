@@ -18,7 +18,7 @@ class RetryHttpClient extends http.BaseClient {
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
     try {
       return await retry(
-        () => _inner.send(request).timeout(Duration(seconds: 30)),
+        () => _inner.send(request).timeout(const Duration(seconds: 30)),
         maxAttempts: maxAttempts,
         retryIf: (e) =>
             e is SocketException ||
@@ -90,7 +90,7 @@ class NetworkStatusListener {
 
   void _startPeriodicCheck() {
     logger.i('Starting periodic network check');
-    _periodicCheck = Timer.periodic(Duration(seconds: 30), (_) {
+    _periodicCheck = Timer.periodic(const Duration(seconds: 30), (_) {
       _initConnectivity();
     });
   }

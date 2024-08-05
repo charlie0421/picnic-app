@@ -17,7 +17,7 @@ final numberFormatter = NumberFormat('#,###');
 
 Future<bool> checkSession() async {
   try {
-    final session = await supabase.auth.currentSession;
+    final session = supabase.auth.currentSession;
     return session != null;
   } catch (error) {
     print('세션 확인 중 오류 발생: $error');

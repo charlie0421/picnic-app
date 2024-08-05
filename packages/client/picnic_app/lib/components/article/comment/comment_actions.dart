@@ -33,7 +33,7 @@ class CommentActions extends ConsumerWidget {
                     highlightColor: Colors.transparent,
                     child: Container(
                       alignment: Alignment.topLeft,
-                      padding: EdgeInsets.only(
+                      padding: const EdgeInsets.only(
                         top: 5,
                         bottom: 10,
                       ),

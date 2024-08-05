@@ -91,7 +91,7 @@ class _PicVoteInfoCardState extends ConsumerState<PicVoteInfoCard>
                 stopAt: widget.vote.stop_at,
                 onRefresh: _restartAnimation,
                 status: widget.status),
-            SizedBox(
+            const SizedBox(
               height: 24,
             ),
             Container(
@@ -134,7 +134,7 @@ class _PicVoteInfoCardState extends ConsumerState<PicVoteInfoCard>
                 ),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
           ],

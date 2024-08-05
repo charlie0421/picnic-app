@@ -7,11 +7,11 @@ class OverlayNotification extends StatefulWidget {
   final VoidCallback? onDismiss;
 
   const OverlayNotification({
-    Key? key,
+    super.key,
     required this.childBuilder,
     this.duration = const Duration(seconds: 5),
     this.onDismiss,
-  }) : super(key: key);
+  });
 
   @override
   _OverlayNotificationState createState() => _OverlayNotificationState();
@@ -45,7 +45,7 @@ class _OverlayNotificationState extends State<OverlayNotification>
 
   void _startCountdown() {
     Future.doWhile(() async {
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(const Duration(seconds: 1));
       if (!mounted) return false;
       setState(() => _remainingSeconds--);
       if (_remainingSeconds <= 0) {

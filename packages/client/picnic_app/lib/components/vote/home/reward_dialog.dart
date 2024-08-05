@@ -31,11 +31,11 @@ class _RewardDialogState extends State<RewardDialog> {
               child: Column(
                 children: [
                   buildTopSection(),
-                  SizedBox(height: 67),
+                  const SizedBox(height: 67),
                   buildSection(RewardType.overview),
                   buildSection(RewardType.location),
                   buildSection(RewardType.size_guide),
-                  SizedBox(height: 56),
+                  const SizedBox(height: 56),
                 ],
               ),
             ),
@@ -129,7 +129,7 @@ class _RewardDialogState extends State<RewardDialog> {
             ),
           ],
         ),
-        SizedBox(height: 68),
+        const SizedBox(height: 68),
       ],
     );
   }
@@ -152,15 +152,15 @@ class _RewardDialogState extends State<RewardDialog> {
               )).sublist(0, 1),
           ...buildImageList(widget.data.location?[locale]['map'].cast<String>())
               .sublist(1),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           ...buildTextAddress(
               widget.data.location?[locale]['address'].cast<String>(),
               getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           if (widget.data.location?[locale]['images'] != null)
             ...buildImageList(
                 widget.data.location?[locale]['images'].cast<String>()),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           ...buildTextList(widget.data.location?[locale]['desc'].cast<String>(),
               getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
         ];
@@ -174,12 +174,12 @@ class _RewardDialogState extends State<RewardDialog> {
                 return Column(
                   children: [
                     ...buildSizeGuideImageList(value['image'].cast<String>()),
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
                     ...buildTextList(value['desc'].cast<String>().sublist(0, 1),
                         getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
                     ...buildTextList(value['desc'].cast<String>().sublist(1),
                         getTextStyle(AppTypo.BODY16R, AppColors.Grey900)),
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
                   ],
                 );
               }).toList()
@@ -213,7 +213,7 @@ class _RewardDialogState extends State<RewardDialog> {
                     ),
                   ),
                 )),
-            if (i != images.length - 1) SizedBox(height: 12),
+            if (i != images.length - 1) const SizedBox(height: 12),
             // 마지막 요소가 아닐 때만 추가
           ],
         ),
@@ -237,7 +237,7 @@ class _RewardDialogState extends State<RewardDialog> {
                 fit: BoxFit.cover,
               ),
             ),
-            if (i != images.length - 1) SizedBox(height: 12),
+            if (i != images.length - 1) const SizedBox(height: 12),
             // 마지막 요소가 아닐 때만 추가
           ],
         ),

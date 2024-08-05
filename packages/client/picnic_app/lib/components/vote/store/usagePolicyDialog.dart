@@ -23,7 +23,7 @@ void showUsagePolicyDialog(BuildContext context, WidgetRef ref) {
                   S.of(context).candy_disappear_next_month,
                   style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 FutureBuilder(
                     future: ref.read(expireBonusProvider.future),
                     builder: (context, snapshot) {
@@ -51,11 +51,11 @@ void showUsagePolicyDialog(BuildContext context, WidgetRef ref) {
                             color: AppColors.Primary500);
                       }
                     }),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
                 BulletPoint(
                   S.of(context).candy_usage_policy_contents,
                 ),
-                SizedBox(height: 36),
+                const SizedBox(height: 36),
                 BulletPoint(
                   S.of(context).candy_usage_policy_contents2,
                 ),

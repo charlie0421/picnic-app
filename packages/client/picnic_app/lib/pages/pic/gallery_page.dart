@@ -56,7 +56,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
               ),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           Expanded(
@@ -65,7 +65,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
               scrollDirection: Axis.vertical,
               itemCount: galleryList.length,
               separatorBuilder: (context, index) {
-                return SizedBox(
+                return const SizedBox(
                   height: 16,
                 );
               },

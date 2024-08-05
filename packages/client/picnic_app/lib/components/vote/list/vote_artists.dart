@@ -72,7 +72,7 @@ class VoteArtists extends StatelessWidget {
                           ),
                         ],
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 2,
                       ),
                       Text(

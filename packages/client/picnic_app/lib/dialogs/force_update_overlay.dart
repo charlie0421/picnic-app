@@ -9,11 +9,10 @@ class ForceUpdateOverlay extends StatelessWidget {
   final Widget child;
 
   const ForceUpdateOverlay(
-      {Key? key,
+      {super.key,
       required this.forceVersion,
       required this.url,
-      required this.child})
-      : super(key: key);
+      required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +33,9 @@ class ForceUpdateOverlay extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(S.of(context).update_required_title),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Text(S.of(context).update_required_text(forceVersion)),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         ElevatedButton(
                           child: Text(S.of(context).update_button),
                           onPressed: () => _launchAppStore(url),

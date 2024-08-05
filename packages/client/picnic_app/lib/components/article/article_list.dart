@@ -85,7 +85,7 @@ class _ArticleListState extends ConsumerState<ArticleList> {
       child: Column(
         children: [
           ArticleTitle(article: article),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           Container(

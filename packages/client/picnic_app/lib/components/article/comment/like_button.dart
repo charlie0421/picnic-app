@@ -61,7 +61,7 @@ class LikeButtonState extends State<LikeButton> {
       highlightColor: Colors.transparent,
       child: Container(
         alignment: Alignment.topRight,
-        padding: EdgeInsets.only(
+        padding: const EdgeInsets.only(
           top: 5,
           bottom: 10,
         ),

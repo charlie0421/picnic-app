@@ -9,10 +9,10 @@ class SmoothCircularCountdown extends StatefulWidget {
   final int totalSeconds;
 
   const SmoothCircularCountdown({
-    Key? key,
+    super.key,
     required this.remainingSeconds,
     required this.totalSeconds,
-  }) : super(key: key);
+  });
 
   @override
   _SmoothCircularCountdownState createState() =>
