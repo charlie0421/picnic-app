@@ -28,7 +28,7 @@ class _VoteListState extends State<VoteList> {
   void initState() {
     super.initState();
     _pagingController.addPageRequestListener((pageKey) {
-      _fetch(pageKey, 10, 'id', "DESC", status: widget.status).then((newItems) {
+      _fetch(pageKey, 10, status: widget.status).then((newItems) {
         final isLastPage =
             newItems.meta.currentPage == newItems.meta.totalPages;
         if (isLastPage) {
@@ -102,7 +102,7 @@ class _VoteListState extends State<VoteList> {
     );
   }
 
-  Future<VoteListModel> _fetch(int page, int limit, String sort, String order,
+  Future<VoteListModel> _fetch(int page, int limit,
       {required VoteStatus status}) async {
     PostgrestResponse<PostgrestList> response;
 
@@ -113,7 +113,8 @@ class _VoteListState extends State<VoteList> {
           .filter('deleted_at', 'is', null)
           .lt('start_at', 'now()')
           .gt('stop_at', 'now()')
-          .order('id', ascending: false)
+          .order('start_at', ascending: true)
+          .order('order', ascending: true)
           .order('vote_total', ascending: false, referencedTable: 'vote_item')
           .range((page - 1) * limit, page * limit - 1)
           .limit(limit)
@@ -124,10 +125,8 @@ class _VoteListState extends State<VoteList> {
           .select('*, vote_item(*, artist(*, artist_group(*)))')
           .filter('deleted_at', 'is', null)
           .lt('stop_at', 'now()')
-          .order(
-            sort,
-            ascending: order == 'ASC',
-          )
+          .order('stop_at', ascending: false)
+          .order('order', ascending: true)
           .order('vote_total', ascending: false, referencedTable: 'vote_item')
           .range((page - 1) * limit, page * limit - 1)
           .limit(limit)
@@ -139,10 +138,7 @@ class _VoteListState extends State<VoteList> {
           .filter('deleted_at', 'is', null)
           .lt('visible_at', 'now()')
           .gt('start_at', 'now()')
-          .order(
-            sort,
-            ascending: order == 'ASC',
-          )
+          .order('start_at', ascending: true)
           .order('vote_total', ascending: false, referencedTable: 'vote_item')
           .range((page - 1) * limit, page * limit - 1)
           .limit(limit)
@@ -151,10 +147,6 @@ class _VoteListState extends State<VoteList> {
       response = await supabase
           .from('vote')
           .select('*, vote_item(*, artist(*, artist_group(*)))')
-          .order(
-            sort,
-            ascending: order == 'ASC',
-          )
           .order('vote_total', ascending: false, referencedTable: 'vote_item')
           .range((page - 1) * limit, page * limit - 1)
           .limit(limit)

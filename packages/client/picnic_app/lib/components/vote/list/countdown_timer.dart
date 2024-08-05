@@ -67,12 +67,10 @@ class _CountdownTimerState extends State<CountdownTimer> {
 
   @override
   Widget build(BuildContext context) {
-    final days = _timeLeft.inDays.remainder(24).toString().padLeft(2, '0');
-    final hours = _timeLeft.inHours.remainder(24).toString().padLeft(2, '0');
-    final minutes =
-        _timeLeft.inMinutes.remainder(60).toString().padLeft(2, '0');
-    final seconds =
-        _timeLeft.inSeconds.remainder(60).toString().padLeft(2, '0');
+    final totalDays = _timeLeft.inDays;
+    final hours = _timeLeft.inHours.remainder(24);
+    final minutes = _timeLeft.inMinutes.remainder(60);
+    final seconds = _timeLeft.inSeconds.remainder(60);
 
     return Column(
       children: [
@@ -88,16 +86,14 @@ class _CountdownTimerState extends State<CountdownTimer> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              ..._buildDoubleDigits(days),
-              Text(' D ',
-                  style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey900)),
-              ..._buildDoubleDigits(hours),
+              ..._buildTimeUnit(totalDays, 'D'),
+              ..._buildTimeUnit(hours),
               Text(' : ',
                   style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey900)),
-              ..._buildDoubleDigits(minutes),
+              ..._buildTimeUnit(minutes),
               Text(' : ',
                   style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey900)),
-              ..._buildDoubleDigits(seconds),
+              ..._buildTimeUnit(seconds),
             ],
           ),
         ),
@@ -105,10 +101,16 @@ class _CountdownTimerState extends State<CountdownTimer> {
     );
   }
 
-  List<Widget> _buildDoubleDigits(String digits) {
-    return List.generate(digits.length, (index) {
-      return _buildTimeCircle(digits[index]);
-    });
+  List<Widget> _buildTimeUnit(int value, [String? unit]) {
+    final digits = value.toString().padLeft(2, '0');
+    return [
+      ...List.generate(digits.length, (index) {
+        return _buildTimeCircle(digits[index]);
+      }),
+      if (unit != null)
+        Text(' $unit ',
+            style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey900)),
+    ];
   }
 
   Widget _buildTimeCircle(String time) {
