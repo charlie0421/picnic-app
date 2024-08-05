@@ -70,18 +70,18 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       child: ListView(
         children: [
           if (supabase.isLogged) ...[
-            SizedBox(height: 36),
+            const SizedBox(height: 36),
             StorePointInfo(
               title: S.of(context).label_star_candy_pouch,
               width: double.infinity,
               height: 70,
             ),
           ],
-          SizedBox(height: 36),
+          const SizedBox(height: 36),
           _buildStoreListTile(0),
-          Divider(height: 32, thickness: 1, color: AppColors.Grey200),
+          const Divider(height: 32, thickness: 1, color: AppColors.Grey200),
           _buildStoreListTile(1),
-          Divider(height: 32, thickness: 1, color: AppColors.Grey200),
+          const Divider(height: 32, thickness: 1, color: AppColors.Grey200),
           GestureDetector(
             onTap: () => showUsagePolicyDialog(context, ref),
             child: Text(S.of(context).candy_usage_policy_guide,
@@ -176,7 +176,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
                   style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   '다음 광고 시청 가능시간',
                   style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600),

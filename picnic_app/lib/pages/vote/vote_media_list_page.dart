@@ -89,10 +89,10 @@ class VideoListItem extends StatefulWidget {
   final VoidCallback onTap;
 
   const VideoListItem({
-    Key? key,
+    super.key,
     required this.item,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   State<VideoListItem> createState() => _VideoListItemState();
@@ -151,7 +151,7 @@ class _VideoListItemState extends State<VideoListItem> {
             aspectRatio: 16 / 9,
             child: WebViewWidget(controller: _controller),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

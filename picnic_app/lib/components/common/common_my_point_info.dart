@@ -48,7 +48,7 @@ class _CommonMyPointState extends ConsumerState<CommonMyPoint> {
               ),
               Container(
                 alignment: Alignment.centerRight,
-                padding: EdgeInsets.only(bottom: 3),
+                padding: const EdgeInsets.only(bottom: 3),
                 height: 18,
                 constraints: BoxConstraints(minWidth: 60.w),
                 child: AnimatedDigitWidget(

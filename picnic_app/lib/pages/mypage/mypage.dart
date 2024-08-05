@@ -40,7 +40,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: ListView(
                   children: [
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
                     // 프로필
                     data != null ? _buildProfile() : _buildNonLogin(),
                     // 캔디 정보
@@ -49,7 +49,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                             alignment: Alignment.centerLeft,
                             child: StarCandyInfoText(
                                 alignment: MainAxisAlignment.start))
-                        : SizedBox(height: 16),
+                        : const SizedBox(height: 16),
 
                     const Divider(color: AppColors.Grey200),
                     // 공지사항
@@ -230,7 +230,7 @@ class _MyPageState extends ConsumerState<MyPage> {
               ],
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
             height: 80,

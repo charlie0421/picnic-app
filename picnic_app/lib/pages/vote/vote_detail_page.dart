@@ -48,8 +48,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   bool isUpcoming = false;
   final _searchSubject = BehaviorSubject<String>();
   Timer? _updateTimer;
-  Map<int, int> _previousVoteCounts = {};
-  Map<int, int> _previousRanks = {};
+  final Map<int, int> _previousVoteCounts = {};
+  final Map<int, int> _previousRanks = {};
 
   @override
   void initState() {
@@ -171,12 +171,12 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             memCacheHeight: height.toInt(),
           ),
         ),
-        SizedBox(height: 36),
+        const SizedBox(height: 36),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 57.w),
           child: VoteCommonTitle(title: getLocaleTextFromJson(voteModel.title)),
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         SizedBox(
           height: 18,
           child: Text(
@@ -186,12 +186,12 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             style: getTextStyle(AppTypo.CAPTION12R, AppColors.Grey900),
           ),
         ),
-        SizedBox(height: 36),
+        const SizedBox(height: 36),
         Text(
           S.of(context).text_vote_rank_in_reward,
           style: getTextStyle(AppTypo.BODY14B, AppColors.Primary500),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         if (voteModel.reward != null)
           Column(
             children: voteModel.reward!
@@ -207,7 +207,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                     ))
                 .toList(),
           ),
-        SizedBox(height: 36),
+        const SizedBox(height: 36),
       ],
     );
   }
@@ -255,7 +255,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                   physics: const NeverScrollableScrollPhysics(),
                                   itemCount: filteredIndices.length,
                                   separatorBuilder: (context, index) =>
-                                      SizedBox(height: 36),
+                                      const SizedBox(height: 36),
                                   itemBuilder: (context, index) {
                                     final itemIndex = filteredIndices[index];
                                     final item = data[itemIndex]!;
@@ -561,7 +561,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
               height: 200,
               color: Colors.white,
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Container(
@@ -570,7 +570,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Container(
@@ -579,7 +579,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Container(
@@ -588,7 +588,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Container(
@@ -597,7 +597,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
             Center(
               child: Container(
                 width: 280.w,
@@ -608,7 +608,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 ),
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             for (int i = 0; i < 5; i++) ...[
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -632,7 +632,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                             width: 120.w,
                             color: Colors.white,
                           ),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           Container(
                             height: 14,
                             color: Colors.white,
@@ -643,7 +643,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   ],
                 ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
             ],
           ],
         ),

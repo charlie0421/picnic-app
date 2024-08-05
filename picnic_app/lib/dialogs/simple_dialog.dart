@@ -56,7 +56,7 @@ void showSimpleDialog({
                 ),
               if (titleWidget != null) titleWidget,
               if (content != null) ...[
-                SizedBox(
+                const SizedBox(
                   height: 12,
                 ),
                 Text(
@@ -66,12 +66,12 @@ void showSimpleDialog({
                 )
               ],
               if (contentWidget != null) ...[
-                SizedBox(
+                const SizedBox(
                   height: 12,
                 ),
                 contentWidget
               ],
-              SizedBox(
+              const SizedBox(
                 height: 28,
               ),
               Row(

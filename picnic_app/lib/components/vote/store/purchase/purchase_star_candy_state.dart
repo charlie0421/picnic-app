@@ -174,25 +174,25 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
       child: ListView(
         children: [
           if (supabase.isLogged) ...[
-            SizedBox(height: 36),
+            const SizedBox(height: 36),
             StorePointInfo(
               title: S.of(context).label_star_candy_pouch,
               width: double.infinity,
               height: 70,
             ),
           ],
-          SizedBox(height: 36),
+          const SizedBox(height: 36),
           _buildProductsList(),
           const Divider(color: AppColors.Grey200, height: 32),
           Text(S.of(context).text_purchase_vat_included,
               style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600)),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
           GestureDetector(
             onTap: () => showUsagePolicyDialog(context, ref),
             child: Text(S.of(context).candy_usage_policy_guide,
                 style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600)),
           ),
-          SizedBox(height: 36),
+          const SizedBox(height: 36),
         ],
       ),
     );

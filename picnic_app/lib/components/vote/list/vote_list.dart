@@ -93,7 +93,7 @@ class _VoteListState extends State<VoteList> {
                     vote: item,
                     status: widget.status,
                   ),
-                  Divider(
+                  const Divider(
                     height: 1,
                     color: AppColors.Grey300,
                   ),

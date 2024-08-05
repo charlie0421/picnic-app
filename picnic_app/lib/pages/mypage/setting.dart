@@ -54,10 +54,10 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: ListView(
                 children: [
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Text(S.of(context).label_setting_alarm,
                       style: getTextStyle(AppTypo.BODY14B, AppColors.Grey600)),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   ListItem(
                     leading: S.of(context).label_setting_push_alarm,
                     assetPath: 'assets/icons/arrow_right_style=line.svg',
@@ -140,7 +140,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     ),
                   ),
                   const Divider(color: AppColors.Grey200),
-                  SizedBox(height: 48),
+                  const SizedBox(height: 48),
                   Text(S.of(context).label_setting_language,
                       style: getTextStyle(AppTypo.BODY14B, AppColors.Grey600)),
                   DropdownButtonFormField(
@@ -182,7 +182,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     },
                   ),
                   const Divider(color: AppColors.Grey200),
-                  SizedBox(height: 48),
+                  const SizedBox(height: 48),
                   Text(S.of(context).label_setting_storage,
                       style: getTextStyle(AppTypo.BODY14B, AppColors.Grey600)),
                   ListItem(
@@ -201,7 +201,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         });
                       }),
                   const Divider(color: AppColors.Grey200),
-                  SizedBox(height: 48),
+                  const SizedBox(height: 48),
                   Text(S.of(context).label_setting_appinfo,
                       style: getTextStyle(AppTypo.BODY14B, AppColors.Grey600)),
                   const Divider(color: AppColors.Grey200),

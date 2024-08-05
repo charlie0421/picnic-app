@@ -76,7 +76,7 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
             ],
           ),
         ),
-        SizedBox(
+        const SizedBox(
           height: 5,
         ),
         Expanded(

@@ -107,15 +107,15 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               _buildMemberInfo(),
               _buildStarCandyInfo(myStarCandy),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               _buildCheckAllOption(),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               _buildVoteAmountInput(),
               _buildErrorMessage(),
-              SizedBox(height: 9),
+              const SizedBox(height: 9),
               _buildVoteButton(myStarCandy, userId),
             ],
           ),
@@ -142,7 +142,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             ),
           ),
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         SizedBox(
           height: 24,
           child: Row(
@@ -405,7 +405,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         ),
       );
     }
-    return SizedBox(height: 15);
+    return const SizedBox(height: 15);
   }
 
   Widget _buildVoteButton(int myStarCandy, String userId) {

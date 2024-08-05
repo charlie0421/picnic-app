@@ -10,7 +10,7 @@ class TokenRefreshManager {
 
   void startPeriodicRefresh() {
     _refreshTimer?.cancel();
-    _refreshTimer = Timer.periodic(Duration(minutes: 30), (timer) {
+    _refreshTimer = Timer.periodic(const Duration(minutes: 30), (timer) {
       _authService.refreshToken();
     });
   }

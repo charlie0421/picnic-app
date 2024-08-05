@@ -22,13 +22,13 @@ class _PicPageState extends ConsumerState<PicPage> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
-            padding: EdgeInsets.only(
+            padding: const EdgeInsets.only(
               top: 8,
             ),
             child: _buildSelectArtist()),
         Flexible(
           child: Container(
-            padding: EdgeInsets.only(
+            padding: const EdgeInsets.only(
               top: 8,
               bottom: 52,
             ),
@@ -103,7 +103,7 @@ class _PicPageState extends ConsumerState<PicPage> {
                         height: 60,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(data?[index - 1].name_ko ?? '',
                         style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900))
                   ],

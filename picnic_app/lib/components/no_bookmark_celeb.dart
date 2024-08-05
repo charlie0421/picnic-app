@@ -31,7 +31,7 @@ class _NoBookmarkCelebState extends ConsumerState<NoBookmarkCeleb> {
               height: 60,
               colorFilter:
                   const ColorFilter.mode(Color(0xFFB7B7B7), BlendMode.srcIn)),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 20.w),
             alignment: Alignment.center,

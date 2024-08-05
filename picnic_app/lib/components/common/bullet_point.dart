@@ -4,7 +4,7 @@ import 'package:picnic_app/ui/style.dart';
 class BulletPoint extends StatelessWidget {
   final String text;
 
-  BulletPoint(this.text);
+  const BulletPoint(this.text, {super.key});
 
   @override
   Widget build(BuildContext context) {

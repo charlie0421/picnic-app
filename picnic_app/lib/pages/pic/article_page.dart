@@ -33,7 +33,7 @@ class _ArticlePageState extends ConsumerState<ArticlePage> {
         //     galleryId: widget.galleryId,
         //   ),
         // ),
-        SizedBox(
+        const SizedBox(
           height: 20,
         ),
         Expanded(child: ArticleList(widget.galleryId)),

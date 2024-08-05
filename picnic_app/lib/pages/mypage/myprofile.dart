@@ -70,14 +70,14 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: ListView(
           children: [
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             buildProfileImage(),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             buildNicknameInput(context),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             buildValidationMsg(context),
-            SizedBox(height: 26),
-            Divider(
+            const SizedBox(height: 26),
+            const Divider(
               color: AppColors.Grey300,
               thickness: 1,
               height: 24,
@@ -90,7 +90,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                       .read(navigationInfoProvider.notifier)
                       .setCurrentMyPage(TermsPage());
                 }),
-            Divider(
+            const Divider(
               color: AppColors.Grey300,
               thickness: 1,
               height: 24,
@@ -103,7 +103,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                       .read(navigationInfoProvider.notifier)
                       .setCurrentMyPage(PrivacyPage());
                 }),
-            Divider(
+            const Divider(
               color: AppColors.Grey300,
               thickness: 1,
               height: 24,
@@ -118,7 +118,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                       .setResetStackMyPage();
                   Navigator.of(context).pop();
                 }),
-            Divider(
+            const Divider(
               color: AppColors.Grey300,
               thickness: 1,
               height: 24,
@@ -127,7 +127,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                 leading: S.of(context).label_mypage_withdrawal,
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () => _showWithdrawalModal()),
-            Divider(
+            const Divider(
               color: AppColors.Grey300,
               thickness: 1,
               height: 24,
@@ -139,8 +139,8 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
   }
 
   Future<void> _uploadProfileImage() async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     final userId = supabase.auth.currentUser?.id;
 
     logger.d('image: $image');
@@ -148,7 +148,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
       // 이미지 크롭
       final croppedFile = await ImageCropper().cropImage(
         sourcePath: image.path,
-        aspectRatio: CropAspectRatio(ratioX: 1, ratioY: 1),
+        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
         uiSettings: [
           AndroidUiSettings(
               toolbarTitle: '',
@@ -177,7 +177,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
               await supabase.storage.from('avatars').uploadBinary(
                     fileName,
                     fileBytes,
-                    fileOptions: FileOptions(
+                    fileOptions: const FileOptions(
                       cacheControl: '3600',
                       upsert: true,
                     ),
@@ -193,8 +193,8 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             // 사용자 프로필 업데이트
             await ref.read(userInfoProvider.notifier).updateAvatar(imageUrl);
 
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('성공'), duration: const Duration(seconds: 2)));
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text('성공'), duration: Duration(seconds: 2)));
           } else {
             throw Exception('Failed to upload image');
           }
@@ -205,7 +205,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             stackTrace: s,
           );
 
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text('실패'),
           ));
         } finally {
@@ -244,18 +244,18 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                     S.of(context).dialog_withdraw_title,
                     style: getTextStyle(AppTypo.TITLE18SB, AppColors.Grey900),
                   ),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   Text(
                     S.of(context).dialog_will_delete_star_candy,
                     style: getTextStyle(AppTypo.BODY14B, AppColors.Grey900),
                   ),
                   const StarCandyInfoText(),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   Text(S.of(context).dialog_withdraw_message,
                       style:
                           getTextStyle(AppTypo.CAPTION12R, AppColors.Grey700),
                       textAlign: TextAlign.center),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   Text(S.of(context).dialog_message_can_resignup,
                       style:
                           getTextStyle(AppTypo.CAPTION12R, AppColors.Grey700),
@@ -264,7 +264,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                       style:
                           getTextStyle(AppTypo.CAPTION12B, AppColors.Grey700),
                       textAlign: TextAlign.center),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

@@ -220,7 +220,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                     ),
                   ),
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 Container(
                     width: 291.w,
                     height: 70,
@@ -256,7 +256,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                               style: getTextStyle(
                                   AppTypo.CAPTION12B, AppColors.Grey900),
                             ),
-                            SizedBox(height: 2),
+                            const SizedBox(height: 2),
                             Text(
                               '${DateFormat('yyyy.MM.dd HH:mm').format(DateTime.tryParse(widget.result['updatedAt'])!.add(const Duration(hours: 9)))}(KST)',
                               style: getTextStyle(
@@ -267,7 +267,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                         ),
                       ],
                     )),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 Container(
                   width: 291.w,
                   decoration: BoxDecoration(
@@ -315,7 +315,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                         thickness: 1,
                         height: 1,
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       Container(
                         padding: EdgeInsets.only(right: 16.w),
                         child: Row(
@@ -341,7 +341,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                         height: 56,
                                       ),
                                     ),
-                                    SizedBox(height: 8),
+                                    const SizedBox(height: 8),
                                     Text(
                                       getLocaleTextFromJson(
                                           widget.voteItemModel.artist.name),
@@ -349,7 +349,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                           AppTypo.BODY16B, AppColors.Grey900),
                                       textAlign: TextAlign.center,
                                     ),
-                                    SizedBox(height: 4),
+                                    const SizedBox(height: 4),
                                     Text(
                                       getLocaleTextFromJson(widget.voteItemModel
                                           .artist.artist_group.name),
@@ -358,7 +358,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                           .copyWith(height: .8),
                                       textAlign: TextAlign.center,
                                     ),
-                                    SizedBox(height: 3),
+                                    const SizedBox(height: 3),
                                     AnimatedDigitWidget(
                                         value:
                                             widget.result['updatedVoteTotal'],
@@ -422,7 +422,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                     ],
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 !_isSaving
                     ? SizedBox(
                         height: 32,
