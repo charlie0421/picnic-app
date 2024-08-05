@@ -52,6 +52,7 @@ class VoteCardInfoHeader extends StatelessWidget {
       CountdownTimer(
         endTime: stopAt,
         status: status,
+        onRefresh: onRefresh,
       )
     ]);
   }

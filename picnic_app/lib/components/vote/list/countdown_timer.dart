@@ -9,9 +9,9 @@ import 'package:picnic_app/ui/style.dart';
 class CountdownTimer extends StatefulWidget {
   final DateTime endTime;
   final VoteStatus status;
-
+  final VoidCallback? onRefresh;
   const CountdownTimer(
-      {super.key, required this.endTime, required this.status});
+      {super.key, required this.endTime, required this.status, this.onRefresh});
 
   @override
   _CountdownTimerState createState() => _CountdownTimerState();
@@ -49,6 +49,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
           _timer?.cancel();
         }
         _updateColor();
+        widget.onRefresh?.call();
       });
     });
   }
