@@ -4,8 +4,8 @@ import 'package:picnic_app/components/vote/list/countdown_timer.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 
-class VoteHeader extends StatelessWidget {
-  const VoteHeader({
+class VoteCardInfoHeader extends StatelessWidget {
+  const VoteCardInfoHeader({
     super.key,
     required this.title,
     required this.stopAt,

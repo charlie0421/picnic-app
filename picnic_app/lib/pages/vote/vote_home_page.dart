@@ -47,7 +47,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   void _initPagingController(
       PagingController<int, VoteModel> controller, String type) {
     controller.addPageRequestListener((pageKey) {
-      _fetch(pageKey, 10, 'id', "DESC").then((newItems) {
+      _fetch(pageKey, 10).then((newItems) {
         final typeItems = newItems[type]!;
         final isLastPage =
             typeItems.meta.currentPage == typeItems.meta.totalPages;
@@ -173,8 +173,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
     );
   }
 
-  Future<Map<String, VoteListModel>> _fetch(
-      int page, int limit, String sort, String order) async {
+  Future<Map<String, VoteListModel>> _fetch(int page, int limit) async {
     final now = DateTime.now().toUtc();
 
     final upcomingResponse = await supabase
@@ -182,6 +181,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         .select('*, vote_item(*, artist(*, artist_group(*)))')
         .gt('start_at', now)
         .order('start_at', ascending: true)
+        .order('order', ascending: true)
         .range((page - 1) * limit, page * limit - 1)
         .limit(limit)
         .count();
@@ -192,6 +192,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         .lte('start_at', now)
         .gt('stop_at', now)
         .order('stop_at', ascending: true)
+        .order('order', ascending: true)
         .range((page - 1) * limit, page * limit - 1)
         .limit(limit)
         .count();

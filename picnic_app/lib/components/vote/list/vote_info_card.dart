@@ -122,7 +122,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
         margin: EdgeInsets.only(top: 24.w, bottom: 32),
         child: Column(
           children: [
-            VoteHeader(
+            VoteCardInfoHeader(
               title: getLocaleTextFromJson(vote.title) ?? '',
               stopAt: widget.status == VoteStatus.upcoming
                   ? vote.start_at
@@ -263,7 +263,7 @@ class _VoteInfoCardHorizontalState extends ConsumerState<PicVoteInfoCard>
         margin: const EdgeInsets.only(bottom: 32),
         child: Column(
           children: [
-            VoteHeader(
+            VoteCardInfoHeader(
                 title: getLocaleTextFromJson(widget.vote.title),
                 stopAt: widget.vote.stop_at,
                 onRefresh: _restartAnimation,
