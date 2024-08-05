@@ -8,6 +8,7 @@ import 'package:picnic_app/components/celeb_list_item.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/no_bookmark_celeb.dart';
 import 'package:picnic_app/components/picnic_cached_network_image.dart';
+import 'package:picnic_app/components/vote/list/pic_vote_info_card.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/pic/artist_vote.dart';
@@ -24,7 +25,6 @@ import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/ui.dart';
 
-import '../../components/vote/list/vote_info_card.dart';
 import '../../providers/celeb_list_provider.dart';
 
 class PicHomePage extends ConsumerStatefulWidget {
