@@ -2,7 +2,6 @@
 // https://github.com/dart-lang/reflectable.
 
 import 'dart:core';
-
 import 'package:picnic_app/models/common/app_version.dart' as prefix5;
 import 'package:picnic_app/models/common/banner.dart' as prefix16;
 import 'package:picnic_app/models/meta.dart' as prefix15;
@@ -27,6 +26,7 @@ import 'package:picnic_app/providers/navigation_provider.dart' as prefix2;
 import 'package:picnic_app/providers/vote_list_provider.dart' as prefix7;
 import 'package:picnic_app/reflector.dart' as prefix0;
 import 'package:picnic_app/util/update_checker.dart' as prefix3;
+
 // ignore_for_file: camel_case_types
 // ignore_for_file: implementation_imports
 // ignore_for_file: prefer_adjacent_string_concatenation
@@ -35,8 +35,8 @@ import 'package:picnic_app/util/update_checker.dart' as prefix3;
 // ignore_for_file: unused_import
 
 import 'package:reflectable/mirrors.dart' as m;
-import 'package:reflectable/reflectable.dart' as r show Reflectable;
 import 'package:reflectable/src/reflectable_builder_based.dart' as r;
+import 'package:reflectable/reflectable.dart' as r show Reflectable;
 
 final _data = <r.Reflectable, r.ReflectorData>{
   const prefix0.Reflector(): r.ReflectorData(
@@ -4777,8 +4777,8 @@ final _data = <r.Reflectable, r.ReflectorData>{
         r'visible_at': (dynamic instance) => instance.visible_at,
         r'stop_at': (dynamic instance) => instance.stop_at,
         r'start_at': (dynamic instance) => instance.start_at,
-        r'is_ended': (dynamic instance) => instance.isEnded,
-        r'is_upcoming': (dynamic instance) => instance.isUpcoming,
+        r'is_ended': (dynamic instance) => instance.is_ended,
+        r'is_upcoming': (dynamic instance) => instance.is_upcoming,
         r'reward': (dynamic instance) => instance.reward,
         r'vote_total': (dynamic instance) => instance.vote_total,
         r'vote_id': (dynamic instance) => instance.vote_id,
@@ -4882,7 +4882,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
       [])
 };
 
-const _memberSymbolMap = null;
+final _memberSymbolMap = null;
 
 void initializeReflectable() {
   r.data = _data;

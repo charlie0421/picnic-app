@@ -17,6 +17,7 @@ import 'package:picnic_app/providers/ad_providers.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/product_provider.dart';
+import 'package:picnic_app/providers/screen_protector_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/screens/pic/pic_camera_screen.dart';
 import 'package:picnic_app/screens/portal.dart';
@@ -57,11 +58,15 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
     });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref.read(appSettingProvider.notifier).loadSettings();
-      if (!kDebugMode) await ScreenProtector.preventScreenshotOn();
       ref.read(rewardedAdsProvider.notifier).loadAd(0);
       ref.read(rewardedAdsProvider.notifier).loadAd(1);
     });
     WidgetsBinding.instance.addObserver(this);
+
+    Future.microtask(() {
+      ref.read(serverProductsProvider);
+      ref.read(storeProductsProvider);
+    });
 
     supabase.auth.onAuthStateChange.listen((data) {
       FirebaseCrashlytics.instance.log('Auth state changed: ${data.event}');
@@ -116,11 +121,14 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final appSettingState = ref.watch(appSettingProvider);
-    Future.microtask(() {
-      ref.read(serverProductsProvider);
-      ref.read(storeProductsProvider);
-    });
 
+    final isScreenProtector = ref.watch(isScreenProtectorProvider);
+    logger.e('screenProtectorState: $isScreenProtector');
+    if (isScreenProtector) {
+      ScreenProtector.preventScreenshotOn();
+    } else {
+      ScreenProtector.preventScreenshotOff();
+    }
     ScreenUtil.init(context,
         designSize: kIsWeb ? webDesignSize : const Size(393, 892));
 
