@@ -49,7 +49,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "candy_usage_policy_contents2": MessageLookupByLibrary.simpleMessage(
             "별사탕 사용 시, 소멸이 임박한 별사탕이 우선적으로 사용됩니다."),
         "candy_usage_policy_guide":
-            MessageLookupByLibrary.simpleMessage("*보너스는 획득한 다음달에 사라져요! ⓘ"),
+            MessageLookupByLibrary.simpleMessage("*보너스는 획득한 다음달에 사라져요!"),
+        "candy_usage_policy_guide_button":
+            MessageLookupByLibrary.simpleMessage("자세히 보기"),
         "candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("별사탕 사용정책"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("취소"),

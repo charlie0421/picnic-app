@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/vote/list/vote_header.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_vertical.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/pages/vote/vote_detail_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -86,19 +85,18 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   Future<void> _handleRefresh() async {
     // 현재 순위 정보 저장
     final currentRanking = await _getCurrentRanking();
-    logger.d('currentRanking: $currentRanking');
 
     // 데이터 새로고침
     await ref.refresh(asyncVoteDetailProvider(voteId: widget.vote.id).future);
     await ref.refresh(asyncVoteItemListProvider(voteId: widget.vote.id).future);
 
     // 새로운 순위 정보 가져오기
-    final newRanking = await _getCurrentRanking();
+    // final newRanking = await _getCurrentRanking();
 
     // 순위 변동 확인
-    if (_hasRankingChanged(currentRanking, newRanking)) {
-      _restartAnimation();
-    }
+    // if (_hasRankingChanged(currentRanking, newRanking)) {
+    _restartAnimation();
+    // }
   }
 
   Future<List<int>> _getCurrentRanking() async {

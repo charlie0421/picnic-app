@@ -24,22 +24,24 @@
   "@button_pic_pic_save": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "candy_disappear_next_month": "来月で消える星空キャンディー😢。",
+  "@candy_disappear_next_month": {},
   "candy_usage_policy_contents": "購入した星飴は無制限に使用できますが、ボーナス星飴は獲得した月の翌月15日に一括消滅します。",
   "@candy_usage_policy_contents": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "candy_usage_policy_contents2": "星飴を使用する場合、消滅が近い星飴が優先的に使用されます。",
   "@candy_usage_policy_contents2": {},
-  "candy_usage_policy_guide": "*ボーナスは獲得した翌月に無くなります！ ⓘ※ボーナス",
+  "candy_usage_policy_guide": "*ボーナスは獲得した翌月に消滅します！",
   "@candy_usage_policy_guide": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "candy_usage_policy_guide_button": "詳細を見る",
+  "@candy_usage_policy_guide_button": {},
   "candy_usage_policy_title": "スターキャンディー使用ポリシー",
   "@candy_usage_policy_title": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "candy_disappear_next_month": "来月で消える星空キャンディー😢。",
-  "@candy_disappear_next_month": {},
   "dialog_button_cancel": "キャンセル",
   "@dialog_button_cancel": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -48,12 +50,6 @@
   "@dialog_button_ok": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "dialog_message_purchase_failed": "購入中にエラーが発生しました。 後ほど再試行してください。",
-  "@dialog_message_purchase_failed": {},
-  "dialog_message_purchase_success": "購入が正常に完了しました。",
-  "@dialog_message_purchase_success": {},
-  "dialog_message_purchase_canceled": "購入がキャンセルされました。",
-  "@dialog_message_purchase_canceled": {},
   "dialog_content_ads_exhausted": "広告がなくなりました。次回、もう一度お試しください。",
   "@dialog_content_ads_exhausted": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -70,6 +66,14 @@
   "@dialog_content_login_required": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "dialog_message_can_resignup": "今すぐ退会した場合、再入会可能日",
+  "@dialog_message_can_resignup": {},
+  "dialog_message_purchase_canceled": "購入がキャンセルされました。",
+  "@dialog_message_purchase_canceled": {},
+  "dialog_message_purchase_failed": "購入中にエラーが発生しました。 後ほど再試行してください。",
+  "@dialog_message_purchase_failed": {},
+  "dialog_message_purchase_success": "購入が正常に完了しました。",
+  "@dialog_message_purchase_success": {},
   "dialog_purchases_fail": "購入に失敗しました。",
   "@dialog_purchases_fail": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -86,6 +90,8 @@
   "@dialog_title_vote_fail": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "dialog_will_delete_star_candy": "削除予定 星飴",
+  "@dialog_will_delete_star_candy": {},
   "dialog_withdraw_button_cancel": "もう一度考えてみます",
   "@dialog_withdraw_button_cancel": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -110,10 +116,6 @@
   "@dialog_withdraw_title": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "dialog_will_delete_star_candy": "削除予定 星飴",
-  "@dialog_will_delete_star_candy": {},
-  "dialog_message_can_resignup": "今すぐ退会した場合、再入会可能日",
-  "@dialog_message_can_resignup": {},
   "error_message_login_failed": "ログイン中にエラーが発生しました。",
   "@error_message_login_failed": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -142,6 +144,10 @@
   "@image_save_success": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "label_ads_exceeded": "IDごとに視聴可能な広告を使い切りました。",
+  "@label_ads_exceeded": {},
+  "label_ads_next_available_time": "次の広告視聴可能時間。",
+  "@label_ads_next_available_time": {},
   "label_agreement_privacy": "個人情報収集及び利用同意",
   "@label_agreement_privacy": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -168,10 +174,6 @@
   },
   "label_button_close": "閉じる",
   "@label_button_close": {},
-  "label_ads_exceeded": "IDごとに視聴可能な広告を使い切りました。",
-  "@label_ads_exceeded": {},
-  "label_ads_next_available_time": "次の広告視聴可能時間。",
-  "@label_ads_next_available_time": {},
   "label_button_disagreement": "非同意",
   "@label_button_disagreement": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -192,8 +194,9 @@
   "@label_button_vote": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_button_watch_and_charge": "広告を見てチャージする",
+  "label_button_watch_and_charge": "見てチャージする",
   "@label_button_watch_and_charge": {
+    "manualTranslationKey": true,
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_celeb_ask_to_you": "アーティストがあなたに尋ねる！",
@@ -308,6 +311,8 @@
     "manualTranslationKey": true,
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "label_mypage_should_login": "ログインしてください",
+  "@label_mypage_should_login": {},
   "label_mypage_terms_of_use": "利用規約",
   "@label_mypage_terms_of_use": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -324,10 +329,6 @@
   "@label_no_ads": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "message_vote_is_ended": "投票は終了しました",
-  "@message_vote_is_ended": {},
-  "message_vote_is_upcoming": "予定されている投票です",
-  "@message_vote_is_upcoming": {},
   "label_no_celeb": "まだブックマークしたアーティストはいません！",
   "@label_no_celeb": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -400,12 +401,6 @@
   "@label_setting_remove_cache": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "message_setting_remove_cache": "キャッシュメモリの削除が完了しました",
-  "@message_setting_remove_cache": {},
-  "message_update_nickname_success": "ニックネームが正常に変更されました。",
-  "@message_update_nickname_success": {},
-  "message_update_nickname_fail": "ニックネームの変更に失敗しました。\n別のニックネームを選択してください。",
-  "@message_update_nickname_fail": {},
   "label_setting_remove_cache_complete": "完了",
   "@label_setting_remove_cache_complete": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -546,6 +541,16 @@
   "@message_report_ok": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "message_setting_remove_cache": "キャッシュメモリの削除が完了しました",
+  "@message_setting_remove_cache": {},
+  "message_update_nickname_fail": "ニックネームの変更に失敗しました。\n別のニックネームを選択してください。",
+  "@message_update_nickname_fail": {},
+  "message_update_nickname_success": "ニックネームが正常に変更されました。",
+  "@message_update_nickname_success": {},
+  "message_vote_is_ended": "投票は終了しました",
+  "@message_vote_is_ended": {},
+  "message_vote_is_upcoming": "予定されている投票です",
+  "@message_vote_is_upcoming": {},
   "mypage_comment": "コメント管理",
   "@mypage_comment": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -658,10 +663,6 @@
   "@share_twitter": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "update_required_title": "アップデートが必要です。",
-  "@update_required_title": {},
-  "update_required_text": "新しいバージョン({version})へのアップデートが必要です。",
-  "@update_required_text": {},
   "text_ads_random": "広告表示とランダム画像収集。",
   "@text_ads_random": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -694,16 +695,14 @@
   "@text_copied_address": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "text_dialog_ad_dismissed": "広告を途中で止めました。",
+  "@text_dialog_ad_dismissed": {},
+  "text_dialog_ad_failed_to_show": "広告の読み込みに失敗",
+  "@text_dialog_ad_failed_to_show": {},
   "text_dialog_star_candy_received": "星飴が支給されました。",
   "@text_dialog_star_candy_received": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "text_dialog_ad_failed_to_show": "広告の読み込みに失敗",
-  "@text_dialog_ad_failed_to_show": {},
-  "label_mypage_should_login": "ログインしてください",
-  "@label_mypage_should_login": {},
-  "text_dialog_ad_dismissed": "広告を途中で止めました。",
-  "@text_dialog_ad_dismissed": {},
   "text_dialog_vote_amount_should_not_zero": "投票数は0にすることはできません。",
   "@text_dialog_vote_amount_should_not_zero": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -777,8 +776,12 @@
   "@toast_max_five_celeb": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "update_button": "最新情報",
+  "@update_button": {},
   "update_recommend_text": "新しいバージョン({version})が利用可能です。",
   "@update_recommend_text": {},
-  "update_button": "最新情報",
-  "@update_button": {}
+  "update_required_text": "新しいバージョン({version})へのアップデートが必要です。",
+  "@update_required_text": {},
+  "update_required_title": "アップデートが必要です。",
+  "@update_required_title": {}
 }

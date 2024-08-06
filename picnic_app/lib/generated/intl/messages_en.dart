@@ -43,14 +43,16 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_login": MessageLookupByLibrary.simpleMessage("Sign in"),
         "button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("Save"),
-        "candy_disappear_next_month":
-            MessageLookupByLibrary.simpleMessage("다음 달 사라지는 별사탕😢"),
+        "candy_disappear_next_month": MessageLookupByLibrary.simpleMessage(
+            "Next month\'s disappearing star candy😢"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
             "You can spend an unlimited amount of purchased Star Candy, but bonus Star Candy expires in bulk on the 15th of the month following the month in which it was earned."),
         "candy_usage_policy_contents2": MessageLookupByLibrary.simpleMessage(
             "When using Star Candy, Star Candy that is about to expire is prioritized."),
-        "candy_usage_policy_guide":
-            MessageLookupByLibrary.simpleMessage("*보너스는 획득한 다음달에 사라져요! ⓘ"),
+        "candy_usage_policy_guide": MessageLookupByLibrary.simpleMessage(
+            "*Bonuses will disappear the month after they are earned!"),
+        "candy_usage_policy_guide_button":
+            MessageLookupByLibrary.simpleMessage("Learn more"),
         "candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("Stardust Usage Policy"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
@@ -130,8 +132,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Save your ballot"),
         "label_button_share": MessageLookupByLibrary.simpleMessage("Share"),
         "label_button_vote": MessageLookupByLibrary.simpleMessage("Vote"),
-        "label_button_watch_and_charge": MessageLookupByLibrary.simpleMessage(
-            "Viewing and charging for ads"),
+        "label_button_watch_and_charge":
+            MessageLookupByLibrary.simpleMessage("View and charge"),
         "label_celeb_ask_to_you":
             MessageLookupByLibrary.simpleMessage("The Artist Asks You!"),
         "label_celeb_gallery":
