@@ -6,7 +6,7 @@ part of 'screen_protector_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$isScreenProtectorHash() => r'146b77288ad25d6fbd1d6b54b131ae5cc57884cd';
+String _$isScreenProtectorHash() => r'9b885184f231ccaa3e4b8f183e252679a31a54fe';
 
 /// See also [IsScreenProtector].
 @ProviderFor(IsScreenProtector)

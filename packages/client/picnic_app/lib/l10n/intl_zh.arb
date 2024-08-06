@@ -424,6 +424,10 @@
   "@label_tab_free_charge_station": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "label_tab_my_artist": "마이아티스트",
+  "@label_tab_my_artist": {},
+  "label_tab_search_my_artist": "마이아티스트 찾기",
+  "@label_tab_search_my_artist": {},
   "label_tabbar_picchart_daily": "每日图表",
   "@label_tabbar_picchart_daily": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -574,6 +578,10 @@
   "@nav_ads": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "nav_board": "게시판",
+  "@nav_board": {
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
+  },
   "nav_gallery": "画廊",
   "@nav_gallery": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -588,6 +596,10 @@
   },
   "nav_media": "媒体",
   "@nav_media": {
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
+  },
+  "nav_my": "마이",
+  "@nav_my": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "nav_picchart": "PIC 图表",

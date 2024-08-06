@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:picnic_app/bottom_navigation_menu.dart';
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/menu.dart';
 import 'package:picnic_app/navigation_stack.dart';
 import 'package:picnic_app/pages/mypage/mypage.dart';
 import 'package:picnic_app/pages/signup/login_page.dart';

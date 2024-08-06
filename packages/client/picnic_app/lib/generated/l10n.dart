@@ -50,480 +50,480 @@ class S {
     return Localizations.of<S>(context, S);
   }
 
-  /// `Picnic`
+  /// `피크닠`
   String get app_name {
     return Intl.message(
-      'Picnic',
+      '피크닠',
       name: 'app_name',
       desc: '',
       args: [],
     );
   }
 
-  /// `Cancel`
+  /// `취소`
   String get button_cancel {
     return Intl.message(
-      'Cancel',
+      '취소',
       name: 'button_cancel',
       desc: '',
       args: [],
     );
   }
 
-  /// `Done`
+  /// `완료`
   String get button_complete {
     return Intl.message(
-      'Done',
+      '완료',
       name: 'button_complete',
       desc: '',
       args: [],
     );
   }
 
-  /// `Sign in`
+  /// `로그인`
   String get button_login {
     return Intl.message(
-      'Sign in',
+      '로그인',
       name: 'button_login',
       desc: '',
       args: [],
     );
   }
 
-  /// `Confirm`
+  /// `확인`
   String get button_ok {
     return Intl.message(
-      'Confirm',
+      '확인',
       name: 'button_ok',
       desc: '',
       args: [],
     );
   }
 
-  /// `Save`
+  /// `저장하기`
   String get button_pic_pic_save {
     return Intl.message(
-      'Save',
+      '저장하기',
       name: 'button_pic_pic_save',
       desc: '',
       args: [],
     );
   }
 
-  /// `Next month's disappearing star candy😢`
+  /// `다음 달 사라지는 별사탕😢`
   String get candy_disappear_next_month {
     return Intl.message(
-      'Next month\'s disappearing star candy😢',
+      '다음 달 사라지는 별사탕😢',
       name: 'candy_disappear_next_month',
       desc: '',
       args: [],
     );
   }
 
-  /// `You can spend an unlimited amount of purchased Star Candy, but bonus Star Candy expires in bulk on the 15th of the month following the month in which it was earned.`
+  /// `구매한 별사탕은 무제한으로 사용 가능하지만 보너스 별사탕은 획득한 달의 다음 달 15일에 일괄 소멸됩니다.`
   String get candy_usage_policy_contents {
     return Intl.message(
-      'You can spend an unlimited amount of purchased Star Candy, but bonus Star Candy expires in bulk on the 15th of the month following the month in which it was earned.',
+      '구매한 별사탕은 무제한으로 사용 가능하지만 보너스 별사탕은 획득한 달의 다음 달 15일에 일괄 소멸됩니다.',
       name: 'candy_usage_policy_contents',
       desc: '',
       args: [],
     );
   }
 
-  /// `When using Star Candy, Star Candy that is about to expire is prioritized.`
+  /// `별사탕 사용 시, 소멸이 임박한 별사탕이 우선적으로 사용됩니다.`
   String get candy_usage_policy_contents2 {
     return Intl.message(
-      'When using Star Candy, Star Candy that is about to expire is prioritized.',
+      '별사탕 사용 시, 소멸이 임박한 별사탕이 우선적으로 사용됩니다.',
       name: 'candy_usage_policy_contents2',
       desc: '',
       args: [],
     );
   }
 
-  /// `*Bonuses will disappear the month after they are earned!`
+  /// `*보너스는 획득한 다음달에 사라져요!`
   String get candy_usage_policy_guide {
     return Intl.message(
-      '*Bonuses will disappear the month after they are earned!',
+      '*보너스는 획득한 다음달에 사라져요!',
       name: 'candy_usage_policy_guide',
       desc: '',
       args: [],
     );
   }
 
-  /// `Learn more`
+  /// `자세히 보기`
   String get candy_usage_policy_guide_button {
     return Intl.message(
-      'Learn more',
+      '자세히 보기',
       name: 'candy_usage_policy_guide_button',
       desc: '',
       args: [],
     );
   }
 
-  /// `Stardust Usage Policy`
+  /// `별사탕 사용정책`
   String get candy_usage_policy_title {
     return Intl.message(
-      'Stardust Usage Policy',
+      '별사탕 사용정책',
       name: 'candy_usage_policy_title',
       desc: '',
       args: [],
     );
   }
 
-  /// `Cancel`
+  /// `취소`
   String get dialog_button_cancel {
     return Intl.message(
-      'Cancel',
+      '취소',
       name: 'dialog_button_cancel',
       desc: '',
       args: [],
     );
   }
 
-  /// `Confirm`
+  /// `확인`
   String get dialog_button_ok {
     return Intl.message(
-      'Confirm',
+      '확인',
       name: 'dialog_button_ok',
       desc: '',
       args: [],
     );
   }
 
-  /// `All ads have been exhausted. Please try again next time.`
+  /// `광고가 모두 소진되었습니다. 다음에 다시 시도해주세요.`
   String get dialog_content_ads_exhausted {
     return Intl.message(
-      'All ads have been exhausted. Please try again next time.',
+      '광고가 모두 소진되었습니다. 다음에 다시 시도해주세요.',
       name: 'dialog_content_ads_exhausted',
       desc: '',
       args: [],
     );
   }
 
-  /// `Ads are loading.`
+  /// `광고 로딩중입니다.`
   String get dialog_content_ads_loading {
     return Intl.message(
-      'Ads are loading.',
+      '광고 로딩중입니다.',
       name: 'dialog_content_ads_loading',
       desc: '',
       args: [],
     );
   }
 
-  /// `The ad is reloading. Please try again in a moment.`
+  /// `광고를 다시 불러오는 중입니다. 잠시 후 다시 시도해 주세요.`
   String get dialog_content_ads_retrying {
     return Intl.message(
-      'The ad is reloading. Please try again in a moment.',
+      '광고를 다시 불러오는 중입니다. 잠시 후 다시 시도해 주세요.',
       name: 'dialog_content_ads_retrying',
       desc: '',
       args: [],
     );
   }
 
-  /// `Login required`
+  /// `로그인이 필요합니다`
   String get dialog_content_login_required {
     return Intl.message(
-      'Login required',
+      '로그인이 필요합니다',
       name: 'dialog_content_login_required',
       desc: '',
       args: [],
     );
   }
 
-  /// `When you can rejoin if you cancel your membership now`
+  /// `지금 회원 탈퇴 시 재 가입 가능 일자`
   String get dialog_message_can_resignup {
     return Intl.message(
-      'When you can rejoin if you cancel your membership now',
+      '지금 회원 탈퇴 시 재 가입 가능 일자',
       name: 'dialog_message_can_resignup',
       desc: '',
       args: [],
     );
   }
 
-  /// `Your purchase has been canceled.`
+  /// `구매가 취소되었습니다.`
   String get dialog_message_purchase_canceled {
     return Intl.message(
-      'Your purchase has been canceled.',
+      '구매가 취소되었습니다.',
       name: 'dialog_message_purchase_canceled',
       desc: '',
       args: [],
     );
   }
 
-  /// `There was an error with your purchase, please try again later.`
+  /// `구매 중 오류가 발생했습니다. 나중에 다시 시도해 주세요.`
   String get dialog_message_purchase_failed {
     return Intl.message(
-      'There was an error with your purchase, please try again later.',
+      '구매 중 오류가 발생했습니다. 나중에 다시 시도해 주세요.',
       name: 'dialog_message_purchase_failed',
       desc: '',
       args: [],
     );
   }
 
-  /// `Your purchase has been successfully completed.`
+  /// `구매가 성공적으로 완료되었습니다.`
   String get dialog_message_purchase_success {
     return Intl.message(
-      'Your purchase has been successfully completed.',
+      '구매가 성공적으로 완료되었습니다.',
       name: 'dialog_message_purchase_success',
       desc: '',
       args: [],
     );
   }
 
-  /// `The purchase failed.`
+  /// `구매에 실패했습니다.`
   String get dialog_purchases_fail {
     return Intl.message(
-      'The purchase failed.',
+      '구매에 실패했습니다.',
       name: 'dialog_purchases_fail',
       desc: '',
       args: [],
     );
   }
 
-  /// `Your purchase is complete.`
+  /// `구매가 완료되었습니다.`
   String get dialog_purchases_success {
     return Intl.message(
-      'Your purchase is complete.',
+      '구매가 완료되었습니다.',
       name: 'dialog_purchases_success',
       desc: '',
       args: [],
     );
   }
 
-  /// `Exhausted all ads`
+  /// `광고 모두 소진`
   String get dialog_title_ads_exhausted {
     return Intl.message(
-      'Exhausted all ads',
+      '광고 모두 소진',
       name: 'dialog_title_ads_exhausted',
       desc: '',
       args: [],
     );
   }
 
-  /// `Voting Failed`
+  /// `투표 실패`
   String get dialog_title_vote_fail {
     return Intl.message(
-      'Voting Failed',
+      '투표 실패',
       name: 'dialog_title_vote_fail',
       desc: '',
       args: [],
     );
   }
 
-  /// `Starscapes to be deleted`
+  /// `삭제 예정 별사탕`
   String get dialog_will_delete_star_candy {
     return Intl.message(
-      'Starscapes to be deleted',
+      '삭제 예정 별사탕',
       name: 'dialog_will_delete_star_candy',
       desc: '',
       args: [],
     );
   }
 
-  /// `Let me think about this one more time`
+  /// `다시 한 번 생각해 볼게요`
   String get dialog_withdraw_button_cancel {
     return Intl.message(
-      'Let me think about this one more time',
+      '다시 한 번 생각해 볼게요',
       name: 'dialog_withdraw_button_cancel',
       desc: '',
       args: [],
     );
   }
 
-  /// `Unsubscribing`
+  /// `탈퇴하기`
   String get dialog_withdraw_button_ok {
     return Intl.message(
-      'Unsubscribing',
+      '탈퇴하기',
       name: 'dialog_withdraw_button_ok',
       desc: '',
       args: [],
     );
   }
 
-  /// `An error occurred during unsubscribe.`
+  /// `탈퇴중 에러가 발생했습니다.`
   String get dialog_withdraw_error {
     return Intl.message(
-      'An error occurred during unsubscribe.',
+      '탈퇴중 에러가 발생했습니다.',
       name: 'dialog_withdraw_error',
       desc: '',
       args: [],
     );
   }
 
-  /// `If you cancel your membership, your star candy and account information on Picnic will be deleted immediately, and your existing information and data will not be restored when you rejoin.`
+  /// `회원 탈퇴 시 피크닠에 보유하신 별사탕과 계정 정보는 즉시 삭제되며, 재 가입시 기존 정보 및 데이터는 복구가 되지 않습니다.`
   String get dialog_withdraw_message {
     return Intl.message(
-      'If you cancel your membership, your star candy and account information on Picnic will be deleted immediately, and your existing information and data will not be restored when you rejoin.',
+      '회원 탈퇴 시 피크닠에 보유하신 별사탕과 계정 정보는 즉시 삭제되며, 재 가입시 기존 정보 및 데이터는 복구가 되지 않습니다.',
       name: 'dialog_withdraw_message',
       desc: '',
       args: [],
     );
   }
 
-  /// `The unsubscribe was processed successfully.`
+  /// `탈퇴가 성공적으로 처리 되었습니다.`
   String get dialog_withdraw_success {
     return Intl.message(
-      'The unsubscribe was processed successfully.',
+      '탈퇴가 성공적으로 처리 되었습니다.',
       name: 'dialog_withdraw_success',
       desc: '',
       args: [],
     );
   }
 
-  /// `Are you sure you want to leave?`
+  /// `정말 탈퇴하시겠어요?`
   String get dialog_withdraw_title {
     return Intl.message(
-      'Are you sure you want to leave?',
+      '정말 탈퇴하시겠어요?',
       name: 'dialog_withdraw_title',
       desc: '',
       args: [],
     );
   }
 
-  /// `An error occurred during login.`
+  /// `로그인 중 오류가 발생했습니다.`
   String get error_message_login_failed {
     return Intl.message(
-      'An error occurred during login.',
+      '로그인 중 오류가 발생했습니다.',
       name: 'error_message_login_failed',
       desc: '',
       args: [],
     );
   }
 
-  /// `The membership information doesn't exist.`
+  /// `회원 정보가 존재하지 않습니다.`
   String get error_message_no_user {
     return Intl.message(
-      'The membership information doesn\'t exist.',
+      '회원 정보가 존재하지 않습니다.',
       name: 'error_message_no_user',
       desc: '',
       args: [],
     );
   }
 
-  /// `A member who has unsubscribed.`
+  /// `탈퇴한 회원입니다.`
   String get error_message_withdrawal {
     return Intl.message(
-      'A member who has unsubscribed.',
+      '탈퇴한 회원입니다.',
       name: 'error_message_withdrawal',
       desc: '',
       args: [],
     );
   }
 
-  /// `Errors`
+  /// `에러`
   String get error_title {
     return Intl.message(
-      'Errors',
+      '에러',
       name: 'error_title',
       desc: '',
       args: [],
     );
   }
 
-  /// `Album name`
+  /// `앨범명`
   String get hint_library_add {
     return Intl.message(
-      'Album name',
+      '앨범명',
       name: 'hint_library_add',
       desc: '',
       args: [],
     );
   }
 
-  /// `Please enter a nickname.`
+  /// `닉네임을 입력해주세요.`
   String get hint_nickname_input {
     return Intl.message(
-      'Please enter a nickname.',
+      '닉네임을 입력해주세요.',
       name: 'hint_nickname_input',
       desc: '',
       args: [],
     );
   }
 
-  /// `The image has been saved.`
+  /// `이미지가 저장되었습니다.`
   String get image_save_success {
     return Intl.message(
-      'The image has been saved.',
+      '이미지가 저장되었습니다.',
       name: 'image_save_success',
       desc: '',
       args: [],
     );
   }
 
-  /// `You have exhausted the ads available per ID.`
+  /// `아이디당 시청 가능한 광고를 모두 소진했습니다.`
   String get label_ads_exceeded {
     return Intl.message(
-      'You have exhausted the ads available per ID.',
+      '아이디당 시청 가능한 광고를 모두 소진했습니다.',
       name: 'label_ads_exceeded',
       desc: '',
       args: [],
     );
   }
 
-  /// `When the next ad will be available.`
+  /// `다음 광고 시청 가능시간.`
   String get label_ads_next_available_time {
     return Intl.message(
-      'When the next ad will be available.',
+      '다음 광고 시청 가능시간.',
       name: 'label_ads_next_available_time',
       desc: '',
       args: [],
     );
   }
 
-  /// `Consent to the collection and use of personal information`
+  /// `개인정보 수집 및 이용 동의`
   String get label_agreement_privacy {
     return Intl.message(
-      'Consent to the collection and use of personal information',
+      '개인정보 수집 및 이용 동의',
       name: 'label_agreement_privacy',
       desc: '',
       args: [],
     );
   }
 
-  /// `Accept the Terms of Use`
+  /// `이용 약관 동의`
   String get label_agreement_terms {
     return Intl.message(
-      'Accept the Terms of Use',
+      '이용 약관 동의',
       name: 'label_agreement_terms',
       desc: '',
       args: [],
     );
   }
 
-  /// `Add a new album`
+  /// `새로운 앨범 추가`
   String get label_album_add {
     return Intl.message(
-      'Add a new album',
+      '새로운 앨범 추가',
       name: 'label_album_add',
       desc: '',
       args: [],
     );
   }
 
-  /// `Be the first to comment!`
+  /// `첫 댓글의 주인공이 되세요!`
   String get label_article_comment_empty {
     return Intl.message(
-      'Be the first to comment!',
+      '첫 댓글의 주인공이 되세요!',
       name: 'label_article_comment_empty',
       desc: '',
       args: [],
     );
   }
 
-  /// `Bonuses`
+  /// `보너스`
   String get label_bonus {
     return Intl.message(
-      'Bonuses',
+      '보너스',
       name: 'label_bonus',
       desc: '',
       args: [],
     );
   }
 
-  /// `Accept`
+  /// `동의`
   String get label_button_agreement {
     return Intl.message(
-      'Accept',
+      '동의',
       name: 'label_button_agreement',
       desc: '',
       args: [],
@@ -540,230 +540,230 @@ class S {
     );
   }
 
-  /// `Non-Consent`
+  /// `비동의`
   String get label_button_disagreement {
     return Intl.message(
-      'Non-Consent',
+      '비동의',
       name: 'label_button_disagreement',
       desc: '',
       args: [],
     );
   }
 
-  /// `Charging`
+  /// `충전하기`
   String get label_button_recharge {
     return Intl.message(
-      'Charging',
+      '충전하기',
       name: 'label_button_recharge',
       desc: '',
       args: [],
     );
   }
 
-  /// `Save your ballot`
+  /// `투표증 저장`
   String get label_button_save_vote_paper {
     return Intl.message(
-      'Save your ballot',
+      '투표증 저장',
       name: 'label_button_save_vote_paper',
       desc: '',
       args: [],
     );
   }
 
-  /// `Share`
+  /// `공유하기`
   String get label_button_share {
     return Intl.message(
-      'Share',
+      '공유하기',
       name: 'label_button_share',
       desc: '',
       args: [],
     );
   }
 
-  /// `Vote`
+  /// `투표하기`
   String get label_button_vote {
     return Intl.message(
-      'Vote',
+      '투표하기',
       name: 'label_button_vote',
       desc: '',
       args: [],
     );
   }
 
-  /// `View and charge`
+  /// `광고보고 충전하기`
   String get label_button_watch_and_charge {
     return Intl.message(
-      'View and charge',
+      '광고보고 충전하기',
       name: 'label_button_watch_and_charge',
       desc: '',
       args: [],
     );
   }
 
-  /// `The Artist Asks You!`
+  /// `아티스트가 당신에게 묻다!`
   String get label_celeb_ask_to_you {
     return Intl.message(
-      'The Artist Asks You!',
+      '아티스트가 당신에게 묻다!',
       name: 'label_celeb_ask_to_you',
       desc: '',
       args: [],
     );
   }
 
-  /// `Artist Gallery`
+  /// `아티스트 갤러리`
   String get label_celeb_gallery {
     return Intl.message(
-      'Artist Gallery',
+      '아티스트 갤러리',
       name: 'label_celeb_gallery',
       desc: '',
       args: [],
     );
   }
 
-  /// `Artist recommendations`
+  /// `아티스트 추천`
   String get label_celeb_recommend {
     return Intl.message(
-      'Artist recommendations',
+      '아티스트 추천',
       name: 'label_celeb_recommend',
       desc: '',
       args: [],
     );
   }
 
-  /// `Full Use`
+  /// `전체사용`
   String get label_checkbox_entire_use {
     return Intl.message(
-      'Full Use',
+      '전체사용',
       name: 'label_checkbox_entire_use',
       desc: '',
       args: [],
     );
   }
 
-  /// `Current language`
+  /// `현재 언어`
   String get label_current_language {
     return Intl.message(
-      'Current language',
+      '현재 언어',
       name: 'label_current_language',
       desc: '',
       args: [],
     );
   }
 
-  /// `Chance to win a random image`
+  /// `랜덤 이미지 획득 기회`
   String get label_draw_image {
     return Intl.message(
-      'Chance to win a random image',
+      '랜덤 이미지 획득 기회',
       name: 'label_draw_image',
       desc: '',
       args: [],
     );
   }
 
-  /// `Oldest`
+  /// `오래된순`
   String get label_dropdown_oldest {
     return Intl.message(
-      'Oldest',
+      '오래된순',
       name: 'label_dropdown_oldest',
       desc: '',
       args: [],
     );
   }
 
-  /// `Newest`
+  /// `최신순`
   String get label_dropdown_recent {
     return Intl.message(
-      'Newest',
+      '최신순',
       name: 'label_dropdown_recent',
       desc: '',
       args: [],
     );
   }
 
-  /// `Find more artists`
+  /// `더 많은 아티스트 찾기`
   String get label_find_celeb {
     return Intl.message(
-      'Find more artists',
+      '더 많은 아티스트 찾기',
       name: 'label_find_celeb',
       desc: '',
       args: [],
     );
   }
 
-  /// `Articles`
+  /// `아티클`
   String get label_gallery_tab_article {
     return Intl.message(
-      'Articles',
+      '아티클',
       name: 'label_gallery_tab_article',
       desc: '',
       args: [],
     );
   }
 
-  /// `Chat`
+  /// `채팅`
   String get label_gallery_tab_chat {
     return Intl.message(
-      'Chat',
+      '채팅',
       name: 'label_gallery_tab_chat',
       desc: '',
       args: [],
     );
   }
 
-  /// `Leave a comment.`
+  /// `댓글을 남겨주세요.`
   String get label_hint_comment {
     return Intl.message(
-      'Leave a comment.',
+      '댓글을 남겨주세요.',
       name: 'label_hint_comment',
       desc: '',
       args: [],
     );
   }
 
-  /// `Input`
+  /// `입력`
   String get label_input_input {
     return Intl.message(
-      'Input',
+      '입력',
       name: 'label_input_input',
       desc: '',
       args: [],
     );
   }
 
-  /// `Recent logins`
+  /// `최근 로그인`
   String get label_last_provider {
     return Intl.message(
-      'Recent logins',
+      '최근 로그인',
       name: 'label_last_provider',
       desc: '',
       args: [],
     );
   }
 
-  /// `Save the library`
+  /// `라이브러리 저장`
   String get label_library_save {
     return Intl.message(
-      'Save the library',
+      '라이브러리 저장',
       name: 'label_library_save',
       desc: '',
       args: [],
     );
   }
 
-  /// `AI Photos`
+  /// `AI 포토`
   String get label_library_tab_ai_photo {
     return Intl.message(
-      'AI Photos',
+      'AI 포토',
       name: 'label_library_tab_ai_photo',
       desc: '',
       args: [],
     );
   }
 
-  /// `Libraries`
+  /// `라이브러리`
   String get label_library_tab_library {
     return Intl.message(
-      'Libraries',
+      '라이브러리',
       name: 'label_library_tab_library',
       desc: '',
       args: [],
@@ -780,90 +780,90 @@ class S {
     );
   }
 
-  /// `Loading ad`
+  /// `광고 로딩중`
   String get label_loading_ads {
     return Intl.message(
-      'Loading ad',
+      '광고 로딩중',
       name: 'label_loading_ads',
       desc: '',
       args: [],
     );
   }
 
-  /// `Go to the Artist Gallery`
+  /// `아티스트 갤러리로 이동`
   String get label_moveto_celeb_gallery {
     return Intl.message(
-      'Go to the Artist Gallery',
+      '아티스트 갤러리로 이동',
       name: 'label_moveto_celeb_gallery',
       desc: '',
       args: [],
     );
   }
 
-  /// `Charges`
+  /// `충전내역`
   String get label_mypage_charge_history {
     return Intl.message(
-      'Charges',
+      '충전내역',
       name: 'label_mypage_charge_history',
       desc: '',
       args: [],
     );
   }
 
-  /// `Help Center`
+  /// `고객센터`
   String get label_mypage_customer_center {
     return Intl.message(
-      'Help Center',
+      '고객센터',
       name: 'label_mypage_customer_center',
       desc: '',
       args: [],
     );
   }
 
-  /// `Log out`
+  /// `로그아웃`
   String get label_mypage_logout {
     return Intl.message(
-      'Log out',
+      '로그아웃',
       name: 'label_mypage_logout',
       desc: '',
       args: [],
     );
   }
 
-  /// `Membership history`
+  /// `멤버십 내역`
   String get label_mypage_membership_history {
     return Intl.message(
-      'Membership history',
+      '멤버십 내역',
       name: 'label_mypage_membership_history',
       desc: '',
       args: [],
     );
   }
 
-  /// `My Artists`
+  /// `나의 아티스트`
   String get label_mypage_my_artist {
     return Intl.message(
-      'My Artists',
+      '나의 아티스트',
       name: 'label_mypage_my_artist',
       desc: '',
       args: [],
     );
   }
 
-  /// `Announcements`
+  /// `공지사항`
   String get label_mypage_notice {
     return Intl.message(
-      'Announcements',
+      '공지사항',
       name: 'label_mypage_notice',
       desc: '',
       args: [],
     );
   }
 
-  /// `Privacy Policy`
+  /// `개인정보처리방침`
   String get label_mypage_privacy_policy {
     return Intl.message(
-      'Privacy Policy',
+      '개인정보처리방침',
       name: 'label_mypage_privacy_policy',
       desc: '',
       args: [],
@@ -880,700 +880,730 @@ class S {
     );
   }
 
-  /// `Please sign in`
+  /// `로그인 해 주세요`
   String get label_mypage_should_login {
     return Intl.message(
-      'Please sign in',
+      '로그인 해 주세요',
       name: 'label_mypage_should_login',
       desc: '',
       args: [],
     );
   }
 
-  /// `Terms of Use`
+  /// `이용약관`
   String get label_mypage_terms_of_use {
     return Intl.message(
-      'Terms of Use',
+      '이용약관',
       name: 'label_mypage_terms_of_use',
       desc: '',
       args: [],
     );
   }
 
-  /// `Star Candy Voting History`
+  /// `별사탕 투표내역`
   String get label_mypage_vote_history {
     return Intl.message(
-      'Star Candy Voting History',
+      '별사탕 투표내역',
       name: 'label_mypage_vote_history',
       desc: '',
       args: [],
     );
   }
 
-  /// `Withdrawal`
+  /// `회원탈퇴`
   String get label_mypage_withdrawal {
     return Intl.message(
-      'Withdrawal',
+      '회원탈퇴',
       name: 'label_mypage_withdrawal',
       desc: '',
       args: [],
     );
   }
 
-  /// `No ads`
+  /// `광고 없음`
   String get label_no_ads {
     return Intl.message(
-      'No ads',
+      '광고 없음',
       name: 'label_no_ads',
       desc: '',
       args: [],
     );
   }
 
-  /// `You don't have any artists bookmarked yet!`
+  /// `아직 북마크한 아티스트가 없습니다!`
   String get label_no_celeb {
     return Intl.message(
-      'You don\'t have any artists bookmarked yet!',
+      '아직 북마크한 아티스트가 없습니다!',
       name: 'label_no_celeb',
       desc: '',
       args: [],
     );
   }
 
-  /// `Crop an image`
+  /// `이미지 자르기`
   String get label_pic_image_cropping {
     return Intl.message(
-      'Crop an image',
+      '이미지 자르기',
       name: 'label_pic_image_cropping',
       desc: '',
       args: [],
     );
   }
 
-  /// `Initializing camera...`
+  /// `카메라 초기화중...`
   String get label_pic_pic_initializing_camera {
     return Intl.message(
-      'Initializing camera...',
+      '카메라 초기화중...',
       name: 'label_pic_pic_initializing_camera',
       desc: '',
       args: [],
     );
   }
 
-  /// `Save to Gallery`
+  /// `갤러리에 저장`
   String get label_pic_pic_save_gallery {
     return Intl.message(
-      'Save to Gallery',
+      '갤러리에 저장',
       name: 'label_pic_pic_save_gallery',
       desc: '',
       args: [],
     );
   }
 
-  /// `Compositing an image...`
+  /// `이미지 합성중...`
   String get label_pic_pic_synthesizing_image {
     return Intl.message(
-      'Compositing an image...',
+      '이미지 합성중...',
       name: 'label_pic_pic_synthesizing_image',
       desc: '',
       args: [],
     );
   }
 
-  /// `More comments`
+  /// `댓글 더보기`
   String get label_read_more_comment {
     return Intl.message(
-      'More comments',
+      '댓글 더보기',
       name: 'label_read_more_comment',
       desc: '',
       args: [],
     );
   }
 
-  /// `Replying to a reply`
+  /// `답글 달기`
   String get label_reply {
     return Intl.message(
-      'Replying to a reply',
+      '답글 달기',
       name: 'label_reply',
       desc: '',
       args: [],
     );
   }
 
-  /// `Retrying`
+  /// `재시도 하기`
   String get label_retry {
     return Intl.message(
-      'Retrying',
+      '재시도 하기',
       name: 'label_retry',
       desc: '',
       args: [],
     );
   }
 
-  /// `Accept the terms`
+  /// `약관 동의`
   String get label_screen_title_agreement {
     return Intl.message(
-      'Accept the terms',
+      '약관 동의',
       name: 'label_screen_title_agreement',
       desc: '',
       args: [],
     );
   }
 
-  /// `Notifications`
+  /// `알림`
   String get label_setting_alarm {
     return Intl.message(
-      'Notifications',
+      '알림',
       name: 'label_setting_alarm',
       desc: '',
       args: [],
     );
   }
 
-  /// `App info`
+  /// `앱정보`
   String get label_setting_appinfo {
     return Intl.message(
-      'App info',
+      '앱정보',
       name: 'label_setting_appinfo',
       desc: '',
       args: [],
     );
   }
 
-  /// `Current version`
+  /// `현재버전`
   String get label_setting_current_version {
     return Intl.message(
-      'Current version',
+      '현재버전',
       name: 'label_setting_current_version',
       desc: '',
       args: [],
     );
   }
 
-  /// `Event notifications`
+  /// `이벤트알림`
   String get label_setting_event_alarm {
     return Intl.message(
-      'Event notifications',
+      '이벤트알림',
       name: 'label_setting_event_alarm',
       desc: '',
       args: [],
     );
   }
 
-  /// `Events and happenings.`
+  /// `각종 이벤트와 행사를 안내드려요.`
   String get label_setting_event_alarm_desc {
     return Intl.message(
-      'Events and happenings.',
+      '각종 이벤트와 행사를 안내드려요.',
       name: 'label_setting_event_alarm_desc',
       desc: '',
       args: [],
     );
   }
 
-  /// `Language settings`
+  /// `언어설정`
   String get label_setting_language {
     return Intl.message(
-      'Language settings',
+      '언어설정',
       name: 'label_setting_language',
       desc: '',
       args: [],
     );
   }
 
-  /// `Push notifications`
+  /// `푸시알림`
   String get label_setting_push_alarm {
     return Intl.message(
-      'Push notifications',
+      '푸시알림',
       name: 'label_setting_push_alarm',
       desc: '',
       args: [],
     );
   }
 
-  /// `Latest version`
+  /// `최신버전`
   String get label_setting_recent_version {
     return Intl.message(
-      'Latest version',
+      '최신버전',
       name: 'label_setting_recent_version',
       desc: '',
       args: [],
     );
   }
 
-  /// `Delete cache memory`
+  /// `캐시메모리 삭제`
   String get label_setting_remove_cache {
     return Intl.message(
-      'Delete cache memory',
+      '캐시메모리 삭제',
       name: 'label_setting_remove_cache',
       desc: '',
       args: [],
     );
   }
 
-  /// `Done`
+  /// `완료`
   String get label_setting_remove_cache_complete {
     return Intl.message(
-      'Done',
+      '완료',
       name: 'label_setting_remove_cache_complete',
       desc: '',
       args: [],
     );
   }
 
-  /// `Manage storage`
+  /// `저장공간 관리`
   String get label_setting_storage {
     return Intl.message(
-      'Manage storage',
+      '저장공간 관리',
       name: 'label_setting_storage',
       desc: '',
       args: [],
     );
   }
 
-  /// `Update`
+  /// `업데이트`
   String get label_setting_update {
     return Intl.message(
-      'Update',
+      '업데이트',
       name: 'label_setting_update',
       desc: '',
       args: [],
     );
   }
 
-  /// `Star Candy Pouch`
+  /// `별사탕 주머니`
   String get label_star_candy_pouch {
     return Intl.message(
-      'Star Candy Pouch',
+      '별사탕 주머니',
       name: 'label_star_candy_pouch',
       desc: '',
       args: [],
     );
   }
 
-  /// `Buy star candy`
+  /// `별사탕 구매`
   String get label_tab_buy_star_candy {
     return Intl.message(
-      'Buy star candy',
+      '별사탕 구매',
       name: 'label_tab_buy_star_candy',
       desc: '',
       args: [],
     );
   }
 
-  /// `Free charging stations`
+  /// `무료충전소`
   String get label_tab_free_charge_station {
     return Intl.message(
-      'Free charging stations',
+      '무료충전소',
       name: 'label_tab_free_charge_station',
       desc: '',
       args: [],
     );
   }
 
-  /// `Daily charts`
+  /// `마이아티스트`
+  String get label_tab_my_artist {
+    return Intl.message(
+      '마이아티스트',
+      name: 'label_tab_my_artist',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `마이아티스트 찾기`
+  String get label_tab_search_my_artist {
+    return Intl.message(
+      '마이아티스트 찾기',
+      name: 'label_tab_search_my_artist',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `일간차트`
   String get label_tabbar_picchart_daily {
     return Intl.message(
-      'Daily charts',
+      '일간차트',
       name: 'label_tabbar_picchart_daily',
       desc: '',
       args: [],
     );
   }
 
-  /// `Monthly Charts`
+  /// `월간차트`
   String get label_tabbar_picchart_monthly {
     return Intl.message(
-      'Monthly Charts',
+      '월간차트',
       name: 'label_tabbar_picchart_monthly',
       desc: '',
       args: [],
     );
   }
 
-  /// `Weekly charts`
+  /// `주간차트`
   String get label_tabbar_picchart_weekly {
     return Intl.message(
-      'Weekly charts',
+      '주간차트',
       name: 'label_tabbar_picchart_weekly',
       desc: '',
       args: [],
     );
   }
 
-  /// `In Progress`
+  /// `진행중`
   String get label_tabbar_vote_active {
     return Intl.message(
-      'In Progress',
+      '진행중',
       name: 'label_tabbar_vote_active',
       desc: '',
       args: [],
     );
   }
 
-  /// `Exit`
+  /// `종료`
   String get label_tabbar_vote_end {
     return Intl.message(
-      'Exit',
+      '종료',
       name: 'label_tabbar_vote_end',
       desc: '',
       args: [],
     );
   }
 
-  /// `Upcoming`
+  /// `예정`
   String get label_tabbar_vote_upcoming {
     return Intl.message(
-      'Upcoming',
+      '예정',
       name: 'label_tabbar_vote_upcoming',
       desc: '',
       args: [],
     );
   }
 
-  /// `{day} days ago`
+  /// `{day}일 전`
   String label_time_ago_day(Object day) {
     return Intl.message(
-      '$day days ago',
+      '$day일 전',
       name: 'label_time_ago_day',
       desc: '',
       args: [day],
     );
   }
 
-  /// `{hour} hours ago`
+  /// `{hour}시간 전`
   String label_time_ago_hour(Object hour) {
     return Intl.message(
-      '$hour hours ago',
+      '$hour시간 전',
       name: 'label_time_ago_hour',
       desc: '',
       args: [hour],
     );
   }
 
-  /// `{minute} minutes ago`
+  /// `{minute}분 전`
   String label_time_ago_minute(Object minute) {
     return Intl.message(
-      '$minute minutes ago',
+      '$minute분 전',
       name: 'label_time_ago_minute',
       desc: '',
       args: [minute],
     );
   }
 
-  /// `Just a moment ago`
+  /// `방금 전`
   String get label_time_ago_right_now {
     return Intl.message(
-      'Just a moment ago',
+      '방금 전',
       name: 'label_time_ago_right_now',
       desc: '',
       args: [],
     );
   }
 
-  /// `Comments`
+  /// `댓글`
   String get label_title_comment {
     return Intl.message(
-      'Comments',
+      '댓글',
       name: 'label_title_comment',
       desc: '',
       args: [],
     );
   }
 
-  /// `Make a report`
+  /// `신고하기`
   String get label_title_report {
     return Intl.message(
-      'Make a report',
+      '신고하기',
       name: 'label_title_report',
       desc: '',
       args: [],
     );
   }
 
-  /// `Rewards list`
+  /// `리워드 리스트`
   String get label_vote_reward_list {
     return Intl.message(
-      'Rewards list',
+      '리워드 리스트',
       name: 'label_vote_reward_list',
       desc: '',
       args: [],
     );
   }
 
-  /// `Voting`
+  /// `투표`
   String get label_vote_screen_title {
     return Intl.message(
-      'Voting',
+      '투표',
       name: 'label_vote_screen_title',
       desc: '',
       args: [],
     );
   }
 
-  /// `Birthday polls`
+  /// `생일 투표`
   String get label_vote_tab_birthday {
     return Intl.message(
-      'Birthday polls',
+      '생일 투표',
       name: 'label_vote_tab_birthday',
       desc: '',
       args: [],
     );
   }
 
-  /// `PIC voting`
+  /// `PIC 투표`
   String get label_vote_tab_pic {
     return Intl.message(
-      'PIC voting',
+      'PIC 투표',
       name: 'label_vote_tab_pic',
       desc: '',
       args: [],
     );
   }
 
-  /// `Until voting begins`
+  /// `투표 시작까지`
   String get label_vote_upcoming {
     return Intl.message(
-      'Until voting begins',
+      '투표 시작까지',
       name: 'label_vote_upcoming',
       desc: '',
       args: [],
     );
   }
 
-  /// `Collecting votes`
+  /// `투표 모아보기`
   String get label_vote_vote_gather {
     return Intl.message(
-      'Collecting votes',
+      '투표 모아보기',
       name: 'label_vote_vote_gather',
       desc: '',
       args: [],
     );
   }
 
-  /// `View ads`
+  /// `광고보기`
   String get label_watch_ads {
     return Intl.message(
-      'View ads',
+      '광고보기',
       name: 'label_watch_ads',
       desc: '',
       args: [],
     );
   }
 
-  /// `My Artists`
+  /// `나의 아티스트`
   String get lable_my_celeb {
     return Intl.message(
-      'My Artists',
+      '나의 아티스트',
       name: 'lable_my_celeb',
       desc: '',
       args: [],
     );
   }
 
-  /// `Acceptance of the terms is complete.`
+  /// `약관 동의가 완료되었습니다.`
   String get message_agreement_success {
     return Intl.message(
-      'Acceptance of the terms is complete.',
+      '약관 동의가 완료되었습니다.',
       name: 'message_agreement_success',
       desc: '',
       args: [],
     );
   }
 
-  /// `An error occurred.`
+  /// `오류가 발생했습니다.`
   String get message_error_occurred {
     return Intl.message(
-      'An error occurred.',
+      '오류가 발생했습니다.',
       name: 'message_error_occurred',
       desc: '',
       args: [],
     );
   }
 
-  /// `There are currently no active polls.`
+  /// `현재 진행중인 투표가 없습니다.`
   String get message_noitem_vote_active {
     return Intl.message(
-      'There are currently no active polls.',
+      '현재 진행중인 투표가 없습니다.',
       name: 'message_noitem_vote_active',
       desc: '',
       args: [],
     );
   }
 
-  /// `There are currently no closed polls.`
+  /// `현재 종료된 투표가 없습니다.`
   String get message_noitem_vote_end {
     return Intl.message(
-      'There are currently no closed polls.',
+      '현재 종료된 투표가 없습니다.',
       name: 'message_noitem_vote_end',
       desc: '',
       args: [],
     );
   }
 
-  /// `There are currently no upcoming polls.`
+  /// `현재 예정중인 투표가 없습니다.`
   String get message_noitem_vote_upcoming {
     return Intl.message(
-      'There are currently no upcoming polls.',
+      '현재 예정중인 투표가 없습니다.',
       name: 'message_noitem_vote_upcoming',
       desc: '',
       args: [],
     );
   }
 
-  /// `Saving the image failed.`
+  /// `이미지 저장에 실패했습니다.`
   String get message_pic_pic_save_fail {
     return Intl.message(
-      'Saving the image failed.',
+      '이미지 저장에 실패했습니다.',
       name: 'message_pic_pic_save_fail',
       desc: '',
       args: [],
     );
   }
 
-  /// `The image has been saved.`
+  /// `이미지가 저장되었습니다.`
   String get message_pic_pic_save_success {
     return Intl.message(
-      'The image has been saved.',
+      '이미지가 저장되었습니다.',
       name: 'message_pic_pic_save_success',
       desc: '',
       args: [],
     );
   }
 
-  /// `Want to report?`
+  /// `신고하시겠습니까?`
   String get message_report_confirm {
     return Intl.message(
-      'Want to report?',
+      '신고하시겠습니까?',
       name: 'message_report_confirm',
       desc: '',
       args: [],
     );
   }
 
-  /// `The report is complete.`
+  /// `신고가 완료되었습니다.`
   String get message_report_ok {
     return Intl.message(
-      'The report is complete.',
+      '신고가 완료되었습니다.',
       name: 'message_report_ok',
       desc: '',
       args: [],
     );
   }
 
-  /// `Cache memory deletion is complete`
+  /// `캐시메모리 삭제가 완료되었습니다`
   String get message_setting_remove_cache {
     return Intl.message(
-      'Cache memory deletion is complete',
+      '캐시메모리 삭제가 완료되었습니다',
       name: 'message_setting_remove_cache',
       desc: '',
       args: [],
     );
   }
 
-  /// `Nickname change failed.\nPlease select a different nickname.`
+  /// `닉네임 변경에 실패했습니다.\n다른 닉네임을 선택해주세요.`
   String get message_update_nickname_fail {
     return Intl.message(
-      'Nickname change failed.\nPlease select a different nickname.',
+      '닉네임 변경에 실패했습니다.\n다른 닉네임을 선택해주세요.',
       name: 'message_update_nickname_fail',
       desc: '',
       args: [],
     );
   }
 
-  /// `Your nickname has been successfully changed.`
+  /// `닉네임이 성공적으로 변경되었습니다.`
   String get message_update_nickname_success {
     return Intl.message(
-      'Your nickname has been successfully changed.',
+      '닉네임이 성공적으로 변경되었습니다.',
       name: 'message_update_nickname_success',
       desc: '',
       args: [],
     );
   }
 
-  /// `Poll closed`
+  /// `종료된 투표입니다`
   String get message_vote_is_ended {
     return Intl.message(
-      'Poll closed',
+      '종료된 투표입니다',
       name: 'message_vote_is_ended',
       desc: '',
       args: [],
     );
   }
 
-  /// `This is an upcoming vote`
+  /// `예정된 투표입니다`
   String get message_vote_is_upcoming {
     return Intl.message(
-      'This is an upcoming vote',
+      '예정된 투표입니다',
       name: 'message_vote_is_upcoming',
       desc: '',
       args: [],
     );
   }
 
-  /// `Manage comments`
+  /// `댓글관리`
   String get mypage_comment {
     return Intl.message(
-      'Manage comments',
+      '댓글관리',
       name: 'mypage_comment',
       desc: '',
       args: [],
     );
   }
 
-  /// `Language settings`
+  /// `언어설정`
   String get mypage_language {
     return Intl.message(
-      'Language settings',
+      '언어설정',
       name: 'mypage_language',
       desc: '',
       args: [],
     );
   }
 
-  /// `My purchases`
+  /// `내 구매`
   String get mypage_purchases {
     return Intl.message(
-      'My purchases',
+      '내 구매',
       name: 'mypage_purchases',
       desc: '',
       args: [],
     );
   }
 
-  /// `Settings`
+  /// `설정`
   String get mypage_setting {
     return Intl.message(
-      'Settings',
+      '설정',
       name: 'mypage_setting',
       desc: '',
       args: [],
     );
   }
 
-  /// `Subscription information`
+  /// `구독정보`
   String get mypage_subscription {
     return Intl.message(
-      'Subscription information',
+      '구독정보',
       name: 'mypage_subscription',
       desc: '',
       args: [],
     );
   }
 
-  /// `Ads`
+  /// `광고`
   String get nav_ads {
     return Intl.message(
-      'Ads',
+      '광고',
       name: 'nav_ads',
       desc: '',
       args: [],
     );
   }
 
-  /// `Gallery`
+  /// `게시판`
+  String get nav_board {
+    return Intl.message(
+      '게시판',
+      name: 'nav_board',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `갤러리`
   String get nav_gallery {
     return Intl.message(
-      'Gallery',
+      '갤러리',
       name: 'nav_gallery',
       desc: '',
       args: [],
@@ -1590,410 +1620,420 @@ class S {
     );
   }
 
-  /// `Libraries`
+  /// `라이브러리`
   String get nav_library {
     return Intl.message(
-      'Libraries',
+      '라이브러리',
       name: 'nav_library',
       desc: '',
       args: [],
     );
   }
 
-  /// `Media`
+  /// `미디어`
   String get nav_media {
     return Intl.message(
-      'Media',
+      '미디어',
       name: 'nav_media',
       desc: '',
       args: [],
     );
   }
 
-  /// `PIC Charts`
+  /// `마이`
+  String get nav_my {
+    return Intl.message(
+      '마이',
+      name: 'nav_my',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `PIC차트`
   String get nav_picchart {
     return Intl.message(
-      'PIC Charts',
+      'PIC차트',
       name: 'nav_picchart',
       desc: '',
       args: [],
     );
   }
 
-  /// `Purchase`
+  /// `구매`
   String get nav_purchases {
     return Intl.message(
-      'Purchase',
+      '구매',
       name: 'nav_purchases',
       desc: '',
       args: [],
     );
   }
 
-  /// `Settings`
+  /// `설정`
   String get nav_setting {
     return Intl.message(
-      'Settings',
+      '설정',
       name: 'nav_setting',
       desc: '',
       args: [],
     );
   }
 
-  /// `Shop`
+  /// `상점`
   String get nav_store {
     return Intl.message(
-      'Shop',
+      '상점',
       name: 'nav_store',
       desc: '',
       args: [],
     );
   }
 
-  /// `Subscriptions`
+  /// `구독`
   String get nav_subscription {
     return Intl.message(
-      'Subscriptions',
+      '구독',
       name: 'nav_subscription',
       desc: '',
       args: [],
     );
   }
 
-  /// `Voting`
+  /// `투표`
   String get nav_vote {
     return Intl.message(
-      'Voting',
+      '투표',
       name: 'nav_vote',
       desc: '',
       args: [],
     );
   }
 
-  /// `20 characters or less, excluding special characters.`
+  /// `20자 이내, 특수문자 제외 가능합니다.`
   String get nickname_validation_error {
     return Intl.message(
-      '20 characters or less, excluding special characters.',
+      '20자 이내, 특수문자 제외 가능합니다.',
       name: 'nickname_validation_error',
       desc: '',
       args: [],
     );
   }
 
-  /// `My Page`
+  /// `마이페이지`
   String get page_title_mypage {
     return Intl.message(
-      'My Page',
+      '마이페이지',
       name: 'page_title_mypage',
       desc: '',
       args: [],
     );
   }
 
-  /// `My profile`
+  /// `나의 프로필`
   String get page_title_myprofile {
     return Intl.message(
-      'My profile',
+      '나의 프로필',
       name: 'page_title_myprofile',
       desc: '',
       args: [],
     );
   }
 
-  /// `Privacy Policy`
+  /// `개인정보처리방침`
   String get page_title_privacy {
     return Intl.message(
-      'Privacy Policy',
+      '개인정보처리방침',
       name: 'page_title_privacy',
       desc: '',
       args: [],
     );
   }
 
-  /// `Preferences`
+  /// `환경설정`
   String get page_title_setting {
     return Intl.message(
-      'Preferences',
+      '환경설정',
       name: 'page_title_setting',
       desc: '',
       args: [],
     );
   }
 
-  /// `Terms of Use`
+  /// `이용약관`
   String get page_title_terms_of_use {
     return Intl.message(
-      'Terms of Use',
+      '이용약관',
       name: 'page_title_terms_of_use',
       desc: '',
       args: [],
     );
   }
 
-  /// `Vote`
+  /// `투표하기`
   String get page_title_vote_detail {
     return Intl.message(
-      'Vote',
+      '투표하기',
       name: 'page_title_vote_detail',
       desc: '',
       args: [],
     );
   }
 
-  /// `Collecting votes`
+  /// `투표 모아보기`
   String get page_title_vote_gather {
     return Intl.message(
-      'Collecting votes',
+      '투표 모아보기',
       name: 'page_title_vote_gather',
       desc: '',
       args: [],
     );
   }
 
-  /// `Image sharing failed`
+  /// `이미지 공유 실패`
   String get share_image_fail {
     return Intl.message(
-      'Image sharing failed',
+      '이미지 공유 실패',
       name: 'share_image_fail',
       desc: '',
       args: [],
     );
   }
 
-  /// `Shared image successfully`
+  /// `이미지 공유 성공`
   String get share_image_success {
     return Intl.message(
-      'Shared image successfully',
+      '이미지 공유 성공',
       name: 'share_image_success',
       desc: '',
       args: [],
     );
   }
 
-  /// `X app is missing.`
+  /// `X 앱이 없습니다.`
   String get share_no_twitter {
     return Intl.message(
-      'X app is missing.',
+      'X 앱이 없습니다.',
       name: 'share_no_twitter',
       desc: '',
       args: [],
     );
   }
 
-  /// `Share on Twitter`
+  /// `트위터 공유`
   String get share_twitter {
     return Intl.message(
-      'Share on Twitter',
+      '트위터 공유',
       name: 'share_twitter',
       desc: '',
       args: [],
     );
   }
 
-  /// `Viewing ads and collecting random images.`
+  /// `광고 보기 및 무작위 이미지 수집.`
   String get text_ads_random {
     return Intl.message(
-      'Viewing ads and collecting random images.',
+      '광고 보기 및 무작위 이미지 수집.',
       name: 'text_ads_random',
       desc: '',
       args: [],
     );
   }
 
-  /// `Bonuses`
+  /// `보너스`
   String get text_bonus {
     return Intl.message(
-      'Bonuses',
+      '보너스',
       name: 'text_bonus',
       desc: '',
       args: [],
     );
   }
 
-  /// `Welcome to PikChart!\nSee you in August 2024!`
+  /// `핔 차트에 오신 여러분을 환영합니다!\n2024년 8월에 만나요!`
   String get text_comming_soon_pic_chart1 {
     return Intl.message(
-      'Welcome to PikChart!\nSee you in August 2024!',
+      '핔 차트에 오신 여러분을 환영합니다!\n2024년 8월에 만나요!',
       name: 'text_comming_soon_pic_chart1',
       desc: '',
       args: [],
     );
   }
 
-  /// `Pie charts are a new chart unique to Peeknick that reflects daily, weekly, and monthly scores.\nPeeknick's new chart that reflects daily, weekly, and monthly scores.`
+  /// `핔차트는 일간, 주간, 월간 점수를 반영하는\n피크닠만의 새로운 차트입니다.`
   String get text_comming_soon_pic_chart2 {
     return Intl.message(
-      'Pie charts are a new chart unique to Peeknick that reflects daily, weekly, and monthly scores.\nPeeknick\'s new chart that reflects daily, weekly, and monthly scores.',
+      '핔차트는 일간, 주간, 월간 점수를 반영하는\n피크닠만의 새로운 차트입니다.',
       name: 'text_comming_soon_pic_chart2',
       desc: '',
       args: [],
     );
   }
 
-  /// `Get a real-time reflection\nartist's brand reputation in real-time!`
+  /// `실시간으로 반영되는\n아티스트의 브랜드 평판을 확인해 보세요!`
   String get text_comming_soon_pic_chart3 {
     return Intl.message(
-      'Get a real-time reflection\nartist\'s brand reputation in real-time!',
+      '실시간으로 반영되는\n아티스트의 브랜드 평판을 확인해 보세요!',
       name: 'text_comming_soon_pic_chart3',
       desc: '',
       args: [],
     );
   }
 
-  /// `What is a Pie Chart?`
+  /// `핔차트란?`
   String get text_comming_soon_pic_chart_title {
     return Intl.message(
-      'What is a Pie Chart?',
+      '핔차트란?',
       name: 'text_comming_soon_pic_chart_title',
       desc: '',
       args: [],
     );
   }
 
-  /// `The address has been copied.`
+  /// `주소가 복사되었습니다.`
   String get text_copied_address {
     return Intl.message(
-      'The address has been copied.',
+      '주소가 복사되었습니다.',
       name: 'text_copied_address',
       desc: '',
       args: [],
     );
   }
 
-  /// `The ad stopped midway through.`
+  /// `광고를 중간에 멈추었습니다.`
   String get text_dialog_ad_dismissed {
     return Intl.message(
-      'The ad stopped midway through.',
+      '광고를 중간에 멈추었습니다.',
       name: 'text_dialog_ad_dismissed',
       desc: '',
       args: [],
     );
   }
 
-  /// `Failed to load ads`
+  /// `광고 불러오기 실패`
   String get text_dialog_ad_failed_to_show {
     return Intl.message(
-      'Failed to load ads',
+      '광고 불러오기 실패',
       name: 'text_dialog_ad_failed_to_show',
       desc: '',
       args: [],
     );
   }
 
-  /// `Star candy has been awarded.`
+  /// `별사탕이 지급되었습니다.`
   String get text_dialog_star_candy_received {
     return Intl.message(
-      'Star candy has been awarded.',
+      '별사탕이 지급되었습니다.',
       name: 'text_dialog_star_candy_received',
       desc: '',
       args: [],
     );
   }
 
-  /// `The number of votes cannot be zero.`
+  /// `투표수량은 0이 될 수 없습니다.`
   String get text_dialog_vote_amount_should_not_zero {
     return Intl.message(
-      'The number of votes cannot be zero.',
+      '투표수량은 0이 될 수 없습니다.',
       name: 'text_dialog_vote_amount_should_not_zero',
       desc: '',
       args: [],
     );
   }
 
-  /// `Confirmed ownership of 1 image from the entire gallery`
+  /// `전체 갤러리 중 이미지 1개 확정 소장`
   String get text_draw_image {
     return Intl.message(
-      'Confirmed ownership of 1 image from the entire gallery',
+      '전체 갤러리 중 이미지 1개 확정 소장',
       name: 'text_draw_image',
       desc: '',
       args: [],
     );
   }
 
-  /// `Search for an artist.`
+  /// `아티스트를 검색하세요.`
   String get text_hint_search {
     return Intl.message(
-      'Search for an artist.',
+      '아티스트를 검색하세요.',
       name: 'text_hint_search',
       desc: '',
       args: [],
     );
   }
 
-  /// `Navigate to the selected artist's home.`
+  /// `선택한 아티스트의 집으로 이동합니다.`
   String get text_moveto_celeb_gallery {
     return Intl.message(
-      'Navigate to the selected artist\'s home.',
+      '선택한 아티스트의 집으로 이동합니다.',
       name: 'text_moveto_celeb_gallery',
       desc: '',
       args: [],
     );
   }
 
-  /// `Requires charging.`
+  /// `충전이 필요합니다.`
   String get text_need_recharge {
     return Intl.message(
-      'Requires charging.',
+      '충전이 필요합니다.',
       name: 'text_need_recharge',
       desc: '',
       args: [],
     );
   }
 
-  /// `No search results.`
+  /// `검색결과가 없어요.`
   String get text_no_search_result {
     return Intl.message(
-      'No search results.',
+      '검색결과가 없어요.',
       name: 'text_no_search_result',
       desc: '',
       args: [],
     );
   }
 
-  /// `*Price includes VAT.`
+  /// `*VAT 포함 가격입니다.`
   String get text_purchase_vat_included {
     return Intl.message(
-      '*Price includes VAT.',
+      '*VAT 포함 가격입니다.',
       name: 'text_purchase_vat_included',
       desc: '',
       args: [],
     );
   }
 
-  /// `Star Candy`
+  /// `별사탕`
   String get text_star_candy {
     return Intl.message(
-      'Star Candy',
+      '별사탕',
       name: 'text_star_candy',
       desc: '',
       args: [],
     );
   }
 
-  /// `{num1} +{num1} Bonus`
+  /// `{num1}개 +{num1}개 보너스`
   String text_star_candy_with_bonus(Object num1) {
     return Intl.message(
-      '$num1 +$num1 Bonus',
+      '$num1개 +$num1개 보너스',
       name: 'text_star_candy_with_bonus',
       desc: '',
       args: [num1],
     );
   }
 
-  /// `This Vote`
+  /// `이번 투표`
   String get text_this_time_vote {
     return Intl.message(
-      'This Vote',
+      '이번 투표',
       name: 'text_this_time_vote',
       desc: '',
       args: [],
     );
   }
 
-  /// `Voting complete`
+  /// `투표 완료`
   String get text_vote_complete {
     return Intl.message(
-      'Voting complete',
+      '투표 완료',
       name: 'text_vote_complete',
       desc: '',
       args: [],
@@ -2010,30 +2050,30 @@ class S {
     );
   }
 
-  /// `Rank in Rewards`
+  /// `랭크 인 리워드`
   String get text_vote_rank_in_reward {
     return Intl.message(
-      'Rank in Rewards',
+      '랭크 인 리워드',
       name: 'text_vote_rank_in_reward',
       desc: '',
       args: [],
     );
   }
 
-  /// `Where's My Favorite?`
+  /// `나의 최애는 어디에?`
   String get text_vote_where_is_my_bias {
     return Intl.message(
-      'Where\'s My Favorite?',
+      '나의 최애는 어디에?',
       name: 'text_vote_where_is_my_bias',
       desc: '',
       args: [],
     );
   }
 
-  /// `Add a new album`
+  /// `새로운 앨범 추가`
   String get title_dialog_library_add {
     return Intl.message(
-      'Add a new album',
+      '새로운 앨범 추가',
       name: 'title_dialog_library_add',
       desc: '',
       args: [],
@@ -2050,60 +2090,60 @@ class S {
     );
   }
 
-  /// `Select a language`
+  /// `언어 선택`
   String get title_select_language {
     return Intl.message(
-      'Select a language',
+      '언어 선택',
       name: 'title_select_language',
       desc: '',
       args: [],
     );
   }
 
-  /// `You can add up to five of your own artists.`
+  /// `내 아티스트를 최대 5개까지 추가할 수 있습니다.`
   String get toast_max_five_celeb {
     return Intl.message(
-      'You can add up to five of your own artists.',
+      '내 아티스트를 최대 5개까지 추가할 수 있습니다.',
       name: 'toast_max_five_celeb',
       desc: '',
       args: [],
     );
   }
 
-  /// `Update`
+  /// `업데이트`
   String get update_button {
     return Intl.message(
-      'Update',
+      '업데이트',
       name: 'update_button',
       desc: '',
       args: [],
     );
   }
 
-  /// `A new version ({version}) is available.`
+  /// `새로운 버전({version})이 사용 가능합니다.`
   String update_recommend_text(Object version) {
     return Intl.message(
-      'A new version ($version) is available.',
+      '새로운 버전($version)이 사용 가능합니다.',
       name: 'update_recommend_text',
       desc: '',
       args: [version],
     );
   }
 
-  /// `You need to update to the new version ({version}).`
+  /// `새로운 버전({version})으로 업데이트가 필요합니다.`
   String update_required_text(Object version) {
     return Intl.message(
-      'You need to update to the new version ($version).',
+      '새로운 버전($version)으로 업데이트가 필요합니다.',
       name: 'update_required_text',
       desc: '',
       args: [version],
     );
   }
 
-  /// `An update is required.`
+  /// `업데이트가 필요합니다.`
   String get update_required_title {
     return Intl.message(
-      'An update is required.',
+      '업데이트가 필요합니다.',
       name: 'update_required_title',
       desc: '',
       args: [],

@@ -222,6 +222,9 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("별사탕 구매"),
         "label_tab_free_charge_station":
             MessageLookupByLibrary.simpleMessage("무료충전소"),
+        "label_tab_my_artist": MessageLookupByLibrary.simpleMessage("마이아티스트"),
+        "label_tab_search_my_artist":
+            MessageLookupByLibrary.simpleMessage("마이아티스트 찾기"),
         "label_tabbar_picchart_daily":
             MessageLookupByLibrary.simpleMessage("일간차트"),
         "label_tabbar_picchart_monthly":
@@ -284,10 +287,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "mypage_setting": MessageLookupByLibrary.simpleMessage("설정"),
         "mypage_subscription": MessageLookupByLibrary.simpleMessage("구독정보"),
         "nav_ads": MessageLookupByLibrary.simpleMessage("광고"),
+        "nav_board": MessageLookupByLibrary.simpleMessage("게시판"),
         "nav_gallery": MessageLookupByLibrary.simpleMessage("갤러리"),
         "nav_home": MessageLookupByLibrary.simpleMessage("홈"),
         "nav_library": MessageLookupByLibrary.simpleMessage("라이브러리"),
         "nav_media": MessageLookupByLibrary.simpleMessage("미디어"),
+        "nav_my": MessageLookupByLibrary.simpleMessage("마이"),
         "nav_picchart": MessageLookupByLibrary.simpleMessage("PIC차트"),
         "nav_purchases": MessageLookupByLibrary.simpleMessage("구매"),
         "nav_setting": MessageLookupByLibrary.simpleMessage("설정"),
