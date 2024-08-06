@@ -13,7 +13,7 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
-import 'package:picnic_app/components/picnic_cached_network_image.dart';
+import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_app/components/picnic_cached_network_image.dart';
+import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 
 class CommentUser extends StatelessWidget {
   final String nickname;

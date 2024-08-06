@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
-import 'package:picnic_app/components/picnic_cached_network_image.dart';
+import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/components/vote/list/voting_complete.dart';
 import 'package:picnic_app/constants.dart';

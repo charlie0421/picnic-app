@@ -222,6 +222,9 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("スターキャンディーの購入"),
         "label_tab_free_charge_station":
             MessageLookupByLibrary.simpleMessage("無料充電ステーション"),
+        "label_tab_my_artist": MessageLookupByLibrary.simpleMessage("마이아티스트"),
+        "label_tab_search_my_artist":
+            MessageLookupByLibrary.simpleMessage("마이아티스트 찾기"),
         "label_tabbar_picchart_daily":
             MessageLookupByLibrary.simpleMessage("日足チャート"),
         "label_tabbar_picchart_monthly":
@@ -282,10 +285,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "mypage_setting": MessageLookupByLibrary.simpleMessage("設定"),
         "mypage_subscription": MessageLookupByLibrary.simpleMessage("購読情報"),
         "nav_ads": MessageLookupByLibrary.simpleMessage("広告"),
+        "nav_board": MessageLookupByLibrary.simpleMessage("게시판"),
         "nav_gallery": MessageLookupByLibrary.simpleMessage("ギャラリー"),
         "nav_home": MessageLookupByLibrary.simpleMessage("홈"),
         "nav_library": MessageLookupByLibrary.simpleMessage("ライブラリ"),
         "nav_media": MessageLookupByLibrary.simpleMessage("メディア"),
+        "nav_my": MessageLookupByLibrary.simpleMessage("마이"),
         "nav_picchart": MessageLookupByLibrary.simpleMessage("PICチャート"),
         "nav_purchases": MessageLookupByLibrary.simpleMessage("購入"),
         "nav_setting": MessageLookupByLibrary.simpleMessage("設定"),

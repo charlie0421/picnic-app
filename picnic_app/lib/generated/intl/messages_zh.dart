@@ -207,6 +207,9 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("购买星星糖"),
         "label_tab_free_charge_station":
             MessageLookupByLibrary.simpleMessage("免费充电站"),
+        "label_tab_my_artist": MessageLookupByLibrary.simpleMessage("마이아티스트"),
+        "label_tab_search_my_artist":
+            MessageLookupByLibrary.simpleMessage("마이아티스트 찾기"),
         "label_tabbar_picchart_daily":
             MessageLookupByLibrary.simpleMessage("每日图表"),
         "label_tabbar_picchart_monthly":
@@ -263,10 +266,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "mypage_setting": MessageLookupByLibrary.simpleMessage("设置"),
         "mypage_subscription": MessageLookupByLibrary.simpleMessage("订阅"),
         "nav_ads": MessageLookupByLibrary.simpleMessage("广告"),
+        "nav_board": MessageLookupByLibrary.simpleMessage("게시판"),
         "nav_gallery": MessageLookupByLibrary.simpleMessage("画廊"),
         "nav_home": MessageLookupByLibrary.simpleMessage("홈"),
         "nav_library": MessageLookupByLibrary.simpleMessage("图书馆"),
         "nav_media": MessageLookupByLibrary.simpleMessage("媒体"),
+        "nav_my": MessageLookupByLibrary.simpleMessage("마이"),
         "nav_picchart": MessageLookupByLibrary.simpleMessage("PIC 图表"),
         "nav_purchases": MessageLookupByLibrary.simpleMessage("购买"),
         "nav_setting": MessageLookupByLibrary.simpleMessage("设置"),

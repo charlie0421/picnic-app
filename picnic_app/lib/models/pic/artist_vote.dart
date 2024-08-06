@@ -126,12 +126,8 @@ class ArtistMemberModel with _$ArtistMemberModel {
     required Map<String, String> name,
     required String gender,
     required String? image,
-    ArtistGroupModel? mystar_group,
+    ArtistGroupModel? artist_group,
   }) = _ArtistMemberModel;
-
-  getGroupTitle() {
-    return mystar_group?.name ?? '';
-  }
 
   factory ArtistMemberModel.fromJson(Map<String, dynamic> json) =>
       _$ArtistMemberModelFromJson(json);
@@ -144,7 +140,7 @@ class ArtistGroupModel with _$ArtistGroupModel {
 
   const factory ArtistGroupModel({
     required int id,
-    required Map<String, String> name,
+    required Map<String, dynamic> name,
     String? image,
   }) = _ArtistGroupModel;
 
