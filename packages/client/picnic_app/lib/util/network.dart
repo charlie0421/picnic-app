@@ -71,18 +71,17 @@ class NetworkStatusListener {
   }
 
   void _updateConnectionStatus(List<ConnectivityResult> result) async {
-    print('Connectivity changed: $result');
-    print('Previous connection status: $_wasConnected');
-
     bool isConnected =
         result.isNotEmpty && result.first != ConnectivityResult.none;
-    print('Current connection status: $isConnected');
+
+    logger.i('Network connection status: $isConnected\n'
+        'Previous connection status: $_wasConnected');
 
     if (isConnected && !_wasConnected) {
-      print('Network connection restored. Attempting token refresh.');
+      logger.i('Network connection restored. Attempting token refresh.');
       await _authService.refreshToken();
     } else if (!isConnected && _wasConnected) {
-      print('Network connection lost.');
+      logger.i('Network connection lost.');
     }
 
     _wasConnected = isConnected;

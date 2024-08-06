@@ -84,8 +84,22 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
           const Divider(height: 32, thickness: 1, color: AppColors.Grey200),
           GestureDetector(
             onTap: () => showUsagePolicyDialog(context, ref),
-            child: Text(S.of(context).candy_usage_policy_guide,
-                style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600)),
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: S.of(context).candy_usage_policy_guide,
+                    style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600),
+                  ),
+                  const TextSpan(text: ' '),
+                  TextSpan(
+                    text: S.of(context).candy_usage_policy_guide_button,
+                    style: getTextStyle(AppTypo.CAPTION12B, AppColors.Grey600)
+                        .copyWith(decoration: TextDecoration.underline),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -107,11 +121,11 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
           icon: Image.asset(
             'assets/icons/store/star_100.png',
             width: 48.w,
-            height: 48,
+            height: 48.w,
           ),
           title: Text(
             S.of(context).label_button_watch_and_charge,
-            style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)
+            style: getTextStyle(AppTypo.BODY14B, AppColors.Grey900)
                 .copyWith(height: 1),
           ),
           subtitle: Text.rich(

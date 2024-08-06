@@ -336,6 +336,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     RichText(
+                      overflow: TextOverflow.ellipsis,
                       text: TextSpan(
                         children: [
                           TextSpan(

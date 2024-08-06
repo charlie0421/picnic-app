@@ -24,22 +24,26 @@
   "@button_pic_pic_save": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "candy_disappear_next_month": "Next month's disappearing star candy\uD83D\uDE22",
+  "@candy_disappear_next_month": {
+    "manualTranslationKey": true,
+  },
   "candy_usage_policy_contents": "You can spend an unlimited amount of purchased Star Candy, but bonus Star Candy expires in bulk on the 15th of the month following the month in which it was earned.",
   "@candy_usage_policy_contents": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "candy_usage_policy_contents2": "When using Star Candy, Star Candy that is about to expire is prioritized.",
   "@candy_usage_policy_contents2": {},
-  "candy_usage_policy_guide": "*보너스는 획득한 다음달에 사라져요! ⓘ",
+  "candy_usage_policy_guide": "*Bonuses will disappear the month after they are earned!",
   "@candy_usage_policy_guide": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "candy_usage_policy_guide_button": "Learn more",
+  "@candy_usage_policy_guide_button": {},
   "candy_usage_policy_title": "Stardust Usage Policy",
   "@candy_usage_policy_title": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "candy_disappear_next_month": "다음 달 사라지는 별사탕😢",
-  "@candy_disappear_next_month": {},
   "dialog_button_cancel": "Cancel",
   "@dialog_button_cancel": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -48,12 +52,6 @@
   "@dialog_button_ok": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "dialog_message_purchase_failed": "There was an error with your purchase, please try again later.",
-  "@dialog_message_purchase_failed": {},
-  "dialog_message_purchase_success": "Your purchase has been successfully completed.",
-  "@dialog_message_purchase_success": {},
-  "dialog_message_purchase_canceled": "Your purchase has been canceled.",
-  "@dialog_message_purchase_canceled": {},
   "dialog_content_ads_exhausted": "All ads have been exhausted. Please try again next time.",
   "@dialog_content_ads_exhausted": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -70,6 +68,14 @@
   "@dialog_content_login_required": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "dialog_message_can_resignup": "When you can rejoin if you cancel your membership now",
+  "@dialog_message_can_resignup": {},
+  "dialog_message_purchase_canceled": "Your purchase has been canceled.",
+  "@dialog_message_purchase_canceled": {},
+  "dialog_message_purchase_failed": "There was an error with your purchase, please try again later.",
+  "@dialog_message_purchase_failed": {},
+  "dialog_message_purchase_success": "Your purchase has been successfully completed.",
+  "@dialog_message_purchase_success": {},
   "dialog_purchases_fail": "The purchase failed.",
   "@dialog_purchases_fail": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -86,6 +92,8 @@
   "@dialog_title_vote_fail": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "dialog_will_delete_star_candy": "Starscapes to be deleted",
+  "@dialog_will_delete_star_candy": {},
   "dialog_withdraw_button_cancel": "Let me think about this one more time",
   "@dialog_withdraw_button_cancel": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -110,10 +118,6 @@
   "@dialog_withdraw_title": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "dialog_will_delete_star_candy": "Starscapes to be deleted",
-  "@dialog_will_delete_star_candy": {},
-  "dialog_message_can_resignup": "When you can rejoin if you cancel your membership now",
-  "@dialog_message_can_resignup": {},
   "error_message_login_failed": "An error occurred during login.",
   "@error_message_login_failed": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -142,6 +146,10 @@
   "@image_save_success": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "label_ads_exceeded": "You have exhausted the ads available per ID.",
+  "@label_ads_exceeded": {},
+  "label_ads_next_available_time": "When the next ad will be available.",
+  "@label_ads_next_available_time": {},
   "label_agreement_privacy": "Consent to the collection and use of personal information",
   "@label_agreement_privacy": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -166,12 +174,7 @@
   "@label_button_agreement": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_button_close": "닫기",
   "@label_button_close": {},
-  "label_ads_exceeded": "You have exhausted the ads available per ID.",
-  "@label_ads_exceeded": {},
-  "label_ads_next_available_time": "When the next ad will be available.",
-  "@label_ads_next_available_time": {},
   "label_button_disagreement": "Non-Consent",
   "@label_button_disagreement": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -192,8 +195,9 @@
   "@label_button_vote": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_button_watch_and_charge": "Viewing and charging for ads",
+  "label_button_watch_and_charge": "View and charge",
   "@label_button_watch_and_charge": {
+    "manualTranslationKey": true,
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_celeb_ask_to_you": "The Artist Asks You!",
@@ -308,6 +312,8 @@
     "manualTranslationKey": true,
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "label_mypage_should_login": "Please sign in",
+  "@label_mypage_should_login": {},
   "label_mypage_terms_of_use": "Terms of Use",
   "@label_mypage_terms_of_use": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -324,10 +330,6 @@
   "@label_no_ads": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "message_vote_is_ended": "Poll closed",
-  "@message_vote_is_ended": {},
-  "message_vote_is_upcoming": "This is an upcoming vote",
-  "@message_vote_is_upcoming": {},
   "label_no_celeb": "You don't have any artists bookmarked yet!",
   "@label_no_celeb": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -400,12 +402,6 @@
   "@label_setting_remove_cache": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "message_setting_remove_cache": "Cache memory deletion is complete",
-  "@message_setting_remove_cache": {},
-  "message_update_nickname_success": "Your nickname has been successfully changed.",
-  "@message_update_nickname_success": {},
-  "message_update_nickname_fail": "Nickname change failed.\nPlease select a different nickname.",
-  "@message_update_nickname_fail": {},
   "label_setting_remove_cache_complete": "Done",
   "@label_setting_remove_cache_complete": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -546,6 +542,16 @@
   "@message_report_ok": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "message_setting_remove_cache": "Cache memory deletion is complete",
+  "@message_setting_remove_cache": {},
+  "message_update_nickname_fail": "Nickname change failed.\nPlease select a different nickname.",
+  "@message_update_nickname_fail": {},
+  "message_update_nickname_success": "Your nickname has been successfully changed.",
+  "@message_update_nickname_success": {},
+  "message_vote_is_ended": "Poll closed",
+  "@message_vote_is_ended": {},
+  "message_vote_is_upcoming": "This is an upcoming vote",
+  "@message_vote_is_upcoming": {},
   "mypage_comment": "Manage comments",
   "@mypage_comment": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -658,10 +664,6 @@
   "@share_twitter": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "update_required_title": "An update is required.",
-  "@update_required_title": {},
-  "update_required_text": "You need to update to the new version ({version}).",
-  "@update_required_text": {},
   "text_ads_random": "Viewing ads and collecting random images.",
   "@text_ads_random": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -694,16 +696,14 @@
   "@text_copied_address": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "text_dialog_ad_dismissed": "The ad stopped midway through.",
+  "@text_dialog_ad_dismissed": {},
+  "text_dialog_ad_failed_to_show": "Failed to load ads",
+  "@text_dialog_ad_failed_to_show": {},
   "text_dialog_star_candy_received": "Star candy has been awarded.",
   "@text_dialog_star_candy_received": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "text_dialog_ad_failed_to_show": "Failed to load ads",
-  "@text_dialog_ad_failed_to_show": {},
-  "label_mypage_should_login": "Please sign in",
-  "@label_mypage_should_login": {},
-  "text_dialog_ad_dismissed": "The ad stopped midway through.",
-  "@text_dialog_ad_dismissed": {},
   "text_dialog_vote_amount_should_not_zero": "The number of votes cannot be zero.",
   "@text_dialog_vote_amount_should_not_zero": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -777,8 +777,12 @@
   "@toast_max_five_celeb": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "update_button": "Update",
+  "@update_button": {},
   "update_recommend_text": "A new version ({version}) is available.",
   "@update_recommend_text": {},
-  "update_button": "Update",
-  "@update_button": {}
+  "update_required_text": "You need to update to the new version ({version}).",
+  "@update_required_text": {},
+  "update_required_title": "An update is required.",
+  "@update_required_title": {}
 }

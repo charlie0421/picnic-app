@@ -49,7 +49,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "candy_usage_policy_contents2": MessageLookupByLibrary.simpleMessage(
             "使用 \"星星糖 \"时，即将过期的 \"星星糖 \"会被优先处理。"),
         "candy_usage_policy_guide":
-            MessageLookupByLibrary.simpleMessage("*奖金将在您获得奖金的次月消失！ ⓘ"),
+            MessageLookupByLibrary.simpleMessage("*奖金将在获得奖金的次月消失！"),
+        "candy_usage_policy_guide_button":
+            MessageLookupByLibrary.simpleMessage("了解更多"),
         "candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("星糖使用政策"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("取消"),

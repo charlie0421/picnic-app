@@ -24,22 +24,24 @@
   "@button_pic_pic_save": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "candy_disappear_next_month": "下个月消失的星星糖果😢",
+  "@candy_disappear_next_month": {},
   "candy_usage_policy_contents": "您可以无限量地消费购买的 \"星糖\"，但奖励的 \"星糖 \"将在获得 \"星糖 \"当月的下一个月 15 日大量过期。",
   "@candy_usage_policy_contents": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "candy_usage_policy_contents2": "使用 \"星星糖 \"时，即将过期的 \"星星糖 \"会被优先处理。",
   "@candy_usage_policy_contents2": {},
-  "candy_usage_policy_guide": "*奖金将在您获得奖金的次月消失！ ⓘ",
+  "candy_usage_policy_guide": "*奖金将在获得奖金的次月消失！",
   "@candy_usage_policy_guide": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "candy_usage_policy_guide_button": "了解更多",
+  "@candy_usage_policy_guide_button": {},
   "candy_usage_policy_title": "星糖使用政策",
   "@candy_usage_policy_title": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "candy_disappear_next_month": "下个月消失的星星糖果😢",
-  "@candy_disappear_next_month": {},
   "dialog_button_cancel": "取消",
   "@dialog_button_cancel": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -48,12 +50,6 @@
   "@dialog_button_ok": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "dialog_message_purchase_failed": "您的购买出现错误，请稍后再试。",
-  "@dialog_message_purchase_failed": {},
-  "dialog_message_purchase_success": "您的购买已成功完成。",
-  "@dialog_message_purchase_success": {},
-  "dialog_message_purchase_canceled": "您的购买已被取消。",
-  "@dialog_message_purchase_canceled": {},
   "dialog_content_ads_exhausted": "所有广告已用尽。请稍后再试。",
   "@dialog_content_ads_exhausted": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -70,6 +66,14 @@
   "@dialog_content_login_required": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "dialog_message_can_resignup": "如果您现在离开，何时可以重新加入",
+  "@dialog_message_can_resignup": {},
+  "dialog_message_purchase_canceled": "您的购买已被取消。",
+  "@dialog_message_purchase_canceled": {},
+  "dialog_message_purchase_failed": "您的购买出现错误，请稍后再试。",
+  "@dialog_message_purchase_failed": {},
+  "dialog_message_purchase_success": "您的购买已成功完成。",
+  "@dialog_message_purchase_success": {},
   "dialog_purchases_fail": "购买失败。",
   "@dialog_purchases_fail": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -86,6 +90,8 @@
   "@dialog_title_vote_fail": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "dialog_will_delete_star_candy": "将被删除的星星糖果",
+  "@dialog_will_delete_star_candy": {},
   "dialog_withdraw_button_cancel": "让我再想一想",
   "@dialog_withdraw_button_cancel": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -110,10 +116,6 @@
   "@dialog_withdraw_title": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "dialog_will_delete_star_candy": "将被删除的星星糖果",
-  "@dialog_will_delete_star_candy": {},
-  "dialog_message_can_resignup": "如果您现在离开，何时可以重新加入",
-  "@dialog_message_can_resignup": {},
   "error_message_login_failed": "登录时发生错误。",
   "@error_message_login_failed": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -142,6 +144,10 @@
   "@image_save_success": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "label_ads_exceeded": "您已用尽每个 ID 可观看的广告数量。",
+  "@label_ads_exceeded": {},
+  "label_ads_next_available_time": "下一则广告何时发布。",
+  "@label_ads_next_available_time": {},
   "label_agreement_privacy": "同意收集和使用个人信息",
   "@label_agreement_privacy": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -168,10 +174,6 @@
   },
   "label_button_close": "關閉",
   "@label_button_close": {},
-  "label_ads_exceeded": "您已用尽每个 ID 可观看的广告数量。",
-  "@label_ads_exceeded": {},
-  "label_ads_next_available_time": "下一则广告何时发布。",
-  "@label_ads_next_available_time": {},
   "label_button_disagreement": "不同意",
   "@label_button_disagreement": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -308,6 +310,8 @@
     "manualTranslationKey": true,
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "label_mypage_should_login": "请登录",
+  "@label_mypage_should_login": {},
   "label_mypage_terms_of_use": "条款和条件",
   "@label_mypage_terms_of_use": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -324,10 +328,6 @@
   "@label_no_ads": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "message_vote_is_ended": "投票结束",
-  "@message_vote_is_ended": {},
-  "message_vote_is_upcoming": "即将进行投票",
-  "@message_vote_is_upcoming": {},
   "label_no_celeb": "您还没有将任何艺术家加入书签！",
   "@label_no_celeb": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -400,12 +400,6 @@
   "@label_setting_remove_cache": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "message_setting_remove_cache": "缓存清除完毕",
-  "@message_setting_remove_cache": {},
-  "message_update_nickname_success": "您的昵称已成功更改。",
-  "@message_update_nickname_success": {},
-  "message_update_nickname_fail": "昵称更改失败。\n请选择其他昵称。",
-  "@message_update_nickname_fail": {},
   "label_setting_remove_cache_complete": "完成",
   "@label_setting_remove_cache_complete": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -546,6 +540,16 @@
   "@message_report_ok": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "message_setting_remove_cache": "缓存清除完毕",
+  "@message_setting_remove_cache": {},
+  "message_update_nickname_fail": "昵称更改失败。\n请选择其他昵称。",
+  "@message_update_nickname_fail": {},
+  "message_update_nickname_success": "您的昵称已成功更改。",
+  "@message_update_nickname_success": {},
+  "message_vote_is_ended": "投票结束",
+  "@message_vote_is_ended": {},
+  "message_vote_is_upcoming": "即将进行投票",
+  "@message_vote_is_upcoming": {},
   "mypage_comment": "管理评论",
   "@mypage_comment": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -658,10 +662,6 @@
   "@share_twitter": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "update_required_title": "需要更新。",
-  "@update_required_title": {},
-  "update_required_text": "您需要更新到新版本 ({version})。",
-  "@update_required_text": {},
   "text_ads_random": "查看广告并收集随机图片。",
   "@text_ads_random": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -694,16 +694,14 @@
   "@text_copied_address": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "text_dialog_ad_dismissed": "广告中途停止。",
+  "@text_dialog_ad_dismissed": {},
+  "text_dialog_ad_failed_to_show": "加载广告失败",
+  "@text_dialog_ad_failed_to_show": {},
   "text_dialog_star_candy_received": "已颁发星形糖果。",
   "@text_dialog_star_candy_received": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "text_dialog_ad_failed_to_show": "加载广告失败",
-  "@text_dialog_ad_failed_to_show": {},
-  "label_mypage_should_login": "请登录",
-  "@label_mypage_should_login": {},
-  "text_dialog_ad_dismissed": "广告中途停止。",
-  "@text_dialog_ad_dismissed": {},
   "text_dialog_vote_amount_should_not_zero": "票数不能为零。",
   "@text_dialog_vote_amount_should_not_zero": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -777,8 +775,12 @@
   "@toast_max_five_celeb": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "update_button": "更新",
+  "@update_button": {},
   "update_recommend_text": "新版本（{version}）已发布。",
   "@update_recommend_text": {},
-  "update_button": "更新",
-  "@update_button": {}
+  "update_required_text": "您需要更新到新版本 ({version})。",
+  "@update_required_text": {},
+  "update_required_title": "需要更新。",
+  "@update_required_title": {}
 }

@@ -49,7 +49,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "candy_usage_policy_contents2": MessageLookupByLibrary.simpleMessage(
             "星飴を使用する場合、消滅が近い星飴が優先的に使用されます。"),
         "candy_usage_policy_guide":
-            MessageLookupByLibrary.simpleMessage("*ボーナスは獲得した翌月に無くなります！ ⓘ※ボーナス"),
+            MessageLookupByLibrary.simpleMessage("*ボーナスは獲得した翌月に消滅します！"),
+        "candy_usage_policy_guide_button":
+            MessageLookupByLibrary.simpleMessage("詳細を見る"),
         "candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("スターキャンディー使用ポリシー"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("キャンセル"),
@@ -125,7 +127,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_button_share": MessageLookupByLibrary.simpleMessage("シェアする"),
         "label_button_vote": MessageLookupByLibrary.simpleMessage("投票する"),
         "label_button_watch_and_charge":
-            MessageLookupByLibrary.simpleMessage("広告を見てチャージする"),
+            MessageLookupByLibrary.simpleMessage("見てチャージする"),
         "label_celeb_ask_to_you":
             MessageLookupByLibrary.simpleMessage("アーティストがあなたに尋ねる！"),
         "label_celeb_gallery":

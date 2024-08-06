@@ -49,7 +49,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
           _timer?.cancel();
         }
         _updateColor();
-        widget.onRefresh?.call();
+        // widget.onRefresh?.call();
       });
     });
   }
