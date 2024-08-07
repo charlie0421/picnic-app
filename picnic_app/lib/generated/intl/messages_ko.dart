@@ -209,6 +209,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("푸시알림"),
         "label_setting_recent_version":
             MessageLookupByLibrary.simpleMessage("최신버전"),
+        "label_setting_recent_version_up_to_date":
+            MessageLookupByLibrary.simpleMessage("최신버전"),
         "label_setting_remove_cache":
             MessageLookupByLibrary.simpleMessage("캐시메모리 삭제"),
         "label_setting_remove_cache_complete":

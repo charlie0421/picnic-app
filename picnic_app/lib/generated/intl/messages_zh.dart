@@ -196,6 +196,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("推送通知"),
         "label_setting_recent_version":
             MessageLookupByLibrary.simpleMessage("最新版本"),
+        "label_setting_recent_version_up_to_date":
+            MessageLookupByLibrary.simpleMessage("최신버전"),
         "label_setting_remove_cache":
             MessageLookupByLibrary.simpleMessage("删除高速缓冲存储器"),
         "label_setting_remove_cache_complete":

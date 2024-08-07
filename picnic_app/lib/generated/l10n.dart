@@ -1100,6 +1100,16 @@ class S {
     );
   }
 
+  /// `최신버전`
+  String get label_setting_recent_version_up_to_date {
+    return Intl.message(
+      '최신버전',
+      name: 'label_setting_recent_version_up_to_date',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `캐시메모리 삭제`
   String get label_setting_remove_cache {
     return Intl.message(

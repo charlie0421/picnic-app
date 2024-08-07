@@ -233,7 +233,6 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               },
                             );
                           case UpdateStatus.updateRecommended:
-                          case UpdateStatus.upToDate:
                             return ListItem(
                               leading:
                                   '${S.of(context).label_setting_current_version} ${info.currentVersion}',
@@ -253,6 +252,24 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                                     ? launchUrlString(info.url!)
                                     : throw '앱 스토어를 열 수 없습니다.';
                               },
+                            );
+                          case UpdateStatus.upToDate:
+                            return ListItem(
+                              leading:
+                                  '${S.of(context).label_setting_current_version} ${info.currentVersion}',
+                              title: Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  S
+                                      .of(context)
+                                      .label_setting_recent_version_up_to_date,
+                                  style: getTextStyle(
+                                      AppTypo.CAPTION12B, AppColors.Mint500),
+                                  textAlign: TextAlign.start,
+                                ),
+                              ),
+                              assetPath:
+                                  'assets/icons/arrow_right_style=line.svg',
                             );
                         }
                       },

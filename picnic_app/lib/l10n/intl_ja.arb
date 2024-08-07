@@ -397,6 +397,10 @@
   "@label_setting_recent_version": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "label_setting_recent_version_up_to_date": "최신버전",
+  "@label_setting_recent_version_up_to_date": {
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
+  },
   "label_setting_remove_cache": "キャッシュメモリの削除",
   "@label_setting_remove_cache": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
