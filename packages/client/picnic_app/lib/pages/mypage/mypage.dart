@@ -5,12 +5,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
 import 'package:picnic_app/components/star_candy_info_text.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/pages/mypage/myprofile.dart';
 import 'package:picnic_app/pages/mypage/setting_page.dart';
 import 'package:picnic_app/pages/mypage/vote_artist_page.dart';
 import 'package:picnic_app/pages/vote/vote_history_page.dart';
+import 'package:picnic_app/providers/mypage/bookmarked_artists_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/screens/signup/signup_screen.dart';
@@ -197,7 +199,10 @@ class _MyPageState extends ConsumerState<MyPage> {
   }
 
   Widget _buildMyStar(String categoryText) {
+    final bookmarkedArtists = ref.watch(asyncBookmarkedArtistsProvider);
+
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () {
         ref
             .read(navigationInfoProvider.notifier)
@@ -232,25 +237,34 @@ class _MyPageState extends ConsumerState<MyPage> {
           ),
           const SizedBox(height: 16),
           SizedBox(
-            width: double.infinity,
             height: 80,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              shrinkWrap: true,
-              itemCount: 3,
-              itemBuilder: (context, index) {
-                return Container(
-                  width: 80.w,
-                  height: 80,
-                  margin: EdgeInsets.only(right: 14.w),
-                  child: CircleAvatar(
-                    radius: 30.w,
-                    backgroundColor: AppColors.Grey200,
+            child: bookmarkedArtists.when(
+              data: (artists) {
+                logger.d('북마크된 아티스트: $artists');
+                return ListView.separated(
+                  itemCount: artists.length,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (context, index) => Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      ProfileImageContainer(
+                        avatarUrl: artists[index].image,
+                        width: 60,
+                        height: 60,
+                        borderRadius: 60,
+                      ),
+                    ],
                   ),
+                  separatorBuilder: (BuildContext context, int index) {
+                    return SizedBox(width: 14.w);
+                  },
                 );
               },
+              loading: () => buildLoadingOverlay(),
+              error: (error, stack) => Text('Error: $error'),
             ),
           ),
+          const SizedBox(height: 16),
         ],
       ),
     );

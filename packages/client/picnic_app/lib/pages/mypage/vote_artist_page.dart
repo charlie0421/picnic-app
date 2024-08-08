@@ -19,7 +19,8 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage>
     super.initState();
     _tabController = TabController(
       initialIndex: 0,
-      length: 2,
+      length: 1,
+      // length: 2,
       vsync: this,
     );
   }
@@ -37,9 +38,9 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage>
           child: TabBar(
             controller: _tabController,
             tabs: [
-              Tab(
-                text: S.of(context).label_tab_my_artist,
-              ),
+              // Tab(
+              //   text: S.of(context).label_tab_my_artist,
+              // ),
               Tab(
                 text: S.of(context).label_tab_search_my_artist,
               ),
@@ -50,7 +51,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage>
           child: TabBarView(
             controller: _tabController,
             children: [
-              Container(),
+              // Container(),
               const VoteArtistSearch(),
             ],
           ),
