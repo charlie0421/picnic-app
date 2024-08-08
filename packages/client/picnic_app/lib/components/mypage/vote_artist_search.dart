@@ -12,6 +12,7 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
+import 'package:picnic_app/providers/mypage/bookmarked_artists_provider.dart';
 import 'package:picnic_app/providers/mypage/vote_artist_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
@@ -160,8 +161,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
                 ),
                 trailing: SizedBox(
                     width: 30,
-                    child: item.isBookmarked
-                        // 북마크 상태 O
+                    child: item.isBookmarked == true
                         ? GestureDetector(
                             onTap: () async {
                               try {
@@ -170,20 +170,29 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
                                     color: AppColors.Primary500);
                                 final success = await ref
                                     .read(asyncVoteArtistListProvider.notifier)
-                                    .unBookmarkArtist(artistId: item.id);
+                                    .unBookmarkArtist(
+                                      artistId: item.id,
+                                      bookmarkedArtistsRef: ref.read(
+                                          asyncBookmarkedArtistsProvider
+                                              .notifier),
+                                    );
                                 if (success) {
                                   setState(() {
                                     final index = _pagingController.itemList
                                             ?.indexWhere((artist) =>
                                                 artist.id == item.id) ??
                                         -1;
-                                    logger.i('index: $index');
                                     if (index != -1) {
                                       _pagingController.itemList![index] =
                                           _pagingController.itemList![index]
                                               .copyWith(isBookmarked: false);
                                     }
                                   });
+                                  // 북마크 리스트 갱신
+                                  await ref
+                                      .read(asyncBookmarkedArtistsProvider
+                                          .notifier)
+                                      .refreshBookmarkedArtists();
                                 } else {
                                   // 경고 다이얼로그 표시
                                   showSimpleDialog(
@@ -207,7 +216,6 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
                               height: 20,
                             ),
                           )
-                        // 북마크 상태 O
                         : GestureDetector(
                             onTap: () async {
                               try {
@@ -229,6 +237,11 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
                                               .copyWith(isBookmarked: true);
                                     }
                                   });
+                                  // 북마크 리스트 갱신
+                                  await ref
+                                      .read(asyncBookmarkedArtistsProvider
+                                          .notifier)
+                                      .refreshBookmarkedArtists();
                                 } else {
                                   // 경고 다이얼로그 표시
                                   showSimpleDialog(

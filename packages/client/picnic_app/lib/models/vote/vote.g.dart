@@ -89,7 +89,7 @@ _$ArtistModelImpl _$$ArtistModelImplFromJson(Map<String, dynamic> json) =>
       image: json['image'] as String,
       artist_group: ArtistGroupModel.fromJson(
           json['artist_group'] as Map<String, dynamic>),
-      isBookmarked: json['isBookmarked'],
+      isBookmarked: json['isBookmarked'] as bool?,
     );
 
 Map<String, dynamic> _$$ArtistModelImplToJson(_$ArtistModelImpl instance) =>

@@ -422,15 +422,15 @@ final _data = <r.Reflectable, r.ReflectorData>{
                       gender,
                       image,
                       artist_group,
-                      isBookmarked = false}) =>
+                      isBookmarked}) =>
                   b
                       ? prefix6.ArtistModel(
-                          isBookmarked: isBookmarked,
                           artist_group: artist_group,
                           dd: dd,
                           gender: gender,
                           id: id,
                           image: image,
+                          isBookmarked: isBookmarked,
                           mm: mm,
                           name: name,
                           yy: yy)
@@ -2751,7 +2751,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
             const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'artist_group', 2097155, -1, 10, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
-        r.MethodMirrorImpl(r'isBookmarked', 524291, -1, -1, -1, -1, null,
+        r.MethodMirrorImpl(r'isBookmarked', 2097155, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'copyWith', 35651587, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
@@ -3908,7 +3908,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
             #artist_group),
         r.ParameterMirrorImpl(
             r'isBookmarked',
-            67156998,
+            67248134,
             130,
             const prefix0.Reflector(),
             -1,
@@ -3916,7 +3916,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
             -1,
             null,
             null,
-            false,
+            null,
             #isBookmarked),
         r.ParameterMirrorImpl(r'json', 151126022, 131,
             const prefix0.Reflector(), -1, -1, -1, null, null, null, null),
