@@ -2326,10 +2326,10 @@ packages:
     dependency: "direct main"
     description:
       name: youtube_player_flutter
-      sha256: "899f1fd15e924eb41150c78c5e2adfd7310100c26b2e1996c148d79e42737d72"
+      sha256: "583305a34c6dd1f32e453e04e23fd0f3d47152c83d3214a2be557c75e669c595"
       url: "https://pub.dev"
     source: hosted
-    version: "9.0.1"
+    version: "9.0.2"
   youtube_player_iframe:
     dependency: "direct main"
     description:
