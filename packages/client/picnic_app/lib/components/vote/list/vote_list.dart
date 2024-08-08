@@ -42,6 +42,12 @@ class _VoteListState extends State<VoteList> {
   }
 
   @override
+  void dispose() {
+    _pagingController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return PagedListView<int, VoteModel>(
       shrinkWrap: true,

@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_app/components/common/common_search_box.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/common/reward_dialog.dart';
 import 'package:picnic_app/components/error.dart';
@@ -484,67 +485,14 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   Widget _buildSearchBox() {
     return Positioned(
       top: 0,
-      right: 10.w,
-      left: 10.w,
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: Container(
-          margin: EdgeInsets.symmetric(horizontal: 16.w),
-          width: 280.w,
-          height: 48,
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: AppColors.Primary500,
-              width: 1.r,
-            ),
-            borderRadius: BorderRadius.circular(24.r),
-            color: AppColors.Grey00,
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(left: 16.w, right: 8.w),
-                child: SvgPicture.asset(
-                  'assets/icons/vote/search_icon.svg',
-                  width: 20,
-                  height: 20,
-                ),
-              ),
-              Expanded(
-                child: TextField(
-                  focusNode: _focusNode,
-                  controller: _textEditingController,
-                  decoration: InputDecoration(
-                    hintText: S.of(context).text_vote_where_is_my_bias,
-                    hintStyle: getTextStyle(AppTypo.BODY16R, AppColors.Grey300),
-                    border: InputBorder.none,
-                    focusColor: AppColors.Primary500,
-                    fillColor: AppColors.Grey900,
-                  ),
-                  style: getTextStyle(AppTypo.BODY16R, AppColors.Grey900),
-                ),
-              ),
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => _textEditingController.clear(),
-                child: Padding(
-                  padding: EdgeInsets.only(left: 8.w, right: 16.w),
-                  child: SvgPicture.asset(
-                    'assets/icons/cancle_style=fill.svg',
-                    width: 20,
-                    height: 20,
-                    colorFilter: ColorFilter.mode(
-                      _textEditingController.text.isNotEmpty
-                          ? AppColors.Grey700
-                          : AppColors.Grey200,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+      right: 0.w,
+      left: 0.w,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 32.w),
+        child: CommonSearchBox(
+          focusNode: _focusNode,
+          textEditingController: _textEditingController,
+          hintText: S.of(context).text_vote_where_is_my_bias,
         ),
       ),
     );

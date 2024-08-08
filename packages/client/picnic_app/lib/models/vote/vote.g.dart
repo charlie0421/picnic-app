@@ -82,9 +82,9 @@ _$ArtistModelImpl _$$ArtistModelImplFromJson(Map<String, dynamic> json) =>
     _$ArtistModelImpl(
       id: (json['id'] as num).toInt(),
       name: json['name'] as Map<String, dynamic>,
-      yy: (json['yy'] as num).toInt(),
-      mm: (json['mm'] as num).toInt(),
-      dd: (json['dd'] as num).toInt(),
+      yy: (json['yy'] as num?)?.toInt(),
+      mm: (json['mm'] as num?)?.toInt(),
+      dd: (json['dd'] as num?)?.toInt(),
       gender: json['gender'] as String,
       image: json['image'] as String,
       artist_group: ArtistGroupModel.fromJson(
