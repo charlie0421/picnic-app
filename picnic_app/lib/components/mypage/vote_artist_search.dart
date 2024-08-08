@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
+import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/common/common_search_box.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/mypage/vote_artist_list_provider.dart';
@@ -58,6 +61,16 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
                 query: _textEditingController.text,
                 language: Intl.getCurrentLocale(),
               );
+
+      // 기존 아이템의 북마크 상태 유지
+      final updatedItems = newItems.map((newItem) {
+        final existingItem = _pagingController.itemList?.firstWhere(
+          (item) => item.id == newItem.id,
+          orElse: () => newItem,
+        );
+        return newItem.copyWith(isBookmarked: existingItem?.isBookmarked);
+      }).toList();
+
       final isLastPage = newItems.length < 20;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -145,6 +158,100 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
                     ],
                   ),
                 ),
+                trailing: SizedBox(
+                    width: 30,
+                    child: item.isBookmarked
+                        // 북마크 상태 O
+                        ? GestureDetector(
+                            onTap: () async {
+                              try {
+                                OverlayLoadingProgress.start(context,
+                                    barrierDismissible: false,
+                                    color: AppColors.Primary500);
+                                final success = await ref
+                                    .read(asyncVoteArtistListProvider.notifier)
+                                    .unBookmarkArtist(artistId: item.id);
+                                if (success) {
+                                  setState(() {
+                                    final index = _pagingController.itemList
+                                            ?.indexWhere((artist) =>
+                                                artist.id == item.id) ??
+                                        -1;
+                                    logger.i('index: $index');
+                                    if (index != -1) {
+                                      _pagingController.itemList![index] =
+                                          _pagingController.itemList![index]
+                                              .copyWith(isBookmarked: false);
+                                    }
+                                  });
+                                } else {
+                                  // 경고 다이얼로그 표시
+                                  showSimpleDialog(
+                                      context: context,
+                                      content: '북마크 해제에 실패했습니다.');
+                                }
+                              } catch (e, s) {
+                                logger.e('북마크 해제 중 오류 발생:',
+                                    error: e, stackTrace: s);
+                              } finally {
+                                OverlayLoadingProgress.stop();
+                              }
+                            },
+                            child: SvgPicture.asset(
+                              'assets/icons/bookmark_style=fill.svg',
+                              colorFilter: const ColorFilter.mode(
+                                AppColors.Primary500,
+                                BlendMode.srcIn,
+                              ),
+                              width: 20,
+                              height: 20,
+                            ),
+                          )
+                        // 북마크 상태 O
+                        : GestureDetector(
+                            onTap: () async {
+                              try {
+                                OverlayLoadingProgress.start(context,
+                                    barrierDismissible: false,
+                                    color: AppColors.Primary500);
+                                final success = await ref
+                                    .read(asyncVoteArtistListProvider.notifier)
+                                    .bookmarkArtist(artistId: item.id);
+                                if (success) {
+                                  setState(() {
+                                    final index = _pagingController.itemList
+                                            ?.indexWhere((artist) =>
+                                                artist.id == item.id) ??
+                                        -1;
+                                    if (index != -1) {
+                                      _pagingController.itemList![index] =
+                                          _pagingController.itemList![index]
+                                              .copyWith(isBookmarked: true);
+                                    }
+                                  });
+                                } else {
+                                  // 경고 다이얼로그 표시
+                                  showSimpleDialog(
+                                      context: context,
+                                      content: '북마크는 최대 5개까지만 가능합니다.');
+                                }
+                              } catch (e, s) {
+                                logger.e('북마크 추가 중 오류 발생:',
+                                    error: e, stackTrace: s);
+                              } finally {
+                                OverlayLoadingProgress.stop();
+                              }
+                            },
+                            child: SvgPicture.asset(
+                              'assets/icons/bookmark_style=fill.svg',
+                              colorFilter: const ColorFilter.mode(
+                                AppColors.Grey300,
+                                BlendMode.srcIn,
+                              ),
+                              width: 20,
+                              height: 20,
+                            ),
+                          )),
               ),
               const Divider(
                 height: 32,
