@@ -70,9 +70,9 @@ class ArtistModel with _$ArtistModel {
   const factory ArtistModel({
     required int id,
     required Map<String, dynamic> name,
-    required int yy,
-    required int mm,
-    required int dd,
+    required int? yy,
+    required int? mm,
+    required int? dd,
     required String gender,
     required String image,
     required ArtistGroupModel artist_group,
@@ -93,4 +93,17 @@ class ArtistGroupModel with _$ArtistGroupModel {
 
   factory ArtistGroupModel.fromJson(Map<String, dynamic> json) =>
       _$ArtistGroupModelFromJson(json);
+}
+
+// 새로 추가된 ArtistModelWithHighlight 클래스
+class ArtistModelWithHighlight {
+  final ArtistModel artist;
+  final String highlightedName;
+  final String highlightedGroupName;
+
+  ArtistModelWithHighlight({
+    required this.artist,
+    required this.highlightedName,
+    required this.highlightedGroupName,
+  });
 }

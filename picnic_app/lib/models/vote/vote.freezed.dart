@@ -880,9 +880,9 @@ ArtistModel _$ArtistModelFromJson(Map<String, dynamic> json) {
 mixin _$ArtistModel {
   int get id => throw _privateConstructorUsedError;
   Map<String, dynamic> get name => throw _privateConstructorUsedError;
-  int get yy => throw _privateConstructorUsedError;
-  int get mm => throw _privateConstructorUsedError;
-  int get dd => throw _privateConstructorUsedError;
+  int? get yy => throw _privateConstructorUsedError;
+  int? get mm => throw _privateConstructorUsedError;
+  int? get dd => throw _privateConstructorUsedError;
   String get gender => throw _privateConstructorUsedError;
   String get image => throw _privateConstructorUsedError;
   ArtistGroupModel get artist_group => throw _privateConstructorUsedError;
@@ -902,9 +902,9 @@ abstract class $ArtistModelCopyWith<$Res> {
   $Res call(
       {int id,
       Map<String, dynamic> name,
-      int yy,
-      int mm,
-      int dd,
+      int? yy,
+      int? mm,
+      int? dd,
       String gender,
       String image,
       ArtistGroupModel artist_group});
@@ -927,9 +927,9 @@ class _$ArtistModelCopyWithImpl<$Res, $Val extends ArtistModel>
   $Res call({
     Object? id = null,
     Object? name = null,
-    Object? yy = null,
-    Object? mm = null,
-    Object? dd = null,
+    Object? yy = freezed,
+    Object? mm = freezed,
+    Object? dd = freezed,
     Object? gender = null,
     Object? image = null,
     Object? artist_group = null,
@@ -943,18 +943,18 @@ class _$ArtistModelCopyWithImpl<$Res, $Val extends ArtistModel>
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>,
-      yy: null == yy
+      yy: freezed == yy
           ? _value.yy
           : yy // ignore: cast_nullable_to_non_nullable
-              as int,
-      mm: null == mm
+              as int?,
+      mm: freezed == mm
           ? _value.mm
           : mm // ignore: cast_nullable_to_non_nullable
-              as int,
-      dd: null == dd
+              as int?,
+      dd: freezed == dd
           ? _value.dd
           : dd // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       gender: null == gender
           ? _value.gender
           : gender // ignore: cast_nullable_to_non_nullable
@@ -990,9 +990,9 @@ abstract class _$$ArtistModelImplCopyWith<$Res>
   $Res call(
       {int id,
       Map<String, dynamic> name,
-      int yy,
-      int mm,
-      int dd,
+      int? yy,
+      int? mm,
+      int? dd,
       String gender,
       String image,
       ArtistGroupModel artist_group});
@@ -1014,9 +1014,9 @@ class __$$ArtistModelImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? name = null,
-    Object? yy = null,
-    Object? mm = null,
-    Object? dd = null,
+    Object? yy = freezed,
+    Object? mm = freezed,
+    Object? dd = freezed,
     Object? gender = null,
     Object? image = null,
     Object? artist_group = null,
@@ -1030,18 +1030,18 @@ class __$$ArtistModelImplCopyWithImpl<$Res>
           ? _value._name
           : name // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>,
-      yy: null == yy
+      yy: freezed == yy
           ? _value.yy
           : yy // ignore: cast_nullable_to_non_nullable
-              as int,
-      mm: null == mm
+              as int?,
+      mm: freezed == mm
           ? _value.mm
           : mm // ignore: cast_nullable_to_non_nullable
-              as int,
-      dd: null == dd
+              as int?,
+      dd: freezed == dd
           ? _value.dd
           : dd // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       gender: null == gender
           ? _value.gender
           : gender // ignore: cast_nullable_to_non_nullable
@@ -1087,11 +1087,11 @@ class _$ArtistModelImpl extends _ArtistModel {
   }
 
   @override
-  final int yy;
+  final int? yy;
   @override
-  final int mm;
+  final int? mm;
   @override
-  final int dd;
+  final int? dd;
   @override
   final String gender;
   @override
@@ -1151,9 +1151,9 @@ abstract class _ArtistModel extends ArtistModel {
   const factory _ArtistModel(
       {required final int id,
       required final Map<String, dynamic> name,
-      required final int yy,
-      required final int mm,
-      required final int dd,
+      required final int? yy,
+      required final int? mm,
+      required final int? dd,
       required final String gender,
       required final String image,
       required final ArtistGroupModel artist_group}) = _$ArtistModelImpl;
@@ -1167,11 +1167,11 @@ abstract class _ArtistModel extends ArtistModel {
   @override
   Map<String, dynamic> get name;
   @override
-  int get yy;
+  int? get yy;
   @override
-  int get mm;
+  int? get mm;
   @override
-  int get dd;
+  int? get dd;
   @override
   String get gender;
   @override

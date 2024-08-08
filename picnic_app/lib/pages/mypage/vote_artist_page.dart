@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_app/components/mypage/vote_my_artist_search.dart';
+import 'package:picnic_app/components/mypage/vote_artist_search.dart';
 import 'package:picnic_app/generated/l10n.dart';
 
-class VoteMyArtist extends ConsumerStatefulWidget {
-  const VoteMyArtist({super.key});
+class VoteArtistPage extends ConsumerStatefulWidget {
+  const VoteArtistPage({super.key});
 
   @override
   ConsumerState createState() => _VoteMyArtistState();
 }
 
-class _VoteMyArtistState extends ConsumerState<VoteMyArtist>
+class _VoteMyArtistState extends ConsumerState<VoteArtistPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
@@ -51,7 +51,7 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtist>
             controller: _tabController,
             children: [
               Container(),
-              const VoteMyArtistSearch(),
+              const VoteArtistSearch(),
             ],
           ),
         )

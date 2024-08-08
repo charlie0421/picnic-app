@@ -339,8 +339,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("투표수량은 0이 될 수 없습니다."),
         "text_draw_image":
             MessageLookupByLibrary.simpleMessage("전체 갤러리 중 이미지 1개 확정 소장"),
-        "text_hint_search":
-            MessageLookupByLibrary.simpleMessage("아티스트를 검색하세요."),
+        "text_hint_search": MessageLookupByLibrary.simpleMessage("아티스트 검색"),
         "text_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("선택한 아티스트의 집으로 이동합니다."),
         "text_need_recharge":

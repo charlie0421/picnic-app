@@ -9,7 +9,7 @@ import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/pages/mypage/myprofile.dart';
 import 'package:picnic_app/pages/mypage/setting_page.dart';
-import 'package:picnic_app/pages/mypage/vote_my_artist_page.dart';
+import 'package:picnic_app/pages/mypage/vote_artist_page.dart';
 import 'package:picnic_app/pages/vote/vote_history_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
@@ -201,7 +201,7 @@ class _MyPageState extends ConsumerState<MyPage> {
       onTap: () {
         ref
             .read(navigationInfoProvider.notifier)
-            .setCurrentMyPage(const VoteMyArtist());
+            .setCurrentMyPage(const VoteArtistPage());
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
