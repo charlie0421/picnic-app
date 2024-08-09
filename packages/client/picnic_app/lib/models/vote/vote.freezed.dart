@@ -887,6 +887,7 @@ mixin _$ArtistModel {
   String get image => throw _privateConstructorUsedError;
   ArtistGroupModel get artist_group => throw _privateConstructorUsedError;
   bool? get isBookmarked => throw _privateConstructorUsedError;
+  int? get originalIndex => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -909,7 +910,8 @@ abstract class $ArtistModelCopyWith<$Res> {
       String gender,
       String image,
       ArtistGroupModel artist_group,
-      bool? isBookmarked});
+      bool? isBookmarked,
+      int? originalIndex});
 
   $ArtistGroupModelCopyWith<$Res> get artist_group;
 }
@@ -936,6 +938,7 @@ class _$ArtistModelCopyWithImpl<$Res, $Val extends ArtistModel>
     Object? image = null,
     Object? artist_group = null,
     Object? isBookmarked = freezed,
+    Object? originalIndex = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -974,6 +977,10 @@ class _$ArtistModelCopyWithImpl<$Res, $Val extends ArtistModel>
           ? _value.isBookmarked
           : isBookmarked // ignore: cast_nullable_to_non_nullable
               as bool?,
+      originalIndex: freezed == originalIndex
+          ? _value.originalIndex
+          : originalIndex // ignore: cast_nullable_to_non_nullable
+              as int?,
     ) as $Val);
   }
 
@@ -1003,7 +1010,8 @@ abstract class _$$ArtistModelImplCopyWith<$Res>
       String gender,
       String image,
       ArtistGroupModel artist_group,
-      bool? isBookmarked});
+      bool? isBookmarked,
+      int? originalIndex});
 
   @override
   $ArtistGroupModelCopyWith<$Res> get artist_group;
@@ -1029,6 +1037,7 @@ class __$$ArtistModelImplCopyWithImpl<$Res>
     Object? image = null,
     Object? artist_group = null,
     Object? isBookmarked = freezed,
+    Object? originalIndex = freezed,
   }) {
     return _then(_$ArtistModelImpl(
       id: null == id
@@ -1067,6 +1076,10 @@ class __$$ArtistModelImplCopyWithImpl<$Res>
           ? _value.isBookmarked
           : isBookmarked // ignore: cast_nullable_to_non_nullable
               as bool?,
+      originalIndex: freezed == originalIndex
+          ? _value.originalIndex
+          : originalIndex // ignore: cast_nullable_to_non_nullable
+              as int?,
     ));
   }
 }
@@ -1083,7 +1096,8 @@ class _$ArtistModelImpl extends _ArtistModel {
       required this.gender,
       required this.image,
       required this.artist_group,
-      required this.isBookmarked})
+      required this.isBookmarked,
+      this.originalIndex})
       : _name = name,
         super._();
 
@@ -1114,10 +1128,12 @@ class _$ArtistModelImpl extends _ArtistModel {
   final ArtistGroupModel artist_group;
   @override
   final bool? isBookmarked;
+  @override
+  final int? originalIndex;
 
   @override
   String toString() {
-    return 'ArtistModel(id: $id, name: $name, yy: $yy, mm: $mm, dd: $dd, gender: $gender, image: $image, artist_group: $artist_group, isBookmarked: $isBookmarked)';
+    return 'ArtistModel(id: $id, name: $name, yy: $yy, mm: $mm, dd: $dd, gender: $gender, image: $image, artist_group: $artist_group, isBookmarked: $isBookmarked, originalIndex: $originalIndex)';
   }
 
   @override
@@ -1135,7 +1151,9 @@ class _$ArtistModelImpl extends _ArtistModel {
             (identical(other.artist_group, artist_group) ||
                 other.artist_group == artist_group) &&
             (identical(other.isBookmarked, isBookmarked) ||
-                other.isBookmarked == isBookmarked));
+                other.isBookmarked == isBookmarked) &&
+            (identical(other.originalIndex, originalIndex) ||
+                other.originalIndex == originalIndex));
   }
 
   @JsonKey(ignore: true)
@@ -1150,7 +1168,8 @@ class _$ArtistModelImpl extends _ArtistModel {
       gender,
       image,
       artist_group,
-      isBookmarked);
+      isBookmarked,
+      originalIndex);
 
   @JsonKey(ignore: true)
   @override
@@ -1176,7 +1195,8 @@ abstract class _ArtistModel extends ArtistModel {
       required final String gender,
       required final String image,
       required final ArtistGroupModel artist_group,
-      required final bool? isBookmarked}) = _$ArtistModelImpl;
+      required final bool? isBookmarked,
+      final int? originalIndex}) = _$ArtistModelImpl;
   const _ArtistModel._() : super._();
 
   factory _ArtistModel.fromJson(Map<String, dynamic> json) =
@@ -1200,6 +1220,8 @@ abstract class _ArtistModel extends ArtistModel {
   ArtistGroupModel get artist_group;
   @override
   bool? get isBookmarked;
+  @override
+  int? get originalIndex;
   @override
   @JsonKey(ignore: true)
   _$$ArtistModelImplCopyWith<_$ArtistModelImpl> get copyWith =>

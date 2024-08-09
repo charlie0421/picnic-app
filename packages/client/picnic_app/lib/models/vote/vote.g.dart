@@ -90,6 +90,7 @@ _$ArtistModelImpl _$$ArtistModelImplFromJson(Map<String, dynamic> json) =>
       artist_group: ArtistGroupModel.fromJson(
           json['artist_group'] as Map<String, dynamic>),
       isBookmarked: json['isBookmarked'] as bool?,
+      originalIndex: (json['originalIndex'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$$ArtistModelImplToJson(_$ArtistModelImpl instance) =>
@@ -103,6 +104,7 @@ Map<String, dynamic> _$$ArtistModelImplToJson(_$ArtistModelImpl instance) =>
       'image': instance.image,
       'artist_group': instance.artist_group,
       'isBookmarked': instance.isBookmarked,
+      'originalIndex': instance.originalIndex,
     };
 
 _$ArtistGroupModelImpl _$$ArtistGroupModelImplFromJson(

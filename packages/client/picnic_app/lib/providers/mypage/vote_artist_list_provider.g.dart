@@ -7,7 +7,7 @@ part of 'vote_artist_list_provider.dart';
 // **************************************************************************
 
 String _$asyncVoteArtistListHash() =>
-    r'195923629633d2609f3c536e8d32337b6b8ab510';
+    r'6ca85ff2e6e0723b0040e7d27d672388604efadf';
 
 /// See also [AsyncVoteArtistList].
 @ProviderFor(AsyncVoteArtistList)
