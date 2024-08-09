@@ -30,4 +30,5 @@ class Environment {
   static String get kakaoJavascriptKey =>
       _config['KAKAO_JAVASCRIPT_KEY'] as String;
   static bool get enableSentry => _config['ENABLE_SENTRY'] as bool;
+  static String get cdnUrl => _config['CDN_URL'] as String;
 }
