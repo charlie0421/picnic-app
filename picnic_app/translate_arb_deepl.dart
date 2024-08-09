@@ -299,18 +299,6 @@ Future<void> translateArbFilePartial(
   }
 }
 
-Future<void> saveJsonFile(String path, Map<String, dynamic> content) async {
-  try {
-    final file = File(path);
-    const encoder = JsonEncoder.withIndent('  ');
-    final formattedJson = encoder.convert(content);
-    await file.writeAsString(formattedJson);
-    print('File saved: $path');
-  } catch (e) {
-    print('Error saving file $path: $e');
-  }
-}
-
 Future<void> translateArbFile(Translator translator, String inputFile,
     String outputFile, String targetLanguage,
     {bool translateAll = false}) async {
@@ -324,8 +312,6 @@ Future<void> translateArbFile(Translator translator, String inputFile,
     final translatedArbContent = await readJsonFile(outputFile);
     final updatedArbContent = Map<String, dynamic>.from(translatedArbContent);
     final keys = List<String>.from(originalArbContent.keys);
-
-    final Map<String, String> translationCache = {};
 
     final List<Future<void>> translationFutures = [];
 
@@ -352,43 +338,25 @@ Future<void> translateArbFile(Translator translator, String inputFile,
 
         if (translateAll ||
             !translatedArbContent.containsKey(key) ||
-            translatedArbContent[key] == originalArbContent[key]) {
-          if (containsPlaceholders(originalArbContent[key])) {
-            translationFutures.add(pool.withResource(() async {
-              final translatedText = await translateTextWithPlaceholders(
-                  translator, originalArbContent[key], targetLanguage);
+            translatedArbContent[key] == originalArbContent[key] ||
+            translatedArbContent[key].isEmpty ||
+            containsKoreanOrEmpty(translatedArbContent[key])) {
+          translationFutures.add(pool.withResource(() async {
+            final translatedText = await translateText(
+                translator, originalArbContent[key], targetLanguage);
+            if (!containsKoreanOrEmpty(translatedText) &&
+                isCorrectLanguage(translatedText, targetLanguage)) {
               updatedArbContent[key] = translatedText;
-
-              if (!updatedArbContent.containsKey(metaKey)) {
-                updatedArbContent[metaKey] = {};
-              }
-            }));
-          } else if (containsKorean(originalArbContent[key])) {
-            if (!translationCache.containsKey(originalArbContent[key])) {
-              translationFutures.add(pool.withResource(() async {
-                final translatedText = await translateText(
-                    translator, originalArbContent[key], targetLanguage);
-                if (isCorrectLanguage(translatedText, targetLanguage)) {
-                  translationCache[originalArbContent[key]] = translatedText;
-                  updatedArbContent[key] = translatedText;
-
-                  if (!updatedArbContent.containsKey(metaKey)) {
-                    updatedArbContent[metaKey] = {};
-                  }
-                } else {
-                  print(
-                      'Warning: Incorrect language detected for key: $key. Skipping.');
-                }
-              }));
             } else {
-              updatedArbContent[key] =
-                  translationCache[originalArbContent[key]];
-              print('Using cached translation for key: $key');
+              print(
+                  'Warning: Incorrect translation or contains Korean for key: $key. Using original text.');
+              updatedArbContent[key] = originalArbContent[key];
             }
-          } else {
-            updatedArbContent[key] = originalArbContent[key];
-            print('Skipping non-Korean text for key: $key');
-          }
+
+            if (!updatedArbContent.containsKey(metaKey)) {
+              updatedArbContent[metaKey] = {};
+            }
+          }));
         } else {
           print('Skipping translation for key: $key (Already translated)');
         }
@@ -397,10 +365,47 @@ Future<void> translateArbFile(Translator translator, String inputFile,
 
     await Future.wait(translationFutures);
 
-    await sortAndUpdateArbFile(outputFile);
+    // 번역된 내용 저장 전 최종 확인
+    for (var key in updatedArbContent.keys) {
+      if (!key.startsWith('@') &&
+          containsKoreanOrEmpty(updatedArbContent[key])) {
+        print(
+            'Warning: Korean text found in translated content for key: $key. Attempting re-translation.');
+        final retranslatedText = await translateText(
+            translator, originalArbContent[key], targetLanguage);
+        if (!containsKoreanOrEmpty(retranslatedText) &&
+            isCorrectLanguage(retranslatedText, targetLanguage)) {
+          updatedArbContent[key] = retranslatedText;
+        } else {
+          print('Failed to re-translate. Using original text for key: $key');
+          updatedArbContent[key] = originalArbContent[key];
+        }
+      }
+    }
+
+    await saveJsonFile(outputFile, updatedArbContent);
     print('$outputFile translation completed and saved');
   } catch (e) {
     print('Error occurred while translating $outputFile: $e');
+  }
+}
+
+Future<void> saveJsonFile(String path, Map<String, dynamic> content) async {
+  try {
+    final file = File(path);
+    const encoder = JsonEncoder.withIndent('  ');
+    final formattedJson = encoder.convert(content);
+
+    // 저장 전 최종 확인
+    if (path.contains('_en.arb') && containsKoreanOrEmpty(formattedJson)) {
+      print(
+          'Warning: Korean text found in English translation file. Please check the content.');
+    }
+
+    await file.writeAsString(formattedJson);
+    print('File saved: $path');
+  } catch (e) {
+    print('Error saving file $path: $e');
   }
 }
 
@@ -435,13 +440,42 @@ bool containsPlaceholders(String text) {
   return text.contains(RegExp(r'\{.*?\}'));
 }
 
+bool containsKoreanOrEmpty(String text) {
+  if (text.isEmpty) return true;
+  return koreanRegex.hasMatch(text);
+}
+
 Future<String> translateText(
     Translator translator, String text, String targetLang) async {
   print('Translating: "$text" to $targetLang');
-  final translation = await translator.translateTextSingular(text, targetLang);
-  print('Translated: "$text" -> "${translation.text}"');
-  await Future.delayed(const Duration(seconds: 1));
-  return translation.text;
+  int attempts = 0;
+  const maxAttempts = 3;
+
+  while (attempts < maxAttempts) {
+    try {
+      final translation =
+          await translator.translateTextSingular(text, targetLang);
+      print('Translated: "$text" -> "${translation.text}"');
+
+      if (!containsKoreanOrEmpty(translation.text)) {
+        await Future.delayed(const Duration(milliseconds: 500));
+        return translation.text;
+      } else {
+        print(
+            'Warning: Translation still contains Korean or is empty. Retrying...');
+        attempts++;
+        await Future.delayed(const Duration(seconds: 1));
+      }
+    } catch (e) {
+      print('Error translating text: $e');
+      attempts++;
+      await Future.delayed(const Duration(seconds: 1));
+    }
+  }
+
+  print(
+      'Failed to translate after $maxAttempts attempts. Using original text.');
+  return text; // 여러 번의 시도 후에도 실패하면 원본 텍스트 반환
 }
 
 Future<String> translateTextWithPlaceholders(

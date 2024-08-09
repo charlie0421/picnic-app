@@ -20,6 +20,15 @@
   "@button_ok": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "text_bookmark_failed": "북마크 해제에 실패했습니다",
+  "@text_bookmark_failed": {
+  },
+  "text_no_artist": "아티스트가 없습니다",
+    "@text_no_artist": {
+    },
+  "text_bookmark_over_5": "북마크는 최대 5개까지 가능합니다",
+    "@text_bookmark_over_5": {
+    },
   "button_pic_pic_save": "저장하기",
   "@button_pic_pic_save": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -297,6 +306,8 @@
   },
   "label_mypage_my_artist": "나의 아티스트",
   "@label_mypage_my_artist": {},
+  "label_mypage_no_artist": "마이아티스트를 등록하세요.",
+  "@label_mypage_no_artist": {},
   "label_mypage_notice": "공지사항",
   "@label_mypage_notice": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"

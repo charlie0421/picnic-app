@@ -167,6 +167,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("멤버십 내역"),
         "label_mypage_my_artist":
             MessageLookupByLibrary.simpleMessage("나의 아티스트"),
+        "label_mypage_no_artist":
+            MessageLookupByLibrary.simpleMessage("마이아티스트를 등록하세요."),
         "label_mypage_notice": MessageLookupByLibrary.simpleMessage("공지사항"),
         "label_mypage_privacy_policy":
             MessageLookupByLibrary.simpleMessage("개인정보처리방침"),
@@ -319,6 +321,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_ads_random":
             MessageLookupByLibrary.simpleMessage("광고 보기 및 무작위 이미지 수집."),
         "text_bonus": MessageLookupByLibrary.simpleMessage("보너스"),
+        "text_bookmark_failed":
+            MessageLookupByLibrary.simpleMessage("북마크 해제에 실패했습니다"),
+        "text_bookmark_over_5":
+            MessageLookupByLibrary.simpleMessage("북마크는 최대 5개까지 가능합니다"),
         "text_comming_soon_pic_chart1": MessageLookupByLibrary.simpleMessage(
             "핔 차트에 오신 여러분을 환영합니다!\n2024년 8월에 만나요!"),
         "text_comming_soon_pic_chart2": MessageLookupByLibrary.simpleMessage(
@@ -344,6 +350,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("선택한 아티스트의 집으로 이동합니다."),
         "text_need_recharge":
             MessageLookupByLibrary.simpleMessage("충전이 필요합니다."),
+        "text_no_artist": MessageLookupByLibrary.simpleMessage("아티스트가 없습니다"),
         "text_no_search_result":
             MessageLookupByLibrary.simpleMessage("검색결과가 없어요."),
         "text_purchase_vat_included":
