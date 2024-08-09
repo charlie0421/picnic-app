@@ -77,6 +77,7 @@ class ArtistModel with _$ArtistModel {
     required String image,
     required ArtistGroupModel artist_group,
     required bool? isBookmarked,
+    int? originalIndex,
   }) = _ArtistModel;
 
   factory ArtistModel.fromJson(Map<String, dynamic> json) =>
