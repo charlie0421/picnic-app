@@ -19,6 +19,7 @@ import 'package:picnic_app/screens/signup/signup_screen.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -241,6 +242,14 @@ class _MyPageState extends ConsumerState<MyPage> {
             child: bookmarkedArtists.when(
               data: (artists) {
                 logger.d('북마크된 아티스트: $artists');
+                if (artists.isEmpty) {
+                  return Container(
+                    alignment: Alignment.center,
+                    child: Text('마이아티스트를 등록하세요.',
+                        style: getTextStyle(
+                            AppTypo.TITLE18B, AppColors.Primary500)),
+                  );
+                }
                 return ListView.separated(
                   itemCount: artists.length,
                   scrollDirection: Axis.horizontal,
@@ -260,7 +269,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                   },
                 );
               },
-              loading: () => buildLoadingOverlay(),
+              loading: () => _buildShimmer(),
               error: (error, stack) => Text('Error: $error'),
             ),
           ),
@@ -268,6 +277,33 @@ class _MyPageState extends ConsumerState<MyPage> {
         ],
       ),
     );
+  }
+
+  Widget _buildShimmer() {
+    return Shimmer.fromColors(
+        baseColor: AppColors.Grey200,
+        highlightColor: AppColors.Grey100,
+        child: ListView.separated(
+          itemCount: 5,
+          scrollDirection: Axis.horizontal,
+          itemBuilder: (context, index) => Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Container(
+                width: 60.w,
+                height: 60.w,
+                padding: const EdgeInsets.all(6).r,
+                decoration: BoxDecoration(
+                  color: AppColors.Grey200,
+                  borderRadius: BorderRadius.circular(30).r,
+                ),
+              ),
+            ],
+          ),
+          separatorBuilder: (BuildContext context, int index) {
+            return SizedBox(width: 14.w);
+          },
+        ));
   }
 
   void _launchURL(String targetUrl) async {
