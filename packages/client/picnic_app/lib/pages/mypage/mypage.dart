@@ -88,9 +88,8 @@ class _MyPageState extends ConsumerState<MyPage> {
                             .setCurrentMyPage(const SettingPage())),
                     const Divider(color: AppColors.Grey200),
                     // 나의 아티스트
-                    if (data != null && data.is_admin) _buildMyStar('VOTE'),
-                    if (data != null && data.is_admin)
-                      const Divider(color: AppColors.Grey200),
+                    _buildMyStar('VOTE'),
+                    const Divider(color: AppColors.Grey200),
                     // 투표내역
                     ListItem(
                         leading: S.of(context).label_mypage_vote_history,
