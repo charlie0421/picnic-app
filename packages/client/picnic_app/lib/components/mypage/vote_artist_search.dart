@@ -16,8 +16,8 @@ import 'package:picnic_app/providers/mypage/bookmarked_artists_provider.dart';
 import 'package:picnic_app/providers/mypage/vote_artist_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
-import 'package:picnic_app/util/ui.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shimmer/shimmer.dart';
 
 class VoteArtistSearch extends ConsumerStatefulWidget {
   const VoteArtistSearch({super.key});
@@ -184,7 +184,8 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
                           stackTrace: _pagingController.error.stackTrace,
                         ),
                         firstPageProgressIndicatorBuilder: (context) =>
-                            buildLoadingOverlay(),
+                            SizedBox(
+                                height: 200, child: _buildShimmerLoading()),
                         noItemsFoundIndicatorBuilder: (context) =>
                             const Center(child: Text('No artists found')),
                       ),
@@ -193,16 +194,72 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
                 ],
               );
             },
-            loading: buildLoadingOverlay,
+            loading: _buildShimmerLoading,
             error: (error, stack) =>
                 ErrorView(context, error: error.toString(), stackTrace: stack),
           );
         },
-        loading: buildLoadingOverlay,
+        loading: _buildShimmerLoading,
         error: (error, s) =>
             ErrorView(context, error: error.toString(), stackTrace: s),
       );
     });
+  }
+
+  Widget _buildShimmerLoading() {
+    return ListView.builder(
+      itemCount: 20, // 로딩 시 보여줄 아이템 수
+      itemBuilder: (context, index) {
+        return Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: Container(
+                    width: 48,
+                    height: 48,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  title: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 16,
+                        color: Colors.white,
+                      ),
+                      Container(
+                        width: 4,
+                        height: 16,
+                        color: Colors.transparent,
+                      ),
+                      Container(
+                        width: 120,
+                        height: 12,
+                        color: Colors.white,
+                      ),
+                    ],
+                  ),
+                  trailing: Container(
+                    width: 20,
+                    height: 20,
+                    color: Colors.white,
+                  ),
+                ),
+                const Divider(height: 32, color: AppColors.Grey200),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildArtistItem(ArtistModel item) {
