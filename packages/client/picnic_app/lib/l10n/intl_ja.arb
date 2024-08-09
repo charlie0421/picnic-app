@@ -194,7 +194,7 @@
   "@label_button_vote": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_button_watch_and_charge": "見てチャージする",
+  "label_button_watch_and_charge": "広告を見てチャージする",
   "@label_button_watch_and_charge": {
     "manualTranslationKey": true,
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -267,7 +267,7 @@
   "@label_library_tab_library": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_library_tab_pic": "PIC",
+  "label_library_tab_pic": "ピック",
   "@label_library_tab_pic": {
     "manualTranslationKey": true,
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -298,6 +298,8 @@
   },
   "label_mypage_my_artist": "私のアーティスト",
   "@label_mypage_my_artist": {},
+  "label_mypage_no_artist": "マイアーティストを登録してください。",
+  "@label_mypage_no_artist": {},
   "label_mypage_notice": "お知らせ",
   "@label_mypage_notice": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -306,7 +308,7 @@
   "@label_mypage_privacy_policy": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_mypage_setting": "Settings",
+  "label_mypage_setting": "設定",
   "@label_mypage_setting": {
     "manualTranslationKey": true,
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -397,7 +399,7 @@
   "@label_setting_recent_version": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_setting_recent_version_up_to_date": "최신버전",
+  "label_setting_recent_version_up_to_date": "最新バージョン",
   "@label_setting_recent_version_up_to_date": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
@@ -429,9 +431,9 @@
   "@label_tab_free_charge_station": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_tab_my_artist": "마이아티스트",
+  "label_tab_my_artist": "マイアーティスト",
   "@label_tab_my_artist": {},
-  "label_tab_search_my_artist": "마이아티스트 찾기",
+  "label_tab_search_my_artist": "マイアーティストを探す",
   "@label_tab_search_my_artist": {},
   "label_tabbar_picchart_daily": "日足チャート",
   "@label_tabbar_picchart_daily": {
@@ -457,15 +459,15 @@
   "@label_tabbar_vote_upcoming": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_time_ago_day": "PH0___日前",
+  "label_time_ago_day": "{day}日前",
   "@label_time_ago_day": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_time_ago_hour": "PH0___時間前",
+  "label_time_ago_hour": "{hour}時間前",
   "@label_time_ago_hour": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_time_ago_minute": "PH0__分前",
+  "label_time_ago_minute": "{minute}分前",
   "@label_time_ago_minute": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
@@ -583,7 +585,7 @@
   "@nav_ads": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "nav_board": "게시판",
+  "nav_board": "掲示板",
   "@nav_board": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
@@ -603,7 +605,7 @@
   "@nav_media": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "nav_my": "마이",
+  "nav_my": "マイ",
   "@nav_my": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
@@ -727,7 +729,7 @@
   "@text_draw_image": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "text_hint_search": "アーティストを検索してください。",
+  "text_hint_search": "アーティスト検索",
   "@text_hint_search": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
@@ -751,7 +753,7 @@
   "@text_star_candy": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "text_star_candy_with_bonus": "PH0___個 +{num1}_個のボーナス",
+  "text_star_candy_with_bonus": "{num1}個 +{num1}個のボーナス",
   "@text_star_candy_with_bonus": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
@@ -763,7 +765,7 @@
   "@text_vote_complete": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "text_vote_rank": "PH0__위",
+  "text_vote_rank": "{ランク}ウィ",
   "@text_vote_rank": {
     "manualTranslationKey": true,
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -799,5 +801,11 @@
   "update_required_text": "新しいバージョン({version})へのアップデートが必要です。",
   "@update_required_text": {},
   "update_required_title": "アップデートが必要です。",
-  "@update_required_title": {}
+  "@update_required_title": {},
+  "text_bookmark_failed": "ブックマーク解除に失敗しました",
+  "@text_bookmark_failed": {},
+  "text_bookmark_over_5": "ブックマークは最大5個まで可能です。",
+  "@text_bookmark_over_5": {},
+  "text_no_artist": "アーティストがいません",
+  "@text_no_artist": {}
 }

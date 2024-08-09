@@ -245,7 +245,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                 if (artists.isEmpty) {
                   return Container(
                     alignment: Alignment.center,
-                    child: Text('마이아티스트를 등록하세요.',
+                    child: Text(S.of(context).label_mypage_no_artist,
                         style: getTextStyle(
                             AppTypo.TITLE18B, AppColors.Primary500)),
                   );

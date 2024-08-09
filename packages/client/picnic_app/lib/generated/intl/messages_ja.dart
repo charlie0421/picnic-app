@@ -20,15 +20,15 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ja';
 
-  static String m0(day) => "PH0___日前";
+  static String m0(day) => "${day}日前";
 
-  static String m1(hour) => "PH0___時間前";
+  static String m1(hour) => "${hour}時間前";
 
-  static String m2(minute) => "PH0__分前";
+  static String m2(minute) => "${minute}分前";
 
-  static String m3(num1) => "PH0___個 +${num1}_個のボーナス";
+  static String m3(num1) => "${num1}個 +${num1}個のボーナス";
 
-  static String m4(rank) => "PH0__위";
+  static String m4(rank) => "{ランク}ウィ";
 
   static String m5(version) => "新しいバージョン(${version})が利用可能です。";
 
@@ -127,7 +127,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_button_share": MessageLookupByLibrary.simpleMessage("シェアする"),
         "label_button_vote": MessageLookupByLibrary.simpleMessage("投票する"),
         "label_button_watch_and_charge":
-            MessageLookupByLibrary.simpleMessage("見てチャージする"),
+            MessageLookupByLibrary.simpleMessage("広告を見てチャージする"),
         "label_celeb_ask_to_you":
             MessageLookupByLibrary.simpleMessage("アーティストがあなたに尋ねる！"),
         "label_celeb_gallery":
@@ -154,7 +154,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("AIフォト"),
         "label_library_tab_library":
             MessageLookupByLibrary.simpleMessage("ライブラリ"),
-        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("PIC"),
+        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("ピック"),
         "label_loading_ads": MessageLookupByLibrary.simpleMessage("広告読み込み中"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("アーティストギャラリーへ"),
@@ -167,11 +167,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("メンバーシップ履歴"),
         "label_mypage_my_artist":
             MessageLookupByLibrary.simpleMessage("私のアーティスト"),
+        "label_mypage_no_artist":
+            MessageLookupByLibrary.simpleMessage("マイアーティストを登録してください。"),
         "label_mypage_notice": MessageLookupByLibrary.simpleMessage("お知らせ"),
         "label_mypage_privacy_policy":
             MessageLookupByLibrary.simpleMessage("個人情報保護方針"),
-        "label_mypage_setting":
-            MessageLookupByLibrary.simpleMessage("Settings"),
+        "label_mypage_setting": MessageLookupByLibrary.simpleMessage("設定"),
         "label_mypage_should_login":
             MessageLookupByLibrary.simpleMessage("ログインしてください"),
         "label_mypage_terms_of_use":
@@ -210,7 +211,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_setting_recent_version":
             MessageLookupByLibrary.simpleMessage("最新バージョン"),
         "label_setting_recent_version_up_to_date":
-            MessageLookupByLibrary.simpleMessage("최신버전"),
+            MessageLookupByLibrary.simpleMessage("最新バージョン"),
         "label_setting_remove_cache":
             MessageLookupByLibrary.simpleMessage("キャッシュメモリの削除"),
         "label_setting_remove_cache_complete":
@@ -224,9 +225,9 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("スターキャンディーの購入"),
         "label_tab_free_charge_station":
             MessageLookupByLibrary.simpleMessage("無料充電ステーション"),
-        "label_tab_my_artist": MessageLookupByLibrary.simpleMessage("마이아티스트"),
+        "label_tab_my_artist": MessageLookupByLibrary.simpleMessage("マイアーティスト"),
         "label_tab_search_my_artist":
-            MessageLookupByLibrary.simpleMessage("마이아티스트 찾기"),
+            MessageLookupByLibrary.simpleMessage("マイアーティストを探す"),
         "label_tabbar_picchart_daily":
             MessageLookupByLibrary.simpleMessage("日足チャート"),
         "label_tabbar_picchart_monthly":
@@ -287,12 +288,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "mypage_setting": MessageLookupByLibrary.simpleMessage("設定"),
         "mypage_subscription": MessageLookupByLibrary.simpleMessage("購読情報"),
         "nav_ads": MessageLookupByLibrary.simpleMessage("広告"),
-        "nav_board": MessageLookupByLibrary.simpleMessage("게시판"),
+        "nav_board": MessageLookupByLibrary.simpleMessage("掲示板"),
         "nav_gallery": MessageLookupByLibrary.simpleMessage("ギャラリー"),
         "nav_home": MessageLookupByLibrary.simpleMessage("홈"),
         "nav_library": MessageLookupByLibrary.simpleMessage("ライブラリ"),
         "nav_media": MessageLookupByLibrary.simpleMessage("メディア"),
-        "nav_my": MessageLookupByLibrary.simpleMessage("마이"),
+        "nav_my": MessageLookupByLibrary.simpleMessage("マイ"),
         "nav_picchart": MessageLookupByLibrary.simpleMessage("PICチャート"),
         "nav_purchases": MessageLookupByLibrary.simpleMessage("購入"),
         "nav_setting": MessageLookupByLibrary.simpleMessage("設定"),
@@ -317,6 +318,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_ads_random":
             MessageLookupByLibrary.simpleMessage("広告表示とランダム画像収集。"),
         "text_bonus": MessageLookupByLibrary.simpleMessage("ボーナス"),
+        "text_bookmark_failed":
+            MessageLookupByLibrary.simpleMessage("ブックマーク解除に失敗しました"),
+        "text_bookmark_over_5":
+            MessageLookupByLibrary.simpleMessage("ブックマークは最大5個まで可能です。"),
         "text_comming_soon_pic_chart1": MessageLookupByLibrary.simpleMessage(
             "ピックチャートへようこそ！\n2024年8月にお会いしましょう！"),
         "text_comming_soon_pic_chart2": MessageLookupByLibrary.simpleMessage(
@@ -337,11 +342,11 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("投票数は0にすることはできません。"),
         "text_draw_image":
             MessageLookupByLibrary.simpleMessage("全ギャラリーのうち、1枚の画像を確定的に所蔵"),
-        "text_hint_search":
-            MessageLookupByLibrary.simpleMessage("アーティストを検索してください。"),
+        "text_hint_search": MessageLookupByLibrary.simpleMessage("アーティスト検索"),
         "text_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("選択したアーティストの家に移動します。"),
         "text_need_recharge": MessageLookupByLibrary.simpleMessage("充電が必要です。"),
+        "text_no_artist": MessageLookupByLibrary.simpleMessage("アーティストがいません"),
         "text_no_search_result":
             MessageLookupByLibrary.simpleMessage("検索結果がありません。"),
         "text_purchase_vat_included":

@@ -140,7 +140,9 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
       } else {
         showSimpleDialog(
           context: context,
-          content: isBookmarked ? '북마크 해제에 실패했습니다.' : '북마크는 최대 5개까지만 가능합니다.',
+          content: isBookmarked
+              ? S.of(context).text_bookmark_failed
+              : S.of(context).text_bookmark_over_5,
         );
       }
     } catch (e, s) {
@@ -187,7 +189,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
                             SizedBox(
                                 height: 200, child: _buildShimmerLoading()),
                         noItemsFoundIndicatorBuilder: (context) =>
-                            const Center(child: Text('No artists found')),
+                            Center(child: Text(S.of(context).text_no_artist)),
                       ),
                     ),
                   ),
