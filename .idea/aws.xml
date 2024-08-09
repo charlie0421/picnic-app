@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="accountSettings">
-    <option name="activeProfile" value="profile:prame" />
+    <option name="activeProfile" value="profile:picnic" />
     <option name="activeRegion" value="ap-northeast-2" />
     <option name="recentlyUsedProfiles">
       <list>
+        <option value="profile:picnic" />
         <option value="profile:prame" />
         <option value="profile:icon-casting" />
         <option value="profile:default" />

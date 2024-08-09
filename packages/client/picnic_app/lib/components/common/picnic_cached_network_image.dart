@@ -1,9 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/util/ui.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 class PicnicCachedNetworkImage extends StatefulWidget {
@@ -97,17 +96,7 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
 
   String getTransformedUrl(
       String key, double resolutionMultiplier, int quality) {
-    final transformOptions = TransformOptions(
-      width: widget.width != null
-          ? (widget.width! * resolutionMultiplier).toInt()
-          : null,
-      height: widget.height != null
-          ? (widget.height! * resolutionMultiplier).toInt()
-          : null,
-      quality: quality,
-    );
-    return supabaseStorage.storage
-        .from('picnic')
-        .getPublicUrl(key, transform: transformOptions);
+    // return '${Environment.cdnUrl}/$key?w=${(widget.width! * resolutionMultiplier).toInt()}&h=${(widget.height! * resolutionMultiplier).toInt()}&q=$quality&f=webp';
+    return '${Environment.cdnUrl}/$key';
   }
 }
