@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/config/environment.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -37,7 +38,7 @@ class PicnicCachedNetworkImage extends StatelessWidget {
   List<String> _getTransformedUrls(
       BuildContext context, double resolutionMultiplier) {
     return [
-      _getTransformedUrl(imageUrl, resolutionMultiplier * 0.1, 20),
+      _getTransformedUrl(imageUrl, resolutionMultiplier * .2, 20),
       _getTransformedUrl(imageUrl, resolutionMultiplier * .8, 50),
       _getTransformedUrl(imageUrl, resolutionMultiplier, 80),
     ];
@@ -60,17 +61,22 @@ class PicnicCachedNetworkImage extends StatelessWidget {
   }
 
   Widget _buildCachedNetworkImage(String url, double? width, double? height) {
-    return CachedNetworkImage(
-      key: ValueKey(url),
-      imageUrl: url,
-      width: width,
-      height: height,
-      fit: fit,
-      memCacheWidth: memCacheWidth,
-      memCacheHeight: memCacheHeight,
-      errorWidget: (context, url, error) => const SizedBox.shrink(),
-      imageBuilder: imageBuilder,
-    );
+    try {
+      return CachedNetworkImage(
+        key: ValueKey(url),
+        imageUrl: url,
+        width: width,
+        height: height,
+        fit: fit,
+        memCacheWidth: memCacheWidth,
+        memCacheHeight: memCacheHeight,
+        errorWidget: (context, url, error) => const SizedBox.shrink(),
+        imageBuilder: imageBuilder,
+      );
+    } catch (e, s) {
+      logger.e('이미지 로딩 중 오류 발생:', error: e, stackTrace: s);
+      return const SizedBox.shrink();
+    }
   }
 
   @override
