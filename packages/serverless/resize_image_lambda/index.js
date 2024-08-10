@@ -34,10 +34,6 @@ exports.handler = async (event) => {
   const bucket = "picnic-prod-cdn";
   const originalKey = uri.startsWith('/') ? uri.slice(1) : uri;
   const parsedPath = path.parse(originalKey);
-  const transformedKey = `cache/${parsedPath.dir}/${parsedPath.name}_w${width || 'auto'}_h${height || 'auto'}_f${format || 'original'}_q${quality}${parsedPath.ext}`;
-
-  console.log('Original Key:', originalKey);
-  console.log('Transformed Key:', transformedKey);
 
   try {
     console.log('Fetching original image');
@@ -73,27 +69,55 @@ exports.handler = async (event) => {
     }
 
     const metadata = await processedImage.metadata();
-    const outputFormat = format || metadata.format;
+    let outputFormat = format || metadata.format;
+    let transformedKey;
 
-    if (outputFormat === 'jpeg' || outputFormat === 'webp' || outputFormat === 'png') {
-      processedImage = processedImage[outputFormat]({ quality });
-    } else if (outputFormat === 'gif') {
-      processedImage = processedImage.gif();
-    } else {
-      // For unsupported formats, default to JPEG
-      processedImage = processedImage.jpeg({ quality });
+    try {
+      if (outputFormat === 'jpeg' || outputFormat === 'webp' || outputFormat === 'png') {
+        processedImage = processedImage[outputFormat]({ quality });
+      } else if (outputFormat === 'gif') {
+        processedImage = processedImage.gif();
+      } else {
+        // For unsupported formats, use the original format
+        processedImage = processedImage.toFormat(metadata.format);
+        outputFormat = metadata.format;
+      }
+
+      console.log('Generating buffer from processed image');
+      const resizedImageBuffer = await processedImage.toBuffer();
+
+      transformedKey = `cache/${parsedPath.dir}/${parsedPath.name}_w${width || 'auto'}_h${height || 'auto'}_f${outputFormat}_q${quality}.${outputFormat}`;
+
+      console.log('Uploading processed image to S3');
+      await s3Client.send(new PutObjectCommand({
+        Bucket: bucket,
+        Key: transformedKey,
+        Body: resizedImageBuffer,
+        ContentType: `image/${outputFormat}`
+      }));
+    } catch (conversionError) {
+      console.error("Error during image conversion:", conversionError);
+      console.log("Falling back to original format with size adjustment");
+
+      // Fallback to original format with size adjustment
+      processedImage = sharp(await originalImage.Body.transformToByteArray())
+        .resize(width, height, {
+          fit: "inside",
+          withoutEnlargement: true
+        });
+
+      const resizedImageBuffer = await processedImage.toBuffer();
+
+      outputFormat = metadata.format;
+      transformedKey = `cache/${parsedPath.dir}/${parsedPath.name}_w${width || 'auto'}_h${height || 'auto'}_f${outputFormat}.${outputFormat}`;
+
+      await s3Client.send(new PutObjectCommand({
+        Bucket: bucket,
+        Key: transformedKey,
+        Body: resizedImageBuffer,
+        ContentType: `image/${outputFormat}`
+      }));
     }
-
-    console.log('Generating buffer from processed image');
-    const resizedImageBuffer = await processedImage.toBuffer();
-
-    console.log('Uploading processed image to S3');
-    await s3Client.send(new PutObjectCommand({
-      Bucket: bucket,
-      Key: transformedKey,
-      Body: resizedImageBuffer,
-      ContentType: `image/${outputFormat}`
-    }));
 
     console.log('Redirecting to processed image');
     response.status = "302";
