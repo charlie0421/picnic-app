@@ -22,7 +22,7 @@ class VoteCardInfoHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(mainAxisSize: MainAxisSize.min, children: [
       SizedBox(
-          height: 32,
+          height: 42,
           child: Stack(children: [
             Container(
               alignment: Alignment.center,
@@ -43,10 +43,15 @@ class VoteCardInfoHeader extends StatelessWidget {
                   child: GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onTap: onRefresh,
-                      child: SvgPicture.asset(
-                        'assets/icons/reset_style=line.svg',
-                        width: 20,
-                        height: 20,
+                      child: Container(
+                        width: 42,
+                        height: 42,
+                        padding: const EdgeInsets.all(10),
+                        child: SvgPicture.asset(
+                          'assets/icons/reset_style=line.svg',
+                          width: 20,
+                          height: 20,
+                        ),
                       )))
           ])),
       CountdownTimer(
