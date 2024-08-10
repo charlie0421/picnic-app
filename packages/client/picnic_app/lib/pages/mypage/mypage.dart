@@ -8,6 +8,7 @@ import 'package:picnic_app/components/star_candy_info_text.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/pages/mypage/myprofile.dart';
 import 'package:picnic_app/pages/mypage/setting_page.dart';
 import 'package:picnic_app/pages/mypage/vote_artist_page.dart';
@@ -36,80 +37,89 @@ class _MyPageState extends ConsumerState<MyPage> {
   @override
   Widget build(BuildContext context) {
     final userInfoState = ref.watch(userInfoProvider);
+    ref.listen(userInfoProvider, (previous, state) {
+      if (state is AsyncData<UserProfilesModel?>) {
+        ref
+            .read(asyncBookmarkedArtistsProvider.notifier)
+            .refreshBookmarkedArtists();
+      }
+    });
 
     return userInfoState.when(
-        data: (data) => Scaffold(
-              body: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: ListView(
-                  children: [
-                    const SizedBox(height: 24),
-                    // 프로필
-                    data != null ? _buildProfile() : _buildNonLogin(),
-                    // 캔디 정보
-                    supabase.isLogged
-                        ? const Align(
-                            alignment: Alignment.centerLeft,
-                            child: StarCandyInfoText(
-                                alignment: MainAxisAlignment.start))
-                        : const SizedBox(height: 16),
+        data: (data) {
+          return Scaffold(
+            body: Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: ListView(
+                children: [
+                  const SizedBox(height: 24),
+                  // 프로필
+                  data != null ? _buildProfile() : _buildNonLogin(),
+                  // 캔디 정보
+                  supabase.isLogged
+                      ? const Align(
+                          alignment: Alignment.centerLeft,
+                          child: StarCandyInfoText(
+                              alignment: MainAxisAlignment.start))
+                      : const SizedBox(height: 16),
 
-                    const Divider(color: AppColors.Grey200),
-                    // 공지사항
-                    if (data != null && data.is_admin)
-                      ListItem(
-                          leading: S.of(context).label_mypage_notice,
-                          assetPath: 'assets/icons/arrow_right_style=line.svg',
-                          onTap: () {}),
-                    if (data != null && data.is_admin)
-                      const Divider(color: AppColors.Grey200),
-                    // 충전내역
-                    if (data != null && data.is_admin)
-                      ListItem(
-                          leading: S.of(context).label_mypage_charge_history,
-                          assetPath: 'assets/icons/arrow_right_style=line.svg',
-                          onTap: () {}),
-                    if (data != null && data.is_admin)
-                      const Divider(color: AppColors.Grey200),
-                    // 고객센터
+                  const Divider(color: AppColors.Grey200),
+                  // 공지사항
+                  if (data != null && data.is_admin)
                     ListItem(
-                        leading: S.of(context).label_mypage_customer_center,
+                        leading: S.of(context).label_mypage_notice,
                         assetPath: 'assets/icons/arrow_right_style=line.svg',
-                        onTap: () {
-                          _launchURL('https://forms.gle/VPfgdt2JSMyBisps5');
-                        }),
+                        onTap: () {}),
+                  if (data != null && data.is_admin)
                     const Divider(color: AppColors.Grey200),
-                    // 설정
+                  // 충전내역
+                  if (data != null && data.is_admin)
                     ListItem(
-                        leading: S.of(context).label_mypage_setting,
+                        leading: S.of(context).label_mypage_charge_history,
                         assetPath: 'assets/icons/arrow_right_style=line.svg',
-                        onTap: () => ref
-                            .read(navigationInfoProvider.notifier)
-                            .setCurrentMyPage(const SettingPage())),
+                        onTap: () {}),
+                  if (data != null && data.is_admin)
                     const Divider(color: AppColors.Grey200),
-                    // 나의 아티스트
-                    _buildMyStar('VOTE'),
-                    const Divider(color: AppColors.Grey200),
-                    // 투표내역
-                    ListItem(
-                        leading: S.of(context).label_mypage_vote_history,
-                        assetPath: 'assets/icons/arrow_right_style=line.svg',
-                        onTap: () => data != null
-                            ? ref
-                                .read(navigationInfoProvider.notifier)
-                                .setCurrentMyPage(const VoteHistoryPage())
-                            : showRequireLoginDialog(context: context)),
-                    const Divider(color: AppColors.Grey200),
-                    // _buildMyStar('PIC'),
-                    // const Divider(color: AppColors.Grey200),
-                    // ListItem(
-                    //     leading: S.of(context).label_mypage_membership_history,
-                    //     assetPath: 'assets/icons/arrow_right_style=line.svg',
-                    //     onTap: () {}),
-                  ],
-                ),
+                  // 고객센터
+                  ListItem(
+                      leading: S.of(context).label_mypage_customer_center,
+                      assetPath: 'assets/icons/arrow_right_style=line.svg',
+                      onTap: () {
+                        _launchURL('https://forms.gle/VPfgdt2JSMyBisps5');
+                      }),
+                  const Divider(color: AppColors.Grey200),
+                  // 설정
+                  ListItem(
+                      leading: S.of(context).label_mypage_setting,
+                      assetPath: 'assets/icons/arrow_right_style=line.svg',
+                      onTap: () => ref
+                          .read(navigationInfoProvider.notifier)
+                          .setCurrentMyPage(const SettingPage())),
+                  const Divider(color: AppColors.Grey200),
+                  // 나의 아티스트
+                  _buildMyStar('VOTE'),
+                  const Divider(color: AppColors.Grey200),
+                  // 투표내역
+                  ListItem(
+                      leading: S.of(context).label_mypage_vote_history,
+                      assetPath: 'assets/icons/arrow_right_style=line.svg',
+                      onTap: () => data != null
+                          ? ref
+                              .read(navigationInfoProvider.notifier)
+                              .setCurrentMyPage(const VoteHistoryPage())
+                          : showRequireLoginDialog(context: context)),
+                  const Divider(color: AppColors.Grey200),
+                  // _buildMyStar('PIC'),
+                  // const Divider(color: AppColors.Grey200),
+                  // ListItem(
+                  //     leading: S.of(context).label_mypage_membership_history,
+                  //     assetPath: 'assets/icons/arrow_right_style=line.svg',
+                  //     onTap: () {}),
+                ],
               ),
             ),
+          );
+        },
         loading: () => buildLoadingOverlay(),
         error: (error, stackTrace) => Container());
   }
@@ -204,9 +214,13 @@ class _MyPageState extends ConsumerState<MyPage> {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        ref
-            .read(navigationInfoProvider.notifier)
-            .setCurrentMyPage(const VoteArtistPage());
+        if (!supabase.isLogged) {
+          showRequireLoginDialog(context: context);
+        } else {
+          ref
+              .read(navigationInfoProvider.notifier)
+              .setCurrentMyPage(const VoteArtistPage());
+        }
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,42 +250,49 @@ class _MyPageState extends ConsumerState<MyPage> {
             ),
           ),
           const SizedBox(height: 16),
-          SizedBox(
-            height: 80,
-            child: bookmarkedArtists.when(
-              data: (artists) {
-                logger.d('북마크된 아티스트: $artists');
-                if (artists.isEmpty) {
-                  return Container(
-                    alignment: Alignment.center,
-                    child: Text(S.of(context).label_mypage_no_artist,
-                        style: getTextStyle(
-                            AppTypo.TITLE18B, AppColors.Primary500)),
-                  );
-                }
-                return ListView.separated(
-                  itemCount: artists.length,
-                  scrollDirection: Axis.horizontal,
-                  itemBuilder: (context, index) => Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      ProfileImageContainer(
-                        avatarUrl: artists[index].image,
-                        width: 60,
-                        height: 60,
-                        borderRadius: 60,
-                      ),
-                    ],
+          supabase.isLogged
+              ? SizedBox(
+                  height: 80,
+                  child: bookmarkedArtists.when(
+                    data: (artists) {
+                      logger.d('북마크된 아티스트: $artists');
+                      if (artists.isEmpty) {
+                        return Container(
+                          alignment: Alignment.center,
+                          child: Text(S.of(context).label_mypage_no_artist,
+                              style: getTextStyle(
+                                  AppTypo.TITLE18B, AppColors.Primary500)),
+                        );
+                      }
+                      return ListView.separated(
+                        itemCount: artists.length,
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (context, index) => Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            ProfileImageContainer(
+                              avatarUrl: artists[index].image,
+                              width: 60,
+                              height: 60,
+                              borderRadius: 60,
+                            ),
+                          ],
+                        ),
+                        separatorBuilder: (BuildContext context, int index) {
+                          return SizedBox(width: 14.w);
+                        },
+                      );
+                    },
+                    loading: () => _buildShimmer(),
+                    error: (error, stack) => Text('Error: $error'),
                   ),
-                  separatorBuilder: (BuildContext context, int index) {
-                    return SizedBox(width: 14.w);
-                  },
-                );
-              },
-              loading: () => _buildShimmer(),
-              error: (error, stack) => Text('Error: $error'),
-            ),
-          ),
+                )
+              : Container(
+                  alignment: Alignment.center,
+                  child: Text(S.of(context).label_mypage_should_login,
+                      style:
+                          getTextStyle(AppTypo.TITLE18B, AppColors.Primary500)),
+                ),
           const SizedBox(height: 16),
         ],
       ),
