@@ -189,8 +189,22 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
           const SizedBox(height: 2),
           GestureDetector(
             onTap: () => showUsagePolicyDialog(context, ref),
-            child: Text(S.of(context).candy_usage_policy_guide,
-                style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600)),
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: S.of(context).candy_usage_policy_guide,
+                    style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600),
+                  ),
+                  const TextSpan(text: ' '),
+                  TextSpan(
+                    text: S.of(context).candy_usage_policy_guide_button,
+                    style: getTextStyle(AppTypo.CAPTION12B, AppColors.Grey600)
+                        .copyWith(decoration: TextDecoration.underline),
+                  ),
+                ],
+              ),
+            ),
           ),
           const SizedBox(height: 36),
         ],
