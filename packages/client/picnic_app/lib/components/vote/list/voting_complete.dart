@@ -325,20 +325,25 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                             Expanded(
                               flex: 1,
                               child: SizedBox(
-                                width: 120.w,
+                                width: 120,
                                 height: 140,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(64.r),
-                                      child: PicnicCachedNetworkImage(
-                                        imageUrl:
-                                            widget.voteItemModel.artist.image ??
-                                                '',
-                                        width: 56,
-                                        height: 56,
+                                    SizedBox(
+                                      width: 60,
+                                      height: 60,
+                                      child: ClipRRect(
+                                        borderRadius:
+                                            BorderRadius.circular(60.r),
+                                        child: PicnicCachedNetworkImage(
+                                          imageUrl: widget
+                                                  .voteItemModel.artist.image ??
+                                              '',
+                                          width: 60,
+                                          height: 60,
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(height: 8),
