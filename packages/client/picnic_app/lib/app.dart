@@ -33,6 +33,7 @@ import 'package:picnic_app/ui/vote_theme.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:picnic_app/util/update_checker.dart';
 import 'package:screen_protector/screen_protector.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -68,13 +69,23 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
       ref.read(storeProductsProvider);
     });
 
-    supabase.auth.onAuthStateChange.listen((data) {
+    supabase.auth.onAuthStateChange.listen((data) async {
       FirebaseCrashlytics.instance.log('Auth state changed: ${data.event}');
       logger.i('Auth state changed: ${data.event}');
       logger.i('User: ${data.session}');
       final session = data.session;
       if (session != null) {
         logger.d('jwtToken: ${session.accessToken}');
+      }
+
+      if (data.event == AuthChangeEvent.signedIn) {
+        logger.e('User signed in');
+        await ref.read(userInfoProvider.notifier).getUserProfiles();
+        ref.read(userInfoProvider.notifier).subscribeToUserProfiles();
+      } else if (data.event == AuthChangeEvent.signedOut) {
+        logger.e('User signed out');
+        ref.read(userInfoProvider.notifier).state = AsyncValue.data(null);
+        ref.read(userInfoProvider.notifier).unsubscribeFromUserProfiles();
       }
     });
 
@@ -148,7 +159,7 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
           ],
           supportedLocales: S.delegate.supportedLocales,
           routes: {
-            Portal.routeName: (context) => const Portal(),
+            Portal.routeName: (context) => Portal(),
             SignUpScreen.routeName: (context) => const SignUpScreen(),
             '/pic-camera': (context) => const PicCameraScreen(),
             TermsScreen.routeName: (context) => const TermsScreen(),
@@ -158,7 +169,7 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
           builder: (context, child) =>
               UpdateDialog(child: child ?? const SizedBox.shrink()),
           home: UniversalPlatform.isWeb
-              ? initScreen ?? const Portal()
+              ? initScreen ?? Portal()
               : FlutterSplashScreen.fadeIn(
                   useImmersiveMode: true,
                   duration: const Duration(milliseconds: 3000),
@@ -168,7 +179,7 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
                     height: getPlatformScreenSize(context).height,
                     child: Image.asset("assets/splash.png", fit: BoxFit.cover),
                   ),
-                  nextScreen: initScreen ?? const Portal(),
+                  nextScreen: initScreen ?? Portal(),
                 ),
         ),
       ),

@@ -6,7 +6,7 @@ part of 'user_info_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$setAgreementHash() => r'9237251080c74c8c023203ad0e53880532b69695';
+String _$setAgreementHash() => r'1830ce60a0568fbde5a3b160fbed0df53086dd82';
 
 /// See also [setAgreement].
 @ProviderFor(setAgreement)
@@ -20,7 +20,7 @@ final setAgreementProvider = AutoDisposeFutureProvider<bool>.internal(
 );
 
 typedef SetAgreementRef = AutoDisposeFutureProviderRef<bool>;
-String _$agreementHash() => r'21aab497013794ba4b374292ca2446925716c060';
+String _$agreementHash() => r'19af065f4378c3658f01d542e6202e2dd42d30a1';
 
 /// See also [agreement].
 @ProviderFor(agreement)
@@ -34,7 +34,7 @@ final agreementProvider = AutoDisposeFutureProvider<bool>.internal(
 );
 
 typedef AgreementRef = AutoDisposeFutureProviderRef<bool>;
-String _$expireBonusHash() => r'537d57703fc1091cb63d2399b34fa58322593b8a';
+String _$expireBonusHash() => r'55d89df2885e598725951f82fcc3678509a64bfa';
 
 /// See also [expireBonus].
 @ProviderFor(expireBonus)
@@ -48,7 +48,7 @@ final expireBonusProvider = AutoDisposeFutureProvider<int>.internal(
 );
 
 typedef ExpireBonusRef = AutoDisposeFutureProviderRef<int>;
-String _$userInfoHash() => r'ab4a73b074dd02cec029c02e4f47892f31577d99';
+String _$userInfoHash() => r'6571327ab1a815889dd8a1f5a33988665249f9c9';
 
 /// See also [UserInfo].
 @ProviderFor(UserInfo)

@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/reflector.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'user_profiles.freezed.dart';
 part 'user_profiles.g.dart';
@@ -30,6 +31,7 @@ class UserProfilesModel with _$UserProfilesModel {
     required bool is_admin,
     required int star_candy,
     required int star_candy_bonus,
+    @JsonKey(includeFromJson: false) RealtimeChannel? realtime_channel,
   }) = _UserProfilesModel;
 
   factory UserProfilesModel.fromJson(Map<String, dynamic> json) =>

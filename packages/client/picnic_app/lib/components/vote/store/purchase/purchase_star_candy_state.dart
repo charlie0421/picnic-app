@@ -12,6 +12,7 @@ import 'package:picnic_app/components/vote/store/purchase/purchase_star_candy.da
 import 'package:picnic_app/components/vote/store/purchase/receipt_verification_service.dart';
 import 'package:picnic_app/components/vote/store/store_list_tile.dart';
 import 'package:picnic_app/components/vote/store/usagePolicyDialog.dart';
+import 'package:picnic_app/config/config_service.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
@@ -110,7 +111,19 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
       );
       await _analyticsService.logPurchaseEvent(productDetails);
 
-      await ref.read(userInfoProvider.notifier).getUserProfiles();
+      // 실시간 프로필 업데이트 설정 확인
+      final configService = ref.read(configServiceProvider);
+      final useRealtimeProfile =
+          await configService.getConfig('USE_REALTIME_PROFILE') == 'true';
+
+      if (!useRealtimeProfile) {
+        // 실시간 업데이트가 비활성화된 경우에만 수동으로 프로필 업데이트
+        await ref.read(userInfoProvider.notifier).getUserProfiles();
+      } else {
+        logger.i(
+            'Realtime profile update is enabled. Skipping manual update after purchase.');
+      }
+
       if (mounted) {
         await _showSuccessDialog();
       }
