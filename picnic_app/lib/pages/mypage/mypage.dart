@@ -5,7 +5,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
 import 'package:picnic_app/components/star_candy_info_text.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/user_profiles.dart';
@@ -255,7 +254,6 @@ class _MyPageState extends ConsumerState<MyPage> {
                   height: 80,
                   child: bookmarkedArtists.when(
                     data: (artists) {
-                      logger.d('북마크된 아티스트: $artists');
                       if (artists.isEmpty) {
                         return Container(
                           alignment: Alignment.center,

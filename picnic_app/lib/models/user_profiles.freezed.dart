@@ -29,6 +29,8 @@ mixin _$UserProfilesModel {
   bool get is_admin => throw _privateConstructorUsedError;
   int get star_candy => throw _privateConstructorUsedError;
   int get star_candy_bonus => throw _privateConstructorUsedError;
+  @JsonKey(includeFromJson: false)
+  RealtimeChannel? get realtime_channel => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -51,7 +53,8 @@ abstract class $UserProfilesModelCopyWith<$Res> {
       UserAgreement? user_agreement,
       bool is_admin,
       int star_candy,
-      int star_candy_bonus});
+      int star_candy_bonus,
+      @JsonKey(includeFromJson: false) RealtimeChannel? realtime_channel});
 
   $UserAgreementCopyWith<$Res>? get user_agreement;
 }
@@ -78,6 +81,7 @@ class _$UserProfilesModelCopyWithImpl<$Res, $Val extends UserProfilesModel>
     Object? is_admin = null,
     Object? star_candy = null,
     Object? star_candy_bonus = null,
+    Object? realtime_channel = freezed,
   }) {
     return _then(_value.copyWith(
       id: freezed == id
@@ -116,6 +120,10 @@ class _$UserProfilesModelCopyWithImpl<$Res, $Val extends UserProfilesModel>
           ? _value.star_candy_bonus
           : star_candy_bonus // ignore: cast_nullable_to_non_nullable
               as int,
+      realtime_channel: freezed == realtime_channel
+          ? _value.realtime_channel
+          : realtime_channel // ignore: cast_nullable_to_non_nullable
+              as RealtimeChannel?,
     ) as $Val);
   }
 
@@ -149,7 +157,8 @@ abstract class _$$UserProfilesModelImplCopyWith<$Res>
       UserAgreement? user_agreement,
       bool is_admin,
       int star_candy,
-      int star_candy_bonus});
+      int star_candy_bonus,
+      @JsonKey(includeFromJson: false) RealtimeChannel? realtime_channel});
 
   @override
   $UserAgreementCopyWith<$Res>? get user_agreement;
@@ -175,6 +184,7 @@ class __$$UserProfilesModelImplCopyWithImpl<$Res>
     Object? is_admin = null,
     Object? star_candy = null,
     Object? star_candy_bonus = null,
+    Object? realtime_channel = freezed,
   }) {
     return _then(_$UserProfilesModelImpl(
       id: freezed == id
@@ -213,6 +223,10 @@ class __$$UserProfilesModelImplCopyWithImpl<$Res>
           ? _value.star_candy_bonus
           : star_candy_bonus // ignore: cast_nullable_to_non_nullable
               as int,
+      realtime_channel: freezed == realtime_channel
+          ? _value.realtime_channel
+          : realtime_channel // ignore: cast_nullable_to_non_nullable
+              as RealtimeChannel?,
     ));
   }
 }
@@ -229,7 +243,8 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
       this.user_agreement,
       required this.is_admin,
       required this.star_candy,
-      required this.star_candy_bonus})
+      required this.star_candy_bonus,
+      @JsonKey(includeFromJson: false) this.realtime_channel})
       : super._();
 
   factory _$UserProfilesModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -253,10 +268,13 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
   final int star_candy;
   @override
   final int star_candy_bonus;
+  @override
+  @JsonKey(includeFromJson: false)
+  final RealtimeChannel? realtime_channel;
 
   @override
   String toString() {
-    return 'UserProfilesModel(id: $id, nickname: $nickname, avatar_url: $avatar_url, country_code: $country_code, deleted_at: $deleted_at, user_agreement: $user_agreement, is_admin: $is_admin, star_candy: $star_candy, star_candy_bonus: $star_candy_bonus)';
+    return 'UserProfilesModel(id: $id, nickname: $nickname, avatar_url: $avatar_url, country_code: $country_code, deleted_at: $deleted_at, user_agreement: $user_agreement, is_admin: $is_admin, star_candy: $star_candy, star_candy_bonus: $star_candy_bonus, realtime_channel: $realtime_channel)';
   }
 
   @override
@@ -280,7 +298,9 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
             (identical(other.star_candy, star_candy) ||
                 other.star_candy == star_candy) &&
             (identical(other.star_candy_bonus, star_candy_bonus) ||
-                other.star_candy_bonus == star_candy_bonus));
+                other.star_candy_bonus == star_candy_bonus) &&
+            (identical(other.realtime_channel, realtime_channel) ||
+                other.realtime_channel == realtime_channel));
   }
 
   @JsonKey(ignore: true)
@@ -295,7 +315,8 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
       user_agreement,
       is_admin,
       star_candy,
-      star_candy_bonus);
+      star_candy_bonus,
+      realtime_channel);
 
   @JsonKey(ignore: true)
   @override
@@ -322,7 +343,9 @@ abstract class _UserProfilesModel extends UserProfilesModel {
       final UserAgreement? user_agreement,
       required final bool is_admin,
       required final int star_candy,
-      required final int star_candy_bonus}) = _$UserProfilesModelImpl;
+      required final int star_candy_bonus,
+      @JsonKey(includeFromJson: false)
+      final RealtimeChannel? realtime_channel}) = _$UserProfilesModelImpl;
   const _UserProfilesModel._() : super._();
 
   factory _UserProfilesModel.fromJson(Map<String, dynamic> json) =
@@ -346,6 +369,9 @@ abstract class _UserProfilesModel extends UserProfilesModel {
   int get star_candy;
   @override
   int get star_candy_bonus;
+  @override
+  @JsonKey(includeFromJson: false)
+  RealtimeChannel? get realtime_channel;
   @override
   @JsonKey(ignore: true)
   _$$UserProfilesModelImplCopyWith<_$UserProfilesModelImpl> get copyWith =>
