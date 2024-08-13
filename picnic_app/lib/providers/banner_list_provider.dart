@@ -17,6 +17,7 @@ class AsyncBannerList extends _$AsyncBannerList {
         .select()
         .eq('location', location)
         // .lt('start_at', DateTime.now().toUtc())
+        .order('order', ascending: true)
         .order('start_at', ascending: false);
 
     List<BannerModel> bannerList =

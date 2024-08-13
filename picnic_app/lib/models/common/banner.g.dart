@@ -11,6 +11,7 @@ _$BannerModelImpl _$$BannerModelImplFromJson(Map<String, dynamic> json) =>
       id: (json['id'] as num).toInt(),
       title: json['title'] as Map<String, dynamic>,
       thumbnail: json['thumbnail'] as String,
+      image: json['image'] as Map<String, dynamic>,
     );
 
 Map<String, dynamic> _$$BannerModelImplToJson(_$BannerModelImpl instance) =>
@@ -18,4 +19,5 @@ Map<String, dynamic> _$$BannerModelImplToJson(_$BannerModelImpl instance) =>
       'id': instance.id,
       'title': instance.title,
       'thumbnail': instance.thumbnail,
+      'image': instance.image,
     };
