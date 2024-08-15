@@ -23,8 +23,12 @@ mixin _$ArticleListModel {
   List<ArticleModel> get items => throw _privateConstructorUsedError;
   MetaModel get meta => throw _privateConstructorUsedError;
 
+  /// Serializes this ArticleListModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of ArticleListModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $ArticleListModelCopyWith<ArticleListModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -50,6 +54,8 @@ class _$ArticleListModelCopyWithImpl<$Res, $Val extends ArticleListModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of ArticleListModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -68,6 +74,8 @@ class _$ArticleListModelCopyWithImpl<$Res, $Val extends ArticleListModel>
     ) as $Val);
   }
 
+  /// Create a copy of ArticleListModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $MetaModelCopyWith<$Res> get meta {
@@ -99,6 +107,8 @@ class __$$ArticleListModelImplCopyWithImpl<$Res>
       $Res Function(_$ArticleListModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of ArticleListModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -154,12 +164,14 @@ class _$ArticleListModelImpl extends _ArticleListModel {
             (identical(other.meta, meta) || other.meta == meta));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType, const DeepCollectionEquality().hash(_items), meta);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of ArticleListModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$ArticleListModelImplCopyWith<_$ArticleListModelImpl> get copyWith =>
@@ -187,8 +199,11 @@ abstract class _ArticleListModel extends ArticleListModel {
   List<ArticleModel> get items;
   @override
   MetaModel get meta;
+
+  /// Create a copy of ArticleListModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$ArticleListModelImplCopyWith<_$ArticleListModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -211,8 +226,12 @@ mixin _$ArticleModel {
   CommentModel? get comment => throw _privateConstructorUsedError;
   CommentModel? get most_liked_comment => throw _privateConstructorUsedError;
 
+  /// Serializes this ArticleModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of ArticleModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $ArticleModelCopyWith<ArticleModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -250,6 +269,8 @@ class _$ArticleModelCopyWithImpl<$Res, $Val extends ArticleModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of ArticleModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -308,6 +329,8 @@ class _$ArticleModelCopyWithImpl<$Res, $Val extends ArticleModel>
     ) as $Val);
   }
 
+  /// Create a copy of ArticleModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $GalleryModelCopyWith<$Res>? get gallery {
@@ -320,6 +343,8 @@ class _$ArticleModelCopyWithImpl<$Res, $Val extends ArticleModel>
     });
   }
 
+  /// Create a copy of ArticleModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $CommentModelCopyWith<$Res>? get comment {
@@ -332,6 +357,8 @@ class _$ArticleModelCopyWithImpl<$Res, $Val extends ArticleModel>
     });
   }
 
+  /// Create a copy of ArticleModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $CommentModelCopyWith<$Res>? get most_liked_comment {
@@ -381,6 +408,8 @@ class __$$ArticleModelImplCopyWithImpl<$Res>
       _$ArticleModelImpl _value, $Res Function(_$ArticleModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of ArticleModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -517,7 +546,7 @@ class _$ArticleModelImpl extends _ArticleModel {
                 other.most_liked_comment == most_liked_comment));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -532,7 +561,9 @@ class _$ArticleModelImpl extends _ArticleModel {
       comment,
       most_liked_comment);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of ArticleModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$ArticleModelImplCopyWith<_$ArticleModelImpl> get copyWith =>
@@ -583,8 +614,11 @@ abstract class _ArticleModel extends ArticleModel {
   CommentModel? get comment;
   @override
   CommentModel? get most_liked_comment;
+
+  /// Create a copy of ArticleModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$ArticleModelImplCopyWith<_$ArticleModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

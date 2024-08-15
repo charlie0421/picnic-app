@@ -24,9 +24,11 @@
   "@button_pic_pic_save": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "candy_disappear_next_month": "下个月消失的星星糖果😢",
-  "@candy_disappear_next_month": {},
-  "candy_usage_policy_contents": "您可以无限量地消费购买的 \"星糖\"，但奖励的 \"星糖 \"将在获得 \"星糖 \"当月的下一个月 15 日大量过期。",
+  "candy_disappear_next_month": "过期的奖励星星糖果 😢",
+  "@candy_disappear_next_month": {
+    "manualTranslationKey": true
+  },
+  "candy_usage_policy_contents": "当月获得的奖励星糖将于下月 15 日失效。",
   "@candy_usage_policy_contents": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
@@ -307,7 +309,7 @@
   "@label_mypage_privacy_policy": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_mypage_setting": "设置",
+  "label_mypage_setting": "Settings",
   "@label_mypage_setting": {
     "manualTranslationKey": true,
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -458,15 +460,15 @@
   "@label_tabbar_vote_upcoming": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_time_ago_day": "{天}前",
+  "label_time_ago_day": "{day} 天前",
   "@label_time_ago_day": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_time_ago_hour": "{小时}前",
+  "label_time_ago_hour": "{hour} 小时前",
   "@label_time_ago_hour": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_time_ago_minute": "{分钟}前",
+  "label_time_ago_minute": "{minute}分钟前",
   "@label_time_ago_minute": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
@@ -688,6 +690,10 @@
   "@text_bonus": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "text_bookmark_failed": "取消书签失败",
+  "@text_bookmark_failed": {},
+  "text_bookmark_over_5": "您最多可以拥有五个书签",
+  "@text_bookmark_over_5": {},
   "text_comming_soon_pic_chart1": "欢迎访问 Pik Charts！\n2024 年 8 月再见！",
   "@text_comming_soon_pic_chart1": {
     "manualTranslationKey": true,
@@ -740,6 +746,8 @@
   "@text_need_recharge": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "text_no_artist": "没有艺术家",
+  "@text_no_artist": {},
   "text_no_search_result": "没有搜索结果。",
   "@text_no_search_result": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -752,7 +760,7 @@
   "@text_star_candy": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "text_star_candy_with_bonus": "{数字1} +{ 数字1}奖金",
+  "text_star_candy_with_bonus": "{num1}+{num1}奖金",
   "@text_star_candy_with_bonus": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
@@ -795,16 +803,10 @@
   },
   "update_button": "更新",
   "@update_button": {},
-  "update_recommend_text": "新版本 ({version}) 已发布。",
+  "update_recommend_text": "新版本（{version}）已发布。",
   "@update_recommend_text": {},
-  "update_required_text": "您需要更新到新版本 ({版本})。",
+  "update_required_text": "您需要更新到新版本 ({version})。",
   "@update_required_text": {},
   "update_required_title": "需要更新。",
-  "@update_required_title": {},
-  "text_bookmark_failed": "取消书签失败",
-  "@text_bookmark_failed": {},
-  "text_bookmark_over_5": "您最多可以拥有五个书签",
-  "@text_bookmark_over_5": {},
-  "text_no_artist": "没有艺术家",
-  "@text_no_artist": {}
+  "@update_required_title": {}
 }

@@ -28,8 +28,12 @@ mixin _$PurchaseProduct {
   @ProductDetailsConverter()
   ProductDetails? get productDetails => throw _privateConstructorUsedError;
 
+  /// Serializes this PurchaseProduct to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of PurchaseProduct
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $PurchaseProductCopyWith<PurchaseProduct> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -59,6 +63,8 @@ class _$PurchaseProductCopyWithImpl<$Res, $Val extends PurchaseProduct>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of PurchaseProduct
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -123,6 +129,8 @@ class __$$PurchaseProductImplCopyWithImpl<$Res>
       _$PurchaseProductImpl _value, $Res Function(_$PurchaseProductImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of PurchaseProduct
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -212,12 +220,14 @@ class _$PurchaseProductImpl extends _PurchaseProduct {
                 other.productDetails == productDetails));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, title, price, star_candy,
       bonus_star_candy, productDetails);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of PurchaseProduct
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$PurchaseProductImplCopyWith<_$PurchaseProductImpl> get copyWith =>
@@ -259,8 +269,11 @@ abstract class _PurchaseProduct extends PurchaseProduct {
   @override
   @ProductDetailsConverter()
   ProductDetails? get productDetails;
+
+  /// Create a copy of PurchaseProduct
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$PurchaseProductImplCopyWith<_$PurchaseProductImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

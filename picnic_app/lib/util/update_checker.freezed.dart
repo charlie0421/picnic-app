@@ -22,7 +22,9 @@ mixin _$UpdateInfo {
   String get forceVersion => throw _privateConstructorUsedError;
   String? get url => throw _privateConstructorUsedError;
 
-  @JsonKey(ignore: true)
+  /// Create a copy of UpdateInfo
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $UpdateInfoCopyWith<UpdateInfo> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -51,6 +53,8 @@ class _$UpdateInfoCopyWithImpl<$Res, $Val extends UpdateInfo>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of UpdateInfo
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -109,6 +113,8 @@ class __$$UpdateInfoImplCopyWithImpl<$Res>
       _$UpdateInfoImpl _value, $Res Function(_$UpdateInfoImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of UpdateInfo
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -189,7 +195,9 @@ class _$UpdateInfoImpl extends _UpdateInfo {
   int get hashCode => Object.hash(
       runtimeType, status, currentVersion, latestVersion, forceVersion, url);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of UpdateInfo
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$UpdateInfoImplCopyWith<_$UpdateInfoImpl> get copyWith =>
@@ -215,8 +223,11 @@ abstract class _UpdateInfo extends UpdateInfo {
   String get forceVersion;
   @override
   String? get url;
+
+  /// Create a copy of UpdateInfo
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$UpdateInfoImplCopyWith<_$UpdateInfoImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

@@ -23,8 +23,12 @@ mixin _$VotePickListModel {
   List<VotePickModel> get items => throw _privateConstructorUsedError;
   MetaModel get meta => throw _privateConstructorUsedError;
 
+  /// Serializes this VotePickListModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of VotePickListModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $VotePickListModelCopyWith<VotePickListModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -50,6 +54,8 @@ class _$VotePickListModelCopyWithImpl<$Res, $Val extends VotePickListModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of VotePickListModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -68,6 +74,8 @@ class _$VotePickListModelCopyWithImpl<$Res, $Val extends VotePickListModel>
     ) as $Val);
   }
 
+  /// Create a copy of VotePickListModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $MetaModelCopyWith<$Res> get meta {
@@ -99,6 +107,8 @@ class __$$VotePickListModelImplCopyWithImpl<$Res>
       $Res Function(_$VotePickListModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of VotePickListModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -154,12 +164,14 @@ class _$VotePickListModelImpl extends _VotePickListModel {
             (identical(other.meta, meta) || other.meta == meta));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType, const DeepCollectionEquality().hash(_items), meta);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of VotePickListModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$VotePickListModelImplCopyWith<_$VotePickListModelImpl> get copyWith =>
@@ -187,8 +199,11 @@ abstract class _VotePickListModel extends VotePickListModel {
   List<VotePickModel> get items;
   @override
   MetaModel get meta;
+
+  /// Create a copy of VotePickListModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$VotePickListModelImplCopyWith<_$VotePickListModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -206,8 +221,12 @@ mixin _$VotePickModel {
   DateTime get created_at => throw _privateConstructorUsedError;
   DateTime get updated_at => throw _privateConstructorUsedError;
 
+  /// Serializes this VotePickModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of VotePickModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $VotePickModelCopyWith<VotePickModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -240,6 +259,8 @@ class _$VotePickModelCopyWithImpl<$Res, $Val extends VotePickModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of VotePickModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -278,6 +299,8 @@ class _$VotePickModelCopyWithImpl<$Res, $Val extends VotePickModel>
     ) as $Val);
   }
 
+  /// Create a copy of VotePickModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $VoteModelCopyWith<$Res> get vote {
@@ -286,6 +309,8 @@ class _$VotePickModelCopyWithImpl<$Res, $Val extends VotePickModel>
     });
   }
 
+  /// Create a copy of VotePickModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $VoteItemModelCopyWith<$Res> get vote_item {
@@ -325,6 +350,8 @@ class __$$VotePickModelImplCopyWithImpl<$Res>
       _$VotePickModelImpl _value, $Res Function(_$VotePickModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of VotePickModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -413,12 +440,14 @@ class _$VotePickModelImpl extends _VotePickModel {
                 other.updated_at == updated_at));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType, id, vote, vote_item, amount, created_at, updated_at);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of VotePickModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$VotePickModelImplCopyWith<_$VotePickModelImpl> get copyWith =>
@@ -457,8 +486,11 @@ abstract class _VotePickModel extends VotePickModel {
   DateTime get created_at;
   @override
   DateTime get updated_at;
+
+  /// Create a copy of VotePickModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$VotePickModelImplCopyWith<_$VotePickModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

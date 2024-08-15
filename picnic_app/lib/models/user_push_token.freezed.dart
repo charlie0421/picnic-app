@@ -28,8 +28,12 @@ mixin _$UserPushToken {
   String get token_macos => throw _privateConstructorUsedError;
   String get token_windows => throw _privateConstructorUsedError;
 
+  /// Serializes this UserPushToken to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of UserPushToken
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $UserPushTokenCopyWith<UserPushToken> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -60,6 +64,8 @@ class _$UserPushTokenCopyWithImpl<$Res, $Val extends UserPushToken>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of UserPushToken
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -130,6 +136,8 @@ class __$$UserPushTokenImplCopyWithImpl<$Res>
       _$UserPushTokenImpl _value, $Res Function(_$UserPushTokenImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of UserPushToken
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -229,12 +237,14 @@ class _$UserPushTokenImpl extends _UserPushToken {
                 other.token_windows == token_windows));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, user_id, token_ios,
       token_android, token_web, token_macos, token_windows);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of UserPushToken
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$UserPushTokenImplCopyWith<_$UserPushTokenImpl> get copyWith =>
@@ -276,8 +286,11 @@ abstract class _UserPushToken extends UserPushToken {
   String get token_macos;
   @override
   String get token_windows;
+
+  /// Create a copy of UserPushToken
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$UserPushTokenImplCopyWith<_$UserPushTokenImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

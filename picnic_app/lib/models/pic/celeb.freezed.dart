@@ -23,8 +23,12 @@ mixin _$CelebListModel {
   List<CelebModel> get items => throw _privateConstructorUsedError;
   MetaModel get meta => throw _privateConstructorUsedError;
 
+  /// Serializes this CelebListModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of CelebListModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $CelebListModelCopyWith<CelebListModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -50,6 +54,8 @@ class _$CelebListModelCopyWithImpl<$Res, $Val extends CelebListModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of CelebListModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -68,6 +74,8 @@ class _$CelebListModelCopyWithImpl<$Res, $Val extends CelebListModel>
     ) as $Val);
   }
 
+  /// Create a copy of CelebListModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $MetaModelCopyWith<$Res> get meta {
@@ -99,6 +107,8 @@ class __$$CelebListModelImplCopyWithImpl<$Res>
       _$CelebListModelImpl _value, $Res Function(_$CelebListModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of CelebListModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -154,12 +164,14 @@ class _$CelebListModelImpl extends _CelebListModel {
             (identical(other.meta, meta) || other.meta == meta));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType, const DeepCollectionEquality().hash(_items), meta);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of CelebListModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$CelebListModelImplCopyWith<_$CelebListModelImpl> get copyWith =>
@@ -187,8 +199,11 @@ abstract class _CelebListModel extends CelebListModel {
   List<CelebModel> get items;
   @override
   MetaModel get meta;
+
+  /// Create a copy of CelebListModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$CelebListModelImplCopyWith<_$CelebListModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -205,8 +220,12 @@ mixin _$CelebModel {
   String? get thumbnail => throw _privateConstructorUsedError;
   List<UserProfilesModel>? get users => throw _privateConstructorUsedError;
 
+  /// Serializes this CelebModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of CelebModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $CelebModelCopyWith<CelebModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -235,6 +254,8 @@ class _$CelebModelCopyWithImpl<$Res, $Val extends CelebModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of CelebModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -293,6 +314,8 @@ class __$$CelebModelImplCopyWithImpl<$Res>
       _$CelebModelImpl _value, $Res Function(_$CelebModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of CelebModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -378,12 +401,14 @@ class _$CelebModelImpl extends _CelebModel {
             const DeepCollectionEquality().equals(other._users, _users));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, name_ko, name_en, thumbnail,
       const DeepCollectionEquality().hash(_users));
 
-  @JsonKey(ignore: true)
+  /// Create a copy of CelebModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$CelebModelImplCopyWith<_$CelebModelImpl> get copyWith =>
@@ -419,8 +444,11 @@ abstract class _CelebModel extends CelebModel {
   String? get thumbnail;
   @override
   List<UserProfilesModel>? get users;
+
+  /// Create a copy of CelebModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$CelebModelImplCopyWith<_$CelebModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

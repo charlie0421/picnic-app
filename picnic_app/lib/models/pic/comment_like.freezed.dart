@@ -24,8 +24,12 @@ mixin _$UserCommentLikeListModel {
   List<UserCommentLikeModel> get items => throw _privateConstructorUsedError;
   MetaModel get meta => throw _privateConstructorUsedError;
 
+  /// Serializes this UserCommentLikeListModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of UserCommentLikeListModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $UserCommentLikeListModelCopyWith<UserCommentLikeListModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -52,6 +56,8 @@ class _$UserCommentLikeListModelCopyWithImpl<$Res,
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of UserCommentLikeListModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -70,6 +76,8 @@ class _$UserCommentLikeListModelCopyWithImpl<$Res,
     ) as $Val);
   }
 
+  /// Create a copy of UserCommentLikeListModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $MetaModelCopyWith<$Res> get meta {
@@ -104,6 +112,8 @@ class __$$UserCommentLikeListModelImplCopyWithImpl<$Res>
       $Res Function(_$UserCommentLikeListModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of UserCommentLikeListModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -159,12 +169,14 @@ class _$UserCommentLikeListModelImpl extends _UserCommentLikeListModel {
             (identical(other.meta, meta) || other.meta == meta));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType, const DeepCollectionEquality().hash(_items), meta);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of UserCommentLikeListModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$UserCommentLikeListModelImplCopyWith<_$UserCommentLikeListModelImpl>
@@ -192,8 +204,11 @@ abstract class _UserCommentLikeListModel extends UserCommentLikeListModel {
   List<UserCommentLikeModel> get items;
   @override
   MetaModel get meta;
+
+  /// Create a copy of UserCommentLikeListModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$UserCommentLikeListModelImplCopyWith<_$UserCommentLikeListModelImpl>
       get copyWith => throw _privateConstructorUsedError;
 }
@@ -208,8 +223,12 @@ mixin _$UserCommentLikeModel {
   int get user_id => throw _privateConstructorUsedError;
   DateTime get created_at => throw _privateConstructorUsedError;
 
+  /// Serializes this UserCommentLikeModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of UserCommentLikeModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $UserCommentLikeModelCopyWith<UserCommentLikeModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -234,6 +253,8 @@ class _$UserCommentLikeModelCopyWithImpl<$Res,
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of UserCommentLikeModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -277,6 +298,8 @@ class __$$UserCommentLikeModelImplCopyWithImpl<$Res>
       $Res Function(_$UserCommentLikeModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of UserCommentLikeModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -334,11 +357,13 @@ class _$UserCommentLikeModelImpl extends _UserCommentLikeModel {
                 other.created_at == created_at));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, user_id, created_at);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of UserCommentLikeModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$UserCommentLikeModelImplCopyWith<_$UserCommentLikeModelImpl>
@@ -370,8 +395,11 @@ abstract class _UserCommentLikeModel extends UserCommentLikeModel {
   int get user_id;
   @override
   DateTime get created_at;
+
+  /// Create a copy of UserCommentLikeModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$UserCommentLikeModelImplCopyWith<_$UserCommentLikeModelImpl>
       get copyWith => throw _privateConstructorUsedError;
 }

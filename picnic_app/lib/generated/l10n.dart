@@ -110,20 +110,20 @@ class S {
     );
   }
 
-  /// `Next month's disappearing star candy😢`
+  /// `Expiring Bonus Star Candy 😢`
   String get candy_disappear_next_month {
     return Intl.message(
-      'Next month\'s disappearing star candy😢',
+      'Expiring Bonus Star Candy 😢',
       name: 'candy_disappear_next_month',
       desc: '',
       args: [],
     );
   }
 
-  /// `You can spend an unlimited amount of purchased Star Candy, but bonus Star Candy expires in bulk on the 15th of the month following the month in which it was earned.`
+  /// `Bonus Star Candy earned in the current month will expire on the 15th of the following month.`
   String get candy_usage_policy_contents {
     return Intl.message(
-      'You can spend an unlimited amount of purchased Star Candy, but bonus Star Candy expires in bulk on the 15th of the month following the month in which it was earned.',
+      'Bonus Star Candy earned in the current month will expire on the 15th of the following month.',
       name: 'candy_usage_policy_contents',
       desc: '',
       args: [],
@@ -1360,10 +1360,10 @@ class S {
     );
   }
 
-  /// `PIC voting`
+  /// `PIC Voting`
   String get label_vote_tab_pic {
     return Intl.message(
-      'PIC voting',
+      'PIC Voting',
       name: 'label_vote_tab_pic',
       desc: '',
       args: [],
@@ -1870,6 +1870,26 @@ class S {
     );
   }
 
+  /// `Failed to unbookmark`
+  String get text_bookmark_failed {
+    return Intl.message(
+      'Failed to unbookmark',
+      name: 'text_bookmark_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You can have up to five bookmarks`
+  String get text_bookmark_over_5 {
+    return Intl.message(
+      'You can have up to five bookmarks',
+      name: 'text_bookmark_over_5',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Welcome to PikChart!\nSee you in August 2024!`
   String get text_comming_soon_pic_chart1 {
     return Intl.message(
@@ -2000,6 +2020,16 @@ class S {
     );
   }
 
+  /// `No artist`
+  String get text_no_artist {
+    return Intl.message(
+      'No artist',
+      name: 'text_no_artist',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `No search results.`
   String get text_no_search_result {
     return Intl.message(
@@ -2030,10 +2060,10 @@ class S {
     );
   }
 
-  /// `{num1}개 +{num1}개 보너스`
+  /// `{num1} +{num1} Bonus`
   String text_star_candy_with_bonus(Object num1) {
     return Intl.message(
-      '$num1개 +$num1개 보너스',
+      '$num1 +$num1 Bonus',
       name: 'text_star_candy_with_bonus',
       desc: '',
       args: [num1],
@@ -2150,10 +2180,10 @@ class S {
     );
   }
 
-  /// `You need to update to a new version ({version}).`
+  /// `You need to update to the new version ({version}).`
   String update_required_text(Object version) {
     return Intl.message(
-      'You need to update to a new version ($version).',
+      'You need to update to the new version ($version).',
       name: 'update_required_text',
       desc: '',
       args: [version],
@@ -2165,36 +2195,6 @@ class S {
     return Intl.message(
       'An update is required.',
       name: 'update_required_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Failed to unbookmark`
-  String get text_bookmark_failed {
-    return Intl.message(
-      'Failed to unbookmark',
-      name: 'text_bookmark_failed',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `You can have up to five bookmarks`
-  String get text_bookmark_over_5 {
-    return Intl.message(
-      'You can have up to five bookmarks',
-      name: 'text_bookmark_over_5',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `No artist`
-  String get text_no_artist {
-    return Intl.message(
-      'No artist',
-      name: 'text_no_artist',
       desc: '',
       args: [],
     );

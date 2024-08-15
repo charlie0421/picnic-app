@@ -26,8 +26,12 @@ mixin _$MetaModel {
   int get totalItems => throw _privateConstructorUsedError;
   int get totalPages => throw _privateConstructorUsedError;
 
+  /// Serializes this MetaModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of MetaModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $MetaModelCopyWith<MetaModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -55,6 +59,8 @@ class _$MetaModelCopyWithImpl<$Res, $Val extends MetaModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of MetaModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -113,6 +119,8 @@ class __$$MetaModelImplCopyWithImpl<$Res>
       _$MetaModelImpl _value, $Res Function(_$MetaModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of MetaModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -194,12 +202,14 @@ class _$MetaModelImpl extends _MetaModel {
                 other.totalPages == totalPages));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, currentPage, itemCount,
       itemsPerPage, totalItems, totalPages);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of MetaModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$MetaModelImplCopyWith<_$MetaModelImpl> get copyWith =>
@@ -235,8 +245,11 @@ abstract class _MetaModel extends MetaModel {
   int get totalItems;
   @override
   int get totalPages;
+
+  /// Create a copy of MetaModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$MetaModelImplCopyWith<_$MetaModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

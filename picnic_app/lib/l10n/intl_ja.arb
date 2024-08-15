@@ -24,9 +24,11 @@
   "@button_pic_pic_save": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "candy_disappear_next_month": "来月で消える星空キャンディー😢。",
-  "@candy_disappear_next_month": {},
-  "candy_usage_policy_contents": "購入した星飴は無制限に使用できますが、ボーナス星飴は獲得した月の翌月15日に一括消滅します。",
+  "candy_disappear_next_month": "消滅予定ボーナス星飴😢",
+  "@candy_disappear_next_month": {
+    "manualTranslationKey": true
+  },
+  "candy_usage_policy_contents": "今月獲得したボーナススターキャンディーは、翌月15日に消滅します。",
   "@candy_usage_policy_contents": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
@@ -196,7 +198,6 @@
   },
   "label_button_watch_and_charge": "広告を見てチャージする",
   "@label_button_watch_and_charge": {
-    "manualTranslationKey": true,
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_celeb_ask_to_you": "アーティストがあなたに尋ねる！",
@@ -267,7 +268,7 @@
   "@label_library_tab_library": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_library_tab_pic": "ピック",
+  "label_library_tab_pic": "PIC",
   "@label_library_tab_pic": {
     "manualTranslationKey": true,
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -308,7 +309,7 @@
   "@label_mypage_privacy_policy": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_mypage_setting": "設定",
+  "label_mypage_setting": "Settings",
   "@label_mypage_setting": {
     "manualTranslationKey": true,
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -459,15 +460,15 @@
   "@label_tabbar_vote_upcoming": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_time_ago_day": "{day}日前",
+  "label_time_ago_day": "PH0___日前",
   "@label_time_ago_day": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_time_ago_hour": "{hour}時間前",
+  "label_time_ago_hour": "PH0___時間前",
   "@label_time_ago_hour": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_time_ago_minute": "{minute}分前",
+  "label_time_ago_minute": "PH0__分前",
   "@label_time_ago_minute": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
@@ -689,6 +690,10 @@
   "@text_bonus": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "text_bookmark_failed": "ブックマーク解除に失敗しました",
+  "@text_bookmark_failed": {},
+  "text_bookmark_over_5": "ブックマークは最大5個まで可能です。",
+  "@text_bookmark_over_5": {},
   "text_comming_soon_pic_chart1": "ピックチャートへようこそ！\n2024年8月にお会いしましょう！",
   "@text_comming_soon_pic_chart1": {
     "manualTranslationKey": true,
@@ -741,6 +746,8 @@
   "@text_need_recharge": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "text_no_artist": "アーティストがいません",
+  "@text_no_artist": {},
   "text_no_search_result": "検索結果がありません。",
   "@text_no_search_result": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -753,7 +760,7 @@
   "@text_star_candy": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "text_star_candy_with_bonus": "{num1}個 +{num1}個のボーナス",
+  "text_star_candy_with_bonus": "PH0___個 +{num1}_個のボーナス",
   "@text_star_candy_with_bonus": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
@@ -765,7 +772,7 @@
   "@text_vote_complete": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "text_vote_rank": "{ランク}ウィ",
+  "text_vote_rank": "{rank}위",
   "@text_vote_rank": {
     "manualTranslationKey": true,
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -801,11 +808,5 @@
   "update_required_text": "新しいバージョン({version})へのアップデートが必要です。",
   "@update_required_text": {},
   "update_required_title": "アップデートが必要です。",
-  "@update_required_title": {},
-  "text_bookmark_failed": "ブックマーク解除に失敗しました",
-  "@text_bookmark_failed": {},
-  "text_bookmark_over_5": "ブックマークは最大5個まで可能です。",
-  "@text_bookmark_over_5": {},
-  "text_no_artist": "アーティストがいません",
-  "@text_no_artist": {}
+  "@update_required_title": {}
 }

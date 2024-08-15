@@ -26,14 +26,14 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m2(minute) => "${minute} minutes ago";
 
-  static String m3(num1) => "${num1}개 +${num1}개 보너스";
+  static String m3(num1) => "${num1} +${num1} Bonus";
 
   static String m4(rank) => "${rank}위";
 
   static String m5(version) => "A new version (${version}) is available.";
 
   static String m6(version) =>
-      "You need to update to a new version (${version}).";
+      "You need to update to the new version (${version}).";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -44,9 +44,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("Save"),
         "candy_disappear_next_month": MessageLookupByLibrary.simpleMessage(
-            "Next month\'s disappearing star candy😢"),
+            "Expiring Bonus Star Candy 😢"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
-            "You can spend an unlimited amount of purchased Star Candy, but bonus Star Candy expires in bulk on the 15th of the month following the month in which it was earned."),
+            "Bonus Star Candy earned in the current month will expire on the 15th of the following month."),
         "candy_usage_policy_contents2": MessageLookupByLibrary.simpleMessage(
             "When using Star Candy, Star Candy that is about to expire is prioritized."),
         "candy_usage_policy_guide": MessageLookupByLibrary.simpleMessage(
@@ -271,7 +271,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("Birthday polls"),
         "label_vote_tab_pic":
-            MessageLookupByLibrary.simpleMessage("PIC voting"),
+            MessageLookupByLibrary.simpleMessage("PIC Voting"),
         "label_vote_upcoming":
             MessageLookupByLibrary.simpleMessage("Until voting begins"),
         "label_vote_vote_gather":

@@ -23,8 +23,12 @@ mixin _$VoteListModel {
   List<VoteModel> get items => throw _privateConstructorUsedError;
   MetaModel get meta => throw _privateConstructorUsedError;
 
+  /// Serializes this VoteListModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of VoteListModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $VoteListModelCopyWith<VoteListModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -50,6 +54,8 @@ class _$VoteListModelCopyWithImpl<$Res, $Val extends VoteListModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of VoteListModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -68,6 +74,8 @@ class _$VoteListModelCopyWithImpl<$Res, $Val extends VoteListModel>
     ) as $Val);
   }
 
+  /// Create a copy of VoteListModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $MetaModelCopyWith<$Res> get meta {
@@ -99,6 +107,8 @@ class __$$VoteListModelImplCopyWithImpl<$Res>
       _$VoteListModelImpl _value, $Res Function(_$VoteListModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of VoteListModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -154,12 +164,14 @@ class _$VoteListModelImpl extends _VoteListModel {
             (identical(other.meta, meta) || other.meta == meta));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType, const DeepCollectionEquality().hash(_items), meta);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of VoteListModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$VoteListModelImplCopyWith<_$VoteListModelImpl> get copyWith =>
@@ -186,8 +198,11 @@ abstract class _VoteListModel extends VoteListModel {
   List<VoteModel> get items;
   @override
   MetaModel get meta;
+
+  /// Create a copy of VoteListModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$VoteListModelImplCopyWith<_$VoteListModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -214,8 +229,12 @@ mixin _$VoteModel {
   bool? get is_upcoming => throw _privateConstructorUsedError;
   List<RewardModel>? get reward => throw _privateConstructorUsedError;
 
+  /// Serializes this VoteModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of VoteModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $VoteModelCopyWith<VoteModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -253,6 +272,8 @@ class _$VoteModelCopyWithImpl<$Res, $Val extends VoteModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of VoteModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -371,6 +392,8 @@ class __$$VoteModelImplCopyWithImpl<$Res>
       _$VoteModelImpl _value, $Res Function(_$VoteModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of VoteModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -572,7 +595,7 @@ class _$VoteModelImpl extends _VoteModel {
             const DeepCollectionEquality().equals(other._reward, _reward));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -592,7 +615,9 @@ class _$VoteModelImpl extends _VoteModel {
       is_upcoming,
       const DeepCollectionEquality().hash(_reward));
 
-  @JsonKey(ignore: true)
+  /// Create a copy of VoteModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$VoteModelImplCopyWith<_$VoteModelImpl> get copyWith =>
@@ -658,8 +683,11 @@ abstract class _VoteModel extends VoteModel {
   bool? get is_upcoming;
   @override
   List<RewardModel>? get reward;
+
+  /// Create a copy of VoteModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$VoteModelImplCopyWith<_$VoteModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -675,8 +703,12 @@ mixin _$VoteItemModel {
   int get vote_id => throw _privateConstructorUsedError;
   ArtistModel get artist => throw _privateConstructorUsedError;
 
+  /// Serializes this VoteItemModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of VoteItemModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $VoteItemModelCopyWith<VoteItemModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -702,6 +734,8 @@ class _$VoteItemModelCopyWithImpl<$Res, $Val extends VoteItemModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of VoteItemModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -730,6 +764,8 @@ class _$VoteItemModelCopyWithImpl<$Res, $Val extends VoteItemModel>
     ) as $Val);
   }
 
+  /// Create a copy of VoteItemModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $ArtistModelCopyWith<$Res> get artist {
@@ -761,6 +797,8 @@ class __$$VoteItemModelImplCopyWithImpl<$Res>
       _$VoteItemModelImpl _value, $Res Function(_$VoteItemModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of VoteItemModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -829,11 +867,13 @@ class _$VoteItemModelImpl extends _VoteItemModel {
             (identical(other.artist, artist) || other.artist == artist));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, vote_total, vote_id, artist);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of VoteItemModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$VoteItemModelImplCopyWith<_$VoteItemModelImpl> get copyWith =>
@@ -866,8 +906,11 @@ abstract class _VoteItemModel extends VoteItemModel {
   int get vote_id;
   @override
   ArtistModel get artist;
+
+  /// Create a copy of VoteItemModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$VoteItemModelImplCopyWith<_$VoteItemModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -889,8 +932,12 @@ mixin _$ArtistModel {
   bool? get isBookmarked => throw _privateConstructorUsedError;
   int? get originalIndex => throw _privateConstructorUsedError;
 
+  /// Serializes this ArtistModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of ArtistModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $ArtistModelCopyWith<ArtistModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -926,6 +973,8 @@ class _$ArtistModelCopyWithImpl<$Res, $Val extends ArtistModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of ArtistModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -984,6 +1033,8 @@ class _$ArtistModelCopyWithImpl<$Res, $Val extends ArtistModel>
     ) as $Val);
   }
 
+  /// Create a copy of ArtistModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $ArtistGroupModelCopyWith<$Res> get artist_group {
@@ -1025,6 +1076,8 @@ class __$$ArtistModelImplCopyWithImpl<$Res>
       _$ArtistModelImpl _value, $Res Function(_$ArtistModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of ArtistModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1156,7 +1209,7 @@ class _$ArtistModelImpl extends _ArtistModel {
                 other.originalIndex == originalIndex));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -1171,7 +1224,9 @@ class _$ArtistModelImpl extends _ArtistModel {
       isBookmarked,
       originalIndex);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of ArtistModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$ArtistModelImplCopyWith<_$ArtistModelImpl> get copyWith =>
@@ -1222,8 +1277,11 @@ abstract class _ArtistModel extends ArtistModel {
   bool? get isBookmarked;
   @override
   int? get originalIndex;
+
+  /// Create a copy of ArtistModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$ArtistModelImplCopyWith<_$ArtistModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1237,8 +1295,12 @@ mixin _$ArtistGroupModel {
   int get id => throw _privateConstructorUsedError;
   Map<String, dynamic> get name => throw _privateConstructorUsedError;
 
+  /// Serializes this ArtistGroupModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of ArtistGroupModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $ArtistGroupModelCopyWith<ArtistGroupModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1262,6 +1324,8 @@ class _$ArtistGroupModelCopyWithImpl<$Res, $Val extends ArtistGroupModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of ArtistGroupModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1300,6 +1364,8 @@ class __$$ArtistGroupModelImplCopyWithImpl<$Res>
       $Res Function(_$ArtistGroupModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of ArtistGroupModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1354,12 +1420,14 @@ class _$ArtistGroupModelImpl extends _ArtistGroupModel {
             const DeepCollectionEquality().equals(other._name, _name));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
       Object.hash(runtimeType, id, const DeepCollectionEquality().hash(_name));
 
-  @JsonKey(ignore: true)
+  /// Create a copy of ArtistGroupModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$ArtistGroupModelImplCopyWith<_$ArtistGroupModelImpl> get copyWith =>
@@ -1387,8 +1455,11 @@ abstract class _ArtistGroupModel extends ArtistGroupModel {
   int get id;
   @override
   Map<String, dynamic> get name;
+
+  /// Create a copy of ArtistGroupModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$ArtistGroupModelImplCopyWith<_$ArtistGroupModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
