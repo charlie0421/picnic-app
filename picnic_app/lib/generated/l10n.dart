@@ -1360,10 +1360,10 @@ class S {
     );
   }
 
-  /// `PIC Voting`
+  /// `PIC voting`
   String get label_vote_tab_pic {
     return Intl.message(
-      'PIC Voting',
+      'PIC voting',
       name: 'label_vote_tab_pic',
       desc: '',
       args: [],
@@ -2060,10 +2060,10 @@ class S {
     );
   }
 
-  /// `{num1} +{num1} Bonus`
+  /// `{num1}개 +{num1}개 보너스`
   String text_star_candy_with_bonus(Object num1) {
     return Intl.message(
-      '$num1 +$num1 Bonus',
+      '$num1개 +$num1개 보너스',
       name: 'text_star_candy_with_bonus',
       desc: '',
       args: [num1],
@@ -2090,10 +2090,10 @@ class S {
     );
   }
 
-  /// `{rank}위`
+  /// `Rank {rank}`
   String text_vote_rank(Object rank) {
     return Intl.message(
-      '$rank위',
+      'Rank $rank',
       name: 'text_vote_rank',
       desc: '',
       args: [rank],
@@ -2180,10 +2180,10 @@ class S {
     );
   }
 
-  /// `You need to update to the new version ({version}).`
+  /// `You need to update to a new version ({version}).`
   String update_required_text(Object version) {
     return Intl.message(
-      'You need to update to the new version ($version).',
+      'You need to update to a new version ($version).',
       name: 'update_required_text',
       desc: '',
       args: [version],

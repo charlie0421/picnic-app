@@ -26,14 +26,14 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m2(minute) => "${minute} minutes ago";
 
-  static String m3(num1) => "${num1} +${num1} Bonus";
+  static String m3(num1) => "${num1}개 +${num1}개 보너스";
 
-  static String m4(rank) => "${rank}위";
+  static String m4(rank) => "Rank ${rank}";
 
   static String m5(version) => "A new version (${version}) is available.";
 
   static String m6(version) =>
-      "You need to update to the new version (${version}).";
+      "You need to update to a new version (${version}).";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -271,7 +271,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("Birthday polls"),
         "label_vote_tab_pic":
-            MessageLookupByLibrary.simpleMessage("PIC Voting"),
+            MessageLookupByLibrary.simpleMessage("PIC voting"),
         "label_vote_upcoming":
             MessageLookupByLibrary.simpleMessage("Until voting begins"),
         "label_vote_vote_gather":

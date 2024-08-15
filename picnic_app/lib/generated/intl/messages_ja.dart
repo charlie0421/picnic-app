@@ -20,15 +20,15 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ja';
 
-  static String m0(day) => "PH0___日前";
+  static String m0(day) => "${day}日前";
 
-  static String m1(hour) => "PH0___時間前";
+  static String m1(hour) => "${hour}時間前";
 
-  static String m2(minute) => "PH0__分前";
+  static String m2(minute) => "${minute}分前";
 
-  static String m3(num1) => "PH0___個 +${num1}_個のボーナス";
+  static String m3(num1) => "${num1}개 +${num1}개 보너스";
 
-  static String m4(rank) => "${rank}위";
+  static String m4(rank) => "${rank}位";
 
   static String m5(version) => "新しいバージョン(${version})が利用可能です。";
 
@@ -43,7 +43,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_ok": MessageLookupByLibrary.simpleMessage("確認"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("保存する"),
         "candy_disappear_next_month":
-            MessageLookupByLibrary.simpleMessage("消滅予定ボーナス星飴😢"),
+            MessageLookupByLibrary.simpleMessage("消滅予定ボーナス星空キャンディー😢(消失予定)"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
             "今月獲得したボーナススターキャンディーは、翌月15日に消滅します。"),
         "candy_usage_policy_contents2": MessageLookupByLibrary.simpleMessage(
@@ -154,7 +154,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("AIフォト"),
         "label_library_tab_library":
             MessageLookupByLibrary.simpleMessage("ライブラリ"),
-        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("PIC"),
+        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("ピック"),
         "label_loading_ads": MessageLookupByLibrary.simpleMessage("広告読み込み中"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("アーティストギャラリーへ"),
@@ -172,8 +172,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_mypage_notice": MessageLookupByLibrary.simpleMessage("お知らせ"),
         "label_mypage_privacy_policy":
             MessageLookupByLibrary.simpleMessage("個人情報保護方針"),
-        "label_mypage_setting":
-            MessageLookupByLibrary.simpleMessage("Settings"),
+        "label_mypage_setting": MessageLookupByLibrary.simpleMessage("設定"),
         "label_mypage_should_login":
             MessageLookupByLibrary.simpleMessage("ログインしてください"),
         "label_mypage_terms_of_use":

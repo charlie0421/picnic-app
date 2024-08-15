@@ -25,7 +25,8 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "candy_disappear_next_month": "소멸 예정 보너스 별사탕 😢",
-  "@candy_disappear_next_month": {"manualTranslationKey": true},
+  "@candy_disappear_next_month": {
+  },
   "candy_usage_policy_contents": "이달에 적립한 보너스 별사탕은 다음달 15일 소멸됩니다.",
   "@candy_usage_policy_contents": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -268,7 +269,6 @@
   },
   "label_library_tab_pic": "PIC",
   "@label_library_tab_pic": {
-    "manualTranslationKey": true,
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_loading_ads": "광고 로딩중",
@@ -309,7 +309,6 @@
   },
   "label_mypage_setting": "Settings",
   "@label_mypage_setting": {
-    "manualTranslationKey": true,
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "label_mypage_should_login": "로그인 해 주세요",
@@ -694,22 +693,18 @@
   "@text_bookmark_over_5": {},
   "text_comming_soon_pic_chart1": "핔 차트에 오신 여러분을 환영합니다!\n2024년 8월에 만나요!",
   "@text_comming_soon_pic_chart1": {
-    "manualTranslationKey": true,
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "text_comming_soon_pic_chart2": "핔차트는 일간, 주간, 월간 점수를 반영하는\n피크닠만의 새로운 차트입니다.",
   "@text_comming_soon_pic_chart2": {
-    "manualTranslationKey": true,
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "text_comming_soon_pic_chart3": "실시간으로 반영되는\n아티스트의 브랜드 평판을 확인해 보세요!",
   "@text_comming_soon_pic_chart3": {
-    "manualTranslationKey": true,
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "text_comming_soon_pic_chart_title": "핔차트란?",
   "@text_comming_soon_pic_chart_title": {
-    "manualTranslationKey": true,
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "text_copied_address": "주소가 복사되었습니다.",
@@ -772,7 +767,6 @@
   },
   "text_vote_rank": "{rank}위",
   "@text_vote_rank": {
-    "manualTranslationKey": true,
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "text_vote_rank_in_reward": "랭크 인 리워드",

@@ -14,11 +14,11 @@ final RegExp koreanRegex = RegExp(r'[가-힣]+');
 void main(List<String> arguments) async {
   final parser = ArgParser()
     ..addFlag('all',
-        abbr: 'a', defaultsTo: false, help: 'Translate all strings')
+        abbr: 'a', defaultsTo: false, help: 'Retranslate all strings')
     ..addFlag('watch', abbr: 'w', defaultsTo: false, help: 'Watch for changes');
 
   final args = parser.parse(arguments);
-  final translateAll = args['all'] as bool;
+  final retranslateAll = args['all'] as bool;
   final watch = args['watch'] as bool;
 
   try {
@@ -42,11 +42,15 @@ void main(List<String> arguments) async {
 
     await synchronizeKeys(inputFile, outputFiles);
 
-    if (translateAll || !watch) {
-      print('Translating all languages...');
-      await translateAllLanguages(
-          translator, inputFile, outputFiles, translateAll);
-      print('All languages translated successfully.');
+    if (retranslateAll) {
+      print('Retranslating all languages...');
+      await translateAllLanguages(translator, inputFile, outputFiles);
+    } else {
+      print('Marking languages for manual translation...');
+      for (final outputFile in outputFiles) {
+        await markForManualTranslation(inputFile, outputFile);
+      }
+      print('All languages processed for manual translation.');
     }
 
     if (watch) {
@@ -56,6 +60,133 @@ void main(List<String> arguments) async {
   } catch (e, s) {
     print('Error occurred during translation process: $e');
     print('Stack trace:\n$s');
+  }
+}
+
+Future<void> translateAllLanguages(
+    Translator translator, String inputFile, List<String> outputFiles) async {
+  for (final outputFile in outputFiles) {
+    final targetLanguage =
+        outputFile.split('.').first.split('/').last.split('_')[1].toUpperCase();
+    print('Translating to $targetLanguage...');
+    await translateArbFile(translator, inputFile, outputFile, targetLanguage,
+        retranslateAll: true);
+  }
+  print('All languages translated.');
+}
+
+Future<void> translateArbFile(Translator translator, String inputFile,
+    String outputFile, String targetLanguage,
+    {bool retranslateAll = false}) async {
+  print(
+      'Starting translation for $outputFile (Target language: $targetLanguage)');
+
+  final pool = Pool(5);
+
+  try {
+    final originalArbContent = await readJsonFile(inputFile);
+    final translatedArbContent = await readJsonFile(outputFile);
+    final updatedArbContent = Map<String, dynamic>.from(translatedArbContent);
+    final keys = List<String>.from(originalArbContent.keys);
+
+    final List<Future<void>> translationFutures = [];
+
+    for (var key in keys) {
+      if (!key.startsWith('@')) {
+        if (!isValidKey(key)) {
+          print(
+              "Warning: Key '$key' does not match naming rules and will be ignored.");
+          continue;
+        }
+
+        final metaKey = '@$key';
+        final originalText = originalArbContent[key];
+        final isManualTranslation = translatedArbContent.containsKey(metaKey) &&
+            translatedArbContent[metaKey]['manualTranslation'] == true;
+
+        if (containsPlaceholders(originalText)) {
+          // 플레이스홀더가 있는 경우
+          if (translatedArbContent.containsKey(key)) {
+            // 기존 번역이 있으면 유지
+            updatedArbContent[key] = translatedArbContent[key];
+          } else {
+            // 기존 번역이 없으면 원본 사용
+            updatedArbContent[key] = originalText;
+          }
+          updatedArbContent[metaKey] = {
+            ...translatedArbContent[metaKey] ?? {},
+            'manualTranslation': true,
+          };
+          print('Preserved text with placeholders: $key');
+        } else if (isManualTranslation && !retranslateAll) {
+          // 수동 번역으로 표시된 경우 그대로 유지 (retranslateAll이 false일 때)
+          updatedArbContent[key] = translatedArbContent[key];
+          updatedArbContent[metaKey] = translatedArbContent[metaKey];
+          print('Preserved manually translated text: $key');
+        } else if (retranslateAll ||
+            !translatedArbContent.containsKey(key) ||
+            translatedArbContent[key] == originalText ||
+            translatedArbContent[key].isEmpty ||
+            containsKoreanOrEmpty(translatedArbContent[key])) {
+          translationFutures.add(pool.withResource(() async {
+            final translatedText =
+                await translateText(translator, originalText, targetLanguage);
+            if (!containsKoreanOrEmpty(translatedText) &&
+                isCorrectLanguage(translatedText, targetLanguage)) {
+              updatedArbContent[key] = translatedText;
+              updatedArbContent[metaKey] = {
+                ...updatedArbContent[metaKey] ?? {},
+                'manualTranslation': false,
+              };
+            } else {
+              print(
+                  'Warning: Incorrect translation for key: $key. Using original text.');
+              updatedArbContent[key] = originalText;
+              updatedArbContent[metaKey] = {
+                ...updatedArbContent[metaKey] ?? {},
+                'manualTranslation': true,
+              };
+            }
+          }));
+        } else {
+          // 이미 번역된 텍스트는 그대로 유지
+          updatedArbContent[key] = translatedArbContent[key];
+          updatedArbContent[metaKey] = translatedArbContent[metaKey];
+          print('Kept existing translation for key: $key');
+        }
+      }
+    }
+
+    await Future.wait(translationFutures);
+
+    await saveJsonFile(outputFile, updatedArbContent);
+    print('$outputFile translation completed and saved');
+  } catch (e) {
+    print('Error occurred while translating $outputFile: $e');
+  }
+}
+
+Future<void> watchForChanges(
+    Translator translator, String inputFile, List<String> outputFiles) async {
+  print('Watching for changes...');
+  final watcher = FileWatcher(inputFile);
+
+  await for (final event in watcher.events) {
+    if (event.type == ChangeType.MODIFY) {
+      print('Detected changes in $inputFile, updating...');
+      for (final outputFile in outputFiles) {
+        final targetLanguage = outputFile
+            .split('.')
+            .first
+            .split('/')
+            .last
+            .split('_')[1]
+            .toUpperCase();
+        await translateArbFile(
+            translator, inputFile, outputFile, targetLanguage);
+      }
+      print('Updates completed');
+    }
   }
 }
 
@@ -142,51 +273,6 @@ Future<void> synchronizeKeys(String inputFile, List<String> outputFiles) async {
     }
   } catch (e) {
     print('Error synchronizing keys: $e');
-  }
-}
-
-Future<void> translateAllLanguages(Translator translator, String inputFile,
-    List<String> outputFiles, bool translateAll) async {
-  final List<Future<void>> translations = [];
-
-  for (final outputFile in outputFiles) {
-    print(
-        'Translating ${outputFile.split('.').first.split('/').last.split('_')[1].toUpperCase()}...');
-
-    translations.add(translateArbFile(
-      translator,
-      inputFile,
-      outputFile,
-      outputFile.split('.').first.split('/').last.split('_')[1].toUpperCase(),
-      translateAll: translateAll,
-    ));
-  }
-
-  await Future.wait(translations);
-  print('Translation completed');
-}
-
-Future<void> watchForChanges(
-    Translator translator, String inputFile, List<String> outputFiles) async {
-  print('Watching for changes...');
-  final watcher = FileWatcher(inputFile);
-
-  Map<String, dynamic> previousContent = await readJsonFile(inputFile);
-
-  await for (final event in watcher.events) {
-    if (event.type == ChangeType.MODIFY) {
-      print('Detected changes in $inputFile, translating...');
-
-      final currentContent = await readJsonFile(inputFile);
-      final changedKeys = getChangedKeys(previousContent, currentContent);
-
-      await synchronizeKeys(inputFile, outputFiles);
-      await translateChangedKeys(
-          translator, inputFile, outputFiles, changedKeys);
-
-      previousContent = currentContent;
-      print('Translation of changed keys completed');
-    }
   }
 }
 
@@ -299,97 +385,6 @@ Future<void> translateArbFilePartial(
   }
 }
 
-Future<void> translateArbFile(Translator translator, String inputFile,
-    String outputFile, String targetLanguage,
-    {bool translateAll = false}) async {
-  print(
-      'Starting translation for $outputFile (Target language: $targetLanguage)');
-
-  final pool = Pool(5);
-
-  try {
-    final originalArbContent = await readJsonFile(inputFile);
-    final translatedArbContent = await readJsonFile(outputFile);
-    final updatedArbContent = Map<String, dynamic>.from(translatedArbContent);
-    final keys = List<String>.from(originalArbContent.keys);
-
-    final List<Future<void>> translationFutures = [];
-
-    for (var key in keys) {
-      if (!key.startsWith('@')) {
-        if (!isValidKey(key)) {
-          print(
-              "Warning: Key '$key' does not match naming rules and will be ignored.");
-          continue;
-        }
-
-        final metaKey = '@$key';
-        final isManualTranslation = originalArbContent.containsKey(metaKey) &&
-            originalArbContent[metaKey][manualTranslationKey] == true;
-
-        if (isManualTranslation) {
-          print(
-              "Manual translation key found in original file: $key, skipping translation.");
-          updatedArbContent[key] =
-              translatedArbContent[key] ?? originalArbContent[key];
-          updatedArbContent[metaKey] = originalArbContent[metaKey];
-          continue;
-        }
-
-        if (translateAll ||
-            !translatedArbContent.containsKey(key) ||
-            translatedArbContent[key] == originalArbContent[key] ||
-            translatedArbContent[key].isEmpty ||
-            containsKoreanOrEmpty(translatedArbContent[key])) {
-          translationFutures.add(pool.withResource(() async {
-            final translatedText = await translateText(
-                translator, originalArbContent[key], targetLanguage);
-            if (!containsKoreanOrEmpty(translatedText) &&
-                isCorrectLanguage(translatedText, targetLanguage)) {
-              updatedArbContent[key] = translatedText;
-            } else {
-              print(
-                  'Warning: Incorrect translation or contains Korean for key: $key. Using original text.');
-              updatedArbContent[key] = originalArbContent[key];
-            }
-
-            if (!updatedArbContent.containsKey(metaKey)) {
-              updatedArbContent[metaKey] = {};
-            }
-          }));
-        } else {
-          print('Skipping translation for key: $key (Already translated)');
-        }
-      }
-    }
-
-    await Future.wait(translationFutures);
-
-    // 번역된 내용 저장 전 최종 확인
-    for (var key in updatedArbContent.keys) {
-      if (!key.startsWith('@') &&
-          containsKoreanOrEmpty(updatedArbContent[key])) {
-        print(
-            'Warning: Korean text found in translated content for key: $key. Attempting re-translation.');
-        final retranslatedText = await translateText(
-            translator, originalArbContent[key], targetLanguage);
-        if (!containsKoreanOrEmpty(retranslatedText) &&
-            isCorrectLanguage(retranslatedText, targetLanguage)) {
-          updatedArbContent[key] = retranslatedText;
-        } else {
-          print('Failed to re-translate. Using original text for key: $key');
-          updatedArbContent[key] = originalArbContent[key];
-        }
-      }
-    }
-
-    await saveJsonFile(outputFile, updatedArbContent);
-    print('$outputFile translation completed and saved');
-  } catch (e) {
-    print('Error occurred while translating $outputFile: $e');
-  }
-}
-
 Future<void> saveJsonFile(String path, Map<String, dynamic> content) async {
   try {
     final file = File(path);
@@ -438,6 +433,68 @@ bool containsKorean(String text) {
 
 bool containsPlaceholders(String text) {
   return text.contains(RegExp(r'\{.*?\}'));
+}
+
+Future<void> markForManualTranslation(
+    String inputFile, String outputFile) async {
+  print('Starting manual translation marking process for $outputFile');
+
+  try {
+    final originalArbContent = await readJsonFile(inputFile);
+    final existingTranslations = await readJsonFile(outputFile);
+    final updatedArbContent = Map<String, dynamic>.from(existingTranslations);
+    final keys = List<String>.from(originalArbContent.keys);
+
+    for (var key in keys) {
+      if (!key.startsWith('@')) {
+        if (!isValidKey(key)) {
+          print(
+              "Warning: Key '$key' does not match naming rules and will be ignored.");
+          continue;
+        }
+
+        final metaKey = '@$key';
+        final originalText = originalArbContent[key];
+
+        if (containsPlaceholders(originalText)) {
+          // 플레이스홀더가 있는 경우 항상 유지
+          updatedArbContent[key] = existingTranslations.containsKey(key)
+              ? existingTranslations[key]
+              : originalText;
+          updatedArbContent[metaKey] = {
+            ...existingTranslations[metaKey] ?? {},
+            'manualTranslation': true,
+          };
+          print('Preserved text with placeholders: $key');
+        } else if (!existingTranslations.containsKey(key) ||
+            !existingTranslations.containsKey(metaKey) ||
+            existingTranslations[metaKey]['manualTranslation'] != true) {
+          // 기존 번역이 없거나 수동 번역으로 표시되지 않은 경우 원본으로 설정
+          updatedArbContent[key] = originalText;
+          updatedArbContent[metaKey] = {
+            ...updatedArbContent[metaKey] ?? {},
+            'manualTranslation': true,
+          };
+          print('Set to original text and marked for manual translation: $key');
+        } else {
+          // 그 외의 경우 기존 번역 유지
+          updatedArbContent[key] = existingTranslations[key];
+          updatedArbContent[metaKey] = existingTranslations[metaKey];
+          print('Preserved existing translation: $key');
+        }
+      }
+    }
+
+    // 원본에 없는 키 제거
+    updatedArbContent.removeWhere((key, value) =>
+        !originalArbContent.containsKey(key) && !key.startsWith('@'));
+
+    await saveJsonFile(outputFile, updatedArbContent);
+    print('$outputFile manual translation marking completed and saved');
+  } catch (e) {
+    print(
+        'Error occurred while marking for manual translation in $outputFile: $e');
+  }
 }
 
 bool containsKoreanOrEmpty(String text) {
