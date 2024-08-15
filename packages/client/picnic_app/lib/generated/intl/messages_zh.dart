@@ -20,19 +20,19 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'zh';
 
-  static String m0(day) => "{天}前";
+  static String m0(day) => "${day} 天前";
 
-  static String m1(hour) => "{小时}前";
+  static String m1(hour) => "${hour} 小时前";
 
-  static String m2(minute) => "{分钟}前";
+  static String m2(minute) => "${minute}分钟前";
 
-  static String m3(num1) => "{数字1} +{ 数字1}奖金";
+  static String m3(num1) => "${num1}+${num1}奖金";
 
   static String m4(rank) => "${rank}위";
 
-  static String m5(version) => "新版本 (${version}) 已发布。";
+  static String m5(version) => "新版本（${version}）已发布。";
 
-  static String m6(version) => "您需要更新到新版本 ({版本})。";
+  static String m6(version) => "您需要更新到新版本 (${version})。";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -43,9 +43,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_ok": MessageLookupByLibrary.simpleMessage("确认"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("节省"),
         "candy_disappear_next_month":
-            MessageLookupByLibrary.simpleMessage("下个月消失的星星糖果😢"),
-        "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
-            "您可以无限量地消费购买的 \"星糖\"，但奖励的 \"星糖 \"将在获得 \"星糖 \"当月的下一个月 15 日大量过期。"),
+            MessageLookupByLibrary.simpleMessage("过期的奖励星星糖果 😢"),
+        "candy_usage_policy_contents":
+            MessageLookupByLibrary.simpleMessage("当月获得的奖励星糖将于下月 15 日失效。"),
         "candy_usage_policy_contents2": MessageLookupByLibrary.simpleMessage(
             "使用 \"星星糖 \"时，即将过期的 \"星星糖 \"会被优先处理。"),
         "candy_usage_policy_guide":
@@ -160,7 +160,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_mypage_notice": MessageLookupByLibrary.simpleMessage("公告"),
         "label_mypage_privacy_policy":
             MessageLookupByLibrary.simpleMessage("隐私政策"),
-        "label_mypage_setting": MessageLookupByLibrary.simpleMessage("设置"),
+        "label_mypage_setting":
+            MessageLookupByLibrary.simpleMessage("Settings"),
         "label_mypage_should_login":
             MessageLookupByLibrary.simpleMessage("请登录"),
         "label_mypage_terms_of_use":

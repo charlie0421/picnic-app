@@ -23,8 +23,12 @@ mixin _$GalleryListModel {
   List<GalleryModel> get items => throw _privateConstructorUsedError;
   MetaModel get meta => throw _privateConstructorUsedError;
 
+  /// Serializes this GalleryListModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of GalleryListModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $GalleryListModelCopyWith<GalleryListModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -50,6 +54,8 @@ class _$GalleryListModelCopyWithImpl<$Res, $Val extends GalleryListModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of GalleryListModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -68,6 +74,8 @@ class _$GalleryListModelCopyWithImpl<$Res, $Val extends GalleryListModel>
     ) as $Val);
   }
 
+  /// Create a copy of GalleryListModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $MetaModelCopyWith<$Res> get meta {
@@ -99,6 +107,8 @@ class __$$GalleryListModelImplCopyWithImpl<$Res>
       $Res Function(_$GalleryListModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of GalleryListModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -154,12 +164,14 @@ class _$GalleryListModelImpl extends _GalleryListModel {
             (identical(other.meta, meta) || other.meta == meta));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType, const DeepCollectionEquality().hash(_items), meta);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of GalleryListModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$GalleryListModelImplCopyWith<_$GalleryListModelImpl> get copyWith =>
@@ -187,8 +199,11 @@ abstract class _GalleryListModel extends GalleryListModel {
   List<GalleryModel> get items;
   @override
   MetaModel get meta;
+
+  /// Create a copy of GalleryListModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$GalleryListModelImplCopyWith<_$GalleryListModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -205,8 +220,12 @@ mixin _$GalleryModel {
   String? get cover => throw _privateConstructorUsedError;
   CelebModel? get celeb => throw _privateConstructorUsedError;
 
+  /// Serializes this GalleryModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of GalleryModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $GalleryModelCopyWith<GalleryModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -237,6 +256,8 @@ class _$GalleryModelCopyWithImpl<$Res, $Val extends GalleryModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of GalleryModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -270,6 +291,8 @@ class _$GalleryModelCopyWithImpl<$Res, $Val extends GalleryModel>
     ) as $Val);
   }
 
+  /// Create a copy of GalleryModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $CelebModelCopyWith<$Res>? get celeb {
@@ -310,6 +333,8 @@ class __$$GalleryModelImplCopyWithImpl<$Res>
       _$GalleryModelImpl _value, $Res Function(_$GalleryModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of GalleryModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -388,12 +413,14 @@ class _$GalleryModelImpl extends _GalleryModel {
             (identical(other.celeb, celeb) || other.celeb == celeb));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
       Object.hash(runtimeType, id, title_ko, title_en, cover, celeb);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of GalleryModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$GalleryModelImplCopyWith<_$GalleryModelImpl> get copyWith =>
@@ -429,8 +456,11 @@ abstract class _GalleryModel extends GalleryModel {
   String? get cover;
   @override
   CelebModel? get celeb;
+
+  /// Create a copy of GalleryModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$GalleryModelImplCopyWith<_$GalleryModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

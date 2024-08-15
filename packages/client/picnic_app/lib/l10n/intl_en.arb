@@ -24,9 +24,11 @@
   "@button_pic_pic_save": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "candy_disappear_next_month": "Next month's disappearing star candy😢",
-  "@candy_disappear_next_month": {},
-  "candy_usage_policy_contents": "You can spend an unlimited amount of purchased Star Candy, but bonus Star Candy expires in bulk on the 15th of the month following the month in which it was earned.",
+  "candy_disappear_next_month": "Expiring Bonus Star Candy 😢",
+  "@candy_disappear_next_month": {
+    "manualTranslationKey": true
+  },
+  "candy_usage_policy_contents": "Bonus Star Candy earned in the current month will expire on the 15th of the following month.",
   "@candy_usage_policy_contents": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
@@ -494,7 +496,7 @@
   "@label_vote_tab_birthday": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_vote_tab_pic": "PIC voting",
+  "label_vote_tab_pic": "PIC Voting",
   "@label_vote_tab_pic": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
@@ -688,6 +690,10 @@
   "@text_bonus": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "text_bookmark_failed": "Failed to unbookmark",
+  "@text_bookmark_failed": {},
+  "text_bookmark_over_5": "You can have up to five bookmarks",
+  "@text_bookmark_over_5": {},
   "text_comming_soon_pic_chart1": "Welcome to PikChart!\nSee you in August 2024!",
   "@text_comming_soon_pic_chart1": {
     "manualTranslationKey": true,
@@ -740,6 +746,8 @@
   "@text_need_recharge": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "text_no_artist": "No artist",
+  "@text_no_artist": {},
   "text_no_search_result": "No search results.",
   "@text_no_search_result": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -752,7 +760,7 @@
   "@text_star_candy": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "text_star_candy_with_bonus": "{num1}개 +{num1}개 보너스",
+  "text_star_candy_with_bonus": "{num1} +{num1} Bonus",
   "@text_star_candy_with_bonus": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
@@ -797,14 +805,8 @@
   "@update_button": {},
   "update_recommend_text": "A new version ({version}) is available.",
   "@update_recommend_text": {},
-  "update_required_text": "You need to update to a new version ({version}).",
+  "update_required_text": "You need to update to the new version ({version}).",
   "@update_required_text": {},
   "update_required_title": "An update is required.",
-  "@update_required_title": {},
-  "text_bookmark_failed": "Failed to unbookmark",
-  "@text_bookmark_failed": {},
-  "text_bookmark_over_5": "You can have up to five bookmarks",
-  "@text_bookmark_over_5": {},
-  "text_no_artist": "No artist",
-  "@text_no_artist": {}
+  "@update_required_title": {}
 }

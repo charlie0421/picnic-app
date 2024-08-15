@@ -27,8 +27,12 @@ mixin _$AppVersionModel {
   Map<String, dynamic> get windows => throw _privateConstructorUsedError;
   Map<String, dynamic> get linux => throw _privateConstructorUsedError;
 
+  /// Serializes this AppVersionModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of AppVersionModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $AppVersionModelCopyWith<AppVersionModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -58,6 +62,8 @@ class _$AppVersionModelCopyWithImpl<$Res, $Val extends AppVersionModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of AppVersionModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -122,6 +128,8 @@ class __$$AppVersionModelImplCopyWithImpl<$Res>
       _$AppVersionModelImpl _value, $Res Function(_$AppVersionModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of AppVersionModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -241,7 +249,7 @@ class _$AppVersionModelImpl extends _AppVersionModel {
             const DeepCollectionEquality().equals(other._linux, _linux));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -252,7 +260,9 @@ class _$AppVersionModelImpl extends _AppVersionModel {
       const DeepCollectionEquality().hash(_windows),
       const DeepCollectionEquality().hash(_linux));
 
-  @JsonKey(ignore: true)
+  /// Create a copy of AppVersionModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$AppVersionModelImplCopyWith<_$AppVersionModelImpl> get copyWith =>
@@ -292,8 +302,11 @@ abstract class _AppVersionModel extends AppVersionModel {
   Map<String, dynamic> get windows;
   @override
   Map<String, dynamic> get linux;
+
+  /// Create a copy of AppVersionModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$AppVersionModelImplCopyWith<_$AppVersionModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

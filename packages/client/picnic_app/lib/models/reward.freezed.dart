@@ -28,8 +28,12 @@ mixin _$RewardModel {
   Map<String, dynamic>? get size_guide => throw _privateConstructorUsedError;
   List<String>? get size_guide_images => throw _privateConstructorUsedError;
 
+  /// Serializes this RewardModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of RewardModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $RewardModelCopyWith<RewardModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -60,6 +64,8 @@ class _$RewardModelCopyWithImpl<$Res, $Val extends RewardModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of RewardModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -130,6 +136,8 @@ class __$$RewardModelImplCopyWithImpl<$Res>
       _$RewardModelImpl _value, $Res Function(_$RewardModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of RewardModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -273,7 +281,7 @@ class _$RewardModelImpl extends _RewardModel {
                 .equals(other._size_guide_images, _size_guide_images));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -285,7 +293,9 @@ class _$RewardModelImpl extends _RewardModel {
       const DeepCollectionEquality().hash(_size_guide),
       const DeepCollectionEquality().hash(_size_guide_images));
 
-  @JsonKey(ignore: true)
+  /// Create a copy of RewardModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$RewardModelImplCopyWith<_$RewardModelImpl> get copyWith =>
@@ -327,8 +337,11 @@ abstract class _RewardModel extends RewardModel {
   Map<String, dynamic>? get size_guide;
   @override
   List<String>? get size_guide_images;
+
+  /// Create a copy of RewardModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$RewardModelImplCopyWith<_$RewardModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

@@ -27,8 +27,12 @@ mixin _$VideoInfo {
   String get thumbnail_url => throw _privateConstructorUsedError;
   DateTime get created_at => throw _privateConstructorUsedError;
 
+  /// Serializes this VideoInfo to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of VideoInfo
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $VideoInfoCopyWith<VideoInfo> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -57,6 +61,8 @@ class _$VideoInfoCopyWithImpl<$Res, $Val extends VideoInfo>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of VideoInfo
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -121,6 +127,8 @@ class __$$VideoInfoImplCopyWithImpl<$Res>
       _$VideoInfoImpl _value, $Res Function(_$VideoInfoImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of VideoInfo
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -216,12 +224,14 @@ class _$VideoInfoImpl implements _VideoInfo {
                 other.created_at == created_at));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, video_id, video_url,
       const DeepCollectionEquality().hash(_title), thumbnail_url, created_at);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of VideoInfo
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$VideoInfoImplCopyWith<_$VideoInfoImpl> get copyWith =>
@@ -259,8 +269,11 @@ abstract class _VideoInfo implements VideoInfo {
   String get thumbnail_url;
   @override
   DateTime get created_at;
+
+  /// Create a copy of VideoInfo
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$VideoInfoImplCopyWith<_$VideoInfoImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

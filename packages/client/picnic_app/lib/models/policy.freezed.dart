@@ -25,8 +25,12 @@ mixin _$PolicyModel {
   PrivacyModel get privacy_ko => throw _privateConstructorUsedError;
   TermsModel get terms_ko => throw _privateConstructorUsedError;
 
+  /// Serializes this PolicyModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of PolicyModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $PolicyModelCopyWith<PolicyModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -59,6 +63,8 @@ class _$PolicyModelCopyWithImpl<$Res, $Val extends PolicyModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of PolicyModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -87,6 +93,8 @@ class _$PolicyModelCopyWithImpl<$Res, $Val extends PolicyModel>
     ) as $Val);
   }
 
+  /// Create a copy of PolicyModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $PrivacyModelCopyWith<$Res> get privacy_en {
@@ -95,6 +103,8 @@ class _$PolicyModelCopyWithImpl<$Res, $Val extends PolicyModel>
     });
   }
 
+  /// Create a copy of PolicyModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $TermsModelCopyWith<$Res> get terms_en {
@@ -103,6 +113,8 @@ class _$PolicyModelCopyWithImpl<$Res, $Val extends PolicyModel>
     });
   }
 
+  /// Create a copy of PolicyModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $PrivacyModelCopyWith<$Res> get privacy_ko {
@@ -111,6 +123,8 @@ class _$PolicyModelCopyWithImpl<$Res, $Val extends PolicyModel>
     });
   }
 
+  /// Create a copy of PolicyModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $TermsModelCopyWith<$Res> get terms_ko {
@@ -152,6 +166,8 @@ class __$$PolicyModelImplCopyWithImpl<$Res>
       _$PolicyModelImpl _value, $Res Function(_$PolicyModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of PolicyModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -222,12 +238,14 @@ class _$PolicyModelImpl implements _PolicyModel {
                 other.terms_ko == terms_ko));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
       Object.hash(runtimeType, privacy_en, terms_en, privacy_ko, terms_ko);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of PolicyModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$PolicyModelImplCopyWith<_$PolicyModelImpl> get copyWith =>
@@ -259,8 +277,11 @@ abstract class _PolicyModel implements PolicyModel {
   PrivacyModel get privacy_ko;
   @override
   TermsModel get terms_ko;
+
+  /// Create a copy of PolicyModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$PolicyModelImplCopyWith<_$PolicyModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -274,8 +295,12 @@ mixin _$PrivacyModel {
   String get content => throw _privateConstructorUsedError;
   String get version => throw _privateConstructorUsedError;
 
+  /// Serializes this PrivacyModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of PrivacyModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $PrivacyModelCopyWith<PrivacyModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -299,6 +324,8 @@ class _$PrivacyModelCopyWithImpl<$Res, $Val extends PrivacyModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of PrivacyModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -337,6 +364,8 @@ class __$$PrivacyModelImplCopyWithImpl<$Res>
       _$PrivacyModelImpl _value, $Res Function(_$PrivacyModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of PrivacyModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -383,11 +412,13 @@ class _$PrivacyModelImpl implements _PrivacyModel {
             (identical(other.version, version) || other.version == version));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, content, version);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of PrivacyModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$PrivacyModelImplCopyWith<_$PrivacyModelImpl> get copyWith =>
@@ -413,8 +444,11 @@ abstract class _PrivacyModel implements PrivacyModel {
   String get content;
   @override
   String get version;
+
+  /// Create a copy of PrivacyModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$PrivacyModelImplCopyWith<_$PrivacyModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -428,8 +462,12 @@ mixin _$TermsModel {
   String get content => throw _privateConstructorUsedError;
   String get version => throw _privateConstructorUsedError;
 
+  /// Serializes this TermsModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of TermsModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $TermsModelCopyWith<TermsModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -453,6 +491,8 @@ class _$TermsModelCopyWithImpl<$Res, $Val extends TermsModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of TermsModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -491,6 +531,8 @@ class __$$TermsModelImplCopyWithImpl<$Res>
       _$TermsModelImpl _value, $Res Function(_$TermsModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of TermsModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -537,11 +579,13 @@ class _$TermsModelImpl implements _TermsModel {
             (identical(other.version, version) || other.version == version));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, content, version);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of TermsModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$TermsModelImplCopyWith<_$TermsModelImpl> get copyWith =>
@@ -567,8 +611,11 @@ abstract class _TermsModel implements TermsModel {
   String get content;
   @override
   String get version;
+
+  /// Create a copy of TermsModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$TermsModelImplCopyWith<_$TermsModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

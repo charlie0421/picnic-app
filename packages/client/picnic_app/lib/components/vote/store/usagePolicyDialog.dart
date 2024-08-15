@@ -5,6 +5,7 @@ import 'package:picnic_app/components/common/bullet_point.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/number.dart';
 
 void showUsagePolicyDialog(BuildContext context, WidgetRef ref) {
   showModalBottomSheet(
@@ -28,24 +29,62 @@ void showUsagePolicyDialog(BuildContext context, WidgetRef ref) {
                     future: ref.read(expireBonusProvider.future),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.done) {
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset('assets/icons/store/star_100.png',
-                                width: 48.w, height: 48),
-                            snapshot.data == null
-                                ? Text(
-                                    '0',
-                                    style: getTextStyle(
-                                        AppTypo.BODY16B, AppColors.Grey900),
-                                  )
-                                : Text(
-                                    '${snapshot.data}',
-                                    style: getTextStyle(
-                                        AppTypo.BODY16B, AppColors.Grey900),
-                                  ),
-                          ],
-                        );
+                        return Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: snapshot.data!
+                                .map((e) => Container(
+                                      alignment: Alignment.center,
+                                      width: 200.w,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          SizedBox(
+                                            width: 100.w,
+                                            child: Text(
+                                                '${e!['prediction_month']}-15',
+                                                style: getTextStyle(
+                                                    AppTypo.BODY16B,
+                                                    AppColors.Grey900)),
+                                          ),
+                                          SizedBox(width: 12.w),
+                                          SizedBox(
+                                            width: 36.w,
+                                            child: Image.asset(
+                                                'assets/icons/store/star_100.png',
+                                                width: 36,
+                                                height: 36),
+                                          ),
+                                          Text(
+                                              formatNumberWithComma(
+                                                      e['expiring_amount'] ?? 0)
+                                                  .toString(),
+                                              style: getTextStyle(
+                                                  AppTypo.BODY16B,
+                                                  AppColors.Primary500)),
+                                        ],
+                                      ),
+                                    ))
+                                .toList());
+
+                        // return Row(
+                        //   mainAxisAlignment: MainAxisAlignment.center,
+                        //   children: [
+                        //     Image.asset('assets/icons/store/star_100.png',
+                        //         width: 48.w, height: 48),
+                        //     snapshot.data == null
+                        //         ? Text(
+                        //             '0',
+                        //             style: getTextStyle(
+                        //                 AppTypo.BODY16B, AppColors.Grey900),
+                        //           )
+                        //         : Text(
+                        //             '${snapshot.data}',
+                        //             style: getTextStyle(
+                        //                 AppTypo.BODY16B, AppColors.Grey900),
+                        //           ),
+                        //   ],
+                        // );
                       } else {
                         return const CircularProgressIndicator(
                             color: AppColors.Primary500);

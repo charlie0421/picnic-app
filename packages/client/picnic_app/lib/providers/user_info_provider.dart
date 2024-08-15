@@ -285,30 +285,38 @@ Future<bool> agreement(AgreementRef ref) async {
 }
 
 @riverpod
-Future<int> expireBonus(ExpireBonusRef ref) async {
+Future<List<Map<String, dynamic>?>?> expireBonus(ExpireBonusRef ref) async {
   logger.i('Calculating expire bonus');
   try {
-    final now = DateTime.now();
-    final startOfMonth = DateTime(now.year, now.month, 1);
-    final startOfNextMonth = DateTime(now.year, now.month + 1, 1);
+    final response = await supabase.rpc('get_expiring_bonus_prediction');
+    if (response != null && response is List) {
+      logger.i('Expire bonus calculated: $response');
+      return List<Map<String, dynamic>>.from(response);
+    } else {
+      throw Exception('Unexpected response format');
+    }
 
-    final response = await supabase
-        .from('star_candy_bonus_history')
-        .select('remain_amount')
-        .gte('created_at', startOfMonth.toUtc())
-        .lt('created_at', startOfNextMonth.toIso8601String());
-    final List<dynamic> data = response;
-    int sum = data.fold(
-        0,
-        (sum, item) =>
-            sum + (int.tryParse(item['remain_amount'].toString()) ?? 0));
-
-    logger.i('Expire bonus calculated: $sum');
-    return sum;
+    // final now = DateTime.now();
+    // final startOfMonth = DateTime(now.year, now.month, 1);
+    // final startOfNextMonth = DateTime(now.year, now.month + 1, 1);
+    //
+    // final response = await supabase
+    //     .from('star_candy_bonus_history')
+    //     .select('remain_amount')
+    //     .gte('created_at', startOfMonth.toUtc())
+    //     .lt('created_at', startOfNextMonth.toIso8601String());
+    // final List<dynamic> data = response;
+    // int sum = data.fold(
+    //     0,
+    //     (sum, item) =>
+    //         sum + (int.tryParse(item['remain_amount'].toString()) ?? 0));
+    //
+    // logger.i('Expire bonus calculated: $sum');
+    // return sum;
   } catch (e, s) {
     logger.e('Error calculating expire bonus', error: e, stackTrace: s);
     Sentry.captureException(e, stackTrace: s);
 
-    return 0;
+    return null;
   }
 }

@@ -32,8 +32,12 @@ mixin _$UserProfilesModel {
   @JsonKey(includeFromJson: false)
   RealtimeChannel? get realtime_channel => throw _privateConstructorUsedError;
 
+  /// Serializes this UserProfilesModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of UserProfilesModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $UserProfilesModelCopyWith<UserProfilesModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -69,6 +73,8 @@ class _$UserProfilesModelCopyWithImpl<$Res, $Val extends UserProfilesModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of UserProfilesModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -127,6 +133,8 @@ class _$UserProfilesModelCopyWithImpl<$Res, $Val extends UserProfilesModel>
     ) as $Val);
   }
 
+  /// Create a copy of UserProfilesModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $UserAgreementCopyWith<$Res>? get user_agreement {
@@ -172,6 +180,8 @@ class __$$UserProfilesModelImplCopyWithImpl<$Res>
       $Res Function(_$UserProfilesModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of UserProfilesModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -303,7 +313,7 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
                 other.realtime_channel == realtime_channel));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -318,7 +328,9 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
       star_candy_bonus,
       realtime_channel);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of UserProfilesModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$UserProfilesModelImplCopyWith<_$UserProfilesModelImpl> get copyWith =>
@@ -372,8 +384,11 @@ abstract class _UserProfilesModel extends UserProfilesModel {
   @override
   @JsonKey(includeFromJson: false)
   RealtimeChannel? get realtime_channel;
+
+  /// Create a copy of UserProfilesModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$UserProfilesModelImplCopyWith<_$UserProfilesModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -387,8 +402,12 @@ mixin _$UserAgreement {
   DateTime get terms => throw _privateConstructorUsedError;
   DateTime get privacy => throw _privateConstructorUsedError;
 
+  /// Serializes this UserAgreement to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of UserAgreement
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $UserAgreementCopyWith<UserAgreement> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -412,6 +431,8 @@ class _$UserAgreementCopyWithImpl<$Res, $Val extends UserAgreement>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of UserAgreement
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -450,6 +471,8 @@ class __$$UserAgreementImplCopyWithImpl<$Res>
       _$UserAgreementImpl _value, $Res Function(_$UserAgreementImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of UserAgreement
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -497,11 +520,13 @@ class _$UserAgreementImpl extends _UserAgreement {
             (identical(other.privacy, privacy) || other.privacy == privacy));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, terms, privacy);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of UserAgreement
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$UserAgreementImplCopyWith<_$UserAgreementImpl> get copyWith =>
@@ -528,8 +553,11 @@ abstract class _UserAgreement extends UserAgreement {
   DateTime get terms;
   @override
   DateTime get privacy;
+
+  /// Create a copy of UserAgreement
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$UserAgreementImplCopyWith<_$UserAgreementImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

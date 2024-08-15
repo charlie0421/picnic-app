@@ -34,11 +34,12 @@ final agreementProvider = AutoDisposeFutureProvider<bool>.internal(
 );
 
 typedef AgreementRef = AutoDisposeFutureProviderRef<bool>;
-String _$expireBonusHash() => r'55d89df2885e598725951f82fcc3678509a64bfa';
+String _$expireBonusHash() => r'82bc57f8cd8c126e2c6ea34bcc534accc2e67c56';
 
 /// See also [expireBonus].
 @ProviderFor(expireBonus)
-final expireBonusProvider = AutoDisposeFutureProvider<int>.internal(
+final expireBonusProvider =
+    AutoDisposeFutureProvider<List<Map<String, dynamic>?>?>.internal(
   expireBonus,
   name: r'expireBonusProvider',
   debugGetCreateSourceHash:
@@ -47,7 +48,8 @@ final expireBonusProvider = AutoDisposeFutureProvider<int>.internal(
   allTransitiveDependencies: null,
 );
 
-typedef ExpireBonusRef = AutoDisposeFutureProviderRef<int>;
+typedef ExpireBonusRef
+    = AutoDisposeFutureProviderRef<List<Map<String, dynamic>?>?>;
 String _$userInfoHash() => r'6571327ab1a815889dd8a1f5a33988665249f9c9';
 
 /// See also [UserInfo].

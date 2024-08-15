@@ -20,7 +20,9 @@ mixin _$AdInfo {
   bool get isShowing => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
 
-  @JsonKey(ignore: true)
+  /// Create a copy of AdInfo
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $AdInfoCopyWith<AdInfo> get copyWith => throw _privateConstructorUsedError;
 }
 
@@ -42,6 +44,8 @@ class _$AdInfoCopyWithImpl<$Res, $Val extends AdInfo>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of AdInfo
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -84,6 +88,8 @@ class __$$AdInfoImplCopyWithImpl<$Res>
       _$AdInfoImpl _value, $Res Function(_$AdInfoImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of AdInfo
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -142,7 +148,9 @@ class _$AdInfoImpl implements _AdInfo {
   @override
   int get hashCode => Object.hash(runtimeType, ad, isShowing, isLoading);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of AdInfo
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$AdInfoImplCopyWith<_$AdInfoImpl> get copyWith =>
@@ -161,8 +169,11 @@ abstract class _AdInfo implements AdInfo {
   bool get isShowing;
   @override
   bool get isLoading;
+
+  /// Create a copy of AdInfo
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$AdInfoImplCopyWith<_$AdInfoImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -171,7 +182,9 @@ abstract class _AdInfo implements AdInfo {
 mixin _$AdState {
   List<AdInfo> get ads => throw _privateConstructorUsedError;
 
-  @JsonKey(ignore: true)
+  /// Create a copy of AdState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $AdStateCopyWith<AdState> get copyWith => throw _privateConstructorUsedError;
 }
 
@@ -193,6 +206,8 @@ class _$AdStateCopyWithImpl<$Res, $Val extends AdState>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of AdState
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -225,6 +240,8 @@ class __$$AdStateImplCopyWithImpl<$Res>
       _$AdStateImpl _value, $Res Function(_$AdStateImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of AdState
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -269,7 +286,9 @@ class _$AdStateImpl implements _AdState {
   int get hashCode =>
       Object.hash(runtimeType, const DeepCollectionEquality().hash(_ads));
 
-  @JsonKey(ignore: true)
+  /// Create a copy of AdState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$AdStateImplCopyWith<_$AdStateImpl> get copyWith =>
@@ -281,8 +300,11 @@ abstract class _AdState implements AdState {
 
   @override
   List<AdInfo> get ads;
+
+  /// Create a copy of AdState
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$AdStateImplCopyWith<_$AdStateImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

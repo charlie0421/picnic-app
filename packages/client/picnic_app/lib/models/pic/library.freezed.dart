@@ -23,8 +23,12 @@ mixin _$LibraryListModel {
   List<LibraryModel> get items => throw _privateConstructorUsedError;
   MetaModel get meta => throw _privateConstructorUsedError;
 
+  /// Serializes this LibraryListModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of LibraryListModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $LibraryListModelCopyWith<LibraryListModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -50,6 +54,8 @@ class _$LibraryListModelCopyWithImpl<$Res, $Val extends LibraryListModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of LibraryListModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -68,6 +74,8 @@ class _$LibraryListModelCopyWithImpl<$Res, $Val extends LibraryListModel>
     ) as $Val);
   }
 
+  /// Create a copy of LibraryListModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $MetaModelCopyWith<$Res> get meta {
@@ -99,6 +107,8 @@ class __$$LibraryListModelImplCopyWithImpl<$Res>
       $Res Function(_$LibraryListModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of LibraryListModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -154,12 +164,14 @@ class _$LibraryListModelImpl extends _LibraryListModel {
             (identical(other.meta, meta) || other.meta == meta));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType, const DeepCollectionEquality().hash(_items), meta);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of LibraryListModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$LibraryListModelImplCopyWith<_$LibraryListModelImpl> get copyWith =>
@@ -187,8 +199,11 @@ abstract class _LibraryListModel extends LibraryListModel {
   List<LibraryModel> get items;
   @override
   MetaModel get meta;
+
+  /// Create a copy of LibraryListModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$LibraryListModelImplCopyWith<_$LibraryListModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -203,8 +218,12 @@ mixin _$LibraryModel {
   String get title => throw _privateConstructorUsedError;
   List<ArticleImageModel>? get images => throw _privateConstructorUsedError;
 
+  /// Serializes this LibraryModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of LibraryModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $LibraryModelCopyWith<LibraryModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -228,6 +247,8 @@ class _$LibraryModelCopyWithImpl<$Res, $Val extends LibraryModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of LibraryModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -271,6 +292,8 @@ class __$$LibraryModelImplCopyWithImpl<$Res>
       _$LibraryModelImpl _value, $Res Function(_$LibraryModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of LibraryModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -337,12 +360,14 @@ class _$LibraryModelImpl extends _LibraryModel {
             const DeepCollectionEquality().equals(other._images, _images));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType, id, title, const DeepCollectionEquality().hash(_images));
 
-  @JsonKey(ignore: true)
+  /// Create a copy of LibraryModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$LibraryModelImplCopyWith<_$LibraryModelImpl> get copyWith =>
@@ -372,8 +397,11 @@ abstract class _LibraryModel extends LibraryModel {
   String get title;
   @override
   List<ArticleImageModel>? get images;
+
+  /// Create a copy of LibraryModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$LibraryModelImplCopyWith<_$LibraryModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

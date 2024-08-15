@@ -20,22 +20,13 @@
   "@button_ok": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "text_bookmark_failed": "북마크 해제에 실패했습니다",
-  "@text_bookmark_failed": {
-  },
-  "text_no_artist": "아티스트가 없습니다",
-    "@text_no_artist": {
-    },
-  "text_bookmark_over_5": "북마크는 최대 5개까지 가능합니다",
-    "@text_bookmark_over_5": {
-    },
   "button_pic_pic_save": "저장하기",
   "@button_pic_pic_save": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "candy_disappear_next_month": "다음 달 사라지는 별사탕😢",
-  "@candy_disappear_next_month": {},
-  "candy_usage_policy_contents": "구매한 별사탕은 무제한으로 사용 가능하지만 보너스 별사탕은 획득한 달의 다음 달 15일에 일괄 소멸됩니다.",
+  "candy_disappear_next_month": "소멸 예정 보너스 별사탕 😢",
+  "@candy_disappear_next_month": {"manualTranslationKey": true},
+  "candy_usage_policy_contents": "이달에 적립한 보너스 별사탕은 다음달 15일 소멸됩니다.",
   "@candy_usage_policy_contents": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
@@ -697,6 +688,10 @@
   "@text_bonus": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "text_bookmark_failed": "북마크 해제에 실패했습니다",
+  "@text_bookmark_failed": {},
+  "text_bookmark_over_5": "북마크는 최대 5개까지 가능합니다",
+  "@text_bookmark_over_5": {},
   "text_comming_soon_pic_chart1": "핔 차트에 오신 여러분을 환영합니다!\n2024년 8월에 만나요!",
   "@text_comming_soon_pic_chart1": {
     "manualTranslationKey": true,
@@ -749,6 +744,8 @@
   "@text_need_recharge": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "text_no_artist": "아티스트가 없습니다",
+  "@text_no_artist": {},
   "text_no_search_result": "검색결과가 없어요.",
   "@text_no_search_result": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"

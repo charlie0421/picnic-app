@@ -24,8 +24,12 @@ mixin _$ArticleImageListModel {
   List<ArticleImageModel> get items => throw _privateConstructorUsedError;
   MetaModel get meta => throw _privateConstructorUsedError;
 
+  /// Serializes this ArticleImageListModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of ArticleImageListModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $ArticleImageListModelCopyWith<ArticleImageListModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -52,6 +56,8 @@ class _$ArticleImageListModelCopyWithImpl<$Res,
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of ArticleImageListModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -70,6 +76,8 @@ class _$ArticleImageListModelCopyWithImpl<$Res,
     ) as $Val);
   }
 
+  /// Create a copy of ArticleImageListModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $MetaModelCopyWith<$Res> get meta {
@@ -103,6 +111,8 @@ class __$$ArticleImageListModelImplCopyWithImpl<$Res>
       $Res Function(_$ArticleImageListModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of ArticleImageListModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -158,12 +168,14 @@ class _$ArticleImageListModelImpl extends _ArticleImageListModel {
             (identical(other.meta, meta) || other.meta == meta));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType, const DeepCollectionEquality().hash(_items), meta);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of ArticleImageListModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$ArticleImageListModelImplCopyWith<_$ArticleImageListModelImpl>
@@ -191,8 +203,11 @@ abstract class _ArticleImageListModel extends ArticleImageListModel {
   List<ArticleImageModel> get items;
   @override
   MetaModel get meta;
+
+  /// Create a copy of ArticleImageListModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$ArticleImageListModelImplCopyWith<_$ArticleImageListModelImpl>
       get copyWith => throw _privateConstructorUsedError;
 }
@@ -210,8 +225,12 @@ mixin _$ArticleImageModel {
   List<UserProfilesModel>? get article_image_user =>
       throw _privateConstructorUsedError;
 
+  /// Serializes this ArticleImageModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of ArticleImageModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $ArticleImageModelCopyWith<ArticleImageModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -240,6 +259,8 @@ class _$ArticleImageModelCopyWithImpl<$Res, $Val extends ArticleImageModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of ArticleImageModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -298,6 +319,8 @@ class __$$ArticleImageModelImplCopyWithImpl<$Res>
       $Res Function(_$ArticleImageModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of ArticleImageModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -386,12 +409,14 @@ class _$ArticleImageModelImpl extends _ArticleImageModel {
                 .equals(other._article_image_user, _article_image_user));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, title_ko, title_en, image,
       const DeepCollectionEquality().hash(_article_image_user));
 
-  @JsonKey(ignore: true)
+  /// Create a copy of ArticleImageModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$ArticleImageModelImplCopyWith<_$ArticleImageModelImpl> get copyWith =>
@@ -429,8 +454,11 @@ abstract class _ArticleImageModel extends ArticleImageModel {
   String? get image;
   @override
   List<UserProfilesModel>? get article_image_user;
+
+  /// Create a copy of ArticleImageModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$ArticleImageModelImplCopyWith<_$ArticleImageModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

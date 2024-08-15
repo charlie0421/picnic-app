@@ -25,8 +25,12 @@ mixin _$BannerModel {
   String get thumbnail => throw _privateConstructorUsedError;
   Map<String, dynamic> get image => throw _privateConstructorUsedError;
 
+  /// Serializes this BannerModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of BannerModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $BannerModelCopyWith<BannerModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -54,6 +58,8 @@ class _$BannerModelCopyWithImpl<$Res, $Val extends BannerModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of BannerModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -106,6 +112,8 @@ class __$$BannerModelImplCopyWithImpl<$Res>
       _$BannerModelImpl _value, $Res Function(_$BannerModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of BannerModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -187,7 +195,7 @@ class _$BannerModelImpl extends _BannerModel {
             const DeepCollectionEquality().equals(other._image, _image));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -196,7 +204,9 @@ class _$BannerModelImpl extends _BannerModel {
       thumbnail,
       const DeepCollectionEquality().hash(_image));
 
-  @JsonKey(ignore: true)
+  /// Create a copy of BannerModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$BannerModelImplCopyWith<_$BannerModelImpl> get copyWith =>
@@ -229,8 +239,11 @@ abstract class _BannerModel extends BannerModel {
   String get thumbnail;
   @override
   Map<String, dynamic> get image;
+
+  /// Create a copy of BannerModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$BannerModelImplCopyWith<_$BannerModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
