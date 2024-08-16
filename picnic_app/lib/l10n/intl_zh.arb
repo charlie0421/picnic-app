@@ -402,10 +402,10 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
   },
-  "label_mypage_setting": "设置",
+  "label_mypage_setting": "Settings",
   "@label_mypage_setting": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
+    "manualTranslation": true
   },
   "label_mypage_should_login": "请登录",
   "@label_mypage_should_login": {

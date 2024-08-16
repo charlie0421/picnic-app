@@ -160,7 +160,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_mypage_notice": MessageLookupByLibrary.simpleMessage("公告"),
         "label_mypage_privacy_policy":
             MessageLookupByLibrary.simpleMessage("隐私政策"),
-        "label_mypage_setting": MessageLookupByLibrary.simpleMessage("设置"),
+        "label_mypage_setting":
+            MessageLookupByLibrary.simpleMessage("Settings"),
         "label_mypage_should_login":
             MessageLookupByLibrary.simpleMessage("请登录"),
         "label_mypage_terms_of_use":
