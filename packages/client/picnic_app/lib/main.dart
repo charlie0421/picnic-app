@@ -44,9 +44,15 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  if (!kDebugMode) {
+    FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+  } else {
+    FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
+  }
   FlutterError.onError = (errorDetails) {
     FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
   };
+
   // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
   PlatformDispatcher.instance.onError = (error, stack) {
     FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
@@ -81,7 +87,7 @@ void main() async {
       options.tracesSampleRate = 1.0;
       options.profilesSampleRate = 1.0;
       options.beforeSend = (event, hint) {
-        if (!Environment.enableSentry) {
+        if (!Environment.enableSentry && !kDebugMode) {
           print(
               'Sentry event in local environment (not sent): ${event.eventId}');
           return null; // null을 반환하면 이벤트가 Sentry로 전송되지 않습니다.
