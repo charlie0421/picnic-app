@@ -13,9 +13,10 @@ import 'package:picnic_app/util/i18n.dart';
 import 'package:shimmer/shimmer.dart';
 
 class CommonBanner extends ConsumerStatefulWidget {
-  const CommonBanner(this.location, {super.key});
+  CommonBanner(this.location, this.height, {super.key});
 
   final String location;
+  double? height;
 
   @override
   ConsumerState<CommonBanner> createState() => _CommonBannerState();
@@ -36,7 +37,7 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
         children: [
           SizedBox(
             width: width,
-            height: width / 2,
+            height: widget.height ?? width / 2,
             child: Swiper(
               itemBuilder: (BuildContext context, int index) {
                 String title = getLocaleTextFromJson(data[index].title);
