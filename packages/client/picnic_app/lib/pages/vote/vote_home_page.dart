@@ -59,7 +59,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   @override
   Widget build(BuildContext context) {
     return ListView(children: [
-      const CommonBanner('vote_home'),
+      CommonBanner('vote_home', 200),
       const SizedBox(height: 36),
       _buildRewardList(context),
       const SizedBox(height: 36),
