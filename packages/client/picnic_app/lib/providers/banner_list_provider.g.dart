@@ -6,7 +6,7 @@ part of 'banner_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$asyncBannerListHash() => r'78ef6bca8f11feb299aa000d85a6a87fb127e14c';
+String _$asyncBannerListHash() => r'ffb58903d43b68c4509060f1199c8930fdc28580';
 
 /// Copied from Dart SDK
 class _SystemHash {
