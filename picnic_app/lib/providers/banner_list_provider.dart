@@ -12,11 +12,13 @@ class AsyncBannerList extends _$AsyncBannerList {
   }
 
   Future<List<BannerModel>> _fetchBannerList({required String location}) async {
+    final now = DateTime.now().toUtc();
+
     final response = await supabase
         .from('banner')
         .select()
         .eq('location', location)
-        // .lt('start_at', DateTime.now().toUtc())
+        .or('and(start_at.lte.${now.toIso8601String()},or(end_at.gte.${now.toIso8601String()},end_at.is.null)),and(start_at.is.null,end_at.is.null)')
         .order('order', ascending: true)
         .order('start_at', ascending: false);
 
