@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/util/ui.dart';
+import 'package:picnic_app/util/webp_support_checker.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 class PicnicCachedNetworkImage extends StatelessWidget {
@@ -56,7 +57,8 @@ class PicnicCachedNetworkImage extends StatelessWidget {
           (height! * resolutionMultiplier).toInt().toString();
     }
     queryParameters['q'] = quality.toString();
-    queryParameters['f'] = 'webp';
+    queryParameters['f'] =
+        WebPSupportChecker.instance.supportsWebP ? 'webp' : 'png';
     return uri.replace(queryParameters: queryParameters).toString();
   }
 
