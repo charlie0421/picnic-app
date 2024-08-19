@@ -19,6 +19,7 @@ import 'package:picnic_app/util/auth_service.dart';
 import 'package:picnic_app/util/network.dart';
 import 'package:picnic_app/util/token_refresh_manager.dart';
 import 'package:picnic_app/util/ui.dart';
+import 'package:picnic_app/util/webp_support_checker.dart';
 import 'package:reflectable/reflectable.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -29,7 +30,8 @@ void main() async {
   const String environment =
       String.fromEnvironment('ENVIRONMENT', defaultValue: 'prod');
   await Environment.initConfig(environment);
-
+  await WebPSupportChecker.instance.initialize();
+  logger.i('WebP support: ${WebPSupportChecker.instance.supportsWebP}');
   final customHttpClient = RetryHttpClient(http.Client());
   await Supabase.initialize(
     url: Environment.supabaseUrl,
