@@ -28,8 +28,8 @@ class _ArticleCommentInfoState extends ConsumerState<ArticleCommentInfo> {
         child: Text(
             '${S.of(context).label_read_more_comment} ${ref.watch(commentCountProvider(widget.article.id)).value != 0 ? ref.watch(commentCountProvider(widget.article.id)).value : widget.article.comment_count}',
             style: getTextStyle(
-              AppTypo.BODY14B,
-              AppColors.Grey900,
+              AppTypo.body14B,
+              AppColors.grey900,
             )),
       ),
     );

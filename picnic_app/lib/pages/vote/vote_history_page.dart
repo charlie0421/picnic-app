@@ -101,7 +101,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
                     decoration: const BoxDecoration(
                         border: Border(
                             bottom: BorderSide(
-                                color: AppColors.Grey300, width: 1))),
+                                color: AppColors.grey300, width: 1))),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,30 +113,30 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
                               DateFormat('yyyy.MM.dd HH:mm:ss')
                                   .format(item.created_at),
                               style: getTextStyle(
-                                  AppTypo.CAPTION12R, AppColors.Grey900),
+                                  AppTypo.caption12R, AppColors.grey900),
                             ),
                             Text(
                               S.of(context).text_vote_complete,
                               style: getTextStyle(
-                                  AppTypo.CAPTION12M, AppColors.Grey900),
+                                  AppTypo.caption12M, AppColors.grey900),
                             ),
                           ],
                         ),
                         Text(
                             '${formatNumberWithComma(item.amount)} ${S.of(context).text_star_candy}',
                             style: getTextStyle(
-                                AppTypo.TITLE18B, AppColors.Grey900)),
+                                AppTypo.title18B, AppColors.grey900)),
                         RichText(
                             text: TextSpan(children: [
                           TextSpan(
                               text: getLocaleTextFromJson(item.vote.title),
                               style: getTextStyle(
-                                  AppTypo.BODY14M, AppColors.Grey900)),
+                                  AppTypo.body14M, AppColors.grey900)),
                           TextSpan(
                               text:
                                   '${getLocaleTextFromJson(item.vote_item.artist.name)}_${getLocaleTextFromJson(item.vote_item.artist.artist_group.name)}',
                               style: getTextStyle(
-                                  AppTypo.BODY14M, AppColors.Grey900)),
+                                  AppTypo.body14M, AppColors.grey900)),
                         ])),
                       ],
                     ),

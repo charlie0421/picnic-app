@@ -161,12 +161,12 @@ class _VideoListItemState extends State<VideoListItem> {
                   children: [
                     Text(
                       getLocaleTextFromJson(widget.item.title),
-                      style: getTextStyle(AppTypo.BODY14B, AppColors.Grey900),
+                      style: getTextStyle(AppTypo.body14B, AppColors.grey900),
                     ),
                     Text(
                       formatDateTimeYYYYMMDD(widget.item.created_at),
                       style:
-                          getTextStyle(AppTypo.CAPTION12M, AppColors.Grey900),
+                          getTextStyle(AppTypo.caption12M, AppColors.grey900),
                     ),
                   ],
                 ),

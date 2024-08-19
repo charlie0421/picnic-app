@@ -31,7 +31,7 @@ class VoteCardColumnHorizontal extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         Container(
-          color: AppColors.Grey00,
+          color: AppColors.grey00,
           width: double.infinity,
           child: SizedBox(
             width: barWidth.w,
@@ -57,7 +57,7 @@ class VoteCardColumnHorizontal extends StatelessWidget {
               opacity: opacityAnimation,
               child: Text(
                 Intl.message('text_vote_rank', args: [rank]).toString(),
-                style: getTextStyle(AppTypo.CAPTION12B, AppColors.Point900),
+                style: getTextStyle(AppTypo.caption12B, AppColors.point900),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -76,15 +76,15 @@ class VoteCardColumnHorizontal extends StatelessWidget {
                 Text(
                   getLocaleTextFromJson(voteItem.title),
                   style: getTextStyle(
-                    AppTypo.BODY14B,
-                    AppColors.Grey900,
+                    AppTypo.body14B,
+                    AppColors.grey900,
                   ),
                 ),
                 Text(
                   getLocaleTextFromJson(voteItem.description),
                   style: getTextStyle(
-                    AppTypo.CAPTION10SB,
-                    AppColors.Grey00,
+                    AppTypo.caption10SB,
+                    AppColors.grey00,
                   ),
                 ),
               ],
@@ -111,10 +111,10 @@ class VoteCardColumnHorizontal extends StatelessWidget {
               height: 42,
               alignment: Alignment.centerRight,
               decoration: BoxDecoration(
-                color: AppColors.Grey200,
+                color: AppColors.grey200,
                 borderRadius: BorderRadius.circular(50),
                 border: Border.all(
-                  color: AppColors.Grey00,
+                  color: AppColors.grey00,
                   width: 1.w,
                 ),
               ),

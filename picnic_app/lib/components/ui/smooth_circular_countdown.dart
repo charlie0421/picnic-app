@@ -75,7 +75,7 @@ class _SmoothCircularCountdownState extends State<SmoothCircularCountdown>
           ),
           Text(
             '$_currentSeconds',
-            style: getTextStyle(AppTypo.CAPTION10SB, AppColors.Grey00),
+            style: getTextStyle(AppTypo.caption10SB, AppColors.grey00),
           ),
         ],
       ),
@@ -103,7 +103,7 @@ class CircularCountdownPainter extends CustomPainter {
 
     // Progress arc
     final progressPaint = Paint()
-      ..color = AppColors.Grey700
+      ..color = AppColors.grey700
       ..style = PaintingStyle.fill;
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),

@@ -33,7 +33,7 @@ class _LibraryListState extends ConsumerState<AlbumList> {
                     children: [
                       Text(
                         S.of(context).label_library_save,
-                        style: getTextStyle(AppTypo.BODY16B),
+                        style: getTextStyle(AppTypo.body16B),
                       ),
                       GestureDetector(
                         behavior: HitTestBehavior.opaque,
@@ -42,7 +42,7 @@ class _LibraryListState extends ConsumerState<AlbumList> {
                         },
                         child: Text(
                           S.of(context).label_album_add,
-                          style: getTextStyle(AppTypo.BODY14R),
+                          style: getTextStyle(AppTypo.body14R),
                         ),
                       ),
                     ],

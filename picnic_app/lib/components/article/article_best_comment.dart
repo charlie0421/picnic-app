@@ -4,9 +4,9 @@ import 'package:picnic_app/ui/style.dart';
 
 class ArticleBestComment extends StatefulWidget {
   final ArticleModel article;
-  Function showComments;
+  final Function showComments;
 
-  ArticleBestComment(
+  const ArticleBestComment(
       {super.key, required this.article, required this.showComments});
 
   @override
@@ -33,15 +33,15 @@ class _ArticleBestCommentState extends State<ArticleBestComment> {
                           ? widget.article.most_liked_comment!.user?.nickname
                           : '',
                       style: getTextStyle(
-                        AppTypo.BODY14B,
-                        AppColors.Grey900,
+                        AppTypo.body14B,
+                        AppColors.grey900,
                       ),
                     ),
                     TextSpan(
                       text: ' ',
                       style: getTextStyle(
-                        AppTypo.BODY14M,
-                        AppColors.Grey900,
+                        AppTypo.body14M,
+                        AppColors.grey900,
                       ),
                     ),
                     TextSpan(
@@ -50,8 +50,8 @@ class _ArticleBestCommentState extends State<ArticleBestComment> {
                               .toString()
                           : '',
                       style: getTextStyle(
-                        AppTypo.BODY14R,
-                        AppColors.Grey900,
+                        AppTypo.body14R,
+                        AppColors.grey900,
                       ),
                     ),
                   ],

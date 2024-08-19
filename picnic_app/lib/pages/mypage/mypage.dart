@@ -62,7 +62,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                               alignment: MainAxisAlignment.start))
                       : const SizedBox(height: 16),
 
-                  const Divider(color: AppColors.Grey200),
+                  const Divider(color: AppColors.grey200),
                   // 공지사항
                   if (data != null && data.is_admin)
                     ListItem(
@@ -70,7 +70,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                         assetPath: 'assets/icons/arrow_right_style=line.svg',
                         onTap: () {}),
                   if (data != null && data.is_admin)
-                    const Divider(color: AppColors.Grey200),
+                    const Divider(color: AppColors.grey200),
                   // 충전내역
                   if (data != null && data.is_admin)
                     ListItem(
@@ -78,7 +78,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                         assetPath: 'assets/icons/arrow_right_style=line.svg',
                         onTap: () {}),
                   if (data != null && data.is_admin)
-                    const Divider(color: AppColors.Grey200),
+                    const Divider(color: AppColors.grey200),
                   // 고객센터
                   ListItem(
                       leading: S.of(context).label_mypage_customer_center,
@@ -86,7 +86,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                       onTap: () {
                         _launchURL('https://forms.gle/VPfgdt2JSMyBisps5');
                       }),
-                  const Divider(color: AppColors.Grey200),
+                  const Divider(color: AppColors.grey200),
                   // 설정
                   ListItem(
                       leading: S.of(context).label_mypage_setting,
@@ -94,10 +94,10 @@ class _MyPageState extends ConsumerState<MyPage> {
                       onTap: () => ref
                           .read(navigationInfoProvider.notifier)
                           .setCurrentMyPage(const SettingPage())),
-                  const Divider(color: AppColors.Grey200),
+                  const Divider(color: AppColors.grey200),
                   // 나의 아티스트
                   _buildMyStar('VOTE'),
-                  const Divider(color: AppColors.Grey200),
+                  const Divider(color: AppColors.grey200),
                   // 투표내역
                   ListItem(
                       leading: S.of(context).label_mypage_vote_history,
@@ -107,7 +107,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                               .read(navigationInfoProvider.notifier)
                               .setCurrentMyPage(const VoteHistoryPage())
                           : showRequireLoginDialog(context: context)),
-                  const Divider(color: AppColors.Grey200),
+                  const Divider(color: AppColors.grey200),
                   // _buildMyStar('PIC'),
                   // const Divider(color: AppColors.Grey200),
                   // ListItem(
@@ -134,7 +134,7 @@ class _MyPageState extends ConsumerState<MyPage> {
             height: 80.w,
             padding: const EdgeInsets.all(6).r,
             decoration: BoxDecoration(
-              color: AppColors.Grey200,
+              color: AppColors.grey200,
               borderRadius: BorderRadius.circular(40).r,
             ),
             child: SvgPicture.asset(
@@ -142,20 +142,20 @@ class _MyPageState extends ConsumerState<MyPage> {
               width: 80.w,
               height: 80.w,
               colorFilter: const ColorFilter.mode(
-                AppColors.Grey00,
+                AppColors.grey00,
                 BlendMode.srcIn,
               ),
             ),
           ),
           SizedBox(width: 16.w),
           Text(S.of(context).label_mypage_should_login,
-              style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900)),
+              style: getTextStyle(AppTypo.title18B, AppColors.grey900)),
           SizedBox(width: 16.w),
           SvgPicture.asset('assets/icons/setting_style=line.svg',
               width: 20.w,
               height: 20.w,
               colorFilter: const ColorFilter.mode(
-                AppColors.Grey900,
+                AppColors.grey900,
                 BlendMode.srcIn,
               )),
         ],
@@ -185,14 +185,14 @@ class _MyPageState extends ConsumerState<MyPage> {
                 SizedBox(width: 16.w),
                 Text(
                   data?.nickname ?? '',
-                  style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900),
+                  style: getTextStyle(AppTypo.title18B, AppColors.grey900),
                 ),
                 SizedBox(width: 8.w),
                 SvgPicture.asset('assets/icons/setting_style=line.svg',
                     width: 20.w,
                     height: 20,
                     colorFilter: const ColorFilter.mode(
-                      AppColors.Grey900,
+                      AppColors.grey900,
                       BlendMode.srcIn,
                     )),
               ],
@@ -233,16 +233,16 @@ class _MyPageState extends ConsumerState<MyPage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(categoryText, style: getTextStyle(AppTypo.BODY14B)),
+                    Text(categoryText, style: getTextStyle(AppTypo.body14B)),
                     Text(S.of(context).label_mypage_my_artist,
-                        style: getTextStyle(AppTypo.BODY16M)),
+                        style: getTextStyle(AppTypo.body16M)),
                   ],
                 ),
                 SvgPicture.asset('assets/icons/arrow_right_style=line.svg',
                     width: 20.w,
                     height: 20,
                     colorFilter: const ColorFilter.mode(
-                      AppColors.Grey900,
+                      AppColors.grey900,
                       BlendMode.srcIn,
                     )),
               ],
@@ -259,7 +259,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                           alignment: Alignment.center,
                           child: Text(S.of(context).label_mypage_no_artist,
                               style: getTextStyle(
-                                  AppTypo.TITLE18B, AppColors.Primary500)),
+                                  AppTypo.title18B, AppColors.primary500)),
                         );
                       }
                       return ListView.separated(
@@ -289,7 +289,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                   alignment: Alignment.center,
                   child: Text(S.of(context).label_mypage_should_login,
                       style:
-                          getTextStyle(AppTypo.TITLE18B, AppColors.Primary500)),
+                          getTextStyle(AppTypo.title18B, AppColors.primary500)),
                 ),
           const SizedBox(height: 16),
         ],
@@ -299,8 +299,8 @@ class _MyPageState extends ConsumerState<MyPage> {
 
   Widget _buildShimmer() {
     return Shimmer.fromColors(
-        baseColor: AppColors.Grey200,
-        highlightColor: AppColors.Grey100,
+        baseColor: AppColors.grey200,
+        highlightColor: AppColors.grey100,
         child: ListView.separated(
           itemCount: 5,
           scrollDirection: Axis.horizontal,
@@ -312,7 +312,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                 height: 60.w,
                 padding: const EdgeInsets.all(6).r,
                 decoration: BoxDecoration(
-                  color: AppColors.Grey200,
+                  color: AppColors.grey200,
                   borderRadius: BorderRadius.circular(30).r,
                 ),
               ),

@@ -1,6 +1,6 @@
 enum PolicyLanguage {
-  EN('en'),
-  KO('ko');
+  en('en'),
+  ko('ko');
 
   final String text;
 

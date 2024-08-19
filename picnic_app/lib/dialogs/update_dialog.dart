@@ -46,7 +46,7 @@ class _UpdateDialogState extends ConsumerState<UpdateDialog> {
                     TextButton(
                       child: Text(
                         S.of(context).update_button,
-                        style: getTextStyle(AppTypo.BODY14M, AppColors.Grey900)
+                        style: getTextStyle(AppTypo.body14M, AppColors.grey900)
                             .copyWith(
                           decoration: TextDecoration.underline,
                         ),

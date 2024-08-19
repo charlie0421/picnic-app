@@ -33,25 +33,25 @@ ThemeData picThemeLight = ThemeData.light().copyWith(
     selectedLabelStyle: TextStyle(color: Colors.black),
     unselectedLabelStyle: TextStyle(color: Colors.black54),
   ),
-  scaffoldBackgroundColor: AppColors.Grey00,
+  scaffoldBackgroundColor: AppColors.grey00,
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
         padding: WidgetStateProperty.all(
             EdgeInsets.symmetric(horizontal: 32.w, vertical: 0)),
-        backgroundColor: WidgetStateProperty.all(AppColors.Mint500),
+        backgroundColor: WidgetStateProperty.all(AppColors.mint500),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
             side: const BorderSide(
-                color: AppColors.Primary500,
+                color: AppColors.primary500,
                 width: 1,
                 strokeAlign: BorderSide.strokeAlignInside),
           ),
         ),
         textStyle: WidgetStateProperty.all(
           getTextStyle(
-            AppTypo.BODY14B,
-            AppColors.Primary500,
+            AppTypo.body14B,
+            AppColors.primary500,
           ),
         ),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap),

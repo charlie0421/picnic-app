@@ -19,8 +19,9 @@ class AsyncVoteArtistList extends _$AsyncVoteArtistList {
       final bookmarkedArtists =
           await ref.read(asyncBookmarkedArtistsProvider.future);
       if (bookmarkedArtists.length >= 5) return false;
-      if (supabase.auth.currentUser == null)
+      if (supabase.auth.currentUser == null) {
         throw Exception('User is not authenticated');
+      }
 
       await supabase
           .from('artist_user_bookmark')
@@ -74,8 +75,9 @@ class AsyncVoteArtistList extends _$AsyncVoteArtistList {
   void _resortArtists() {
     state = AsyncValue.data(state.value!
       ..sort((a, b) {
-        if (a.isBookmarked != b.isBookmarked)
+        if (a.isBookmarked != b.isBookmarked) {
           return (a.isBookmarked ?? false) ? -1 : 1;
+        }
         return (a.name['en'] as String? ?? '')
             .compareTo(b.name['en'] as String? ?? '');
       }));
@@ -109,8 +111,9 @@ class AsyncVoteArtistList extends _$AsyncVoteArtistList {
         ...nonBookmarkedArtists
       ];
       allArtists.sort((a, b) {
-        if (a.isBookmarked != b.isBookmarked)
+        if (a.isBookmarked != b.isBookmarked) {
           return (a.isBookmarked ?? false) ? -1 : 1;
+        }
         return (a.name[language] as String? ?? a.name['en'] as String? ?? '')
             .compareTo(
                 b.name[language] as String? ?? b.name['en'] as String? ?? '');

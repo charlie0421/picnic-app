@@ -33,7 +33,7 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
   @override
   Widget build(BuildContext context) {
     final asyncPolicyState = ref.watch(asyncPolicyProvider);
-    final userInfoNotifier = ref.watch(userInfoProvider);
+    ref.watch(userInfoProvider);
 
     return asyncPolicyState.when(
         data: (data) => _buildTerms(data),
@@ -45,7 +45,7 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
   _buildTerms(
     data,
   ) {
-    final navigationInfoState = ref.watch(navigationInfoProvider);
+    ref.watch(navigationInfoProvider);
     final navigationInfoNotifier = ref.read(navigationInfoProvider.notifier);
     return Column(
       children: [
@@ -56,7 +56,7 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
             children: [
               Text(
                 Intl.message('label_agreement_terms'),
-                style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
+                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
                 textAlign: TextAlign.center,
               ),
               Positioned(
@@ -69,7 +69,7 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
                     'assets/icons/arrow_left_style=line.svg',
                     width: 24.w,
                     height: 24,
-                    color: AppColors.Grey900,
+                    color: AppColors.grey900,
                   ),
                 ),
               ),
@@ -81,7 +81,7 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
         ),
         Expanded(
           child: Container(
-            color: AppColors.Grey100,
+            color: AppColors.grey100,
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
             child: Markdown(
                 data: Intl.getCurrentLocale() == 'ko'
@@ -100,7 +100,7 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
                       .setCurrentSignUpPage(const AgreementPrivacyPage()),
                   child: Text(Intl.message('label_button_agreement'),
                       style:
-                          getTextStyle(AppTypo.BODY16B, AppColors.Primary500))),
+                          getTextStyle(AppTypo.body16B, AppColors.primary500))),
             ],
           ),
         )

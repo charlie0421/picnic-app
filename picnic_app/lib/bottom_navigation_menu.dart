@@ -88,7 +88,7 @@ List<BottomNavigationItem> picPages = [
 ];
 
 List<BottomNavigationItem> communityPages = [
-  BottomNavigationItem(
+  const BottomNavigationItem(
     title: 'nav_home',
     assetPath: 'assets/icons/bottom/media.svg',
     index: 0,

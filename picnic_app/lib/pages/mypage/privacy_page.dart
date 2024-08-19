@@ -9,9 +9,9 @@ import 'package:picnic_app/util/ui.dart';
 
 class PrivacyPage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_privacy';
-  String? language;
+  final String? language;
 
-  PrivacyPage({super.key, this.language});
+  const PrivacyPage({super.key, this.language});
 
   @override
   ConsumerState<PrivacyPage> createState() => _PrivacyPageState();

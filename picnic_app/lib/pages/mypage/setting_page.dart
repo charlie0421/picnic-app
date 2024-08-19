@@ -43,7 +43,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
   @override
   Widget build(BuildContext context) {
-    final asyncPlatformInfoState = ref.watch(platformInfoProvider);
+    ref.watch(platformInfoProvider);
     final appSettingState = ref.watch(appSettingProvider);
     final appSettingNotifier = ref.read(appSettingProvider.notifier);
     final userInfoState = ref.watch(userInfoProvider);
@@ -56,7 +56,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                 children: [
                   const SizedBox(height: 16),
                   Text(S.of(context).label_setting_alarm,
-                      style: getTextStyle(AppTypo.BODY14B, AppColors.Grey600)),
+                      style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
                   const SizedBox(height: 4),
                   ListItem(
                     leading: S.of(context).label_setting_push_alarm,
@@ -79,12 +79,12 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         isActive,
                       ) =>
                           BoxDecoration(
-                        color: value ? AppColors.Primary500 : AppColors.Grey200,
+                        color: value ? AppColors.primary500 : AppColors.grey200,
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [switchBoxShadow],
                       ),
                       spinColor: (value) =>
-                          value ? AppColors.Primary500 : AppColors.Primary500,
+                          value ? AppColors.primary500 : AppColors.primary500,
                       spinStrokeWidth: 1,
                       onChange: (v) {
                         value1 = v;
@@ -93,7 +93,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                       onTap: (v) {},
                     ),
                   ),
-                  const Divider(color: AppColors.Grey200),
+                  const Divider(color: AppColors.grey200),
                   ListItem(
                     leading: S.of(context).label_setting_event_alarm,
                     title: Container(
@@ -102,7 +102,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                       child: Text(
                         S.of(context).label_setting_event_alarm_desc,
                         style:
-                            getTextStyle(AppTypo.CAPTION12R, AppColors.Grey600),
+                            getTextStyle(AppTypo.caption12R, AppColors.grey600),
                         textAlign: TextAlign.start,
                       ),
                     ),
@@ -125,12 +125,12 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         isActive,
                       ) =>
                           BoxDecoration(
-                        color: value ? AppColors.Primary500 : AppColors.Grey200,
+                        color: value ? AppColors.primary500 : AppColors.grey200,
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [switchBoxShadow],
                       ),
                       spinColor: (value) =>
-                          value ? AppColors.Primary500 : AppColors.Primary500,
+                          value ? AppColors.primary500 : AppColors.primary500,
                       spinStrokeWidth: 1,
                       onChange: (v) {
                         value2 = v;
@@ -139,10 +139,10 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                       onTap: (v) {},
                     ),
                   ),
-                  const Divider(color: AppColors.Grey200),
+                  const Divider(color: AppColors.grey200),
                   const SizedBox(height: 48),
                   Text(S.of(context).label_setting_language,
-                      style: getTextStyle(AppTypo.BODY14B, AppColors.Grey600)),
+                      style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
                   DropdownButtonFormField(
                     value: appSettingState.locale.languageCode,
                     icon: SvgPicture.asset(
@@ -151,11 +151,11 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                       border: InputBorder.none,
                       focusedBorder: OutlineInputBorder(
                         borderSide:
-                            BorderSide(color: AppColors.Grey00, width: 0),
+                            BorderSide(color: AppColors.grey00, width: 0),
                       ),
                       contentPadding: EdgeInsets.symmetric(horizontal: 0),
                     ),
-                    dropdownColor: AppColors.Grey00,
+                    dropdownColor: AppColors.grey00,
                     borderRadius: BorderRadius.circular(8),
                     items: languageMap.entries.map((entry) {
                       return DropdownMenuItem(
@@ -165,9 +165,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                           entry.value,
                           style: appSettingState.locale.languageCode ==
                                   entry.key
-                              ? getTextStyle(AppTypo.BODY14B, AppColors.Grey900)
+                              ? getTextStyle(AppTypo.body14B, AppColors.grey900)
                               : getTextStyle(
-                                  AppTypo.BODY14M, AppColors.Grey400),
+                                  AppTypo.body14M, AppColors.grey400),
                         ),
                       );
                     }).toList(),
@@ -181,10 +181,10 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                       ));
                     },
                   ),
-                  const Divider(color: AppColors.Grey200),
+                  const Divider(color: AppColors.grey200),
                   const SizedBox(height: 48),
                   Text(S.of(context).label_setting_storage,
-                      style: getTextStyle(AppTypo.BODY14B, AppColors.Grey600)),
+                      style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
                   ListItem(
                       leading: S.of(context).label_setting_remove_cache,
                       assetPath: 'assets/icons/arrow_right_style=line.svg',
@@ -194,17 +194,16 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         cacheManager.emptyCache().then((value) {
                           OverlayLoadingProgress.stop();
                           showSimpleDialog(
-                              context: context,
                               content:
                                   S.of(context).message_setting_remove_cache,
                               onOk: () => Navigator.of(context).pop());
                         });
                       }),
-                  const Divider(color: AppColors.Grey200),
+                  const Divider(color: AppColors.grey200),
                   const SizedBox(height: 48),
                   Text(S.of(context).label_setting_appinfo,
-                      style: getTextStyle(AppTypo.BODY14B, AppColors.Grey600)),
-                  const Divider(color: AppColors.Grey200),
+                      style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
+                  const Divider(color: AppColors.grey200),
                   updateChecker.when(
                       data: (info) {
                         if (info == null) {
@@ -220,7 +219,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                                 child: Text(
                                   '${S.of(context).label_setting_recent_version} (${info.latestVersion})',
                                   style: getTextStyle(
-                                      AppTypo.CAPTION12B, AppColors.Primary500),
+                                      AppTypo.caption12B, AppColors.primary500),
                                   textAlign: TextAlign.start,
                                 ),
                               ),
@@ -241,7 +240,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                                 child: Text(
                                   '${S.of(context).label_setting_recent_version} (${info.latestVersion})',
                                   style: getTextStyle(
-                                      AppTypo.CAPTION12B, AppColors.Primary500),
+                                      AppTypo.caption12B, AppColors.primary500),
                                   textAlign: TextAlign.start,
                                 ),
                               ),
@@ -264,7 +263,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                                       .of(context)
                                       .label_setting_recent_version_up_to_date,
                                   style: getTextStyle(
-                                      AppTypo.CAPTION12B, AppColors.Mint500),
+                                      AppTypo.caption12B, AppColors.mint500),
                                   textAlign: TextAlign.start,
                                 ),
                               ),

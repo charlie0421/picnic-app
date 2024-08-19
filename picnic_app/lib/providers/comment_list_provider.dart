@@ -33,7 +33,7 @@ class AsyncCommentList extends _$AsyncCommentList {
     String order, {
     required int articleId,
   }) async {
-    final response = await supabase
+    await supabase
         .from('article_comment')
         .select()
         .eq('article_id', articleId)

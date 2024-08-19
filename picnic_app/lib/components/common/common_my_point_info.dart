@@ -57,7 +57,7 @@ class _CommonMyPointState extends ConsumerState<CommonMyPoint> {
                     enableSeparator: true,
                     curve: Curves.easeInOut,
                     textStyle:
-                        getTextStyle(AppTypo.CAPTION12B, AppColors.Primary500)),
+                        getTextStyle(AppTypo.caption12B, AppColors.primary500)),
               ),
               SizedBox(width: 8.w),
               Image.asset(

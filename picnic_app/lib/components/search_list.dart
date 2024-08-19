@@ -40,7 +40,7 @@ class _SearchListState extends ConsumerState<SearchList> {
               controller: _textEditingController,
               decoration: InputDecoration(
                 hintText: S.of(context).text_hint_search,
-                hintStyle: getTextStyle(AppTypo.BODY14B, AppColors.Grey300),
+                hintStyle: getTextStyle(AppTypo.body14B, AppColors.grey300),
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
                 suffixIcon: IconButton(

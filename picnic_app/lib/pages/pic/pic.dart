@@ -60,9 +60,9 @@ class _PicPageState extends ConsumerState<PicPage> {
       child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: AppColors.Mint500,
+            color: AppColors.mint500,
             border: Border.all(
-              color: AppColors.Primary500,
+              color: AppColors.primary500,
               width: 3.w,
               strokeAlign: BorderSide.strokeAlignOutside,
             ),
@@ -105,7 +105,7 @@ class _PicPageState extends ConsumerState<PicPage> {
                     ),
                     const SizedBox(height: 4),
                     Text(data?[index - 1].name_ko ?? '',
-                        style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900))
+                        style: getTextStyle(AppTypo.body16B, AppColors.grey900))
                   ],
                 ),
               );

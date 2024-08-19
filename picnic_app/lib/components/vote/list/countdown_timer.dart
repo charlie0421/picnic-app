@@ -20,7 +20,7 @@ class CountdownTimer extends StatefulWidget {
 class _CountdownTimerState extends State<CountdownTimer> {
   Timer? _timer;
   Duration _timeLeft = Duration.zero;
-  Color _color = AppColors.Mint500;
+  Color _color = AppColors.mint500;
 
   @override
   void initState() {
@@ -56,13 +56,13 @@ class _CountdownTimerState extends State<CountdownTimer> {
 
   void _updateColor() {
     if (_timeLeft.inHours > 24) {
-      _color = AppColors.Mint500;
+      _color = AppColors.mint500;
     } else if (_timeLeft.inHours > 1) {
-      _color = AppColors.Sub500;
+      _color = AppColors.sub500;
     } else if (_timeLeft.inMinutes > 0) {
-      _color = AppColors.Point500;
+      _color = AppColors.point500;
     } else {
-      _color = AppColors.Grey300;
+      _color = AppColors.grey300;
     }
   }
 
@@ -80,7 +80,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
             height: 20,
             alignment: Alignment.center,
             child: Text(S.of(context).label_vote_upcoming,
-                style: getTextStyle(AppTypo.CAPTION12B, _color)),
+                style: getTextStyle(AppTypo.caption12B, _color)),
           ),
         SizedBox(
           height: 18,
@@ -90,10 +90,10 @@ class _CountdownTimerState extends State<CountdownTimer> {
               ..._buildTimeUnit(totalDays, 'D'),
               ..._buildTimeUnit(hours),
               Text(' : ',
-                  style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey900)),
+                  style: getTextStyle(AppTypo.caption12M, AppColors.grey900)),
               ..._buildTimeUnit(minutes),
               Text(' : ',
-                  style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey900)),
+                  style: getTextStyle(AppTypo.caption12M, AppColors.grey900)),
               ..._buildTimeUnit(seconds),
             ],
           ),
@@ -110,7 +110,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
       }),
       if (unit != null)
         Text(' $unit ',
-            style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey900)),
+            style: getTextStyle(AppTypo.caption12M, AppColors.grey900)),
     ];
   }
 
@@ -126,7 +126,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(time,
-          style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey900)),
+          style: getTextStyle(AppTypo.caption12M, AppColors.grey900)),
     );
   }
 }

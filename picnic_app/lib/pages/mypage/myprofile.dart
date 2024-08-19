@@ -61,7 +61,6 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final userInfo = ref.watch(userInfoProvider);
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -78,7 +77,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             buildValidationMsg(context),
             const SizedBox(height: 26),
             const Divider(
-              color: AppColors.Grey300,
+              color: AppColors.grey300,
               thickness: 1,
               height: 24,
             ),
@@ -91,7 +90,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                       .setCurrentMyPage(TermsPage());
                 }),
             const Divider(
-              color: AppColors.Grey300,
+              color: AppColors.grey300,
               thickness: 1,
               height: 24,
             ),
@@ -104,7 +103,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                       .setCurrentMyPage(PrivacyPage());
                 }),
             const Divider(
-              color: AppColors.Grey300,
+              color: AppColors.grey300,
               thickness: 1,
               height: 24,
             ),
@@ -119,7 +118,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                   Navigator.of(context).pop();
                 }),
             const Divider(
-              color: AppColors.Grey300,
+              color: AppColors.grey300,
               thickness: 1,
               height: 24,
             ),
@@ -128,7 +127,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () => _showWithdrawalModal()),
             const Divider(
-              color: AppColors.Grey300,
+              color: AppColors.grey300,
               thickness: 1,
               height: 24,
             ),
@@ -152,7 +151,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         uiSettings: [
           AndroidUiSettings(
               toolbarTitle: '',
-              toolbarColor: AppColors.Primary500,
+              toolbarColor: AppColors.primary500,
               toolbarWidgetColor: Colors.white,
               initAspectRatio: CropAspectRatioPreset.square,
               lockAspectRatio: true),
@@ -242,27 +241,27 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
                   Text(
                     S.of(context).dialog_withdraw_title,
-                    style: getTextStyle(AppTypo.TITLE18SB, AppColors.Grey900),
+                    style: getTextStyle(AppTypo.title18SB, AppColors.grey900),
                   ),
                   const SizedBox(height: 24),
                   Text(
                     S.of(context).dialog_will_delete_star_candy,
-                    style: getTextStyle(AppTypo.BODY14B, AppColors.Grey900),
+                    style: getTextStyle(AppTypo.body14B, AppColors.grey900),
                   ),
                   const StarCandyInfoText(),
                   const SizedBox(height: 24),
                   Text(S.of(context).dialog_withdraw_message,
                       style:
-                          getTextStyle(AppTypo.CAPTION12R, AppColors.Grey700),
+                          getTextStyle(AppTypo.caption12R, AppColors.grey700),
                       textAlign: TextAlign.center),
                   const SizedBox(height: 24),
                   Text(S.of(context).dialog_message_can_resignup,
                       style:
-                          getTextStyle(AppTypo.CAPTION12R, AppColors.Grey700),
+                          getTextStyle(AppTypo.caption12R, AppColors.grey700),
                       textAlign: TextAlign.center),
                   Text(formattedDate,
                       style:
-                          getTextStyle(AppTypo.CAPTION12B, AppColors.Grey700),
+                          getTextStyle(AppTypo.caption12B, AppColors.grey700),
                       textAlign: TextAlign.center),
                   const SizedBox(height: 24),
                   Row(
@@ -279,13 +278,13 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                   minWidth: 100.w,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.Grey300,
+                                  color: AppColors.grey300,
                                   borderRadius: BorderRadius.circular(30.w),
                                 ),
                                 child: Text(
                                     S.of(context).dialog_withdraw_button_ok,
                                     style: getTextStyle(
-                                        AppTypo.TITLE18SB, AppColors.Grey00)))),
+                                        AppTypo.title18SB, AppColors.grey00)))),
                       ),
                       Expanded(
                         child: MaterialButton(
@@ -298,15 +297,15 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                   minWidth: 100.w,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.Grey00,
+                                  color: AppColors.grey00,
                                   borderRadius: BorderRadius.circular(30.w),
                                   border: Border.all(
-                                      color: AppColors.Primary500,
+                                      color: AppColors.primary500,
                                       width: 1.5.w),
                                 ),
                                 child: Text(S.of(context).dialog_button_cancel,
-                                    style: getTextStyle(AppTypo.TITLE18SB,
-                                        AppColors.Primary500)))),
+                                    style: getTextStyle(AppTypo.title18SB,
+                                        AppColors.primary500)))),
                       ),
                     ],
                   )
@@ -363,7 +362,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
       child: isValid == false
           ? Text(
               S.of(context).nickname_validation_error,
-              style: getTextStyle(AppTypo.CAPTION10SB, AppColors.StatusError),
+              style: getTextStyle(AppTypo.caption10SB, AppColors.statusError),
             )
           : null,
     );
@@ -378,7 +377,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24.w),
               border: Border.all(
-                  color: isValid ? AppColors.Primary500 : AppColors.StatusError,
+                  color: isValid ? AppColors.primary500 : AppColors.statusError,
                   strokeAlign: BorderSide.strokeAlignInside,
                   width: 1.5.w),
             ),
@@ -397,17 +396,17 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                     isValid = validateInput(value) == null;
                   });
                 },
-                cursorColor: AppColors.Primary500,
+                cursorColor: AppColors.primary500,
                 focusNode: _focusNode,
                 cursorHeight: 16.w,
                 keyboardType: TextInputType.text,
-                style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
+                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
                 decoration: InputDecoration(
                   hintText: S.of(context).hint_nickname_input,
-                  hintStyle: getTextStyle(AppTypo.BODY14B, AppColors.Grey300),
+                  hintStyle: getTextStyle(AppTypo.body14B, AppColors.grey300),
                   border: InputBorder.none,
-                  fillColor: AppColors.Grey900,
-                  focusColor: AppColors.Primary500,
+                  fillColor: AppColors.grey900,
+                  focusColor: AppColors.primary500,
                   enabledBorder: InputBorder.none,
                   focusedBorder: InputBorder.none,
                   errorBorder: InputBorder.none,
@@ -430,7 +429,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                               ? SvgPicture.asset(
                                   'assets/icons/cancle_style=fill.svg',
                                   colorFilter: const ColorFilter.mode(
-                                    AppColors.Grey300,
+                                    AppColors.grey300,
                                     BlendMode.srcIn,
                                   ),
                                   width: 20.w,
@@ -448,7 +447,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                   child: SvgPicture.asset(
                                     'assets/icons/cancle_style=fill.svg',
                                     colorFilter: const ColorFilter.mode(
-                                      AppColors.Grey700,
+                                      AppColors.grey700,
                                       BlendMode.srcIn,
                                     ),
                                     width: 20.w,
@@ -474,12 +473,10 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                 if (success) {
                   // 닉네임 변경 성공
                   showSimpleDialog(
-                      context: context,
                       content: S.of(context).message_update_nickname_success);
                 } else {
                   // 닉네임 변경 실패 (중복 또는 오류)
                   showSimpleDialog(
-                      context: context,
                       content: S.of(context).message_update_nickname_fail);
                 }
                 OverlayLoadingProgress.stop();
@@ -495,12 +492,12 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
               color: isValid &&
                       _textEditingController.text !=
                           ref.watch(userInfoProvider).value?.nickname
-                  ? AppColors.Primary500
-                  : AppColors.Grey300,
+                  ? AppColors.primary500
+                  : AppColors.grey300,
               borderRadius: BorderRadius.circular(24.w),
             ),
             child: SvgPicture.asset('assets/icons/pencil_style=fill.svg',
-                color: AppColors.Grey900, width: 24.w, height: 24),
+                color: AppColors.grey900, width: 24.w, height: 24),
           ),
         ),
       ],
@@ -537,7 +534,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                             height: 24,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: AppColors.Primary500,
+                              color: AppColors.primary500,
                               borderRadius: BorderRadius.circular(50.w),
                             ),
                             child: SvgPicture.asset(
@@ -545,7 +542,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                 width: 16.w,
                                 height: 16,
                                 colorFilter: const ColorFilter.mode(
-                                  AppColors.Grey00,
+                                  AppColors.grey00,
                                   BlendMode.srcIn,
                                 ))),
                       ),

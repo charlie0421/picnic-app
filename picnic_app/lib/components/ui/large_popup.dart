@@ -37,9 +37,9 @@ class LargePopupWidget extends StatelessWidget {
             Container(
                 width: width ?? 345.w,
                 decoration: BoxDecoration(
-                  color: backgroundColor ?? AppColors.Grey00,
+                  color: backgroundColor ?? AppColors.grey00,
                   border: Border.all(
-                    color: AppColors.Mint500,
+                    color: AppColors.mint500,
                     width: 2.r,
                   ),
                   borderRadius: BorderRadius.circular(120.r),
@@ -77,14 +77,14 @@ class LargePopupWidget extends StatelessWidget {
                           children: [
                             Text(S.of(context).label_button_close,
                                 style: getTextStyle(
-                                    AppTypo.BODY14B, AppColors.Grey00)),
+                                    AppTypo.body14B, AppColors.grey00)),
                             SizedBox(width: 4.w),
                             SvgPicture.asset(
                               'assets/icons/cancle_style=line.svg',
                               width: 24.w,
                               height: 24,
                               colorFilter: const ColorFilter.mode(
-                                  AppColors.Grey00, BlendMode.srcIn),
+                                  AppColors.grey00, BlendMode.srcIn),
                             ),
                           ],
                         )

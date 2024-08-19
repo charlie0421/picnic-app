@@ -27,7 +27,6 @@ class _CommonBottomNavigationBarState
     final userInfoState = ref.watch(userInfoProvider);
     return userInfoState.when(
       data: (data) {
-        final bool isAdmin = data == null ? false : data.is_admin;
         return Container(
           height: 102,
           padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 50),
@@ -97,7 +96,6 @@ class MenuItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final navigationInfo = ref.watch(navigationInfoProvider);
     final navigationNotifier = ref.read(navigationInfoProvider.notifier);
 
     final index = navigationNotifier.getBottomNavigationIndex();
@@ -117,14 +115,14 @@ class MenuItem extends ConsumerWidget {
                 child: SvgPicture.asset(
                   assetPath,
                   colorFilter: ColorFilter.mode(
-                      isSelected ? AppColors.Grey900 : AppColors.Grey400,
+                      isSelected ? AppColors.grey900 : AppColors.grey400,
                       BlendMode.srcIn),
                 )),
             Text(
               Intl.message(title),
               style: getTextStyle(
-                isSelected ? AppTypo.CAPTION12B : AppTypo.CAPTION12R,
-                isSelected ? AppColors.Grey900 : AppColors.Grey400,
+                isSelected ? AppTypo.caption12B : AppTypo.caption12R,
+                isSelected ? AppColors.grey900 : AppColors.grey400,
               ),
             )
           ],

@@ -61,12 +61,12 @@ class _StarCandyInfoTextState extends ConsumerState<StarCandyInfoText> {
               children: [
                 TextSpan(
                   text: firstPart,
-                  style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
+                  style: getTextStyle(AppTypo.body16B, AppColors.grey900),
                 ),
                 if (starCandyBonus > 0)
                   TextSpan(
                     text: secondPart,
-                    style: getTextStyle(AppTypo.BODY16B, AppColors.Primary500),
+                    style: getTextStyle(AppTypo.body16B, AppColors.primary500),
                   ),
               ],
             ),

@@ -248,7 +248,7 @@ class UserInfo extends _$UserInfo {
 Future<bool> setAgreement(AgreementRef ref) async {
   logger.i('Setting user agreement');
   try {
-    final response = await supabase.from('user_agreement').upsert({
+    await supabase.from('user_agreement').upsert({
       'id': supabase.auth.currentUser?.id,
       'terms': 'now',
       'privacy': 'now',
@@ -268,7 +268,7 @@ Future<bool> setAgreement(AgreementRef ref) async {
 Future<bool> agreement(AgreementRef ref) async {
   logger.i('Creating user agreement');
   try {
-    final response = await supabase.from('user_agreement').insert({
+    await supabase.from('user_agreement').insert({
       'id': supabase.auth.currentUser?.id,
       'terms': DateTime.now().toUtc(),
       'privacy': DateTime.now().toUtc(),

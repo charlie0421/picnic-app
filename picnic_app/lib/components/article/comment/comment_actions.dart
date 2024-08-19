@@ -16,8 +16,6 @@ class CommentActions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final parentComment = ref.watch(parentItemProvider);
-
     return InkWell(
       child: SizedBox(
         height: 40,
@@ -39,7 +37,7 @@ class CommentActions extends ConsumerWidget {
                       ),
                       child: Text(S.of(context).label_reply,
                           style:
-                              getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
+                              getTextStyle(AppTypo.body16B, AppColors.grey900)),
                     ),
                   ),
                   LikeButton(

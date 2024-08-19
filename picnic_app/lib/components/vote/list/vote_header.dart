@@ -29,8 +29,8 @@ class VoteCardInfoHeader extends StatelessWidget {
               child: Text(
                 title,
                 style: getTextStyle(
-                  AppTypo.BODY16B,
-                  AppColors.Grey900,
+                  AppTypo.body16B,
+                  AppColors.grey900,
                 ),
                 textAlign: TextAlign.center,
               ),

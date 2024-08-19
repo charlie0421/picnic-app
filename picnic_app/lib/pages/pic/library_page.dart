@@ -49,7 +49,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
           child: TabBar(
             indicatorWeight: 3,
             indicator: const UnderlineTabIndicator(
-              borderSide: BorderSide(width: 2.0, color: AppColors.Grey900),
+              borderSide: BorderSide(width: 2.0, color: AppColors.grey900),
             ),
             controller: _tabController,
             tabs: [
@@ -88,7 +88,6 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 
   Widget _buildPicTab(ref) {
-    int picPageIndex = ref.watch(parmePageIndexProvider);
     Widget widget = const PicPage();
 
     return WillPopScope(

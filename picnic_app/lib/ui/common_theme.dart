@@ -4,21 +4,21 @@ import 'package:picnic_app/ui/style.dart';
 
 TabBarTheme commonTabBarTheme = TabBarTheme(
   labelStyle: getTextStyle(
-    AppTypo.BODY14M,
-    AppColors.Grey900,
+    AppTypo.body14M,
+    AppColors.grey900,
   ),
   unselectedLabelStyle: getTextStyle(
-    AppTypo.BODY14R,
-    AppColors.Grey300,
+    AppTypo.body14R,
+    AppColors.grey300,
   ),
   indicatorSize: TabBarIndicatorSize.tab,
-  indicatorColor: AppColors.Grey900,
+  indicatorColor: AppColors.grey900,
 );
 
 SwitchThemeData commonSwitchTheme = SwitchThemeData(
-  trackColor: WidgetStateProperty.all(AppColors.Primary500),
+  trackColor: WidgetStateProperty.all(AppColors.primary500),
   trackOutlineWidth: const WidgetStatePropertyAll(0),
-  trackOutlineColor: WidgetStateProperty.all(AppColors.Grey00),
+  trackOutlineColor: WidgetStateProperty.all(AppColors.grey00),
 );
 
 BottomSheetThemeData commonBottomSheetTheme = const BottomSheetThemeData(
@@ -32,12 +32,12 @@ BottomSheetThemeData commonBottomSheetTheme = const BottomSheetThemeData(
 );
 
 MarkdownStyleSheet commonMarkdownStyleSheet = MarkdownStyleSheet(
-  h3: getTextStyle(AppTypo.CAPTION10SB, AppColors.Primary500),
+  h3: getTextStyle(AppTypo.caption10SB, AppColors.primary500),
   h3Align: WrapAlignment.center,
-  h6: getTextStyle(AppTypo.BODY14M, AppColors.Grey900),
+  h6: getTextStyle(AppTypo.body14M, AppColors.grey900),
   h6Align: WrapAlignment.center,
 );
 
 DialogTheme commonDialogTheme = const DialogTheme(
-  backgroundColor: AppColors.Grey00,
+  backgroundColor: AppColors.grey00,
 );

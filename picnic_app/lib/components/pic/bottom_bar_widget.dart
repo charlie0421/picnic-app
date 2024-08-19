@@ -117,7 +117,7 @@ class BottomBarWidget extends StatelessWidget {
                         viewMode == ViewMode.timer ||
                         !cameraInitialized
                     ? Colors.grey
-                    : AppColors.Primary500,
+                    : AppColors.primary500,
                 borderRadius: BorderRadius.circular(50),
               ),
               child: Icon(
@@ -143,7 +143,7 @@ class BottomBarWidget extends StatelessWidget {
                     (viewMode == ViewMode.ready) ? Colors.white : Colors.grey,
                 border: Border.all(
                   color: (viewMode == ViewMode.ready)
-                      ? AppColors.Primary500
+                      ? AppColors.primary500
                       : Colors.grey,
                   width: 10.w,
                 ),
@@ -151,7 +151,7 @@ class BottomBarWidget extends StatelessWidget {
               child: Icon(
                 viewType == ViewType.image ? Icons.save : Icons.camera,
                 color: (viewMode == ViewMode.ready)
-                    ? AppColors.Primary500
+                    ? AppColors.primary500
                     : Colors.grey,
                 size: 30,
               ),
@@ -172,7 +172,7 @@ class BottomBarWidget extends StatelessWidget {
                         viewMode == ViewMode.timer ||
                         !cameraInitialized
                     ? Colors.grey
-                    : AppColors.Primary500,
+                    : AppColors.primary500,
                 borderRadius: BorderRadius.circular(50),
               ),
               width: 45.w,
@@ -203,7 +203,7 @@ class BottomBarWidget extends StatelessWidget {
                           viewMode == ViewMode.saving ||
                           viewMode == ViewMode.timer
                       ? Colors.grey
-                      : AppColors.Primary500)
+                      : AppColors.primary500)
                   : Colors.grey,
               size: 50,
             ),

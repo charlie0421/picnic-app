@@ -117,7 +117,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
   Future<void> _updateBookmarkStatus(int artistId, bool isBookmarked) async {
     try {
       OverlayLoadingProgress.start(context,
-          barrierDismissible: false, color: AppColors.Primary500);
+          barrierDismissible: false, color: AppColors.primary500);
       final success = isBookmarked
           ? await ref
               .read(asyncVoteArtistListProvider.notifier)
@@ -129,6 +129,9 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
           : await ref
               .read(asyncVoteArtistListProvider.notifier)
               .bookmarkArtist(artistId: artistId);
+
+      if (!mounted) return; // 비동기 작업 후 위젯이 여전히 마운트되어 있는지 다시 확인
+
       if (success) {
         if (isBookmarked) {
           _updateArtistBookmarkStatus(artistId, false);
@@ -139,7 +142,6 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
         ref.refresh(asyncBookmarkedArtistsProvider);
       } else {
         showSimpleDialog(
-          context: context,
           content: isBookmarked
               ? S.of(context).text_bookmark_failed
               : S.of(context).text_bookmark_over_5,
@@ -148,7 +150,10 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
     } catch (e, s) {
       logger.e('북마크 상태 변경 중 오류 발생:', error: e, stackTrace: s);
     } finally {
-      OverlayLoadingProgress.stop();
+      if (mounted) {
+        // 로딩 progress를 멈추기 전에 위젯이 여전히 마운트되어 있는지 확인
+        OverlayLoadingProgress.stop();
+      }
     }
   }
 
@@ -255,7 +260,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
                     color: Colors.white,
                   ),
                 ),
-                const Divider(height: 32, color: AppColors.Grey200),
+                const Divider(height: 32, color: AppColors.grey200),
               ],
             ),
           ),
@@ -284,15 +289,15 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
                   ..._buildHighlightedTextSpans(
                     getLocaleTextFromJson(item.name),
                     _textEditingController.text,
-                    AppTypo.BODY16B,
-                    AppColors.Grey900,
+                    AppTypo.body16B,
+                    AppColors.grey900,
                   ),
                   const TextSpan(text: ' '),
                   ..._buildHighlightedTextSpans(
                     getLocaleTextFromJson(item.artist_group.name),
                     _textEditingController.text,
-                    AppTypo.CAPTION12M,
-                    AppColors.Grey600,
+                    AppTypo.caption12M,
+                    AppColors.grey600,
                   ),
                 ],
               ),
@@ -304,8 +309,8 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
                 'assets/icons/bookmark_style=fill.svg',
                 colorFilter: ColorFilter.mode(
                   item.isBookmarked == true
-                      ? AppColors.Primary500
-                      : AppColors.Grey300,
+                      ? AppColors.primary500
+                      : AppColors.grey300,
                   BlendMode.srcIn,
                 ),
                 width: 20,
@@ -313,7 +318,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
               ),
             ),
           ),
-          const Divider(height: 32, color: AppColors.Grey200),
+          const Divider(height: 32, color: AppColors.grey200),
         ],
       ),
     );

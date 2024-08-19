@@ -18,7 +18,7 @@ class CommentReplyLayer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      color: AppColors.Grey300,
+      color: AppColors.grey300,
       width: double.infinity,
       height: 40,
       padding: EdgeInsets.symmetric(horizontal: 10.w),
@@ -31,10 +31,10 @@ class CommentReplyLayer extends ConsumerWidget {
               children: [
                 TextSpan(
                     text: '${parentComment.user?.nickname ?? ''} ',
-                    style: getTextStyle(AppTypo.BODY14B, AppColors.Grey900)),
+                    style: getTextStyle(AppTypo.body14B, AppColors.grey900)),
                 TextSpan(
                     text: '님에게 답글을 남깁니다.',
-                    style: getTextStyle(AppTypo.BODY14R, AppColors.Grey900)),
+                    style: getTextStyle(AppTypo.body14R, AppColors.grey900)),
               ],
             ),
           ),
@@ -43,7 +43,7 @@ class CommentReplyLayer extends ConsumerWidget {
               ref.read(parentItemProvider.notifier).setParentItem(null);
             },
             iconSize: 20,
-            icon: const Icon(Icons.close, color: AppColors.Grey900),
+            icon: const Icon(Icons.close, color: AppColors.grey900),
           ),
         ],
       ),

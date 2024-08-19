@@ -131,12 +131,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(120),
-            border: Border.all(color: AppColors.Primary500, width: 1.5.r),
+            border: Border.all(color: AppColors.primary500, width: 1.5.r),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(120),
             child: PicnicCachedNetworkImage(
-              imageUrl: widget.voteItemModel.artist.image ?? '',
+              imageUrl: widget.voteItemModel.artist.image,
               width: 100,
               height: 100,
               useScreenUtil: false,
@@ -151,7 +151,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             children: [
               Text(
                 getLocaleTextFromJson(widget.voteItemModel.artist.name),
-                style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
+                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               ),
               SizedBox(width: 8.w),
               Align(
@@ -159,13 +159,13 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                 child: Text(
                   getLocaleTextFromJson(
                       widget.voteItemModel.artist.artist_group.name),
-                  style: getTextStyle(AppTypo.CAPTION12R, AppColors.Grey600),
+                  style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
                 ),
               ),
             ],
           ),
         ),
-        Divider(color: AppColors.Grey300, thickness: 1, height: 20.0.h),
+        Divider(color: AppColors.grey300, thickness: 1, height: 20.0.h),
       ],
     );
   }
@@ -198,7 +198,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                 textStyle: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.Primary500,
+                  color: AppColors.primary500,
                 ),
               ),
             ),
@@ -225,16 +225,16 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         height: 32,
         padding: EdgeInsets.symmetric(horizontal: 12.w),
         decoration: BoxDecoration(
-          color: AppColors.Mint500,
+          color: AppColors.mint500,
           borderRadius: BorderRadius.circular(20.r),
-          border: Border.all(color: AppColors.Primary500, width: 1),
+          border: Border.all(color: AppColors.primary500, width: 1),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               S.of(context).label_button_recharge,
-              style: getTextStyle(AppTypo.BODY14B, AppColors.Primary500),
+              style: getTextStyle(AppTypo.body14B, AppColors.primary500),
             ),
             SizedBox(width: 4.w),
             SvgPicture.asset(
@@ -242,7 +242,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
               width: 16.w,
               height: 16,
               colorFilter:
-                  const ColorFilter.mode(AppColors.Primary500, BlendMode.srcIn),
+                  const ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
             ),
           ],
         ),
@@ -277,7 +277,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
               width: 20.w,
               height: 20,
               colorFilter: ColorFilter.mode(
-                _checkAll ? AppColors.Primary500 : AppColors.Grey300,
+                _checkAll ? AppColors.primary500 : AppColors.grey300,
                 BlendMode.srcIn,
               ),
             ),
@@ -285,8 +285,8 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             Text(
               S.of(context).label_checkbox_entire_use,
               style: getTextStyle(
-                AppTypo.BODY14M,
-                _checkAll ? AppColors.Primary500 : AppColors.Grey300,
+                AppTypo.body14M,
+                _checkAll ? AppColors.primary500 : AppColors.grey300,
               ),
             ),
           ],
@@ -301,8 +301,8 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       decoration: BoxDecoration(
         border: Border.all(
           color: !_canVote && _hasValue
-              ? AppColors.StatusError
-              : AppColors.Primary500,
+              ? AppColors.statusError
+              : AppColors.primary500,
           width: 1,
         ),
         borderRadius: BorderRadius.circular(24).r,
@@ -313,17 +313,17 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           Expanded(
             child: TextFormField(
               cursorHeight: 16.h,
-              cursorColor: AppColors.Primary500,
+              cursorColor: AppColors.primary500,
               focusNode: _focusNode,
               controller: _textEditingController,
               keyboardType: TextInputType.number,
               textAlign: TextAlign.left, // 왼쪽 정렬
               decoration: InputDecoration(
                 hintText: S.of(context).label_input_input,
-                hintStyle: getTextStyle(AppTypo.BODY16R, AppColors.Grey300),
+                hintStyle: getTextStyle(AppTypo.body16R, AppColors.grey300),
                 border: InputBorder.none,
-                focusColor: AppColors.Primary500,
-                fillColor: AppColors.Grey900,
+                focusColor: AppColors.primary500,
+                fillColor: AppColors.grey900,
                 isCollapsed: true,
                 contentPadding: EdgeInsets.symmetric(
                     horizontal: 24.w, vertical: 5), // 수직 패딩 조정
@@ -361,7 +361,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                   );
                 }),
               ],
-              style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
+              style: getTextStyle(AppTypo.body16B, AppColors.grey900),
             ),
           ),
           _buildClearButton(),
@@ -384,7 +384,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       child: SvgPicture.asset(
         'assets/icons/cancle_style=fill.svg',
         colorFilter: ColorFilter.mode(
-          _hasValue ? AppColors.Grey700 : AppColors.Grey200,
+          _hasValue ? AppColors.grey700 : AppColors.grey200,
           BlendMode.srcIn,
         ),
         width: 20.w,
@@ -401,7 +401,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         height: 15,
         child: Text(
           S.of(context).text_need_recharge,
-          style: getTextStyle(AppTypo.CAPTION10SB, AppColors.StatusError),
+          style: getTextStyle(AppTypo.caption10SB, AppColors.statusError),
           textAlign: TextAlign.left,
         ),
       );
@@ -417,15 +417,15 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         width: 172.w,
         height: 52,
         decoration: BoxDecoration(
-          color: _canVote ? AppColors.Primary500 : AppColors.Grey300,
+          color: _canVote ? AppColors.primary500 : AppColors.grey300,
           borderRadius: BorderRadius.circular(24).r,
         ),
         alignment: Alignment.center,
         child: Text(
           S.of(context).label_button_vote,
           style: getTextStyle(
-            AppTypo.TITLE18SB,
-            AppColors.Grey00,
+            AppTypo.title18SB,
+            AppColors.grey00,
           ),
         ),
       ),
@@ -436,7 +436,6 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     final voteAmount = _getVoteAmount();
     if (voteAmount == 0 || myStarCandy < voteAmount) {
       showSimpleDialog(
-        context: context,
         title: S.of(context).dialog_title_vote_fail,
         content: voteAmount == 0
             ? S.of(context).text_dialog_vote_amount_should_not_zero
@@ -449,7 +448,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     FocusScope.of(context).unfocus();
 
     OverlayLoadingProgress.start(context,
-        color: AppColors.Primary500, barrierDismissible: false);
+        color: AppColors.primary500, barrierDismissible: false);
 
     _performVoting(voteAmount, userId);
   }
@@ -516,7 +515,6 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
   void _showVotingFailDialog() {
     showSimpleDialog(
-      context: context,
       content: S.of(context).dialog_title_vote_fail,
       onOk: () => Navigator.of(context).pop(),
     );

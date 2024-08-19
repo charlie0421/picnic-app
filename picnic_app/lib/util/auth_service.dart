@@ -76,7 +76,7 @@ class AppleLogin implements SocialLogin {
   Future<SocialLoginResult> login() async {
     try {
       final rawNonce = _generateNonce();
-      final nonce = _sha256ofString(rawNonce);
+      // final nonce = _sha256ofString(rawNonce);
 
       final credential = await SignInWithApple.getAppleIDCredential(
           scopes: [
@@ -99,7 +99,7 @@ class AppleLogin implements SocialLogin {
         },
       );
     } catch (e) {
-      print('Apple login error: $e');
+      logger.e('Apple login error: $e');
       return SocialLoginResult();
     }
   }
@@ -115,7 +115,7 @@ class KakaoLogin implements SocialLogin {
     try {
       return await loginMethod();
     } catch (error) {
-      print('Login failed $error');
+      logger.e('Login failed $error');
       if (error is PlatformException && error.code == 'CANCELED') {
         return null;
       }
@@ -152,7 +152,7 @@ class KakaoLogin implements SocialLogin {
         },
       );
     } catch (e) {
-      print('login error: $e');
+      logger.e('login error: $e');
       return SocialLoginResult();
     }
   }

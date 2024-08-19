@@ -3,7 +3,6 @@ import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'bookmarked_artists_provider.g.dart';
 

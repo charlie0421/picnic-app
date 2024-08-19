@@ -12,7 +12,7 @@ ThemeData voteThemeLight = ThemeData.light().copyWith(
   bottomAppBarTheme: const BottomAppBarTheme(
     color: Colors.transparent,
   ),
-  scaffoldBackgroundColor: AppColors.Grey00,
+  scaffoldBackgroundColor: AppColors.grey00,
   // bottomNavigationBarTheme: const BottomNavigationBarThemeData(
   //   backgroundColor: voteMainColorLight,
   //   selectedIconTheme: IconThemeData(color: Colors.black),
@@ -26,20 +26,20 @@ ThemeData voteThemeLight = ThemeData.light().copyWith(
     style: ButtonStyle(
         padding: WidgetStateProperty.all(
             EdgeInsets.symmetric(horizontal: 32.w, vertical: 0).r),
-        backgroundColor: WidgetStateProperty.all(AppColors.Mint500),
+        backgroundColor: WidgetStateProperty.all(AppColors.mint500),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
             side: const BorderSide(
-                color: AppColors.Primary500,
+                color: AppColors.primary500,
                 width: 1,
                 strokeAlign: BorderSide.strokeAlignInside),
           ),
         ),
         textStyle: WidgetStateProperty.all(
           getTextStyle(
-            AppTypo.BODY14B,
-            AppColors.Primary500,
+            AppTypo.body14B,
+            AppColors.primary500,
           ),
         ),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap),

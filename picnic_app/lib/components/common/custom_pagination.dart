@@ -21,7 +21,7 @@ class CustomPaginationBuilder extends SwiperPlugin {
           width: active ? 12 : 8,
           height: active ? 12 : 8,
           decoration: BoxDecoration(
-            color: active ? AppColors.Primary500 : Colors.grey,
+            color: active ? AppColors.primary500 : Colors.grey,
             shape: BoxShape.circle,
           ),
         );
@@ -54,7 +54,7 @@ class CustomPagination extends StatelessWidget {
             width: active ? 12 : 8,
             height: active ? 12 : 8,
             decoration: BoxDecoration(
-              color: active ? AppColors.Primary500 : Colors.grey,
+              color: active ? AppColors.primary500 : Colors.grey,
               shape: BoxShape.circle,
             ),
           );

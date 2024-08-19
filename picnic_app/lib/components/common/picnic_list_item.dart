@@ -29,7 +29,7 @@ class ListItem extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(leading, style: getTextStyle(AppTypo.BODY16M)),
+            Text(leading, style: getTextStyle(AppTypo.body16M)),
             Expanded(child: title ?? const SizedBox.shrink()),
             tailing ??
                 SvgPicture.asset(
@@ -37,7 +37,7 @@ class ListItem extends StatelessWidget {
                   width: 20.w,
                   height: 20,
                   colorFilter: const ColorFilter.mode(
-                    AppColors.Grey900,
+                    AppColors.grey900,
                     BlendMode.srcIn,
                   ),
                 ),

@@ -10,7 +10,7 @@ class DrawImageScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final appSettingState = ref.watch(appSettingProvider);
+    ref.watch(appSettingProvider);
     return Scaffold(
       appBar: AppBar(),
       body: const DrawImagePage(),

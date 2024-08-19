@@ -14,7 +14,7 @@ class BulletPoint extends StatelessWidget {
       children: <Widget>[
         Text(
           '• ',
-          style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
+          style: getTextStyle(AppTypo.body16B, AppColors.grey900),
         ),
         Expanded(
           child: Text(text),

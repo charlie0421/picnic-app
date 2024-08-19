@@ -44,7 +44,7 @@ class PostListItem extends ConsumerWidget {
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: AppColors.Grey300,
+            color: AppColors.grey300,
             width: 1.h,
           ),
         ),
@@ -57,39 +57,39 @@ class PostListItem extends ConsumerWidget {
             children: [
               Text(getLocaleTextFromJson(post.boards.name),
                   style:
-                      getTextStyle(AppTypo.CAPTION12B, AppColors.Primary500)),
+                      getTextStyle(AppTypo.caption12B, AppColors.primary500)),
               SizedBox(width: 4.w),
               Text(post.user_id.substring(0, 8),
-                  style: getTextStyle(AppTypo.CAPTION12B, AppColors.Grey900)),
+                  style: getTextStyle(AppTypo.caption12B, AppColors.grey900)),
               SizedBox(width: 12.w),
               Text(formatTimeAgo(context, post.created_at),
-                  style: getTextStyle(AppTypo.CAPTION10SB, AppColors.Grey400)),
+                  style: getTextStyle(AppTypo.caption10SB, AppColors.grey400)),
             ],
           ),
           Text(post.title,
-              style: getTextStyle(AppTypo.BODY14M, AppColors.Grey900)),
+              style: getTextStyle(AppTypo.body14M, AppColors.grey900)),
           Text.rich(
             TextSpan(
               children: [
                 TextSpan(
                   text: '조회',
-                  style: getTextStyle(AppTypo.CAPTION10SB, AppColors.Grey600),
+                  style: getTextStyle(AppTypo.caption10SB, AppColors.grey600),
                 ),
                 TextSpan(
                   text: post.view_count.toString(),
-                  style: getTextStyle(AppTypo.CAPTION10SB, AppColors.Grey600),
+                  style: getTextStyle(AppTypo.caption10SB, AppColors.grey600),
                 ),
                 TextSpan(
                   text: ' ',
-                  style: getTextStyle(AppTypo.CAPTION10SB, AppColors.Grey600),
+                  style: getTextStyle(AppTypo.caption10SB, AppColors.grey600),
                 ),
                 TextSpan(
                   text: '조회',
-                  style: getTextStyle(AppTypo.CAPTION10SB, AppColors.Grey600),
+                  style: getTextStyle(AppTypo.caption10SB, AppColors.grey600),
                 ),
                 TextSpan(
                   text: post.view_count.toString(),
-                  style: getTextStyle(AppTypo.CAPTION10SB, AppColors.Grey600),
+                  style: getTextStyle(AppTypo.caption10SB, AppColors.grey600),
                 ),
               ],
             ),

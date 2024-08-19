@@ -66,7 +66,7 @@ class _TopState extends ConsumerState<ScreenTop> {
                   navigationInfo.topNavigationStack!.length > 1
               ? Text(
                   Intl.message(pageName),
-                  style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
+                  style: getTextStyle(AppTypo.body16B, AppColors.grey900),
                 )
               : const SizedBox(),
           userInfoState.when(

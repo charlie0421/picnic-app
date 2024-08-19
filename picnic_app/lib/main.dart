@@ -66,7 +66,6 @@ void main() async {
   }
   logStorageData();
 
-  final networkStatusListener = NetworkStatusListener(authService);
   final tokenRefreshManager = TokenRefreshManager(authService);
   tokenRefreshManager.startPeriodicRefresh();
 
@@ -88,7 +87,7 @@ void main() async {
       options.profilesSampleRate = 1.0;
       options.beforeSend = (event, hint) {
         if (!Environment.enableSentry || kDebugMode) {
-          print(
+          logger.i(
               'Sentry event in local environment (not sent): ${event.eventId}');
           return null; // null을 반환하면 이벤트가 Sentry로 전송되지 않습니다.
         }
@@ -115,8 +114,8 @@ void logStorageData() async {
 Future<void> checkSession() async {
   try {
     final session = supabase.auth.currentSession;
-  } catch (error) {
-    print('세션 확인 중 오류 발생: $error');
+  } catch (e, s) {
+    logger.e('세션 확인 중 오류 발생: $e', stackTrace: s);
     final authService = AuthService();
     await authService.signOut();
   }

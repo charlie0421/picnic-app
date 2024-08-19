@@ -35,7 +35,7 @@ class CustomDropdown extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8).r,
         border: Border.all(
-          color: AppColors.Grey300,
+          color: AppColors.grey300,
           width: 1,
         ),
       ),
@@ -52,7 +52,7 @@ class CustomDropdown extends StatelessWidget {
                 child: SvgPicture.asset(
                   'assets/icons/play_style=fill.svg',
                   colorFilter: const ColorFilter.mode(
-                    AppColors.Grey400,
+                    AppColors.grey400,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -62,7 +62,7 @@ class CustomDropdown extends StatelessWidget {
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(horizontal: 0),
               ),
-              dropdownColor: AppColors.Grey00,
+              dropdownColor: AppColors.grey00,
               borderRadius: BorderRadius.circular(8),
               items: items.map((item) {
                 return DropdownMenuItem(
@@ -71,8 +71,8 @@ class CustomDropdown extends StatelessWidget {
                   child: Text(
                     item.text,
                     style: value == item.value
-                        ? getTextStyle(AppTypo.CAPTION12R, AppColors.Grey700)
-                        : getTextStyle(AppTypo.CAPTION12R, AppColors.Grey400),
+                        ? getTextStyle(AppTypo.caption12R, AppColors.grey700)
+                        : getTextStyle(AppTypo.caption12R, AppColors.grey400),
                   ),
                 );
               }).toList(),

@@ -70,7 +70,7 @@ class _VoteListState extends State<VoteList> {
                   alignment: Alignment.center,
                   child: Text(
                     S.of(context).message_noitem_vote_active,
-                    style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey500),
+                    style: getTextStyle(AppTypo.caption12M, AppColors.grey500),
                   ));
             } else if (widget.status == VoteStatus.end) {
               return Container(
@@ -78,7 +78,7 @@ class _VoteListState extends State<VoteList> {
                   alignment: Alignment.center,
                   child: Text(
                     S.of(context).message_noitem_vote_end,
-                    style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey500),
+                    style: getTextStyle(AppTypo.caption12M, AppColors.grey500),
                   ));
             } else if (widget.status == VoteStatus.upcoming) {
               return Container(
@@ -86,7 +86,7 @@ class _VoteListState extends State<VoteList> {
                 alignment: Alignment.center,
                 child: Text(
                   S.of(context).message_noitem_vote_upcoming,
-                  style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey500),
+                  style: getTextStyle(AppTypo.caption12M, AppColors.grey500),
                 ),
               );
             }
@@ -101,7 +101,7 @@ class _VoteListState extends State<VoteList> {
                   ),
                   const Divider(
                     height: 1,
-                    color: AppColors.Grey300,
+                    color: AppColors.grey300,
                   ),
                 ],
               )),

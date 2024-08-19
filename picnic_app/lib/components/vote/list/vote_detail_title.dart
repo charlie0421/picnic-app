@@ -16,17 +16,17 @@ class VoteCommonTitle extends StatelessWidget {
     return Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         decoration: BoxDecoration(
-            color: AppColors.Mint500,
+            color: AppColors.mint500,
             borderRadius: BorderRadius.circular(24).r,
             border: Border.all(
-              color: AppColors.Primary500,
+              color: AppColors.primary500,
               width: 1.5,
             )),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SvgPicture.asset('assets/icons/play_style=fill.svg',
-                width: 16.w, height: 16, color: AppColors.Primary500),
+                width: 16.w, height: 16, color: AppColors.primary500),
             SizedBox(
               width: 2.w,
             ),
@@ -38,18 +38,18 @@ class VoteCommonTitle extends StatelessWidget {
                   children: [
                     Text(title,
                         style:
-                            getTextStyle(AppTypo.BODY16M, AppColors.Primary500)
+                            getTextStyle(AppTypo.body16M, AppColors.primary500)
                                 .copyWith(
                                     foreground: Paint()
                                       ..style = PaintingStyle.stroke
                                       ..strokeWidth = 1
-                                      ..color = AppColors.Primary500
+                                      ..color = AppColors.primary500
                                       ..strokeJoin = StrokeJoin.miter
                                       ..strokeMiterLimit = 28.96),
                         overflow: TextOverflow.ellipsis),
                     Text(
                       title,
-                      style: getTextStyle(AppTypo.BODY16M, AppColors.Grey00),
+                      style: getTextStyle(AppTypo.body16M, AppColors.grey00),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
@@ -62,7 +62,7 @@ class VoteCommonTitle extends StatelessWidget {
             Transform.rotate(
               angle: 3.14,
               child: SvgPicture.asset('assets/icons/play_style=fill.svg',
-                  width: 16.w, height: 16, color: AppColors.Primary500),
+                  width: 16.w, height: 16, color: AppColors.primary500),
             ),
           ],
         ));
