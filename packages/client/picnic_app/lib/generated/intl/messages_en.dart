@@ -43,8 +43,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_login": MessageLookupByLibrary.simpleMessage("Sign in"),
         "button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
         "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("Save"),
-        "candy_disappear_next_month": MessageLookupByLibrary.simpleMessage(
-            "Expiring Bonus Star Candy 😢"),
+        "candy_disappear_next_month":
+            MessageLookupByLibrary.simpleMessage("소멸 예정 보너스 별사탕 😢"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
             "Bonus Star Candy earned in the current month will expire on the 15th of the following month."),
         "candy_usage_policy_contents2": MessageLookupByLibrary.simpleMessage(
@@ -264,6 +264,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_title_comment": MessageLookupByLibrary.simpleMessage("Comments"),
         "label_title_report":
             MessageLookupByLibrary.simpleMessage("Make a report"),
+        "label_vote_end":
+            MessageLookupByLibrary.simpleMessage("Close the poll"),
         "label_vote_reward_list":
             MessageLookupByLibrary.simpleMessage("Rewards list"),
         "label_vote_screen_title":

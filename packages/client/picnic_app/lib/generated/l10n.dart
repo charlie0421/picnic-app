@@ -110,10 +110,10 @@ class S {
     );
   }
 
-  /// `Expiring Bonus Star Candy 😢`
+  /// `소멸 예정 보너스 별사탕 😢`
   String get candy_disappear_next_month {
     return Intl.message(
-      'Expiring Bonus Star Candy 😢',
+      '소멸 예정 보너스 별사탕 😢',
       name: 'candy_disappear_next_month',
       desc: '',
       args: [],
@@ -1325,6 +1325,16 @@ class S {
     return Intl.message(
       'Make a report',
       name: 'label_title_report',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Close the poll`
+  String get label_vote_end {
+    return Intl.message(
+      'Close the poll',
+      name: 'label_vote_end',
       desc: '',
       args: [],
     );

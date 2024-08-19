@@ -25,8 +25,7 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "candy_disappear_next_month": "소멸 예정 보너스 별사탕 😢",
-  "@candy_disappear_next_month": {
-  },
+  "@candy_disappear_next_month": {},
   "candy_usage_policy_contents": "이달에 적립한 보너스 별사탕은 다음달 15일 소멸됩니다.",
   "@candy_usage_policy_contents": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -481,6 +480,8 @@
   "@label_title_report": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "label_vote_end": "투표 종료",
+  "@label_vote_end": {},
   "label_vote_reward_list": "리워드 리스트",
   "@label_vote_reward_list": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"

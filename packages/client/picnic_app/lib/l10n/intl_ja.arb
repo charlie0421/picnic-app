@@ -402,10 +402,10 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
   },
-  "label_mypage_setting": "Settings",
+  "label_mypage_setting": "設定",
   "@label_mypage_setting": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
   "label_mypage_should_login": "ログインしてください",
   "@label_mypage_should_login": {
@@ -622,6 +622,10 @@
   "label_title_report": "報告する",
   "@label_title_report": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
+    "manualTranslation": false
+  },
+  "label_vote_end": "投票終了",
+  "@label_vote_end": {
     "manualTranslation": false
   },
   "label_vote_reward_list": "リワードリスト",
