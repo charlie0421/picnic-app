@@ -38,7 +38,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
   @override
   Widget build(BuildContext context) {
     final asyncPolicyState = ref.watch(asyncPolicyProvider);
-    final userInfoNotifier = ref.watch(userInfoProvider);
+    ref.watch(userInfoProvider);
 
     return asyncPolicyState.when(
         data: (data) => _buildPrivacy(data),
@@ -48,7 +48,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
   }
 
   _buildPrivacy(data) {
-    final navigationInfoState = ref.watch(navigationInfoProvider);
+    ref.watch(navigationInfoProvider);
     final navigationInfoNotifier = ref.read(navigationInfoProvider.notifier);
 
     return Column(
@@ -60,7 +60,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
             children: [
               Text(
                 Intl.message('label_agreement_privacy'),
-                style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
+                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
                 textAlign: TextAlign.center,
               ),
               Positioned(
@@ -73,7 +73,10 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                     'assets/icons/arrow_left_style=line.svg',
                     width: 24.w,
                     height: 24,
-                    color: AppColors.Grey900,
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.grey900,
+                      BlendMode.srcIn,
+                    ),
                   ),
                 ),
               ),
@@ -85,7 +88,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
         ),
         Expanded(
           child: Container(
-            color: AppColors.Grey100,
+            color: AppColors.grey100,
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
             child: Markdown(
                 data: Intl.getCurrentLocale() == 'ko'
@@ -109,7 +112,6 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                       if (ret == true) {
                         WidgetsBinding.instance.addPostFrameCallback((_) {
                           showSimpleDialog(
-                              context: context,
                               title: Intl.message('title_dialog_success'),
                               contentWidget: Column(
                                 mainAxisSize: MainAxisSize.min,
@@ -117,13 +119,13 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                                   Text(
                                     Intl.message('message_agreement_success'),
                                     style: getTextStyle(
-                                        AppTypo.BODY16R, AppColors.Grey900),
+                                        AppTypo.body16R, AppColors.grey900),
                                   ),
                                   const SizedBox(height: 10),
                                   Text(
                                     formatCurrentTime(),
                                     style: getTextStyle(
-                                        AppTypo.CAPTION10SB, AppColors.Grey500),
+                                        AppTypo.caption10SB, AppColors.grey500),
                                   ),
                                 ],
                               ),
@@ -141,7 +143,6 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                       } else {
                         WidgetsBinding.instance.addPostFrameCallback((_) {
                           showSimpleDialog(
-                              context: context,
                               title: Intl.message('title_dialog_error'),
                               content: Intl.message('message_agreement_fail'),
                               onOk: () {
@@ -158,7 +159,6 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
 
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         showSimpleDialog(
-                            context: context,
                             title: Intl.message('title_dialog_error'),
                             content: Intl.message('message_agreement_fail'),
                             onOk: () {
@@ -170,7 +170,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                     }
                   },
                   child: Text(Intl.message('label_button_agreement'),
-                      style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900))),
+                      style: getTextStyle(AppTypo.body16B, AppColors.grey900))),
             ],
           ),
         )

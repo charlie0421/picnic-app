@@ -84,7 +84,7 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
         ref.read(userInfoProvider.notifier).subscribeToUserProfiles();
       } else if (data.event == AuthChangeEvent.signedOut) {
         logger.e('User signed out');
-        ref.read(userInfoProvider.notifier).state = AsyncValue.data(null);
+        // ref.read(userInfoProvider.notifier).state = AsyncValue.data(null);
         ref.read(userInfoProvider.notifier).unsubscribeFromUserProfiles();
       }
     });
@@ -159,7 +159,7 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
           ],
           supportedLocales: S.delegate.supportedLocales,
           routes: {
-            Portal.routeName: (context) => Portal(),
+            Portal.routeName: (context) => const Portal(),
             SignUpScreen.routeName: (context) => const SignUpScreen(),
             '/pic-camera': (context) => const PicCameraScreen(),
             TermsScreen.routeName: (context) => const TermsScreen(),
@@ -169,7 +169,7 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
           builder: (context, child) =>
               UpdateDialog(child: child ?? const SizedBox.shrink()),
           home: UniversalPlatform.isWeb
-              ? initScreen ?? Portal()
+              ? initScreen ?? const Portal()
               : FlutterSplashScreen.fadeIn(
                   useImmersiveMode: true,
                   duration: const Duration(milliseconds: 3000),
@@ -179,7 +179,7 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
                     height: getPlatformScreenSize(context).height,
                     child: Image.asset("assets/splash.png", fit: BoxFit.cover),
                   ),
-                  nextScreen: initScreen ?? Portal(),
+                  nextScreen: initScreen ?? const Portal(),
                 ),
         ),
       ),

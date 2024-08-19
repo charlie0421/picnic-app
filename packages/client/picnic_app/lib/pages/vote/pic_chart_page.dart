@@ -57,12 +57,12 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
                       Text(
                         S.of(context).text_comming_soon_pic_chart1,
                         style: getTextStyle(
-                          AppTypo.BODY14M,
+                          AppTypo.body14M,
                         ),
                         textAlign: TextAlign.center,
                       ),
                       const Divider(
-                        color: AppColors.Grey300,
+                        color: AppColors.grey300,
                         thickness: 1,
                         height: 40,
                       ),
@@ -72,12 +72,12 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
                           SvgPicture.asset('assets/icons/play_style=fill.svg',
                               width: 16.w,
                               height: 16,
-                              color: AppColors.Primary500),
+                              color: AppColors.primary500),
                           Text(
                             'COMING SOON',
                             style: getTextStyle(
-                              AppTypo.BODY14B,
-                              AppColors.Primary500,
+                              AppTypo.body14B,
+                              AppColors.primary500,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -87,7 +87,7 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
                                 'assets/icons/play_style=fill.svg',
                                 width: 16.w,
                                 height: 16,
-                                color: AppColors.Primary500),
+                                color: AppColors.primary500),
                           ),
                         ],
                       ),
@@ -95,8 +95,8 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
                       Text(
                         S.of(context).text_comming_soon_pic_chart2,
                         style: getTextStyle(
-                          AppTypo.BODY14M,
-                          AppColors.Grey900,
+                          AppTypo.body14M,
+                          AppColors.grey900,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -104,8 +104,8 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
                       Text(
                         S.of(context).text_comming_soon_pic_chart3,
                         style: getTextStyle(
-                          AppTypo.CAPTION10SB,
-                          AppColors.Grey400,
+                          AppTypo.caption10SB,
+                          AppColors.grey400,
                         ),
                         textAlign: TextAlign.center,
                       ),

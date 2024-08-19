@@ -184,13 +184,13 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             '${DateFormat('yyyy.MM.dd HH:mm').format(voteModel.start_at.toLocal())} ~ '
             '${DateFormat('yyyy.MM.dd HH:mm').format(voteModel.stop_at.toLocal())} '
             '(${getShortTimeZoneIdentifier()})',
-            style: getTextStyle(AppTypo.CAPTION12R, AppColors.Grey900),
+            style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
           ),
         ),
         const SizedBox(height: 36),
         Text(
           S.of(context).text_vote_rank_in_reward,
-          style: getTextStyle(AppTypo.BODY14B, AppColors.Primary500),
+          style: getTextStyle(AppTypo.body14B, AppColors.primary500),
         ),
         const SizedBox(height: 4),
         if (voteModel.reward != null)
@@ -202,7 +202,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                       child: Text(
                         rewardModel.getTitle(),
                         style:
-                            getTextStyle(AppTypo.CAPTION12R, AppColors.Grey900)
+                            getTextStyle(AppTypo.caption12R, AppColors.grey900)
                                 .copyWith(decoration: TextDecoration.underline),
                       ),
                     ))
@@ -230,7 +230,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                             EdgeInsets.only(top: 24, left: 16.w, right: 16.w),
                         decoration: BoxDecoration(
                           border: Border.all(
-                              color: AppColors.Primary500, width: 1.r),
+                              color: AppColors.primary500, width: 1.r),
                           borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(70.r),
                             topRight: Radius.circular(70.r),
@@ -298,7 +298,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
       curve: Curves.easeInOut,
       decoration: BoxDecoration(
         color: rankChanged
-            ? AppColors.Primary500.withOpacity(0.3)
+            ? AppColors.primary500.withOpacity(0.3)
             : Colors.transparent,
         borderRadius: BorderRadius.circular(8.r),
       ),
@@ -324,7 +324,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                       Intl.message('text_vote_rank', args: [index + 1])
                           .toString(),
                       style:
-                          getTextStyle(AppTypo.CAPTION12B, AppColors.Point900),
+                          getTextStyle(AppTypo.caption12B, AppColors.point900),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -345,7 +345,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                           TextSpan(
                             text: getLocaleTextFromJson(item.artist.name),
                             style: getTextStyle(
-                                AppTypo.BODY14B, AppColors.Grey900),
+                                AppTypo.body14B, AppColors.grey900),
                           ),
                           const TextSpan(
                             text: ' ',
@@ -354,7 +354,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                             text: getLocaleTextFromJson(
                                 item.artist.artist_group.name),
                             style: getTextStyle(
-                                AppTypo.CAPTION10SB, AppColors.Grey600),
+                                AppTypo.caption10SB, AppColors.grey600),
                           ),
                         ],
                       ),
@@ -385,7 +385,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         gradient: index < 3
             ? [goldGradient, silverGradient, bronzeGradient][index]
             : null,
-        color: index >= 3 ? AppColors.Grey200 : null,
+        color: index >= 3 ? AppColors.grey200 : null,
         borderRadius: BorderRadius.circular(27.5),
       ),
       padding: const EdgeInsets.all(3),
@@ -434,11 +434,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   duration: const Duration(milliseconds: 500),
                   curve: Curves.easeInOut,
                   textStyle:
-                      getTextStyle(AppTypo.CAPTION10SB, AppColors.Grey00),
+                      getTextStyle(AppTypo.caption10SB, AppColors.grey00),
                 )
               : Text(
                   NumberFormat('#,###').format(item.vote_total),
-                  style: getTextStyle(AppTypo.CAPTION10SB, AppColors.Grey00),
+                  style: getTextStyle(AppTypo.caption10SB, AppColors.grey00),
                 ),
         ),
         if (voteCountDiff > 0)
@@ -456,7 +456,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                     child: Text(
                       '+$voteCountDiff',
                       style: getTextStyle(
-                          AppTypo.CAPTION10SB, AppColors.Primary500),
+                          AppTypo.caption10SB, AppColors.primary500),
                     ),
                   ),
                 );
@@ -469,11 +469,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
 
   void _handleVoteItemTap(BuildContext context, VoteItemModel item) {
     if (isEnded) {
-      showSimpleDialog(
-          context: context, content: S.of(context).message_vote_is_ended);
+      showSimpleDialog(content: S.of(context).message_vote_is_ended);
     } else if (isUpcoming) {
-      showSimpleDialog(
-          context: context, content: S.of(context).message_vote_is_upcoming);
+      showSimpleDialog(content: S.of(context).message_vote_is_upcoming);
     } else {
       supabase.isLogged
           ? showVotingDialog(

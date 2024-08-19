@@ -3,9 +3,9 @@ import 'package:picnic_app/models/pic/article.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class ArticleContent extends StatelessWidget {
-  ArticleModel article;
+  final ArticleModel article;
 
-  ArticleContent({super.key, required this.article});
+  const ArticleContent({super.key, required this.article});
 
   @override
   Widget build(BuildContext context) {
@@ -14,8 +14,8 @@ class ArticleContent extends StatelessWidget {
         child: Text(
           article.content,
           style: getTextStyle(
-            AppTypo.BODY14M,
-            AppColors.Grey900,
+            AppTypo.body14M,
+            AppColors.grey900,
           ),
         ));
   }

@@ -2,41 +2,41 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AppColors {
-  static const Color Mint500 = Color(0xFF83FBC8);
-  static const Color Primary500 = Color(0xFF9374FF);
-  static const Color Sub500 = Color(0xFFCDFB5D);
-  static const Color Point500 = Color(0xFFFFA9BD);
-  static const Color Point900 = Color(0xFFEB4A71);
+  static const Color mint500 = Color(0xFF83FBC8);
+  static const Color primary500 = Color(0xFF9374FF);
+  static const Color sub500 = Color(0xFFCDFB5D);
+  static const Color point500 = Color(0xFFFFA9BD);
+  static const Color point900 = Color(0xFFEB4A71);
 
-  static const Color StatusError = Color(0xFFFF4242);
+  static const Color statusError = Color(0xFFFF4242);
 
-  static const Color Grey900 = Color(0xFF000000);
+  static const Color grey900 = Color(0xFF000000);
 
-  static const Color Grey800 = Color(0xFF252528);
-  static const Color Grey700 = Color(0xFF252528);
-  static const Color Grey600 = Color(0xFF5D5F66);
-  static const Color Grey500 = Color(0xFF878A93);
-  static const Color Grey400 = Color(0xFFA6A8AF);
-  static const Color Grey300 = Color(0xFFD7D7DC);
-  static const Color Grey200 = Color(0xFFEBEBEF);
-  static const Color Grey100 = Color(0xFFF7F7F8);
-  static const Color Grey00 = Colors.white;
+  static const Color grey800 = Color(0xFF252528);
+  static const Color grey700 = Color(0xFF252528);
+  static const Color grey600 = Color(0xFF5D5F66);
+  static const Color grey500 = Color(0xFF878A93);
+  static const Color grey400 = Color(0xFFA6A8AF);
+  static const Color grey300 = Color(0xFFD7D7DC);
+  static const Color grey200 = Color(0xFFEBEBEF);
+  static const Color grey100 = Color(0xFFF7F7F8);
+  static const Color grey00 = Colors.white;
 }
 
 enum AppTypo {
-  TITLE18B(18.0, FontWeight.w700, 1.5, 0),
-  TITLE18SB(18.0, FontWeight.w600, 1.5, 0),
-  TITLE18M(18.0, FontWeight.w500, 1.5, 0),
-  BODY16B(16.0, FontWeight.w700, 1.5, 0),
-  BODY16M(16.0, FontWeight.w500, 1.5, 0),
-  BODY16R(16.0, FontWeight.w400, 1.5, 0),
-  BODY14B(14.0, FontWeight.w700, 1.5, 0),
-  BODY14M(14.0, FontWeight.w500, 1.5, 0),
-  BODY14R(14.0, FontWeight.w400, 1.5, 0),
-  CAPTION12B(12.0, FontWeight.w700, 1.5, 0),
-  CAPTION12M(12.0, FontWeight.w500, 1.5, 0),
-  CAPTION12R(12.0, FontWeight.w400, 1.5, 0),
-  CAPTION10SB(10.0, FontWeight.w600, 1.5, 0);
+  title18B(18.0, FontWeight.w700, 1.5, 0),
+  title18SB(18.0, FontWeight.w600, 1.5, 0),
+  title18M(18.0, FontWeight.w500, 1.5, 0),
+  body16B(16.0, FontWeight.w700, 1.5, 0),
+  body16M(16.0, FontWeight.w500, 1.5, 0),
+  body16R(16.0, FontWeight.w400, 1.5, 0),
+  body14B(14.0, FontWeight.w700, 1.5, 0),
+  body14M(14.0, FontWeight.w500, 1.5, 0),
+  body14R(14.0, FontWeight.w400, 1.5, 0),
+  caption12B(12.0, FontWeight.w700, 1.5, 0),
+  caption12M(12.0, FontWeight.w500, 1.5, 0),
+  caption12R(12.0, FontWeight.w400, 1.5, 0),
+  caption10SB(10.0, FontWeight.w600, 1.5, 0);
 
   final double _size;
 

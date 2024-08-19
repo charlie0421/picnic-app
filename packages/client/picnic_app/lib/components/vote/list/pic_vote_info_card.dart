@@ -104,7 +104,7 @@ class _PicVoteInfoCardState extends ConsumerState<PicVoteInfoCard>
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(40),
                 border: Border.all(
-                  color: AppColors.Primary500,
+                  color: AppColors.primary500,
                   width: 1.5.w,
                 ),
               ),

@@ -67,7 +67,6 @@ class RewardedAds extends _$RewardedAds {
     switch (result) {
       case AdResult.completed:
         showSimpleDialog(
-          context: context,
           content: S.of(context).text_dialog_star_candy_received,
           onOk: () {
             Navigator.of(context).pop();
@@ -91,14 +90,12 @@ class RewardedAds extends _$RewardedAds {
         break;
       case AdResult.dismissed:
         showSimpleDialog(
-          context: context,
           content: S.of(context).text_dialog_ad_dismissed,
           onOk: () => Navigator.of(context).pop(),
         );
         break;
       case AdResult.error:
         showSimpleDialog(
-          context: context,
           content: S.of(context).text_dialog_ad_failed_to_show,
           onOk: () => Navigator.of(context).pop(),
         );

@@ -59,7 +59,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
     return Scaffold(
       body: Container(
         padding: MediaQuery.of(context).padding,
-        color: AppColors.Grey00,
+        color: AppColors.grey00,
         child: Column(
           children: [
             _buildTopBar(context),
@@ -110,7 +110,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
       alignment: Alignment.centerRight,
       child: IconButton(
         icon: const Icon(Icons.close, size: 36),
-        color: AppColors.Grey900,
+        color: AppColors.grey900,
         onPressed: () {
           Navigator.pop(context);
         },
@@ -145,7 +145,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                   child: Center(
                     child: Text(S.of(context).label_pic_pic_synthesizing_image,
                         style: const TextStyle(
-                            fontSize: 30, color: AppColors.Primary500)),
+                            fontSize: 30, color: AppColors.primary500)),
                   ),
                 ),
             ],
@@ -180,7 +180,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                     child: Text(
                       S.of(context).label_pic_pic_initializing_camera,
                       style: const TextStyle(
-                          fontSize: 30, color: AppColors.Primary500),
+                          fontSize: 30, color: AppColors.primary500),
                     ),
                   ),
                 )
@@ -190,7 +190,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                   child: Text(
                     _remainTime <= 300 ? '' : '${_remainTime ~/ 1000}',
                     style: TextStyle(
-                      color: AppColors.Primary500,
+                      color: AppColors.primary500,
                       fontSize: 100.sp,
                     ),
                   ),
@@ -202,7 +202,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                     child: Text(
                       S.of(context).label_pic_pic_synthesizing_image,
                       style: const TextStyle(
-                          fontSize: 30, color: AppColors.Primary500),
+                          fontSize: 30, color: AppColors.primary500),
                     ),
                   ),
                 ),
@@ -316,8 +316,8 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
           });
         }
       }
-    } catch (e) {
-      print("Error fetching recent image: $e");
+    } catch (e, s) {
+      logger.e('Error fetching recent image: $e', stackTrace: s);
     }
   }
 
@@ -405,8 +405,8 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
       });
 
       _showSaveDialog();
-    } catch (e) {
-      print("Error capturing image: $e");
+    } catch (e, s) {
+      logger.e("Error capturing image: $e", stackTrace: s);
       setState(() {
         _viewMode = ViewMode.ready;
       });
@@ -478,8 +478,8 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: snackBarContent));
       }
-    } catch (e) {
-      print("Error saving image: $e");
+    } catch (e, s) {
+      logger.e("Error saving image: $e", stackTrace: s);
     }
   }
 }

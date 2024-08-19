@@ -21,7 +21,7 @@ class CommunityHomePage extends ConsumerWidget {
       Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: Text('My ARTISTS',
-            style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900)),
+            style: getTextStyle(AppTypo.title18B, AppColors.grey900)),
       ),
       SizedBox(height: 16.h),
       Container(
@@ -51,8 +51,8 @@ class CommunityHomePage extends ConsumerWidget {
                                   Text(
                                       getLocaleTextFromJson(
                                           artists[index].name),
-                                      style: getTextStyle(AppTypo.CAPTION12R,
-                                          AppColors.Grey900)),
+                                      style: getTextStyle(AppTypo.caption12R,
+                                          AppColors.grey900)),
                                 ],
                               ),
                             ],
@@ -62,14 +62,14 @@ class CommunityHomePage extends ConsumerWidget {
                           },
                         ),
                       ),
-                      PostList()
+                      const PostList()
                     ],
                   )
                 : Container(
                     alignment: Alignment.center,
                     child: Text('No bookmarked artists',
                         style:
-                            getTextStyle(AppTypo.BODY16R, AppColors.Grey500)),
+                            getTextStyle(AppTypo.body16R, AppColors.grey500)),
                   );
           },
           loading: () => buildLoadingOverlay(),

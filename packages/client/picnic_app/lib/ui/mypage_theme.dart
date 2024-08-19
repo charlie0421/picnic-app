@@ -19,9 +19,9 @@ ThemeData mypageThemeLight = ThemeData.light().copyWith(
     labelSmall: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
   ),
   appBarTheme: const AppBarTheme(
-    backgroundColor: AppColors.Grey00,
+    backgroundColor: AppColors.grey00,
   ),
-  scaffoldBackgroundColor: AppColors.Grey00,
+  scaffoldBackgroundColor: AppColors.grey00,
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
       padding: WidgetStateProperty.all(const EdgeInsets.all(4)),

@@ -4,17 +4,17 @@ import 'package:picnic_app/ui/style.dart';
 const Gradient commonGradient = LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
-    colors: [AppColors.Mint500, AppColors.Primary500]);
+    colors: [AppColors.mint500, AppColors.primary500]);
 
 const Gradient commonGradientReverse = LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
-    colors: [AppColors.Primary500, AppColors.Mint500]);
+    colors: [AppColors.primary500, AppColors.mint500]);
 
 const Gradient voteGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0xFFE3B847), AppColors.Grey00]);
+    colors: [Color(0xFFE3B847), AppColors.grey00]);
 
 const Gradient goldGradient = LinearGradient(
     begin: Alignment.topCenter,
@@ -42,7 +42,7 @@ const Gradient switchThumbGradient = RadialGradient(
 
 final switchBoxShadow = BoxShadow(
   blurStyle: BlurStyle.inner,
-  color: AppColors.Grey00.withOpacity(0.15),
+  color: AppColors.grey00.withOpacity(0.15),
   spreadRadius: 0,
   blurRadius: 4,
 );

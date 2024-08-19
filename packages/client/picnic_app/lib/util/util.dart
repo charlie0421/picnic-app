@@ -8,7 +8,6 @@ import 'package:picnic_app/supabase_options.dart';
 void copyToClipboard(BuildContext context, String text) {
   Clipboard.setData(ClipboardData(text: text));
   showSimpleDialog(
-      context: context,
       content: S.of(context).text_copied_address,
       onOk: () => Navigator.of(context).pop());
 }

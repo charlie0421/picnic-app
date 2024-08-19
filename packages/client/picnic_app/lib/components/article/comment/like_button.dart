@@ -42,15 +42,11 @@ class LikeButtonState extends State<LikeButton> {
   }
 
   Future<void> _addCommentLike(int commentId) async {
-    final response =
-        await supabase.from('comment_like').insert({'comment_id': commentId});
+    await supabase.from('comment_like').insert({'comment_id': commentId});
   }
 
   Future<void> _removeCommentLike(int commentId) async {
-    final response = await supabase
-        .from('comment_like')
-        .delete()
-        .eq('comment_id', commentId);
+    await supabase.from('comment_like').delete().eq('comment_id', commentId);
   }
 
   @override
@@ -80,7 +76,7 @@ class LikeButtonState extends State<LikeButton> {
               ),
               SizedBox(width: 16.w),
               Text('$likes',
-                  style: getTextStyle(AppTypo.BODY16M, AppColors.Grey900))
+                  style: getTextStyle(AppTypo.body16M, AppColors.grey900))
             ],
           ),
         ),

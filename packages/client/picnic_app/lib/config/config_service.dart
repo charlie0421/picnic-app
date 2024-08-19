@@ -1,3 +1,4 @@
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -17,8 +18,8 @@ class ConfigService {
           .eq('key', key)
           .single();
       return response['value'] as String?;
-    } catch (e) {
-      print('Error fetching config: $e');
+    } catch (e, s) {
+      logger.e('Error fetching config: $e, $s');
       return null;
     }
   }

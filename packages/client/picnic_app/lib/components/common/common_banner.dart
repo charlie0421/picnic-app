@@ -13,10 +13,10 @@ import 'package:picnic_app/util/i18n.dart';
 import 'package:shimmer/shimmer.dart';
 
 class CommonBanner extends ConsumerStatefulWidget {
-  CommonBanner(this.location, this.height, {super.key});
+  const CommonBanner(this.location, this.height, {super.key});
 
   final String location;
-  double? height;
+  final double? height;
 
   @override
   ConsumerState<CommonBanner> createState() => _CommonBannerState();
@@ -65,7 +65,7 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
                           color: Colors.black.withOpacity(0.5),
                           child: Text(
                             title,
-                            style: getTextStyle(AppTypo.BODY14R, Colors.white)
+                            style: getTextStyle(AppTypo.body14R, Colors.white)
                                 .copyWith(overflow: TextOverflow.ellipsis),
                             textAlign: TextAlign.center,
                           ),
@@ -94,8 +94,8 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
         ],
       ),
       loading: () => Shimmer.fromColors(
-        baseColor: AppColors.Grey300,
-        highlightColor: AppColors.Grey100,
+        baseColor: AppColors.grey300,
+        highlightColor: AppColors.grey100,
         child: Column(
           children: [
             Container(

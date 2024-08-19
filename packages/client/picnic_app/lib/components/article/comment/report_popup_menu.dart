@@ -25,7 +25,6 @@ class ReportPopupMenu extends StatelessWidget {
       onSelected: (String result) {
         if (result == 'Report') {
           showSimpleDialog(
-              context: context,
               title: S.of(context).label_title_report,
               content: S.of(context).message_report_confirm,
               onOk: () async {
@@ -56,7 +55,7 @@ class ReportPopupMenu extends StatelessWidget {
   }
 
   Future<void> _reportComment({required int commentId}) async {
-    final response = await supabase.from('comment').update({
+    await supabase.from('comment').update({
       'report': true,
     }).eq('id', commentId);
   }

@@ -85,13 +85,13 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         child: Row(
           children: [
             Text(S.of(context).label_vote_vote_gather,
-                style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900)),
+                style: getTextStyle(AppTypo.title18B, AppColors.grey900)),
             SvgPicture.asset(
               'assets/icons/arrow_right_style=line.svg',
               width: 24,
               height: 24,
               colorFilter:
-                  const ColorFilter.mode(AppColors.Grey900, BlendMode.srcIn),
+                  const ColorFilter.mode(AppColors.grey900, BlendMode.srcIn),
             ),
           ],
         ),
@@ -123,8 +123,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                   stackTrace: controller.error.stackTrace);
             },
             firstPageProgressIndicatorBuilder: (context) => Shimmer.fromColors(
-              baseColor: AppColors.Grey300,
-              highlightColor: AppColors.Grey100,
+              baseColor: AppColors.grey300,
+              highlightColor: AppColors.grey100,
               child: ListView.separated(
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
@@ -152,7 +152,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                   separatorBuilder: (BuildContext context, int index) =>
                       const Divider(
                         height: 1,
-                        color: AppColors.Grey300,
+                        color: AppColors.grey300,
                       )),
             ),
             noItemsFoundIndicatorBuilder: (context) {
@@ -161,7 +161,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
           ),
           separatorBuilder: (BuildContext context, int index) => const Divider(
             height: 1,
-            color: AppColors.Grey300,
+            color: AppColors.grey300,
           ),
         ),
       ],
@@ -221,7 +221,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         padding: EdgeInsets.only(left: 16.w),
         alignment: Alignment.centerLeft,
         child: Text(S.of(context).label_vote_reward_list,
-            style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900)),
+            style: getTextStyle(AppTypo.title18B, AppColors.grey900)),
       ),
       const SizedBox(height: 16),
       asyncRewardListState.when(
@@ -272,7 +272,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                                 child: Text(
                                   title,
                                   style: getTextStyle(
-                                          AppTypo.BODY14R, Colors.white)
+                                          AppTypo.body14R, Colors.white)
                                       .copyWith(
                                           overflow: TextOverflow.ellipsis),
                                 ),
@@ -286,8 +286,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
             );
           },
           loading: () => Shimmer.fromColors(
-                baseColor: AppColors.Grey300,
-                highlightColor: AppColors.Grey100,
+                baseColor: AppColors.grey300,
+                highlightColor: AppColors.grey100,
                 child: SizedBox(
                   height: 100,
                   child: ListView.builder(

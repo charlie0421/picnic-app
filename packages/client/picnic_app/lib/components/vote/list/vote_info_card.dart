@@ -33,7 +33,6 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   late final AnimationController _controller;
   late final Animation<Offset> _offsetAnimation;
   late final Animation<double> _opacityAnimation;
-  bool _showRanking = false;
 
   void _restartAnimation() {
     _controller.reset();
@@ -76,25 +75,13 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
     super.dispose();
   }
 
-  void _onTimerEnd() {
-    setState(() {
-      _showRanking = true;
-    });
-  }
-
   Future<void> _handleRefresh() async {
     // 현재 순위 정보 저장
-    final currentRanking = await _getCurrentRanking();
 
     // 데이터 새로고침
     await ref.refresh(asyncVoteDetailProvider(voteId: widget.vote.id).future);
     await ref.refresh(asyncVoteItemListProvider(voteId: widget.vote.id).future);
 
-    // 새로운 순위 정보 가져오기
-    // final newRanking = await _getCurrentRanking();
-
-    // 순위 변동 확인
-    // if (_hasRankingChanged(currentRanking, newRanking)) {
     _restartAnimation();
     // }
   }
@@ -148,7 +135,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
         child: Column(
           children: [
             VoteCardInfoHeader(
-              title: getLocaleTextFromJson(vote.title) ?? '',
+              title: getLocaleTextFromJson(vote.title),
               stopAt: widget.status == VoteStatus.upcoming
                   ? vote.start_at
                   : vote.stop_at,
@@ -177,7 +164,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(40).r,
           border: Border.all(
-            color: AppColors.Primary500,
+            color: AppColors.primary500,
             width: 1.5.w,
           ),
         ),

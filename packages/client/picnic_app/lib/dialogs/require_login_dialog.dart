@@ -10,7 +10,6 @@ void showRequireLoginDialog({
 }) {
   try {
     showSimpleDialog(
-      context: context,
       content: S.of(context).dialog_content_login_required,
       onOk: () => Navigator.pushNamed(context, SignUpScreen.routeName)
           .then((value) => Navigator.of(context).pop(true)),

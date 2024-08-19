@@ -50,7 +50,7 @@ class _CommentItemState extends ConsumerState<CommentItem>
     _animationController!.addStatusListener((status) {
       if (status == AnimationStatus.forward) {
         setState(() {
-          _backgroundColor = AppColors.Grey100;
+          _backgroundColor = AppColors.grey100;
         });
       } else if (status == AnimationStatus.completed ||
           status == AnimationStatus.dismissed) {

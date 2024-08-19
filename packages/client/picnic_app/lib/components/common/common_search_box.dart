@@ -23,11 +23,11 @@ class CommonSearchBox extends StatelessWidget {
       height: 48,
       decoration: BoxDecoration(
         border: Border.all(
-          color: AppColors.Primary500,
+          color: AppColors.primary500,
           width: 1.r,
         ),
         borderRadius: BorderRadius.circular(24.r),
-        color: AppColors.Grey00,
+        color: AppColors.grey00,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -47,12 +47,12 @@ class CommonSearchBox extends StatelessWidget {
               controller: _textEditingController,
               decoration: InputDecoration(
                 hintText: _hintText,
-                hintStyle: getTextStyle(AppTypo.BODY16R, AppColors.Grey300),
+                hintStyle: getTextStyle(AppTypo.body16R, AppColors.grey300),
                 border: InputBorder.none,
-                focusColor: AppColors.Primary500,
-                fillColor: AppColors.Grey900,
+                focusColor: AppColors.primary500,
+                fillColor: AppColors.grey900,
               ),
-              style: getTextStyle(AppTypo.BODY16R, AppColors.Grey900),
+              style: getTextStyle(AppTypo.body16R, AppColors.grey900),
             ),
           ),
           GestureDetector(
@@ -66,8 +66,8 @@ class CommonSearchBox extends StatelessWidget {
                 height: 20,
                 colorFilter: ColorFilter.mode(
                   _textEditingController.text.isNotEmpty
-                      ? AppColors.Grey700
-                      : AppColors.Grey200,
+                      ? AppColors.grey700
+                      : AppColors.grey200,
                   BlendMode.srcIn,
                 ),
               ),

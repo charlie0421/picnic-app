@@ -65,7 +65,7 @@ class VoteArtists extends StatelessWidget {
                                 child: Text(
                                   (artist.key + 1).toString(),
                                   style: getTextStyle(
-                                      AppTypo.BODY14R, Colors.white),
+                                      AppTypo.body14R, Colors.white),
                                 ),
                               ),
                             ),
@@ -77,7 +77,7 @@ class VoteArtists extends StatelessWidget {
                       ),
                       Text(
                         getLocaleTextFromJson(artist.value.artist.name) ?? '',
-                        style: getTextStyle(AppTypo.CAPTION12B),
+                        style: getTextStyle(AppTypo.caption12B),
                       ),
                     ],
                   ),

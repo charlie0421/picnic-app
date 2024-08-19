@@ -22,7 +22,7 @@ void showUsagePolicyDialog(BuildContext context, WidgetRef ref) {
               child: Column(mainAxisSize: MainAxisSize.min, children: [
                 Text(
                   S.of(context).candy_disappear_next_month,
-                  style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
+                  style: getTextStyle(AppTypo.body16B, AppColors.grey900),
                 ),
                 const SizedBox(height: 12),
                 FutureBuilder(
@@ -44,8 +44,8 @@ void showUsagePolicyDialog(BuildContext context, WidgetRef ref) {
                                             child: Text(
                                                 '${e!['prediction_month']}-15',
                                                 style: getTextStyle(
-                                                    AppTypo.BODY16B,
-                                                    AppColors.Grey900)),
+                                                    AppTypo.body16B,
+                                                    AppColors.grey900)),
                                           ),
                                           SizedBox(width: 12.w),
                                           SizedBox(
@@ -60,8 +60,8 @@ void showUsagePolicyDialog(BuildContext context, WidgetRef ref) {
                                                       e['expiring_amount'] ?? 0)
                                                   .toString(),
                                               style: getTextStyle(
-                                                  AppTypo.BODY16B,
-                                                  AppColors.Primary500)),
+                                                  AppTypo.body16B,
+                                                  AppColors.primary500)),
                                         ],
                                       ),
                                     ))
@@ -87,7 +87,7 @@ void showUsagePolicyDialog(BuildContext context, WidgetRef ref) {
                         // );
                       } else {
                         return const CircularProgressIndicator(
-                            color: AppColors.Primary500);
+                            color: AppColors.primary500);
                       }
                     }),
                 const SizedBox(height: 24),

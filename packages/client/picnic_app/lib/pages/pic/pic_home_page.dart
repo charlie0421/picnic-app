@@ -99,7 +99,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                     const SizedBox(width: 8),
                     Text(
                       selectedCelebState?.name_ko ?? '',
-                      style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
+                      style: getTextStyle(AppTypo.body16B, AppColors.grey900),
                     ),
                     const SizedBox(width: 8),
                     GestureDetector(
@@ -156,7 +156,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                                     child: Text(
                                       title,
                                       style: getTextStyle(
-                                              AppTypo.BODY14R, Colors.white)
+                                              AppTypo.body14R, Colors.white)
                                           .copyWith(
                                               overflow: TextOverflow.ellipsis),
                                     ),
@@ -172,8 +172,8 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                           pagination: const SwiperPagination(
                               builder: DotSwiperPaginationBuilder(
                                   size: 8,
-                                  color: AppColors.Grey200,
-                                  activeColor: AppColors.Grey500)),
+                                  color: AppColors.grey200,
+                                  activeColor: AppColors.grey500)),
                           layout: SwiperLayout.DEFAULT,
                         ),
                       );
@@ -195,7 +195,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                     padding: EdgeInsets.only(left: 16.w),
                     child: Text(
                       S.of(context).label_celeb_gallery,
-                      style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900),
+                      style: getTextStyle(AppTypo.title18B, AppColors.grey900),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -221,14 +221,14 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                         Text(
                           S.of(context).label_celeb_ask_to_you,
                           style:
-                              getTextStyle(AppTypo.TITLE18B, AppColors.Grey900),
+                              getTextStyle(AppTypo.title18B, AppColors.grey900),
                         ),
                         SvgPicture.asset(
                           'assets/icons/arrow_right_style=line.svg',
                           width: 8.w,
                           height: 15,
                           colorFilter: const ColorFilter.mode(
-                              AppColors.Grey900, BlendMode.srcIn),
+                              AppColors.grey900, BlendMode.srcIn),
                         ),
                       ],
                     ),
@@ -325,7 +325,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                           EdgeInsets.symmetric(vertical: 4, horizontal: 8.w),
                       child: Text(
                         title,
-                        style: getTextStyle(AppTypo.BODY14R, Colors.white)
+                        style: getTextStyle(AppTypo.body14R, Colors.white)
                             .copyWith(overflow: TextOverflow.ellipsis),
                       ),
                     ),
@@ -337,7 +337,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
           separatorBuilder: (context, index) => const VerticalDivider(
                 width: 20,
                 thickness: 0,
-                color: AppColors.Grey00,
+                color: AppColors.grey00,
               ),
           itemCount: data.length),
     );
@@ -366,11 +366,11 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
               const SizedBox(height: 20),
               Text(
                 S.of(context).label_moveto_celeb_gallery,
-                style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900),
+                style: getTextStyle(AppTypo.title18B, AppColors.grey900),
               ),
               Text(
                 S.of(context).text_moveto_celeb_gallery,
-                style: getTextStyle(AppTypo.BODY16R, AppColors.Grey900),
+                style: getTextStyle(AppTypo.body16R, AppColors.grey900),
               ),
               const SizedBox(height: 16),
               if (selectedCelebState != null)
@@ -430,9 +430,9 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                 decoration: BoxDecoration(
                   color: e.id == selectedCeleb.id
                       ? const Color(0xFF47E89B)
-                      : AppColors.Grey00,
+                      : AppColors.grey00,
                   border: Border.all(
-                    color: AppColors.Grey100,
+                    color: AppColors.grey100,
                     width: 1,
                   ),
                 ),

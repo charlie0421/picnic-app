@@ -76,7 +76,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                           'assets/icons/arrow_left_style=line.svg',
                           width: 24.w,
                           height: 24,
-                          color: AppColors.Grey900,
+                          color: AppColors.grey900,
                         ),
                       ),
                     ),
@@ -139,10 +139,10 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                       child: Text(
                         entry.value,
                         style: getTextStyle(
-                            AppTypo.BODY14B,
+                            AppTypo.body14B,
                             Intl.getCurrentLocale() == entry.key
-                                ? AppColors.Grey800
-                                : AppColors.Grey400),
+                                ? AppColors.grey800
+                                : AppColors.grey400),
                       ),
                     ),
                   );
@@ -156,7 +156,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         height: 48,
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.Primary500, width: 1.5),
+          border: Border.all(color: AppColors.primary500, width: 1.5),
           borderRadius: BorderRadius.circular(30),
         ),
         child: Row(
@@ -166,7 +166,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
             SvgPicture.asset(
               'assets/icons/global_style=line.svg',
               colorFilter:
-                  const ColorFilter.mode(AppColors.Primary500, BlendMode.srcIn),
+                  const ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
               width: 20.w,
               height: 20,
             ),
@@ -176,7 +176,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   languageMap[appSettingState.locale.languageCode]!,
-                  style: getTextStyle(AppTypo.BODY16M, AppColors.Grey900),
+                  style: getTextStyle(AppTypo.body16M, AppColors.grey900),
                 ),
               ),
             ),
@@ -185,7 +185,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               child: SvgPicture.asset(
                 'assets/icons/play_style=fill.svg',
                 colorFilter:
-                    const ColorFilter.mode(AppColors.Grey900, BlendMode.srcIn),
+                    const ColorFilter.mode(AppColors.grey900, BlendMode.srcIn),
                 width: 20.w,
                 height: 20,
               ),
@@ -200,15 +200,15 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
     return ElevatedButtonTheme(
       data: ElevatedButtonThemeData(
         style: ButtonStyle(
-          backgroundColor: WidgetStateProperty.all(AppColors.Primary500),
-          foregroundColor: WidgetStateProperty.all(AppColors.Grey00),
+          backgroundColor: WidgetStateProperty.all(AppColors.primary500),
+          foregroundColor: WidgetStateProperty.all(AppColors.grey00),
           textStyle: WidgetStateProperty.all(
-              getTextStyle(AppTypo.TITLE18SB, AppColors.Grey00)),
+              getTextStyle(AppTypo.title18SB, AppColors.grey00)),
           shape: WidgetStateProperty.all(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30),
               side: const BorderSide(
-                  color: AppColors.Mint500,
+                  color: AppColors.mint500,
                   width: 1,
                   strokeAlign: BorderSide.strokeAlignInside),
             ),
@@ -255,7 +255,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
   void _handleSuccessfulLogin(BuildContext context) async {
     try {
       OverlayLoadingProgress.start(context,
-          color: AppColors.Primary500, barrierDismissible: false);
+          color: AppColors.primary500, barrierDismissible: false);
 
       // 현재 사용자 정보 가져오기
       final user = supabase.auth.currentUser;
@@ -278,7 +278,6 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
       } else if (userProfile.deleted_at != null) {
         // 탈퇴한 사용자
         showSimpleDialog(
-            context: context,
             content: S.of(context).error_message_withdrawal,
             onOk: () {
               Navigator.of(context).pop();
@@ -299,7 +298,6 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
       OverlayLoadingProgress.stop();
       print('Error handling successful login: $e');
       showSimpleDialog(
-          context: context,
           title: S.of(context).error_title,
           content: S.of(context).error_message_login_failed,
           onOk: () {
@@ -311,14 +309,14 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
   Widget _buildAppleLogin(
     BuildContext context,
   ) {
-    final userInfoState = ref.watch(userInfoProvider);
+    ref.watch(userInfoProvider);
 
     return Stack(
       children: [
         InkWell(
           onTap: () async {
             OverlayLoadingProgress.start(context,
-                color: AppColors.Primary500, barrierDismissible: false);
+                color: AppColors.primary500, barrierDismissible: false);
             final user =
                 await _authService.signInWithProvider(OAuthProvider.apple);
             OverlayLoadingProgress.stop();
@@ -337,7 +335,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                     width: 20.w, height: 20),
                 SizedBox(width: 8.w),
                 Text('Apple',
-                    style: getTextStyle(AppTypo.BODY14M, AppColors.Grey800)),
+                    style: getTextStyle(AppTypo.body14M, AppColors.grey800)),
               ],
             ),
           ),
@@ -348,14 +346,14 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
             bottom: 0,
             left: 30.w,
             child: Bubble(
-              color: AppColors.Primary500.withOpacity(.9),
+              color: AppColors.primary500.withOpacity(.9),
               alignment: Alignment.center,
               elevation: 0.5,
               nip: BubbleNip.rightCenter,
               stick: true,
               child: Text(
                 S.of(context).label_last_provider,
-                style: getTextStyle(AppTypo.CAPTION10SB, AppColors.Grey00),
+                style: getTextStyle(AppTypo.caption10SB, AppColors.grey00),
               ),
             ),
           )
@@ -372,7 +370,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
           InkWell(
             onTap: () async {
               OverlayLoadingProgress.start(context,
-                  color: AppColors.Primary500, barrierDismissible: false);
+                  color: AppColors.primary500, barrierDismissible: false);
               final user =
                   await _authService.signInWithProvider(OAuthProvider.google);
               OverlayLoadingProgress.stop();
@@ -390,7 +388,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                       width: 20.w, height: 20),
                   SizedBox(width: 8.w),
                   Text('Google',
-                      style: getTextStyle(AppTypo.BODY14M, AppColors.Grey800)),
+                      style: getTextStyle(AppTypo.body14M, AppColors.grey800)),
                 ],
               ),
             ),
@@ -401,14 +399,14 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               bottom: 0,
               left: 30.w,
               child: Bubble(
-                color: AppColors.Primary500.withOpacity(.9),
+                color: AppColors.primary500.withOpacity(.9),
                 alignment: Alignment.center,
                 elevation: 0.5,
                 nip: BubbleNip.rightCenter,
                 stick: true,
                 child: Text(
                   S.of(context).label_last_provider,
-                  style: getTextStyle(AppTypo.CAPTION10SB, AppColors.Grey00),
+                  style: getTextStyle(AppTypo.caption10SB, AppColors.grey00),
                 ),
               ),
             )
@@ -420,13 +418,13 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
   Widget _buildKakaoLogin(
     BuildContext context,
   ) {
-    final userInfoState = ref.watch(userInfoProvider);
+    ref.watch(userInfoProvider);
     return LayoutBuilder(builder: (context, constraints) {
       return Stack(children: [
         InkWell(
           onTap: () async {
             OverlayLoadingProgress.start(context,
-                color: AppColors.Primary500, barrierDismissible: false);
+                color: AppColors.primary500, barrierDismissible: false);
             final user =
                 await _authService.signInWithProvider(OAuthProvider.kakao);
             OverlayLoadingProgress.stop();
@@ -444,7 +442,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                     width: 20.w, height: 20),
                 SizedBox(width: 8.w),
                 Text('Kakao Talk',
-                    style: getTextStyle(AppTypo.BODY14M, AppColors.Grey800)),
+                    style: getTextStyle(AppTypo.body14M, AppColors.grey800)),
               ],
             ),
           ),
@@ -455,14 +453,14 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
             bottom: 0,
             left: 30.w,
             child: Bubble(
-              color: AppColors.Primary500.withOpacity(.9),
+              color: AppColors.primary500.withOpacity(.9),
               alignment: Alignment.center,
               elevation: 0.5,
               nip: BubbleNip.rightCenter,
               stick: true,
               child: Text(
                 S.of(context).label_last_provider,
-                style: getTextStyle(AppTypo.CAPTION10SB, AppColors.Grey00),
+                style: getTextStyle(AppTypo.caption10SB, AppColors.grey00),
               ),
             ),
           )

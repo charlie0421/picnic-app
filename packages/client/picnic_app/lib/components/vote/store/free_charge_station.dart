@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/vote/common_vote_info.dart';
 import 'package:picnic_app/components/vote/store/store_list_tile.dart';
-import 'package:picnic_app/components/vote/store/usagePolicyDialog.dart';
+import 'package:picnic_app/components/vote/store/usage_policy_dialog.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
@@ -79,9 +79,9 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
           ],
           const SizedBox(height: 36),
           _buildStoreListTile(0),
-          const Divider(height: 32, thickness: 1, color: AppColors.Grey200),
+          const Divider(height: 32, thickness: 1, color: AppColors.grey200),
           _buildStoreListTile(1),
-          const Divider(height: 32, thickness: 1, color: AppColors.Grey200),
+          const Divider(height: 32, thickness: 1, color: AppColors.grey200),
           GestureDetector(
             onTap: () => showUsagePolicyDialog(context, ref),
             child: Text.rich(
@@ -89,12 +89,12 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
                 children: [
                   TextSpan(
                     text: S.of(context).candy_usage_policy_guide,
-                    style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600),
+                    style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
                   ),
                   const TextSpan(text: ' '),
                   TextSpan(
                     text: S.of(context).candy_usage_policy_guide_button,
-                    style: getTextStyle(AppTypo.CAPTION12B, AppColors.Grey600)
+                    style: getTextStyle(AppTypo.caption12B, AppColors.grey600)
                         .copyWith(decoration: TextDecoration.underline),
                   ),
                 ],
@@ -125,7 +125,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
           ),
           title: Text(
             S.of(context).label_button_watch_and_charge,
-            style: getTextStyle(AppTypo.BODY14B, AppColors.Grey900)
+            style: getTextStyle(AppTypo.body14B, AppColors.grey900)
                 .copyWith(height: 1),
           ),
           subtitle: Text.rich(
@@ -133,7 +133,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
               children: [
                 TextSpan(
                   text: '+${S.of(context).label_bonus} 1',
-                  style: getTextStyle(AppTypo.CAPTION12B, AppColors.Point900),
+                  style: getTextStyle(AppTypo.caption12B, AppColors.point900),
                 ),
               ],
             ),
@@ -182,27 +182,26 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
         DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
 
         showSimpleDialog(
-            context: context,
             contentWidget: Column(
-              children: [
-                Text(
-                  S.of(context).label_ads_exceeded,
-                  style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '다음 광고 시청 가능시간',
-                  style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600),
-                  textAlign: TextAlign.center,
-                ),
-                Text(
-                  formatter.format(nextAvailableTime).toString(),
-                  style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ));
+          children: [
+            Text(
+              S.of(context).label_ads_exceeded,
+              style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '다음 광고 시청 가능시간',
+              style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
+              textAlign: TextAlign.center,
+            ),
+            Text(
+              formatter.format(nextAvailableTime).toString(),
+              style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ));
       }
     } catch (e, s) {
       logger.e(e, stackTrace: s);

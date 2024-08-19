@@ -1,30 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/mypage/vote_artist_search.dart';
 
-class VoteArtistPage extends ConsumerStatefulWidget {
+class VoteArtistPage extends StatelessWidget {
   final String pageName = 'label_tab_my_artist';
 
   const VoteArtistPage({super.key});
-
-  @override
-  ConsumerState createState() => _VoteMyArtistState();
-}
-
-class _VoteMyArtistState extends ConsumerState<VoteArtistPage>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(
-      initialIndex: 0,
-      length: 1,
-      // length: 2,
-      vsync: this,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,33 +13,5 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage>
 
   Widget _buildPage() {
     return const VoteArtistSearch();
-    // return Column(
-    //   children: [
-    // SizedBox(
-    //   height: 50,
-    //   child: TabBar(
-    //     controller: _tabController,
-    //     tabs: [
-    //       // Tab(
-    //       //   text: S.of(context).label_tab_my_artist,
-    //       // ),
-    //       Tab(
-    //         text: S.of(context).label_tab_search_my_artist,
-    //       ),
-    //     ],
-    //   ),
-    // ),
-    // Expanded(
-    //   child: TabBarView(
-    //     controller: _tabController,
-    //     children: [
-    //       Container(),
-    //
-    // ],
-    // ),
-    // )
-    // ],
-    // );
-    // }
   }
 }

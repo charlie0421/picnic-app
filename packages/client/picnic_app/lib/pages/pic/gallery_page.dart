@@ -51,8 +51,8 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
             child: Text(
               S.of(context).label_celeb_gallery,
               style: getTextStyle(
-                AppTypo.TITLE18B,
-                AppColors.Grey900,
+                AppTypo.title18B,
+                AppColors.grey900,
               ),
             ),
           ),
@@ -101,8 +101,8 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
                           child: Text(
                             gallery.title_en,
                             style: getTextStyle(
-                              AppTypo.TITLE18B,
-                              AppColors.Grey00,
+                              AppTypo.title18B,
+                              AppColors.grey00,
                             ),
                           ),
                         ),

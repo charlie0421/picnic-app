@@ -48,7 +48,7 @@ class _RewardDialogState extends State<RewardDialog> {
                 },
                 child: CircleAvatar(
                   backgroundColor: Colors.white.withOpacity(0.8),
-                  foregroundColor: AppColors.Grey500,
+                  foregroundColor: AppColors.grey500,
                   child: const Icon(
                     Icons.close,
                     size: 24,
@@ -115,7 +115,7 @@ class _RewardDialogState extends State<RewardDialog> {
                       .r,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24.r),
-                border: Border.all(color: AppColors.Primary500, width: 1.5.r),
+                border: Border.all(color: AppColors.primary500, width: 1.5.r),
               ),
               child: Column(
                 children: buildSectionContent(type),
@@ -146,7 +146,7 @@ class _RewardDialogState extends State<RewardDialog> {
               BoxDecoration(
                 borderRadius: BorderRadius.circular(24.r),
                 border: Border.all(
-                    color: AppColors.Primary500,
+                    color: AppColors.primary500,
                     width: 3.r,
                     strokeAlign: BorderSide.strokeAlignInside),
               )).sublist(0, 1),
@@ -155,14 +155,14 @@ class _RewardDialogState extends State<RewardDialog> {
           const SizedBox(height: 24),
           ...buildTextAddress(
               widget.data.location?[locale]['address'].cast<String>(),
-              getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
+              getTextStyle(AppTypo.body16B, AppColors.grey900)),
           const SizedBox(height: 24),
           if (widget.data.location?[locale]['images'] != null)
             ...buildImageList(
                 widget.data.location?[locale]['images'].cast<String>()),
           const SizedBox(height: 24),
           ...buildTextList(widget.data.location?[locale]['desc'].cast<String>(),
-              getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
+              getTextStyle(AppTypo.body16B, AppColors.grey900)),
         ];
       case RewardType.size_guide:
         final locale = Intl.getCurrentLocale();
@@ -176,9 +176,9 @@ class _RewardDialogState extends State<RewardDialog> {
                     ...buildSizeGuideImageList(value['image'].cast<String>()),
                     const SizedBox(height: 24),
                     ...buildTextList(value['desc'].cast<String>().sublist(0, 1),
-                        getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
+                        getTextStyle(AppTypo.body16B, AppColors.grey900)),
                     ...buildTextList(value['desc'].cast<String>().sublist(1),
-                        getTextStyle(AppTypo.BODY16R, AppColors.Grey900)),
+                        getTextStyle(AppTypo.body16R, AppColors.grey900)),
                     const SizedBox(height: 24),
                   ],
                 );
@@ -206,7 +206,7 @@ class _RewardDialogState extends State<RewardDialog> {
                     width: 300.w,
                     height: 300,
                     child: PicnicCachedNetworkImage(
-                      imageUrl: images[i] ?? '',
+                      imageUrl: images[i],
                       width: 400,
                       height: 400,
                       fit: BoxFit.cover,
@@ -233,7 +233,7 @@ class _RewardDialogState extends State<RewardDialog> {
           children: [
             SizedBox(
               child: PicnicCachedNetworkImage(
-                imageUrl: images[i] ?? '',
+                imageUrl: images[i],
                 fit: BoxFit.cover,
               ),
             ),
@@ -251,7 +251,7 @@ class _RewardDialogState extends State<RewardDialog> {
     return texts
         .map((e) => Text(
               e,
-              style: style ?? getTextStyle(AppTypo.BODY16R, AppColors.Grey900),
+              style: style ?? getTextStyle(AppTypo.body16R, AppColors.grey900),
               textAlign: TextAlign.center,
             ))
         .toList();
@@ -268,7 +268,7 @@ class _RewardDialogState extends State<RewardDialog> {
                   child: Text(
                     '· $e',
                     style: style ??
-                        getTextStyle(AppTypo.BODY16R, AppColors.Grey900),
+                        getTextStyle(AppTypo.body16R, AppColors.grey900),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -283,7 +283,7 @@ class _RewardDialogState extends State<RewardDialog> {
                     child: Text(
                       'COPY',
                       style:
-                          getTextStyle(AppTypo.BODY16B, AppColors.Primary500),
+                          getTextStyle(AppTypo.body16B, AppColors.primary500),
                     ),
                   ),
                 ),

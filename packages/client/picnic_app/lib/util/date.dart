@@ -41,7 +41,7 @@ String getCurrentTimeZoneIdentifier() {
     return location.name; // 예: 'Europe/London', 'Asia/Seoul' 등
   } catch (e) {
     // 오류 발생 시 시스템 시간대 이름 또는 UTC 반환
-    return DateTime.now().timeZoneName ?? 'UTC';
+    return DateTime.now().timeZoneName;
   }
 }
 

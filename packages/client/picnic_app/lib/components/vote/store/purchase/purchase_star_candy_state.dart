@@ -11,7 +11,7 @@ import 'package:picnic_app/components/vote/store/purchase/in_app_purchase_servic
 import 'package:picnic_app/components/vote/store/purchase/purchase_star_candy.dart';
 import 'package:picnic_app/components/vote/store/purchase/receipt_verification_service.dart';
 import 'package:picnic_app/components/vote/store/store_list_tile.dart';
-import 'package:picnic_app/components/vote/store/usagePolicyDialog.dart';
+import 'package:picnic_app/components/vote/store/usage_policy_dialog.dart';
 import 'package:picnic_app/config/config_service.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
@@ -144,7 +144,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
       Map<String, dynamic> serverProduct,
       List<ProductDetails> storeProducts) async {
     OverlayLoadingProgress.start(context,
-        barrierDismissible: false, color: AppColors.Primary500);
+        barrierDismissible: false, color: AppColors.primary500);
 
     if (!supabase.isLogged) {
       showRequireLoginDialog(context: context);
@@ -168,16 +168,13 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
 
   Future<void> _showErrorDialog(String message) async {
     if (!mounted) return;
-    final context = this.context;
-    showSimpleDialog(context: context, content: message);
+    showSimpleDialog(content: message);
   }
 
   Future<void> _showSuccessDialog() async {
     if (!mounted) return;
     final context = this.context;
-    showSimpleDialog(
-        context: context,
-        content: S.of(context).dialog_message_purchase_success);
+    showSimpleDialog(content: S.of(context).dialog_message_purchase_success);
   }
 
   @override
@@ -196,9 +193,9 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
           ],
           const SizedBox(height: 36),
           _buildProductsList(),
-          const Divider(color: AppColors.Grey200, height: 32),
+          const Divider(color: AppColors.grey200, height: 32),
           Text(S.of(context).text_purchase_vat_included,
-              style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600)),
+              style: getTextStyle(AppTypo.caption12M, AppColors.grey600)),
           const SizedBox(height: 2),
           GestureDetector(
             onTap: () => showUsagePolicyDialog(context, ref),
@@ -207,12 +204,12 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
                 children: [
                   TextSpan(
                     text: S.of(context).candy_usage_policy_guide,
-                    style: getTextStyle(AppTypo.CAPTION12M, AppColors.Grey600),
+                    style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
                   ),
                   const TextSpan(text: ' '),
                   TextSpan(
                     text: S.of(context).candy_usage_policy_guide_button,
-                    style: getTextStyle(AppTypo.CAPTION12B, AppColors.Grey600)
+                    style: getTextStyle(AppTypo.caption12B, AppColors.grey600)
                         .copyWith(decoration: TextDecoration.underline),
                   ),
                 ],
@@ -254,7 +251,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
         physics: const NeverScrollableScrollPhysics(),
         itemBuilder: (context, index) => _buildShimmerItem(),
         separatorBuilder: (context, index) =>
-            const Divider(color: AppColors.Grey200, height: 32),
+            const Divider(color: AppColors.grey200, height: 32),
         itemCount: 5,
       ),
     );
@@ -287,7 +284,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
       itemBuilder: (BuildContext context, int index) =>
           _buildProductItem(serverProducts[index], storeProducts),
       separatorBuilder: (BuildContext context, int index) =>
-          const Divider(color: AppColors.Grey200, height: 32),
+          const Divider(color: AppColors.grey200, height: 32),
       itemCount: storeProducts.length,
     );
   }
@@ -301,13 +298,13 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
         height: 48,
       ),
       title: Text(serverProduct['id'],
-          style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
+          style: getTextStyle(AppTypo.body16B, AppColors.grey900)),
       subtitle: Text.rich(
         TextSpan(
           children: [
             TextSpan(
               text: getLocaleTextFromJson(serverProduct['description']),
-              style: getTextStyle(AppTypo.CAPTION12B, AppColors.Point900),
+              style: getTextStyle(AppTypo.caption12B, AppColors.point900),
             ),
           ],
         ),

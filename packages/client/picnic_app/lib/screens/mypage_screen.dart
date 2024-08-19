@@ -33,8 +33,8 @@ class MyPageScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColors.Grey00,
-        foregroundColor: AppColors.Grey900,
+        backgroundColor: AppColors.grey00,
+        foregroundColor: AppColors.grey900,
         leading: GestureDetector(
           onTap: () {
             if (navigationInfo.drawerNavigationStack != null &&
@@ -56,7 +56,7 @@ class MyPageScreen extends ConsumerWidget {
           ),
         ),
         title: Text(Intl.message(pageName),
-            style: getTextStyle(AppTypo.BODY16B, AppColors.Grey900)),
+            style: getTextStyle(AppTypo.body16B, AppColors.grey900)),
         centerTitle: true,
         leadingWidth: 40.w,
         actions: [

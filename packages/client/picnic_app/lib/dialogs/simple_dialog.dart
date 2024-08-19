@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_app/app.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
@@ -13,7 +15,7 @@ Widget buildDialogButton(BuildContext context, String buttonText,
         onPressed: onPressed,
         child: Text(
           buttonText,
-          style: getTextStyle(AppTypo.BODY16B, textColor),
+          style: getTextStyle(AppTypo.body16B, textColor),
         ),
       ),
     ),
@@ -21,7 +23,6 @@ Widget buildDialogButton(BuildContext context, String buttonText,
 }
 
 void showSimpleDialog({
-  required BuildContext context,
   String? title,
   Widget? titleWidget,
   String? content,
@@ -29,6 +30,12 @@ void showSimpleDialog({
   Function()? onOk,
   Function()? onCancel,
 }) {
+  final context = navigatorKey.currentContext;
+  if (context == null) {
+    logger.e('Navigator context is null in showRequireLoginDialog');
+    return;
+  }
+
   showDialog(
     context: context,
     barrierDismissible: true,
@@ -52,7 +59,7 @@ void showSimpleDialog({
               if (title != null)
                 Text(
                   title,
-                  style: getTextStyle(AppTypo.TITLE18B, AppColors.Grey900),
+                  style: getTextStyle(AppTypo.title18B, AppColors.grey900),
                 ),
               if (titleWidget != null) titleWidget,
               if (content != null) ...[
@@ -61,7 +68,7 @@ void showSimpleDialog({
                 ),
                 Text(
                   content,
-                  style: getTextStyle(AppTypo.BODY14R, AppColors.Grey700),
+                  style: getTextStyle(AppTypo.body14R, AppColors.grey700),
                   textAlign: TextAlign.center,
                 )
               ],
@@ -81,11 +88,11 @@ void showSimpleDialog({
                     buildDialogButton(
                         context,
                         S.of(context).dialog_button_cancel,
-                        AppColors.Grey700,
+                        AppColors.grey700,
                         onCancel),
                   if (onOk != null)
                     buildDialogButton(context, S.of(context).dialog_button_ok,
-                        AppColors.Primary500, onOk),
+                        AppColors.primary500, onOk),
                 ],
               ),
             ],

@@ -52,13 +52,13 @@ class StoreListTile extends StatelessWidget {
                       child: const CircularProgressIndicator(
                         strokeWidth: 2,
                         valueColor:
-                            AlwaysStoppedAnimation<Color>(AppColors.Primary500),
+                            AlwaysStoppedAnimation<Color>(AppColors.primary500),
                       ),
                     )
                   : Text(
                       buttonText,
                       style:
-                          getTextStyle(AppTypo.BODY14B, AppColors.Primary500),
+                          getTextStyle(AppTypo.body14B, AppColors.primary500),
                     ),
             ),
           ),

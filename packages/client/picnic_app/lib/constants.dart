@@ -3,10 +3,10 @@ import 'package:logger/logger.dart';
 import 'package:picnic_app/storage/local_storage.dart';
 import 'package:picnic_app/ui/style.dart';
 
-const voteMainColor = AppColors.Mint500;
-const picMainColor = AppColors.Primary500;
-const communityMainColor = AppColors.Sub500;
-const novelMainColor = AppColors.Point500;
+const voteMainColor = AppColors.mint500;
+const picMainColor = AppColors.primary500;
+const communityMainColor = AppColors.sub500;
+const novelMainColor = AppColors.point500;
 
 class Constants {
   static const double webWidth = 600;

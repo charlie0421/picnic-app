@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:deepl_dart/deepl_dart.dart';
+import 'package:flutter/foundation.dart';
 import 'package:pool/pool.dart';
 import 'package:watcher/watcher.dart';
 
@@ -23,8 +24,8 @@ void main(List<String> arguments) async {
 
   try {
     final translator = Translator(authKey: deeplApiKey);
-    print('Starting translation process...');
-    print('API Key: $deeplApiKey');
+    if (kDebugMode) print('Starting translation process...');
+    if (kDebugMode) print('API Key: $deeplApiKey');
 
     const String inputFile = 'lib/l10n/intl_ko.arb';
     final List<String> outputFiles = [
@@ -43,23 +44,23 @@ void main(List<String> arguments) async {
     await synchronizeKeys(inputFile, outputFiles);
 
     if (retranslateAll) {
-      print('Retranslating all languages...');
+      if (kDebugMode) print('Retranslating all languages...');
       await translateAllLanguages(translator, inputFile, outputFiles);
     } else {
-      print('Marking languages for manual translation...');
+      if (kDebugMode) print('Marking languages for manual translation...');
       for (final outputFile in outputFiles) {
         await markForManualTranslation(inputFile, outputFile);
       }
-      print('All languages processed for manual translation.');
+      if (kDebugMode) print('All languages processed for manual translation.');
     }
 
     if (watch) {
-      print('Watching for changes...');
+      if (kDebugMode) print('Watching for changes...');
       await watchForChanges(translator, inputFile, outputFiles);
     }
   } catch (e, s) {
-    print('Error occurred during translation process: $e');
-    print('Stack trace:\n$s');
+    if (kDebugMode) print('Error occurred during translation process: $e');
+    if (kDebugMode) print('Stack trace:\n$s');
   }
 }
 
@@ -68,18 +69,20 @@ Future<void> translateAllLanguages(
   for (final outputFile in outputFiles) {
     final targetLanguage =
         outputFile.split('.').first.split('/').last.split('_')[1].toUpperCase();
-    print('Translating to $targetLanguage...');
+    if (kDebugMode) print('Translating to $targetLanguage...');
     await translateArbFile(translator, inputFile, outputFile, targetLanguage,
         retranslateAll: true);
   }
-  print('All languages translated.');
+  if (kDebugMode) print('All languages translated.');
 }
 
 Future<void> translateArbFile(Translator translator, String inputFile,
     String outputFile, String targetLanguage,
     {bool retranslateAll = false}) async {
-  print(
-      'Starting translation for $outputFile (Target language: $targetLanguage)');
+  if (kDebugMode) {
+    print(
+        'Starting translation for $outputFile (Target language: $targetLanguage)');
+  }
 
   final pool = Pool(5);
 
@@ -94,8 +97,10 @@ Future<void> translateArbFile(Translator translator, String inputFile,
     for (var key in keys) {
       if (!key.startsWith('@')) {
         if (!isValidKey(key)) {
-          print(
-              "Warning: Key '$key' does not match naming rules and will be ignored.");
+          if (kDebugMode) {
+            print(
+                "Warning: Key '$key' does not match naming rules and will be ignored.");
+          }
           continue;
         }
 
@@ -117,12 +122,12 @@ Future<void> translateArbFile(Translator translator, String inputFile,
             ...translatedArbContent[metaKey] ?? {},
             'manualTranslation': true,
           };
-          print('Preserved text with placeholders: $key');
+          if (kDebugMode) print('Preserved text with placeholders: $key');
         } else if (isManualTranslation && !retranslateAll) {
           // 수동 번역으로 표시된 경우 그대로 유지 (retranslateAll이 false일 때)
           updatedArbContent[key] = translatedArbContent[key];
           updatedArbContent[metaKey] = translatedArbContent[metaKey];
-          print('Preserved manually translated text: $key');
+          if (kDebugMode) print('Preserved manually translated text: $key');
         } else if (retranslateAll ||
             !translatedArbContent.containsKey(key) ||
             translatedArbContent[key] == originalText ||
@@ -139,8 +144,10 @@ Future<void> translateArbFile(Translator translator, String inputFile,
                 'manualTranslation': false,
               };
             } else {
-              print(
-                  'Warning: Incorrect translation for key: $key. Using original text.');
+              if (kDebugMode) {
+                print(
+                    'Warning: Incorrect translation for key: $key. Using original text.');
+              }
               updatedArbContent[key] = originalText;
               updatedArbContent[metaKey] = {
                 ...updatedArbContent[metaKey] ?? {},
@@ -152,7 +159,7 @@ Future<void> translateArbFile(Translator translator, String inputFile,
           // 이미 번역된 텍스트는 그대로 유지
           updatedArbContent[key] = translatedArbContent[key];
           updatedArbContent[metaKey] = translatedArbContent[metaKey];
-          print('Kept existing translation for key: $key');
+          if (kDebugMode) print('Kept existing translation for key: $key');
         }
       }
     }
@@ -160,20 +167,20 @@ Future<void> translateArbFile(Translator translator, String inputFile,
     await Future.wait(translationFutures);
 
     await saveJsonFile(outputFile, updatedArbContent);
-    print('$outputFile translation completed and saved');
+    if (kDebugMode) print('$outputFile translation completed and saved');
   } catch (e) {
-    print('Error occurred while translating $outputFile: $e');
+    if (kDebugMode) print('Error occurred while translating $outputFile: $e');
   }
 }
 
 Future<void> watchForChanges(
     Translator translator, String inputFile, List<String> outputFiles) async {
-  print('Watching for changes...');
+  if (kDebugMode) print('Watching for changes...');
   final watcher = FileWatcher(inputFile);
 
   await for (final event in watcher.events) {
     if (event.type == ChangeType.MODIFY) {
-      print('Detected changes in $inputFile, updating...');
+      if (kDebugMode) print('Detected changes in $inputFile, updating...');
       for (final outputFile in outputFiles) {
         final targetLanguage = outputFile
             .split('.')
@@ -185,7 +192,7 @@ Future<void> watchForChanges(
         await translateArbFile(
             translator, inputFile, outputFile, targetLanguage);
       }
-      print('Updates completed');
+      if (kDebugMode) print('Updates completed');
     }
   }
 }
@@ -194,7 +201,7 @@ Future<void> sortAndUpdateArbFile(String filePath) async {
   final file = File(filePath);
 
   if (!await file.exists()) {
-    print('File not found: $filePath');
+    if (kDebugMode) print('File not found: $filePath');
     return;
   }
 
@@ -228,9 +235,9 @@ Future<void> sortAndUpdateArbFile(String filePath) async {
     final formattedJson = encoder.convert(updatedArbContent);
 
     await file.writeAsString(formattedJson);
-    print('File sorted, updated, and saved to $filePath');
+    if (kDebugMode) print('File sorted, updated, and saved to $filePath');
   } catch (e) {
-    print('Error sorting and updating file $filePath: $e');
+    if (kDebugMode) print('Error sorting and updating file $filePath: $e');
   }
 }
 
@@ -263,16 +270,16 @@ Future<void> synchronizeKeys(String inputFile, List<String> outputFiles) async {
                 ? Map<String, dynamic>.from(originalArbContent[metaKey])
                 : {};
 
-            print('Added new key to $outputFile: $key');
+            if (kDebugMode) print('Added new key to $outputFile: $key');
           }
         }
       }
 
       await saveJsonFile(outputFile, updatedArbContent);
-      print('Synchronized and saved to $outputFile');
+      if (kDebugMode) print('Synchronized and saved to $outputFile');
     }
   } catch (e) {
-    print('Error synchronizing keys: $e');
+    if (kDebugMode) print('Error synchronizing keys: $e');
   }
 }
 
@@ -295,8 +302,10 @@ Future<void> translateChangedKeys(Translator translator, String inputFile,
   final List<Future<void>> translations = [];
 
   for (final outputFile in outputFiles) {
-    print(
-        'Translating changed keys for ${outputFile.split('.').first.split('/').last.split('_')[1].toUpperCase()}...');
+    if (kDebugMode) {
+      print(
+          'Translating changed keys for ${outputFile.split('.').first.split('/').last.split('_')[1].toUpperCase()}...');
+    }
 
     translations.add(translateArbFilePartial(
       translator,
@@ -316,8 +325,10 @@ Future<void> translateArbFilePartial(
     String outputFile,
     String targetLanguage,
     Set<String> keysToTranslate) async {
-  print(
-      'Starting partial translation for $outputFile (Target language: $targetLanguage)');
+  if (kDebugMode) {
+    print(
+        'Starting partial translation for $outputFile (Target language: $targetLanguage)');
+  }
 
   final pool = Pool(5);
 
@@ -336,8 +347,10 @@ Future<void> translateArbFilePartial(
           originalArbContent[metaKey][manualTranslationKey] == true;
 
       if (isManualTranslation) {
-        print(
-            "Manual translation key found in original file: $key, skipping translation.");
+        if (kDebugMode) {
+          print(
+              "Manual translation key found in original file: $key, skipping translation.");
+        }
         updatedArbContent[key] = originalArbContent[key];
         updatedArbContent[metaKey] = originalArbContent[metaKey];
         continue;
@@ -364,13 +377,15 @@ Future<void> translateArbFilePartial(
               updatedArbContent[metaKey] = {};
             }
           } else {
-            print(
-                'Warning: Incorrect language detected for key: $key. Skipping.');
+            if (kDebugMode) {
+              print(
+                  'Warning: Incorrect language detected for key: $key. Skipping.');
+            }
           }
         }));
       } else {
         updatedArbContent[key] = originalArbContent[key];
-        print('Skipping non-Korean text for key: $key');
+        if (kDebugMode) print('Skipping non-Korean text for key: $key');
       }
     }
 
@@ -379,9 +394,11 @@ Future<void> translateArbFilePartial(
     // 변경된 내용을 파일에 저장
     await saveJsonFile(outputFile, updatedArbContent);
 
-    print('$outputFile partial translation completed and saved');
+    if (kDebugMode) {
+      print('$outputFile partial translation completed and saved');
+    }
   } catch (e) {
-    print('Error occurred while translating $outputFile: $e');
+    if (kDebugMode) print('Error occurred while translating $outputFile: $e');
   }
 }
 
@@ -393,14 +410,16 @@ Future<void> saveJsonFile(String path, Map<String, dynamic> content) async {
 
     // 저장 전 최종 확인
     if (path.contains('_en.arb') && containsKoreanOrEmpty(formattedJson)) {
-      print(
-          'Warning: Korean text found in English translation file. Please check the content.');
+      if (kDebugMode) {
+        print(
+            'Warning: Korean text found in English translation file. Please check the content.');
+      }
     }
 
     await file.writeAsString(formattedJson);
-    print('File saved: $path');
+    if (kDebugMode) print('File saved: $path');
   } catch (e) {
-    print('Error saving file $path: $e');
+    if (kDebugMode) print('Error saving file $path: $e');
   }
 }
 
@@ -416,7 +435,7 @@ Future<Map<String, dynamic>> readJsonFile(String path) async {
       }
     }
   } catch (e) {
-    print('Error reading $path: $e');
+    if (kDebugMode) print('Error reading $path: $e');
   }
 
   return <String, dynamic>{};
@@ -437,7 +456,9 @@ bool containsPlaceholders(String text) {
 
 Future<void> markForManualTranslation(
     String inputFile, String outputFile) async {
-  print('Starting manual translation marking process for $outputFile');
+  if (kDebugMode) {
+    print('Starting manual translation marking process for $outputFile');
+  }
 
   try {
     final originalArbContent = await readJsonFile(inputFile);
@@ -448,8 +469,10 @@ Future<void> markForManualTranslation(
     for (var key in keys) {
       if (!key.startsWith('@')) {
         if (!isValidKey(key)) {
-          print(
-              "Warning: Key '$key' does not match naming rules and will be ignored.");
+          if (kDebugMode) {
+            print(
+                "Warning: Key '$key' does not match naming rules and will be ignored.");
+          }
           continue;
         }
 
@@ -465,7 +488,7 @@ Future<void> markForManualTranslation(
             ...existingTranslations[metaKey] ?? {},
             'manualTranslation': true,
           };
-          print('Preserved text with placeholders: $key');
+          if (kDebugMode) print('Preserved text with placeholders: $key');
         } else if (!existingTranslations.containsKey(key) ||
             !existingTranslations.containsKey(metaKey) ||
             existingTranslations[metaKey]['manualTranslation'] != true) {
@@ -475,12 +498,15 @@ Future<void> markForManualTranslation(
             ...updatedArbContent[metaKey] ?? {},
             'manualTranslation': true,
           };
-          print('Set to original text and marked for manual translation: $key');
+          if (kDebugMode) {
+            print(
+                'Set to original text and marked for manual translation: $key');
+          }
         } else {
           // 그 외의 경우 기존 번역 유지
           updatedArbContent[key] = existingTranslations[key];
           updatedArbContent[metaKey] = existingTranslations[metaKey];
-          print('Preserved existing translation: $key');
+          if (kDebugMode) print('Preserved existing translation: $key');
         }
       }
     }
@@ -490,10 +516,14 @@ Future<void> markForManualTranslation(
         !originalArbContent.containsKey(key) && !key.startsWith('@'));
 
     await saveJsonFile(outputFile, updatedArbContent);
-    print('$outputFile manual translation marking completed and saved');
+    if (kDebugMode) {
+      print('$outputFile manual translation marking completed and saved');
+    }
   } catch (e) {
-    print(
-        'Error occurred while marking for manual translation in $outputFile: $e');
+    if (kDebugMode) {
+      print(
+          'Error occurred while marking for manual translation in $outputFile: $e');
+    }
   }
 }
 
@@ -504,7 +534,7 @@ bool containsKoreanOrEmpty(String text) {
 
 Future<String> translateText(
     Translator translator, String text, String targetLang) async {
-  print('Translating: "$text" to $targetLang');
+  if (kDebugMode) print('Translating: "$text" to $targetLang');
   int attempts = 0;
   const maxAttempts = 3;
 
@@ -512,26 +542,30 @@ Future<String> translateText(
     try {
       final translation =
           await translator.translateTextSingular(text, targetLang);
-      print('Translated: "$text" -> "${translation.text}"');
+      if (kDebugMode) print('Translated: "$text" -> "${translation.text}"');
 
       if (!containsKoreanOrEmpty(translation.text)) {
         await Future.delayed(const Duration(milliseconds: 500));
         return translation.text;
       } else {
-        print(
-            'Warning: Translation still contains Korean or is empty. Retrying...');
+        if (kDebugMode) {
+          print(
+              'Warning: Translation still contains Korean or is empty. Retrying...');
+        }
         attempts++;
         await Future.delayed(const Duration(seconds: 1));
       }
     } catch (e) {
-      print('Error translating text: $e');
+      if (kDebugMode) print('Error translating text: $e');
       attempts++;
       await Future.delayed(const Duration(seconds: 1));
     }
   }
 
-  print(
-      'Failed to translate after $maxAttempts attempts. Using original text.');
+  if (kDebugMode) {
+    print(
+        'Failed to translate after $maxAttempts attempts. Using original text.');
+  }
   return text; // 여러 번의 시도 후에도 실패하면 원본 텍스트 반환
 }
 
@@ -571,7 +605,9 @@ bool isCorrectLanguage(String text, String targetLanguage) {
 
   final regex = languageRegexMap[targetLanguage];
   if (regex == null) {
-    print('Warning: No regex defined for language $targetLanguage');
+    if (kDebugMode) {
+      print('Warning: No regex defined for language $targetLanguage');
+    }
     return true;
   }
   return regex.hasMatch(textWithoutPlaceholders);

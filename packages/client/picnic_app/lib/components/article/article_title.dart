@@ -20,8 +20,8 @@ class ArticleTitle extends StatelessWidget {
             child: Text(
               article.title_ko,
               style: getTextStyle(
-                AppTypo.TITLE18B,
-                AppColors.Grey900,
+                AppTypo.title18B,
+                AppColors.grey900,
               ),
             ),
           ),
@@ -33,8 +33,8 @@ class ArticleTitle extends StatelessWidget {
             child: Text(
               DateFormat('yyyy-MM-dd').format(article.created_at),
               style: getTextStyle(
-                AppTypo.BODY14B,
-                AppColors.Grey900,
+                AppTypo.body14B,
+                AppColors.grey900,
               ).copyWith(
                 fontStyle: FontStyle.italic,
               ),

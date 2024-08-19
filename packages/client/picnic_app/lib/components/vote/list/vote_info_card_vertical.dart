@@ -57,7 +57,7 @@ class VoteCardColumnVertical extends StatelessWidget {
             opacity: opacityAnimation,
             child: Text(
               Intl.message('text_vote_rank', args: [rank]).toString(),
-              style: getTextStyle(AppTypo.CAPTION12B, AppColors.Point900),
+              style: getTextStyle(AppTypo.caption12B, AppColors.point900),
               textAlign: TextAlign.center,
             ),
           ),
@@ -82,7 +82,7 @@ class VoteCardColumnVertical extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(100),
                 border: Border.all(
-                  color: AppColors.Grey00,
+                  color: AppColors.grey00,
                   width: 1.w,
                 ),
               ),
@@ -91,7 +91,7 @@ class VoteCardColumnVertical extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(100),
                   child: PicnicCachedNetworkImage(
-                      imageUrl: voteItem.artist.image ?? '',
+                      imageUrl: voteItem.artist.image,
                       useScreenUtil: true,
                       width: 100,
                       height: 100),
@@ -111,16 +111,16 @@ class VoteCardColumnVertical extends StatelessWidget {
                   Text(
                     getLocaleTextFromJson(voteItem.artist.name),
                     style: getTextStyle(
-                      AppTypo.BODY14B,
-                      AppColors.Grey900,
+                      AppTypo.body14B,
+                      AppColors.grey900,
                     ),
                     textAlign: TextAlign.center,
                   ),
                   Text(
                     getLocaleTextFromJson(voteItem.artist.artist_group.name),
                     style: getTextStyle(
-                      AppTypo.CAPTION10SB,
-                      AppColors.Grey00,
+                      AppTypo.caption10SB,
+                      AppColors.grey00,
                     ),
                     textAlign: TextAlign.center,
                   ),

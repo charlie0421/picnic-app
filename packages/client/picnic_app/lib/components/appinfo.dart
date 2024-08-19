@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/platform_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -12,7 +11,6 @@ class AppInfo extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncPlatformInfoState = ref.watch(platformInfoProvider);
-    final navagationInfoNotifier = ref.read(navigationInfoProvider.notifier);
 
     return asyncPlatformInfoState.when(
       data: (platformInfo) {

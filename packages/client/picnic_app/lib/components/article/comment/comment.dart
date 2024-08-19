@@ -10,7 +10,6 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/pic/article.dart';
 import 'package:picnic_app/models/pic/comment.dart';
-import 'package:picnic_app/providers/article_list_provider.dart';
 import 'package:picnic_app/providers/comment_list_provider.dart';
 
 import 'comment_input.dart';
@@ -29,23 +28,17 @@ class _CommentState extends ConsumerState<Comment> {
   late final PagingController<int, CommentModel> _pagingController =
       PagingController(firstPageKey: 1);
   late final ScrollController _scrollController; // Add this line
-  late int _scrollToIndex; // Add this line
 
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController(); // Add this line
-    _scrollToIndex = -1; // Add this line
     _pagingController.addPageRequestListener((pageKey) {
       fetchPage(pageKey);
     });
   }
 
   void fetchPage(int pageKey) async {
-    final asyncCommentList = ref.read(asyncCommentListProvider(
-            articleId: widget.articleModel.id,
-            pagingController: _pagingController)
-        .notifier);
     ref
         .read(asyncCommentListProvider(
                 articleId: widget.articleModel.id,
@@ -92,13 +85,6 @@ class _CommentState extends ConsumerState<Comment> {
     final asyncCommentList = ref.watch(asyncCommentListProvider(
         articleId: widget.articleModel.id,
         pagingController: _pagingController));
-
-    final commentCountNotifier =
-        ref.watch(commentCountProvider(widget.articleModel.id).notifier);
-
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   commentCountNotifier.setCount(commentCount);
-    // });
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
