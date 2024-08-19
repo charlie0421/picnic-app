@@ -30,9 +30,10 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
   },
-  "candy_disappear_next_month": "Expiring Bonus Star Candy 😢",
+  "candy_disappear_next_month": "소멸 예정 보너스 별사탕 😢",
   "@candy_disappear_next_month": {
-    "manualTranslationKey": true
+    "manualTranslationKey": true,
+    "manualTranslation": true
   },
   "candy_usage_policy_contents": "Bonus Star Candy earned in the current month will expire on the 15th of the following month.",
   "@candy_usage_policy_contents": {
@@ -405,7 +406,7 @@
   "label_mypage_setting": "Settings",
   "@label_mypage_setting": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
   "label_mypage_should_login": "Please sign in",
   "@label_mypage_should_login": {
@@ -622,6 +623,10 @@
   "label_title_report": "Make a report",
   "@label_title_report": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
+    "manualTranslation": false
+  },
+  "label_vote_end": "Close the poll",
+  "@label_vote_end": {
     "manualTranslation": false
   },
   "label_vote_reward_list": "Rewards list",

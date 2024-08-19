@@ -82,22 +82,26 @@ class _CountdownTimerState extends State<CountdownTimer> {
             child: Text(S.of(context).label_vote_upcoming,
                 style: getTextStyle(AppTypo.caption12B, _color)),
           ),
-        SizedBox(
-          height: 18,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              ..._buildTimeUnit(totalDays, 'D'),
-              ..._buildTimeUnit(hours),
-              Text(' : ',
-                  style: getTextStyle(AppTypo.caption12M, AppColors.grey900)),
-              ..._buildTimeUnit(minutes),
-              Text(' : ',
-                  style: getTextStyle(AppTypo.caption12M, AppColors.grey900)),
-              ..._buildTimeUnit(seconds),
-            ],
+        if (widget.status == VoteStatus.end)
+          Text(S.of(context).label_vote_end,
+              style: getTextStyle(AppTypo.caption12B, AppColors.grey300)),
+        if (widget.status != VoteStatus.end)
+          SizedBox(
+            height: 18,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                ..._buildTimeUnit(totalDays, 'D'),
+                ..._buildTimeUnit(hours),
+                Text(' : ',
+                    style: getTextStyle(AppTypo.caption12M, AppColors.grey900)),
+                ..._buildTimeUnit(minutes),
+                Text(' : ',
+                    style: getTextStyle(AppTypo.caption12M, AppColors.grey900)),
+                ..._buildTimeUnit(seconds),
+              ],
+            ),
           ),
-        ),
       ],
     );
   }

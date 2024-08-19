@@ -172,8 +172,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_mypage_notice": MessageLookupByLibrary.simpleMessage("お知らせ"),
         "label_mypage_privacy_policy":
             MessageLookupByLibrary.simpleMessage("個人情報保護方針"),
-        "label_mypage_setting":
-            MessageLookupByLibrary.simpleMessage("Settings"),
+        "label_mypage_setting": MessageLookupByLibrary.simpleMessage("設定"),
         "label_mypage_should_login":
             MessageLookupByLibrary.simpleMessage("ログインしてください"),
         "label_mypage_terms_of_use":
@@ -245,6 +244,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_time_ago_right_now": MessageLookupByLibrary.simpleMessage("先ほど"),
         "label_title_comment": MessageLookupByLibrary.simpleMessage("コメント"),
         "label_title_report": MessageLookupByLibrary.simpleMessage("報告する"),
+        "label_vote_end": MessageLookupByLibrary.simpleMessage("投票終了"),
         "label_vote_reward_list":
             MessageLookupByLibrary.simpleMessage("リワードリスト"),
         "label_vote_screen_title": MessageLookupByLibrary.simpleMessage("投票"),
