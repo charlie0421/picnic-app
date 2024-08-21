@@ -11,22 +11,65 @@ import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class PostList extends ConsumerWidget {
-  const PostList({super.key});
+  const PostList(this.artistId, {super.key});
+
+  final int? artistId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final postListAsyncValue = ref.watch(postListProvider);
     logger.i('postListAsyncValue: $postListAsyncValue');
 
-    return postListAsyncValue.when(
-      data: (data) => SizedBox(
-        height: 288,
-        child: Column(
-            children:
-                List.generate(3, (index) => PostListItem(post: data[index]))),
-      ),
-      error: (err, stack) => ErrorView(context, error: err, stackTrace: stack),
-      loading: () => buildLoadingOverlay(),
+    return Column(
+      children: [
+        postListAsyncValue.when(
+          data: (data) => data == null || data.isEmpty
+              ? Container(
+                  height: 200,
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      const SizedBox(height: 80),
+                      Text('게시글을 작성해 주세요!',
+                          style: getTextStyle(
+                              AppTypo.caption12B, AppColors.grey500)),
+                      const SizedBox(height: 54),
+                      ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: AppColors.primary500,
+                            backgroundColor: AppColors.grey00,
+                            textStyle: getTextStyle(AppTypo.body14B),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 20.w, vertical: 10),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              side: const BorderSide(
+                                color: AppColors.primary500,
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          onPressed: () {},
+                          child: Text('게시글 작성하기',
+                              style: getTextStyle(
+                                  AppTypo.body14B, AppColors.primary500)))
+                    ],
+                  ))
+              : SizedBox(
+                  height: 288,
+                  child: Column(children: [
+                    ...List.generate(
+                        3, (index) => PostListItem(post: data[index])),
+                    ElevatedButton(
+                        onPressed: () {}, child: const Text('My Artist 게시판 보기'))
+                  ]),
+                ),
+          error: (err, stack) =>
+              ErrorView(context, error: err, stackTrace: stack),
+          loading: () => buildLoadingOverlay(),
+        ),
+      ],
     );
   }
 }
@@ -104,8 +147,11 @@ class PostListItem extends ConsumerWidget {
 
 final postListProvider = FutureProvider((ref) async {
   try {
-    final response =
-        await supabase.schema('community').from('posts').select('*, boards(*)');
+    final response = await supabase
+        .schema('community')
+        .from('posts')
+        .select('*, boards!inner(*)')
+        .eq('boards.artist_id', 1);
     logger.d('response: $response');
     return response.map((data) => PostModel.fromJson(data)).toList();
   } catch (e, s) {

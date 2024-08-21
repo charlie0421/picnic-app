@@ -11,6 +11,7 @@ class BoardModel with _$BoardModel {
 
   const factory BoardModel({
     required String board_id,
+    required String artist_id,
     required Map<String, dynamic> name,
     required Map<String, dynamic> description,
     required bool is_official,
