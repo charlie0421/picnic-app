@@ -6,7 +6,7 @@ part of 'user_info_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$setAgreementHash() => r'1830ce60a0568fbde5a3b160fbed0df53086dd82';
+String _$setAgreementHash() => r'f5ea7908e415543bec42922eeb5b3ded5c41a1ff';
 
 /// See also [setAgreement].
 @ProviderFor(setAgreement)
@@ -20,7 +20,7 @@ final setAgreementProvider = AutoDisposeFutureProvider<bool>.internal(
 );
 
 typedef SetAgreementRef = AutoDisposeFutureProviderRef<bool>;
-String _$agreementHash() => r'19af065f4378c3658f01d542e6202e2dd42d30a1';
+String _$agreementHash() => r'26a35964df24d6a274cd694cdababfc29ca7954d';
 
 /// See also [agreement].
 @ProviderFor(agreement)

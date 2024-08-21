@@ -9,11 +9,17 @@ import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/ui.dart';
 
-class CommunityHomePage extends ConsumerWidget {
+class CommunityHomePage extends ConsumerStatefulWidget {
   const CommunityHomePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CommunityHomePage> createState() => _CommunityHomePageState();
+}
+
+class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
+  int _selectedArtistId = 0;
+  @override
+  Widget build(BuildContext context) {
     final bookmarkedArtists = ref.watch(asyncBookmarkedArtistsProvider);
 
     return ListView(children: [
@@ -23,7 +29,7 @@ class CommunityHomePage extends ConsumerWidget {
         child: Text('My ARTISTS',
             style: getTextStyle(AppTypo.title18B, AppColors.grey900)),
       ),
-      SizedBox(height: 16.h),
+      const SizedBox(height: 16),
       Container(
         child: bookmarkedArtists.when(
           data: (artists) {
@@ -36,33 +42,55 @@ class CommunityHomePage extends ConsumerWidget {
                         child: ListView.separated(
                           itemCount: artists.length,
                           scrollDirection: Axis.horizontal,
-                          itemBuilder: (context, index) => Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Column(
-                                children: [
-                                  ProfileImageContainer(
-                                    avatarUrl: artists[index].image,
-                                    width: 54,
-                                    height: 54,
-                                    borderRadius: 54,
-                                  ),
-                                  const SizedBox(height: 7),
-                                  Text(
-                                      getLocaleTextFromJson(
-                                          artists[index].name),
-                                      style: getTextStyle(AppTypo.caption12R,
-                                          AppColors.grey900)),
-                                ],
-                              ),
-                            ],
+                          itemBuilder: (context, index) => GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _selectedArtistId = artists[index].id;
+                              });
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Column(
+                                  children: [
+                                    Container(
+                                      width: 64,
+                                      height: 64,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(64),
+                                        border: Border.all(
+                                            color: _selectedArtistId ==
+                                                    artists[index].id
+                                                ? AppColors.primary500
+                                                : Colors.transparent,
+                                            width: 4),
+                                      ),
+                                      child: Center(
+                                        child: ProfileImageContainer(
+                                          avatarUrl: artists[index].image,
+                                          width: 54,
+                                          height: 54,
+                                          borderRadius: 54,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                        getLocaleTextFromJson(
+                                            artists[index].name),
+                                        style: getTextStyle(AppTypo.caption12R,
+                                            AppColors.grey900)),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                           separatorBuilder: (BuildContext context, int index) {
                             return SizedBox(width: 14.w);
                           },
                         ),
                       ),
-                      const PostList()
+                      PostList(_selectedArtistId),
                     ],
                   )
                 : Container(

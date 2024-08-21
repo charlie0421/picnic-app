@@ -21,6 +21,7 @@ BoardModel _$BoardModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$BoardModel {
   String get board_id => throw _privateConstructorUsedError;
+  String get artist_id => throw _privateConstructorUsedError;
   Map<String, dynamic> get name => throw _privateConstructorUsedError;
   Map<String, dynamic> get description => throw _privateConstructorUsedError;
   bool get is_official => throw _privateConstructorUsedError;
@@ -45,6 +46,7 @@ abstract class $BoardModelCopyWith<$Res> {
   @useResult
   $Res call(
       {String board_id,
+      String artist_id,
       Map<String, dynamic> name,
       Map<String, dynamic> description,
       bool is_official,
@@ -68,6 +70,7 @@ class _$BoardModelCopyWithImpl<$Res, $Val extends BoardModel>
   @override
   $Res call({
     Object? board_id = null,
+    Object? artist_id = null,
     Object? name = null,
     Object? description = null,
     Object? is_official = null,
@@ -78,6 +81,10 @@ class _$BoardModelCopyWithImpl<$Res, $Val extends BoardModel>
       board_id: null == board_id
           ? _value.board_id
           : board_id // ignore: cast_nullable_to_non_nullable
+              as String,
+      artist_id: null == artist_id
+          ? _value.artist_id
+          : artist_id // ignore: cast_nullable_to_non_nullable
               as String,
       name: null == name
           ? _value.name
@@ -113,6 +120,7 @@ abstract class _$$BoardModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {String board_id,
+      String artist_id,
       Map<String, dynamic> name,
       Map<String, dynamic> description,
       bool is_official,
@@ -134,6 +142,7 @@ class __$$BoardModelImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? board_id = null,
+    Object? artist_id = null,
     Object? name = null,
     Object? description = null,
     Object? is_official = null,
@@ -144,6 +153,10 @@ class __$$BoardModelImplCopyWithImpl<$Res>
       board_id: null == board_id
           ? _value.board_id
           : board_id // ignore: cast_nullable_to_non_nullable
+              as String,
+      artist_id: null == artist_id
+          ? _value.artist_id
+          : artist_id // ignore: cast_nullable_to_non_nullable
               as String,
       name: null == name
           ? _value._name
@@ -174,6 +187,7 @@ class __$$BoardModelImplCopyWithImpl<$Res>
 class _$BoardModelImpl extends _BoardModel {
   const _$BoardModelImpl(
       {required this.board_id,
+      required this.artist_id,
       required final Map<String, dynamic> name,
       required final Map<String, dynamic> description,
       required this.is_official,
@@ -188,6 +202,8 @@ class _$BoardModelImpl extends _BoardModel {
 
   @override
   final String board_id;
+  @override
+  final String artist_id;
   final Map<String, dynamic> _name;
   @override
   Map<String, dynamic> get name {
@@ -213,7 +229,7 @@ class _$BoardModelImpl extends _BoardModel {
 
   @override
   String toString() {
-    return 'BoardModel(board_id: $board_id, name: $name, description: $description, is_official: $is_official, created_at: $created_at, updated_at: $updated_at)';
+    return 'BoardModel(board_id: $board_id, artist_id: $artist_id, name: $name, description: $description, is_official: $is_official, created_at: $created_at, updated_at: $updated_at)';
   }
 
   @override
@@ -223,6 +239,8 @@ class _$BoardModelImpl extends _BoardModel {
             other is _$BoardModelImpl &&
             (identical(other.board_id, board_id) ||
                 other.board_id == board_id) &&
+            (identical(other.artist_id, artist_id) ||
+                other.artist_id == artist_id) &&
             const DeepCollectionEquality().equals(other._name, _name) &&
             const DeepCollectionEquality()
                 .equals(other._description, _description) &&
@@ -239,6 +257,7 @@ class _$BoardModelImpl extends _BoardModel {
   int get hashCode => Object.hash(
       runtimeType,
       board_id,
+      artist_id,
       const DeepCollectionEquality().hash(_name),
       const DeepCollectionEquality().hash(_description),
       is_official,
@@ -264,6 +283,7 @@ class _$BoardModelImpl extends _BoardModel {
 abstract class _BoardModel extends BoardModel {
   const factory _BoardModel(
       {required final String board_id,
+      required final String artist_id,
       required final Map<String, dynamic> name,
       required final Map<String, dynamic> description,
       required final bool is_official,
@@ -276,6 +296,8 @@ abstract class _BoardModel extends BoardModel {
 
   @override
   String get board_id;
+  @override
+  String get artist_id;
   @override
   Map<String, dynamic> get name;
   @override
