@@ -36,341 +36,347 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
-        "app_name": MessageLookupByLibrary.simpleMessage("ピクニック"),
-        "button_cancel": MessageLookupByLibrary.simpleMessage("キャンセル"),
-        "button_complete": MessageLookupByLibrary.simpleMessage("完了"),
-        "button_login": MessageLookupByLibrary.simpleMessage("ログイン"),
-        "button_ok": MessageLookupByLibrary.simpleMessage("確認"),
-        "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("保存する"),
+        "app_name": MessageLookupByLibrary.simpleMessage("피크닠"),
+        "button_cancel": MessageLookupByLibrary.simpleMessage("취소"),
+        "button_complete": MessageLookupByLibrary.simpleMessage("완료"),
+        "button_login": MessageLookupByLibrary.simpleMessage("로그인"),
+        "button_ok": MessageLookupByLibrary.simpleMessage("확인"),
+        "button_pic_pic_save": MessageLookupByLibrary.simpleMessage("저장하기"),
         "candy_disappear_next_month":
-            MessageLookupByLibrary.simpleMessage("消滅予定ボーナス星空キャンディー😢(消失予定)"),
+            MessageLookupByLibrary.simpleMessage("소멸 예정 보너스 별사탕 😢"),
         "candy_usage_policy_contents": MessageLookupByLibrary.simpleMessage(
-            "今月獲得したボーナススターキャンディーは、翌月15日に消滅します。"),
+            "이달에 적립한 보너스 별사탕은 다음달 15일 소멸됩니다."),
         "candy_usage_policy_contents2": MessageLookupByLibrary.simpleMessage(
-            "星飴を使用する場合、消滅が近い星飴が優先的に使用されます。"),
+            "별사탕 사용 시, 소멸이 임박한 별사탕이 우선적으로 사용됩니다."),
         "candy_usage_policy_guide":
-            MessageLookupByLibrary.simpleMessage("*ボーナスは獲得した翌月に消滅します！"),
+            MessageLookupByLibrary.simpleMessage("*보너스는 획득한 다음달에 사라져요!"),
         "candy_usage_policy_guide_button":
-            MessageLookupByLibrary.simpleMessage("詳細を見る"),
+            MessageLookupByLibrary.simpleMessage("자세히 보기"),
         "candy_usage_policy_title":
-            MessageLookupByLibrary.simpleMessage("スターキャンディー使用ポリシー"),
-        "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("キャンセル"),
-        "dialog_button_ok": MessageLookupByLibrary.simpleMessage("確認"),
-        "dialog_content_ads_exhausted":
-            MessageLookupByLibrary.simpleMessage("広告がなくなりました。次回、もう一度お試しください。"),
+            MessageLookupByLibrary.simpleMessage("별사탕 사용정책"),
+        "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("취소"),
+        "dialog_button_ok": MessageLookupByLibrary.simpleMessage("확인"),
+        "dialog_content_ads_exhausted": MessageLookupByLibrary.simpleMessage(
+            "광고가 모두 소진되었습니다. 다음에 다시 시도해주세요."),
         "dialog_content_ads_loading":
-            MessageLookupByLibrary.simpleMessage("広告の読み込み中です。"),
+            MessageLookupByLibrary.simpleMessage("광고 로딩중입니다."),
         "dialog_content_ads_retrying": MessageLookupByLibrary.simpleMessage(
-            "広告を再呼び出し中です。しばらくしてからもう一度お試しください。"),
+            "광고를 다시 불러오는 중입니다. 잠시 후 다시 시도해 주세요."),
         "dialog_content_login_required":
-            MessageLookupByLibrary.simpleMessage("ログインが必要です"),
+            MessageLookupByLibrary.simpleMessage("로그인이 필요합니다"),
         "dialog_message_can_resignup":
-            MessageLookupByLibrary.simpleMessage("今すぐ退会した場合、再入会可能日"),
+            MessageLookupByLibrary.simpleMessage("지금 회원 탈퇴 시 재 가입 가능 일자"),
         "dialog_message_purchase_canceled":
-            MessageLookupByLibrary.simpleMessage("購入がキャンセルされました。"),
+            MessageLookupByLibrary.simpleMessage("구매가 취소되었습니다."),
         "dialog_message_purchase_failed": MessageLookupByLibrary.simpleMessage(
-            "購入中にエラーが発生しました。 後ほど再試行してください。"),
+            "구매 중 오류가 발생했습니다. 나중에 다시 시도해 주세요."),
         "dialog_message_purchase_success":
-            MessageLookupByLibrary.simpleMessage("購入が正常に完了しました。"),
+            MessageLookupByLibrary.simpleMessage("구매가 성공적으로 완료되었습니다."),
         "dialog_purchases_fail":
-            MessageLookupByLibrary.simpleMessage("購入に失敗しました。"),
+            MessageLookupByLibrary.simpleMessage("구매에 실패했습니다."),
         "dialog_purchases_success":
-            MessageLookupByLibrary.simpleMessage("購入が完了しました。"),
+            MessageLookupByLibrary.simpleMessage("구매가 완료되었습니다."),
         "dialog_title_ads_exhausted":
-            MessageLookupByLibrary.simpleMessage("広告完売しました"),
-        "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("投票失敗"),
+            MessageLookupByLibrary.simpleMessage("광고 모두 소진"),
+        "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("투표 실패"),
         "dialog_will_delete_star_candy":
-            MessageLookupByLibrary.simpleMessage("削除予定 星飴"),
+            MessageLookupByLibrary.simpleMessage("삭제 예정 별사탕"),
         "dialog_withdraw_button_cancel":
-            MessageLookupByLibrary.simpleMessage("もう一度考えてみます"),
+            MessageLookupByLibrary.simpleMessage("다시 한 번 생각해 볼게요"),
         "dialog_withdraw_button_ok":
-            MessageLookupByLibrary.simpleMessage("退会する"),
+            MessageLookupByLibrary.simpleMessage("탈퇴하기"),
         "dialog_withdraw_error":
-            MessageLookupByLibrary.simpleMessage("退会中にエラーが発生しました。"),
+            MessageLookupByLibrary.simpleMessage("탈퇴중 에러가 발생했습니다."),
         "dialog_withdraw_message": MessageLookupByLibrary.simpleMessage(
-            "退会時、ピクニックで保有している星キャンディーとアカウント情報は即座に削除され、再入会時、既存の情報及びデータは復旧されません。"),
+            "회원 탈퇴 시 피크닠에 보유하신 별사탕과 계정 정보는 즉시 삭제되며, 재 가입시 기존 정보 및 데이터는 복구가 되지 않습니다."),
         "dialog_withdraw_success":
-            MessageLookupByLibrary.simpleMessage("退会が正常に処理されました。"),
+            MessageLookupByLibrary.simpleMessage("탈퇴가 성공적으로 처리 되었습니다."),
         "dialog_withdraw_title":
-            MessageLookupByLibrary.simpleMessage("本当に退会しますか？"),
+            MessageLookupByLibrary.simpleMessage("정말 탈퇴하시겠어요?"),
         "error_message_login_failed":
-            MessageLookupByLibrary.simpleMessage("ログイン中にエラーが発生しました。"),
+            MessageLookupByLibrary.simpleMessage("로그인 중 오류가 발생했습니다."),
         "error_message_no_user":
-            MessageLookupByLibrary.simpleMessage("会員情報が存在しません。"),
+            MessageLookupByLibrary.simpleMessage("회원 정보가 존재하지 않습니다."),
         "error_message_withdrawal":
-            MessageLookupByLibrary.simpleMessage("退会した会員です。"),
-        "error_title": MessageLookupByLibrary.simpleMessage("エラー"),
-        "hint_library_add": MessageLookupByLibrary.simpleMessage("アルバム名"),
+            MessageLookupByLibrary.simpleMessage("탈퇴한 회원입니다."),
+        "error_title": MessageLookupByLibrary.simpleMessage("에러"),
+        "hint_library_add": MessageLookupByLibrary.simpleMessage("앨범명"),
         "hint_nickname_input":
-            MessageLookupByLibrary.simpleMessage("ニックネームを入力してください。"),
+            MessageLookupByLibrary.simpleMessage("닉네임을 입력해주세요."),
         "image_save_success":
-            MessageLookupByLibrary.simpleMessage("画像が保存されました。"),
+            MessageLookupByLibrary.simpleMessage("이미지가 저장되었습니다."),
         "label_ads_exceeded":
-            MessageLookupByLibrary.simpleMessage("IDごとに視聴可能な広告を使い切りました。"),
+            MessageLookupByLibrary.simpleMessage("아이디당 시청 가능한 광고를 모두 소진했습니다."),
         "label_ads_next_available_time":
-            MessageLookupByLibrary.simpleMessage("次の広告視聴可能時間。"),
+            MessageLookupByLibrary.simpleMessage("다음 광고 시청 가능시간."),
         "label_agreement_privacy":
-            MessageLookupByLibrary.simpleMessage("個人情報収集及び利用同意"),
+            MessageLookupByLibrary.simpleMessage("개인정보 수집 및 이용 동의"),
         "label_agreement_terms":
-            MessageLookupByLibrary.simpleMessage("利用規約に同意する"),
-        "label_album_add": MessageLookupByLibrary.simpleMessage("新しいアルバムを追加"),
+            MessageLookupByLibrary.simpleMessage("이용 약관 동의"),
+        "label_album_add": MessageLookupByLibrary.simpleMessage("새로운 앨범 추가"),
         "label_article_comment_empty":
-            MessageLookupByLibrary.simpleMessage("最初のコメントの主人公になりましょう！"),
-        "label_bonus": MessageLookupByLibrary.simpleMessage("ボーナス"),
-        "label_button_agreement": MessageLookupByLibrary.simpleMessage("同意する"),
-        "label_button_close": MessageLookupByLibrary.simpleMessage("閉じる"),
+            MessageLookupByLibrary.simpleMessage("첫 댓글의 주인공이 되세요!"),
+        "label_bonus": MessageLookupByLibrary.simpleMessage("보너스"),
+        "label_button_agreement": MessageLookupByLibrary.simpleMessage("동의"),
+        "label_button_close": MessageLookupByLibrary.simpleMessage("닫기"),
         "label_button_disagreement":
-            MessageLookupByLibrary.simpleMessage("非同意"),
-        "label_button_recharge": MessageLookupByLibrary.simpleMessage("充電する"),
+            MessageLookupByLibrary.simpleMessage("비동의"),
+        "label_button_recharge": MessageLookupByLibrary.simpleMessage("충전하기"),
         "label_button_save_vote_paper":
-            MessageLookupByLibrary.simpleMessage("投票券の保存"),
-        "label_button_share": MessageLookupByLibrary.simpleMessage("シェアする"),
-        "label_button_vote": MessageLookupByLibrary.simpleMessage("投票する"),
+            MessageLookupByLibrary.simpleMessage("투표증 저장"),
+        "label_button_share": MessageLookupByLibrary.simpleMessage("공유하기"),
+        "label_button_vote": MessageLookupByLibrary.simpleMessage("투표하기"),
         "label_button_watch_and_charge":
-            MessageLookupByLibrary.simpleMessage("広告を見てチャージする"),
+            MessageLookupByLibrary.simpleMessage("광고보고 충전하기"),
         "label_celeb_ask_to_you":
-            MessageLookupByLibrary.simpleMessage("アーティストがあなたに尋ねる！"),
-        "label_celeb_gallery":
-            MessageLookupByLibrary.simpleMessage("アーティストギャラリー"),
+            MessageLookupByLibrary.simpleMessage("아티스트가 당신에게 묻다!"),
+        "label_celeb_gallery": MessageLookupByLibrary.simpleMessage("아티스트 갤러리"),
         "label_celeb_recommend":
-            MessageLookupByLibrary.simpleMessage("アーティスト推薦"),
+            MessageLookupByLibrary.simpleMessage("아티스트 추천"),
         "label_checkbox_entire_use":
-            MessageLookupByLibrary.simpleMessage("全体使用"),
-        "label_current_language": MessageLookupByLibrary.simpleMessage("現在の言語"),
+            MessageLookupByLibrary.simpleMessage("전체사용"),
+        "label_current_language": MessageLookupByLibrary.simpleMessage("현재 언어"),
         "label_draw_image":
-            MessageLookupByLibrary.simpleMessage("ランダム画像獲得チャンス"),
-        "label_dropdown_oldest": MessageLookupByLibrary.simpleMessage("古い順"),
-        "label_dropdown_recent": MessageLookupByLibrary.simpleMessage("最新順"),
+            MessageLookupByLibrary.simpleMessage("랜덤 이미지 획득 기회"),
+        "label_dropdown_oldest": MessageLookupByLibrary.simpleMessage("오래된순"),
+        "label_dropdown_recent": MessageLookupByLibrary.simpleMessage("최신순"),
         "label_find_celeb":
-            MessageLookupByLibrary.simpleMessage("その他のアーティストを探す"),
-        "label_gallery_tab_article": MessageLookupByLibrary.simpleMessage("記事"),
-        "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("チャット"),
+            MessageLookupByLibrary.simpleMessage("더 많은 아티스트 찾기"),
+        "label_gallery_tab_article":
+            MessageLookupByLibrary.simpleMessage("아티클"),
+        "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("채팅"),
         "label_hint_comment":
-            MessageLookupByLibrary.simpleMessage("コメントを残してください。"),
-        "label_input_input": MessageLookupByLibrary.simpleMessage("入力"),
-        "label_last_provider": MessageLookupByLibrary.simpleMessage("最近のログイン"),
-        "label_library_save": MessageLookupByLibrary.simpleMessage("ライブラリ保存"),
+            MessageLookupByLibrary.simpleMessage("댓글을 남겨주세요."),
+        "label_input_input": MessageLookupByLibrary.simpleMessage("입력"),
+        "label_last_provider": MessageLookupByLibrary.simpleMessage("최근 로그인"),
+        "label_library_save": MessageLookupByLibrary.simpleMessage("라이브러리 저장"),
         "label_library_tab_ai_photo":
-            MessageLookupByLibrary.simpleMessage("AIフォト"),
+            MessageLookupByLibrary.simpleMessage("AI 포토"),
         "label_library_tab_library":
-            MessageLookupByLibrary.simpleMessage("ライブラリ"),
-        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("ピック"),
-        "label_loading_ads": MessageLookupByLibrary.simpleMessage("広告読み込み中"),
+            MessageLookupByLibrary.simpleMessage("라이브러리"),
+        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("PIC"),
+        "label_loading_ads": MessageLookupByLibrary.simpleMessage("광고 로딩중"),
         "label_moveto_celeb_gallery":
-            MessageLookupByLibrary.simpleMessage("アーティストギャラリーへ"),
+            MessageLookupByLibrary.simpleMessage("아티스트 갤러리로 이동"),
         "label_mypage_charge_history":
-            MessageLookupByLibrary.simpleMessage("料金内訳"),
+            MessageLookupByLibrary.simpleMessage("충전내역"),
         "label_mypage_customer_center":
-            MessageLookupByLibrary.simpleMessage("お客様センター"),
-        "label_mypage_logout": MessageLookupByLibrary.simpleMessage("ログアウト"),
+            MessageLookupByLibrary.simpleMessage("고객센터"),
+        "label_mypage_logout": MessageLookupByLibrary.simpleMessage("로그아웃"),
         "label_mypage_membership_history":
-            MessageLookupByLibrary.simpleMessage("メンバーシップ履歴"),
+            MessageLookupByLibrary.simpleMessage("멤버십 내역"),
         "label_mypage_my_artist":
-            MessageLookupByLibrary.simpleMessage("私のアーティスト"),
+            MessageLookupByLibrary.simpleMessage("나의 아티스트"),
         "label_mypage_no_artist":
-            MessageLookupByLibrary.simpleMessage("マイアーティストを登録してください。"),
-        "label_mypage_notice": MessageLookupByLibrary.simpleMessage("お知らせ"),
+            MessageLookupByLibrary.simpleMessage("마이아티스트를 등록하세요."),
+        "label_mypage_notice": MessageLookupByLibrary.simpleMessage("공지사항"),
+        "label_mypage_picnic_id":
+            MessageLookupByLibrary.simpleMessage("피크닠 아이디"),
         "label_mypage_privacy_policy":
-            MessageLookupByLibrary.simpleMessage("個人情報保護方針"),
-        "label_mypage_setting": MessageLookupByLibrary.simpleMessage("設定"),
+            MessageLookupByLibrary.simpleMessage("개인정보처리방침"),
+        "label_mypage_setting":
+            MessageLookupByLibrary.simpleMessage("Settings"),
         "label_mypage_should_login":
-            MessageLookupByLibrary.simpleMessage("ログインしてください"),
+            MessageLookupByLibrary.simpleMessage("로그인 해 주세요"),
         "label_mypage_terms_of_use":
-            MessageLookupByLibrary.simpleMessage("利用規約"),
+            MessageLookupByLibrary.simpleMessage("이용약관"),
         "label_mypage_vote_history":
-            MessageLookupByLibrary.simpleMessage("スターキャンディーの投票履歴"),
-        "label_mypage_withdrawal": MessageLookupByLibrary.simpleMessage("退会する"),
-        "label_no_ads": MessageLookupByLibrary.simpleMessage("広告なし"),
+            MessageLookupByLibrary.simpleMessage("별사탕 투표내역"),
+        "label_mypage_withdrawal": MessageLookupByLibrary.simpleMessage("회원탈퇴"),
+        "label_no_ads": MessageLookupByLibrary.simpleMessage("광고 없음"),
         "label_no_celeb":
-            MessageLookupByLibrary.simpleMessage("まだブックマークしたアーティストはいません！"),
+            MessageLookupByLibrary.simpleMessage("아직 북마크한 아티스트가 없습니다!"),
         "label_pic_image_cropping":
-            MessageLookupByLibrary.simpleMessage("画像の切り抜き"),
+            MessageLookupByLibrary.simpleMessage("이미지 자르기"),
         "label_pic_pic_initializing_camera":
-            MessageLookupByLibrary.simpleMessage("カメラの初期化中..."),
+            MessageLookupByLibrary.simpleMessage("카메라 초기화중..."),
         "label_pic_pic_save_gallery":
-            MessageLookupByLibrary.simpleMessage("ギャラリーに保存"),
+            MessageLookupByLibrary.simpleMessage("갤러리에 저장"),
         "label_pic_pic_synthesizing_image":
-            MessageLookupByLibrary.simpleMessage("画像合成中..."),
+            MessageLookupByLibrary.simpleMessage("이미지 합성중..."),
         "label_read_more_comment":
-            MessageLookupByLibrary.simpleMessage("コメントをもっと見る"),
-        "label_reply": MessageLookupByLibrary.simpleMessage("返信する"),
-        "label_retry": MessageLookupByLibrary.simpleMessage("再試行する"),
+            MessageLookupByLibrary.simpleMessage("댓글 더보기"),
+        "label_reply": MessageLookupByLibrary.simpleMessage("답글 달기"),
+        "label_retry": MessageLookupByLibrary.simpleMessage("재시도 하기"),
         "label_screen_title_agreement":
-            MessageLookupByLibrary.simpleMessage("規約に同意する"),
-        "label_setting_alarm": MessageLookupByLibrary.simpleMessage("お知らせ"),
-        "label_setting_appinfo": MessageLookupByLibrary.simpleMessage("アプリ情報"),
+            MessageLookupByLibrary.simpleMessage("약관 동의"),
+        "label_setting_alarm": MessageLookupByLibrary.simpleMessage("알림"),
+        "label_setting_appinfo": MessageLookupByLibrary.simpleMessage("앱정보"),
         "label_setting_current_version":
-            MessageLookupByLibrary.simpleMessage("現在のバージョン"),
+            MessageLookupByLibrary.simpleMessage("현재버전"),
         "label_setting_event_alarm":
-            MessageLookupByLibrary.simpleMessage("イベントお知らせ"),
+            MessageLookupByLibrary.simpleMessage("이벤트알림"),
         "label_setting_event_alarm_desc":
-            MessageLookupByLibrary.simpleMessage("各種イベントや行事をご案内します。"),
-        "label_setting_language": MessageLookupByLibrary.simpleMessage("言語設定"),
+            MessageLookupByLibrary.simpleMessage("각종 이벤트와 행사를 안내드려요."),
+        "label_setting_language": MessageLookupByLibrary.simpleMessage("언어설정"),
         "label_setting_push_alarm":
-            MessageLookupByLibrary.simpleMessage("プッシュ通知"),
+            MessageLookupByLibrary.simpleMessage("푸시알림"),
         "label_setting_recent_version":
-            MessageLookupByLibrary.simpleMessage("最新バージョン"),
+            MessageLookupByLibrary.simpleMessage("최신버전"),
         "label_setting_recent_version_up_to_date":
-            MessageLookupByLibrary.simpleMessage("最新バージョン"),
+            MessageLookupByLibrary.simpleMessage("최신버전"),
         "label_setting_remove_cache":
-            MessageLookupByLibrary.simpleMessage("キャッシュメモリの削除"),
+            MessageLookupByLibrary.simpleMessage("캐시메모리 삭제"),
         "label_setting_remove_cache_complete":
-            MessageLookupByLibrary.simpleMessage("完了"),
+            MessageLookupByLibrary.simpleMessage("완료"),
         "label_setting_storage":
-            MessageLookupByLibrary.simpleMessage("ストレージスペース管理"),
-        "label_setting_update": MessageLookupByLibrary.simpleMessage("最新情報"),
+            MessageLookupByLibrary.simpleMessage("저장공간 관리"),
+        "label_setting_update": MessageLookupByLibrary.simpleMessage("업데이트"),
         "label_star_candy_pouch":
-            MessageLookupByLibrary.simpleMessage("スターキャンディーの袋"),
+            MessageLookupByLibrary.simpleMessage("별사탕 주머니"),
         "label_tab_buy_star_candy":
-            MessageLookupByLibrary.simpleMessage("スターキャンディーの購入"),
+            MessageLookupByLibrary.simpleMessage("별사탕 구매"),
         "label_tab_free_charge_station":
-            MessageLookupByLibrary.simpleMessage("無料充電ステーション"),
-        "label_tab_my_artist": MessageLookupByLibrary.simpleMessage("マイアーティスト"),
+            MessageLookupByLibrary.simpleMessage("무료충전소"),
+        "label_tab_my_artist": MessageLookupByLibrary.simpleMessage("마이아티스트"),
         "label_tab_search_my_artist":
-            MessageLookupByLibrary.simpleMessage("マイアーティストを探す"),
+            MessageLookupByLibrary.simpleMessage("마이아티스트 찾기"),
         "label_tabbar_picchart_daily":
-            MessageLookupByLibrary.simpleMessage("日足チャート"),
+            MessageLookupByLibrary.simpleMessage("일간차트"),
         "label_tabbar_picchart_monthly":
-            MessageLookupByLibrary.simpleMessage("月間チャート"),
+            MessageLookupByLibrary.simpleMessage("월간차트"),
         "label_tabbar_picchart_weekly":
-            MessageLookupByLibrary.simpleMessage("週間チャート"),
-        "label_tabbar_vote_active": MessageLookupByLibrary.simpleMessage("進行中"),
-        "label_tabbar_vote_end": MessageLookupByLibrary.simpleMessage("終了"),
+            MessageLookupByLibrary.simpleMessage("주간차트"),
+        "label_tabbar_vote_active": MessageLookupByLibrary.simpleMessage("진행중"),
+        "label_tabbar_vote_end": MessageLookupByLibrary.simpleMessage("종료"),
         "label_tabbar_vote_upcoming":
-            MessageLookupByLibrary.simpleMessage("予定"),
+            MessageLookupByLibrary.simpleMessage("예정"),
         "label_time_ago_day": m0,
         "label_time_ago_hour": m1,
         "label_time_ago_minute": m2,
-        "label_time_ago_right_now": MessageLookupByLibrary.simpleMessage("先ほど"),
-        "label_title_comment": MessageLookupByLibrary.simpleMessage("コメント"),
-        "label_title_report": MessageLookupByLibrary.simpleMessage("報告する"),
-        "label_vote_end": MessageLookupByLibrary.simpleMessage("投票終了"),
+        "label_time_ago_right_now":
+            MessageLookupByLibrary.simpleMessage("방금 전"),
+        "label_title_comment": MessageLookupByLibrary.simpleMessage("댓글"),
+        "label_title_report": MessageLookupByLibrary.simpleMessage("신고하기"),
+        "label_vote_end": MessageLookupByLibrary.simpleMessage("투표 종료"),
         "label_vote_reward_list":
-            MessageLookupByLibrary.simpleMessage("リワードリスト"),
-        "label_vote_screen_title": MessageLookupByLibrary.simpleMessage("投票"),
+            MessageLookupByLibrary.simpleMessage("리워드 리스트"),
+        "label_vote_screen_title": MessageLookupByLibrary.simpleMessage("투표"),
         "label_vote_tab_birthday":
-            MessageLookupByLibrary.simpleMessage("誕生日投票"),
-        "label_vote_tab_pic": MessageLookupByLibrary.simpleMessage("PIC投票"),
-        "label_vote_upcoming": MessageLookupByLibrary.simpleMessage("投票開始まで"),
+            MessageLookupByLibrary.simpleMessage("생일 투표"),
+        "label_vote_tab_pic": MessageLookupByLibrary.simpleMessage("PIC 투표"),
+        "label_vote_upcoming": MessageLookupByLibrary.simpleMessage("투표 시작까지"),
         "label_vote_vote_gather":
-            MessageLookupByLibrary.simpleMessage("投票集を見る"),
-        "label_watch_ads": MessageLookupByLibrary.simpleMessage("広告を見る"),
-        "lable_my_celeb": MessageLookupByLibrary.simpleMessage("私のアーティスト"),
+            MessageLookupByLibrary.simpleMessage("투표 모아보기"),
+        "label_watch_ads": MessageLookupByLibrary.simpleMessage("광고보기"),
+        "lable_my_celeb": MessageLookupByLibrary.simpleMessage("나의 아티스트"),
         "message_agreement_success":
-            MessageLookupByLibrary.simpleMessage("規約の同意が完了しました。"),
+            MessageLookupByLibrary.simpleMessage("약관 동의가 완료되었습니다."),
         "message_error_occurred":
-            MessageLookupByLibrary.simpleMessage("エラーが発生しました。"),
+            MessageLookupByLibrary.simpleMessage("오류가 발생했습니다."),
         "message_noitem_vote_active":
-            MessageLookupByLibrary.simpleMessage("現在進行中の投票はありません。"),
+            MessageLookupByLibrary.simpleMessage("현재 진행중인 투표가 없습니다."),
         "message_noitem_vote_end":
-            MessageLookupByLibrary.simpleMessage("現在、終了した投票はありません。"),
+            MessageLookupByLibrary.simpleMessage("현재 종료된 투표가 없습니다."),
         "message_noitem_vote_upcoming":
-            MessageLookupByLibrary.simpleMessage("現在予定されている投票はありません。"),
+            MessageLookupByLibrary.simpleMessage("현재 예정중인 투표가 없습니다."),
         "message_pic_pic_save_fail":
-            MessageLookupByLibrary.simpleMessage("画像の保存に失敗しました。"),
+            MessageLookupByLibrary.simpleMessage("이미지 저장에 실패했습니다."),
         "message_pic_pic_save_success":
-            MessageLookupByLibrary.simpleMessage("画像が保存されました。"),
+            MessageLookupByLibrary.simpleMessage("이미지가 저장되었습니다."),
         "message_report_confirm":
-            MessageLookupByLibrary.simpleMessage("申告しますか？"),
-        "message_report_ok": MessageLookupByLibrary.simpleMessage("申告が完了しました。"),
+            MessageLookupByLibrary.simpleMessage("신고하시겠습니까?"),
+        "message_report_ok":
+            MessageLookupByLibrary.simpleMessage("신고가 완료되었습니다."),
         "message_setting_remove_cache":
-            MessageLookupByLibrary.simpleMessage("キャッシュメモリの削除が完了しました"),
+            MessageLookupByLibrary.simpleMessage("캐시메모리 삭제가 완료되었습니다"),
         "message_update_nickname_fail": MessageLookupByLibrary.simpleMessage(
-            "ニックネームの変更に失敗しました。\n別のニックネームを選択してください。"),
+            "닉네임 변경에 실패했습니다.\n다른 닉네임을 선택해주세요."),
         "message_update_nickname_success":
-            MessageLookupByLibrary.simpleMessage("ニックネームが正常に変更されました。"),
+            MessageLookupByLibrary.simpleMessage("닉네임이 성공적으로 변경되었습니다."),
         "message_vote_is_ended":
-            MessageLookupByLibrary.simpleMessage("投票は終了しました"),
+            MessageLookupByLibrary.simpleMessage("종료된 투표입니다"),
         "message_vote_is_upcoming":
-            MessageLookupByLibrary.simpleMessage("予定されている投票です"),
-        "mypage_comment": MessageLookupByLibrary.simpleMessage("コメント管理"),
-        "mypage_language": MessageLookupByLibrary.simpleMessage("言語設定"),
-        "mypage_purchases": MessageLookupByLibrary.simpleMessage("私の購入"),
-        "mypage_setting": MessageLookupByLibrary.simpleMessage("設定"),
-        "mypage_subscription": MessageLookupByLibrary.simpleMessage("購読情報"),
-        "nav_ads": MessageLookupByLibrary.simpleMessage("広告"),
-        "nav_board": MessageLookupByLibrary.simpleMessage("掲示板"),
-        "nav_gallery": MessageLookupByLibrary.simpleMessage("ギャラリー"),
+            MessageLookupByLibrary.simpleMessage("예정된 투표입니다"),
+        "mypage_comment": MessageLookupByLibrary.simpleMessage("댓글관리"),
+        "mypage_language": MessageLookupByLibrary.simpleMessage("언어설정"),
+        "mypage_purchases": MessageLookupByLibrary.simpleMessage("내 구매"),
+        "mypage_setting": MessageLookupByLibrary.simpleMessage("설정"),
+        "mypage_subscription": MessageLookupByLibrary.simpleMessage("구독정보"),
+        "nav_ads": MessageLookupByLibrary.simpleMessage("광고"),
+        "nav_board": MessageLookupByLibrary.simpleMessage("게시판"),
+        "nav_gallery": MessageLookupByLibrary.simpleMessage("갤러리"),
         "nav_home": MessageLookupByLibrary.simpleMessage("홈"),
-        "nav_library": MessageLookupByLibrary.simpleMessage("ライブラリ"),
-        "nav_media": MessageLookupByLibrary.simpleMessage("メディア"),
-        "nav_my": MessageLookupByLibrary.simpleMessage("マイ"),
-        "nav_picchart": MessageLookupByLibrary.simpleMessage("PICチャート"),
-        "nav_purchases": MessageLookupByLibrary.simpleMessage("購入"),
-        "nav_setting": MessageLookupByLibrary.simpleMessage("設定"),
-        "nav_store": MessageLookupByLibrary.simpleMessage("ショップ"),
-        "nav_subscription": MessageLookupByLibrary.simpleMessage("サブスクリプション"),
-        "nav_vote": MessageLookupByLibrary.simpleMessage("投票"),
+        "nav_library": MessageLookupByLibrary.simpleMessage("라이브러리"),
+        "nav_media": MessageLookupByLibrary.simpleMessage("미디어"),
+        "nav_my": MessageLookupByLibrary.simpleMessage("마이"),
+        "nav_picchart": MessageLookupByLibrary.simpleMessage("PIC차트"),
+        "nav_purchases": MessageLookupByLibrary.simpleMessage("구매"),
+        "nav_setting": MessageLookupByLibrary.simpleMessage("설정"),
+        "nav_store": MessageLookupByLibrary.simpleMessage("상점"),
+        "nav_subscription": MessageLookupByLibrary.simpleMessage("구독"),
+        "nav_vote": MessageLookupByLibrary.simpleMessage("투표"),
         "nickname_validation_error":
-            MessageLookupByLibrary.simpleMessage("20文字以内、特殊文字を除くことができます。"),
-        "page_title_mypage": MessageLookupByLibrary.simpleMessage("マイページ"),
-        "page_title_myprofile":
-            MessageLookupByLibrary.simpleMessage("私のプロフィール"),
-        "page_title_privacy": MessageLookupByLibrary.simpleMessage("個人情報保護方針"),
-        "page_title_setting": MessageLookupByLibrary.simpleMessage("環境設定"),
-        "page_title_terms_of_use": MessageLookupByLibrary.simpleMessage("利用規約"),
-        "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("投票する"),
+            MessageLookupByLibrary.simpleMessage("20자 이내, 특수문자 제외 가능합니다."),
+        "page_title_mypage": MessageLookupByLibrary.simpleMessage("마이페이지"),
+        "page_title_myprofile": MessageLookupByLibrary.simpleMessage("나의 프로필"),
+        "page_title_privacy": MessageLookupByLibrary.simpleMessage("개인정보처리방침"),
+        "page_title_setting": MessageLookupByLibrary.simpleMessage("환경설정"),
+        "page_title_terms_of_use": MessageLookupByLibrary.simpleMessage("이용약관"),
+        "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("투표하기"),
         "page_title_vote_gather":
-            MessageLookupByLibrary.simpleMessage("投票集を見る"),
-        "share_image_fail": MessageLookupByLibrary.simpleMessage("画像共有に失敗"),
-        "share_image_success": MessageLookupByLibrary.simpleMessage("画像共有成功"),
-        "share_no_twitter": MessageLookupByLibrary.simpleMessage("Xアプリがありません。"),
-        "share_twitter": MessageLookupByLibrary.simpleMessage("Twitter共有"),
+            MessageLookupByLibrary.simpleMessage("투표 모아보기"),
+        "share_image_fail": MessageLookupByLibrary.simpleMessage("이미지 공유 실패"),
+        "share_image_success":
+            MessageLookupByLibrary.simpleMessage("이미지 공유 성공"),
+        "share_no_twitter": MessageLookupByLibrary.simpleMessage("X 앱이 없습니다."),
+        "share_twitter": MessageLookupByLibrary.simpleMessage("트위터 공유"),
         "text_ads_random":
-            MessageLookupByLibrary.simpleMessage("広告表示とランダム画像収集。"),
-        "text_bonus": MessageLookupByLibrary.simpleMessage("ボーナス"),
+            MessageLookupByLibrary.simpleMessage("광고 보기 및 무작위 이미지 수집."),
+        "text_bonus": MessageLookupByLibrary.simpleMessage("보너스"),
         "text_bookmark_failed":
-            MessageLookupByLibrary.simpleMessage("ブックマーク解除に失敗しました"),
+            MessageLookupByLibrary.simpleMessage("북마크 해제에 실패했습니다"),
         "text_bookmark_over_5":
-            MessageLookupByLibrary.simpleMessage("ブックマークは最大5個まで可能です。"),
+            MessageLookupByLibrary.simpleMessage("북마크는 최대 5개까지 가능합니다"),
         "text_comming_soon_pic_chart1": MessageLookupByLibrary.simpleMessage(
-            "ピックチャートへようこそ！\n2024年8月にお会いしましょう！"),
+            "핔 차트에 오신 여러분을 환영합니다!\n2024년 8월에 만나요!"),
         "text_comming_soon_pic_chart2": MessageLookupByLibrary.simpleMessage(
-            "ピックチャートは、日次、週次、月次のスコアを反映している\nピクニックならではの新しいチャートです。"),
+            "핔차트는 일간, 주간, 월간 점수를 반영하는\n피크닠만의 새로운 차트입니다."),
         "text_comming_soon_pic_chart3": MessageLookupByLibrary.simpleMessage(
-            "リアルタイムで反映される\nアーティストのブランド評判をご確認ください！"),
+            "실시간으로 반영되는\n아티스트의 브랜드 평판을 확인해 보세요!"),
         "text_comming_soon_pic_chart_title":
-            MessageLookupByLibrary.simpleMessage("ピクチャーチャートとは？"),
+            MessageLookupByLibrary.simpleMessage("핔차트란?"),
         "text_copied_address":
-            MessageLookupByLibrary.simpleMessage("アドレスがコピーされました。"),
+            MessageLookupByLibrary.simpleMessage("주소가 복사되었습니다."),
         "text_dialog_ad_dismissed":
-            MessageLookupByLibrary.simpleMessage("広告を途中で止めました。"),
+            MessageLookupByLibrary.simpleMessage("광고를 중간에 멈추었습니다."),
         "text_dialog_ad_failed_to_show":
-            MessageLookupByLibrary.simpleMessage("広告の読み込みに失敗"),
+            MessageLookupByLibrary.simpleMessage("광고 불러오기 실패"),
         "text_dialog_star_candy_received":
-            MessageLookupByLibrary.simpleMessage("星飴が支給されました。"),
+            MessageLookupByLibrary.simpleMessage("별사탕이 지급되었습니다."),
         "text_dialog_vote_amount_should_not_zero":
-            MessageLookupByLibrary.simpleMessage("投票数は0にすることはできません。"),
+            MessageLookupByLibrary.simpleMessage("투표수량은 0이 될 수 없습니다."),
         "text_draw_image":
-            MessageLookupByLibrary.simpleMessage("全ギャラリーのうち、1枚の画像を確定的に所蔵"),
-        "text_hint_search": MessageLookupByLibrary.simpleMessage("アーティスト検索"),
+            MessageLookupByLibrary.simpleMessage("전체 갤러리 중 이미지 1개 확정 소장"),
+        "text_hint_search": MessageLookupByLibrary.simpleMessage("아티스트 검색"),
         "text_moveto_celeb_gallery":
-            MessageLookupByLibrary.simpleMessage("選択したアーティストの家に移動します。"),
-        "text_need_recharge": MessageLookupByLibrary.simpleMessage("充電が必要です。"),
-        "text_no_artist": MessageLookupByLibrary.simpleMessage("アーティストがいません"),
+            MessageLookupByLibrary.simpleMessage("선택한 아티스트의 집으로 이동합니다."),
+        "text_need_recharge":
+            MessageLookupByLibrary.simpleMessage("충전이 필요합니다."),
+        "text_no_artist": MessageLookupByLibrary.simpleMessage("아티스트가 없습니다"),
         "text_no_search_result":
-            MessageLookupByLibrary.simpleMessage("検索結果がありません。"),
+            MessageLookupByLibrary.simpleMessage("검색결과가 없어요."),
         "text_purchase_vat_included":
-            MessageLookupByLibrary.simpleMessage("*価格はVAT込みの価格です。"),
-        "text_star_candy": MessageLookupByLibrary.simpleMessage("スターキャンディー"),
+            MessageLookupByLibrary.simpleMessage("*VAT 포함 가격입니다."),
+        "text_star_candy": MessageLookupByLibrary.simpleMessage("별사탕"),
         "text_star_candy_with_bonus": m3,
-        "text_this_time_vote": MessageLookupByLibrary.simpleMessage("今回の投票"),
-        "text_vote_complete": MessageLookupByLibrary.simpleMessage("投票完了"),
+        "text_this_time_vote": MessageLookupByLibrary.simpleMessage("이번 투표"),
+        "text_vote_complete": MessageLookupByLibrary.simpleMessage("투표 완료"),
         "text_vote_rank": m4,
         "text_vote_rank_in_reward":
-            MessageLookupByLibrary.simpleMessage("ランクインリワード"),
+            MessageLookupByLibrary.simpleMessage("랭크 인 리워드"),
         "text_vote_where_is_my_bias":
-            MessageLookupByLibrary.simpleMessage("私のお気に入りはどこ？"),
+            MessageLookupByLibrary.simpleMessage("나의 최애는 어디에?"),
         "title_dialog_library_add":
-            MessageLookupByLibrary.simpleMessage("新しいアルバムを追加"),
-        "title_dialog_success": MessageLookupByLibrary.simpleMessage("成功"),
-        "title_select_language": MessageLookupByLibrary.simpleMessage("言語の選択"),
+            MessageLookupByLibrary.simpleMessage("새로운 앨범 추가"),
+        "title_dialog_success": MessageLookupByLibrary.simpleMessage("성공"),
+        "title_select_language": MessageLookupByLibrary.simpleMessage("언어 선택"),
         "toast_max_five_celeb":
-            MessageLookupByLibrary.simpleMessage("マイアーティストは最大5人まで追加できます。"),
-        "update_button": MessageLookupByLibrary.simpleMessage("最新情報"),
+            MessageLookupByLibrary.simpleMessage("내 아티스트를 최대 5개까지 추가할 수 있습니다."),
+        "update_button": MessageLookupByLibrary.simpleMessage("업데이트"),
         "update_recommend_text": m5,
         "update_required_text": m6,
         "update_required_title":
-            MessageLookupByLibrary.simpleMessage("アップデートが必要です。")
+            MessageLookupByLibrary.simpleMessage("업데이트가 필요합니다.")
       };
 }
