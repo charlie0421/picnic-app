@@ -302,6 +302,8 @@
   "@label_mypage_notice": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "label_mypage_picnic_id": "아이디",
+  "@label_mypage_picnic_id": {},
   "label_mypage_privacy_policy": "개인정보처리방침",
   "@label_mypage_privacy_policy": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"

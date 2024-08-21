@@ -170,6 +170,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_mypage_no_artist":
             MessageLookupByLibrary.simpleMessage("마이아티스트를 등록하세요."),
         "label_mypage_notice": MessageLookupByLibrary.simpleMessage("공지사항"),
+        "label_mypage_picnic_id": MessageLookupByLibrary.simpleMessage("아이디"),
         "label_mypage_privacy_policy":
             MessageLookupByLibrary.simpleMessage("개인정보처리방침"),
         "label_mypage_setting":

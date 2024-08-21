@@ -25,7 +25,9 @@ import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/auth_service.dart';
+import 'package:picnic_app/util/util.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MyProfilePage extends ConsumerStatefulWidget {
@@ -81,6 +83,27 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
               thickness: 1,
               height: 24,
             ),
+            if (supabase.isLogged)
+              ListItem(
+                leading: S.of(context).label_mypage_picnic_id,
+                title: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    supabase.auth.currentUser?.id ?? '',
+                    style: getTextStyle(AppTypo.body14B, AppColors.grey900),
+                  ),
+                ),
+                tailing: Icon(Icons.copy,
+                    color: AppColors.primary500, size: AppTypo.title18B.size),
+                assetPath: 'assets/icons/arrow_right_style=line.svg',
+                onTap: () => copyToClipboard(
+                    context, supabase.auth.currentUser?.id ?? ''),
+              ),
+            const Divider(
+              color: AppColors.grey300,
+              thickness: 1,
+              height: 24,
+            ),
             ListItem(
                 leading: S.of(context).label_mypage_terms_of_use,
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
@@ -100,7 +123,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                 onTap: () {
                   ref
                       .read(navigationInfoProvider.notifier)
-                      .setCurrentMyPage(PrivacyPage());
+                      .setCurrentMyPage(const PrivacyPage());
                 }),
             const Divider(
               color: AppColors.grey300,
