@@ -638,6 +638,9 @@
   "@nickname_validation_error": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "page_title_post_write": "게시물 작성",
+  "@page_title_post_write": {
+  },
   "page_title_mypage": "마이페이지",
   "@page_title_mypage": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"

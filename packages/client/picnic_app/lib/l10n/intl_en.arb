@@ -1053,5 +1053,9 @@
   "label_mypage_picnic_id": "피크닠 아이디",
   "@label_mypage_picnic_id": {
     "manualTranslation": true
+  },
+  "page_title_post_write": "Publishing",
+  "@page_title_post_write": {
+    "manualTranslation": false
   }
 }

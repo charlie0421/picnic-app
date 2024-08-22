@@ -66,6 +66,10 @@ class NavigationInfo extends _$NavigationInfo {
     globalStorage.saveData('portalString', portalType.name.toString());
   }
 
+  setShowBottomNavigation(bool showBottomNavigation) {
+    state = state.copyWith(showBottomNavigation: showBottomNavigation);
+  }
+
   getBottomNavigationIndex() {
     if (state.portalType == PortalType.vote) {
       return state.voteBottomNavigationIndex;
