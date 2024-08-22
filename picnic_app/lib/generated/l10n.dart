@@ -2219,6 +2219,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Publishing`
+  String get page_title_post_write {
+    return Intl.message(
+      'Publishing',
+      name: 'page_title_post_write',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

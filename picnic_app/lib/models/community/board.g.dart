@@ -9,7 +9,7 @@ part of 'board.dart';
 _$BoardModelImpl _$$BoardModelImplFromJson(Map<String, dynamic> json) =>
     _$BoardModelImpl(
       board_id: json['board_id'] as String,
-      artist_id: json['artist_id'] as String,
+      artist_id: (json['artist_id'] as num).toInt(),
       name: json['name'] as Map<String, dynamic>,
       description: json['description'] as Map<String, dynamic>,
       is_official: json['is_official'] as bool,

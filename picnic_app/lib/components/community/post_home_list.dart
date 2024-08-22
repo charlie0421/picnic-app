@@ -4,20 +4,32 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/community/post.dart';
+import 'package:picnic_app/pages/community/post_write_page.dart';
+import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/ui.dart';
 
-class PostList extends ConsumerWidget {
-  const PostList(this.artistId, {super.key});
+class PostHomeList extends ConsumerStatefulWidget {
+  const PostHomeList(this.boardId, {super.key});
 
-  final int? artistId;
+  final String boardId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final postListAsyncValue = ref.watch(postListProvider);
+  _PostHomeListState createState() => _PostHomeListState();
+}
+
+class _PostHomeListState extends ConsumerState<PostHomeList> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final postListAsyncValue = ref.watch(postListProvider(widget.boardId));
     logger.i('postListAsyncValue: $postListAsyncValue');
 
     return Column(
@@ -50,7 +62,14 @@ class PostList extends ConsumerWidget {
                               ),
                             ),
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+                            ref
+                                .read(navigationInfoProvider.notifier)
+                                .setCurrentPage(
+                                  PostWritePage(
+                                      boardId: widget.boardId.toString()),
+                                );
+                          },
                           child: Text('게시글 작성하기',
                               style: getTextStyle(
                                   AppTypo.body14B, AppColors.primary500)))
@@ -145,13 +164,13 @@ class PostListItem extends ConsumerWidget {
   }
 }
 
-final postListProvider = FutureProvider((ref) async {
+final postListProvider = FutureProvider.family((ref, String boardId) async {
   try {
     final response = await supabase
         .schema('community')
         .from('posts')
         .select('*, boards!inner(*)')
-        .eq('boards.artist_id', 1);
+        .eq('boards.board_id', boardId);
     logger.d('response: $response');
     return response.map((data) => PostModel.fromJson(data)).toList();
   } catch (e, s) {

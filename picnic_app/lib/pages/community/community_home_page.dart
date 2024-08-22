@@ -3,8 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/common_banner.dart';
-import 'package:picnic_app/components/community/post_list.dart';
+import 'package:picnic_app/components/community/post_home_list.dart';
+import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/models/community/board.dart';
 import 'package:picnic_app/providers/mypage/bookmarked_artists_provider.dart';
+import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/ui.dart';
@@ -17,13 +21,23 @@ class CommunityHomePage extends ConsumerStatefulWidget {
 }
 
 class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
-  int _selectedArtistId = 0;
+  int _selectedArtistId = -1;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      ref.read(navigationInfoProvider.notifier).setShowBottomNavigation(true);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final bookmarkedArtists = ref.watch(asyncBookmarkedArtistsProvider);
+    final boardState = ref.watch(boardProvider(_selectedArtistId));
 
     return ListView(children: [
-      CommonBanner('community_home', 150),
+      const CommonBanner('community_home', 150),
       Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: Text('My ARTISTS',
@@ -33,6 +47,9 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
       Container(
         child: bookmarkedArtists.when(
           data: (artists) {
+            setState(() {
+              _selectedArtistId = artists.first.id;
+            });
             return artists.isNotEmpty
                 ? Column(
                     children: [
@@ -42,55 +59,63 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
                         child: ListView.separated(
                           itemCount: artists.length,
                           scrollDirection: Axis.horizontal,
-                          itemBuilder: (context, index) => GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _selectedArtistId = artists[index].id;
-                              });
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Column(
-                                  children: [
-                                    Container(
-                                      width: 64,
-                                      height: 64,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(64),
-                                        border: Border.all(
-                                            color: _selectedArtistId ==
-                                                    artists[index].id
-                                                ? AppColors.primary500
-                                                : Colors.transparent,
-                                            width: 4),
-                                      ),
-                                      child: Center(
-                                        child: ProfileImageContainer(
-                                          avatarUrl: artists[index].image,
-                                          width: 54,
-                                          height: 54,
-                                          borderRadius: 54,
+                          itemBuilder: (context, index) {
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _selectedArtistId = artists[index].id;
+                                });
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Column(
+                                    children: [
+                                      Container(
+                                        width: 64,
+                                        height: 64,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(64),
+                                          border: Border.all(
+                                              color: _selectedArtistId ==
+                                                      artists[index].id
+                                                  ? AppColors.primary500
+                                                  : Colors.transparent,
+                                              width: 4),
+                                        ),
+                                        child: Center(
+                                          child: ProfileImageContainer(
+                                            avatarUrl: artists[index].image,
+                                            width: 54,
+                                            height: 54,
+                                            borderRadius: 54,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                        getLocaleTextFromJson(
-                                            artists[index].name),
-                                        style: getTextStyle(AppTypo.caption12R,
-                                            AppColors.grey900)),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                          getLocaleTextFromJson(
+                                              artists[index].name),
+                                          style: getTextStyle(
+                                              AppTypo.caption12R,
+                                              AppColors.grey900)),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                           separatorBuilder: (BuildContext context, int index) {
                             return SizedBox(width: 14.w);
                           },
                         ),
                       ),
-                      PostList(_selectedArtistId),
+                      boardState.when(
+                        data: (board) => PostHomeList(board.board_id),
+                        loading: () => buildLoadingOverlay(),
+                        error: (error, stack) => Text('Error: $error'),
+                      ),
                     ],
                   )
                 : Container(
@@ -107,3 +132,19 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
     ]);
   }
 }
+
+final boardProvider = FutureProvider.family((ref, int artistId) async {
+  try {
+    final response = await supabase
+        .schema('community')
+        .from('boards')
+        .select('* ')
+        .eq('artist_id', artistId)
+        .maybeSingle();
+    logger.d('response: $response');
+    return BoardModel.fromJson(response!);
+  } catch (e, s) {
+    logger.e('Error fetching posts:', error: e, stackTrace: s);
+    return Future.error(e);
+  }
+});

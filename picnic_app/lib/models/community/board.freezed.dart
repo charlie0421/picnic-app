@@ -21,7 +21,7 @@ BoardModel _$BoardModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$BoardModel {
   String get board_id => throw _privateConstructorUsedError;
-  String get artist_id => throw _privateConstructorUsedError;
+  int get artist_id => throw _privateConstructorUsedError;
   Map<String, dynamic> get name => throw _privateConstructorUsedError;
   Map<String, dynamic> get description => throw _privateConstructorUsedError;
   bool get is_official => throw _privateConstructorUsedError;
@@ -46,7 +46,7 @@ abstract class $BoardModelCopyWith<$Res> {
   @useResult
   $Res call(
       {String board_id,
-      String artist_id,
+      int artist_id,
       Map<String, dynamic> name,
       Map<String, dynamic> description,
       bool is_official,
@@ -85,7 +85,7 @@ class _$BoardModelCopyWithImpl<$Res, $Val extends BoardModel>
       artist_id: null == artist_id
           ? _value.artist_id
           : artist_id // ignore: cast_nullable_to_non_nullable
-              as String,
+              as int,
       name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -120,7 +120,7 @@ abstract class _$$BoardModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {String board_id,
-      String artist_id,
+      int artist_id,
       Map<String, dynamic> name,
       Map<String, dynamic> description,
       bool is_official,
@@ -157,7 +157,7 @@ class __$$BoardModelImplCopyWithImpl<$Res>
       artist_id: null == artist_id
           ? _value.artist_id
           : artist_id // ignore: cast_nullable_to_non_nullable
-              as String,
+              as int,
       name: null == name
           ? _value._name
           : name // ignore: cast_nullable_to_non_nullable
@@ -203,7 +203,7 @@ class _$BoardModelImpl extends _BoardModel {
   @override
   final String board_id;
   @override
-  final String artist_id;
+  final int artist_id;
   final Map<String, dynamic> _name;
   @override
   Map<String, dynamic> get name {
@@ -283,7 +283,7 @@ class _$BoardModelImpl extends _BoardModel {
 abstract class _BoardModel extends BoardModel {
   const factory _BoardModel(
       {required final String board_id,
-      required final String artist_id,
+      required final int artist_id,
       required final Map<String, dynamic> name,
       required final Map<String, dynamic> description,
       required final bool is_official,
@@ -297,7 +297,7 @@ abstract class _BoardModel extends BoardModel {
   @override
   String get board_id;
   @override
-  String get artist_id;
+  int get artist_id;
   @override
   Map<String, dynamic> get name;
   @override

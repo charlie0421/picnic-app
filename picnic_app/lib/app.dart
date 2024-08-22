@@ -12,7 +12,6 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/update_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
-import 'package:picnic_app/overlays.dart';
 import 'package:picnic_app/providers/ad_providers.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -42,10 +41,10 @@ class App extends ConsumerStatefulWidget {
   const App({super.key});
 
   @override
-  createState() => _PicnicAppState();
+  createState() => _AppState();
 }
 
-class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
+class _AppState extends ConsumerState<App> {
   Widget? initScreen;
   static final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   static final FirebaseAnalyticsObserver observer =
@@ -54,6 +53,10 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    _initializeApp();
+  }
+
+  void _initializeApp() {
     SchedulerBinding.instance.addPostFrameCallback((_) {
       ref.read(updateCheckerProvider.notifier).checkForUpdate();
     });
@@ -62,13 +65,17 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
       ref.read(rewardedAdsProvider.notifier).loadAd(0);
       ref.read(rewardedAdsProvider.notifier).loadAd(1);
     });
-    WidgetsBinding.instance.addObserver(this);
 
     Future.microtask(() {
       ref.read(serverProductsProvider);
       ref.read(storeProductsProvider);
     });
 
+    _setupSupabaseAuthListener();
+    _setupAppLinksListener();
+  }
+
+  void _setupSupabaseAuthListener() {
     supabase.auth.onAuthStateChange.listen((data) async {
       FirebaseCrashlytics.instance.log('Auth state changed: ${data.event}');
       logger.i('Auth state changed: ${data.event}');
@@ -84,11 +91,12 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
         ref.read(userInfoProvider.notifier).subscribeToUserProfiles();
       } else if (data.event == AuthChangeEvent.signedOut) {
         logger.e('User signed out');
-        // ref.read(userInfoProvider.notifier).state = AsyncValue.data(null);
         ref.read(userInfoProvider.notifier).unsubscribeFromUserProfiles();
       }
     });
+  }
 
+  void _setupAppLinksListener() {
     final appLinks = AppLinks();
     appLinks.uriLinkStream.listen((Uri uri) {
       logger.i('Incoming link: $uri');
@@ -111,82 +119,83 @@ class _PicnicAppState extends ConsumerState<App> with WidgetsBindingObserver {
   @override
   void dispose() {
     ScreenProtector.preventScreenshotOff();
-    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    if (isMobile()) {
-      if (state == AppLifecycleState.inactive) {
-        blackScreenOverlaySupport ??= showOverlay(
-            (context, t) => Container(color: blackScreenColor),
-            duration: Duration.zero);
-      } else if (state == AppLifecycleState.resumed) {
-        clearBlackScreenOverlay();
-      }
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final appSettingState = ref.watch(appSettingProvider);
-
-    final isScreenProtector = ref.watch(isScreenProtectorProvider);
-    logger.e('screenProtectorState: $isScreenProtector');
-    if (isScreenProtector) {
-      ScreenProtector.preventScreenshotOn();
-    } else {
-      ScreenProtector.preventScreenshotOff();
-    }
-    ScreenUtil.init(context,
-        designSize: kIsWeb ? webDesignSize : const Size(393, 892));
-
     return ScreenUtilInit(
+      designSize: kIsWeb ? webDesignSize : const Size(393, 892),
       child: OverlaySupport.global(
-        child: MaterialApp(
-          navigatorKey: navigatorKey,
-          title: 'Picnic',
-          theme: _getCurrentTheme(),
-          themeMode: appSettingState.themeMode,
-          locale: appSettingState.locale,
-          localizationsDelegates: const [
-            S.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: S.delegate.supportedLocales,
-          routes: {
-            Portal.routeName: (context) => const Portal(),
-            SignUpScreen.routeName: (context) => const SignUpScreen(),
-            '/pic-camera': (context) => const PicCameraScreen(),
-            TermsScreen.routeName: (context) => const TermsScreen(),
-            PrivacyScreen.routeName: (context) => const PrivacyScreen(),
+        child: Consumer(
+          builder: (context, ref, child) {
+            final appSettingState = ref.watch(appSettingProvider);
+            final isScreenProtector = ref.watch(isScreenProtectorProvider);
+
+            _updateScreenProtector(isScreenProtector);
+
+            return MaterialApp(
+              navigatorKey: navigatorKey,
+              title: 'Picnic',
+              theme: _getCurrentTheme(ref),
+              themeMode: appSettingState.themeMode,
+              locale: appSettingState.locale,
+              localizationsDelegates: const [
+                S.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: S.delegate.supportedLocales,
+              routes: _buildRoutes(),
+              navigatorObservers: [observer],
+              builder: (context, child) =>
+                  UpdateDialog(child: child ?? const SizedBox.shrink()),
+              home: _buildHomeScreen(),
+            );
           },
-          navigatorObservers: [observer],
-          builder: (context, child) =>
-              UpdateDialog(child: child ?? const SizedBox.shrink()),
-          home: UniversalPlatform.isWeb
-              ? initScreen ?? const Portal()
-              : FlutterSplashScreen.fadeIn(
-                  useImmersiveMode: true,
-                  duration: const Duration(milliseconds: 3000),
-                  animationDuration: const Duration(milliseconds: 3000),
-                  childWidget: SizedBox(
-                    width: getPlatformScreenSize(context).width,
-                    height: getPlatformScreenSize(context).height,
-                    child: Image.asset("assets/splash.png", fit: BoxFit.cover),
-                  ),
-                  nextScreen: initScreen ?? const Portal(),
-                ),
         ),
       ),
     );
   }
 
-  ThemeData _getCurrentTheme() {
+  void _updateScreenProtector(bool isScreenProtector) {
+    if (isScreenProtector) {
+      ScreenProtector.preventScreenshotOn();
+    } else {
+      ScreenProtector.preventScreenshotOff();
+    }
+  }
+
+  Map<String, WidgetBuilder> _buildRoutes() {
+    return {
+      Portal.routeName: (context) => const Portal(),
+      SignUpScreen.routeName: (context) => const SignUpScreen(),
+      '/pic-camera': (context) => const PicCameraScreen(),
+      TermsScreen.routeName: (context) => const TermsScreen(),
+      PrivacyScreen.routeName: (context) => const PrivacyScreen(),
+    };
+  }
+
+  Widget _buildHomeScreen() {
+    if (UniversalPlatform.isWeb) {
+      return initScreen ?? const Portal();
+    } else {
+      return FlutterSplashScreen.fadeIn(
+        useImmersiveMode: true,
+        duration: const Duration(milliseconds: 3000),
+        animationDuration: const Duration(milliseconds: 3000),
+        childWidget: SizedBox(
+          width: getPlatformScreenSize(context).width,
+          height: getPlatformScreenSize(context).height,
+          child: Image.asset("assets/splash.png", fit: BoxFit.cover),
+        ),
+        nextScreen: initScreen ?? const Portal(),
+      );
+    }
+  }
+
+  ThemeData _getCurrentTheme(WidgetRef ref) {
     final currentPortal = ref.watch(navigationInfoProvider);
     switch (currentPortal.portalType) {
       case PortalType.vote:
