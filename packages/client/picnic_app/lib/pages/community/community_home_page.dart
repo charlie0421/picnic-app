@@ -21,12 +21,12 @@ class CommunityHomePage extends ConsumerStatefulWidget {
 }
 
 class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
-  int _selectedArtistId = -1;
+  int? _selectedArtistId;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(navigationInfoProvider.notifier).setShowBottomNavigation(true);
     });
   }
@@ -34,7 +34,6 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
   @override
   Widget build(BuildContext context) {
     final bookmarkedArtists = ref.watch(asyncBookmarkedArtistsProvider);
-    final boardState = ref.watch(boardProvider(_selectedArtistId));
 
     return ListView(children: [
       const CommonBanner('community_home', 150),
@@ -47,9 +46,9 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
       Container(
         child: bookmarkedArtists.when(
           data: (artists) {
-            setState(() {
+            if (_selectedArtistId == null && artists.isNotEmpty) {
               _selectedArtistId = artists.first.id;
-            });
+            }
             return artists.isNotEmpty
                 ? Column(
                     children: [
@@ -111,11 +110,8 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
                           },
                         ),
                       ),
-                      boardState.when(
-                        data: (board) => PostHomeList(board.board_id),
-                        loading: () => buildLoadingOverlay(),
-                        error: (error, stack) => Text('Error: $error'),
-                      ),
+                      if (_selectedArtistId != null)
+                        BoardContent(artistId: _selectedArtistId!),
                     ],
                   )
                 : Container(
@@ -130,6 +126,23 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
         ),
       ),
     ]);
+  }
+}
+
+class BoardContent extends ConsumerWidget {
+  final int artistId;
+
+  const BoardContent({Key? key, required this.artistId}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final boardState = ref.watch(boardProvider(artistId));
+
+    return boardState.when(
+      data: (board) => PostHomeList(board.board_id),
+      loading: () => buildLoadingOverlay(),
+      error: (error, stack) => Text('Error: $error'),
+    );
   }
 }
 
