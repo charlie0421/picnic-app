@@ -1,8 +1,172 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
+import 'package:flutter_quill/flutter_quill.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:video_player/video_player.dart';
+
+class LocalImageEmbedBuilder extends EmbedBuilder {
+  final bool isUploading;
+  final double uploadProgress;
+
+  LocalImageEmbedBuilder({this.isUploading = false, this.uploadProgress = 0.0});
+
+  @override
+  String get key => 'local-image';
+
+  @override
+  Widget build(BuildContext context, QuillController controller, Embed node,
+      bool readOnly, bool inline, TextStyle? textStyle) {
+    final filePath = node.value.data;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final width = screenWidth / 2;
+    return Stack(
+      children: [
+        SizedBox(
+          width: width,
+          child: Image.file(File(filePath), fit: BoxFit.contain),
+        ),
+        if (isUploading)
+          Positioned.fill(
+            child: Container(
+              color: Colors.black54,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(value: uploadProgress),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Uploading ${(uploadProgress * 100).toStringAsFixed(0)}%',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class NetworkImageEmbedBuilder extends EmbedBuilder {
+  @override
+  String get key => BlockEmbed.imageType;
+
+  @override
+  Widget build(BuildContext context, QuillController controller, Embed node,
+      bool readOnly, bool inline, TextStyle? textStyle) {
+    final imageUrl = node.value.data;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final width = screenWidth / 2;
+    return SizedBox(
+      width: width,
+      child: Image.network(imageUrl, fit: BoxFit.contain),
+    );
+  }
+}
+
+class LocalVideoEmbedBuilder extends EmbedBuilder {
+  final bool isUploading;
+  final double uploadProgress;
+
+  LocalVideoEmbedBuilder({this.isUploading = false, this.uploadProgress = 0.0});
+
+  @override
+  String get key => 'local-video';
+
+  @override
+  Widget build(BuildContext context, QuillController controller, Embed node,
+      bool readOnly, bool inline, TextStyle? textStyle) {
+    final filePath = node.value.data;
+    final VideoPlayerController videoController =
+        VideoPlayerController.file(File(filePath));
+    final screenWidth = MediaQuery.of(context).size.width;
+    final width = screenWidth / 2;
+
+    return Stack(
+      children: [
+        FutureBuilder(
+          future: videoController.initialize(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              return SizedBox(
+                width: width,
+                child: AspectRatio(
+                  aspectRatio: videoController.value.aspectRatio,
+                  child: VideoPlayer(videoController),
+                ),
+              );
+            } else {
+              return SizedBox(
+                width: width,
+                height: width * 9 / 16,
+                child: const Center(child: CircularProgressIndicator()),
+              );
+            }
+          },
+        ),
+        if (isUploading)
+          Positioned.fill(
+            child: Container(
+              color: Colors.black54,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(value: uploadProgress),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Uploading ${(uploadProgress * 100).toStringAsFixed(0)}%',
+                    style: const TextStyle(color: AppColors.grey00),
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class NetworkVideoEmbedBuilder extends EmbedBuilder {
+  @override
+  String get key => BlockEmbed.videoType;
+
+  @override
+  Widget build(BuildContext context, QuillController controller, Embed node,
+      bool readOnly, bool inline, TextStyle? textStyle) {
+    final videoUrl = node.value.data;
+    final VideoPlayerController videoController =
+        VideoPlayerController.network(videoUrl);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final width = screenWidth / 2;
+
+    return FutureBuilder(
+      future: videoController.initialize(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          return SizedBox(
+            width: width,
+            child: AspectRatio(
+              aspectRatio: videoController.value.aspectRatio,
+              child: VideoPlayer(videoController),
+            ),
+          );
+        } else {
+          return SizedBox(
+            width: width,
+            height: width * 9 / 16,
+            child: const Center(child: CircularProgressIndicator()),
+          );
+        }
+      },
+    );
+  }
+}
 
 class PostWriteEditor extends StatelessWidget {
   final TextEditingController titleController;
@@ -42,6 +206,8 @@ class _PostWriteEditorContentState extends State<_PostWriteEditorContent> {
   final FocusNode _editorFocusNode = FocusNode();
   bool _isTitleFocused = false;
   bool _isEditorFocused = false;
+  final ImagePicker _picker = ImagePicker();
+  Map<String, double> _uploadProgress = {};
 
   @override
   void initState() {
@@ -79,6 +245,91 @@ class _PostWriteEditorContentState extends State<_PostWriteEditorContent> {
     logger.d('Unfocusing all');
     _titleFocusNode.unfocus();
     _editorFocusNode.unfocus();
+  }
+
+  Future<void> _handleMediaButtonTap() async {
+    final XFile? media = await _picker.pickMedia();
+    if (media != null) {
+      final file = File(media.path);
+      final isVideo = media.path.toLowerCase().endsWith('.mp4');
+      _insertLocalMediaToEditor(file.path, isVideo);
+      _uploadMediaInBackground(file, isVideo);
+    }
+  }
+
+  Future<void> _uploadMediaInBackground(File file, bool isVideo) async {
+    try {
+      setState(() {
+        _uploadProgress[file.path] = 0.0;
+      });
+
+      final mediaUrl = await _uploadMedia(file, (progress) {
+        setState(() {
+          _uploadProgress[file.path] = progress;
+        });
+      });
+
+      _replaceLocalMediaWithNetwork(file.path, mediaUrl, isVideo);
+
+      setState(() {
+        _uploadProgress.remove(file.path);
+      });
+    } catch (e) {
+      print('Error uploading media: $e');
+      setState(() {
+        _uploadProgress.remove(file.path);
+      });
+      // Show error message to user
+    }
+  }
+
+  Future<String> _uploadMedia(
+      File file, Function(double) progressCallback) async {
+    // Simulate upload with progress
+    for (var i = 0; i <= 100; i++) {
+      await Future.delayed(const Duration(milliseconds: 50));
+      progressCallback(i / 100);
+    }
+    return 'https://example.com/uploaded_media';
+  }
+
+  void _insertLocalMediaToEditor(String filePath, bool isVideo) {
+    final index = widget.contentController.selection.baseOffset;
+    final length = widget.contentController.selection.extentOffset - index;
+
+    if (isVideo) {
+      widget.contentController.replaceText(
+        index,
+        length,
+        quill.BlockEmbed('local-video', filePath),
+        null,
+      );
+    } else {
+      widget.contentController.replaceText(
+        index,
+        length,
+        quill.BlockEmbed('local-image', filePath),
+        null,
+      );
+    }
+
+    widget.contentController.document.insert(index + 1, "\n");
+  }
+
+  void _replaceLocalMediaWithNetwork(
+      String localPath, String networkUrl, bool isVideo) {
+    final index =
+        widget.contentController.document.toPlainText().indexOf(localPath);
+    if (index != -1) {
+      widget.contentController.replaceText(
+        index,
+        localPath.length,
+        isVideo
+            ? quill.BlockEmbed.video(networkUrl)
+            : quill.BlockEmbed.image(networkUrl),
+        null,
+      );
+    }
   }
 
   @override
@@ -123,14 +374,14 @@ class _PostWriteEditorContentState extends State<_PostWriteEditorContent> {
   Widget _buildQuillToolbar() {
     return quill.QuillToolbar.simple(
       controller: widget.contentController,
-      configurations: const quill.QuillSimpleToolbarConfigurations(
+      configurations: quill.QuillSimpleToolbarConfigurations(
         showAlignmentButtons: false,
         showListNumbers: false,
         showListBullets: false,
         showCodeBlock: false,
         showQuote: false,
         showClearFormat: false,
-        showLink: true,
+        showLink: false,
         showUndo: true,
         showRedo: true,
         showSubscript: false,
@@ -159,6 +410,12 @@ class _PostWriteEditorContentState extends State<_PostWriteEditorContent> {
         showListCheck: false,
         showDividers: false,
         showIndent: false,
+        customButtons: [
+          quill.QuillToolbarCustomButtonOptions(
+            icon: const Icon(Icons.add_photo_alternate),
+            onPressed: _handleMediaButtonTap,
+          ),
+        ],
       ),
     );
   }
@@ -174,10 +431,24 @@ class _PostWriteEditorContentState extends State<_PostWriteEditorContent> {
         ),
         borderRadius: BorderRadius.circular(8.0),
       ),
-      child: quill.QuillEditor.basic(
+      child: quill.QuillEditor(
         controller: widget.contentController,
-        focusNode: _editorFocusNode,
         scrollController: ScrollController(),
+        focusNode: _editorFocusNode,
+        configurations: quill.QuillEditorConfigurations(
+          embedBuilders: [
+            LocalImageEmbedBuilder(
+              isUploading: _uploadProgress.containsKey('local-image'),
+              uploadProgress: _uploadProgress['local-image'] ?? 0.0,
+            ),
+            NetworkImageEmbedBuilder(),
+            LocalVideoEmbedBuilder(
+              isUploading: _uploadProgress.containsKey('local-video'),
+              uploadProgress: _uploadProgress['local-video'] ?? 0.0,
+            ),
+            NetworkVideoEmbedBuilder(),
+          ],
+        ),
       ),
     );
   }
