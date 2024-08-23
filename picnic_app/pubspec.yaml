@@ -119,6 +119,7 @@ flutter:
     - assets/icons/header/
     - assets/icons/bottom/
     - assets/icons/store/
+    - assets/icons/post/
     - assets/mockup/
     - assets/mockup/my/
     - assets/mockup/gallery/

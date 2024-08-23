@@ -22,17 +22,6 @@ class PostWriteHeader extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const Text('익명 게시'),
-              SizedBox(width: 8.w),
-              Switch(
-                value: isAnonymous,
-                onChanged: onAnonymousChanged,
-              ),
-            ],
-          ),
-          Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Text('임시저장',
