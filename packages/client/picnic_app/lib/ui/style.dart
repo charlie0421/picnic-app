@@ -21,6 +21,8 @@ class AppColors {
   static const Color grey200 = Color(0xFFEBEBEF);
   static const Color grey100 = Color(0xFFF7F7F8);
   static const Color grey00 = Colors.white;
+
+  static const Color transparent = Colors.transparent;
 }
 
 enum AppTypo {
