@@ -52,7 +52,7 @@ class _VoteHomeScreenState extends ConsumerState<VoteHomeScreen> {
       behavior: HitTestBehavior.translucent,
       onPointerMove: (PointerMoveEvent event) {
         _cumulativeDx += event.delta.dx;
-        if (_cumulativeDx.abs() > 50) {
+        if (_cumulativeDx.abs() > 100) {
           if (_cumulativeDx > 0) {
             _handleRightSwipe();
           }
