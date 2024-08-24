@@ -53,7 +53,7 @@ class _PicnicAnimatedSwitcherState
   @override
   Widget build(BuildContext context) {
     final navigationInfo = ref.watch(navigationInfoProvider);
-    final currentTopWidget = navigationInfo.topNavigationStack?.peek();
+    final currentTopWidget = navigationInfo.voteNavigationStack?.peek();
 
     // 스택의 최상위 위젯이 변경될 때마다 애니메이션을 트리거합니다.
     WidgetsBinding.instance.addPostFrameCallback((_) {

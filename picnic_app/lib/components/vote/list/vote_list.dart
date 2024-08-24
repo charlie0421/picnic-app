@@ -27,6 +27,7 @@ class _VoteListState extends State<VoteList> {
   @override
   void initState() {
     super.initState();
+
     _pagingController.addPageRequestListener((pageKey) {
       _fetch(pageKey, 10, status: widget.status).then((newItems) {
         final isLastPage =

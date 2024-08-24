@@ -1,21 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/vote/store/free_charge_station.dart';
 import 'package:picnic_app/components/vote/store/purchase/purchase_star_candy.dart';
 import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/providers/navigation_provider.dart';
 
-class StorePage extends StatefulWidget {
+class StorePage extends ConsumerStatefulWidget {
   const StorePage({super.key});
 
   @override
-  State<StorePage> createState() => _StorePageState();
+  ConsumerState<StorePage> createState() => _StorePageState();
 }
 
-class _StorePageState extends State<StorePage>
+class _StorePageState extends ConsumerState<StorePage>
     with SingleTickerProviderStateMixin {
   TabController? _tabController;
 
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(showPortal: true, showBottomNavigation: true);
+    });
+
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
   }

@@ -127,7 +127,6 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
             ref.read(navigationInfoProvider.notifier);
         navigationInfoNotifier
             .setCurrentPage(VoteDetailPage(voteId: widget.vote.id));
-        navigationInfoNotifier.hidePortal();
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w),

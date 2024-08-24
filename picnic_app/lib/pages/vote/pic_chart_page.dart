@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class PicChartPage extends ConsumerStatefulWidget {
@@ -21,6 +22,12 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
   @override
   initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(showPortal: true, showBottomNavigation: true);
+    });
+
     _tabController = TabController(
       length: 3,
       vsync: this,

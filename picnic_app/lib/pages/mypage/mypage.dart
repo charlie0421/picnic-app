@@ -11,7 +11,7 @@ import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/pages/mypage/myprofile.dart';
 import 'package:picnic_app/pages/mypage/setting_page.dart';
 import 'package:picnic_app/pages/mypage/vote_artist_page.dart';
-import 'package:picnic_app/pages/vote/vote_history_page.dart';
+import 'package:picnic_app/pages/mypage/vote_history_page.dart';
 import 'package:picnic_app/providers/mypage/bookmarked_artists_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';

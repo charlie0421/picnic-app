@@ -21,6 +21,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class VoteHomePage extends ConsumerStatefulWidget {
   const VoteHomePage({super.key});
+  final showPortal = true;
+  final showBottomNavigation = true;
 
   @override
   ConsumerState<VoteHomePage> createState() => _VoteHomePageState();
@@ -35,6 +37,11 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(showPortal: true, showBottomNavigation: true);
+    });
     _initPagingController(_upcomingPagingController, 'upcoming');
     _initPagingController(_activePagingController, 'active');
   }

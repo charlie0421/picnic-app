@@ -408,10 +408,12 @@ class PostWritePage extends ConsumerStatefulWidget {
 class _PostWritePageState extends ConsumerState<PostWritePage> {
   @override
   void initState() {
-    super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).setShowBottomNavigation(false);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(showPortal: false, showBottomNavigation: false);
     });
+    super.initState();
   }
 
   @override

@@ -2676,7 +2676,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
             const prefix0.Reflector(), -1, -1, -1, null, null),
         r.VariableMirrorImpl(r'showBottomNavigation', 134348805, 1,
             const prefix0.Reflector(), -1, -1, -1, null, null),
-        r.VariableMirrorImpl(r'topNavigationStack', 67239941, 1,
+        r.VariableMirrorImpl(r'voteNavigationStack', 67239941, 1,
             const prefix0.Reflector(), -1, -1, -1, null, null),
         r.VariableMirrorImpl(r'drawerNavigationStack', 67239941, 1,
             const prefix0.Reflector(), -1, -1, -1, null, null),
@@ -3882,7 +3882,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
             const prefix0.Reflector(), -1, -1, -1, null, null, null, null),
         r.ParameterMirrorImpl(r'_showBottomNavigation', 134348902, 53,
             const prefix0.Reflector(), -1, -1, -1, null, null, null, null),
-        r.ParameterMirrorImpl(r'_topNavigationStack', 67240038, 55,
+        r.ParameterMirrorImpl(r'_voteNavigationStack', 67240038, 55,
             const prefix0.Reflector(), -1, -1, -1, null, null, null, null),
         r.ParameterMirrorImpl(r'_drawerNavigationStack', 67240038, 57,
             const prefix0.Reflector(), -1, -1, -1, null, null, null, null),
@@ -5200,8 +5200,8 @@ final _data = <r.Reflectable, r.ReflectorData>{
         r'showTopMenu': (dynamic instance) => instance.showTopMenu,
         r'showBottomNavigation': (dynamic instance) =>
             instance.showBottomNavigation,
-        r'topNavigationStack': (dynamic instance) =>
-            instance.topNavigationStack,
+        r'voteNavigationStack': (dynamic instance) =>
+            instance.voteNavigationStack,
         r'drawerNavigationStack': (dynamic instance) =>
             instance.drawerNavigationStack,
         r'signUpNavigationStack': (dynamic instance) =>
@@ -5343,8 +5343,8 @@ final _data = <r.Reflectable, r.ReflectorData>{
             instance.showTopMenu = value,
         r'showBottomNavigation=': (dynamic instance, value) =>
             instance.showBottomNavigation = value,
-        r'topNavigationStack=': (dynamic instance, value) =>
-            instance.topNavigationStack = value,
+        r'voteNavigationStack=': (dynamic instance, value) =>
+            instance.voteNavigationStack = value,
         r'drawerNavigationStack=': (dynamic instance, value) =>
             instance.drawerNavigationStack = value,
         r'signUpNavigationStack=': (dynamic instance, value) =>

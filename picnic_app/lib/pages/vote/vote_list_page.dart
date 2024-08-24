@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/vote/list/vote_list.dart';
 import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
 
 class VoteListPage extends ConsumerStatefulWidget {
@@ -20,6 +21,12 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
   @override
   initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(showPortal: false, showBottomNavigation: true);
+    });
+
     _tabController = TabController(
       length: 3,
       vsync: this,
