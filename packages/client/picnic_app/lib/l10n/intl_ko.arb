@@ -668,6 +668,8 @@
   "@page_title_vote_gather": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "post_anonymous": "익명 게시",
+  "@post_anonymous": {},
   "post_content_placeholder": "내용을 입력해주세요.",
   "@post_content_placeholder": {},
   "post_header_publish": "게시",

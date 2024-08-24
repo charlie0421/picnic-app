@@ -1,602 +1,602 @@
 {
   "@@locale": "zh",
-  "app_name": "피크닠",
+  "app_name": "野餐",
   "@app_name": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "button_cancel": "취소",
+  "button_cancel": "取消",
   "@button_cancel": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "button_complete": "완료",
+  "button_complete": "完成",
   "@button_complete": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "button_login": "로그인",
+  "button_login": "登录",
   "@button_login": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "button_ok": "확인",
+  "button_ok": "确认",
   "@button_ok": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "button_pic_pic_save": "저장하기",
+  "button_pic_pic_save": "节省",
   "@button_pic_pic_save": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "candy_disappear_next_month": "소멸 예정 보너스 별사탕 😢",
+  "candy_disappear_next_month": "过期的奖励星星糖果 😢",
   "@candy_disappear_next_month": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "candy_usage_policy_contents": "이달에 적립한 보너스 별사탕은 다음달 15일 소멸됩니다.",
+  "candy_usage_policy_contents": "当月获得的奖励星糖将于下月 15 日失效。",
   "@candy_usage_policy_contents": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "candy_usage_policy_contents2": "별사탕 사용 시, 소멸이 임박한 별사탕이 우선적으로 사용됩니다.",
+  "candy_usage_policy_contents2": "使用 \"星星糖 \"时，即将过期的 \"星星糖 \"会被优先处理。",
   "@candy_usage_policy_contents2": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "candy_usage_policy_guide": "*보너스는 획득한 다음달에 사라져요!",
+  "candy_usage_policy_guide": "*奖金将在获得奖金的次月消失！",
   "@candy_usage_policy_guide": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "candy_usage_policy_guide_button": "자세히 보기",
+  "candy_usage_policy_guide_button": "了解更多",
   "@candy_usage_policy_guide_button": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "candy_usage_policy_title": "별사탕 사용정책",
+  "candy_usage_policy_title": "星糖使用政策",
   "@candy_usage_policy_title": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "dialog_button_cancel": "취소",
+  "dialog_button_cancel": "取消",
   "@dialog_button_cancel": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "dialog_button_ok": "확인",
+  "dialog_button_ok": "确认",
   "@dialog_button_ok": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "dialog_content_ads_exhausted": "광고가 모두 소진되었습니다. 다음에 다시 시도해주세요.",
+  "dialog_content_ads_exhausted": "所有广告已用尽。请稍后再试。",
   "@dialog_content_ads_exhausted": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "dialog_content_ads_loading": "광고 로딩중입니다.",
+  "dialog_content_ads_loading": "广告正在加载。",
   "@dialog_content_ads_loading": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "dialog_content_ads_retrying": "광고를 다시 불러오는 중입니다. 잠시 후 다시 시도해 주세요.",
+  "dialog_content_ads_retrying": "广告正在重新加载。请稍后再试。",
   "@dialog_content_ads_retrying": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "dialog_content_login_required": "로그인이 필요합니다",
+  "dialog_content_login_required": "需要登录",
   "@dialog_content_login_required": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "dialog_message_can_resignup": "지금 회원 탈퇴 시 재 가입 가능 일자",
+  "dialog_message_can_resignup": "如果您现在离开，何时可以重新加入",
   "@dialog_message_can_resignup": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "dialog_message_purchase_canceled": "구매가 취소되었습니다.",
+  "dialog_message_purchase_canceled": "您的购买已被取消。",
   "@dialog_message_purchase_canceled": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "dialog_message_purchase_failed": "구매 중 오류가 발생했습니다. 나중에 다시 시도해 주세요.",
+  "dialog_message_purchase_failed": "您的购买出现错误，请稍后再试。",
   "@dialog_message_purchase_failed": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "dialog_message_purchase_success": "구매가 성공적으로 완료되었습니다.",
+  "dialog_message_purchase_success": "您的购买已成功完成。",
   "@dialog_message_purchase_success": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "dialog_purchases_fail": "구매에 실패했습니다.",
+  "dialog_purchases_fail": "购买失败。",
   "@dialog_purchases_fail": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "dialog_purchases_success": "구매가 완료되었습니다.",
+  "dialog_purchases_success": "购买完成。",
   "@dialog_purchases_success": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "dialog_title_ads_exhausted": "광고 모두 소진",
+  "dialog_title_ads_exhausted": "所有广告已用尽",
   "@dialog_title_ads_exhausted": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "dialog_title_vote_fail": "투표 실패",
+  "dialog_title_vote_fail": "表决失败",
   "@dialog_title_vote_fail": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "dialog_will_delete_star_candy": "삭제 예정 별사탕",
+  "dialog_will_delete_star_candy": "将被删除的星星糖果",
   "@dialog_will_delete_star_candy": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "dialog_withdraw_button_cancel": "다시 한 번 생각해 볼게요",
+  "dialog_withdraw_button_cancel": "让我再想一想",
   "@dialog_withdraw_button_cancel": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "dialog_withdraw_button_ok": "탈퇴하기",
+  "dialog_withdraw_button_ok": "退订",
   "@dialog_withdraw_button_ok": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "dialog_withdraw_error": "탈퇴중 에러가 발생했습니다.",
+  "dialog_withdraw_error": "取消订阅时发生错误。",
   "@dialog_withdraw_error": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "dialog_withdraw_message": "회원 탈퇴 시 피크닠에 보유하신 별사탕과 계정 정보는 즉시 삭제되며, 재 가입시 기존 정보 및 데이터는 복구가 되지 않습니다.",
+  "dialog_withdraw_message": "如果您取消会员资格，您的星星糖果和账户信息将被立即删除，重新加入时将无法恢复您的现有信息和数据。",
   "@dialog_withdraw_message": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "dialog_withdraw_success": "탈퇴가 성공적으로 처리 되었습니다.",
+  "dialog_withdraw_success": "取款已成功处理。",
   "@dialog_withdraw_success": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "dialog_withdraw_title": "정말 탈퇴하시겠어요?",
+  "dialog_withdraw_title": "您确定要取消订阅吗？",
   "@dialog_withdraw_title": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "error_message_login_failed": "로그인 중 오류가 발생했습니다.",
+  "error_message_login_failed": "登录时发生错误。",
   "@error_message_login_failed": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "error_message_no_user": "회원 정보가 존재하지 않습니다.",
+  "error_message_no_user": "会员信息不存在。",
   "@error_message_no_user": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "error_message_withdrawal": "탈퇴한 회원입니다.",
+  "error_message_withdrawal": "已取消订阅的会员。",
   "@error_message_withdrawal": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "error_title": "에러",
+  "error_title": "错误",
   "@error_title": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "hint_library_add": "앨범명",
+  "hint_library_add": "专辑名称",
   "@hint_library_add": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "hint_nickname_input": "닉네임을 입력해주세요.",
+  "hint_nickname_input": "请输入昵称。",
   "@hint_nickname_input": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "image_save_success": "이미지가 저장되었습니다.",
+  "image_save_success": "图像已保存。",
   "@image_save_success": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_ads_exceeded": "아이디당 시청 가능한 광고를 모두 소진했습니다.",
+  "label_ads_exceeded": "您已用尽每个 ID 可观看的广告数量。",
   "@label_ads_exceeded": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_ads_next_available_time": "다음 광고 시청 가능시간.",
+  "label_ads_next_available_time": "下一则广告何时发布。",
   "@label_ads_next_available_time": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_agreement_privacy": "개인정보 수집 및 이용 동의",
+  "label_agreement_privacy": "同意收集和使用个人信息",
   "@label_agreement_privacy": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_agreement_terms": "이용 약관 동의",
+  "label_agreement_terms": "接受使用条款",
   "@label_agreement_terms": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_album_add": "새로운 앨범 추가",
+  "label_album_add": "添加新相册",
   "@label_album_add": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_article_comment_empty": "첫 댓글의 주인공이 되세요!",
+  "label_article_comment_empty": "成为第一个发表评论的人！",
   "@label_article_comment_empty": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_bonus": "보너스",
+  "label_bonus": "奖金",
   "@label_bonus": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_button_agreement": "동의",
+  "label_button_agreement": "同意",
   "@label_button_agreement": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_button_close": "닫기",
+  "label_button_close": "關閉",
   "@label_button_close": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_button_disagreement": "비동의",
+  "label_button_disagreement": "不同意",
   "@label_button_disagreement": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_button_recharge": "충전하기",
+  "label_button_recharge": "充电",
   "@label_button_recharge": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_button_save_vote_paper": "투표증 저장",
+  "label_button_save_vote_paper": "存储您的选票",
   "@label_button_save_vote_paper": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_button_share": "공유하기",
+  "label_button_share": "分享",
   "@label_button_share": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_button_vote": "투표하기",
+  "label_button_vote": "投票",
   "@label_button_vote": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_button_watch_and_charge": "광고보고 충전하기",
+  "label_button_watch_and_charge": "查看广告并收取费用",
   "@label_button_watch_and_charge": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_celeb_ask_to_you": "아티스트가 당신에게 묻다!",
+  "label_celeb_ask_to_you": "艺术家问你",
   "@label_celeb_ask_to_you": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_celeb_gallery": "아티스트 갤러리",
+  "label_celeb_gallery": "艺术家画廊",
   "@label_celeb_gallery": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_celeb_recommend": "아티스트 추천",
+  "label_celeb_recommend": "艺术家精选",
   "@label_celeb_recommend": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_checkbox_entire_use": "전체사용",
+  "label_checkbox_entire_use": "充分利用",
   "@label_checkbox_entire_use": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_current_language": "현재 언어",
+  "label_current_language": "当前语言",
   "@label_current_language": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_draw_image": "랜덤 이미지 획득 기회",
+  "label_draw_image": "赢取随机图片的机会",
   "@label_draw_image": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_dropdown_oldest": "오래된순",
+  "label_dropdown_oldest": "最老",
   "@label_dropdown_oldest": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_dropdown_recent": "최신순",
+  "label_dropdown_recent": "最新",
   "@label_dropdown_recent": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_find_celeb": "더 많은 아티스트 찾기",
+  "label_find_celeb": "寻找更多艺术家",
   "@label_find_celeb": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_gallery_tab_article": "아티클",
+  "label_gallery_tab_article": "文章",
   "@label_gallery_tab_article": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_gallery_tab_chat": "채팅",
+  "label_gallery_tab_chat": "聊天",
   "@label_gallery_tab_chat": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_hint_comment": "댓글을 남겨주세요.",
+  "label_hint_comment": "发表评论。",
   "@label_hint_comment": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_input_input": "입력",
+  "label_input_input": "输入",
   "@label_input_input": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_last_provider": "최근 로그인",
+  "label_last_provider": "最近登录",
   "@label_last_provider": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_library_save": "라이브러리 저장",
+  "label_library_save": "保存图书馆",
   "@label_library_save": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_library_tab_ai_photo": "AI 포토",
+  "label_library_tab_ai_photo": "人工智能照片",
   "@label_library_tab_ai_photo": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_library_tab_library": "라이브러리",
+  "label_library_tab_library": "图书馆",
   "@label_library_tab_library": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
   "label_library_tab_pic": "PIC",
   "@label_library_tab_pic": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": true
   },
-  "label_loading_ads": "광고 로딩중",
+  "label_loading_ads": "加载广告",
   "@label_loading_ads": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_moveto_celeb_gallery": "아티스트 갤러리로 이동",
+  "label_moveto_celeb_gallery": "前往艺术家画廊",
   "@label_moveto_celeb_gallery": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_mypage_charge_history": "충전내역",
+  "label_mypage_charge_history": "收费",
   "@label_mypage_charge_history": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_mypage_customer_center": "고객센터",
+  "label_mypage_customer_center": "帮助中心",
   "@label_mypage_customer_center": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_mypage_logout": "로그아웃",
+  "label_mypage_logout": "退出",
   "@label_mypage_logout": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_mypage_membership_history": "멤버십 내역",
+  "label_mypage_membership_history": "会员历史",
   "@label_mypage_membership_history": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_mypage_my_artist": "나의 아티스트",
+  "label_mypage_my_artist": "我的艺术家",
   "@label_mypage_my_artist": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_mypage_no_artist": "마이아티스트를 등록하세요.",
+  "label_mypage_no_artist": "注册 MyArtist。",
   "@label_mypage_no_artist": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_mypage_notice": "공지사항",
+  "label_mypage_notice": "公告",
   "@label_mypage_notice": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_mypage_picnic_id": "피크닠 아이디",
+  "label_mypage_picnic_id": "同上。",
   "@label_mypage_picnic_id": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_mypage_privacy_policy": "개인정보처리방침",
+  "label_mypage_privacy_policy": "隐私政策",
   "@label_mypage_privacy_policy": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_mypage_setting": "Settings",
+  "label_mypage_setting": "设置",
   "@label_mypage_setting": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_mypage_should_login": "로그인 해 주세요",
+  "label_mypage_should_login": "请登录",
   "@label_mypage_should_login": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_mypage_terms_of_use": "이용약관",
+  "label_mypage_terms_of_use": "条款和条件",
   "@label_mypage_terms_of_use": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_mypage_vote_history": "별사탕 투표내역",
+  "label_mypage_vote_history": "星星糖投票历史",
   "@label_mypage_vote_history": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_mypage_withdrawal": "회원탈퇴",
+  "label_mypage_withdrawal": "退出",
   "@label_mypage_withdrawal": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_no_ads": "광고 없음",
+  "label_no_ads": "无广告",
   "@label_no_ads": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_no_celeb": "아직 북마크한 아티스트가 없습니다!",
+  "label_no_celeb": "您还没有将任何艺术家加入书签！",
   "@label_no_celeb": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_pic_image_cropping": "이미지 자르기",
+  "label_pic_image_cropping": "裁剪图像",
   "@label_pic_image_cropping": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_pic_pic_initializing_camera": "카메라 초기화중...",
+  "label_pic_pic_initializing_camera": "初始化摄像机...",
   "@label_pic_pic_initializing_camera": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_pic_pic_save_gallery": "갤러리에 저장",
+  "label_pic_pic_save_gallery": "保存到图库",
   "@label_pic_pic_save_gallery": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_pic_pic_synthesizing_image": "이미지 합성중...",
+  "label_pic_pic_synthesizing_image": "合成图像...",
   "@label_pic_pic_synthesizing_image": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_read_more_comment": "댓글 더보기",
+  "label_read_more_comment": "更多评论",
   "@label_read_more_comment": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_reply": "답글 달기",
+  "label_reply": "答复",
   "@label_reply": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_retry": "재시도 하기",
+  "label_retry": "再试一次",
   "@label_retry": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_screen_title_agreement": "약관 동의",
+  "label_screen_title_agreement": "接受条款",
   "@label_screen_title_agreement": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_setting_alarm": "알림",
+  "label_setting_alarm": "通知",
   "@label_setting_alarm": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_setting_appinfo": "앱정보",
+  "label_setting_appinfo": "关于应用程序",
   "@label_setting_appinfo": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_setting_current_version": "현재버전",
+  "label_setting_current_version": "当前版本",
   "@label_setting_current_version": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_setting_event_alarm": "이벤트알림",
+  "label_setting_event_alarm": "活动通知",
   "@label_setting_event_alarm": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_setting_event_alarm_desc": "각종 이벤트와 행사를 안내드려요.",
+  "label_setting_event_alarm_desc": "了解各种活动和事件。",
   "@label_setting_event_alarm_desc": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_setting_language": "언어설정",
+  "label_setting_language": "语言设置",
   "@label_setting_language": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_setting_push_alarm": "푸시알림",
+  "label_setting_push_alarm": "推送通知",
   "@label_setting_push_alarm": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_setting_recent_version": "최신버전",
+  "label_setting_recent_version": "最新版本",
   "@label_setting_recent_version": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_setting_recent_version_up_to_date": "최신버전",
+  "label_setting_recent_version_up_to_date": "最新版本",
   "@label_setting_recent_version_up_to_date": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_setting_remove_cache": "캐시메모리 삭제",
+  "label_setting_remove_cache": "删除高速缓冲存储器",
   "@label_setting_remove_cache": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_setting_remove_cache_complete": "완료",
+  "label_setting_remove_cache_complete": "完成",
   "@label_setting_remove_cache_complete": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_setting_storage": "저장공간 관리",
+  "label_setting_storage": "管理存储",
   "@label_setting_storage": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_setting_update": "업데이트",
+  "label_setting_update": "更新",
   "@label_setting_update": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_star_candy_pouch": "별사탕 주머니",
+  "label_star_candy_pouch": "星形糖果袋",
   "@label_star_candy_pouch": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_tab_buy_star_candy": "별사탕 구매",
+  "label_tab_buy_star_candy": "购买星星糖",
   "@label_tab_buy_star_candy": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_tab_free_charge_station": "무료충전소",
+  "label_tab_free_charge_station": "免费充电站",
   "@label_tab_free_charge_station": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_tab_my_artist": "마이아티스트",
+  "label_tab_my_artist": "我的艺术家",
   "@label_tab_my_artist": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_tab_search_my_artist": "마이아티스트 찾기",
+  "label_tab_search_my_artist": "查找我的艺术家",
   "@label_tab_search_my_artist": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_tabbar_picchart_daily": "일간차트",
+  "label_tabbar_picchart_daily": "每日图表",
   "@label_tabbar_picchart_daily": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_tabbar_picchart_monthly": "월간차트",
+  "label_tabbar_picchart_monthly": "月度图表",
   "@label_tabbar_picchart_monthly": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_tabbar_picchart_weekly": "주간차트",
+  "label_tabbar_picchart_weekly": "每周图表",
   "@label_tabbar_picchart_weekly": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_tabbar_vote_active": "진행중",
+  "label_tabbar_vote_active": "进行中",
   "@label_tabbar_vote_active": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_tabbar_vote_end": "종료",
+  "label_tabbar_vote_end": "退出",
   "@label_tabbar_vote_end": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_tabbar_vote_upcoming": "예정",
+  "label_tabbar_vote_upcoming": "即将推出",
   "@label_tabbar_vote_upcoming": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
   "label_time_ago_day": "{day}天前",
   "@label_time_ago_day": {
@@ -613,437 +613,457 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": true
   },
-  "label_time_ago_right_now": "방금 전",
+  "label_time_ago_right_now": "就在刚才",
   "@label_time_ago_right_now": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_title_comment": "댓글",
+  "label_title_comment": "评论",
   "@label_title_comment": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_title_report": "신고하기",
+  "label_title_report": "提交报告",
   "@label_title_report": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_vote_end": "투표 종료",
+  "label_vote_end": "投票结束",
   "@label_vote_end": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_vote_reward_list": "리워드 리스트",
+  "label_vote_reward_list": "奖励清单",
   "@label_vote_reward_list": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_vote_screen_title": "투표",
+  "label_vote_screen_title": "投票",
   "@label_vote_screen_title": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_vote_tab_birthday": "생일 투표",
+  "label_vote_tab_birthday": "生日投票",
   "@label_vote_tab_birthday": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_vote_tab_pic": "PIC 투표",
+  "label_vote_tab_pic": "事先知情同意投票",
   "@label_vote_tab_pic": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_vote_upcoming": "투표 시작까지",
+  "label_vote_upcoming": "直到投票开始",
   "@label_vote_upcoming": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_vote_vote_gather": "투표 모아보기",
+  "label_vote_vote_gather": "收集选票",
   "@label_vote_vote_gather": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "label_watch_ads": "광고보기",
+  "label_watch_ads": "查看广告",
   "@label_watch_ads": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "lable_my_celeb": "나의 아티스트",
+  "lable_my_celeb": "我的艺术家",
   "@lable_my_celeb": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "message_agreement_success": "약관 동의가 완료되었습니다.",
+  "message_agreement_success": "你已经接受了条款。",
   "@message_agreement_success": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "message_error_occurred": "오류가 발생했습니다.",
+  "message_error_occurred": "出现错误。",
   "@message_error_occurred": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "message_noitem_vote_active": "현재 진행중인 투표가 없습니다.",
+  "message_noitem_vote_active": "目前没有正在进行的投票。",
   "@message_noitem_vote_active": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "message_noitem_vote_end": "현재 종료된 투표가 없습니다.",
+  "message_noitem_vote_end": "目前没有已结束的投票。",
   "@message_noitem_vote_end": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "message_noitem_vote_upcoming": "현재 예정중인 투표가 없습니다.",
+  "message_noitem_vote_upcoming": "目前没有即将进行的投票。",
   "@message_noitem_vote_upcoming": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "message_pic_pic_save_fail": "이미지 저장에 실패했습니다.",
+  "message_pic_pic_save_fail": "保存图像失败。",
   "@message_pic_pic_save_fail": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "message_pic_pic_save_success": "이미지가 저장되었습니다.",
+  "message_pic_pic_save_success": "图像已保存。",
   "@message_pic_pic_save_success": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "message_report_confirm": "신고하시겠습니까?",
+  "message_report_confirm": "你想报告吗？",
   "@message_report_confirm": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "message_report_ok": "신고가 완료되었습니다.",
+  "message_report_ok": "报告已完成。",
   "@message_report_ok": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "message_setting_remove_cache": "캐시메모리 삭제가 완료되었습니다",
+  "message_setting_remove_cache": "缓存清除完毕",
   "@message_setting_remove_cache": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "message_update_nickname_fail": "닉네임 변경에 실패했습니다.\n다른 닉네임을 선택해주세요.",
+  "message_update_nickname_fail": "昵称更改失败。\n请选择其他昵称。",
   "@message_update_nickname_fail": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "message_update_nickname_success": "닉네임이 성공적으로 변경되었습니다.",
+  "message_update_nickname_success": "您的昵称已成功更改。",
   "@message_update_nickname_success": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "message_vote_is_ended": "종료된 투표입니다",
+  "message_vote_is_ended": "投票结束",
   "@message_vote_is_ended": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "message_vote_is_upcoming": "예정된 투표입니다",
+  "message_vote_is_upcoming": "即将进行投票",
   "@message_vote_is_upcoming": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "mypage_comment": "댓글관리",
+  "mypage_comment": "管理评论",
   "@mypage_comment": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "mypage_language": "언어설정",
+  "mypage_language": "语言设置",
   "@mypage_language": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "mypage_purchases": "내 구매",
+  "mypage_purchases": "我的采购",
   "@mypage_purchases": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "mypage_setting": "설정",
+  "mypage_setting": "设置",
   "@mypage_setting": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "mypage_subscription": "구독정보",
+  "mypage_subscription": "订阅",
   "@mypage_subscription": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "nav_ads": "광고",
+  "nav_ads": "广告",
   "@nav_ads": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "nav_board": "게시판",
+  "nav_board": "公告栏",
   "@nav_board": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "nav_gallery": "갤러리",
+  "nav_gallery": "画廊",
   "@nav_gallery": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
   "nav_home": "홈",
   "@nav_home": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": true
   },
-  "nav_library": "라이브러리",
+  "nav_library": "图书馆",
   "@nav_library": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "nav_media": "미디어",
+  "nav_media": "媒体",
   "@nav_media": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "nav_my": "마이",
+  "nav_my": "我的",
   "@nav_my": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "nav_picchart": "PIC차트",
+  "nav_picchart": "PIC 图表",
   "@nav_picchart": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "nav_purchases": "구매",
+  "nav_purchases": "购买",
   "@nav_purchases": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "nav_setting": "설정",
+  "nav_setting": "设置",
   "@nav_setting": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "nav_store": "상점",
+  "nav_store": "商店",
   "@nav_store": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "nav_subscription": "구독",
+  "nav_subscription": "订阅",
   "@nav_subscription": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "nav_vote": "투표",
+  "nav_vote": "投票",
   "@nav_vote": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "nickname_validation_error": "20자 이내, 특수문자 제외 가능합니다.",
+  "nickname_validation_error": "20 个字符或更少，不包括特殊字符。",
   "@nickname_validation_error": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "page_title_mypage": "마이페이지",
+  "page_title_mypage": "我的页面",
   "@page_title_mypage": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "page_title_myprofile": "나의 프로필",
+  "page_title_myprofile": "我的简介",
   "@page_title_myprofile": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "page_title_post_write": "게시물 작성",
+  "page_title_post_write": "创建一个职位",
   "@page_title_post_write": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "page_title_privacy": "개인정보처리방침",
+  "page_title_privacy": "隐私政策",
   "@page_title_privacy": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "page_title_setting": "환경설정",
+  "page_title_setting": "首选项",
   "@page_title_setting": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "page_title_terms_of_use": "이용약관",
+  "page_title_terms_of_use": "条款和条件",
   "@page_title_terms_of_use": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "page_title_vote_detail": "투표하기",
+  "page_title_vote_detail": "投票",
   "@page_title_vote_detail": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "page_title_vote_gather": "투표 모아보기",
+  "page_title_vote_gather": "收集选票",
   "@page_title_vote_gather": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "share_image_fail": "이미지 공유 실패",
+  "post_anonymous": "匿名张贴",
+  "@post_anonymous": {
+    "manualTranslation": false
+  },
+  "post_content_placeholder": "请输入内容。",
+  "@post_content_placeholder": {
+    "manualTranslation": false
+  },
+  "post_header_publish": "出版",
+  "@post_header_publish": {
+    "manualTranslation": false
+  },
+  "post_header_temporary_save": "草稿",
+  "@post_header_temporary_save": {
+    "manualTranslation": false
+  },
+  "post_title_placeholder": "请输入标题。",
+  "@post_title_placeholder": {
+    "manualTranslation": false
+  },
+  "share_image_fail": "图像共享失败",
   "@share_image_fail": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "share_image_success": "이미지 공유 성공",
+  "share_image_success": "成功共享图像",
   "@share_image_success": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "share_no_twitter": "X 앱이 없습니다.",
+  "share_no_twitter": "X 应用程序丢失。",
   "@share_no_twitter": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "share_twitter": "트위터 공유",
+  "share_twitter": "在 Twitter 上分享",
   "@share_twitter": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "text_ads_random": "광고 보기 및 무작위 이미지 수집.",
+  "text_ads_random": "查看广告并收集随机图片。",
   "@text_ads_random": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "text_bonus": "보너스",
+  "text_bonus": "奖金",
   "@text_bonus": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "text_bookmark_failed": "북마크 해제에 실패했습니다",
+  "text_bookmark_failed": "取消书签失败",
   "@text_bookmark_failed": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "text_bookmark_over_5": "북마크는 최대 5개까지 가능합니다",
+  "text_bookmark_over_5": "您最多可以拥有五个书签",
   "@text_bookmark_over_5": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "text_comming_soon_pic_chart1": "핔 차트에 오신 여러분을 환영합니다!\n2024년 8월에 만나요!",
+  "text_comming_soon_pic_chart1": "欢迎访问 Pik Charts！\n2024 年 8 月再见！",
   "@text_comming_soon_pic_chart1": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "text_comming_soon_pic_chart2": "핔차트는 일간, 주간, 월간 점수를 반영하는\n피크닠만의 새로운 차트입니다.",
+  "text_comming_soon_pic_chart2": "饼图是 Peeknick 独有的新图表，可反映每日、每周和每月的分数。\nPiknick 反映每日、每周和每月得分的新图表。",
   "@text_comming_soon_pic_chart2": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "text_comming_soon_pic_chart3": "실시간으로 반영되는\n아티스트의 브랜드 평판을 확인해 보세요!",
+  "text_comming_soon_pic_chart3": "实时查看您的品牌声誉\n实时反映艺术家的品牌声誉！",
   "@text_comming_soon_pic_chart3": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "text_comming_soon_pic_chart_title": "핔차트란?",
+  "text_comming_soon_pic_chart_title": "什么是饼图？",
   "@text_comming_soon_pic_chart_title": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "text_copied_address": "주소가 복사되었습니다.",
+  "text_copied_address": "地址已复制。",
   "@text_copied_address": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "text_dialog_ad_dismissed": "광고를 중간에 멈추었습니다.",
+  "text_dialog_ad_dismissed": "广告中途停止。",
   "@text_dialog_ad_dismissed": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "text_dialog_ad_failed_to_show": "광고 불러오기 실패",
+  "text_dialog_ad_failed_to_show": "加载广告失败",
   "@text_dialog_ad_failed_to_show": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "text_dialog_star_candy_received": "별사탕이 지급되었습니다.",
+  "text_dialog_star_candy_received": "已颁发星形糖果。",
   "@text_dialog_star_candy_received": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "text_dialog_vote_amount_should_not_zero": "투표수량은 0이 될 수 없습니다.",
+  "text_dialog_vote_amount_should_not_zero": "票数不能为零。",
   "@text_dialog_vote_amount_should_not_zero": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "text_draw_image": "전체 갤러리 중 이미지 1개 확정 소장",
+  "text_draw_image": "来自整个画廊的 1 张图片已确认收藏",
   "@text_draw_image": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "text_hint_search": "아티스트 검색",
+  "text_hint_search": "搜索艺术家",
   "@text_hint_search": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "text_moveto_celeb_gallery": "선택한 아티스트의 집으로 이동합니다.",
+  "text_moveto_celeb_gallery": "访问所选艺术家的主页。",
   "@text_moveto_celeb_gallery": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "text_need_recharge": "충전이 필요합니다.",
+  "text_need_recharge": "需要充电。",
   "@text_need_recharge": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "text_no_artist": "아티스트가 없습니다",
+  "text_no_artist": "没有艺术家",
   "@text_no_artist": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "text_no_search_result": "검색결과가 없어요.",
+  "text_no_search_result": "没有搜索结果。",
   "@text_no_search_result": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "text_purchase_vat_included": "*VAT 포함 가격입니다.",
+  "text_purchase_vat_included": "*价格包含增值税。",
   "@text_purchase_vat_included": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "text_star_candy": "별사탕",
+  "text_star_candy": "星形糖果",
   "@text_star_candy": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
   "text_star_candy_with_bonus": "{num1}개 +{num1}개 보너스",
   "@text_star_candy_with_bonus": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": true
   },
-  "text_this_time_vote": "이번 투표",
+  "text_this_time_vote": "这次投票",
   "@text_this_time_vote": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "text_vote_complete": "투표 완료",
+  "text_vote_complete": "投票结束",
   "@text_vote_complete": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
   "text_vote_rank": "第{rank}名",
   "@text_vote_rank": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": true
   },
-  "text_vote_rank_in_reward": "랭크 인 리워드",
+  "text_vote_rank_in_reward": "奖励排名",
   "@text_vote_rank_in_reward": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "text_vote_where_is_my_bias": "나의 최애는 어디에?",
+  "text_vote_where_is_my_bias": "我的最爱呢？",
   "@text_vote_where_is_my_bias": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "title_dialog_library_add": "새로운 앨범 추가",
+  "title_dialog_library_add": "添加新相册",
   "@title_dialog_library_add": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "title_dialog_success": "성공",
+  "title_dialog_success": "成功",
   "@title_dialog_success": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "title_select_language": "언어 선택",
+  "title_select_language": "选择语言",
   "@title_select_language": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "toast_max_five_celeb": "내 아티스트를 최대 5개까지 추가할 수 있습니다.",
+  "toast_max_five_celeb": "您最多可以添加五位自己的艺术家。",
   "@toast_max_five_celeb": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
-  "update_button": "업데이트",
+  "update_button": "更新",
   "@update_button": {
-    "manualTranslation": true
+    "manualTranslation": false
   },
   "update_recommend_text": "新版本 ({version}) 已发布。",
   "@update_recommend_text": {
@@ -1053,24 +1073,8 @@
   "@update_required_text": {
     "manualTranslation": true
   },
-  "update_required_title": "업데이트가 필요합니다.",
+  "update_required_title": "需要更新。",
   "@update_required_title": {
-    "manualTranslation": true
-  },
-  "post_content_placeholder": "내용을 입력해주세요.",
-  "@post_content_placeholder": {
-    "manualTranslation": true
-  },
-  "post_header_publish": "게시",
-  "@post_header_publish": {
-    "manualTranslation": true
-  },
-  "post_header_temporary_save": "임시저장",
-  "@post_header_temporary_save": {
-    "manualTranslation": true
-  },
-  "post_title_placeholder": "제목을 입력해주세요.",
-  "@post_title_placeholder": {
-    "manualTranslation": true
+    "manualTranslation": false
   }
 }
