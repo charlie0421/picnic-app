@@ -5,13 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
-import 'package:picnic_app/components/vote/common_vote_info.dart';
+import 'package:picnic_app/components/vote/store/common/store_point_info.dart';
+import 'package:picnic_app/components/vote/store/common/usage_policy_dialog.dart';
 import 'package:picnic_app/components/vote/store/purchase/analytics_service.dart';
 import 'package:picnic_app/components/vote/store/purchase/in_app_purchase_service.dart';
 import 'package:picnic_app/components/vote/store/purchase/purchase_star_candy.dart';
 import 'package:picnic_app/components/vote/store/purchase/receipt_verification_service.dart';
-import 'package:picnic_app/components/vote/store/store_list_tile.dart';
-import 'package:picnic_app/components/vote/store/usage_policy_dialog.dart';
+import 'package:picnic_app/components/vote/store/purchase/store_list_tile.dart';
 import 'package:picnic_app/config/config_service.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
@@ -188,7 +188,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
             StorePointInfo(
               title: S.of(context).label_star_candy_pouch,
               width: double.infinity,
-              height: 70,
+              height: 90,
             ),
           ],
           const SizedBox(height: 36),
