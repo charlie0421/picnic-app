@@ -43,7 +43,7 @@ class _PortalState extends ConsumerState<Portal> {
         appBar: AppBar(
           toolbarHeight: ref.watch(
                   navigationInfoProvider.select((value) => value.showTopMenu))
-              ? 56.h
+              ? 56
               : 0,
           leading: Builder(
             builder: (BuildContext context) {
@@ -61,14 +61,14 @@ class _PortalState extends ConsumerState<Portal> {
                                 },
                                 child: ProfileImageContainer(
                                   avatarUrl: data.avatar_url,
-                                  width: 36.w,
+                                  width: 36,
                                   height: 36,
                                   borderRadius: 8.r,
                                 ))
                             : const DefaultAvatar(),
                         error: (error, stackTrace) => const Icon(Icons.error),
                         loading: () => SizedBox(
-                          width: 36.w,
+                          width: 36,
                           child: ClipRRect(
                               borderRadius: BorderRadius.circular(8.r),
                               child: buildPlaceholderImage()),
