@@ -46,11 +46,14 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
           ]),
         ),
         Expanded(
-            child: TabBarView(controller: _tabController, children: const [
-          VoteList(VoteStatus.active, VoteCategory.all),
-          VoteList(VoteStatus.end, VoteCategory.all),
-          VoteList(VoteStatus.upcoming, VoteCategory.all),
-        ]))
+            child: TabBarView(
+                controller: _tabController,
+                physics: const NeverScrollableScrollPhysics(),
+                children: const [
+              VoteList(VoteStatus.active, VoteCategory.all),
+              VoteList(VoteStatus.end, VoteCategory.all),
+              VoteList(VoteStatus.upcoming, VoteCategory.all),
+            ]))
       ],
     );
   }
