@@ -676,8 +676,14 @@
   "@post_header_publish": {},
   "post_header_temporary_save": "임시저장",
   "@post_header_temporary_save": {},
+  "post_hyperlink": "하이퍼링크",
+  "@post_hyperlink": {},
+  "post_insert_link": "링크삽입",
+  "@post_insert_link": {},
   "post_title_placeholder": "제목을 입력해주세요.",
   "@post_title_placeholder": {},
+  "post_youtube_link": "유튜브 링크",
+  "@post_youtube_link": {},
   "share_image_fail": "이미지 공유 실패",
   "@share_image_fail": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"

@@ -140,10 +140,10 @@ class S {
     );
   }
 
-  /// `*Bonuses disappear the month after they are earned!`
+  /// `*Bonuses will disappear the month after they are earned!`
   String get candy_usage_policy_guide {
     return Intl.message(
-      '*Bonuses disappear the month after they are earned!',
+      '*Bonuses will disappear the month after they are earned!',
       name: 'candy_usage_policy_guide',
       desc: '',
       args: [],
@@ -240,10 +240,10 @@ class S {
     );
   }
 
-  /// `Your purchase has been canceled.`
+  /// `The purchase was canceled.`
   String get dialog_message_purchase_canceled {
     return Intl.message(
-      'Your purchase has been canceled.',
+      'The purchase was canceled.',
       name: 'dialog_message_purchase_canceled',
       desc: '',
       args: [],
@@ -1380,10 +1380,10 @@ class S {
     );
   }
 
-  /// `PIC Voting`
+  /// `PIC voting`
   String get label_vote_tab_pic {
     return Intl.message(
-      'PIC Voting',
+      'PIC voting',
       name: 'label_vote_tab_pic',
       desc: '',
       args: [],
@@ -2275,6 +2275,36 @@ class S {
     return Intl.message(
       'An update is required.',
       name: 'update_required_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Hyperlinks`
+  String get post_hyperlink {
+    return Intl.message(
+      'Hyperlinks',
+      name: 'post_hyperlink',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Inserting links`
+  String get post_insert_link {
+    return Intl.message(
+      'Inserting links',
+      name: 'post_insert_link',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `YouTube link`
+  String get post_youtube_link {
+    return Intl.message(
+      'YouTube link',
+      name: 'post_youtube_link',
       desc: '',
       args: [],
     );

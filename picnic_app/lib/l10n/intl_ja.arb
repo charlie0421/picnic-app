@@ -1076,5 +1076,17 @@
   "update_required_title": "アップデートが必要です。",
   "@update_required_title": {
     "manualTranslation": false
+  },
+  "post_hyperlink": "ハイパーリンク",
+  "@post_hyperlink": {
+    "manualTranslation": false
+  },
+  "post_insert_link": "リンク挿入",
+  "@post_insert_link": {
+    "manualTranslation": false
+  },
+  "post_youtube_link": "ユーチューブリンク",
+  "@post_youtube_link": {
+    "manualTranslation": false
   }
 }

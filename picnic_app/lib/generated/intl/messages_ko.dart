@@ -322,8 +322,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "post_header_publish": MessageLookupByLibrary.simpleMessage("게시"),
         "post_header_temporary_save":
             MessageLookupByLibrary.simpleMessage("임시저장"),
+        "post_hyperlink": MessageLookupByLibrary.simpleMessage("하이퍼링크"),
+        "post_insert_link": MessageLookupByLibrary.simpleMessage("링크삽입"),
         "post_title_placeholder":
             MessageLookupByLibrary.simpleMessage("제목을 입력해주세요."),
+        "post_youtube_link": MessageLookupByLibrary.simpleMessage("유튜브 링크"),
         "share_image_fail": MessageLookupByLibrary.simpleMessage("이미지 공유 실패"),
         "share_image_success":
             MessageLookupByLibrary.simpleMessage("이미지 공유 성공"),

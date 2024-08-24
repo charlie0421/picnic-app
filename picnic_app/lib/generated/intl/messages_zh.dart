@@ -300,8 +300,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "post_header_publish": MessageLookupByLibrary.simpleMessage("出版"),
         "post_header_temporary_save":
             MessageLookupByLibrary.simpleMessage("草稿"),
+        "post_hyperlink": MessageLookupByLibrary.simpleMessage("超链接"),
+        "post_insert_link": MessageLookupByLibrary.simpleMessage("插入链接"),
         "post_title_placeholder":
             MessageLookupByLibrary.simpleMessage("请输入标题。"),
+        "post_youtube_link": MessageLookupByLibrary.simpleMessage("YouTube 链接"),
         "share_image_fail": MessageLookupByLibrary.simpleMessage("图像共享失败"),
         "share_image_success": MessageLookupByLibrary.simpleMessage("成功共享图像"),
         "share_no_twitter": MessageLookupByLibrary.simpleMessage("X 应用程序丢失。"),

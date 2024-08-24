@@ -1076,5 +1076,17 @@
   "update_required_title": "需要更新。",
   "@update_required_title": {
     "manualTranslation": false
+  },
+  "post_hyperlink": "超链接",
+  "@post_hyperlink": {
+    "manualTranslation": false
+  },
+  "post_insert_link": "插入链接",
+  "@post_insert_link": {
+    "manualTranslation": false
+  },
+  "post_youtube_link": "YouTube 链接",
+  "@post_youtube_link": {
+    "manualTranslation": false
   }
 }
