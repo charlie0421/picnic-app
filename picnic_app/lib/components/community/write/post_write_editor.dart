@@ -388,20 +388,26 @@ class _PostWriteEditorContentState extends State<_PostWriteEditorContent> {
   Widget _buildQuillToolbar() {
     return Container(
       height: 40,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildCustomButton(
+          _buildHistoryButton(
             'assets/icons/post/post_undo.svg',
             () => widget.contentController.undo(),
             widget.contentController.hasUndo,
           ),
-          _buildCustomButton(
+          _buildHistoryButton(
             'assets/icons/post/post_redo.svg',
             () => widget.contentController.redo(),
             widget.contentController.hasRedo,
+          ),
+          const VerticalDivider(
+            color: AppColors.grey400,
+            width: 1,
+            thickness: 1,
+            indent: 12,
+            endIndent: 12,
           ),
           _buildFormatButton(
             'assets/icons/post/post_bold.svg',
@@ -418,39 +424,42 @@ class _PostWriteEditorContentState extends State<_PostWriteEditorContent> {
             () => _toggleSelectionFormat(quill.Attribute.underline),
             _isStyleActive(quill.Attribute.underline),
           ),
-          _buildFormatButton(
+          const VerticalDivider(
+            color: AppColors.grey400,
+            width: 1,
+            thickness: 1,
+            indent: 12,
+            endIndent: 12,
+          ),
+          _buildFeatureButton(
             'assets/icons/post/post_media.svg',
             _handleMediaButtonTap,
-            false,
           ),
-          _buildFormatButton(
+          _buildFeatureButton(
             'assets/icons/post/post_link.svg',
             _insertLink,
-            false,
           ),
-          _buildFormatButton(
+          _buildFeatureButton(
             'assets/icons/post/post_youtube.svg',
             _insertYouTubeLink,
-            false,
           ),
-          _buildFormatButton(
+          _buildFeatureButton(
             'assets/icons/post/post_attachment.svg',
             () {},
-            false,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCustomButton(
+  Widget _buildHistoryButton(
       String assetName, VoidCallback onPressed, bool isEnabled) {
     return GestureDetector(
       onTap: isEnabled ? onPressed : null,
       child: SvgPicture.asset(
         assetName,
-        width: 20,
-        height: 20,
+        width: 18,
+        height: 18,
         colorFilter: ColorFilter.mode(
           isEnabled ? AppColors.grey900 : AppColors.grey600,
           BlendMode.srcIn,
@@ -469,6 +478,21 @@ class _PostWriteEditorContentState extends State<_PostWriteEditorContent> {
         height: 20,
         colorFilter: ColorFilter.mode(
           _getIconColor(isActive),
+          BlendMode.srcIn,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureButton(String assetName, VoidCallback onPressed) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: SvgPicture.asset(
+        assetName,
+        width: 20,
+        height: 20,
+        colorFilter: const ColorFilter.mode(
+          AppColors.grey900,
           BlendMode.srcIn,
         ),
       ),
