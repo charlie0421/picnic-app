@@ -38,7 +38,7 @@ class _TopState extends ConsumerState<ScreenTop> {
     String pageName;
     try {
       pageName =
-          (navigationInfo.topNavigationStack!.peek() as dynamic).pageName;
+          (navigationInfo.voteNavigationStack!.peek() as dynamic).pageName;
     } catch (e) {
       if (e is NoSuchMethodError) {
         pageName = '';
@@ -52,8 +52,8 @@ class _TopState extends ConsumerState<ScreenTop> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          (navigationInfo.topNavigationStack != null &&
-                  navigationInfo.topNavigationStack!.length > 1)
+          (navigationInfo.voteNavigationStack != null &&
+                  navigationInfo.voteNavigationStack!.length > 1)
               ? GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () {
@@ -62,8 +62,8 @@ class _TopState extends ConsumerState<ScreenTop> {
                   child: const Icon(Icons.arrow_back_ios),
                 )
               : const CommonMyPoint(),
-          navigationInfo.topNavigationStack != null &&
-                  navigationInfo.topNavigationStack!.length > 1
+          navigationInfo.voteNavigationStack != null &&
+                  navigationInfo.voteNavigationStack!.length > 1
               ? Text(
                   Intl.message(pageName),
                   style: getTextStyle(AppTypo.body16B, AppColors.grey900),
