@@ -870,6 +870,16 @@ class S {
     );
   }
 
+  /// `피크닠 아이디`
+  String get label_mypage_picnic_id {
+    return Intl.message(
+      '피크닠 아이디',
+      name: 'label_mypage_picnic_id',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `개인정보처리방침`
   String get label_mypage_privacy_policy {
     return Intl.message(
@@ -1770,6 +1780,16 @@ class S {
     );
   }
 
+  /// `게시물 작성`
+  String get page_title_post_write {
+    return Intl.message(
+      '게시물 작성',
+      name: 'page_title_post_write',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `개인정보처리방침`
   String get page_title_privacy {
     return Intl.message(
@@ -2210,21 +2230,41 @@ class S {
     );
   }
 
-  /// `피크닠 아이디`
-  String get label_mypage_picnic_id {
+  /// `내용을 입력해주세요.`
+  String get post_content_placeholder {
     return Intl.message(
-      '피크닠 아이디',
-      name: 'label_mypage_picnic_id',
+      '내용을 입력해주세요.',
+      name: 'post_content_placeholder',
       desc: '',
       args: [],
     );
   }
 
-  /// `Publishing`
-  String get page_title_post_write {
+  /// `게시`
+  String get post_header_publish {
     return Intl.message(
-      'Publishing',
-      name: 'page_title_post_write',
+      '게시',
+      name: 'post_header_publish',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `임시저장`
+  String get post_header_temporary_save {
+    return Intl.message(
+      '임시저장',
+      name: 'post_header_temporary_save',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `제목을 입력해주세요.`
+  String get post_title_placeholder {
+    return Intl.message(
+      '제목을 입력해주세요.',
+      name: 'post_title_placeholder',
       desc: '',
       args: [],
     );

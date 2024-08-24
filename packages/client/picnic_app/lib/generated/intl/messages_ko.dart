@@ -316,6 +316,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("투표하기"),
         "page_title_vote_gather":
             MessageLookupByLibrary.simpleMessage("투표 모아보기"),
+        "post_content_placeholder":
+            MessageLookupByLibrary.simpleMessage("내용을 입력해주세요."),
+        "post_header_publish": MessageLookupByLibrary.simpleMessage("게시"),
+        "post_header_temporary_save":
+            MessageLookupByLibrary.simpleMessage("임시저장"),
+        "post_title_placeholder":
+            MessageLookupByLibrary.simpleMessage("제목을 입력해주세요."),
         "share_image_fail": MessageLookupByLibrary.simpleMessage("이미지 공유 실패"),
         "share_image_success":
             MessageLookupByLibrary.simpleMessage("이미지 공유 성공"),

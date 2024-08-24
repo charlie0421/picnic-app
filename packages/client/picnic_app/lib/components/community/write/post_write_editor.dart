@@ -1,191 +1,38 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:picnic_app/components/community/write/embed_builder.dart';
 import 'package:picnic_app/components/community/write/link_embed_builder.dart';
 import 'package:picnic_app/components/community/write/youtube_embed_builder.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:video_player/video_player.dart';
-
-class LocalImageEmbedBuilder extends EmbedBuilder {
-  final bool isUploading;
-  final double uploadProgress;
-
-  LocalImageEmbedBuilder({this.isUploading = false, this.uploadProgress = 0.0});
-
-  @override
-  String get key => 'local-image';
-
-  @override
-  Widget build(BuildContext context, QuillController controller, Embed node,
-      bool readOnly, bool inline, TextStyle? textStyle) {
-    final filePath = node.value.data;
-    final screenWidth = MediaQuery.of(context).size.width;
-    final width = screenWidth / 2;
-    return Stack(
-      children: [
-        SizedBox(
-          width: width,
-          child: Image.file(File(filePath), fit: BoxFit.contain),
-        ),
-        if (isUploading)
-          Positioned.fill(
-            child: Container(
-              color: Colors.black54,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(value: uploadProgress),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Uploading ${(uploadProgress * 100).toStringAsFixed(0)}%',
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                ],
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class NetworkImageEmbedBuilder extends EmbedBuilder {
-  @override
-  String get key => BlockEmbed.imageType;
-
-  @override
-  Widget build(BuildContext context, QuillController controller, Embed node,
-      bool readOnly, bool inline, TextStyle? textStyle) {
-    final imageUrl = node.value.data;
-    final screenWidth = MediaQuery.of(context).size.width;
-    final width = screenWidth / 2;
-    return SizedBox(
-      width: width,
-      child: Image.network(imageUrl, fit: BoxFit.contain),
-    );
-  }
-}
-
-class LocalVideoEmbedBuilder extends EmbedBuilder {
-  final bool isUploading;
-  final double uploadProgress;
-
-  LocalVideoEmbedBuilder({this.isUploading = false, this.uploadProgress = 0.0});
-
-  @override
-  String get key => 'local-video';
-
-  @override
-  Widget build(BuildContext context, QuillController controller, Embed node,
-      bool readOnly, bool inline, TextStyle? textStyle) {
-    final filePath = node.value.data;
-    final VideoPlayerController videoController =
-        VideoPlayerController.file(File(filePath));
-    final screenWidth = MediaQuery.of(context).size.width;
-    final width = screenWidth / 2;
-
-    return Stack(
-      children: [
-        FutureBuilder(
-          future: videoController.initialize(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              return SizedBox(
-                width: width,
-                child: AspectRatio(
-                  aspectRatio: videoController.value.aspectRatio,
-                  child: VideoPlayer(videoController),
-                ),
-              );
-            } else {
-              return SizedBox(
-                width: width,
-                height: width * 9 / 16,
-                child: const Center(child: CircularProgressIndicator()),
-              );
-            }
-          },
-        ),
-        if (isUploading)
-          Positioned.fill(
-            child: Container(
-              color: Colors.black54,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(value: uploadProgress),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Uploading ${(uploadProgress * 100).toStringAsFixed(0)}%',
-                    style: const TextStyle(color: AppColors.grey00),
-                  ),
-                ],
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class NetworkVideoEmbedBuilder extends EmbedBuilder {
-  @override
-  String get key => BlockEmbed.videoType;
-
-  @override
-  Widget build(BuildContext context, QuillController controller, Embed node,
-      bool readOnly, bool inline, TextStyle? textStyle) {
-    final videoUrl = node.value.data;
-    final VideoPlayerController videoController =
-        VideoPlayerController.network(videoUrl);
-    final screenWidth = MediaQuery.of(context).size.width;
-    final width = screenWidth / 2;
-
-    return FutureBuilder(
-      future: videoController.initialize(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          return SizedBox(
-            width: width,
-            child: AspectRatio(
-              aspectRatio: videoController.value.aspectRatio,
-              child: VideoPlayer(videoController),
-            ),
-          );
-        } else {
-          return SizedBox(
-            width: width,
-            height: width * 9 / 16,
-            child: const Center(child: CircularProgressIndicator()),
-          );
-        }
-      },
-    );
-  }
-}
 
 class PostWriteEditor extends StatelessWidget {
   final TextEditingController titleController;
   final quill.QuillController contentController;
 
   const PostWriteEditor({
-    Key? key,
+    super.key,
     required this.titleController,
     required this.contentController,
-  }) : super(key: key);
+    required this.onAttachmentAdded,
+  });
 
+  final Function(List<PlatformFile>) onAttachmentAdded;
   @override
   Widget build(BuildContext context) {
     return _PostWriteEditorContent(
       titleController: titleController,
       contentController: contentController,
+      onAttachmentAdded: onAttachmentAdded,
     );
   }
 }
@@ -193,12 +40,13 @@ class PostWriteEditor extends StatelessWidget {
 class _PostWriteEditorContent extends StatefulWidget {
   final TextEditingController titleController;
   final quill.QuillController contentController;
-
+  final Function(List<PlatformFile>) onAttachmentAdded;
   const _PostWriteEditorContent({
-    Key? key,
+    super.key,
     required this.titleController,
     required this.contentController,
-  }) : super(key: key);
+    required this.onAttachmentAdded,
+  });
 
   @override
   _PostWriteEditorContentState createState() => _PostWriteEditorContentState();
@@ -210,7 +58,7 @@ class _PostWriteEditorContentState extends State<_PostWriteEditorContent> {
   bool _isTitleFocused = false;
   bool _isEditorFocused = false;
   final ImagePicker _picker = ImagePicker();
-  Map<String, double> _uploadProgress = {};
+  final Map<String, double> _uploadProgress = {};
   late final quill.QuillController _controller;
 
   @override
@@ -251,7 +99,7 @@ class _PostWriteEditorContentState extends State<_PostWriteEditorContent> {
       setState(() {
         _isEditorFocused = _editorFocusNode.hasFocus;
       });
-      print('Editor focus changed: $_isEditorFocused'); // 로그 추가
+      logger.d('Editor focus changed: $_isEditorFocused'); // 로그 추가
     }
   }
 
@@ -288,8 +136,8 @@ class _PostWriteEditorContentState extends State<_PostWriteEditorContent> {
       setState(() {
         _uploadProgress.remove(file.path);
       });
-    } catch (e) {
-      print('Error uploading media: $e');
+    } catch (e, s) {
+      logger.e('Error uploading media: $e', stackTrace: s);
       setState(() {
         _uploadProgress.remove(file.path);
       });
@@ -369,7 +217,7 @@ class _PostWriteEditorContentState extends State<_PostWriteEditorContent> {
       child: CupertinoTextField(
         controller: widget.titleController,
         focusNode: _titleFocusNode,
-        placeholder: 'Title',
+        placeholder: S.of(context).post_title_placeholder,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
         decoration: BoxDecoration(
           border: Border.all(
@@ -386,7 +234,7 @@ class _PostWriteEditorContentState extends State<_PostWriteEditorContent> {
   }
 
   Widget _buildQuillToolbar() {
-    return Container(
+    return SizedBox(
       height: 40,
       child: Row(
         mainAxisSize: MainAxisSize.max,
@@ -445,7 +293,7 @@ class _PostWriteEditorContentState extends State<_PostWriteEditorContent> {
           ),
           _buildFeatureButton(
             'assets/icons/post/post_attachment.svg',
-            () {},
+            _pickFiles,
           ),
         ],
       ),
@@ -540,8 +388,6 @@ class _PostWriteEditorContentState extends State<_PostWriteEditorContent> {
       return currentStyle.attributes.containsKey(attribute.key) &&
           currentStyle.attributes[attribute.key]?.value == attribute.value;
     } else {
-      final selectedText = _controller.document
-          .getPlainText(_controller.selection.start, _controller.selection.end);
       final style = _controller.document.collectStyle(
           _controller.selection.start,
           _controller.selection.end - _controller.selection.start);
@@ -578,6 +424,7 @@ class _PostWriteEditorContentState extends State<_PostWriteEditorContent> {
                     scrollController: ScrollController(),
                     focusNode: _editorFocusNode,
                     configurations: quill.QuillEditorConfigurations(
+                      placeholder: S.of(context).post_content_placeholder,
                       embedBuilders: [
                         LocalImageEmbedBuilder(
                           isUploading:
@@ -628,7 +475,7 @@ class _PostWriteEditorContentState extends State<_PostWriteEditorContent> {
     );
 
     if (result != null && result.isNotEmpty) {
-      print('Inserting Link: $result'); // 디버깅을 위한 출력
+      logger.d('Inserting Link: $result'); // 디버깅을 위한 출력
       final index = widget.contentController.selection.baseOffset;
       final length = widget.contentController.selection.extentOffset - index;
       widget.contentController.replaceText(
@@ -638,7 +485,7 @@ class _PostWriteEditorContentState extends State<_PostWriteEditorContent> {
         null,
       );
       widget.contentController.document.insert(index + 1, "\n");
-      print('Link inserted at index: $index'); // 디버깅을 위한 출력
+      logger.d('Link inserted at index: $index'); // 디버깅을 위한 출력
       setState(() {}); // 화면 갱신을 강제로 트리거
     }
   }
@@ -668,12 +515,12 @@ class _PostWriteEditorContentState extends State<_PostWriteEditorContent> {
     );
 
     if (result != null && result.isNotEmpty) {
-      print('Inserting YouTube URL: $result'); // 디버깅을 위한 출력
+      logger.d('Inserting YouTube URL: $result'); // 디버깅을 위한 출력
       final index = widget.contentController.selection.baseOffset;
       final length = widget.contentController.selection.extentOffset - index;
 
       // YouTube 임베드 삽입 전 문서 상태 출력
-      print(
+      logger.d(
           'Document before insertion: ${widget.contentController.document.toPlainText()}');
 
       widget.contentController.replaceText(
@@ -685,11 +532,22 @@ class _PostWriteEditorContentState extends State<_PostWriteEditorContent> {
       widget.contentController.document.insert(index + 1, "\n");
 
       // YouTube 임베드 삽입 후 문서 상태 출력
-      print(
+      logger.d(
           'Document after insertion: ${widget.contentController.document.toPlainText()}');
 
-      print('YouTube URL inserted at index: $index'); // 디버깅을 위한 출력
+      logger.d('YouTube URL inserted at index: $index'); // 디버깅을 위한 출력
       setState(() {}); // 화면 갱신을 강제로 트리거
+    }
+  }
+
+  void _pickFiles() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.any,
+      allowMultiple: true,
+    );
+
+    if (result != null && result.files.isNotEmpty) {
+      widget.onAttachmentAdded(result.files);
     }
   }
 }

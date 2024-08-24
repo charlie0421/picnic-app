@@ -1,53 +1,56 @@
-import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:picnic_app/ui/style.dart';
 
 class PostWriteAttachments extends StatelessWidget {
   final List<PlatformFile> attachments;
+  final Function(List<PlatformFile>) onAttachmentAdded;
   final Function(int) onAttachmentRemoved;
 
   const PostWriteAttachments({
-    Key? key,
+    super.key,
     required this.attachments,
+    required this.onAttachmentAdded,
     required this.onAttachmentRemoved,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: const EdgeInsets.only(top: 17),
       height: attachments.isNotEmpty ? 100 : 0,
       child: ListView.builder(
-        scrollDirection: Axis.horizontal,
+        scrollDirection: Axis.vertical,
         itemCount: attachments.length,
         itemBuilder: (context, index) {
           final file = attachments[index];
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Stack(
-              children: [
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Center(
-                    child: Text(
-                      file.extension ?? '',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                  ),
+          return Row(
+            children: [
+              SvgPicture.asset(
+                'assets/icons/post/post_attachment.svg',
+                width: 18,
+                height: 18,
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                file.name ?? '',
+                style: getTextStyle(
+                  AppTypo.caption12R,
+                  AppColors.grey800,
                 ),
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  child: IconButton(
-                    icon: Icon(Icons.close, size: 20),
-                    onPressed: () => onAttachmentRemoved(index),
-                  ),
+              ),
+              SizedBox(width: 8.w),
+              GestureDetector(
+                onTap: () => onAttachmentRemoved(index),
+                child: SvgPicture.asset(
+                  'assets/icons/cancle_style=line.svg',
+                  width: 20,
+                  height: 20,
                 ),
-              ],
-            ),
+              ),
+            ],
           );
         },
       ),
