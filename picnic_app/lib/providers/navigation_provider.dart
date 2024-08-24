@@ -83,10 +83,6 @@ class NavigationInfo extends _$NavigationInfo {
   }
 
   setBottomNavigationIndex(int index) {
-    logger.d('setBottomNavigationIndex: $index');
-    state = state.copyWith(
-      showTopMenu: true,
-    );
     if (state.portalType == PortalType.vote) {
       setVoteBottomNavigationIndex(index);
     } else if (state.portalType == PortalType.pic) {
@@ -317,5 +313,17 @@ class Navigation {
           drawerNavigationStack ?? this.drawerNavigationStack
       ..signUpNavigationStack =
           signUpNavigationStack ?? this.signUpNavigationStack;
+  }
+
+  getBottomNavigationIndex() {
+    if (portalType == PortalType.vote) {
+      return voteBottomNavigationIndex;
+    } else if (portalType == PortalType.pic) {
+      return picBottomNavigationIndex;
+    } else if (portalType == PortalType.community) {
+      return communityBottomNavigationIndex;
+    } else if (portalType == PortalType.novel) {
+      return novelBottomNavigationIndex;
+    }
   }
 }

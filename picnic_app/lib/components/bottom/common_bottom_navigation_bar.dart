@@ -97,8 +97,9 @@ class MenuItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final navigationNotifier = ref.read(navigationInfoProvider.notifier);
+    final navigationInfo = ref.watch(navigationInfoProvider);
 
-    final index = navigationNotifier.getBottomNavigationIndex();
+    final index = navigationInfo.getBottomNavigationIndex();
     final bool isSelected = index == this.index;
 
     return SizedBox(
