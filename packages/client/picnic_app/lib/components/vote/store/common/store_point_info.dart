@@ -14,7 +14,7 @@ class StorePointInfo extends ConsumerWidget {
       this.titlePadding});
 
   double? width = 48.w;
-  double? height = 48.h;
+  double? height = 36;
   final String title;
   final double? titlePadding;
 
@@ -25,7 +25,8 @@ class StorePointInfo extends ConsumerWidget {
         Container(
           height: height,
           width: width,
-          margin: EdgeInsets.only(top: 32, left: 16.w, right: 16.w),
+          margin: EdgeInsets.only(top: 24, left: 16.w, right: 16.w),
+          padding: const EdgeInsets.only(top: 16),
           decoration: BoxDecoration(
               border: Border.all(
                 color: AppColors.primary500,
