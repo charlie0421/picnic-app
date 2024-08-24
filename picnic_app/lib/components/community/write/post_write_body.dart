@@ -9,6 +9,7 @@ class PostWriteBody extends StatelessWidget {
   final TextEditingController titleController;
   final quill.QuillController contentController;
   final List<PlatformFile> attachments;
+  final Function(List<PlatformFile>) onAttachmentAdded;
   final Function(int) onAttachmentRemoved;
 
   const PostWriteBody({
@@ -16,6 +17,7 @@ class PostWriteBody extends StatelessWidget {
     required this.titleController,
     required this.contentController,
     required this.attachments,
+    required this.onAttachmentAdded,
     required this.onAttachmentRemoved,
   });
 
@@ -28,9 +30,11 @@ class PostWriteBody extends StatelessWidget {
           PostWriteEditor(
             titleController: titleController,
             contentController: contentController,
+            onAttachmentAdded: onAttachmentAdded,
           ),
           PostWriteAttachments(
             attachments: attachments,
+            onAttachmentAdded: onAttachmentAdded,
             onAttachmentRemoved: onAttachmentRemoved,
           ),
         ],

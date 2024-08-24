@@ -638,9 +638,6 @@
   "@nickname_validation_error": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "page_title_post_write": "게시물 작성",
-  "@page_title_post_write": {
-  },
   "page_title_mypage": "마이페이지",
   "@page_title_mypage": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -649,6 +646,8 @@
   "@page_title_myprofile": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "page_title_post_write": "게시물 작성",
+  "@page_title_post_write": {},
   "page_title_privacy": "개인정보처리방침",
   "@page_title_privacy": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -669,6 +668,14 @@
   "@page_title_vote_gather": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "post_content_placeholder": "내용을 입력해주세요.",
+  "@post_content_placeholder": {},
+  "post_header_publish": "게시",
+  "@post_header_publish": {},
+  "post_header_temporary_save": "임시저장",
+  "@post_header_temporary_save": {},
+  "post_title_placeholder": "제목을 입력해주세요.",
+  "@post_title_placeholder": {},
   "share_image_fail": "이미지 공유 실패",
   "@share_image_fail": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"

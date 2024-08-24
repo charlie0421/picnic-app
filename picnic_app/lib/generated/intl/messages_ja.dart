@@ -310,13 +310,20 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("20자 이내, 특수문자 제외 가능합니다."),
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("마이페이지"),
         "page_title_myprofile": MessageLookupByLibrary.simpleMessage("나의 프로필"),
-        "page_title_post_write": MessageLookupByLibrary.simpleMessage("投稿"),
+        "page_title_post_write": MessageLookupByLibrary.simpleMessage("게시물 작성"),
         "page_title_privacy": MessageLookupByLibrary.simpleMessage("개인정보처리방침"),
         "page_title_setting": MessageLookupByLibrary.simpleMessage("환경설정"),
         "page_title_terms_of_use": MessageLookupByLibrary.simpleMessage("이용약관"),
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("투표하기"),
         "page_title_vote_gather":
             MessageLookupByLibrary.simpleMessage("투표 모아보기"),
+        "post_content_placeholder":
+            MessageLookupByLibrary.simpleMessage("내용을 입력해주세요."),
+        "post_header_publish": MessageLookupByLibrary.simpleMessage("게시"),
+        "post_header_temporary_save":
+            MessageLookupByLibrary.simpleMessage("임시저장"),
+        "post_title_placeholder":
+            MessageLookupByLibrary.simpleMessage("제목을 입력해주세요."),
         "share_image_fail": MessageLookupByLibrary.simpleMessage("이미지 공유 실패"),
         "share_image_success":
             MessageLookupByLibrary.simpleMessage("이미지 공유 성공"),

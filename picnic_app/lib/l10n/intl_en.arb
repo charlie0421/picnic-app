@@ -398,6 +398,10 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": true
   },
+  "label_mypage_picnic_id": "피크닠 아이디",
+  "@label_mypage_picnic_id": {
+    "manualTranslation": true
+  },
   "label_mypage_privacy_policy": "개인정보처리방침",
   "@label_mypage_privacy_policy": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
@@ -839,6 +843,10 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": true
   },
+  "page_title_post_write": "게시물 작성",
+  "@page_title_post_write": {
+    "manualTranslation": true
+  },
   "page_title_privacy": "개인정보처리방침",
   "@page_title_privacy": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
@@ -1050,12 +1058,20 @@
   "@update_required_title": {
     "manualTranslation": true
   },
-  "label_mypage_picnic_id": "피크닠 아이디",
-  "@label_mypage_picnic_id": {
+  "post_content_placeholder": "내용을 입력해주세요.",
+  "@post_content_placeholder": {
     "manualTranslation": true
   },
-  "page_title_post_write": "Publishing",
-  "@page_title_post_write": {
-    "manualTranslation": false
+  "post_header_publish": "게시",
+  "@post_header_publish": {
+    "manualTranslation": true
+  },
+  "post_header_temporary_save": "임시저장",
+  "@post_header_temporary_save": {
+    "manualTranslation": true
+  },
+  "post_title_placeholder": "제목을 입력해주세요.",
+  "@post_title_placeholder": {
+    "manualTranslation": true
   }
 }
