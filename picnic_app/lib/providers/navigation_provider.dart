@@ -43,16 +43,11 @@ class NavigationInfo extends _$NavigationInfo {
       currentPage = picPages[state.picBottomNavigationIndex].pageWidget;
     } else if (portalType == PortalType.community) {
       currentScreen = const CommunityHomeScreen();
-      currentPage = communityPages[state.picBottomNavigationIndex].pageWidget;
+      currentPage =
+          communityPages[state.communityBottomNavigationIndex].pageWidget;
     } else if (portalType == PortalType.novel) {
       currentScreen = const NovelHomeScreen();
-      currentPage = novelPages[state.picBottomNavigationIndex].pageWidget;
-    } else if (portalType == PortalType.vote) {
-      currentScreen = const VoteHomeScreen();
-      currentPage = votePages[state.voteBottomNavigationIndex].pageWidget;
-    } else if (portalType == PortalType.mypage) {
-      currentScreen = const MyPageScreen();
-      currentPage = const MyPage();
+      currentPage = novelPages[state.novelBottomNavigationIndex].pageWidget;
     } else {
       currentScreen = const VoteHomeScreen();
       currentPage = votePages[state.voteBottomNavigationIndex].pageWidget;
