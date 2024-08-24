@@ -10,5 +10,6 @@
   "KAKAO_NATIVE_APP_KEY": "75e247f5d29512f84749e64aac77ebfa",
   "KAKAO_JAVASCRIPT_KEY": "fe170eb02c6ff6a488a5848f9db41335",
   "ENABLE_SENTRY": true,
-  "CDN_URL": "https://cdn.picnic.fan"
+  "CDN_URL": "https://cdn.picnic.fan",
+  "YOUTUBE_API_KEY": "AIzaSyCaLg2a8kx1-JYh878enFIqyvVH5VNqYxk"
 }

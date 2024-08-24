@@ -321,8 +321,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "post_header_publish": MessageLookupByLibrary.simpleMessage("投稿"),
         "post_header_temporary_save":
             MessageLookupByLibrary.simpleMessage("一時保存"),
+        "post_hyperlink": MessageLookupByLibrary.simpleMessage("ハイパーリンク"),
+        "post_insert_link": MessageLookupByLibrary.simpleMessage("リンク挿入"),
         "post_title_placeholder":
             MessageLookupByLibrary.simpleMessage("タイトルを入力してください。"),
+        "post_youtube_link": MessageLookupByLibrary.simpleMessage("ユーチューブリンク"),
         "share_image_fail": MessageLookupByLibrary.simpleMessage("画像共有に失敗"),
         "share_image_success": MessageLookupByLibrary.simpleMessage("画像共有成功"),
         "share_no_twitter": MessageLookupByLibrary.simpleMessage("Xアプリがありません。"),

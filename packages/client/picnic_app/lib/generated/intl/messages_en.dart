@@ -50,7 +50,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "candy_usage_policy_contents2": MessageLookupByLibrary.simpleMessage(
             "When using Star Candy, Star Candy that is about to expire is prioritized."),
         "candy_usage_policy_guide": MessageLookupByLibrary.simpleMessage(
-            "*Bonuses disappear the month after they are earned!"),
+            "*Bonuses will disappear the month after they are earned!"),
         "candy_usage_policy_guide_button":
             MessageLookupByLibrary.simpleMessage("Learn more"),
         "candy_usage_policy_title":
@@ -68,8 +68,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialog_message_can_resignup": MessageLookupByLibrary.simpleMessage(
             "When you can rejoin if you cancel your membership now"),
         "dialog_message_purchase_canceled":
-            MessageLookupByLibrary.simpleMessage(
-                "Your purchase has been canceled."),
+            MessageLookupByLibrary.simpleMessage("The purchase was canceled."),
         "dialog_message_purchase_failed": MessageLookupByLibrary.simpleMessage(
             "There was an error with your purchase, please try again later."),
         "dialog_message_purchase_success": MessageLookupByLibrary.simpleMessage(
@@ -274,7 +273,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("Birthday polls"),
         "label_vote_tab_pic":
-            MessageLookupByLibrary.simpleMessage("PIC Voting"),
+            MessageLookupByLibrary.simpleMessage("PIC voting"),
         "label_vote_upcoming":
             MessageLookupByLibrary.simpleMessage("Until voting begins"),
         "label_vote_vote_gather":
@@ -356,8 +355,13 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Publishing"),
         "post_header_temporary_save":
             MessageLookupByLibrary.simpleMessage("Drafts"),
+        "post_hyperlink": MessageLookupByLibrary.simpleMessage("Hyperlinks"),
+        "post_insert_link":
+            MessageLookupByLibrary.simpleMessage("Inserting links"),
         "post_title_placeholder":
             MessageLookupByLibrary.simpleMessage("Please enter a title."),
+        "post_youtube_link":
+            MessageLookupByLibrary.simpleMessage("YouTube link"),
         "share_image_fail":
             MessageLookupByLibrary.simpleMessage("Image sharing failed"),
         "share_image_success":
