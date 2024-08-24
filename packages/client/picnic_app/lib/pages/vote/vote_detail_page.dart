@@ -161,21 +161,15 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
 
   Widget _buildVoteInfo(BuildContext context, VoteModel voteModel) {
     final width = getPlatformScreenSize(context).width;
-    final height = width * 0.5;
 
     return Column(
       children: [
         SizedBox(
           width: width,
-          height: height,
           child: PicnicCachedNetworkImage(
             imageUrl: voteModel.main_image,
-            useScreenUtil: true,
-            fit: BoxFit.cover,
             width: width.toInt(),
-            height: height.toInt(),
             memCacheWidth: width.toInt(),
-            memCacheHeight: height.toInt(),
           ),
         ),
         const SizedBox(height: 36),
