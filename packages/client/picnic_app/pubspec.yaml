@@ -43,7 +43,6 @@ dependencies:
   intl: ^0.19.0
   camera: ^0.11.0+1
   flutter_quill_extensions: ^10.4.1
-  aws_s3_api: ^2.0.0
   image_cropper: ^7.1.0
   flutter_screenutil: ^5.9.3
   overlay_loading_progress: ^1.0.1
@@ -90,6 +89,7 @@ dependencies:
   retry: ^3.1.2
   version: ^3.0.2
   rxdart: ^0.27.7
+  amazon_cognito_identity_dart_2: ^3.6.5
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -32,4 +32,9 @@ class Environment {
   static bool get enableSentry => _config['ENABLE_SENTRY'] as bool;
   static String get cdnUrl => _config['CDN_URL'] as String;
   static String get youtubeApiKey => _config['YOUTUBE_API_KEY'] as String;
+  static String get awsAccessKey => _config['AWS_ACCESS_KEY_ID'] as String;
+  static String get awsSecretKey => _config['AWS_SECRET_ACCESS_KEY'] as String;
+  static String get awsRegion => _config['AWS_REGION'] as String;
+  static String get awsBucket => _config['AWS_S3_BUCKET'] as String;
+  static String get awsS3Url => _config['AWS_S3_BUCKET_URL'] as String;
 }
