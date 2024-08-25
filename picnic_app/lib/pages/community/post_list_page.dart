@@ -5,26 +5,29 @@ import 'package:picnic_app/components/community/post_list_item.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/community/post.dart';
-import 'package:picnic_app/pages/community/post_list_page.dart';
 import 'package:picnic_app/pages/community/post_write_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
 
-class PostHomeList extends ConsumerStatefulWidget {
-  const PostHomeList(this.boardId, {super.key});
-
+class PostListPage extends ConsumerStatefulWidget {
+  const PostListPage(this.boardId, {super.key});
+  final pageName = 'PostListPage';
   final String boardId;
-
   @override
-  _PostHomeListState createState() => _PostHomeListState();
+  ConsumerState<PostListPage> createState() => _PostListPageState();
 }
 
-class _PostHomeListState extends ConsumerState<PostHomeList> {
+class _PostListPageState extends ConsumerState<PostListPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(showPortal: true, showBottomNavigation: false);
+    });
   }
 
   @override
@@ -80,14 +83,6 @@ class _PostHomeListState extends ConsumerState<PostHomeList> {
                   child: Column(children: [
                     ...List.generate(data.length,
                         (index) => PostListItem(post: data[index])),
-                    ElevatedButton(
-                        onPressed: () {
-                          ref
-                              .read(navigationInfoProvider.notifier)
-                              .setCurrentPage(
-                                  PostListPage(widget.boardId.toString()));
-                        },
-                        child: const Text('My Artist 게시판 보기'))
                   ]),
                 ),
           error: (err, stack) =>
@@ -105,9 +100,8 @@ final postListProvider = FutureProvider.family((ref, String boardId) async {
     final response = await supabase
         .schema('community')
         .from('posts')
-        .select('*, boards!inner(*)')
-        .eq('boards.board_id', boardId)
-        .limit(3);
+        .select('*, boards!inner(*), user_profile!inner(*)')
+        .eq('boards.board_id', boardId);
     logger.d('response: $response');
     return response.map((data) => PostModel.fromJson(data)).toList();
   } catch (e, s) {

@@ -12,7 +12,7 @@ _$PostModelImpl _$$PostModelImplFromJson(Map<String, dynamic> json) =>
       user_id: json['user_id'] as String,
       board_id: json['board_id'] as String,
       title: json['title'] as String,
-      content: json['content'] as String,
+      content: json['content'] as List<dynamic>,
       view_count: (json['view_count'] as num).toInt(),
       is_hidden: json['is_hidden'] as bool,
       created_at: DateTime.parse(json['created_at'] as String),
