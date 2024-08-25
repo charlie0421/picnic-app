@@ -94,8 +94,10 @@ class NavigationInfo extends _$NavigationInfo {
     }
   }
 
-  void settingNavigation(
-      {required bool showPortal, required bool showBottomNavigation}) {
+  void settingNavigation({
+    required bool showPortal,
+    required bool showBottomNavigation,
+  }) {
     state = state.copyWith(
       showTopMenu: showPortal,
       showBottomNavigation: showBottomNavigation,

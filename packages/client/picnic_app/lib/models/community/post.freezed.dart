@@ -25,7 +25,7 @@ mixin _$PostModel {
       throw _privateConstructorUsedError; // required UserProfilesModel user,
   String get board_id => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
-  String get content => throw _privateConstructorUsedError;
+  List<dynamic> get content => throw _privateConstructorUsedError;
   int get view_count => throw _privateConstructorUsedError;
   bool get is_hidden => throw _privateConstructorUsedError;
   DateTime get created_at => throw _privateConstructorUsedError;
@@ -52,7 +52,7 @@ abstract class $PostModelCopyWith<$Res> {
       String user_id,
       String board_id,
       String title,
-      String content,
+      List<dynamic> content,
       int view_count,
       bool is_hidden,
       DateTime created_at,
@@ -108,7 +108,7 @@ class _$PostModelCopyWithImpl<$Res, $Val extends PostModel>
       content: null == content
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
-              as String,
+              as List<dynamic>,
       view_count: null == view_count
           ? _value.view_count
           : view_count // ignore: cast_nullable_to_non_nullable
@@ -156,7 +156,7 @@ abstract class _$$PostModelImplCopyWith<$Res>
       String user_id,
       String board_id,
       String title,
-      String content,
+      List<dynamic> content,
       int view_count,
       bool is_hidden,
       DateTime created_at,
@@ -209,9 +209,9 @@ class __$$PostModelImplCopyWithImpl<$Res>
           : title // ignore: cast_nullable_to_non_nullable
               as String,
       content: null == content
-          ? _value.content
+          ? _value._content
           : content // ignore: cast_nullable_to_non_nullable
-              as String,
+              as List<dynamic>,
       view_count: null == view_count
           ? _value.view_count
           : view_count // ignore: cast_nullable_to_non_nullable
@@ -244,13 +244,14 @@ class _$PostModelImpl extends _PostModel {
       required this.user_id,
       required this.board_id,
       required this.title,
-      required this.content,
+      required final List<dynamic> content,
       required this.view_count,
       required this.is_hidden,
       required this.created_at,
       required this.updated_at,
       required this.boards})
-      : super._();
+      : _content = content,
+        super._();
 
   factory _$PostModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$PostModelImplFromJson(json);
@@ -264,8 +265,14 @@ class _$PostModelImpl extends _PostModel {
   final String board_id;
   @override
   final String title;
+  final List<dynamic> _content;
   @override
-  final String content;
+  List<dynamic> get content {
+    if (_content is EqualUnmodifiableListView) return _content;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_content);
+  }
+
   @override
   final int view_count;
   @override
@@ -292,7 +299,7 @@ class _$PostModelImpl extends _PostModel {
             (identical(other.board_id, board_id) ||
                 other.board_id == board_id) &&
             (identical(other.title, title) || other.title == title) &&
-            (identical(other.content, content) || other.content == content) &&
+            const DeepCollectionEquality().equals(other._content, _content) &&
             (identical(other.view_count, view_count) ||
                 other.view_count == view_count) &&
             (identical(other.is_hidden, is_hidden) ||
@@ -306,8 +313,18 @@ class _$PostModelImpl extends _PostModel {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, post_id, user_id, board_id,
-      title, content, view_count, is_hidden, created_at, updated_at, boards);
+  int get hashCode => Object.hash(
+      runtimeType,
+      post_id,
+      user_id,
+      board_id,
+      title,
+      const DeepCollectionEquality().hash(_content),
+      view_count,
+      is_hidden,
+      created_at,
+      updated_at,
+      boards);
 
   /// Create a copy of PostModel
   /// with the given fields replaced by the non-null parameter values.
@@ -331,7 +348,7 @@ abstract class _PostModel extends PostModel {
       required final String user_id,
       required final String board_id,
       required final String title,
-      required final String content,
+      required final List<dynamic> content,
       required final int view_count,
       required final bool is_hidden,
       required final DateTime created_at,
@@ -351,7 +368,7 @@ abstract class _PostModel extends PostModel {
   @override
   String get title;
   @override
-  String get content;
+  List<dynamic> get content;
   @override
   int get view_count;
   @override

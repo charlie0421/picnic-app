@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_quill/extensions.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:html/dom.dart' as html;
 import 'package:html/parser.dart' show parse;
 import 'package:http/http.dart' as http;
@@ -9,26 +9,66 @@ import 'package:picnic_app/components/community/write/embed_builder/deletable_em
 import 'package:picnic_app/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+class LinkEmbedBuilder extends EmbedBuilder {
+  @override
+  String get key => 'link';
+
+  @override
+  Widget build(BuildContext context, QuillController controller, Embed node,
+      bool readOnly, bool inline, TextStyle textStyle) {
+    return readOnly
+        ? _ReadOnlyLinkPreviewWidget(node: node, textStyle: textStyle)
+        : EditableLinkEmbedBuilder()
+            .build(context, controller, node, readOnly, inline, textStyle);
+  }
+}
+
+class EditableLinkEmbedBuilder extends EmbedBuilder {
+  @override
+  String get key => 'link';
+
+  @override
+  Widget build(BuildContext context, QuillController controller, Embed node,
+      bool readOnly, bool inline, TextStyle textStyle) {
+    return _EditableLinkPreviewWidget(node: node);
+  }
+}
+
 class DeletableLinkEmbedBuilder extends DeletableEmbedBuilder {
   DeletableLinkEmbedBuilder()
       : super(
           embedType: 'link',
-          contentBuilder: (context, node) {
-            return _LinkPreviewWidget(node: node);
+          contentBuilder: (BuildContext context, Embed node) {
+            return _EditableLinkPreviewWidget(node: node);
           },
         );
 }
 
-class _LinkPreviewWidget extends StatefulWidget {
+class _ReadOnlyLinkPreviewWidget extends StatefulWidget {
   final Embed node;
+  final TextStyle textStyle;
 
-  const _LinkPreviewWidget({Key? key, required this.node}) : super(key: key);
+  const _ReadOnlyLinkPreviewWidget(
+      {Key? key, required this.node, required this.textStyle})
+      : super(key: key);
 
   @override
-  _LinkPreviewWidgetState createState() => _LinkPreviewWidgetState();
+  _ReadOnlyLinkPreviewWidgetState createState() =>
+      _ReadOnlyLinkPreviewWidgetState();
 }
 
-class _LinkPreviewWidgetState extends State<_LinkPreviewWidget> {
+class _EditableLinkPreviewWidget extends StatefulWidget {
+  final Embed node;
+
+  const _EditableLinkPreviewWidget({Key? key, required this.node})
+      : super(key: key);
+
+  @override
+  _EditableLinkPreviewWidgetState createState() =>
+      _EditableLinkPreviewWidgetState();
+}
+
+mixin _LinkPreviewWidgetStateMixin<T extends StatefulWidget> on State<T> {
   String? title;
   String? description;
   String? imageUrl;
@@ -43,20 +83,18 @@ class _LinkPreviewWidgetState extends State<_LinkPreviewWidget> {
   }
 
   void _extractUrl() {
-    final data = widget.node.value.data;
+    final data = (widget as dynamic).node.value.data;
     logger.d('Original data: $data');
 
     if (data is String) {
       try {
-        // Try to parse the string as JSON
         final jsonData = json.decode(data);
         if (jsonData is Map<String, dynamic>) {
           url = jsonData['url'] as String? ?? '';
         } else {
-          url = data; // If it's not a map, use the entire string as URL
+          url = data;
         }
       } catch (e) {
-        // If JSON parsing fails, assume the entire string is the URL
         url = data;
       }
     } else if (data is Map<String, dynamic>) {
@@ -71,12 +109,9 @@ class _LinkPreviewWidgetState extends State<_LinkPreviewWidget> {
   String _validateAndCorrectUrl(String inputUrl) {
     if (inputUrl.isEmpty) return '';
 
-    // Remove any leading/trailing whitespace
     inputUrl = inputUrl.trim();
 
-    // Check if the URL starts with a scheme
     if (!inputUrl.startsWith('http://') && !inputUrl.startsWith('https://')) {
-      // If there's no scheme, add 'https://'
       inputUrl = 'https://$inputUrl';
     }
 
@@ -88,7 +123,6 @@ class _LinkPreviewWidgetState extends State<_LinkPreviewWidget> {
       return '';
     }
 
-    // Ensure the URL has a valid host
     if (uri.host.isEmpty) {
       logger.e('Invalid URL (no host): $inputUrl');
       return '';
@@ -139,11 +173,110 @@ class _LinkPreviewWidgetState extends State<_LinkPreviewWidget> {
     return null;
   }
 
+  Future<void> _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      logger.e('Could not launch $url');
+    }
+  }
+}
+
+class _ReadOnlyLinkPreviewWidgetState extends State<_ReadOnlyLinkPreviewWidget>
+    with _LinkPreviewWidgetStateMixin {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final maxWidth = constraints.maxWidth * 2 / 3; // 화면 너비의 절반
+        final maxWidth = constraints.maxWidth;
+        return SizedBox(
+          width: maxWidth,
+          child: Card(
+            elevation: 1,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            child: InkWell(
+              onTap: () => _launchURL(url),
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (imageUrl != null)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: Image.network(
+                          imageUrl!,
+                          height: 70,
+                          width: 70,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                            height: 70,
+                            width: 70,
+                            color: Colors.grey[300],
+                            child: const Icon(Icons.broken_image, size: 30),
+                          ),
+                        ),
+                      ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (isLoading)
+                            const Center(child: CircularProgressIndicator())
+                          else ...[
+                            Text(
+                              title ?? 'Untitled',
+                              style: widget.textStyle.copyWith(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              description ?? 'No description available',
+                              style: widget.textStyle.copyWith(fontSize: 12),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              url,
+                              style: widget.textStyle.copyWith(
+                                color: Colors.blue,
+                                fontSize: 11,
+                                decoration: TextDecoration.underline,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _EditableLinkPreviewWidgetState extends State<_EditableLinkPreviewWidget>
+    with _LinkPreviewWidgetStateMixin {
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxWidth = constraints.maxWidth * 2 / 3;
         return SizedBox(
           width: maxWidth,
           child: Card(
@@ -222,13 +355,5 @@ class _LinkPreviewWidgetState extends State<_LinkPreviewWidget> {
         );
       },
     );
-  }
-
-  Future<void> _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      logger.e('Could not launch $url');
-    }
   }
 }

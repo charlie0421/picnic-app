@@ -1,166 +1,183 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/community/write/embed_builder/deletable_embed_builder.dart';
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/util/number.dart';
 
+class YouTubeEmbedBuilder extends EmbedBuilder {
+  @override
+  String get key => 'youtube';
+
+  @override
+  Widget build(BuildContext context, QuillController controller, Embed node,
+      bool readOnly, bool inline, TextStyle textStyle) {
+    return _YouTubeEmbedContent(node: node);
+  }
+}
+
 class DeletableYouTubeEmbedBuilder extends DeletableEmbedBuilder {
   DeletableYouTubeEmbedBuilder()
       : super(
           embedType: 'youtube',
-          contentBuilder: (context, node) {
-            final data = node.value.data;
-            String youtubeUrl = '';
+          contentBuilder: (context, node) => _YouTubeEmbedContent(node: node),
+        );
+}
 
-            if (data is Map<String, dynamic>) {
-              youtubeUrl = data['source'] as String? ?? '';
-            } else if (data is String) {
-              youtubeUrl = data;
-            }
+class _YouTubeEmbedContent extends StatelessWidget {
+  final Embed node;
 
-            return FutureBuilder<VideoInfo>(
-              future: _fetchVideoInfo(youtubeUrl),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else if (!snapshot.hasData) {
-                  return const Text('No data available');
-                }
+  const _YouTubeEmbedContent({Key? key, required this.node}) : super(key: key);
 
-                final videoInfo = snapshot.data!;
+  @override
+  Widget build(BuildContext context) {
+    final data = node.value.data;
+    String youtubeUrl = '';
 
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    final maxWidth = constraints.maxWidth * 0.9;
-                    return Container(
-                      width: maxWidth,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 1,
-                            blurRadius: 3,
-                            offset: const Offset(0, 2),
+    if (data is Map<String, dynamic>) {
+      youtubeUrl = data['source'] as String? ?? '';
+    } else if (data is String) {
+      youtubeUrl = data;
+    }
+
+    return FutureBuilder<VideoInfo>(
+      future: _fetchVideoInfo(youtubeUrl),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (!snapshot.hasData) {
+          return const Text('No data available');
+        }
+
+        final videoInfo = snapshot.data!;
+
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final maxWidth = constraints.maxWidth * 0.9;
+            return Container(
+              width: maxWidth,
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 1,
+                    blurRadius: 3,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ClipRRect(
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(12)),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Image.network(
+                          videoInfo.thumbnailUrl,
+                          width: maxWidth,
+                          height: maxWidth * 9 / 16,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                            width: maxWidth,
+                            height: maxWidth * 9 / 16,
+                            color: Colors.grey[300],
+                            child: const Icon(Icons.error),
                           ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          ClipRRect(
-                            borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(12)),
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Image.network(
-                                  videoInfo.thumbnailUrl,
-                                  width: maxWidth,
-                                  height: maxWidth * 9 / 16,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Container(
-                                    width: maxWidth,
-                                    height: maxWidth * 9 / 16,
-                                    color: Colors.grey[300],
-                                    child: const Icon(Icons.error),
-                                  ),
-                                ),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.red.withOpacity(0.8),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  padding: const EdgeInsets.all(12),
-                                  child: const Icon(
-                                    Icons.play_arrow,
-                                    color: Colors.white,
-                                    size: 40,
-                                  ),
-                                ),
-                              ],
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.red.withOpacity(0.8),
+                            shape: BoxShape.circle,
+                          ),
+                          padding: const EdgeInsets.all(12),
+                          child: const Icon(
+                            Icons.play_arrow,
+                            color: Colors.white,
+                            size: 40,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          videoInfo.title,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const CircleAvatar(
+                              backgroundColor: Colors.grey,
+                              radius: 12,
+                              child: Icon(Icons.person,
+                                  size: 16, color: Colors.white),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  videoInfo.title,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    const CircleAvatar(
-                                      backgroundColor: Colors.grey,
-                                      radius: 12,
-                                      child: Icon(Icons.person,
-                                          size: 16, color: Colors.white),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        videoInfo.channelTitle,
-                                        style: TextStyle(
-                                            color: Colors.grey[600],
-                                            fontSize: 14),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    Icon(Icons.remove_red_eye,
-                                        size: 16, color: Colors.grey[600]),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      formatViewCountNumberEn(
-                                          videoInfo.viewCount),
-                                      style: TextStyle(
-                                          color: Colors.grey[600],
-                                          fontSize: 12),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Icon(Icons.access_time,
-                                        size: 16, color: Colors.grey[600]),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      _formatDate(videoInfo.publishedAt),
-                                      style: TextStyle(
-                                          color: Colors.grey[600],
-                                          fontSize: 12),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                videoInfo.channelTitle,
+                                style: TextStyle(
+                                    color: Colors.grey[600], fontSize: 14),
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                );
-              },
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Icon(Icons.remove_red_eye,
+                                size: 16, color: Colors.grey[600]),
+                            const SizedBox(width: 4),
+                            Text(
+                              formatViewCountNumberEn(videoInfo.viewCount),
+                              style: TextStyle(
+                                  color: Colors.grey[600], fontSize: 12),
+                            ),
+                            const SizedBox(width: 12),
+                            Icon(Icons.access_time,
+                                size: 16, color: Colors.grey[600]),
+                            const SizedBox(width: 4),
+                            Text(
+                              _formatDate(videoInfo.publishedAt),
+                              style: TextStyle(
+                                  color: Colors.grey[600], fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             );
           },
         );
+      },
+    );
+  }
 
   static Future<VideoInfo> _fetchVideoInfo(String url) async {
     final videoId = _extractVideoId(url);
