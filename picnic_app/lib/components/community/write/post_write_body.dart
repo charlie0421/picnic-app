@@ -13,9 +13,12 @@ import 'package:picnic_app/components/community/write/embed_builder/link_embed_b
 import 'package:picnic_app/components/community/write/embed_builder/media_embed_builder.dart';
 import 'package:picnic_app/components/community/write/embed_builder/youtube_embed_builder.dart';
 import 'package:picnic_app/components/community/write/post_write_attachments.dart';
+import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
+
+import '../../ui/s3_uploader.dart';
 
 class PostWriteBody extends StatefulWidget {
   final TextEditingController titleController;
@@ -45,6 +48,7 @@ class _PostWriteBodyState extends State<PostWriteBody> {
   final ImagePicker _picker = ImagePicker();
   final Map<String, double> _uploadProgress = {};
   late final quill.QuillController _controller;
+  late final S3Uploader _s3Uploader;
 
   @override
   void initState() {
@@ -53,6 +57,11 @@ class _PostWriteBodyState extends State<PostWriteBody> {
     _editorFocusNode.addListener(_handleEditorFocusChange);
     _controller = widget.contentController;
     _controller.addListener(_onTextChanged);
+    _s3Uploader = S3Uploader(
+        accessKey: Environment.awsAccessKey,
+        secretKey: Environment.awsSecretKey,
+        region: Environment.awsRegion,
+        bucketName: Environment.awsBucket);
   }
 
   void _onTextChanged() {
@@ -105,16 +114,20 @@ class _PostWriteBodyState extends State<PostWriteBody> {
   }
 
   Future<void> _uploadMediaInBackground(File file, bool isVideo) async {
+    logger.d('Uploading media: ${file.path}');
     try {
       setState(() {
         _uploadProgress[file.path] = 0.0;
       });
 
-      final mediaUrl = await _uploadMedia(file, (progress) {
-        setState(() {
-          _uploadProgress[file.path] = progress;
-        });
-      });
+      final mediaUrl = await _s3Uploader.uploadFile(
+        file,
+        (progress) {
+          setState(() {
+            _uploadProgress[file.path] = progress;
+          });
+        },
+      );
 
       _replaceLocalMediaWithNetwork(file.path, mediaUrl, isVideo);
 
