@@ -161,6 +161,12 @@ class _PostWriteBodyState extends State<PostWriteBody> {
     }
 
     widget.contentController.document.insert(index + 1, "\n");
+
+    // 커서를 새 줄로 이동
+    widget.contentController.updateSelection(
+      TextSelection.collapsed(offset: index + 2),
+      ChangeSource.local,
+    );
   }
 
   void _replaceLocalMediaWithNetwork(
