@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 
 class NavigationStack {
+  NavigationStack({Widget? initialPage}) {
+    if (initialPage != null) {
+      push(initialPage);
+    }
+  }
+
   final List<Widget> _list = [];
   // Pushes an element onto the stack
   void push(Widget value) {

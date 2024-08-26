@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_app/components/bounce_red_dot.dart';
+import 'package:picnic_app/components/ui/bounce_red_dot.dart';
 import 'package:picnic_app/components/common/common_my_point_info.dart';
 import 'package:picnic_app/components/rotate_image.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
@@ -38,7 +38,7 @@ class _TopState extends ConsumerState<ScreenTop> {
     String pageName;
     try {
       pageName =
-          (navigationInfo.voteNavigationStack!.peek() as dynamic).pageName;
+          (navigationInfo.voteNavigationStack?.peek() as dynamic).pageName;
     } catch (e) {
       if (e is NoSuchMethodError) {
         pageName = '';

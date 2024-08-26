@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_app/components/community/post_list_item.dart';
+import 'package:picnic_app/components/community/common/post_list_item.dart';
+import 'package:picnic_app/components/community/common/post_list_provider.dart';
+import 'package:picnic_app/components/community/list/post_list.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/models/community/post.dart';
-import 'package:picnic_app/pages/community/post_list_page.dart';
 import 'package:picnic_app/pages/community/post_write_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
-import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
 
@@ -76,18 +75,32 @@ class _PostHomeListState extends ConsumerState<PostHomeList> {
                     ],
                   ))
               : SizedBox(
-                  height: 288,
                   child: Column(children: [
+                    const SizedBox(height: 19),
                     ...List.generate(data.length,
                         (index) => PostListItem(post: data[index])),
+                    const SizedBox(height: 30),
                     ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: AppColors.primary500,
+                          backgroundColor: AppColors.grey00,
+                          textStyle: getTextStyle(AppTypo.body14B),
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            side: const BorderSide(
+                                color: AppColors.primary500, width: 1),
+                          ),
+                        ),
                         onPressed: () {
                           ref
                               .read(navigationInfoProvider.notifier)
                               .setCurrentPage(
                                   PostListPage(widget.boardId.toString()));
                         },
-                        child: const Text('My Artist 게시판 보기'))
+                        child: Text('My Artist 게시판 보기',
+                            style: getTextStyle(
+                                AppTypo.body14B, AppColors.primary500))),
                   ]),
                 ),
           error: (err, stack) =>
@@ -98,20 +111,3 @@ class _PostHomeListState extends ConsumerState<PostHomeList> {
     );
   }
 }
-
-final postListProvider = FutureProvider.family((ref, String boardId) async {
-  try {
-    logger.d('Fetching posts for boardId: $boardId');
-    final response = await supabase
-        .schema('community')
-        .from('posts')
-        .select('*, boards!inner(*)')
-        .eq('boards.board_id', boardId)
-        .limit(3);
-    logger.d('response: $response');
-    return response.map((data) => PostModel.fromJson(data)).toList();
-  } catch (e, s) {
-    logger.e('Error fetching posts:', error: e, stackTrace: s);
-    return Future.error(e);
-  }
-});

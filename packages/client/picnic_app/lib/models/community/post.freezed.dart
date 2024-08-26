@@ -21,8 +21,8 @@ PostModel _$PostModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$PostModel {
   String get post_id => throw _privateConstructorUsedError;
-  String get user_id =>
-      throw _privateConstructorUsedError; // required UserProfilesModel user,
+  String get user_id => throw _privateConstructorUsedError;
+  UserProfilesModel? get user_profiles => throw _privateConstructorUsedError;
   String get board_id => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   List<dynamic> get content => throw _privateConstructorUsedError;
@@ -50,6 +50,7 @@ abstract class $PostModelCopyWith<$Res> {
   $Res call(
       {String post_id,
       String user_id,
+      UserProfilesModel? user_profiles,
       String board_id,
       String title,
       List<dynamic> content,
@@ -59,6 +60,7 @@ abstract class $PostModelCopyWith<$Res> {
       DateTime updated_at,
       BoardModel boards});
 
+  $UserProfilesModelCopyWith<$Res>? get user_profiles;
   $BoardModelCopyWith<$Res> get boards;
 }
 
@@ -79,6 +81,7 @@ class _$PostModelCopyWithImpl<$Res, $Val extends PostModel>
   $Res call({
     Object? post_id = null,
     Object? user_id = null,
+    Object? user_profiles = freezed,
     Object? board_id = null,
     Object? title = null,
     Object? content = null,
@@ -97,6 +100,10 @@ class _$PostModelCopyWithImpl<$Res, $Val extends PostModel>
           ? _value.user_id
           : user_id // ignore: cast_nullable_to_non_nullable
               as String,
+      user_profiles: freezed == user_profiles
+          ? _value.user_profiles
+          : user_profiles // ignore: cast_nullable_to_non_nullable
+              as UserProfilesModel?,
       board_id: null == board_id
           ? _value.board_id
           : board_id // ignore: cast_nullable_to_non_nullable
@@ -136,6 +143,20 @@ class _$PostModelCopyWithImpl<$Res, $Val extends PostModel>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
+  $UserProfilesModelCopyWith<$Res>? get user_profiles {
+    if (_value.user_profiles == null) {
+      return null;
+    }
+
+    return $UserProfilesModelCopyWith<$Res>(_value.user_profiles!, (value) {
+      return _then(_value.copyWith(user_profiles: value) as $Val);
+    });
+  }
+
+  /// Create a copy of PostModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
   $BoardModelCopyWith<$Res> get boards {
     return $BoardModelCopyWith<$Res>(_value.boards, (value) {
       return _then(_value.copyWith(boards: value) as $Val);
@@ -154,6 +175,7 @@ abstract class _$$PostModelImplCopyWith<$Res>
   $Res call(
       {String post_id,
       String user_id,
+      UserProfilesModel? user_profiles,
       String board_id,
       String title,
       List<dynamic> content,
@@ -163,6 +185,8 @@ abstract class _$$PostModelImplCopyWith<$Res>
       DateTime updated_at,
       BoardModel boards});
 
+  @override
+  $UserProfilesModelCopyWith<$Res>? get user_profiles;
   @override
   $BoardModelCopyWith<$Res> get boards;
 }
@@ -182,6 +206,7 @@ class __$$PostModelImplCopyWithImpl<$Res>
   $Res call({
     Object? post_id = null,
     Object? user_id = null,
+    Object? user_profiles = freezed,
     Object? board_id = null,
     Object? title = null,
     Object? content = null,
@@ -200,6 +225,10 @@ class __$$PostModelImplCopyWithImpl<$Res>
           ? _value.user_id
           : user_id // ignore: cast_nullable_to_non_nullable
               as String,
+      user_profiles: freezed == user_profiles
+          ? _value.user_profiles
+          : user_profiles // ignore: cast_nullable_to_non_nullable
+              as UserProfilesModel?,
       board_id: null == board_id
           ? _value.board_id
           : board_id // ignore: cast_nullable_to_non_nullable
@@ -242,6 +271,7 @@ class _$PostModelImpl extends _PostModel {
   const _$PostModelImpl(
       {required this.post_id,
       required this.user_id,
+      required this.user_profiles,
       required this.board_id,
       required this.title,
       required final List<dynamic> content,
@@ -260,7 +290,8 @@ class _$PostModelImpl extends _PostModel {
   final String post_id;
   @override
   final String user_id;
-// required UserProfilesModel user,
+  @override
+  final UserProfilesModel? user_profiles;
   @override
   final String board_id;
   @override
@@ -286,7 +317,7 @@ class _$PostModelImpl extends _PostModel {
 
   @override
   String toString() {
-    return 'PostModel(post_id: $post_id, user_id: $user_id, board_id: $board_id, title: $title, content: $content, view_count: $view_count, is_hidden: $is_hidden, created_at: $created_at, updated_at: $updated_at, boards: $boards)';
+    return 'PostModel(post_id: $post_id, user_id: $user_id, user_profiles: $user_profiles, board_id: $board_id, title: $title, content: $content, view_count: $view_count, is_hidden: $is_hidden, created_at: $created_at, updated_at: $updated_at, boards: $boards)';
   }
 
   @override
@@ -296,6 +327,8 @@ class _$PostModelImpl extends _PostModel {
             other is _$PostModelImpl &&
             (identical(other.post_id, post_id) || other.post_id == post_id) &&
             (identical(other.user_id, user_id) || other.user_id == user_id) &&
+            (identical(other.user_profiles, user_profiles) ||
+                other.user_profiles == user_profiles) &&
             (identical(other.board_id, board_id) ||
                 other.board_id == board_id) &&
             (identical(other.title, title) || other.title == title) &&
@@ -317,6 +350,7 @@ class _$PostModelImpl extends _PostModel {
       runtimeType,
       post_id,
       user_id,
+      user_profiles,
       board_id,
       title,
       const DeepCollectionEquality().hash(_content),
@@ -346,6 +380,7 @@ abstract class _PostModel extends PostModel {
   const factory _PostModel(
       {required final String post_id,
       required final String user_id,
+      required final UserProfilesModel? user_profiles,
       required final String board_id,
       required final String title,
       required final List<dynamic> content,
@@ -362,7 +397,9 @@ abstract class _PostModel extends PostModel {
   @override
   String get post_id;
   @override
-  String get user_id; // required UserProfilesModel user,
+  String get user_id;
+  @override
+  UserProfilesModel? get user_profiles;
   @override
   String get board_id;
   @override

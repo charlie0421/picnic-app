@@ -1,6 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/community/board.dart';
-import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/reflector.dart';
 
 part 'post.freezed.dart';
@@ -14,7 +13,7 @@ class PostModel with _$PostModel {
   const factory PostModel({
     required String post_id,
     required String user_id,
-    // required UserProfilesModel user,
+    required UserProfilesModel? user_profiles,
     required String board_id,
     required String title,
     required List<dynamic> content,

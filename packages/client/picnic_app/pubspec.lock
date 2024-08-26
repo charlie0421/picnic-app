@@ -74,10 +74,10 @@ packages:
     dependency: "direct main"
     description:
       name: app_links
-      sha256: f04c3ca96426baba784c736a201926bd4145524c36a1b38942a351b033305e21
+      sha256: "50437e5916e6f56c1ca53e967cbfd6d53b3451465b41eef05ba1533bf1e1c5ea"
       url: "https://pub.dev"
     source: hosted
-    version: "6.2.1"
+    version: "6.3.0"
   app_links_linux:
     dependency: transitive
     description:
@@ -450,10 +450,10 @@ packages:
     dependency: transitive
     description:
       name: dart_quill_delta
-      sha256: "3452ab96321147bb567fe74bba09f1aae8a6832c00a5e3522f8bdb845bac89d8"
+      sha256: aba2c561ec2380bad8112fb8a3f60cc1d387a4ead91750897b5c2eaa10f505b4
       url: "https://pub.dev"
     source: hosted
-    version: "10.4.4"
+    version: "10.4.5"
   dart_style:
     dependency: transitive
     description:
@@ -844,18 +844,18 @@ packages:
     dependency: transitive
     description:
       name: flutter_plugin_android_lifecycle
-      sha256: "9d98bd47ef9d34e803d438f17fd32b116d31009f534a6fa5ce3a1167f189a6de"
+      sha256: "9ee02950848f61c4129af3d6ec84a1cfc0e47931abc746b03e7a3bc3e8ff6eda"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.21"
+    version: "2.0.22"
   flutter_quill:
     dependency: "direct main"
     description:
       name: flutter_quill
-      sha256: "01f7efd32e2bfd6eaf1c204a1212706675c74e0e117899e8e3e942e9553b524f"
+      sha256: ddc84e46bfcd5727d27fd5fe25adf447555982a617b567f6669dd882577e6d54
       url: "https://pub.dev"
     source: hosted
-    version: "10.4.4"
+    version: "10.4.5"
   flutter_quill_delta_from_html:
     dependency: transitive
     description:
@@ -868,10 +868,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_quill_extensions
-      sha256: fe57d3f193e3f11f36dc1b4b95bae3f8fddbbdf1d903c67d70a47a19dbe6de1f
+      sha256: "073bb6f4308979b90eec2f550ba625a5b0b24fc87e3a900a21d252a82b84c690"
       url: "https://pub.dev"
     source: hosted
-    version: "10.4.4"
+    version: "10.4.5"
   flutter_riverpod:
     dependency: "direct main"
     description:
@@ -1942,10 +1942,10 @@ packages:
     dependency: transitive
     description:
       name: shared_preferences_android
-      sha256: a7e8467e9181cef109f601e3f65765685786c1a738a83d7fbbde377589c0d974
+      sha256: "480ba4345773f56acda9abf5f50bd966f581dac5d514e5fc4a18c62976bbba7e"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.1"
+    version: "2.3.2"
   shared_preferences_foundation:
     dependency: transitive
     description:
@@ -2034,14 +2034,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
-  simple_spell_checker:
-    dependency: transitive
-    description:
-      name: simple_spell_checker
-      sha256: "7d644b69db6ced15a9da872a20e338f23ab4b45d97bdd92499a7a924af0ab0a3"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.2.1"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -2403,10 +2395,10 @@ packages:
     dependency: transitive
     description:
       name: video_player_android
-      sha256: "28b1d818f2beeb108a1ed7c58a40becae86735922a98c81c7052cb278b89ea65"
+      sha256: e343701aa890b74a863fa460f5c0e628127ed06a975d7d9af6b697133fb25bdf
       url: "https://pub.dev"
     source: hosted
-    version: "2.7.0"
+    version: "2.7.1"
   video_player_avfoundation:
     dependency: transitive
     description:
