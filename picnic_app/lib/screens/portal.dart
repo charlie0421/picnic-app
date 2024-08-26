@@ -124,7 +124,7 @@ class _PortalState extends ConsumerState<Portal> {
                     width: webDesignSize.width,
                     child: Column(children: [
                       const ScreenTop(),
-                      Expanded(child: currentScreen),
+                      Expanded(child: currentScreen ?? const SizedBox()),
                     ]),
                   ))
                 : SizedBox(
@@ -132,7 +132,7 @@ class _PortalState extends ConsumerState<Portal> {
                     height: constraints.maxHeight,
                     child: Column(children: [
                       const ScreenTop(),
-                      Expanded(child: currentScreen),
+                      Expanded(child: currentScreen ?? const SizedBox()),
                     ]),
                   );
           },

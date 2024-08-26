@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/common_banner.dart';
-import 'package:picnic_app/components/community/post_home_list.dart';
+import 'package:picnic_app/components/community/home/post_home_list.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/community/board.dart';
 import 'package:picnic_app/providers/mypage/bookmarked_artists_provider.dart';

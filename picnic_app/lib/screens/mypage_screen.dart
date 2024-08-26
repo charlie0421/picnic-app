@@ -22,7 +22,7 @@ class MyPageScreen extends ConsumerWidget {
     String pageName;
     try {
       pageName =
-          (navigationInfo.drawerNavigationStack!.peek() as dynamic).pageName;
+          (navigationInfo.drawerNavigationStack?.peek() as dynamic).pageName;
     } catch (e) {
       if (e is NoSuchMethodError) {
         pageName = '';

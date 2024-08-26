@@ -10,6 +10,10 @@ _$PostModelImpl _$$PostModelImplFromJson(Map<String, dynamic> json) =>
     _$PostModelImpl(
       post_id: json['post_id'] as String,
       user_id: json['user_id'] as String,
+      user_profiles: json['user_profiles'] == null
+          ? null
+          : UserProfilesModel.fromJson(
+              json['user_profiles'] as Map<String, dynamic>),
       board_id: json['board_id'] as String,
       title: json['title'] as String,
       content: json['content'] as List<dynamic>,
@@ -24,6 +28,7 @@ Map<String, dynamic> _$$PostModelImplToJson(_$PostModelImpl instance) =>
     <String, dynamic>{
       'post_id': instance.post_id,
       'user_id': instance.user_id,
+      'user_profiles': instance.user_profiles,
       'board_id': instance.board_id,
       'title': instance.title,
       'content': instance.content,

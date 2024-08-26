@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/pages/community/post_view_page.dart';
@@ -43,9 +44,16 @@ class PostListItem extends ConsumerWidget {
                     style:
                         getTextStyle(AppTypo.caption12B, AppColors.primary500)),
                 SizedBox(width: 4.w),
-                Text(post.user_id.substring(0, 8),
+                ProfileImageContainer(
+                  avatarUrl: post.user_profiles?.avatar_url,
+                  borderRadius: 4,
+                  width: 18,
+                  height: 18,
+                ),
+                SizedBox(width: 4.w),
+                Text(post.user_profiles?.nickname ?? '',
                     style: getTextStyle(AppTypo.caption12B, AppColors.grey900)),
-                SizedBox(width: 12.w),
+                SizedBox(width: 4.w),
                 Text(formatTimeAgo(context, post.created_at),
                     style:
                         getTextStyle(AppTypo.caption10SB, AppColors.grey400)),
