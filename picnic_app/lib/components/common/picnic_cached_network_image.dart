@@ -40,7 +40,7 @@ class PicnicCachedNetworkImage extends StatelessWidget {
       BuildContext context, double resolutionMultiplier) {
     return [
       _getTransformedUrl(imageUrl, resolutionMultiplier * .2, 20),
-      _getTransformedUrl(imageUrl, resolutionMultiplier * .8, 50),
+      // _getTransformedUrl(imageUrl, resolutionMultiplier * .8, 50),
       _getTransformedUrl(imageUrl, resolutionMultiplier, 80),
     ];
   }
@@ -48,17 +48,15 @@ class PicnicCachedNetworkImage extends StatelessWidget {
   String _getTransformedUrl(
       String key, double resolutionMultiplier, int quality) {
     Uri uri = Uri.parse('${Environment.cdnUrl}/$key');
-    Map<String, String> queryParameters = {};
-    if (width != null) {
-      queryParameters['w'] = (width! * resolutionMultiplier).toInt().toString();
-    }
-    if (height != null) {
-      queryParameters['h'] =
-          (height! * resolutionMultiplier).toInt().toString();
-    }
-    queryParameters['q'] = quality.toString();
-    queryParameters['f'] =
-        WebPSupportChecker.instance.supportsWebP ? 'webp' : 'png';
+    Map<String, String> queryParameters = {
+      if (width != null) 'w': (width!).toInt().toString(),
+      if (height != null) 'h': (height!).toInt().toString(),
+      'q': quality.toString(),
+      'f': WebPSupportChecker.instance.supportsWebP ? 'webp' : 'png',
+    };
+
+    logger.i(
+        'uri.replace(queryParameters: queryParameters).toString(): ${uri.replace(queryParameters: queryParameters).toString()}');
     return uri.replace(queryParameters: queryParameters).toString();
   }
 
