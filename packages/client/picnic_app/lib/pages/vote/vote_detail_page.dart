@@ -310,16 +310,17 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
           child: Row(
             children: [
               SizedBox(
-                width: 35.w,
+                width: 39,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     if (index < 3)
                       SvgPicture.asset(
-                          key: ValueKey(
-                              'assets/icons/vote/crown${index + 1}.svg'),
-                          'assets/icons/vote/crown${index + 1}.svg'),
+                        key:
+                            ValueKey('assets/icons/vote/crown${index + 1}.svg'),
+                        'assets/icons/vote/crown${index + 1}.svg',
+                      ),
                     Text(
                       Intl.message('text_vote_rank', args: [index + 1])
                           .toString(),
@@ -347,9 +348,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                             style: getTextStyle(
                                 AppTypo.body14B, AppColors.grey900),
                           ),
-                          const TextSpan(
-                            text: ' ',
-                          ),
+                          const TextSpan(text: ' '),
                           TextSpan(
                             text: getLocaleTextFromJson(
                                 item.artist.artist_group.name),
@@ -369,8 +368,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   width: 24.w,
                   height: 24,
                   child: SvgPicture.asset(
-                      key: const ValueKey('assets/icons/star_candy_icon.svg'),
-                      'assets/icons/star_candy_icon.svg'),
+                    key: const ValueKey('assets/icons/star_candy_icon.svg'),
+                    'assets/icons/star_candy_icon.svg',
+                  ),
                 ),
             ],
           ),
@@ -396,11 +396,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         child: PicnicCachedNetworkImage(
           key: ValueKey(item.artist.image),
           imageUrl: item.artist.image,
-          useScreenUtil: true,
-          width: 55,
-          height: 55,
-          memCacheWidth: 55,
-          memCacheHeight: 55,
+          width: 39,
+          height: 39,
+          memCacheWidth: 39,
+          memCacheHeight: 39,
         ),
       ),
     );
