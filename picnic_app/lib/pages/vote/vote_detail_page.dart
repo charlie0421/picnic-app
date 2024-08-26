@@ -386,7 +386,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             ? [goldGradient, silverGradient, bronzeGradient][index]
             : null,
         color: index >= 3 ? AppColors.grey200 : null,
-        borderRadius: BorderRadius.circular(27.5),
+        borderRadius: BorderRadius.circular(22.5),
       ),
       padding: const EdgeInsets.all(3),
       width: 45,
@@ -396,10 +396,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         child: PicnicCachedNetworkImage(
           key: ValueKey(item.artist.image),
           imageUrl: item.artist.image,
-          width: 39,
-          height: 39,
-          memCacheWidth: 39,
-          memCacheHeight: 39,
+          fit: BoxFit.cover,
+          width: 80,
+          height: 80,
+          memCacheWidth: 80,
+          memCacheHeight: 80,
         ),
       ),
     );
