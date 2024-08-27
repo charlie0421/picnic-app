@@ -55,8 +55,6 @@ class PicnicCachedNetworkImage extends StatelessWidget {
       'f': WebPSupportChecker.instance.supportsWebP ? 'webp' : 'png',
     };
 
-    logger.i(
-        'uri.replace(queryParameters: queryParameters).toString(): ${uri.replace(queryParameters: queryParameters).toString()}');
     return uri.replace(queryParameters: queryParameters).toString();
   }
 
