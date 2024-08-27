@@ -14,7 +14,6 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/firebase_options.dart';
 import 'package:picnic_app/main.reflectable.dart';
 import 'package:picnic_app/reflector.dart';
-import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/auth_service.dart';
 import 'package:picnic_app/util/network.dart';
 import 'package:picnic_app/util/token_refresh_manager.dart';
@@ -83,8 +82,7 @@ void main() async {
 
   await SentryFlutter.init(
     (options) {
-      options.dsn =
-          'https://2a10b0168b427bbdc6eb3a1f16a1f2a2@o4507695222685696.ingest.us.sentry.io/4507695242739712';
+      options.dsn = Environment.sentryDsn;
       options.tracesSampleRate = 1.0;
       options.profilesSampleRate = 1.0;
       options.beforeSend = (event, hint) {
@@ -111,16 +109,6 @@ void logStorageData() async {
     FirebaseCrashlytics.instance.log('key: $key, value: $value');
     logger.i('key: $key, value: $value');
   });
-}
-
-Future<void> checkSession() async {
-  try {
-    final session = supabase.auth.currentSession;
-  } catch (e, s) {
-    logger.e('세션 확인 중 오류 발생: $e', stackTrace: s);
-    final authService = AuthService();
-    await authService.signOut();
-  }
 }
 
 Future<void> requestAppTrackingTransparency() async {

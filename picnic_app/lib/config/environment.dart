@@ -30,6 +30,7 @@ class Environment {
   static String get kakaoJavascriptKey =>
       _config['KAKAO_JAVASCRIPT_KEY'] as String;
   static bool get enableSentry => _config['ENABLE_SENTRY'] as bool;
+  static String get sentryDsn => _config['SENTRY_DSN'] as String;
   static String get cdnUrl => _config['CDN_URL'] as String;
   static String get youtubeApiKey => _config['YOUTUBE_API_KEY'] as String;
   static String get awsAccessKey => _config['AWS_ACCESS_KEY_ID'] as String;
