@@ -13,24 +13,26 @@ import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/firebase_options.dart';
 import 'package:picnic_app/main.reflectable.dart';
-import 'package:picnic_app/reflector.dart';
 import 'package:picnic_app/util/auth_service.dart';
+import 'package:picnic_app/util/logging_observer.dart';
 import 'package:picnic_app/util/network.dart';
 import 'package:picnic_app/util/token_refresh_manager.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:picnic_app/util/webp_support_checker.dart';
-import 'package:reflectable/reflectable.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+
   const String environment =
       String.fromEnvironment('ENVIRONMENT', defaultValue: 'prod');
   await Environment.initConfig(environment);
   await WebPSupportChecker.instance.initialize();
+
   logger.i('WebP support: ${WebPSupportChecker.instance.supportsWebP}');
+
   final customHttpClient = RetryHttpClient(http.Client());
   await Supabase.initialize(
     url: Environment.supabaseUrl,
@@ -141,59 +143,4 @@ Future<void> initializeWidgetsAndDeviceOrientation(
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
-}
-
-class LoggingObserver extends ProviderObserver {
-  @override
-  void didUpdateProvider(ProviderBase provider, Object? previousValue,
-      Object? newValue, ProviderContainer container) {
-    if (previousValue == null || newValue == null) {
-      return;
-    }
-    // logger.i('Provider ${provider.name} ');
-    // logger.i('type of Object: ${provider.runtimeType}');
-    // logger.i('type of Object: ${previousValue.runtimeType.toString()}');
-    // logger.i('type of Object: ${newValue.runtimeType}');
-    // logger.i('type of Object: ${container.runtimeType}');
-
-    if (previousValue.runtimeType.toString().startsWith('Async') ||
-        newValue.runtimeType.toString().startsWith('Async') ||
-        previousValue.runtimeType.toString().startsWith('String') ||
-        newValue.runtimeType.toString().startsWith('String')) {
-      return;
-    }
-
-    detectChanges(previousValue, newValue);
-  }
-
-  void detectChanges(Object oldObj, Object newObj) {
-    if (oldObj.runtimeType.toString().contains('Impl') ||
-        newObj.runtimeType.toString().contains('Impl')) {
-      return;
-    }
-
-    // 객체의 실제 타입에 기반한 리플렉션
-    InstanceMirror oldMirror = reflector.reflect(oldObj);
-    InstanceMirror newMirror = reflector.reflect(newObj);
-
-    // oldObj의 타입을 가져옴
-    Type oldType = oldObj.runtimeType;
-
-    // 해당 타입의 선언을 가져옴
-    ClassMirror classMirror = reflector.reflectType(oldType) as ClassMirror;
-
-    // 필드를 순회하며 변경사항 감지
-    for (var field
-        in classMirror.declarations.values.whereType<VariableMirror>()) {
-      var oldValue = oldMirror.invokeGetter(field.simpleName);
-      var newValue = newMirror.invokeGetter(field.simpleName);
-
-      if (kDebugMode) {
-        if (oldValue != newValue) {
-          print(
-              'Field ${field.simpleName} changed from $oldValue to $newValue');
-        }
-      }
-    }
-  }
 }

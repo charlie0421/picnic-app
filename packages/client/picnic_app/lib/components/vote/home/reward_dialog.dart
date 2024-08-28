@@ -203,7 +203,7 @@ class _RewardDialogState extends State<RewardDialog> {
                   borderRadius: BorderRadius.circular(24.r),
                   child: Container(
                     alignment: Alignment.topCenter,
-                    width: 300.w,
+                    width: 300,
                     height: 300,
                     child: PicnicCachedNetworkImage(
                       imageUrl: images[i],
