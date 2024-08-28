@@ -7,12 +7,11 @@ import 'package:picnic_app/util/ui.dart';
 import 'package:picnic_app/util/webp_support_checker.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-class PicnicCachedNetworkImage extends StatelessWidget {
+class PicnicCachedNetworkImage extends StatefulWidget {
   final String imageUrl;
   final int? width;
   final int? height;
   final BoxFit? fit;
-  final ImageWidgetBuilder? imageBuilder;
   final bool useScreenUtil;
   final int? memCacheWidth;
   final int? memCacheHeight;
@@ -24,10 +23,17 @@ class PicnicCachedNetworkImage extends StatelessWidget {
     this.height,
     this.fit = BoxFit.cover,
     this.useScreenUtil = true,
-    this.imageBuilder,
     this.memCacheWidth,
     this.memCacheHeight,
   });
+
+  @override
+  State<PicnicCachedNetworkImage> createState() =>
+      _PicnicCachedNetworkImageState();
+}
+
+class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
+  bool _loading = true;
 
   double _getResolutionMultiplier(BuildContext context) {
     if (UniversalPlatform.isWeb) return 1.0;
@@ -39,37 +45,68 @@ class PicnicCachedNetworkImage extends StatelessWidget {
   List<String> _getTransformedUrls(
       BuildContext context, double resolutionMultiplier) {
     return [
-      _getTransformedUrl(imageUrl, resolutionMultiplier * .2, 20),
+      _getTransformedUrl(widget.imageUrl, resolutionMultiplier * .2, 20),
       // _getTransformedUrl(imageUrl, resolutionMultiplier * .8, 50),
-      _getTransformedUrl(imageUrl, resolutionMultiplier, 80),
+      _getTransformedUrl(widget.imageUrl, resolutionMultiplier, 80),
     ];
   }
 
   String _getTransformedUrl(
       String key, double resolutionMultiplier, int quality) {
     Uri uri = Uri.parse('${Environment.cdnUrl}/$key');
+    // logger.i('uri: $uri');
     Map<String, String> queryParameters = {
-      if (width != null) 'w': (width!).toInt().toString(),
-      if (height != null) 'h': (height!).toInt().toString(),
+      if (widget.width != null)
+        'w': ((widget.width!).toInt() * resolutionMultiplier).toString(),
+      if (widget.height != null)
+        'h': ((widget.height!).toInt() * resolutionMultiplier).toString(),
       'q': quality.toString(),
       'f': WebPSupportChecker.instance.supportsWebP ? 'webp' : 'png',
     };
 
+    // logger.i(
+    //     'uri.replace(queryParameters: queryParameters).toString(): ${uri.replace(queryParameters: queryParameters).toString()}');
     return uri.replace(queryParameters: queryParameters).toString();
   }
 
-  Widget _buildCachedNetworkImage(String url, double? width, double? height) {
+  Widget _buildFirstTypeCachedNetworkImage(
+      String url, double? width, double? height) {
     try {
       return CachedNetworkImage(
         key: ValueKey(url),
         imageUrl: url,
         width: width,
         height: height,
-        fit: fit,
-        memCacheWidth: memCacheWidth,
-        memCacheHeight: memCacheHeight,
+        fit: widget.fit,
+        memCacheWidth: widget.memCacheWidth,
+        memCacheHeight: widget.memCacheHeight,
         errorWidget: (context, url, error) => const SizedBox.shrink(),
-        imageBuilder: imageBuilder,
+        errorListener: (
+          exception,
+        ) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              setState(() {
+                _loading = false;
+              });
+            }
+          });
+          logger.e('이미지 로딩 중 오류 발생:', error: exception);
+        },
+        imageBuilder: (context, imageProvider) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              setState(() {
+                _loading = false;
+              });
+            }
+          });
+          return Image(
+              image: imageProvider,
+              fit: widget.fit,
+              width: width,
+              height: height);
+        },
       );
     } catch (e, s) {
       logger.e('이미지 로딩 중 오류 발생:', error: e, stackTrace: s);
@@ -79,9 +116,12 @@ class PicnicCachedNetworkImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final imageWidth = useScreenUtil ? width?.w.toDouble() : width?.toDouble();
-    final imageHeight =
-        useScreenUtil ? height?.h.toDouble() : height?.toDouble();
+    final imageWidth = widget.useScreenUtil
+        ? widget.width?.w.toDouble()
+        : widget.width?.toDouble();
+    final imageHeight = widget.useScreenUtil
+        ? widget.height?.h.toDouble()
+        : widget.height?.toDouble();
     final resolutionMultiplier = _getResolutionMultiplier(context);
     final urls = _getTransformedUrls(context, resolutionMultiplier);
 
@@ -91,9 +131,9 @@ class PicnicCachedNetworkImage extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          buildLoadingOverlay(),
-          ...urls.map(
-              (url) => _buildCachedNetworkImage(url, imageWidth, imageHeight)),
+          if (_loading) buildLoadingOverlay(),
+          ...urls.map((url) =>
+              _buildFirstTypeCachedNetworkImage(url, imageWidth, imageHeight)),
         ],
       ),
     );
