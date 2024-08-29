@@ -36,18 +36,27 @@ class AdState with _$AdState {
 
 @Riverpod(keepAlive: true)
 class RewardedAds extends _$RewardedAds {
-  final List<String> _adUnitIds = [
-    Platform.isAndroid
-        ? 'ca-app-pub-1539304887624918/3864525446'
-        : 'ca-app-pub-1539304887624918/9821126370',
-    Platform.isAndroid
-        ? 'ca-app-pub-1539304887624918/7505348989'
-        : 'ca-app-pub-1539304887624918/4571289807',
-  ];
+  List<String> _adUnitIds = [];
 
   @override
   AdState build() {
+    _initializeAdUnitIds();
     return AdState.initial();
+  }
+
+  void _initializeAdUnitIds() async {
+    final configService = ref.read(configServiceProvider);
+    logger.i(configService);
+    logger.i(configService.getConfig('ADMOB_IOS_AD1').toString());
+    _adUnitIds = Platform.isAndroid
+        ? [
+            (await configService.getConfig('ADMOB_ANDROID_AD1')).toString(),
+            (await configService.getConfig('ADMOB_ANDROID_AD2')).toString(),
+          ]
+        : [
+            (await configService.getConfig('ADMOB_IOS_AD1')).toString(),
+            (await configService.getConfig('ADMOB_IOS_AD2')).toString(),
+          ];
   }
 
   void _handleAdResult(AdResult result, BuildContext context) async {
@@ -124,6 +133,7 @@ class RewardedAds extends _$RewardedAds {
 
     _updateAdState(index, isLoading: true, ad: null);
 
+    logger.i('_adUnitIds: $_adUnitIds');
     try {
       await RewardedAd.load(
         adUnitId: _adUnitIds[index],
@@ -211,7 +221,7 @@ class RewardedAds extends _$RewardedAds {
   }
 
   void _scheduleRetry(int index) {
-    logger.i('scheduleRetry: $index');
+    // logger.i('scheduleRetry: $index');
     Future.delayed(const Duration(seconds: 5), () => loadAd(index));
   }
 

@@ -8,6 +8,11 @@ const secretKey = "c0bb7b4bcedf4db314aa7d0bbba4d4a784877bae45d89439ed83549798ccc
 function base64UrlToBase64(base64Url) {
   return base64Url.replace(/-/g, '+').replace(/_/g, '/').padEnd(base64Url.length + (4 - base64Url.length % 4) % 4, '=');
 }
+
+// admob 추가시 테스트 데이터
+// 7ae352a2-74af-4d4d-90a5-cdd9d8c8310d
+// {"reward_amount":1, "reward_type":"free_charge_station"}
+
 function safeAtob(base64) {
   try {
     return Uint8Array.from(atob(base64), (c)=>c.charCodeAt(0));
@@ -91,6 +96,7 @@ function extractParameters(url) {
   };
 }
 function validateParameters(params) {
+  console.log(params);
   const { user_id, reward_amount, reward_type, ad_network, transaction_id, signature, key_id } = params;
   if (!user_id || !reward_amount || !reward_type || !ad_network || !transaction_id || !signature || !key_id) {
     console.error('Invalid request parameters', params);
