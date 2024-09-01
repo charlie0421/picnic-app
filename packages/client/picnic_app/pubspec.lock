@@ -1034,6 +1034,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.2"
+  gma_mediation_unity:
+    dependency: "direct main"
+    description:
+      name: gma_mediation_unity
+      sha256: "53989b6fffc4e424f83b5a9d521ca546e612d9fce24767f321676376e48dbe5b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   google_identity_services_web:
     dependency: transitive
     description:
