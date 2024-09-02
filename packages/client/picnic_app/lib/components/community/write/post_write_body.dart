@@ -449,11 +449,6 @@ class _PostWriteBodyState extends State<PostWriteBody> {
                         uploadProgress: _uploadProgress['local-image'] ?? 0.0,
                       ),
                       NetworkImageEmbedBuilder(),
-                      LocalVideoEmbedBuilder(
-                        isUploading: _uploadProgress.containsKey('local-video'),
-                        uploadProgress: _uploadProgress['local-video'] ?? 0.0,
-                      ),
-                      NetworkVideoEmbedBuilder(),
                     ],
                   ),
                 ),
