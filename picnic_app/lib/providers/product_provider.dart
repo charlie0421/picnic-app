@@ -25,6 +25,8 @@ class ServerProducts extends _$ServerProducts {
           .gt('end_at', 'now()')
           .order('price', ascending: true);
 
+      logger.i('Server products: $response');
+
       final List<Map<String, dynamic>> products =
           List<Map<String, dynamic>>.from(response);
 

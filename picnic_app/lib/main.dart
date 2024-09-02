@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:gma_mediation_unity/gma_mediation_unity.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:picnic_app/app.dart';
@@ -120,6 +121,10 @@ Future<void> requestAppTrackingTransparency() async {
   if (trackingStatus == TrackingStatus.notDetermined) {
     await AppTrackingTransparency.requestTrackingAuthorization();
   }
+
+  final gmaMediationUnity = GmaMediationUnity();
+  gmaMediationUnity.setGDPRConsent(true);
+  gmaMediationUnity.setCCPAConsent(true);
 
   // 권한 상태와 관계없이 항상 광고 초기화
   if (trackingStatus == TrackingStatus.authorized) {
