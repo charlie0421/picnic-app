@@ -210,6 +210,14 @@ async function grantReward(userId, productId, transactionId) {
         star_candy: 5000,
         star_candy_bonus: 1000
       },
+      'star7000': {
+        star_candy: 7000,
+        star_candy_bonus: 1500
+      },
+      'star10000': {
+        star_candy: 10000,
+        star_candy_bonus: 2100
+      },
       'STAR100': {
         star_candy: 100,
         star_candy_bonus: 0
@@ -241,6 +249,14 @@ async function grantReward(userId, productId, transactionId) {
       'STAR5000': {
         star_candy: 5000,
         star_candy_bonus: 1000
+      },
+      'STAR7000': {
+        star_candy: 7000,
+        star_candy_bonus: 1500
+      },
+      'STAR10000': {
+        star_candy: 10000,
+        star_candy_bonus: 2100
       }
     };
     const reward = rewardMap[productId];
