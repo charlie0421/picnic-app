@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -25,9 +24,7 @@ class VoteCardColumnVertical extends StatelessWidget {
   Widget build(
     BuildContext context,
   ) {
-    final width = kIsWeb
-        ? webDesignSize.width / 4.5
-        : MediaQuery.of(context).size.width / 5.5;
+    final width = kIsWeb ? 70.0 : MediaQuery.of(context).size.width / 5.5;
     final barHeight = (rank == 1
         ? 220 * .65
         : rank == 2

@@ -252,40 +252,46 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8).r,
                         ),
-                        child: Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8).r,
-                              child: PicnicCachedNetworkImage(
-                                  imageUrl: data[index].thumbnail ?? '',
-                                  width: 120,
-                                  height: 100,
-                                  useScreenUtil: true,
-                                  fit: BoxFit.cover),
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              child: Container(
-                                width: 120.w,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.only(
-                                      bottomLeft: const Radius.circular(8).r,
-                                      bottomRight: const Radius.circular(8).r),
-                                  color: Colors.black.withOpacity(0.5),
-                                ),
-                                alignment: Alignment.center,
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 4, horizontal: 8.w),
-                                child: Text(
-                                  title,
-                                  style: getTextStyle(
-                                          AppTypo.body14R, Colors.white)
-                                      .copyWith(
-                                          overflow: TextOverflow.ellipsis),
-                                ),
+                        child: SizedBox(
+                          width: 120.w,
+                          height: 100,
+                          child: Stack(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8).r,
+                                child: PicnicCachedNetworkImage(
+                                    imageUrl: data[index].thumbnail ?? '',
+                                    width: 120,
+                                    height: 100,
+                                    useScreenUtil: true,
+                                    fit: BoxFit.fitWidth),
                               ),
-                            )
-                          ],
+                              Positioned(
+                                bottom: 0,
+                                child: Container(
+                                  width: 120.w,
+                                  height: 30,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.only(
+                                        bottomLeft: const Radius.circular(8).r,
+                                        bottomRight:
+                                            const Radius.circular(8).r),
+                                    color: Colors.black.withOpacity(0.5),
+                                  ),
+                                  alignment: Alignment.center,
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 4, horizontal: 8.w),
+                                  child: Text(
+                                    title,
+                                    style: getTextStyle(
+                                            AppTypo.body14R, Colors.white)
+                                        .copyWith(
+                                            overflow: TextOverflow.ellipsis),
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
                         ),
                       ),
                     );

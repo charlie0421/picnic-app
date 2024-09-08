@@ -51,7 +51,7 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
                               getLocaleTextFromJson(data[index].image) ?? '',
                           width: width.toInt(),
                           height: (width / 2).toInt(),
-                          fit: BoxFit.fitWidth),
+                          fit: BoxFit.fitHeight),
                     ),
                     if (title.isNotEmpty)
                       Positioned(
