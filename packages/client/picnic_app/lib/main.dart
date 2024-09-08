@@ -30,9 +30,11 @@ void main() async {
   const String environment =
       String.fromEnvironment('ENVIRONMENT', defaultValue: 'prod');
   await Environment.initConfig(environment);
-  await WebPSupportChecker.instance.initialize();
 
-  logger.i('WebP support: ${WebPSupportChecker.instance.supportsWebP}');
+  if (isMobile()) {
+    await WebPSupportChecker.instance.initialize();
+    logger.i('WebP support: ${WebPSupportChecker.instance.supportsWebP}');
+  }
 
   final customHttpClient = RetryHttpClient(http.Client());
   await Supabase.initialize(
@@ -48,20 +50,21 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  if (!kDebugMode) {
-    FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
-  } else {
-    FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
+  if (!kIsWeb && (isMobile() || isDesktop())) {
+    if (!kDebugMode) {
+      FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+    } else {
+      FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
+    }
+    FlutterError.onError = (errorDetails) {
+      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+    };
+    // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
   }
-  FlutterError.onError = (errorDetails) {
-    FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
-  };
-
-  // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
-  PlatformDispatcher.instance.onError = (error, stack) {
-    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-    return true;
-  };
   logStorageData();
   final authService = AuthService();
   final isSessionRecovered = await authService.recoverSession();
@@ -101,7 +104,9 @@ void main() async {
         ProviderScope(observers: [LoggingObserver()], child: const App())),
   );
 
-  requestAppTrackingTransparency();
+  if (isMobile()) {
+    requestAppTrackingTransparency();
+  }
 }
 
 void logStorageData() async {
