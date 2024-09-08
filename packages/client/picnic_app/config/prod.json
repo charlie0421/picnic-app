@@ -17,5 +17,7 @@
   "AWS_SECRET_ACCESS_KEY": "GlTo4d6v2Z3Ei+irPXLuFjJIo/4NPcIYLew6bJXi",
   "AWS_REGION": "ap-northeast-2",
   "AWS_S3_BUCKET": "picnic-prod-cdn",
-  "AWS_S3_BUCKET_URL": "https://picnic-fan.s3.ap-northeast-2.amazonaws.com"
+  "AWS_S3_BUCKET_URL": "https://picnic-fan.s3.ap-northeast-2.amazonaws.com",
+  "UNITY_APPLE_GAME_ID": "5688277",
+  "UNITY_GOOGLE_GAME_ID": "5688276"
 }

@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:another_flutter_splash_screen/another_flutter_splash_screen.dart';
 import 'package:app_links/app_links.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -85,7 +87,7 @@ class _AppState extends ConsumerState<App> {
       logger.i('User: ${data.session}');
       final session = data.session;
       if (session != null) {
-        logger.d('jwtToken: ${session.accessToken}');
+        developer.log('jwtToken: ${session.accessToken}');
       }
 
       if (data.event == AuthChangeEvent.signedIn) {
