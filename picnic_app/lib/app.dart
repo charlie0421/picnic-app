@@ -62,8 +62,11 @@ class _AppState extends ConsumerState<App> {
     });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref.read(appSettingProvider.notifier).loadSettings();
-      ref.read(rewardedAdsProvider.notifier).loadAd(0);
-      ref.read(rewardedAdsProvider.notifier).loadAd(1);
+
+      if (!kIsWeb) {
+        ref.read(rewardedAdsProvider.notifier).loadAd(0);
+        ref.read(rewardedAdsProvider.notifier).loadAd(1);
+      }
     });
 
     Future.microtask(() {

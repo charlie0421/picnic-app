@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/vote/store/free_charge_station/free_charge_station.dart';
@@ -41,13 +42,13 @@ class _StorePageState extends ConsumerState<StorePage>
           indicatorWeight: 3,
           tabs: [
             Tab(text: S.of(context).label_tab_buy_star_candy),
-            Tab(text: S.of(context).label_tab_free_charge_station),
+            if (!kIsWeb) Tab(text: S.of(context).label_tab_free_charge_station),
           ],
         ),
         Expanded(
             child: TabBarView(controller: _tabController, children: const [
           PurchaseStarCandy(),
-          FreeChargeStation(),
+          if (!kIsWeb) FreeChargeStation(),
         ])),
       ],
     );
