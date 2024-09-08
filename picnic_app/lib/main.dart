@@ -153,6 +153,10 @@ Future<void> requestAppTrackingTransparency() async {
       logger.e('UnityAds: $error, $message');
     },
   );
+  UnityAds.setPrivacyConsent(PrivacyConsentType.ageGate, true);
+  UnityAds.setPrivacyConsent(PrivacyConsentType.ccpa, true);
+  UnityAds.setPrivacyConsent(PrivacyConsentType.gdpr, true);
+  UnityAds.setPrivacyConsent(PrivacyConsentType.pipl, true);
 }
 
 Future<void> initializeWidgetsAndDeviceOrientation(
