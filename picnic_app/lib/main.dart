@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:gma_mediation_unity/gma_mediation_unity.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:picnic_app/app.dart';
@@ -23,6 +22,7 @@ import 'package:picnic_app/util/webp_support_checker.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -127,10 +127,6 @@ Future<void> requestAppTrackingTransparency() async {
     await AppTrackingTransparency.requestTrackingAuthorization();
   }
 
-  final gmaMediationUnity = GmaMediationUnity();
-  gmaMediationUnity.setGDPRConsent(true);
-  gmaMediationUnity.setCCPAConsent(true);
-
   // 권한 상태와 관계없이 항상 광고 초기화
   if (trackingStatus == TrackingStatus.authorized) {
     // IDFA 접근 권한이 부여된 경우 AdMob 초기화
@@ -146,6 +142,17 @@ Future<void> requestAppTrackingTransparency() async {
     );
     await MobileAds.instance.initialize();
   }
+  logger.i('AppTrackingTransparency: $trackingStatus');
+  await UnityAds.init(
+    gameId:
+        isIOS() ? Environment.unityAppleGameId : Environment.unityAndroidGameId,
+    onComplete: (placementId, state) {
+      logger.i('UnityAds: $placementId, $state');
+    },
+    onFailed: (error, message) {
+      logger.e('UnityAds: $error, $message');
+    },
+  );
 }
 
 Future<void> initializeWidgetsAndDeviceOrientation(

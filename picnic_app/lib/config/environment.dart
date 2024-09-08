@@ -38,4 +38,8 @@ class Environment {
   static String get awsRegion => _config['AWS_REGION'] as String;
   static String get awsBucket => _config['AWS_S3_BUCKET'] as String;
   static String get awsS3Url => _config['AWS_S3_BUCKET_URL'] as String;
+  static String get unityAppleGameId =>
+      _config['UNITY_APPLE_GAME_ID'] as String;
+  static String get unityAndroidGameId =>
+      _config['UNITY_ANDROID_GAME_ID'] as String;
 }
