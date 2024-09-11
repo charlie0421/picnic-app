@@ -60,7 +60,7 @@ class DefaultAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 36.w,
+      width: 36,
       height: 36,
       padding: const EdgeInsets.all(6).r,
       decoration: BoxDecoration(
@@ -69,7 +69,7 @@ class DefaultAvatar extends StatelessWidget {
       ),
       child: SvgPicture.asset(
         'assets/icons/header/default_avatar.svg',
-        width: 24.w,
+        width: 24,
         height: 24,
         colorFilter: const ColorFilter.mode(
           AppColors.grey00,

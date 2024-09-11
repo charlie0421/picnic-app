@@ -1,12 +1,10 @@
 import 'package:card_swiper/card_swiper.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/common/custom_pagination.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/error.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/banner_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
@@ -28,8 +26,7 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
   Widget build(BuildContext context) {
     final asyncBannerListState =
         ref.watch(asyncBannerListProvider(location: widget.location));
-    final width =
-        kIsWeb ? webDesignSize.width : MediaQuery.of(context).size.width;
+    final width = MediaQuery.of(context).size.width;
     return asyncBannerListState.when(
       data: (data) => Column(
         mainAxisSize: MainAxisSize.min,

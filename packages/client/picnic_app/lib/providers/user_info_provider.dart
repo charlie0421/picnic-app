@@ -107,12 +107,14 @@ class UserInfo extends _$UserInfo {
         final userProfile = UserProfilesModel.fromJson(response);
         state = AsyncValue.data(userProfile);
 
-        if (kDebugMode || userProfile.is_admin == true) {
-          logger.i('Disabling screenshot prevention');
-          ScreenProtector.preventScreenshotOff();
-        } else {
-          logger.i('Enabling screenshot prevention');
-          ScreenProtector.preventScreenshotOn();
+        if (!kIsWeb) {
+          if (kDebugMode || userProfile.is_admin == true) {
+            logger.i('Disabling screenshot prevention');
+            ScreenProtector.preventScreenshotOff();
+          } else {
+            logger.i('Enabling screenshot prevention');
+            ScreenProtector.preventScreenshotOn();
+          }
         }
 
         return userProfile;

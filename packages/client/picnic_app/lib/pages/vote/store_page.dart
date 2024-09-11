@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/vote/store/free_charge_station/free_charge_station.dart';
 import 'package:picnic_app/components/vote/store/purchase/purchase_star_candy.dart';
+import 'package:picnic_app/components/vote/store/purchase/purchase_star_candy_web.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 
@@ -35,22 +36,26 @@ class _StorePageState extends ConsumerState<StorePage>
   }
 
   Widget _buildTabBar() {
-    return Column(
-      children: [
-        TabBar(
-          controller: _tabController,
-          indicatorWeight: 3,
-          tabs: [
-            Tab(text: S.of(context).label_tab_buy_star_candy),
-            if (!kIsWeb) Tab(text: S.of(context).label_tab_free_charge_station),
-          ],
-        ),
-        Expanded(
-            child: TabBarView(controller: _tabController, children: const [
-          PurchaseStarCandy(),
-          if (!kIsWeb) FreeChargeStation(),
-        ])),
-      ],
-    );
+    return kIsWeb
+        ? PurchaseStarCandyWeb()
+        : Column(
+            children: [
+              TabBar(
+                controller: _tabController,
+                indicatorWeight: 3,
+                tabs: [
+                  Tab(text: S.of(context).label_tab_buy_star_candy),
+                  if (!kIsWeb)
+                    Tab(text: S.of(context).label_tab_free_charge_station),
+                ],
+              ),
+              Expanded(
+                  child:
+                      TabBarView(controller: _tabController, children: const [
+                PurchaseStarCandy(),
+                FreeChargeStation(),
+              ])),
+            ],
+          );
   }
 }
