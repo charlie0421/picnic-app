@@ -56,28 +56,54 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(navigationInfoProvider.notifier)
-          .settingNavigation(showPortal: false, showBottomNavigation: false);
-    });
+    _initializeControllers();
+    _setupListeners();
+    _setupUpdateTimer();
 
+    ref.listenManual(navigationInfoProvider, (previous, next) {
+      if (mounted) {
+        ref
+            .read(navigationInfoProvider.notifier)
+            .settingNavigation(showPortal: false, showBottomNavigation: false);
+      }
+    });
+  }
+
+  void _initializeControllers() {
     _scrollController = ScrollController();
     _textEditingController = TextEditingController();
     _focusNode = FocusNode();
+  }
 
+  void _setupListeners() {
     _focusNode.addListener(_onFocusChange);
     _textEditingController.addListener(_onSearchQueryChange);
 
     _searchSubject
         .debounceTime(const Duration(milliseconds: 300))
         .listen((query) {
-      ref.read(searchQueryProvider.notifier).state = query;
+      if (mounted) {
+        ref.read(searchQueryProvider.notifier).state = query;
+      }
     });
+  }
 
+  void _setupUpdateTimer() {
     _updateTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      ref.refresh(asyncVoteItemListProvider(voteId: widget.voteId));
+      if (mounted) {
+        ref.refresh(asyncVoteItemListProvider(voteId: widget.voteId));
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _focusNode.dispose();
+    _textEditingController.dispose();
+    _searchSubject.close();
+    _updateTimer?.cancel();
+    super.dispose();
   }
 
   void _onFocusChange() {
@@ -104,15 +130,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,
     );
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    _focusNode.dispose();
-    _textEditingController.dispose();
-    _searchSubject.close();
-    super.dispose();
   }
 
   List<int> _getFilteredIndices(List<dynamic> args) {

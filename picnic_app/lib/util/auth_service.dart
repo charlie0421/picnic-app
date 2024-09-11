@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -13,6 +14,7 @@ import 'package:picnic_app/util/network.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as Supabase;
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:universal_html/html.dart' as html;
 
 abstract class SocialLogin {
   Future<SocialLoginResult> login();
@@ -163,9 +165,13 @@ class KakaoLogin implements SocialLogin {
 
 class AuthService {
   final Map<Supabase.OAuthProvider, SocialLogin> _loginProviders = {
-    Supabase.OAuthProvider.google: GoogleLogin(GoogleSignIn(
-        clientId: Environment.googleClientId,
-        serverClientId: Environment.googleServerClientId)),
+    Supabase.OAuthProvider.google: kIsWeb
+        ? GoogleLogin(GoogleSignIn(
+            clientId: Environment.googleClientId,
+          ))
+        : GoogleLogin(GoogleSignIn(
+            clientId: Environment.googleClientId,
+            serverClientId: Environment.googleServerClientId)),
     Supabase.OAuthProvider.apple: AppleLogin(),
     Supabase.OAuthProvider.kakao: KakaoLogin(),
   };
@@ -178,23 +184,42 @@ class AuthService {
         throw Exception('Unsupported provider');
       }
 
-      final result = await socialLogin.login();
-      if (result.idToken == null) {
-        throw Exception('Failed to get ID token');
-      }
+      if (kIsWeb) {
+        final redirectTo =
+            '${html.window.location.protocol}//${html.window.location.host}/auth/callback';
 
-      logger.i('idToken ${result.idToken}');
-      final response = await supabase.auth.signInWithIdToken(
-        provider: provider,
-        idToken: result.idToken!,
-      );
+        final success = await supabase.auth.signInWithOAuth(
+          provider,
+          redirectTo: redirectTo,
+          authScreenLaunchMode: LaunchMode.platformDefault,
+        );
 
-      if (response.user != null) {
-        await _storeSession(response.session!, provider, result.idToken!);
-
-        return response.user;
+        if (success) {
+          // The signInWithOAuth method handles the redirect internally for web
+          // We don't need to manually redirect
+          return supabase.auth.currentUser;
+        } else {
+          throw Exception('OAuth sign-in failed');
+        }
       } else {
-        logger.e('Supabase login failed');
+        final result = await socialLogin.login();
+        if (result.idToken == null) {
+          throw Exception('Failed to get ID token');
+        }
+
+        logger.i('idToken ${result.idToken}');
+        final response = await supabase.auth.signInWithIdToken(
+          provider: provider,
+          idToken: result.idToken!,
+        );
+
+        if (response.user != null) {
+          await _storeSession(response.session!, provider, result.idToken!);
+
+          return response.user;
+        } else {
+          logger.e('Supabase login failed');
+        }
       }
     } catch (e) {
       logger.e('Error during sign in: $e');

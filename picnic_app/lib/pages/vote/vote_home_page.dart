@@ -87,7 +87,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
             .setCurrentPage(const VoteListPage(), showTopMenu: false);
       },
       child: Container(
-        padding: EdgeInsets.only(left: 16.w),
+        padding: EdgeInsets.only(left: 16),
         alignment: Alignment.centerLeft,
         child: Row(
           children: [
@@ -137,19 +137,19 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                   shrinkWrap: true,
                   itemCount: 5,
                   itemBuilder: (context, index) => Container(
-                        height: 100,
+                        height: 120,
                         padding: EdgeInsets.all(16.r),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              width: 200.w,
+                              width: 200,
                               height: 20,
                               color: Colors.white,
                             ),
                             const SizedBox(height: 8),
                             Container(
-                              width: 100.w,
+                              width: 100,
                               height: 16,
                               color: Colors.white,
                             ),
@@ -248,12 +248,12 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                         showRewardDialog(context, data[index]);
                       },
                       child: Container(
-                        margin: EdgeInsets.only(right: 16.w),
+                        margin: EdgeInsets.only(right: 16),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8).r,
                         ),
                         child: SizedBox(
-                          width: 120.w,
+                          width: 120,
                           height: 100,
                           child: Stack(
                             children: [
@@ -269,7 +269,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                               Positioned(
                                 bottom: 0,
                                 child: Container(
-                                  width: 120.w,
+                                  width: 120,
                                   height: 30,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.only(
@@ -280,7 +280,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                                   ),
                                   alignment: Alignment.center,
                                   padding: EdgeInsets.symmetric(
-                                      vertical: 4, horizontal: 8.w),
+                                      vertical: 4, horizontal: 8),
                                   child: Text(
                                     title,
                                     style: getTextStyle(
@@ -307,7 +307,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                     scrollDirection: Axis.horizontal,
                     itemCount: 5,
                     itemBuilder: (BuildContext context, int index) => Container(
-                      width: 120.w,
+                      width: 120,
                       height: 100,
                       margin: EdgeInsets.only(
                           left: 16.w, right: index == 4 ? 16.w : 0),

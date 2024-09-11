@@ -71,10 +71,12 @@ class _AppState extends ConsumerState<App> {
       }
     });
 
-    Future.microtask(() {
-      ref.read(serverProductsProvider);
-      ref.read(storeProductsProvider);
-    });
+    if (!kIsWeb) {
+      Future.microtask(() {
+        ref.read(serverProductsProvider);
+        ref.read(storeProductsProvider);
+      });
+    }
 
     _setupSupabaseAuthListener();
     _setupAppLinksListener();
@@ -82,7 +84,9 @@ class _AppState extends ConsumerState<App> {
 
   void _setupSupabaseAuthListener() {
     supabase.auth.onAuthStateChange.listen((data) async {
-      FirebaseCrashlytics.instance.log('Auth state changed: ${data.event}');
+      if (!kIsWeb) {
+        FirebaseCrashlytics.instance.log('Auth state changed: ${data.event}');
+      }
       logger.i('Auth state changed: ${data.event}');
       logger.i('User: ${data.session}');
       final session = data.session;
@@ -123,7 +127,9 @@ class _AppState extends ConsumerState<App> {
 
   @override
   void dispose() {
-    ScreenProtector.preventScreenshotOff();
+    if (!kIsWeb) {
+      ScreenProtector.preventScreenshotOff();
+    }
     super.dispose();
   }
 
@@ -139,7 +145,7 @@ class _AppState extends ConsumerState<App> {
 
             _updateScreenProtector(isScreenProtector);
 
-            return MaterialApp(
+            Widget app = MaterialApp(
               navigatorKey: navigatorKey,
               title: 'Picnic',
               theme: _getCurrentTheme(ref),
@@ -158,6 +164,18 @@ class _AppState extends ConsumerState<App> {
                   UpdateDialog(child: child ?? const SizedBox.shrink()),
               home: _buildHomeScreen(),
             );
+
+            if (kIsWeb) {
+              app = ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: webDesignSize.width),
+                child: app,
+              );
+            }
+
+            return MediaQuery(
+              data: MediaQuery.of(context).copyWith(size: webDesignSize),
+              child: app,
+            );
           },
         ),
       ),
@@ -165,10 +183,12 @@ class _AppState extends ConsumerState<App> {
   }
 
   void _updateScreenProtector(bool isScreenProtector) {
-    if (isScreenProtector) {
-      ScreenProtector.preventScreenshotOn();
-    } else {
-      ScreenProtector.preventScreenshotOff();
+    if (!kIsWeb) {
+      if (isScreenProtector) {
+        ScreenProtector.preventScreenshotOn();
+      } else {
+        ScreenProtector.preventScreenshotOff();
+      }
     }
   }
 

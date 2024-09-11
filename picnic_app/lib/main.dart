@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -13,6 +15,7 @@ import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/firebase_options.dart';
 import 'package:picnic_app/main.reflectable.dart';
+import 'package:picnic_app/storage/supabase_pkce_async_storage.dart';
 import 'package:picnic_app/util/auth_service.dart';
 import 'package:picnic_app/util/logging_observer.dart';
 import 'package:picnic_app/util/network.dart';
@@ -25,88 +28,95 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 
 void main() async {
-  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  await runZonedGuarded(() async {
+    BindingBase.debugZoneErrorsAreFatal = true;
 
-  const String environment =
-      String.fromEnvironment('ENVIRONMENT', defaultValue: 'prod');
-  await Environment.initConfig(environment);
+    WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
 
-  if (isMobile()) {
-    await WebPSupportChecker.instance.initialize();
-    logger.i('WebP support: ${WebPSupportChecker.instance.supportsWebP}');
-  }
+    const String environment =
+        String.fromEnvironment('ENVIRONMENT', defaultValue: 'prod');
+    await Environment.initConfig(environment);
 
-  final customHttpClient = RetryHttpClient(http.Client());
-  await Supabase.initialize(
-    url: Environment.supabaseUrl,
-    anonKey: Environment.supabaseAnonKey,
-    authOptions: const FlutterAuthClientOptions(
-        autoRefreshToken: true, detectSessionInUri: false),
-    debug: true,
-    httpClient: customHttpClient,
-  );
-
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  if (!kIsWeb && (isMobile() || isDesktop())) {
-    if (!kDebugMode) {
-      FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
-    } else {
-      FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
+    if (isMobile()) {
+      await WebPSupportChecker.instance.initialize();
+      logger.i('WebP support: ${WebPSupportChecker.instance.supportsWebP}');
     }
-    FlutterError.onError = (errorDetails) {
-      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
-    };
-    // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
-    PlatformDispatcher.instance.onError = (error, stack) {
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-      return true;
-    };
-  }
-  logStorageData();
-  final authService = AuthService();
-  final isSessionRecovered = await authService.recoverSession();
-  if (!isSessionRecovered) {
-    authService.signOut();
-  }
-  logStorageData();
 
-  final tokenRefreshManager = TokenRefreshManager(authService);
-  tokenRefreshManager.startPeriodicRefresh();
+    final customHttpClient = RetryHttpClient(http.Client());
+    await Supabase.initialize(
+      url: Environment.supabaseUrl,
+      anonKey: Environment.supabaseAnonKey,
+      authOptions: FlutterAuthClientOptions(
+          authFlowType: AuthFlowType.pkce,
+          pkceAsyncStorage: SupabasePkceAsyncStorage(),
+          autoRefreshToken: true,
+          detectSessionInUri: false),
+      debug: true,
+      httpClient: customHttpClient,
+    );
 
-  tz.initializeTimeZones();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
 
-  if (isMobile()) {
-    await initializeWidgetsAndDeviceOrientation(widgetsBinding);
-  }
-
-  initializeReflectable();
-
-  // MobileAds.instance.initialize();
-
-  await SentryFlutter.init(
-    (options) {
-      options.dsn = Environment.sentryDsn;
-      options.tracesSampleRate = 1.0;
-      options.profilesSampleRate = 1.0;
-      options.beforeSend = (event, hint) {
-        if (!Environment.enableSentry || kDebugMode) {
-          logger.i(
-              'Sentry event in local environment (not sent): ${event.eventId}');
-          return null; // null을 반환하면 이벤트가 Sentry로 전송되지 않습니다.
-        }
-        return event;
+    if (!kIsWeb && (isMobile() || isDesktop())) {
+      if (!kDebugMode) {
+        FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+      } else {
+        FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
+      }
+      FlutterError.onError = (errorDetails) {
+        FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
       };
-    },
-    appRunner: () => runApp(
-        ProviderScope(observers: [LoggingObserver()], child: const App())),
-  );
+      // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
+      PlatformDispatcher.instance.onError = (error, stack) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        return true;
+      };
+    }
+    logStorageData();
+    final authService = AuthService();
+    final isSessionRecovered = await authService.recoverSession();
+    if (!isSessionRecovered) {
+      authService.signOut();
+    }
+    logStorageData();
 
-  if (isMobile()) {
-    requestAppTrackingTransparency();
-  }
+    final tokenRefreshManager = TokenRefreshManager(authService);
+    tokenRefreshManager.startPeriodicRefresh();
+
+    tz.initializeTimeZones();
+
+    if (isMobile()) {
+      await initializeWidgetsAndDeviceOrientation(widgetsBinding);
+    }
+
+    initializeReflectable();
+
+    // MobileAds.instance.initialize();
+    if (isMobile()) {
+      // requestAppTrackingTransparency();
+    }
+
+    SentryFlutter.init(
+      (options) {
+        options.dsn = Environment.sentryDsn;
+        options.tracesSampleRate = 1.0;
+        options.profilesSampleRate = 1.0;
+        options.beforeSend = (event, hint) {
+          if (!Environment.enableSentry || kDebugMode) {
+            logger.i(
+                'Sentry event in local environment (not sent): ${event.eventId}');
+            return null; // null을 반환하면 이벤트가 Sentry로 전송되지 않습니다.
+          }
+          return event;
+        };
+      },
+    );
+    runApp(ProviderScope(observers: [LoggingObserver()], child: const App()));
+  }, (Object error, StackTrace stackTrace) {
+    Sentry.captureException(error, stackTrace: stackTrace);
+  });
 }
 
 void logStorageData() async {
@@ -114,7 +124,9 @@ void logStorageData() async {
   final storageData = await storage.readAll();
 
   storageData.forEach((key, value) {
-    FirebaseCrashlytics.instance.log('key: $key, value: $value');
+    if (!kIsWeb) {
+      FirebaseCrashlytics.instance.log('key: $key, value: $value');
+    }
     logger.i('key: $key, value: $value');
   });
 }

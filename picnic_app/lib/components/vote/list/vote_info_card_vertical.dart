@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
@@ -24,7 +23,7 @@ class VoteCardColumnVertical extends StatelessWidget {
   Widget build(
     BuildContext context,
   ) {
-    final width = kIsWeb ? 70.0 : MediaQuery.of(context).size.width / 5.5;
+    final width = 80.0;
     final barHeight = (rank == 1
         ? 220 * .65
         : rank == 2

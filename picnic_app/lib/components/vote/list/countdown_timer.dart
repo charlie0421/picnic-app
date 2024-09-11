@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -120,11 +119,11 @@ class _CountdownTimerState extends State<CountdownTimer> {
 
   Widget _buildTimeCircle(String time) {
     return Container(
-      width: 18.w,
+      width: 18,
       height: 18,
       alignment: Alignment.center,
-      padding: EdgeInsets.symmetric(horizontal: 5.w),
-      margin: EdgeInsets.symmetric(horizontal: 4.w),
+      // padding: EdgeInsets.symmetric(horizontal: 5.w),
+      margin: EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
         color: _color,
         borderRadius: BorderRadius.circular(4),

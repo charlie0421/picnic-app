@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_app/components/ui/bounce_red_dot.dart';
 import 'package:picnic_app/components/common/common_my_point_info.dart';
 import 'package:picnic_app/components/rotate_image.dart';
+import 'package:picnic_app/components/ui/bounce_red_dot.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
@@ -48,7 +48,7 @@ class _TopState extends ConsumerState<ScreenTop> {
     }
     return Container(
       height: 54,
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.w),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
