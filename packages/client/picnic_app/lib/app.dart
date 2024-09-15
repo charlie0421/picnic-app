@@ -96,7 +96,7 @@ class _AppState extends ConsumerState<App> {
       }
 
       if (data.event == AuthChangeEvent.signedIn) {
-        logger.e('User signed in');
+        logger.i('User signed in');
         await ref.read(userInfoProvider.notifier).getUserProfiles();
         ref.read(userInfoProvider.notifier).subscribeToUserProfiles();
       } else if (data.event == AuthChangeEvent.signedOut) {

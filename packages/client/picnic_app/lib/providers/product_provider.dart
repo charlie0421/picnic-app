@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'product_provider.g.dart';
 
@@ -17,7 +17,6 @@ class ServerProducts extends _$ServerProducts {
 
   Future<List<Map<String, dynamic>>> _fetchProductsFromSupabase() async {
     try {
-      final supabase = Supabase.instance.client;
       final response = await supabase
           .from('products')
           .select()
@@ -48,8 +47,8 @@ class StoreProducts extends _$StoreProducts {
     try {
       final serverProducts = await ref.watch(serverProductsProvider.future);
       return _loadProducts(serverProducts);
-    } catch (e) {
-      logger.e('Error in StoreProducts build: $e');
+    } catch (e, s) {
+      logger.e('Error in StoreProducts build: $e', stackTrace: s);
       rethrow;
     }
   }

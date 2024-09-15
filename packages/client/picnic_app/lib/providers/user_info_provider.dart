@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/config/config_service.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
-import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/auth_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:screen_protector/screen_protector.dart';
