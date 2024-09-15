@@ -6,7 +6,7 @@ part of 'vote_detail_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$asyncVoteDetailHash() => r'3595a82c94f883da292fa21985dd7d103fccd101';
+String _$asyncVoteDetailHash() => r'8ce959a32b5ec17acd3934c7dd4a2d4d8248471b';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -171,7 +171,7 @@ class _AsyncVoteDetailProviderElement
   int get voteId => (origin as AsyncVoteDetailProvider).voteId;
 }
 
-String _$asyncVoteItemListHash() => r'107b4d9963b2b86250165ab04fac526672a03176';
+String _$asyncVoteItemListHash() => r'b397f4b7a5a69d433448bea70908a532d4d0a98b';
 
 abstract class _$AsyncVoteItemList
     extends BuildlessAutoDisposeAsyncNotifier<List<VoteItemModel?>> {

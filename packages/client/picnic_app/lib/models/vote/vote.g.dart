@@ -68,6 +68,8 @@ _$VoteItemModelImpl _$$VoteItemModelImplFromJson(Map<String, dynamic> json) =>
       vote_total: (json['vote_total'] as num).toInt(),
       vote_id: (json['vote_id'] as num).toInt(),
       artist: ArtistModel.fromJson(json['artist'] as Map<String, dynamic>),
+      artist_group: ArtistGroupModel.fromJson(
+          json['artist_group'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$$VoteItemModelImplToJson(_$VoteItemModelImpl instance) =>
@@ -76,6 +78,7 @@ Map<String, dynamic> _$$VoteItemModelImplToJson(_$VoteItemModelImpl instance) =>
       'vote_total': instance.vote_total,
       'vote_id': instance.vote_id,
       'artist': instance.artist,
+      'artist_group': instance.artist_group,
     };
 
 _$ArtistModelImpl _$$ArtistModelImplFromJson(Map<String, dynamic> json) =>
@@ -112,6 +115,7 @@ _$ArtistGroupModelImpl _$$ArtistGroupModelImplFromJson(
     _$ArtistGroupModelImpl(
       id: (json['id'] as num).toInt(),
       name: json['name'] as Map<String, dynamic>,
+      image: json['image'] as String,
     );
 
 Map<String, dynamic> _$$ArtistGroupModelImplToJson(
@@ -119,4 +123,5 @@ Map<String, dynamic> _$$ArtistGroupModelImplToJson(
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
+      'image': instance.image,
     };

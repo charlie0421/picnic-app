@@ -138,15 +138,17 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     if (query.isEmpty) {
       return List<int>.generate(data.length, (index) => index);
     }
-    return List<int>.generate(data.length, (index) => index)
-        .where((index) =>
-            getLocaleTextFromJson(data[index]!.artist.name)
-                .toLowerCase()
-                .contains(query.toLowerCase()) ||
-            getLocaleTextFromJson(data[index]!.artist.artist_group.name)
-                .toLowerCase()
-                .contains(query.toLowerCase()))
-        .toList();
+
+    return List<int>.generate(data.length, (index) => index).where((index) {
+      return data[index]!.artist != 0 &&
+              getLocaleTextFromJson(data[index]!.artist!.name)
+                  .toLowerCase()
+                  .contains(query.toLowerCase()) ||
+          data[index]!.artist != 0 &&
+              getLocaleTextFromJson(data[index]!.artist_group!.name)
+                  .toLowerCase()
+                  .contains(query.toLowerCase());
+    }).toList();
   }
 
   @override
@@ -359,21 +361,30 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                     RichText(
                       overflow: TextOverflow.ellipsis,
                       text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: getLocaleTextFromJson(item.artist.name),
-                            style: getTextStyle(
-                                AppTypo.body14B, AppColors.grey900),
-                          ),
-                          const TextSpan(text: ' '),
-                          TextSpan(
-                            text: getLocaleTextFromJson(
-                                item.artist.artist_group.name),
-                            style: getTextStyle(
-                                AppTypo.caption10SB, AppColors.grey600),
-                          ),
-                        ],
-                      ),
+                          children: item.artist.id != 0
+                              ? [
+                                  TextSpan(
+                                    text: getLocaleTextFromJson(
+                                        item.artist!.name),
+                                    style: getTextStyle(
+                                        AppTypo.body14B, AppColors.grey900),
+                                  ),
+                                  const TextSpan(text: ' '),
+                                  TextSpan(
+                                    text: getLocaleTextFromJson(
+                                        item.artist!.artist_group!.name),
+                                    style: getTextStyle(
+                                        AppTypo.caption10SB, AppColors.grey600),
+                                  ),
+                                ]
+                              : [
+                                  TextSpan(
+                                    text: getLocaleTextFromJson(
+                                        item.artist_group!.name),
+                                    style: getTextStyle(
+                                        AppTypo.body14B, AppColors.grey900),
+                                  ),
+                                ]),
                     ),
                     _buildVoteCountContainer(item, voteCountDiff),
                   ],
@@ -411,8 +422,12 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(39),
         child: PicnicCachedNetworkImage(
-          key: ValueKey(item.artist.image),
-          imageUrl: item.artist.image,
+          key: ValueKey(item.artist.id != 0
+              ? item.artist.image
+              : item.artist_group.image ?? ''),
+          imageUrl: item.artist.id != 0
+              ? item.artist.image
+              : item.artist_group.image ?? '',
           fit: BoxFit.cover,
           width: 80,
           height: 80,

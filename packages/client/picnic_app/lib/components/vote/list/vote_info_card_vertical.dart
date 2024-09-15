@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -23,6 +24,8 @@ class VoteCardColumnVertical extends StatelessWidget {
   Widget build(
     BuildContext context,
   ) {
+    logger.i('voteItem: $voteItem');
+
     final width = 80.0;
     final barHeight = (rank == 1
         ? 220 * .65
@@ -87,7 +90,9 @@ class VoteCardColumnVertical extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(100),
                   child: PicnicCachedNetworkImage(
-                      imageUrl: voteItem.artist.image,
+                      imageUrl: voteItem.artist.id != 0
+                          ? voteItem.artist.image
+                          : voteItem.artist_group.image,
                       useScreenUtil: true,
                       width: 100,
                       height: 100),
@@ -103,24 +108,39 @@ class VoteCardColumnVertical extends StatelessWidget {
             child: SizedBox(
               width: width,
               child: Column(
-                children: [
-                  Text(
-                    getLocaleTextFromJson(voteItem.artist.name),
-                    style: getTextStyle(
-                      AppTypo.body14B,
-                      AppColors.grey900,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  Text(
-                    getLocaleTextFromJson(voteItem.artist.artist_group.name),
-                    style: getTextStyle(
-                      AppTypo.caption10SB,
-                      AppColors.grey00,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+                children: voteItem.artist.id != 0
+                    ? [
+                        Text(
+                          getLocaleTextFromJson(voteItem.artist!.name),
+                          style: getTextStyle(
+                            AppTypo.body14B,
+                            AppColors.grey900,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        Text(
+                          getLocaleTextFromJson(
+                              voteItem.artist!.artist_group!.name),
+                          style: getTextStyle(
+                            AppTypo.caption10SB,
+                            AppColors.grey00,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ]
+                    : voteItem.artist_group.id != 0
+                        ? [
+                            Text(
+                              getLocaleTextFromJson(
+                                  voteItem.artist_group!.name),
+                              style: getTextStyle(
+                                AppTypo.body14B,
+                                AppColors.grey900,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ]
+                        : [],
               ),
             ),
           ),

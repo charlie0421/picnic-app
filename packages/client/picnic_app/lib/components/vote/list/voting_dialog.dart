@@ -136,7 +136,9 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(120),
             child: PicnicCachedNetworkImage(
-              imageUrl: widget.voteItemModel.artist.image,
+              imageUrl: widget.voteItemModel.artist.id != 0
+                  ? widget.voteItemModel.artist.image
+                  : widget.voteItemModel.artist_group.image,
               width: 100,
               height: 100,
               useScreenUtil: false,
@@ -150,18 +152,21 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                getLocaleTextFromJson(widget.voteItemModel.artist.name),
+                getLocaleTextFromJson(widget.voteItemModel.artist.id != 0
+                    ? widget.voteItemModel.artist!.name
+                    : widget.voteItemModel.artist_group!.name),
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               ),
               SizedBox(width: 8.w),
-              Align(
-                alignment: Alignment.center,
-                child: Text(
-                  getLocaleTextFromJson(
-                      widget.voteItemModel.artist.artist_group.name),
-                  style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
+              if (widget.voteItemModel.artist != 0)
+                Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    getLocaleTextFromJson(
+                        widget.voteItemModel.artist!.artist_group!.name),
+                    style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
+                  ),
                 ),
-              ),
             ],
           ),
         ),
