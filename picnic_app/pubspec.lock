@@ -138,10 +138,10 @@ packages:
     dependency: transitive
     description:
       name: asn1lib
-      sha256: "58082b3f0dca697204dbab0ef9ff208bfaea7767ea771076af9a343488428dda"
+      sha256: "2ca377ad4d677bbadca278e0ba4da4e057b80a10b927bfc8f7d8bda8fe2ceb75"
       url: "https://pub.dev"
     source: hosted
-    version: "1.5.3"
+    version: "1.5.4"
   async:
     dependency: transitive
     description:
@@ -407,7 +407,7 @@ packages:
     source: hosted
     version: "0.3.4+2"
   crypto:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: crypto
       sha256: ec30d999af904f33454ba22ed9a86162b35e52b44ac4807d1d93c288041d7d27
@@ -450,18 +450,18 @@ packages:
     dependency: transitive
     description:
       name: dart_quill_delta
-      sha256: e001f64695c0830551f4ff5729625599d5e338fd5b3f4db42109d0ca37fc1252
+      sha256: a2a368bf39de9d6b981088298ac11d3dd333f488d93604835f4381798b54556d
       url: "https://pub.dev"
     source: hosted
-    version: "10.5.9"
+    version: "10.5.18"
   dart_style:
     dependency: transitive
     description:
       name: dart_style
-      sha256: "99e066ce75c89d6b29903d788a7bb9369cf754f7b24bf70bf4b6d6d6b26853b9"
+      sha256: "7856d364b589d1f08986e140938578ed36ed948581fbc3bc9aef1805039ac5ab"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.6"
+    version: "2.3.7"
   dbus:
     dependency: transitive
     description:
@@ -478,22 +478,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
-  device_info_plus:
-    dependency: transitive
-    description:
-      name: device_info_plus
-      sha256: a7fd703482b391a87d60b6061d04dfdeab07826b96f9abd8f5ed98068acc0074
-      url: "https://pub.dev"
-    source: hosted
-    version: "10.1.2"
-  device_info_plus_platform_interface:
-    dependency: transitive
-    description:
-      name: device_info_plus_platform_interface
-      sha256: "282d3cf731045a2feb66abfe61bbc40870ae50a3ed10a4d3d217556c35c8c2ba"
-      url: "https://pub.dev"
-    source: hosted
-    version: "7.0.1"
   diff_match_patch:
     dependency: transitive
     description:
@@ -852,10 +836,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_quill
-      sha256: "3d47d5e8d838c9d2fb54654df3bb0bd5f2e10e2d1329909401d797757c0f1b51"
+      sha256: "2349c8d32e01f2cb6e33e3b36022eebc66f010b7b830ae9cbe8f47e697a6e67d"
       url: "https://pub.dev"
     source: hosted
-    version: "10.5.9"
+    version: "10.5.17"
   flutter_quill_delta_from_html:
     dependency: transitive
     description:
@@ -1067,7 +1051,7 @@ packages:
     source: hosted
     version: "2.4.5"
   google_sign_in_web:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: google_sign_in_web
       sha256: "042805a21127a85b0dc46bba98a37926f17d2439720e8a459d27045d8ef68055"
@@ -1694,10 +1678,10 @@ packages:
     dependency: transitive
     description:
       name: permission_handler_platform_interface
-      sha256: fe0ffe274d665be8e34f9c59705441a7d248edebbe5d9e3ec2665f88b79358ea
+      sha256: e9c8eadee926c4532d0305dff94b85bf961f16759c3af791486613152af4b4f9
       url: "https://pub.dev"
     source: hosted
-    version: "4.2.2"
+    version: "4.2.3"
   permission_handler_windows:
     dependency: transitive
     description:
@@ -1778,6 +1762,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.0"
+  quill_native_bridge:
+    dependency: transitive
+    description:
+      name: quill_native_bridge
+      sha256: "1588ce085778367244e9bc8b08dd25a095982fb5718eb5df69c8640e6689f645"
+      url: "https://pub.dev"
+    source: hosted
+    version: "10.5.18"
   quiver:
     dependency: transitive
     description:
@@ -2279,6 +2271,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.2"
+  url_strategy:
+    dependency: "direct main"
+    description:
+      name: url_strategy
+      sha256: "6eff69fa0900b731a23552b38b54389f399d247dbb0998f2cbdf25bef6790a7c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0"
   uuid:
     dependency: transitive
     description:
@@ -2415,14 +2415,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.5.4"
-  win32_registry:
-    dependency: transitive
-    description:
-      name: win32_registry
-      sha256: "723b7f851e5724c55409bb3d5a32b203b3afe8587eaf5dafb93a5fed8ecda0d6"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.4"
   xdg_directories:
     dependency: transitive
     description:
@@ -2480,5 +2472,5 @@ packages:
     source: hosted
     version: "3.0.2"
 sdks:
-  dart: ">=3.5.0 <4.0.0"
+  dart: ">=3.5.1 <4.0.0"
   flutter: ">=3.24.0"

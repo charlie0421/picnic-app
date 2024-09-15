@@ -93,6 +93,9 @@ dependencies:
   amazon_cognito_identity_dart_2: ^3.6.5
   flutter_web_auth: ^0.5.0
   universal_html: ^2.2.4
+  google_sign_in_web: ^0.12.4+2
+  url_strategy: ^0.3.0
+  crypto: ^3.0.5
 dev_dependencies:
   flutter_test:
     sdk: flutter

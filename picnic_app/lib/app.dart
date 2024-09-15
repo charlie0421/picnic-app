@@ -14,6 +14,7 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/update_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/pages/oauth_callback_page.dart';
 import 'package:picnic_app/providers/ad_providers.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -159,6 +160,21 @@ class _AppState extends ConsumerState<App> {
               ],
               supportedLocales: S.delegate.supportedLocales,
               routes: _buildRoutes(),
+              onGenerateRoute: (settings) {
+                final uri = Uri.parse(settings.name ?? '');
+                final path = uri.path;
+
+                if (path.startsWith('/auth/callback')) {
+                  logger.i('OAuth callback: $uri');
+                  return MaterialPageRoute(
+                    builder: (_) => OAuthCallbackPage(callbackUri: uri),
+                    settings: settings,
+                  );
+                }
+
+                // 정의되지 않은 라우트에 대한 처리
+                return MaterialPageRoute(builder: (_) => Portal());
+              },
               navigatorObservers: [observer],
               builder: (context, child) =>
                   UpdateDialog(child: child ?? const SizedBox.shrink()),
@@ -170,12 +186,13 @@ class _AppState extends ConsumerState<App> {
                 constraints: BoxConstraints(maxWidth: webDesignSize.width),
                 child: app,
               );
+              return MediaQuery(
+                data: MediaQuery.of(context).copyWith(size: webDesignSize),
+                child: app,
+              );
+            } else {
+              return app;
             }
-
-            return MediaQuery(
-              data: MediaQuery.of(context).copyWith(size: webDesignSize),
-              child: app,
-            );
           },
         ),
       ),
