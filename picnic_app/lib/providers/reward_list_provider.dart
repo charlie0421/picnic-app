@@ -1,5 +1,5 @@
-import 'package:picnic_app/models/reward.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/models/reward.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'reward_list_provider.g.dart';

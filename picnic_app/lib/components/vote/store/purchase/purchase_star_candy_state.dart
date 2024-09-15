@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/store/common/store_point_info.dart';
 import 'package:picnic_app/components/vote/store/common/usage_policy_dialog.dart';
 import 'package:picnic_app/components/vote/store/purchase/analytics_service.dart';
@@ -229,7 +230,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
     return serverProductsAsyncValue.when(
       loading: () => _buildShimmer(),
       error: (error, stackTrace) =>
-          Text('Error loading server products: $error'),
+          ErrorView(context, error: error, stackTrace: stackTrace),
       data: (serverProducts) {
         return storeProductsAsyncValue.when(
           loading: () => _buildShimmer(),

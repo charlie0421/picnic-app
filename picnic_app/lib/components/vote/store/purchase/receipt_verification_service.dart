@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:picnic_app/supabase_options.dart';
 
 class ReceiptVerificationService {
   static const String _sandboxEnvironment = 'sandbox';
@@ -10,8 +10,7 @@ class ReceiptVerificationService {
 
   Future<void> verifyReceipt(String receipt, String productId, String userId,
       String environment) async {
-    final response = await Supabase.instance.client.functions
-        .invoke('verify_receipt', body: {
+    final response = await supabase.functions.invoke('verify_receipt', body: {
       'receipt': receipt,
       'platform': Platform.isIOS ? 'ios' : 'android',
       'productId': productId,
