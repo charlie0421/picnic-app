@@ -1,5 +1,6 @@
 import 'package:bubble/bubble.dart';
 import 'package:card_swiper/card_swiper.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,6 +9,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/common/custom_pagination.dart';
+import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
@@ -19,6 +21,7 @@ import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/auth_service.dart';
+import 'package:picnic_app/util/auth_state_manager.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -369,13 +372,35 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         children: [
           InkWell(
             onTap: () async {
-              OverlayLoadingProgress.start(context,
-                  color: AppColors.primary500, barrierDismissible: false);
-              final user =
-                  await _authService.signInWithProvider(OAuthProvider.google);
-              OverlayLoadingProgress.stop();
-              if (user != null) {
-                _handleSuccessfulLogin(context);
+              try {
+                OverlayLoadingProgress.start(context,
+                    color: AppColors.primary500, barrierDismissible: false);
+
+                if (kIsWeb) {
+                  final result = await supabase.auth.signInWithOAuth(
+                    OAuthProvider.google,
+                    redirectTo: '${Environment.webDomain}/auth/callback',
+                    scopes: 'email profile',
+                  );
+                } else {
+                  final user = await _authService
+                      .signInWithProvider(OAuthProvider.google);
+                  OverlayLoadingProgress.stop();
+                  if (user != null) {
+                    _handleSuccessfulLogin(context);
+                  } else {
+                    throw Exception('Failed to sign in with Google');
+                  }
+                }
+              } catch (e, s) {
+                OverlayLoadingProgress.stop();
+                logger.e('Error signing in with Google: $e', stackTrace: s);
+                showSimpleDialog(
+                    title: S.of(context).error_title,
+                    content: S.of(context).error_message_login_failed,
+                    onOk: () {
+                      Navigator.of(context).pop();
+                    });
               }
             },
             child: SizedBox(
@@ -423,13 +448,26 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
       return Stack(children: [
         InkWell(
           onTap: () async {
-            OverlayLoadingProgress.start(context,
-                color: AppColors.primary500, barrierDismissible: false);
-            final user =
-                await _authService.signInWithProvider(OAuthProvider.kakao);
-            OverlayLoadingProgress.stop();
-            if (user != null) {
-              _handleSuccessfulLogin(context);
+            try {
+              OverlayLoadingProgress.start(context,
+                  color: AppColors.primary500, barrierDismissible: false);
+              if (kIsWeb) {
+                final result = await supabase.auth.signInWithOAuth(
+                  OAuthProvider.kakao,
+                  redirectTo: '${Environment.webDomain}/auth/callback',
+                  scopes: 'account_email profile_image profile_nickname',
+                );
+              } else {
+                final user =
+                    await _authService.signInWithProvider(OAuthProvider.kakao);
+                OverlayLoadingProgress.stop();
+                if (user != null) {
+                  _handleSuccessfulLogin(context);
+                }
+              }
+            } catch (e, s) {
+              OverlayLoadingProgress.stop();
+              logger.e('Error signing in with Kakao: $e', stackTrace: s);
             }
           },
           child: SizedBox(
@@ -466,5 +504,21 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
           )
       ]);
     });
+  }
+
+  Future<void> _waitForAuthStateChange(WidgetRef ref) async {
+    // Wait for a maximum of 30 seconds
+    for (int i = 0; i < 30; i++) {
+      await Future.delayed(Duration(seconds: 1));
+      final authState = ref.read(authStateProvider);
+      if (authState.isAuthenticated) {
+        // User is authenticated, navigate to home
+        // You might want to use a navigation method that works with Riverpod
+        return;
+      }
+    }
+
+    // If we get here, authentication failed or timed out
+    throw Exception('Authentication timed out');
   }
 }

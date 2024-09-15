@@ -19,5 +19,6 @@
   "AWS_S3_BUCKET": "picnic-fan",
   "AWS_S3_BUCKET_URL": "https://picnic-fan.s3.ap-northeast-2.amazonaws.com",
   "UNITY_APPLE_GAME_ID": "5688277",
-  "UNITY_GOOGLE_GAME_ID": "5688276"
+  "UNITY_GOOGLE_GAME_ID": "5688276",
+  "WEB_DOMAIN": "https://dev.picnic.fan"
 }

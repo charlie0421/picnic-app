@@ -42,4 +42,5 @@ class Environment {
       _config['UNITY_APPLE_GAME_ID'] as String;
   static String get unityAndroidGameId =>
       _config['UNITY_GOOGLE_GAME_ID'] as String;
+  static String get webDomain => _config['WEB_DOMAIN'] as String;
 }

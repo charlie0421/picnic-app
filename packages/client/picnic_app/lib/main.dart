@@ -9,23 +9,20 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:http/http.dart' as http;
 import 'package:picnic_app/app.dart';
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/firebase_options.dart';
 import 'package:picnic_app/main.reflectable.dart';
-import 'package:picnic_app/storage/supabase_pkce_async_storage.dart';
 import 'package:picnic_app/util/auth_service.dart';
 import 'package:picnic_app/util/logging_observer.dart';
-import 'package:picnic_app/util/network.dart';
 import 'package:picnic_app/util/token_refresh_manager.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:picnic_app/util/webp_support_checker.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:unity_ads_plugin/unity_ads_plugin.dart';
+import 'package:url_strategy/url_strategy.dart';
 
 void main() async {
   await runZonedGuarded(() async {
@@ -41,19 +38,6 @@ void main() async {
       await WebPSupportChecker.instance.initialize();
       logger.i('WebP support: ${WebPSupportChecker.instance.supportsWebP}');
     }
-
-    final customHttpClient = RetryHttpClient(http.Client());
-    await Supabase.initialize(
-      url: Environment.supabaseUrl,
-      anonKey: Environment.supabaseAnonKey,
-      authOptions: FlutterAuthClientOptions(
-          authFlowType: AuthFlowType.pkce,
-          pkceAsyncStorage: SupabasePkceAsyncStorage(),
-          autoRefreshToken: true,
-          detectSessionInUri: false),
-      debug: true,
-      httpClient: customHttpClient,
-    );
 
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -78,7 +62,7 @@ void main() async {
     final authService = AuthService();
     final isSessionRecovered = await authService.recoverSession();
     if (!isSessionRecovered) {
-      authService.signOut();
+      // authService.signOut();
     }
     logStorageData();
 
@@ -97,6 +81,8 @@ void main() async {
     if (isMobile()) {
       // requestAppTrackingTransparency();
     }
+
+    setPathUrlStrategy();
 
     SentryFlutter.init(
       (options) {

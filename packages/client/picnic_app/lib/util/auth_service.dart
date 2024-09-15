@@ -9,24 +9,17 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/models/common/social_login_result.dart';
+import 'package:picnic_app/storage/storage.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/network.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as Supabase;
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:universal_html/html.dart' as html;
 
 abstract class SocialLogin {
   Future<SocialLoginResult> login();
   Future<void> logout();
-}
-
-class SocialLoginResult {
-  final String? idToken;
-  final String? accessToken;
-  final Map<String, dynamic>? userData;
-
-  SocialLoginResult({this.idToken, this.accessToken, this.userData});
 }
 
 class GoogleLogin implements SocialLogin {
@@ -133,26 +126,33 @@ class KakaoLogin implements SocialLogin {
           javaScriptAppKey: Environment.kakaoJavascriptKey);
       OAuthToken? token;
 
-      if (await isKakaoTalkInstalled()) {
-        token = await _tryLogin(UserApi.instance.loginWithKakaoTalk);
-      }
+      logger.i('kIsWeb: $kIsWeb');
 
-      token ??= await _tryLogin(UserApi.instance.loginWithKakaoAccount);
-
-      if (token == null) {
+      if (kIsWeb) {
+        await supabase.auth.signInWithOAuth(OAuthProvider.kakao);
         return SocialLoginResult();
-      }
+      } else {
+        if (await isKakaoTalkInstalled()) {
+          token = await _tryLogin(UserApi.instance.loginWithKakaoTalk);
+        }
 
-      final user = await UserApi.instance.me();
-      return SocialLoginResult(
-        idToken: token.idToken,
-        accessToken: token.accessToken,
-        userData: {
-          'email': user.kakaoAccount?.email,
-          'name': user.kakaoAccount?.profile?.nickname,
-          'photoUrl': user.kakaoAccount?.profile?.profileImageUrl,
-        },
-      );
+        token ??= await _tryLogin(UserApi.instance.loginWithKakaoAccount);
+
+        if (token == null) {
+          return SocialLoginResult();
+        }
+
+        final user = await UserApi.instance.me();
+        return SocialLoginResult(
+          idToken: token.idToken,
+          accessToken: token.accessToken,
+          userData: {
+            'email': user.kakaoAccount?.email,
+            'name': user.kakaoAccount?.profile?.nickname,
+            'photoUrl': user.kakaoAccount?.profile?.profileImageUrl,
+          },
+        );
+      }
     } catch (e) {
       logger.e('login error: $e');
       return SocialLoginResult();
@@ -164,10 +164,13 @@ class KakaoLogin implements SocialLogin {
 }
 
 class AuthService {
+  final Storage _storage = kIsWeb ? WebStorage() : SecureStorage();
+
   final Map<Supabase.OAuthProvider, SocialLogin> _loginProviders = {
     Supabase.OAuthProvider.google: kIsWeb
         ? GoogleLogin(GoogleSignIn(
-            clientId: Environment.googleClientId,
+            clientId:
+                '853406219989-jrfkss5a0lqe5sq43t4uhm7n6i0g6s1b.apps.googleusercontent.com',
           ))
         : GoogleLogin(GoogleSignIn(
             clientId: Environment.googleClientId,
@@ -184,45 +187,26 @@ class AuthService {
         throw Exception('Unsupported provider');
       }
 
-      if (kIsWeb) {
-        final redirectTo =
-            '${html.window.location.protocol}//${html.window.location.host}/auth/callback';
-
-        final success = await supabase.auth.signInWithOAuth(
-          provider,
-          redirectTo: redirectTo,
-          authScreenLaunchMode: LaunchMode.platformDefault,
-        );
-
-        if (success) {
-          // The signInWithOAuth method handles the redirect internally for web
-          // We don't need to manually redirect
-          return supabase.auth.currentUser;
-        } else {
-          throw Exception('OAuth sign-in failed');
-        }
-      } else {
-        final result = await socialLogin.login();
-        if (result.idToken == null) {
-          throw Exception('Failed to get ID token');
-        }
-
-        logger.i('idToken ${result.idToken}');
-        final response = await supabase.auth.signInWithIdToken(
-          provider: provider,
-          idToken: result.idToken!,
-        );
-
-        if (response.user != null) {
-          await _storeSession(response.session!, provider, result.idToken!);
-
-          return response.user;
-        } else {
-          logger.e('Supabase login failed');
-        }
+      final result = await socialLogin.login();
+      if (result.idToken == null) {
+        throw Exception('Failed to get ID token');
       }
-    } catch (e) {
-      logger.e('Error during sign in: $e');
+
+      logger.i('idToken ${result.idToken}');
+      final response = await supabase.auth.signInWithIdToken(
+        provider: provider,
+        idToken: result.idToken!,
+      );
+
+      if (response.user != null) {
+        await _storeSession(response.session!, provider, result.idToken!);
+
+        return response.user;
+      } else {
+        logger.e('Supabase login failed');
+      }
+    } catch (e, s) {
+      logger.e('Error during sign in: $e', stackTrace: s);
     }
     return null;
   }
@@ -232,23 +216,21 @@ class AuthService {
     //   await socialLogin.logout();
     // }
     await supabase.auth.signOut();
-    await _clearStoredSession();
+    // await _clearStoredSession();
   }
 
   Future<void> _storeSession(
       Session session, Supabase.OAuthProvider provider, String idToken) async {
-    const storage = FlutterSecureStorage();
-    await storage.write(
+    await _storage.write(
         key: 'supabase_access_token', value: session.accessToken);
-    await storage.write(key: 'last_provider', value: provider.name);
-    await storage.write(
+    await _storage.write(key: 'last_provider', value: provider.name);
+    await _storage.write(
         key: '${provider.name.toLowerCase()}_id_token', value: idToken);
   }
 
   Future<bool> recoverSession() async {
     try {
-      const storage = FlutterSecureStorage();
-      final lastProvider = await storage.read(key: 'last_provider');
+      final lastProvider = await _storage.read(key: 'last_provider');
 
       if (lastProvider == null) {
         logger.w('No last provider found in storage');
@@ -296,26 +278,25 @@ class AuthService {
   }
 
   Future<void> _clearStoredSession() async {
-    const storage = FlutterSecureStorage();
-    await storage.readAll().then((value) => logger.i(value));
+    await _storage.readAll().then((value) => logger.i(value));
     try {
-      final allValues = await storage.readAll();
+      final allValues = await _storage.readAll();
       logger.i('Before clearing: $allValues');
 
       for (var entry in allValues.entries) {
         if (entry.key != 'last_provider') {
-          await storage.delete(key: entry.key);
+          await _storage.delete(key: entry.key);
         }
       }
 
-      final remainingValues = await storage.readAll();
+      final remainingValues = await _storage.readAll();
       logger.i('After clearing: $remainingValues');
       logger.i('Stored session cleared except last_provider');
     } catch (e) {
       logger.e('Error while clearing storage: $e');
     }
 
-    await storage.readAll().then((value) => logger.i(value));
+    await _storage.readAll().then((value) => logger.i(value));
     logger.i('Stored session cleared');
   }
 
