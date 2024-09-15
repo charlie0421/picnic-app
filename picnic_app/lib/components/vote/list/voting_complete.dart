@@ -329,48 +329,10 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: 60,
-                                      height: 60,
-                                      child: ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(60.r),
-                                        child: PicnicCachedNetworkImage(
-                                          imageUrl:
-                                              widget.voteItemModel.artist.image,
-                                          width: 60,
-                                          height: 60,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      getLocaleTextFromJson(
-                                          widget.voteItemModel.artist.name),
-                                      style: getTextStyle(
-                                          AppTypo.body16B, AppColors.grey900),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      getLocaleTextFromJson(widget.voteItemModel
-                                          .artist.artist_group.name),
-                                      style: getTextStyle(AppTypo.caption12R,
-                                              AppColors.grey600)
-                                          .copyWith(height: .8),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    const SizedBox(height: 3),
-                                    AnimatedDigitWidget(
-                                        value:
-                                            widget.result['updatedVoteTotal'],
-                                        enableSeparator: true,
-                                        duration: _duration,
-                                        textStyle: getTextStyle(
-                                            AppTypo.caption12B,
-                                            AppColors.primary500)),
-                                  ],
+                                  children: widget.voteItemModel.artist.id != 0
+                                      ? _artist(widget.voteItemModel.artist)
+                                      : _group(
+                                          widget.voteItemModel.artist_group),
                                 ),
                               ),
                             ),
@@ -485,6 +447,78 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
         ),
       ),
     );
+  }
+
+  List<Widget> _artist(ArtistModel artist) {
+    return [
+      SizedBox(
+        width: 60,
+        height: 60,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(60.r),
+          child: PicnicCachedNetworkImage(
+            imageUrl: artist.image,
+            width: 60,
+            height: 60,
+          ),
+        ),
+      ),
+      const SizedBox(height: 8),
+      Text(
+        getLocaleTextFromJson(artist.name),
+        style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+        textAlign: TextAlign.center,
+      ),
+      const SizedBox(height: 4),
+      Text(
+        getLocaleTextFromJson(artist.artist_group!.name),
+        style: getTextStyle(AppTypo.caption12R, AppColors.grey600)
+            .copyWith(height: .8),
+        textAlign: TextAlign.center,
+      ),
+      const SizedBox(height: 3),
+      AnimatedDigitWidget(
+          value: widget.result['updatedVoteTotal'],
+          enableSeparator: true,
+          duration: _duration,
+          textStyle: getTextStyle(AppTypo.caption12B, AppColors.primary500)),
+    ];
+  }
+
+  List<Widget> _group(ArtistGroupModel group) {
+    return [
+      SizedBox(
+        width: 60,
+        height: 60,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(60.r),
+          child: PicnicCachedNetworkImage(
+            imageUrl: group.image ?? '',
+            width: 60,
+            height: 60,
+          ),
+        ),
+      ),
+      const SizedBox(height: 8),
+      Text(
+        getLocaleTextFromJson(group.name),
+        style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+        textAlign: TextAlign.center,
+      ),
+      const SizedBox(height: 4),
+      Text(
+        getLocaleTextFromJson(group.name),
+        style: getTextStyle(AppTypo.caption12R, AppColors.grey600)
+            .copyWith(height: .8),
+        textAlign: TextAlign.center,
+      ),
+      const SizedBox(height: 3),
+      AnimatedDigitWidget(
+          value: widget.result['updatedVoteTotal'],
+          enableSeparator: true,
+          duration: _duration,
+          textStyle: getTextStyle(AppTypo.caption12B, AppColors.primary500)),
+    ];
   }
 }
 

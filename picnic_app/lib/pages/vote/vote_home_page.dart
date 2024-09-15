@@ -8,6 +8,7 @@ import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/common/reward_dialog.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/pages/vote/vote_list_page.dart';
@@ -50,6 +51,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
       PagingController<int, VoteModel> controller, String type) {
     controller.addPageRequestListener((pageKey) {
       _fetch(pageKey, 10).then((newItems) {
+        logger.i('newItems: $newItems');
         final typeItems = newItems[type]!;
         final isLastPage =
             typeItems.meta.currentPage == typeItems.meta.totalPages;
@@ -87,7 +89,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
             .setCurrentPage(const VoteListPage(), showTopMenu: false);
       },
       child: Container(
-        padding: EdgeInsets.only(left: 16),
+        padding: const EdgeInsets.only(left: 16),
         alignment: Alignment.centerLeft,
         child: Row(
           children: [
@@ -180,7 +182,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
 
     final upcomingResponse = await supabase
         .from('vote')
-        .select('*, vote_item(*, artist(*, artist_group(*)))')
+        .select('*, vote_item(*, artist(*, artist_group(*)), artist_group(*))')
         .gt('start_at', now)
         .order('start_at', ascending: true)
         .order('order', ascending: true)
@@ -190,7 +192,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
 
     final activeResponse = await supabase
         .from('vote')
-        .select('*, vote_item(*, artist(*, artist_group(*)))')
+        .select('*,vote_item(*,artist(*,artist_group(*)),artist_group(*))')
         .lte('start_at', now)
         .gt('stop_at', now)
         .order('stop_at', ascending: true)
@@ -199,15 +201,25 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         .limit(limit)
         .count();
 
+    logger.i('Upcoming votes: $upcomingResponse');
+    logger.i('Active votes: $activeResponse');
+
     final upcomingMeta = _createMeta(upcomingResponse, page, limit);
     final activeMeta = _createMeta(activeResponse, page, limit);
 
-    return {
+    logger.i('Upcoming meta: $upcomingMeta');
+    logger.i('Active meta: $activeMeta');
+
+    final ret = {
       'upcoming': VoteListModel.fromJson(
           {'items': upcomingResponse.data, 'meta': upcomingMeta}),
       'active': VoteListModel.fromJson(
           {'items': activeResponse.data, 'meta': activeMeta}),
     };
+
+    logger.i('ret: $ret');
+
+    return ret;
   }
 
   Map<String, dynamic> _createMeta(

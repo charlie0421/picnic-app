@@ -56,7 +56,8 @@ class VoteItemModel with _$VoteItemModel {
       {required int id,
       required int vote_total,
       required int vote_id,
-      required ArtistModel artist}) = _VoteItemModel;
+      required ArtistModel artist,
+      required ArtistGroupModel artist_group}) = _VoteItemModel;
 
   factory VoteItemModel.fromJson(Map<String, dynamic> json) =>
       _$VoteItemModelFromJson(json);
@@ -91,7 +92,8 @@ class ArtistGroupModel with _$ArtistGroupModel {
 
   const factory ArtistGroupModel(
       {required int id,
-      required Map<String, dynamic> name}) = _ArtistGroupModel;
+      required Map<String, dynamic> name,
+      required String image}) = _ArtistGroupModel;
 
   factory ArtistGroupModel.fromJson(Map<String, dynamic> json) =>
       _$ArtistGroupModelFromJson(json);
