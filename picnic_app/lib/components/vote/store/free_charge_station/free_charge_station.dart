@@ -86,29 +86,32 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
             ),
           ],
           const SizedBox(height: 18),
-          FutureBuilder(
-              future: placementId,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasError) {
-                  return const Center(child: Text('Error loading banner'));
-                }
-                return Center(
-                  child: UnityBannerAd(
-                    placementId: snapshot.data as String,
-                    onLoad: (placementId) =>
-                        print('Banner loaded: $placementId'),
-                    onClick: (placementId) =>
-                        print('Banner clicked: $placementId'),
-                    onShown: (placementId) =>
-                        print('Banner shown: $placementId'),
-                    onFailed: (placementId, error, message) =>
-                        print('Banner Ad $placementId failed: $error $message'),
-                  ),
-                );
-              }),
+          SizedBox(
+            height: 50,
+            child: FutureBuilder(
+                future: placementId,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return const Center(child: Text('Error loading banner'));
+                  }
+                  return Center(
+                    child: UnityBannerAd(
+                      placementId: snapshot.data as String,
+                      onLoad: (placementId) =>
+                          print('Banner loaded: $placementId'),
+                      onClick: (placementId) =>
+                          print('Banner clicked: $placementId'),
+                      onShown: (placementId) =>
+                          print('Banner shown: $placementId'),
+                      onFailed: (placementId, error, message) => print(
+                          'Banner Ad $placementId failed: $error $message'),
+                    ),
+                  );
+                }),
+          ),
           const SizedBox(height: 18),
           _buildStoreListTileAdmob(0),
           const Divider(height: 32, thickness: 1, color: AppColors.grey200),
