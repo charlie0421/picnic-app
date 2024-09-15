@@ -116,7 +116,8 @@ class _VoteListState extends State<VoteList> {
     if (status == VoteStatus.active) {
       response = await supabase
           .from('vote')
-          .select('*, vote_item(*, artist(*, artist_group(*)))')
+          .select(
+              '*, vote_item(*, artist(*, artist_group(*)), artist_group(*))')
           .filter('deleted_at', 'is', null)
           .lt('start_at', 'now()')
           .gt('stop_at', 'now()')
@@ -129,7 +130,8 @@ class _VoteListState extends State<VoteList> {
     } else if (status == VoteStatus.end) {
       response = await supabase
           .from('vote')
-          .select('*, vote_item(*, artist(*, artist_group(*)))')
+          .select(
+              '*, vote_item(*, artist(*, artist_group(*)), artist_group(*))')
           .filter('deleted_at', 'is', null)
           .lt('stop_at', 'now()')
           .order('stop_at', ascending: false)
@@ -141,7 +143,8 @@ class _VoteListState extends State<VoteList> {
     } else if (status == VoteStatus.upcoming) {
       response = await supabase
           .from('vote')
-          .select('*, vote_item(*, artist(*, artist_group(*)))')
+          .select(
+              '*, vote_item(*, artist(*, artist_group(*)), artist_group(*))')
           .filter('deleted_at', 'is', null)
           .lt('visible_at', 'now()')
           .gt('start_at', 'now()')
@@ -153,7 +156,8 @@ class _VoteListState extends State<VoteList> {
     } else {
       response = await supabase
           .from('vote')
-          .select('*, vote_item(*, artist(*, artist_group(*)))')
+          .select(
+              '*, vote_item(*, artist(*, artist_group(*)), artist_group(*))')
           .order('vote_total', ascending: false, referencedTable: 'vote_item')
           .range((page - 1) * limit, page * limit - 1)
           .limit(limit)
