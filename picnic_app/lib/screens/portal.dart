@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/portal_menu_item.dart';
 import 'package:picnic_app/components/common/screen_top.dart';
@@ -11,6 +10,7 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/screens/mypage_screen.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/fixed_width_layout.dart';
 import 'package:picnic_app/util/ui.dart';
@@ -84,12 +84,12 @@ class _PortalState extends ConsumerState<Portal> {
                 );
               },
             ),
-            leadingWidth: 52.w,
+            leadingWidth: 52.cw,
             titleSpacing: 0,
             title: Container(
               height: 26,
               alignment: Alignment.centerLeft,
-              padding: EdgeInsets.only(right: 24),
+              padding: EdgeInsets.only(right: 24.cw),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(

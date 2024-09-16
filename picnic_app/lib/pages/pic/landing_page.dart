@@ -92,7 +92,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
               child: Align(
                 alignment: Alignment.centerRight,
                 child: Padding(
-                  padding: EdgeInsets.only(right: 8.w),
+                  padding: EdgeInsets.only(right: 8.cw),
                   child: SvgPicture.asset(
                     'assets/landing/search_icon.svg',
                     width: 24,

@@ -9,6 +9,7 @@ import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class PostListItem extends ConsumerWidget {
   final PostModel post;
@@ -25,7 +26,7 @@ class PostListItem extends ConsumerWidget {
             ));
       },
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 8),
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
@@ -43,17 +44,17 @@ class PostListItem extends ConsumerWidget {
                 Text(getLocaleTextFromJson(post.boards.name),
                     style:
                         getTextStyle(AppTypo.caption12B, AppColors.primary500)),
-                SizedBox(width: 4.w),
+                SizedBox(width: 4.cw),
                 ProfileImageContainer(
                   avatarUrl: post.user_profiles?.avatar_url,
                   borderRadius: 4,
                   width: 18,
                   height: 18,
                 ),
-                SizedBox(width: 4.w),
+                SizedBox(width: 4.cw),
                 Text(post.user_profiles?.nickname ?? '',
                     style: getTextStyle(AppTypo.caption12B, AppColors.grey900)),
-                SizedBox(width: 4.w),
+                SizedBox(width: 4.cw),
                 Text(formatTimeAgo(context, post.created_at),
                     style:
                         getTextStyle(AppTypo.caption10SB, AppColors.grey400)),

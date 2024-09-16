@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class LikeButton extends StatefulWidget {
   final int commentId;
@@ -74,7 +75,7 @@ class LikeButtonState extends State<LikeButton> {
                   size: 20.sp,
                 ),
               ),
-              SizedBox(width: 16.w),
+              SizedBox(width: 16.cw),
               Text('$likes',
                   style: getTextStyle(AppTypo.body16M, AppColors.grey900))
             ],

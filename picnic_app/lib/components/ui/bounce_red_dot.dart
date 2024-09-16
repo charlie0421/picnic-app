@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class BounceRedDot extends StatefulWidget {
   const BounceRedDot({super.key});
@@ -40,7 +41,7 @@ class _BounceRedDot extends State<BounceRedDot>
         animation: _animation,
         builder: (context, child) {
           return Container(
-            width: _animation.value.w,
+            width: _animation.value.cw,
             height: _animation.value.h,
             decoration: const BoxDecoration(
               color: Colors.red,

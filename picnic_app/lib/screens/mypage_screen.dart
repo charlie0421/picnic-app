@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/screen_top.dart';
@@ -8,6 +7,7 @@ import 'package:picnic_app/components/ui/picnic_animated_switcher.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class MyPageScreen extends ConsumerWidget {
   static const String routeName = '/mypage';
@@ -45,12 +45,12 @@ class MyPageScreen extends ConsumerWidget {
             }
           },
           child: Container(
-            padding: EdgeInsets.only(left: 16.w),
-            width: 24.w,
+            padding: EdgeInsets.only(left: 16.cw),
+            width: 24.cw,
             height: 24,
             child: SvgPicture.asset(
               'assets/icons/arrow_left_style=line.svg',
-              width: 24.w,
+              width: 24.cw,
               height: 24,
             ),
           ),
@@ -58,7 +58,7 @@ class MyPageScreen extends ConsumerWidget {
         title: Text(Intl.message(pageName),
             style: getTextStyle(AppTypo.body16B, AppColors.grey900)),
         centerTitle: true,
-        leadingWidth: 40.w,
+        leadingWidth: 40.cw,
         actions: [
           userInfoState.when(
               data: (data) => data != null && data.is_admin
@@ -66,7 +66,7 @@ class MyPageScreen extends ConsumerWidget {
                   : Container(),
               loading: () => Container(),
               error: (error, stackTrace) => Container()),
-          SizedBox(width: 16.w),
+          SizedBox(width: 16.cw),
         ],
       ),
       body: const DrawerAnimatedSwitcher(),

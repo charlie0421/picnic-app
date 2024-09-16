@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class LanguagePage extends ConsumerWidget {
   const LanguagePage({super.key});
@@ -18,7 +18,7 @@ class LanguagePage extends ConsumerWidget {
         Container(
             width: double.infinity,
             height: 120,
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10),
+            padding: EdgeInsets.symmetric(horizontal: 20.cw, vertical: 10),
             child: Column(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -45,7 +45,7 @@ class LanguagePage extends ConsumerWidget {
             itemBuilder: (context, index) {
               return InkWell(
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20.w),
+                  padding: EdgeInsets.symmetric(horizontal: 20.cw),
                   alignment: Alignment.centerLeft,
                   height: 50,
                   color: appSettingState.locale.languageCode ==

@@ -61,7 +61,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
                         width: 1,
                       ),
                     ),
-                    contentPadding: EdgeInsets.only(left: 10.w),
+                    contentPadding: EdgeInsets.only(left: 10.cw),
                     suffixIcon: Container(
                       // alignment: Alignment.bottomRight,
                       padding: const EdgeInsets.only(top: 30),

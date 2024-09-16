@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
@@ -16,6 +15,7 @@ import 'package:picnic_app/providers/mypage/bookmarked_artists_provider.dart';
 import 'package:picnic_app/providers/mypage/vote_artist_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/ui.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -89,7 +89,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
     return Column(
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 57.w, vertical: 16),
+          padding: EdgeInsets.symmetric(horizontal: 57.cw, vertical: 16),
           child: CommonSearchBox(
             focusNode: _focusNode,
             textEditingController: _textEditingController,
@@ -221,7 +221,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
           baseColor: Colors.grey[300]!,
           highlightColor: Colors.grey[100]!,
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            padding: EdgeInsets.symmetric(horizontal: 16.cw),
             child: Column(
               children: [
                 ListTile(
@@ -271,7 +271,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
 
   Widget _buildArtistItem(ArtistModel item) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.symmetric(horizontal: 16.cw),
       child: Column(
         children: [
           ListTile(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/custom_dropdown_button.dart';
@@ -11,6 +10,7 @@ import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/number.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class VoteHistoryPage extends ConsumerStatefulWidget {
   final String pageName = 'label_mypage_vote_history';
@@ -71,7 +71,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          padding: EdgeInsets.symmetric(horizontal: 16.cw),
           alignment: Alignment.centerRight,
           child: CustomDropdown(
             key: const Key('sortOrderDropdown'),
@@ -97,7 +97,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
                 itemBuilder: (context, item, index) {
                   return Container(
                     height: 107,
-                    padding: EdgeInsets.all(16.w),
+                    padding: EdgeInsets.all(16.cw),
                     decoration: const BoxDecoration(
                         border: Border(
                             bottom: BorderSide(

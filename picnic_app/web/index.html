@@ -64,14 +64,5 @@
     });
   });
 </script>
-<script>
-  window.onload = function () {
-    var hash = window.location.hash;
-    console.log('hash', hash);
-    if (hash) {
-      window.location.href = '/auth/callback' + hash;
-    }
-  }
-</script>
 </body>
 </html>

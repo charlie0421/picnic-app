@@ -22,6 +22,7 @@ import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/ui.dart';
 
 const Duration _duration = Duration(milliseconds: 1000);
 
@@ -160,19 +161,19 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
     return RepaintBoundary(
       key: _globalKey,
       child: Dialog(
-        insetPadding: EdgeInsets.symmetric(horizontal: 24.w),
+        insetPadding: EdgeInsets.symmetric(horizontal: 24.cw),
         backgroundColor: Colors.transparent,
         child: LargePopupWidget(
           backgroundColor: AppColors.mint500,
           content: Container(
             padding:
-                EdgeInsets.only(top: 24, left: 24.w, right: 24.w, bottom: 48),
+                EdgeInsets.only(top: 24, left: 24.cw, right: 24.cw, bottom: 48),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: 203.w,
+                  width: 203.cw,
                   height: 51,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
@@ -185,9 +186,9 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                   ),
                   child: Container(
                     alignment: Alignment.center,
-                    width: 195.w,
+                    width: 195.cw,
                     height: 43,
-                    padding: EdgeInsets.symmetric(horizontal: 24.w),
+                    padding: EdgeInsets.symmetric(horizontal: 24.cw),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(26.r),
                       border: Border.all(
@@ -200,7 +201,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                       children: [
                         Image.asset(
                           'assets/icons/header/star.png',
-                          width: 24.w,
+                          width: 24.cw,
                           height: 24,
                         ),
                         Expanded(
@@ -212,7 +213,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                         ),
                         Image.asset(
                           'assets/icons/header/star.png',
-                          width: 24.w,
+                          width: 24.cw,
                           height: 24,
                         ),
                       ],
@@ -221,9 +222,9 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                 ),
                 const SizedBox(height: 12),
                 Container(
-                    width: 291.w,
+                    width: 291.cw,
                     height: 70,
-                    padding: EdgeInsets.only(left: 12.w),
+                    padding: EdgeInsets.only(left: 12.cw),
                     decoration: BoxDecoration(
                       color: AppColors.grey00,
                       borderRadius: BorderRadius.circular(20.r),
@@ -245,7 +246,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                             borderRadius: 48,
                           ),
                         ),
-                        SizedBox(width: 16.w),
+                        SizedBox(width: 16.cw),
                         Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -268,7 +269,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                     )),
                 const SizedBox(height: 12),
                 Container(
-                  width: 291.w,
+                  width: 291.cw,
                   decoration: BoxDecoration(
                     color: AppColors.grey00,
                     borderRadius: BorderRadius.circular(20.r),
@@ -283,7 +284,10 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                     children: [
                       Container(
                         padding: EdgeInsets.only(
-                            top: 16.w, bottom: 0.w, left: 24.w, right: 24.w),
+                            top: 16.cw,
+                            bottom: 0.cw,
+                            left: 24.cw,
+                            right: 24.cw),
                         alignment: Alignment.center,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -291,7 +295,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                             Text(S.of(context).text_this_time_vote,
                                 style: getTextStyle(
                                     AppTypo.caption12M, AppColors.primary500)),
-                            SizedBox(width: 16.w),
+                            SizedBox(width: 16.cw),
                             Expanded(
                               child: Text(
                                 getLocaleTextFromJson(widget.voteModel.title),
@@ -309,14 +313,14 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                       ),
                       Divider(
                         color: AppColors.grey300,
-                        indent: 13.w,
-                        endIndent: 13.w,
+                        indent: 13.cw,
+                        endIndent: 13.cw,
                         thickness: 1,
                         height: 1,
                       ),
                       const SizedBox(height: 12),
                       Container(
-                        padding: EdgeInsets.only(right: 16.w),
+                        padding: EdgeInsets.only(right: 16.cw),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -336,14 +340,14 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                 ),
                               ),
                             ),
-                            SizedBox(width: 10.w),
+                            SizedBox(width: 10.cw),
                             Expanded(
                               flex: 1,
                               child: Stack(
                                 alignment: Alignment.center,
                                 children: [
                                   SizedBox(
-                                    width: 120.w,
+                                    width: 120.cw,
                                     height: 120,
                                     child: GradientCircularProgressIndicator(
                                       value: widget.result['addedVoteTotal'] /
@@ -400,23 +404,23 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                   backgroundColor: AppColors.primary500,
                                   shadowColor: AppColors.primary500,
                                   padding: EdgeInsets.zero,
-                                  minimumSize: Size(104.w, 32.w),
-                                  maximumSize: Size(104.w, 32.w),
+                                  minimumSize: Size(104.cw, 32.cw),
+                                  maximumSize: Size(104.cw, 32.cw),
                                 ),
                                 child: Text(
                                     S.of(context).label_button_save_vote_paper,
                                     style: getTextStyle(
                                         AppTypo.body14B, AppColors.grey00),
                                     textAlign: TextAlign.center)),
-                            SizedBox(width: 16.w),
+                            SizedBox(width: 16.cw),
                             ElevatedButton(
                                 onPressed: _shareDialogImage,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.primary500,
                                   shadowColor: AppColors.primary500,
                                   padding: EdgeInsets.zero,
-                                  minimumSize: Size(104.w, 32.w),
-                                  maximumSize: Size(104.w, 32.w),
+                                  minimumSize: Size(104.cw, 32.cw),
+                                  maximumSize: Size(104.cw, 32.cw),
                                 ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -424,10 +428,10 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                     Text(S.of(context).label_button_share,
                                         style: getTextStyle(
                                             AppTypo.body14B, AppColors.grey00)),
-                                    SizedBox(width: 4.w),
+                                    SizedBox(width: 4.cw),
                                     SvgPicture.asset(
                                       'assets/icons/twitter_style=fill.svg',
-                                      width: 16.w,
+                                      width: 16.cw,
                                       height: 16,
                                     ),
                                   ],
@@ -437,7 +441,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                       )
                     : Image.asset(
                         'assets/images/logo.png',
-                        width: 75.w,
+                        width: 75.cw,
                         height: 57,
                       ),
               ],

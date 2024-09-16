@@ -18,6 +18,7 @@ import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class PicCameraViewPage extends ConsumerStatefulWidget {
   const PicCameraViewPage({super.key});
@@ -426,22 +427,22 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
             content: _capturedImageBytes != null
                 ? Container(
                     height: 500,
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.w),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 16.cw, vertical: 16.cw),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SizedBox(
-                            width: 200.w,
+                            width: 200.cw,
                             child: AspectRatio(
                                 aspectRatio: 5.5 / 8.5,
                                 child: Image.memory(
                                   _capturedImageBytes!,
                                 ))),
                         Container(
-                          width: 200.w,
-                          padding: EdgeInsets.symmetric(vertical: 16.w),
+                          width: 200.cw,
+                          padding: EdgeInsets.symmetric(vertical: 16.cw),
                           child: ElevatedButton(
                             onPressed: () async {
                               await _saveImage();

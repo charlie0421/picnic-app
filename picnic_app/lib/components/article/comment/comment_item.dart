@@ -94,7 +94,7 @@ class _CommentItemState extends ConsumerState<CommentItem>
           ],
         ),
         child: Container(
-          padding: EdgeInsets.only(left: 20.w),
+          padding: EdgeInsets.only(left: 20.cw),
           margin: const EdgeInsets.only(bottom: 20),
           width: getPlatformScreenSize(context).width,
           child: Row(

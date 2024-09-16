@@ -8,6 +8,7 @@ import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class CommonBottomNavigationBar extends ConsumerStatefulWidget {
   final ScreenInfo screenInfo;
@@ -29,7 +30,7 @@ class _CommonBottomNavigationBarState
       data: (data) {
         return Container(
           height: 102,
-          padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 50),
+          padding: EdgeInsets.only(left: 16.cw, right: 16.cw, bottom: 50),
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
@@ -44,7 +45,7 @@ class _CommonBottomNavigationBarState
           ),
           child: Container(
             height: 52,
-            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            padding: EdgeInsets.symmetric(horizontal: 24.cw),
             decoration: ShapeDecoration(
               color: widget.screenInfo.color,
               shape: RoundedRectangleBorder(

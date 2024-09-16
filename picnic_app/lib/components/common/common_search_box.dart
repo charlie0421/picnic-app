@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class CommonSearchBox extends StatelessWidget {
   const CommonSearchBox({
@@ -34,7 +35,7 @@ class CommonSearchBox extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Padding(
-            padding: EdgeInsets.only(left: 16.w, right: 8.w),
+            padding: EdgeInsets.only(left: 16.cw, right: 8.cw),
             child: SvgPicture.asset(
               'assets/icons/vote/search_icon.svg',
               width: 20,
@@ -59,7 +60,7 @@ class CommonSearchBox extends StatelessWidget {
             behavior: HitTestBehavior.opaque,
             onTap: () => _textEditingController.clear(),
             child: Padding(
-              padding: EdgeInsets.only(left: 8.w, right: 16.w),
+              padding: EdgeInsets.only(left: 8.cw, right: 16.cw),
               child: SvgPicture.asset(
                 'assets/icons/cancle_style=fill.svg',
                 width: 20,

@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/error.dart';
@@ -23,6 +22,7 @@ import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/ui.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
@@ -181,7 +181,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.symmetric(horizontal: 16.cw),
       child: ListView(
         children: [
           if (supabase.isLogged) ...[
@@ -261,7 +261,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
   Widget _buildShimmerItem() {
     return ListTile(
       leading: Container(
-        width: 48.w,
+        width: 48.cw,
         height: 48,
         color: Colors.white,
       ),
@@ -295,7 +295,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
     return StoreListTile(
       icon: Image.asset(
         'assets/icons/store/star_${serverProduct['id'].replaceAll('STAR', '')}.png',
-        width: 48.w,
+        width: 48.cw,
         height: 48,
       ),
       title: Text(serverProduct['id'],

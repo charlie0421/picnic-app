@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/ui.dart';
 
 import '../../../generated/l10n.dart';
 
@@ -43,7 +43,7 @@ class PostWriteHeader extends StatelessWidget {
             children: [
               Text(S.of(context).post_header_temporary_save,
                   style: getTextStyle(AppTypo.body14B, AppColors.primary500)),
-              SizedBox(width: 16.w),
+              SizedBox(width: 16.cw),
               SizedBox(
                 height: 32,
                 child: ElevatedButton(

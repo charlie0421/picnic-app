@@ -6,6 +6,7 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/number.dart';
+import 'package:picnic_app/util/ui.dart';
 
 void showUsagePolicyDialog(BuildContext context, WidgetRef ref) {
   showModalBottomSheet(
@@ -18,7 +19,7 @@ void showUsagePolicyDialog(BuildContext context, WidgetRef ref) {
       ),
       builder: (context) => StatefulBuilder(
             builder: (context, setState) => Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 40.h),
+              padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 40.h),
               child: Column(mainAxisSize: MainAxisSize.min, children: [
                 Text(
                   S.of(context).candy_disappear_next_month,
@@ -34,22 +35,22 @@ void showUsagePolicyDialog(BuildContext context, WidgetRef ref) {
                             children: snapshot.data!
                                 .map((e) => Container(
                                       alignment: Alignment.center,
-                                      width: 200.w,
+                                      width: 200.cw,
                                       child: Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.start,
                                         children: [
                                           SizedBox(
-                                            width: 100.w,
+                                            width: 100.cw,
                                             child: Text(
                                                 '${e!['prediction_month']}-15',
                                                 style: getTextStyle(
                                                     AppTypo.body16B,
                                                     AppColors.grey900)),
                                           ),
-                                          SizedBox(width: 12.w),
+                                          SizedBox(width: 12.cw),
                                           SizedBox(
-                                            width: 36.w,
+                                            width: 36.cw,
                                             child: Image.asset(
                                                 'assets/icons/store/star_100.png',
                                                 width: 36,
@@ -71,7 +72,7 @@ void showUsagePolicyDialog(BuildContext context, WidgetRef ref) {
                         //   mainAxisAlignment: MainAxisAlignment.center,
                         //   children: [
                         //     Image.asset('assets/icons/store/star_100.png',
-                        //         width: 48.w, height: 48),
+                        //         width: 48.cw, height: 48),
                         //     snapshot.data == null
                         //         ? Text(
                         //             '0',

@@ -6,6 +6,7 @@ import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class PicChartPage extends ConsumerStatefulWidget {
   const PicChartPage({super.key});
@@ -49,8 +50,8 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
             fit: BoxFit.fill),
         if (_showOverlay)
           Positioned(
-            left: 24.w,
-            right: 24.w,
+            left: 24.cw,
+            right: 24.cw,
             top: 48.h,
             child: Material(
               color: Colors.transparent,
@@ -58,7 +59,7 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
                 title: S.of(context).text_comming_soon_pic_chart_title,
                 content: Container(
                   padding: EdgeInsets.only(
-                      left: 16.w, right: 16.w, top: 64.h, bottom: 40.h),
+                      left: 16.cw, right: 16.cw, top: 64.h, bottom: 40.h),
                   child: Column(
                     children: [
                       Text(
@@ -77,7 +78,7 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SvgPicture.asset('assets/icons/play_style=fill.svg',
-                              width: 16.w,
+                              width: 16.cw,
                               height: 16,
                               color: AppColors.primary500),
                           Text(
@@ -92,7 +93,7 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
                             angle: 3.14,
                             child: SvgPicture.asset(
                                 'assets/icons/play_style=fill.svg',
-                                width: 16.w,
+                                width: 16.cw,
                                 height: 16,
                                 color: AppColors.primary500),
                           ),

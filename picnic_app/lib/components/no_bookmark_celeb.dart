@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class NoBookmarkCeleb extends ConsumerStatefulWidget {
   const NoBookmarkCeleb({
@@ -27,13 +27,13 @@ class _NoBookmarkCelebState extends ConsumerState<NoBookmarkCeleb> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SvgPicture.asset('assets/landing/no_celeb.svg',
-              width: 60.w,
+              width: 60.cw,
               height: 60,
               colorFilter:
                   const ColorFilter.mode(Color(0xFFB7B7B7), BlendMode.srcIn)),
           const SizedBox(height: 8),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 20.w),
+            padding: EdgeInsets.symmetric(horizontal: 20.cw),
             alignment: Alignment.center,
             child: Text(
               S.of(context).label_no_celeb,

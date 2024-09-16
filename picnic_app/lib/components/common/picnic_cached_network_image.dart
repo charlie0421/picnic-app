@@ -117,7 +117,7 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
   @override
   Widget build(BuildContext context) {
     final imageWidth = widget.useScreenUtil
-        ? widget.width?.w.toDouble()
+        ? widget.width?.cw.toDouble()
         : widget.width?.toDouble();
     final imageHeight = widget.useScreenUtil
         ? widget.height?.h.toDouble()

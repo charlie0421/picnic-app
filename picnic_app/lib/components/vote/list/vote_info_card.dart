@@ -129,8 +129,8 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
             .setCurrentPage(VoteDetailPage(voteId: widget.vote.id));
       },
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        margin: EdgeInsets.only(top: 24.w, bottom: 32),
+        padding: EdgeInsets.symmetric(horizontal: 16.cw),
+        margin: EdgeInsets.only(top: 24.cw, bottom: 32),
         child: Column(
           children: [
             VoteCardInfoHeader(
@@ -164,7 +164,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
           borderRadius: BorderRadius.circular(40).r,
           border: Border.all(
             color: AppColors.primary500,
-            width: 1.5.w,
+            width: 1.5.cw,
           ),
         ),
         child: SlideTransition(

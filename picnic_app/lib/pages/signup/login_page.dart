@@ -3,7 +3,6 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
@@ -77,7 +76,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                         },
                         child: SvgPicture.asset(
                           'assets/icons/arrow_left_style=line.svg',
-                          width: 24.w,
+                          width: 24.cw,
                           height: 24,
                           color: AppColors.grey900,
                         ),
@@ -157,7 +156,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
       },
       child: Container(
         height: 48,
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        padding: EdgeInsets.symmetric(horizontal: 16.cw),
         decoration: BoxDecoration(
           border: Border.all(color: AppColors.primary500, width: 1.5),
           borderRadius: BorderRadius.circular(30),
@@ -170,10 +169,10 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               'assets/icons/global_style=line.svg',
               colorFilter:
                   const ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
-              width: 20.w,
+              width: 20.cw,
               height: 20,
             ),
-            SizedBox(width: 20.w),
+            SizedBox(width: 20.cw),
             Expanded(
               child: Align(
                 alignment: Alignment.centerLeft,
@@ -189,7 +188,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                 'assets/icons/play_style=fill.svg',
                 colorFilter:
                     const ColorFilter.mode(AppColors.grey900, BlendMode.srcIn),
-                width: 20.w,
+                width: 20.cw,
                 height: 20,
               ),
             ),
@@ -335,8 +334,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Image.asset('assets/icons/login/apple.png',
-                    width: 20.w, height: 20),
-                SizedBox(width: 8.w),
+                    width: 20.cw, height: 20),
+                SizedBox(width: 8.cw),
                 Text('Apple',
                     style: getTextStyle(AppTypo.body14M, AppColors.grey800)),
               ],
@@ -347,7 +346,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
           Positioned(
             top: 0,
             bottom: 0,
-            left: 30.w,
+            left: 30.cw,
             child: Bubble(
               color: AppColors.primary500.withOpacity(.9),
               alignment: Alignment.center,
@@ -410,8 +409,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Image.asset('assets/icons/login/google.png',
-                      width: 20.w, height: 20),
-                  SizedBox(width: 8.w),
+                      width: 20.cw, height: 20),
+                  SizedBox(width: 8.cw),
                   Text('Google',
                       style: getTextStyle(AppTypo.body14M, AppColors.grey800)),
                 ],
@@ -422,7 +421,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
             Positioned(
               top: 0,
               bottom: 0,
-              left: 30.w,
+              left: 30.cw,
               child: Bubble(
                 color: AppColors.primary500.withOpacity(.9),
                 alignment: Alignment.center,
@@ -477,8 +476,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Image.asset('assets/icons/login/kakao.png',
-                    width: 20.w, height: 20),
-                SizedBox(width: 8.w),
+                    width: 20.cw, height: 20),
+                SizedBox(width: 8.cw),
                 Text('Kakao Talk',
                     style: getTextStyle(AppTypo.body14M, AppColors.grey800)),
               ],
@@ -489,7 +488,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
           Positioned(
             top: 0,
             bottom: 0,
-            left: 30.w,
+            left: 30.cw,
             child: Bubble(
               color: AppColors.primary500.withOpacity(.9),
               alignment: Alignment.center,

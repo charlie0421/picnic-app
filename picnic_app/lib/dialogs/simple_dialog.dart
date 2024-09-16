@@ -45,13 +45,13 @@ void showSimpleDialog({
         child: Container(
           width: getPlatformScreenSize(context).width,
           constraints: BoxConstraints(
-            minWidth: 151.w,
+            minWidth: 151.cw,
           ),
           padding: EdgeInsets.only(
             top: 28,
             bottom: 20,
-            left: 20.w,
-            right: 20.w,
+            left: 20.cw,
+            right: 20.cw,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,

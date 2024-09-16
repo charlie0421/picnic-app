@@ -46,7 +46,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
                         ),
                         Positioned(
                             top: 10.h,
-                            right: 10.w,
+                            right: 10.cw,
                             child: _buildBookmark(widget.article, index))
                       ],
                     ),
@@ -59,7 +59,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
                     color: Colors.grey, activeColor: picMainColor),
               ),
             )
-          : SizedBox(width: 300.w, height: 300),
+          : SizedBox(width: 300.cw, height: 300),
     );
   }
 
@@ -90,7 +90,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
   //       color: Colors.grey, activeColor: picMainColor),
   // ),
   // )
-  // : SizedBox(width: 300.w, height:300),
+  // : SizedBox(width: 300.cw, height:300),
   // );
   // }
 
