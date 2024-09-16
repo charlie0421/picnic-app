@@ -19,7 +19,9 @@ class LoggingObserver extends ProviderObserver {
     if (previousValue.runtimeType.toString().startsWith('Async') ||
         newValue.runtimeType.toString().startsWith('Async') ||
         previousValue.runtimeType.toString().startsWith('String') ||
-        newValue.runtimeType.toString().startsWith('String')) {
+        newValue.runtimeType.toString().startsWith('String') ||
+        previousValue.runtimeType.toString().startsWith('minified:') ||
+        newValue.runtimeType.toString().startsWith('minified:')) {
       return;
     }
 
