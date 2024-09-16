@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/error.dart';
@@ -60,14 +59,14 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
                 textAlign: TextAlign.center,
               ),
               Positioned(
-                left: 10.w,
+                left: 10.cw,
                 child: GestureDetector(
                   onTap: () {
                     navigationInfoNotifier.goBackSignUp();
                   },
                   child: SvgPicture.asset(
                     'assets/icons/arrow_left_style=line.svg',
-                    width: 24.w,
+                    width: 24.cw,
                     height: 24,
                     color: AppColors.grey900,
                   ),

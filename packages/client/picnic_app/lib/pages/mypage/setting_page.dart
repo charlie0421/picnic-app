@@ -51,7 +51,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
     return userInfoState.when(
         data: (data) => Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              padding: EdgeInsets.symmetric(horizontal: 16.cw),
               child: ListView(
                 children: [
                   const SizedBox(height: 16),
@@ -62,7 +62,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     leading: S.of(context).label_setting_push_alarm,
                     assetPath: 'assets/icons/arrow_right_style=line.svg',
                     tailing: LoadSwitch(
-                      width: 48.w,
+                      width: 48.cw,
                       height: 28,
                       value: value1,
                       future: _getFuture1,
@@ -97,7 +97,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   ListItem(
                     leading: S.of(context).label_setting_event_alarm,
                     title: Container(
-                      margin: EdgeInsets.only(left: 8.w),
+                      margin: EdgeInsets.only(left: 8.cw),
                       alignment: Alignment.centerLeft,
                       child: Text(
                         S.of(context).label_setting_event_alarm_desc,
@@ -108,7 +108,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     ),
                     assetPath: 'assets/icons/arrow_right_style=line.svg',
                     tailing: LoadSwitch(
-                      width: 48.w,
+                      width: 48.cw,
                       height: 28,
                       value: value2,
                       future: _getFuture2,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class MyFavItem {
   final String image;
@@ -68,7 +68,7 @@ class _MyPageState extends State<MyPage> {
               children: [
                 ...FabLibrary.map((item) {
                   return Container(
-                      margin: EdgeInsets.only(right: 16.w),
+                      margin: EdgeInsets.only(right: 16.cw),
                       child: Image.asset('assets/mockup/my/${item.image}'));
                 }),
               ],
@@ -88,7 +88,7 @@ class _MyPageState extends State<MyPage> {
               children: [
                 ...Moments.map((item) {
                   return Container(
-                      margin: EdgeInsets.only(right: 16.w),
+                      margin: EdgeInsets.only(right: 16.cw),
                       child: Column(
                         children: [
                           Image.asset('assets/mockup/my/${item.image}'),

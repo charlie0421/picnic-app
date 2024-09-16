@@ -64,14 +64,14 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                 textAlign: TextAlign.center,
               ),
               Positioned(
-                left: 10.w,
+                left: 10.cw,
                 child: GestureDetector(
                   onTap: () {
                     navigationInfoNotifier.goBackSignUp();
                   },
                   child: SvgPicture.asset(
                     'assets/icons/arrow_left_style=line.svg',
-                    width: 24.w,
+                    width: 24.cw,
                     height: 24,
                     colorFilter: const ColorFilter.mode(
                       AppColors.grey900,

@@ -126,7 +126,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
 
   void _scrollToSearchBox() {
     _scrollController.animateTo(
-      210.w,
+      210.cw,
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,
     );
@@ -193,7 +193,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         ),
         const SizedBox(height: 36),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 57.w),
+          padding: EdgeInsets.symmetric(horizontal: 57.cw),
           child: VoteCommonTitle(title: getLocaleTextFromJson(voteModel.title)),
         ),
         const SizedBox(height: 12),
@@ -246,7 +246,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                       Container(
                         width: double.infinity,
                         margin:
-                            EdgeInsets.only(top: 24, left: 16.w, right: 16.w),
+                            EdgeInsets.only(top: 24, left: 16.cw, right: 16.cw),
                         decoration: BoxDecoration(
                           border: Border.all(
                               color: AppColors.primary500, width: 1.r),
@@ -258,9 +258,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                           ),
                         ),
                         child: Padding(
-                          padding:
-                              EdgeInsets.only(top: 56, left: 16.w, right: 16.w)
-                                  .r,
+                          padding: EdgeInsets.only(
+                                  top: 56, left: 16.cw, right: 16.cw)
+                              .r,
                           child: filteredIndices.isEmpty &&
                                   searchQuery.isNotEmpty
                               ? SizedBox(
@@ -350,9 +350,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   ],
                 ),
               ),
-              SizedBox(width: 8.w),
+              SizedBox(width: 8.cw),
               _buildArtistImage(item, index),
-              SizedBox(width: 8.w),
+              SizedBox(width: 8.cw),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -390,10 +390,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   ],
                 ),
               ),
-              SizedBox(width: 16.w),
+              SizedBox(width: 16.cw),
               if (!isEnded)
                 SizedBox(
-                  width: 24.w,
+                  width: 24.cw,
                   height: 24,
                   child: SvgPicture.asset(
                     key: const ValueKey('assets/icons/star_candy_icon.svg'),
@@ -457,7 +457,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         Container(
           width: double.infinity,
           height: 20,
-          padding: EdgeInsets.only(right: 16.w, bottom: 3),
+          padding: EdgeInsets.only(right: 16.cw, bottom: 3),
           alignment: Alignment.centerRight,
           child: hasChanged
               ? AnimatedDigitWidget(
@@ -475,7 +475,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         ),
         if (voteCountDiff > 0)
           Positioned(
-            right: 16.w,
+            right: 16.cw,
             top: -15,
             child: TweenAnimationBuilder<double>(
               tween: Tween(begin: 0, end: 1),
@@ -520,10 +520,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   Widget _buildSearchBox() {
     return Positioned(
       top: 0,
-      right: 0.w,
-      left: 0.w,
+      right: 0.cw,
+      left: 0.cw,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 32.w),
+        padding: EdgeInsets.symmetric(horizontal: 32.cw),
         child: CommonSearchBox(
           focusNode: _focusNode,
           textEditingController: _textEditingController,
@@ -547,44 +547,44 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             ),
             const SizedBox(height: 24),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              padding: EdgeInsets.symmetric(horizontal: 16.cw),
               child: Container(
                 height: 24,
-                width: 250.w,
+                width: 250.cw,
                 color: Colors.white,
               ),
             ),
             const SizedBox(height: 12),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              padding: EdgeInsets.symmetric(horizontal: 16.cw),
               child: Container(
                 height: 16,
-                width: 200.w,
+                width: 200.cw,
                 color: Colors.white,
               ),
             ),
             const SizedBox(height: 24),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              padding: EdgeInsets.symmetric(horizontal: 16.cw),
               child: Container(
                 height: 18,
-                width: 180.w,
+                width: 180.cw,
                 color: Colors.white,
               ),
             ),
             const SizedBox(height: 8),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              padding: EdgeInsets.symmetric(horizontal: 16.cw),
               child: Container(
                 height: 16,
-                width: 150.w,
+                width: 150.cw,
                 color: Colors.white,
               ),
             ),
             const SizedBox(height: 32),
             Center(
               child: Container(
-                width: 280.w,
+                width: 280.cw,
                 height: 48,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(24.r),
@@ -595,25 +595,25 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             const SizedBox(height: 24),
             for (int i = 0; i < 5; i++) ...[
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                padding: EdgeInsets.symmetric(horizontal: 16.cw),
                 child: Row(
                   children: [
                     Container(
-                      width: 45.w,
+                      width: 45.cw,
                       height: 45,
                       decoration: const BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.white,
                       ),
                     ),
-                    SizedBox(width: 16.w),
+                    SizedBox(width: 16.cw),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
                             height: 16,
-                            width: 120.w,
+                            width: 120.cw,
                             color: Colors.white,
                           ),
                           const SizedBox(height: 8),

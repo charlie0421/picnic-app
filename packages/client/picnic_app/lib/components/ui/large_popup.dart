@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class LargePopupWidget extends StatelessWidget {
   final String? title;
@@ -35,7 +36,7 @@ class LargePopupWidget extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             Container(
-                width: width ?? 345.w,
+                width: width ?? 345.cw,
                 decoration: BoxDecoration(
                   color: backgroundColor ?? AppColors.grey00,
                   border: Border.all(
@@ -53,7 +54,7 @@ class LargePopupWidget extends StatelessWidget {
                 child: Container(
                     height: 48,
                     alignment: Alignment.center,
-                    padding: EdgeInsets.symmetric(horizontal: 33.w),
+                    padding: EdgeInsets.symmetric(horizontal: 33.cw),
                     child: VoteCommonTitle(title: title!)),
               ),
           ],
@@ -67,7 +68,7 @@ class LargePopupWidget extends StatelessWidget {
           },
           child: Container(
               height: 24,
-              padding: EdgeInsets.only(right: 16.w),
+              padding: EdgeInsets.only(right: 16.cw),
               child: closeButton != null
                   ? closeButton!
                   : showCloseButton
@@ -78,10 +79,10 @@ class LargePopupWidget extends StatelessWidget {
                             Text(S.of(context).label_button_close,
                                 style: getTextStyle(
                                     AppTypo.body14B, AppColors.grey00)),
-                            SizedBox(width: 4.w),
+                            SizedBox(width: 4.cw),
                             SvgPicture.asset(
                               'assets/icons/cancle_style=line.svg',
-                              width: 24.w,
+                              width: 24.cw,
                               height: 24,
                               colorFilter: const ColorFilter.mode(
                                   AppColors.grey00, BlendMode.srcIn),

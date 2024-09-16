@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class ListItem extends StatelessWidget {
   final String leading;
@@ -34,7 +34,7 @@ class ListItem extends StatelessWidget {
             tailing ??
                 SvgPicture.asset(
                   assetPath,
-                  width: 20.w,
+                  width: 20.cw,
                   height: 20,
                   colorFilter: const ColorFilter.mode(
                     AppColors.grey900,

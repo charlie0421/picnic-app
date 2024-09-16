@@ -77,24 +77,24 @@ void main() async {
 
     initializeReflectable();
 
-    // MobileAds.instance.initialize();
     if (isMobile()) {
-      // requestAppTrackingTransparency();
+      requestAppTrackingTransparency();
     }
 
     setPathUrlStrategy();
 
     SentryFlutter.init(
       (options) {
-        options.dsn = Environment.sentryDsn;
+        options.dsn =
+            kIsWeb ? Environment.sentryWebDsn : Environment.sentryAppDsn;
         options.tracesSampleRate = 1.0;
         options.profilesSampleRate = 1.0;
         options.beforeSend = (event, hint) {
-          // if (!Environment.enableSentry || kDebugMode) {
-          //   logger.i(
-          //       'Sentry event in local environment (not sent): ${event.eventId}');
-          //   return null; // null을 반환하면 이벤트가 Sentry로 전송되지 않습니다.
-          // }
+          if (!Environment.enableSentry || kDebugMode) {
+            logger.i(
+                'Sentry event in local environment (not sent): ${event.eventId}');
+            return null; // null을 반환하면 이벤트가 Sentry로 전송되지 않습니다.
+          }
           return event;
         };
       },

@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -124,4 +126,9 @@ bool isWindows() {
 
 bool isLinux() {
   return Platform.isLinux;
+}
+
+extension CustomSizeExtension on num {
+  double get cw => kIsWeb ? (this * 600 / 393) : w;
+  double get ch => kIsWeb ? (this * 800 / 852) : h;
 }

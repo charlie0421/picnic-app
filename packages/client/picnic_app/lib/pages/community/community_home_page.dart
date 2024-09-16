@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/common_banner.dart';
 import 'package:picnic_app/components/community/home/post_home_list.dart';
@@ -40,7 +39,7 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
     return ListView(children: [
       const CommonBanner('community_home', 150),
       Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        padding: EdgeInsets.symmetric(horizontal: 16.cw),
         child: Text('My ARTISTS',
             style: getTextStyle(AppTypo.title18B, AppColors.grey900)),
       ),
@@ -55,7 +54,7 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
                 ? Column(
                     children: [
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        padding: EdgeInsets.symmetric(horizontal: 16.cw),
                         height: 84,
                         child: ListView.separated(
                           itemCount: artists.length,
@@ -108,7 +107,7 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
                             );
                           },
                           separatorBuilder: (BuildContext context, int index) {
-                            return SizedBox(width: 14.w);
+                            return SizedBox(width: 14.cw);
                           },
                         ),
                       ),

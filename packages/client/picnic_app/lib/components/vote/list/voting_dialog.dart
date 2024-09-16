@@ -20,6 +20,7 @@ import 'package:picnic_app/providers/vote_detail_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/ui.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 Future showVotingDialog({
@@ -98,12 +99,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         ref.watch(userInfoProvider.select((value) => value.value?.id ?? ''));
 
     return Dialog(
-      insetPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 0.w),
+      insetPadding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 0),
       backgroundColor: Colors.transparent,
       child: LargePopupWidget(
         content: Container(
           padding:
-              EdgeInsets.only(top: 32, bottom: 24, left: 24.w, right: 24.w),
+              EdgeInsets.only(top: 32, bottom: 24, left: 24.cw, right: 24.cw),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -157,8 +158,8 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                     : widget.voteItemModel.artist_group!.name),
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               ),
-              SizedBox(width: 8.w),
-              if (widget.voteItemModel.artist != 0)
+              SizedBox(width: 8.cw),
+              if (widget.voteItemModel.artist.id != 0)
                 Align(
                   alignment: Alignment.center,
                   child: Text(
@@ -182,13 +183,13 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            width: 32.w,
+            width: 32.cw,
             height: 32,
             alignment: Alignment.centerLeft,
             child: Image.asset('assets/icons/store/star_100.png',
-                width: 32.w, height: 32),
+                width: 32.cw, height: 32),
           ),
-          SizedBox(width: 2.w),
+          SizedBox(width: 2.cw),
           Expanded(
             child: Container(
               height: 26,
@@ -201,7 +202,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                 enableSeparator: true,
                 curve: Curves.easeInOut,
                 textStyle: TextStyle(
-                  fontSize: 16.sp,
+                  fontSize: 16.cw,
                   fontWeight: FontWeight.bold,
                   color: AppColors.primary500,
                 ),
@@ -228,7 +229,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       },
       child: Container(
         height: 32,
-        padding: EdgeInsets.symmetric(horizontal: 12.w),
+        padding: EdgeInsets.symmetric(horizontal: 12.cw),
         decoration: BoxDecoration(
           color: AppColors.mint500,
           borderRadius: BorderRadius.circular(20.r),
@@ -241,10 +242,10 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
               S.of(context).label_button_recharge,
               style: getTextStyle(AppTypo.body14B, AppColors.primary500),
             ),
-            SizedBox(width: 4.w),
+            SizedBox(width: 4.cw),
             SvgPicture.asset(
               'assets/icons/plus_style=fill.svg',
-              width: 16.w,
+              width: 16.cw,
               height: 16,
               colorFilter:
                   const ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
@@ -279,14 +280,14 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           children: [
             SvgPicture.asset(
               'assets/icons/check_style=line.svg',
-              width: 20.w,
+              width: 20.cw,
               height: 20,
               colorFilter: ColorFilter.mode(
                 _checkAll ? AppColors.primary500 : AppColors.grey300,
                 BlendMode.srcIn,
               ),
             ),
-            SizedBox(width: 4.w),
+            SizedBox(width: 4.cw),
             Text(
               S.of(context).label_checkbox_entire_use,
               style: getTextStyle(
@@ -312,7 +313,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         ),
         borderRadius: BorderRadius.circular(24).r,
       ),
-      padding: EdgeInsets.only(right: 16.w),
+      padding: EdgeInsets.only(right: 16.cw),
       child: Row(
         children: [
           Expanded(
@@ -331,7 +332,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                 fillColor: AppColors.grey900,
                 isCollapsed: true,
                 contentPadding: EdgeInsets.symmetric(
-                    horizontal: 24.w, vertical: 5), // 수직 패딩 조정
+                    horizontal: 24.cw, vertical: 5), // 수직 패딩 조정
               ),
               onChanged: (_) => _validateVote(),
               inputFormatters: [
@@ -392,7 +393,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           _hasValue ? AppColors.grey700 : AppColors.grey200,
           BlendMode.srcIn,
         ),
-        width: 20.w,
+        width: 20.cw,
         height: 20,
       ),
     );
@@ -401,7 +402,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   Widget _buildErrorMessage() {
     if (!_canVote && _hasValue) {
       return Container(
-        padding: EdgeInsets.only(left: 24.w, top: 4.w),
+        padding: EdgeInsets.only(left: 24.cw, top: 4.cw),
         width: double.infinity,
         height: 15,
         child: Text(
@@ -419,7 +420,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       behavior: HitTestBehavior.opaque,
       onTap: _canVote ? () => _handleVote(myStarCandy, userId) : null,
       child: Container(
-        width: 172.w,
+        width: 172.cw,
         height: 52,
         decoration: BoxDecoration(
           color: _canVote ? AppColors.primary500 : AppColors.grey300,

@@ -137,7 +137,9 @@ class _AppState extends ConsumerState<App> {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: kIsWeb ? webDesignSize : const Size(393, 892),
+      designSize: const Size(393, 892),
+      minTextAdapt: true,
+      splitScreenMode: true,
       child: OverlaySupport.global(
         child: Consumer(
           builder: (context, ref, child) {
@@ -176,19 +178,24 @@ class _AppState extends ConsumerState<App> {
                 return MaterialPageRoute(builder: (_) => Portal());
               },
               navigatorObservers: [observer],
-              builder: (context, child) =>
-                  UpdateDialog(child: child ?? const SizedBox.shrink()),
+              builder: (context, child) {
+                // Apply custom scaling to the entire app
+                return _ScaleAwareBuilder(
+                  builder: (context, child) => UpdateDialog(
+                    child: child ?? const SizedBox.shrink(),
+                  ),
+                  child: child!,
+                );
+              },
               home: _buildHomeScreen(),
             );
 
             if (kIsWeb) {
-              app = ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: webDesignSize.width),
-                child: app,
-              );
-              return MediaQuery(
-                data: MediaQuery.of(context).copyWith(size: webDesignSize),
-                child: app,
+              return Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 600),
+                  child: app,
+                ),
               );
             } else {
               return app;
@@ -252,6 +259,34 @@ class _AppState extends ConsumerState<App> {
         return mypageThemeLight;
       default:
         return picThemeLight;
+    }
+  }
+}
+
+class _ScaleAwareBuilder extends StatelessWidget {
+  final Widget child;
+  final Widget Function(BuildContext, Widget?) builder;
+
+  const _ScaleAwareBuilder({
+    Key? key,
+    required this.child,
+    required this.builder,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (kIsWeb) {
+      // For web, use a custom scaling factor
+      return MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          size: const Size(600, 800),
+          // textScaleFactor: 600 / 393, // Adjust text scale for web
+        ),
+        child: builder(context, child),
+      );
+    } else {
+      // For mobile, use the original MediaQuery
+      return builder(context, child);
     }
   }
 }

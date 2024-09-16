@@ -74,7 +74,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
         : configService.getConfig('UNITY_ANDROID_BANNER1');
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.symmetric(horizontal: 16.cw),
       child: ListView(
         children: [
           if (supabase.isLogged) ...[
@@ -157,8 +157,8 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
           index: index,
           icon: Image.asset(
             'assets/icons/store/star_100.png',
-            width: 48.w,
-            height: 48.w,
+            width: 48.cw,
+            height: 48.cw,
           ),
           title: Text(
             S.of(context).label_button_watch_and_charge,
@@ -214,8 +214,8 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
           index: index,
           icon: Image.asset(
             'assets/icons/store/star_100.png',
-            width: 48.w,
-            height: 48.w,
+            width: 48.cw,
+            height: 48.cw,
           ),
           title: Text(
             S.of(context).label_button_watch_and_charge,

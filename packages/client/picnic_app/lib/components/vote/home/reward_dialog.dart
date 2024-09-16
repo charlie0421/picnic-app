@@ -40,8 +40,8 @@ class _RewardDialogState extends State<RewardDialog> {
               ),
             ),
             Positioned(
-              top: 40.w,
-              right: 15.w,
+              top: 40.cw,
+              right: 15.cw,
               child: GestureDetector(
                 onTap: () {
                   Navigator.of(context).pop();
@@ -92,7 +92,7 @@ class _RewardDialogState extends State<RewardDialog> {
           right: 0,
           child: Container(
             height: 48,
-            margin: EdgeInsets.symmetric(horizontal: 30.w),
+            margin: EdgeInsets.symmetric(horizontal: 30.cw),
             child: VoteCommonTitle(
               title: widget.data.getTitle(),
             ),
@@ -109,10 +109,10 @@ class _RewardDialogState extends State<RewardDialog> {
           children: [
             Container(
               width: double.infinity,
-              margin: EdgeInsets.only(left: 16.w, right: 16.w, top: 12),
-              padding:
-                  EdgeInsets.only(left: 24.w, right: 24.w, top: 53, bottom: 41)
-                      .r,
+              margin: EdgeInsets.only(left: 16.cw, right: 16.cw, top: 12),
+              padding: EdgeInsets.only(
+                      left: 24.cw, right: 24.cw, top: 53, bottom: 41)
+                  .r,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24.r),
                 border: Border.all(color: AppColors.primary500, width: 1.5.r),
@@ -123,7 +123,7 @@ class _RewardDialogState extends State<RewardDialog> {
             ),
             Positioned(
               top: 0,
-              left: 40.w,
+              left: 40.cw,
               child: Image.asset('assets/images/reward_${type.name}.png',
                   height: 24),
             ),

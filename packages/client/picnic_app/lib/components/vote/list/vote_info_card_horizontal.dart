@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/models/pic/artist_vote.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class VoteCardColumnHorizontal extends StatelessWidget {
   const VoteCardColumnHorizontal({
@@ -23,10 +23,10 @@ class VoteCardColumnHorizontal extends StatelessWidget {
     BuildContext context,
   ) {
     final barWidth = rank == 1
-        ? 240.w
+        ? 240.cw
         : rank == 2
-            ? 200.w
-            : 160.w;
+            ? 200.cw
+            : 160.cw;
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -34,14 +34,14 @@ class VoteCardColumnHorizontal extends StatelessWidget {
           color: AppColors.grey00,
           width: double.infinity,
           child: SizedBox(
-            width: barWidth.w,
+            width: barWidth.cw,
             height: 50,
           ),
         ),
         Positioned(
           width: barWidth,
           child: Container(
-            width: barWidth.w,
+            width: barWidth.cw,
             height: 50,
             decoration: const BoxDecoration(
               gradient: commonGradientReverse,
@@ -49,7 +49,7 @@ class VoteCardColumnHorizontal extends StatelessWidget {
           ),
         ),
         Positioned(
-          left: barWidth + 50.w,
+          left: barWidth + 50.cw,
           height: 50,
           child: Align(
             alignment: Alignment.centerRight,
@@ -64,7 +64,7 @@ class VoteCardColumnHorizontal extends StatelessWidget {
           ),
         ),
         Positioned(
-          left: 10.w,
+          left: 10.cw,
           top: 0,
           bottom: 0,
           child: FadeTransition(
@@ -92,9 +92,9 @@ class VoteCardColumnHorizontal extends StatelessWidget {
           ),
         ),
         Positioned(
-          left: barWidth - 25.w,
+          left: barWidth - 25.cw,
           child: Container(
-            width: 50.w,
+            width: 50.cw,
             height: 50,
             alignment: Alignment.center,
             padding: const EdgeInsets.all(2),
@@ -107,7 +107,7 @@ class VoteCardColumnHorizontal extends StatelessWidget {
               borderRadius: BorderRadius.circular(50),
             ),
             child: Container(
-              width: 42.w,
+              width: 42.cw,
               height: 42,
               alignment: Alignment.centerRight,
               decoration: BoxDecoration(
@@ -115,7 +115,7 @@ class VoteCardColumnHorizontal extends StatelessWidget {
                 borderRadius: BorderRadius.circular(50),
                 border: Border.all(
                   color: AppColors.grey00,
-                  width: 1.w,
+                  width: 1.cw,
                 ),
               ),
               child: FadeTransition(

@@ -1,13 +1,13 @@
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/common/custom_pagination.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/providers/banner_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/ui.dart';
 import 'package:shimmer/shimmer.dart';
 
 class CommonBanner extends ConsumerStatefulWidget {
@@ -58,7 +58,7 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
                         child: Container(
                           alignment: Alignment.center,
                           padding: EdgeInsets.symmetric(
-                              vertical: 4, horizontal: 8.w),
+                              vertical: 4, horizontal: 8.cw),
                           color: Colors.black.withOpacity(0.5),
                           child: Text(
                             title,
@@ -106,9 +106,9 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
               children: List.generate(
                 3,
                 (index) => Container(
-                  width: 8.w,
+                  width: 8.cw,
                   height: 8,
-                  margin: EdgeInsets.symmetric(horizontal: 4.w),
+                  margin: EdgeInsets.symmetric(horizontal: 4.cw),
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.white,

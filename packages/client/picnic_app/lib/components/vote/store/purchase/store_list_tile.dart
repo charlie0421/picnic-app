@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class StoreListTile extends StatelessWidget {
   const StoreListTile({
@@ -33,7 +33,7 @@ class StoreListTile extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           icon,
-          SizedBox(width: 16.w),
+          SizedBox(width: 16.cw),
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -47,7 +47,7 @@ class StoreListTile extends StatelessWidget {
               onPressed: isLoading ? null : buttonOnPressed,
               child: isLoading
                   ? SizedBox(
-                      width: 16.w,
+                      width: 16.cw,
                       height: 16,
                       child: const CircularProgressIndicator(
                         strokeWidth: 2,

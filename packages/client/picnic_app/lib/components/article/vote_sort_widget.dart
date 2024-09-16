@@ -47,7 +47,7 @@
 //                                     },
 //                                     icon: Icon(
 //                                       Icons.close,
-//                                       size: 18.w,
+//                                       size: 18.cw,
 //                                     )),
 //                               ],
 //                             ),
@@ -87,11 +87,11 @@
 //                                             sortOptionState.sort == 'id'
 //                                                 ? SvgPicture.asset(
 //                                                     'assets/icons/check_green.svg',
-//                                                     width: 18.w,
+//                                                     width: 18.cw,
 //                                                     height:18,
 //                                                   )
-//                                                 : SizedBox(width: 18.w),
-//                                             SizedBox(width: 8.w),
+//                                                 : SizedBox(width: 18.cw),
+//                                             SizedBox(width: 8.cw),
 //                                             Text('최신 등록순',
 //                                                 style:
 //                                                     sortOptionState.sort == 'id'
@@ -131,11 +131,11 @@
 //                                             sortOptionState.sort == 'viewCount'
 //                                                 ? SvgPicture.asset(
 //                                                     'assets/icons/check_green.svg',
-//                                                     width: 18.w,
+//                                                     width: 18.cw,
 //                                                     height:18,
 //                                                   )
-//                                                 : SizedBox(width: 18.w),
-//                                             SizedBox(width: 8.w),
+//                                                 : SizedBox(width: 18.cw),
+//                                             SizedBox(width: 8.cw),
 //                                             Text('저장순',
 //                                                 style: sortOptionState.sort ==
 //                                                         'viewCount'
@@ -175,11 +175,11 @@
 //                                                     'commentCount'
 //                                                 ? SvgPicture.asset(
 //                                                     'assets/icons/check_green.svg',
-//                                                     width: 18.w,
+//                                                     width: 18.cw,
 //                                                     height:18,
 //                                                   )
-//                                                 : SizedBox(width: 18.w),
-//                                             SizedBox(width: 8.w),
+//                                                 : SizedBox(width: 18.cw),
+//                                             SizedBox(width: 8.cw),
 //                                             Text('댓글 순',
 //                                                 style: sortOptionState.sort ==
 //                                                         'commentCount'
@@ -206,13 +206,13 @@
 //               },
 //             ),
 //         child: Container(
-//           width: 102.w,
+//           width: 102.cw,
 //           height:30,
 //           decoration: BoxDecoration(
 //             borderRadius: BorderRadius.circular(8).r,
 //             border: Border.all(color: AppColors.Grey100),
 //           ),
-//           padding: const EdgeInsets.symmetric(horizontal: 4).w,
+//           padding: const EdgeInsets.symmetric(horizontal: 4).cw,
 //           margin: const EdgeInsets.only(right: 16),
 //           child: Row(
 //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -235,7 +235,7 @@
 //               ),
 //               SvgPicture.asset(
 //                 'assets/icons/arrow_down_style=line.svg',
-//                 width: 18.w,
+//                 width: 18.cw,
 //                 height:18,
 //               )
 //             ],

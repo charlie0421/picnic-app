@@ -7,6 +7,7 @@ import 'package:picnic_app/components/ui/picnic_animated_switcher.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/pages/pic/landing_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class PicHomeScreen extends ConsumerStatefulWidget {
   const PicHomeScreen({super.key});
@@ -38,8 +39,8 @@ class _PicHomeScreenState extends ConsumerState<PicHomeScreen> {
               )),
         if (picBottomNavigationIndex == 0)
           Positioned(
-              right: 20.w,
-              bottom: 120.w,
+              right: 20.cw,
+              bottom: 120.cw,
               child: FloatingActionButton(
                 onPressed: _buildFloating,
                 backgroundColor: picMainColor,

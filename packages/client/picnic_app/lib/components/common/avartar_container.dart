@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class ProfileImageContainer extends StatelessWidget {
   ProfileImageContainer({
@@ -16,8 +17,8 @@ class ProfileImageContainer extends StatelessWidget {
 
   final avatarUrl;
   double? borderRadius = 8.r;
-  double? width = 24.w;
-  double? height = 24.w;
+  double? width = 24.cw;
+  double? height = 24.cw;
 
   @override
   Widget build(BuildContext context) {
@@ -88,8 +89,8 @@ class NoAvatar extends StatelessWidget {
       required this.borderRadius});
 
   double? borderRadius = 8.r;
-  double? width = 24.w;
-  double? height = 24.w;
+  double? width = 24.cw;
+  double? height = 24.cw;
 
   @override
   Widget build(BuildContext context) {

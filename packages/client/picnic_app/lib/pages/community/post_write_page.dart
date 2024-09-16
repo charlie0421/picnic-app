@@ -136,7 +136,7 @@
 //                     Text('임시저장',
 //                         style: getTextStyle(
 //                             AppTypo.body14B, AppColors.primary500)),
-//                     SizedBox(width: 16.w),
+//                     SizedBox(width: 16.cw),
 //                     SizedBox(
 //                       height: 30,
 //                       child: ElevatedButton(
@@ -144,7 +144,7 @@
 //                             foregroundColor: AppColors.primary500,
 //                             backgroundColor: AppColors.grey00,
 //                             textStyle: getTextStyle(AppTypo.body14B),
-//                             padding: EdgeInsets.symmetric(horizontal: 20.w),
+//                             padding: EdgeInsets.symmetric(horizontal: 20.cw),
 //                             shape: RoundedRectangleBorder(
 //                               borderRadius: BorderRadius.circular(20),
 //                               side: const BorderSide(
@@ -160,7 +160,7 @@
 //                 ),
 //               ),
 //               Container(
-//                 padding: EdgeInsets.symmetric(horizontal: 16.w),
+//                 padding: EdgeInsets.symmetric(horizontal: 16.cw),
 //                 child: Column(
 //                   mainAxisAlignment: MainAxisAlignment.start,
 //                   children: [
@@ -328,7 +328,7 @@
 //
 //   Widget _buildBottomBar() {
 //     return Container(
-//       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8),
+//       padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 8),
 //       child: Row(
 //         mainAxisAlignment: MainAxisAlignment.start,
 //         children: [
@@ -342,7 +342,7 @@
 //                   const ColorFilter.mode(AppColors.grey600, BlendMode.srcIn),
 //             ),
 //           ),
-//           SizedBox(width: 24.w),
+//           SizedBox(width: 24.cw),
 //           GestureDetector(
 //             onTap: _insertYoutubeLink,
 //             child: SvgPicture.asset(
@@ -353,7 +353,7 @@
 //                   const ColorFilter.mode(AppColors.grey600, BlendMode.srcIn),
 //             ),
 //           ),
-//           SizedBox(width: 24.w),
+//           SizedBox(width: 24.cw),
 //           GestureDetector(
 //             onTap: _insertLink,
 //             child: Icon(Icons.link, size: 24, color: AppColors.grey600),

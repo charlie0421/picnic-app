@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/vote/store/common/store_point_info.dart';
 import 'package:picnic_app/components/vote/store/common/usage_policy_dialog.dart';
 import 'package:picnic_app/components/vote/store/purchase/analytics_service.dart';
@@ -8,6 +7,7 @@ import 'package:picnic_app/components/vote/store/purchase/purchase_star_candy_we
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/ui.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
@@ -27,7 +27,7 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.symmetric(horizontal: 16.cw),
       child: ListView(
         children: [
           if (supabase.isLogged) ...[
@@ -91,7 +91,7 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
   Widget _buildShimmerItem() {
     return ListTile(
       leading: Container(
-        width: 48.w,
+        width: 48.cw,
         height: 48,
         color: Colors.white,
       ),

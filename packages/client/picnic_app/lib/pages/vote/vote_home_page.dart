@@ -17,6 +17,7 @@ import 'package:picnic_app/providers/reward_list_provider.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/ui.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -237,7 +238,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
     final asyncRewardListState = ref.watch(asyncRewardListProvider);
     return Column(children: [
       Container(
-        padding: EdgeInsets.only(left: 16.w),
+        padding: EdgeInsets.only(left: 16.cw),
         alignment: Alignment.centerLeft,
         child: Text(S.of(context).label_vote_reward_list,
             style: getTextStyle(AppTypo.title18B, AppColors.grey900)),
@@ -247,7 +248,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
           data: (data) {
             return Container(
               alignment: Alignment.centerLeft,
-              padding: EdgeInsets.only(left: 16.w),
+              padding: EdgeInsets.only(left: 16.cw),
               height: 100,
               child: ListView.builder(
                   scrollDirection: Axis.horizontal,
@@ -322,7 +323,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                       width: 120,
                       height: 100,
                       margin: EdgeInsets.only(
-                          left: 16.w, right: index == 4 ? 16.w : 0),
+                          left: 16.cw, right: index == 4 ? 16.cw : 0),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8.r),
                         color: Colors.white,

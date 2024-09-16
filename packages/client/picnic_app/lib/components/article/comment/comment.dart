@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/article/comment/comment_item.dart';
 import 'package:picnic_app/components/article/comment/comment_reply_layer.dart';
@@ -11,6 +10,7 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/pic/article.dart';
 import 'package:picnic_app/models/pic/comment.dart';
 import 'package:picnic_app/providers/comment_list_provider.dart';
+import 'package:picnic_app/util/ui.dart';
 
 import 'comment_input.dart';
 
@@ -128,7 +128,7 @@ class _CommentState extends ConsumerState<Comment> {
                                 itemCount: item.children!.length,
                                 itemBuilder: (context, index) {
                                   return Container(
-                                    padding: EdgeInsets.only(left: 50.w),
+                                    padding: EdgeInsets.only(left: 50.cw),
                                     child: CommentItem(
                                       commentModel: item.children![index],
                                       pagingController: _pagingController,

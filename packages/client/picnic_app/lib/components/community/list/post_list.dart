@@ -44,7 +44,7 @@ class _PostListPageState extends ConsumerState<PostListPage> {
                             backgroundColor: AppColors.grey00,
                             textStyle: getTextStyle(AppTypo.body14B),
                             padding: EdgeInsets.symmetric(
-                                horizontal: 20.w, vertical: 10),
+                                horizontal: 20.cw, vertical: 10),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                               side: const BorderSide(

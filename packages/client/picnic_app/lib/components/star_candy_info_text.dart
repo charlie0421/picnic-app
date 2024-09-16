@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/ui.dart';
 import 'package:picnic_app/util/util.dart';
 
 class StarCandyInfoText extends ConsumerStatefulWidget {
@@ -53,7 +53,7 @@ class _StarCandyInfoTextState extends ConsumerState<StarCandyInfoText> {
         children: [
           Image.asset(
             'assets/icons/store/star_100.png',
-            width: 48.w,
+            width: 48.cw,
             height: 48,
           ),
           Text.rich(

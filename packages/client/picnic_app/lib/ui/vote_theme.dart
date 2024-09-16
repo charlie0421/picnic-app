@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/ui/common_theme.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/ui.dart';
 
 ThemeData voteThemeLight = ThemeData.light().copyWith(
   appBarTheme: const AppBarTheme(
@@ -25,7 +26,7 @@ ThemeData voteThemeLight = ThemeData.light().copyWith(
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
         padding: WidgetStateProperty.all(
-            EdgeInsets.symmetric(horizontal: 32.w, vertical: 0).r),
+            EdgeInsets.symmetric(horizontal: 32.cw, vertical: 0).r),
         backgroundColor: WidgetStateProperty.all(AppColors.mint500),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(

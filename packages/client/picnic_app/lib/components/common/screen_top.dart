@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/common_my_point_info.dart';
@@ -11,6 +10,7 @@ import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/ui.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
 class ScreenTop extends ConsumerStatefulWidget {
@@ -48,7 +48,7 @@ class _TopState extends ConsumerState<ScreenTop> {
     }
     return Container(
       height: 54,
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -126,11 +126,11 @@ class TopScreenRight extends StatelessWidget {
               },
               child: Container(
                 alignment: Alignment.centerLeft,
-                width: 40.w,
+                width: 40.cw,
                 height: 36,
                 child: SvgPicture.asset(
                   'assets/icons/calendar_style=line.svg',
-                  width: 24.w,
+                  width: 24.cw,
                   height: 24,
                 ),
               ),
@@ -143,7 +143,7 @@ class TopScreenRight extends StatelessWidget {
                   RotationImage(
                     image: Image.asset(
                       'assets/icons/store/star_100.png',
-                      width: 24.w,
+                      width: 24.cw,
                       height: 24,
                     ),
                   ),
@@ -165,19 +165,19 @@ class TopScreenRight extends StatelessWidget {
           child: Stack(
             children: [
               SizedBox(
-                width: 24.w,
+                width: 24.cw,
                 height: 24,
                 child: SvgPicture.asset(
                   'assets/icons/alarm_style=line.svg',
-                  width: 24.w,
+                  width: 24.cw,
                   height: 24,
                 ),
               ),
               Positioned(
-                top: 0.w,
-                right: 0.w,
-                left: 0.w,
-                bottom: 3.w,
+                top: 0.cw,
+                right: 0.cw,
+                left: 0.cw,
+                bottom: 3.cw,
                 child: const BounceRedDot(),
               ),
             ],
