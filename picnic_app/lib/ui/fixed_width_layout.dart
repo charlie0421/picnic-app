@@ -5,10 +5,10 @@ class FixedWidthLayout extends StatelessWidget {
   final double maxWidth;
 
   const FixedWidthLayout({
-    Key? key,
+    super.key,
     required this.child,
     this.maxWidth = 600, // 원하는 최대 너비를 설정하세요
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

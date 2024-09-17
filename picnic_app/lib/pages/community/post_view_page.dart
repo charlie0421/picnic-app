@@ -11,7 +11,7 @@ import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class PostViewPage extends ConsumerStatefulWidget {
-  PostViewPage(
+  const PostViewPage(
     this.post, {
     super.key,
   });

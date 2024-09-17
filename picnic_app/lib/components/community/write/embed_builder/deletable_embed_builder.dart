@@ -32,12 +32,11 @@ class _DeletableEmbedWidget extends StatefulWidget {
   final Widget Function(BuildContext, Embed) contentBuilder;
 
   const _DeletableEmbedWidget({
-    Key? key,
     required this.controller,
     required this.node,
     required this.embedType,
     required this.contentBuilder,
-  }) : super(key: key);
+  });
 
   @override
   _DeletableEmbedWidgetState createState() => _DeletableEmbedWidgetState();

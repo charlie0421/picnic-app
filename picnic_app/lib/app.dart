@@ -175,7 +175,7 @@ class _AppState extends ConsumerState<App> {
                 }
 
                 // 정의되지 않은 라우트에 대한 처리
-                return MaterialPageRoute(builder: (_) => Portal());
+                return MaterialPageRoute(builder: (_) => const Portal());
               },
               navigatorObservers: [observer],
               builder: (context, child) {
@@ -268,10 +268,9 @@ class _ScaleAwareBuilder extends StatelessWidget {
   final Widget Function(BuildContext, Widget?) builder;
 
   const _ScaleAwareBuilder({
-    Key? key,
     required this.child,
     required this.builder,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -5,8 +5,7 @@ import 'package:picnic_app/supabase_options.dart';
 class OAuthCallbackPage extends StatefulWidget {
   final Uri callbackUri;
 
-  const OAuthCallbackPage({Key? key, required this.callbackUri})
-      : super(key: key);
+  const OAuthCallbackPage({super.key, required this.callbackUri});
 
   @override
   _OAuthCallbackPageState createState() => _OAuthCallbackPageState();
@@ -29,13 +28,9 @@ class _OAuthCallbackPageState extends State<OAuthCallbackPage> {
 
         logger.d('OAuthCallbackPage:response $response');
 
-        if (response.session != null) {
-          // 성공적인 인증 후 처리
-          Navigator.of(context).pop();
-        } else {
-          throw Exception('Failed to exchange code for session');
-        }
-      } else {
+        // 성공적인 인증 후 처리
+        Navigator.of(context).pop();
+            } else {
         throw Exception('Invalid OAuth callback: missing code');
       }
     } catch (e, s) {
@@ -46,7 +41,7 @@ class _OAuthCallbackPageState extends State<OAuthCallbackPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Center(child: CircularProgressIndicator()),
     );
   }

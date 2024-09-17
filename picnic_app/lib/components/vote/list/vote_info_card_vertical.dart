@@ -26,7 +26,7 @@ class VoteCardColumnVertical extends StatelessWidget {
   ) {
     logger.i('voteItem: $voteItem');
 
-    final width = 80.0;
+    const width = 80.0;
     final barHeight = (rank == 1
         ? 220 * .65
         : rank == 2
@@ -111,7 +111,7 @@ class VoteCardColumnVertical extends StatelessWidget {
                 children: voteItem.artist.id != 0
                     ? [
                         Text(
-                          getLocaleTextFromJson(voteItem.artist!.name),
+                          getLocaleTextFromJson(voteItem.artist.name),
                           style: getTextStyle(
                             AppTypo.body14B,
                             AppColors.grey900,
@@ -120,7 +120,7 @@ class VoteCardColumnVertical extends StatelessWidget {
                         ),
                         Text(
                           getLocaleTextFromJson(
-                              voteItem.artist!.artist_group!.name),
+                              voteItem.artist.artist_group.name),
                           style: getTextStyle(
                             AppTypo.caption10SB,
                             AppColors.grey00,
@@ -132,7 +132,7 @@ class VoteCardColumnVertical extends StatelessWidget {
                         ? [
                             Text(
                               getLocaleTextFromJson(
-                                  voteItem.artist_group!.name),
+                                  voteItem.artist_group.name),
                               style: getTextStyle(
                                 AppTypo.body14B,
                                 AppColors.grey900,

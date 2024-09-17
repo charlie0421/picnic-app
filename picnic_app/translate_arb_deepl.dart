@@ -10,7 +10,7 @@ import 'package:watcher/watcher.dart';
 const String deeplApiKey = 'ef2715c3-89d7-4b1b-a95b-e1fd3b7d734e:fx';
 const String manualTranslationKey = 'manualTranslation';
 final RegExp koreanRegex = RegExp(r'[가-힣]+');
-const bool kDebugMode = !const bool.fromEnvironment('dart.vm.product');
+const bool kDebugMode = !bool.fromEnvironment('dart.vm.product');
 
 void main(List<String> arguments) async {
   final parser = ArgParser()

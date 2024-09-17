@@ -135,12 +135,12 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
                           item.vote_item.artist.id != 0
                               ? TextSpan(
                                   text:
-                                      '${getLocaleTextFromJson(item.vote_item.artist!.name)}_${getLocaleTextFromJson(item.vote_item.artist!.artist_group!.name)}',
+                                      '${getLocaleTextFromJson(item.vote_item.artist.name)}_${getLocaleTextFromJson(item.vote_item.artist.artist_group.name)}',
                                   style: getTextStyle(
                                       AppTypo.body14M, AppColors.grey900))
                               : TextSpan(
                                   text:
-                                      '${getLocaleTextFromJson(item.vote_item.artist_group!.name)}',
+                                      getLocaleTextFromJson(item.vote_item.artist_group.name),
                                   style: getTextStyle(
                                       AppTypo.body14M, AppColors.grey900)),
                         ])),

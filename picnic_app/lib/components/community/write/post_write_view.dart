@@ -28,7 +28,7 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
   final quill.QuillController _contentController =
       quill.QuillController.basic();
   bool _isAnonymous = false;
-  List<PlatformFile> _attachments = [];
+  final List<PlatformFile> _attachments = [];
   final Map<String, double> _uploadProgress = {};
   late final S3Uploader _s3Uploader;
   bool _isSaving = false;
@@ -190,12 +190,12 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Uploading attachments:'),
+                              const Text('Uploading attachments:'),
                               ..._uploadProgress.entries.map(
                                 (entry) => LinearProgressIndicator(
                                   value: entry.value,
                                   backgroundColor: Colors.grey[200],
-                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                  valueColor: const AlwaysStoppedAnimation<Color>(
                                       Colors.blue),
                                 ),
                               ),

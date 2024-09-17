@@ -141,11 +141,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
 
     return List<int>.generate(data.length, (index) => index).where((index) {
       return data[index]!.artist != 0 &&
-              getLocaleTextFromJson(data[index]!.artist!.name)
+              getLocaleTextFromJson(data[index]!.artist.name)
                   .toLowerCase()
                   .contains(query.toLowerCase()) ||
           data[index]!.artist != 0 &&
-              getLocaleTextFromJson(data[index]!.artist_group!.name)
+              getLocaleTextFromJson(data[index]!.artist_group.name)
                   .toLowerCase()
                   .contains(query.toLowerCase());
     }).toList();
@@ -365,14 +365,14 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                               ? [
                                   TextSpan(
                                     text: getLocaleTextFromJson(
-                                        item.artist!.name),
+                                        item.artist.name),
                                     style: getTextStyle(
                                         AppTypo.body14B, AppColors.grey900),
                                   ),
                                   const TextSpan(text: ' '),
                                   TextSpan(
                                     text: getLocaleTextFromJson(
-                                        item.artist!.artist_group!.name),
+                                        item.artist.artist_group.name),
                                     style: getTextStyle(
                                         AppTypo.caption10SB, AppColors.grey600),
                                   ),
@@ -380,7 +380,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                               : [
                                   TextSpan(
                                     text: getLocaleTextFromJson(
-                                        item.artist_group!.name),
+                                        item.artist_group.name),
                                     style: getTextStyle(
                                         AppTypo.body14B, AppColors.grey900),
                                   ),

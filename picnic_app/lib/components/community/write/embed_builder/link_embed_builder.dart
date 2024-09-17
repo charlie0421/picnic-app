@@ -49,8 +49,7 @@ class _ReadOnlyLinkPreviewWidget extends StatefulWidget {
   final TextStyle textStyle;
 
   const _ReadOnlyLinkPreviewWidget(
-      {Key? key, required this.node, required this.textStyle})
-      : super(key: key);
+      {required this.node, required this.textStyle});
 
   @override
   _ReadOnlyLinkPreviewWidgetState createState() =>
@@ -60,8 +59,7 @@ class _ReadOnlyLinkPreviewWidget extends StatefulWidget {
 class _EditableLinkPreviewWidget extends StatefulWidget {
   final Embed node;
 
-  const _EditableLinkPreviewWidget({Key? key, required this.node})
-      : super(key: key);
+  const _EditableLinkPreviewWidget({required this.node});
 
   @override
   _EditableLinkPreviewWidgetState createState() =>

@@ -133,7 +133,7 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
 class BoardContent extends ConsumerWidget {
   final int artistId;
 
-  const BoardContent({Key? key, required this.artistId}) : super(key: key);
+  const BoardContent({super.key, required this.artistId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

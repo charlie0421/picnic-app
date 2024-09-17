@@ -157,7 +157,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
       data: (voteItems) => Container(
         width: MediaQuery.of(context).size.width,
         height: 260,
-        padding: EdgeInsets.only(left: 36, right: 36, top: 16),
+        padding: const EdgeInsets.only(left: 36, right: 36, top: 16),
         margin: const EdgeInsets.only(top: 24),
         clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
