@@ -30,7 +30,7 @@ class DeletableYouTubeEmbedBuilder extends DeletableEmbedBuilder {
 class _YouTubeEmbedContent extends StatelessWidget {
   final Embed node;
 
-  const _YouTubeEmbedContent({Key? key, required this.node}) : super(key: key);
+  const _YouTubeEmbedContent({required this.node});
 
   @override
   Widget build(BuildContext context) {

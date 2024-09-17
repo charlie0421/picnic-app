@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:picnic_app/ui/style.dart';
 
 class LocalImageEmbedBuilder extends EmbedBuilder {
   final bool isUploading;

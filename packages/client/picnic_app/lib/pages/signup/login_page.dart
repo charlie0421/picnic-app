@@ -508,7 +508,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
   Future<void> _waitForAuthStateChange(WidgetRef ref) async {
     // Wait for a maximum of 30 seconds
     for (int i = 0; i < 30; i++) {
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(const Duration(seconds: 1));
       final authState = ref.read(authStateProvider);
       if (authState.isAuthenticated) {
         // User is authenticated, navigate to home

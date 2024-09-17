@@ -123,7 +123,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
       height: 18,
       alignment: Alignment.center,
       // padding: EdgeInsets.symmetric(horizontal: 5.cw),
-      margin: EdgeInsets.symmetric(horizontal: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
         color: _color,
         borderRadius: BorderRadius.circular(4),

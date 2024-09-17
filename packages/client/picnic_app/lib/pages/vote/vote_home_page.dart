@@ -69,7 +69,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   @override
   Widget build(BuildContext context) {
     return ListView(children: [
-      CommonBanner('vote_home', 200),
+      const CommonBanner('vote_home', 200),
       const SizedBox(height: 36),
       _buildRewardList(context),
       const SizedBox(height: 36),
@@ -261,7 +261,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                         showRewardDialog(context, data[index]);
                       },
                       child: Container(
-                        margin: EdgeInsets.only(right: 16),
+                        margin: const EdgeInsets.only(right: 16),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8).r,
                         ),
@@ -292,7 +292,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                                     color: Colors.black.withOpacity(0.5),
                                   ),
                                   alignment: Alignment.center,
-                                  padding: EdgeInsets.symmetric(
+                                  padding: const EdgeInsets.symmetric(
                                       vertical: 4, horizontal: 8),
                                   child: Text(
                                     title,

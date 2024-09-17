@@ -37,7 +37,7 @@ class _StorePageState extends ConsumerState<StorePage>
 
   Widget _buildTabBar() {
     return kIsWeb
-        ? PurchaseStarCandyWeb()
+        ? const PurchaseStarCandyWeb()
         : Column(
             children: [
               TabBar(

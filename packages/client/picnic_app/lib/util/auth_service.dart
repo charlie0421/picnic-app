@@ -44,7 +44,7 @@ class GoogleLogin implements SocialLogin {
       );
     } catch (e) {
       logger.e('Google login error: $e');
-      return SocialLoginResult();
+      return const SocialLoginResult();
     }
   }
 
@@ -95,7 +95,7 @@ class AppleLogin implements SocialLogin {
       );
     } catch (e) {
       logger.e('Apple login error: $e');
-      return SocialLoginResult();
+      return const SocialLoginResult();
     }
   }
 
@@ -130,7 +130,7 @@ class KakaoLogin implements SocialLogin {
 
       if (kIsWeb) {
         await supabase.auth.signInWithOAuth(OAuthProvider.kakao);
-        return SocialLoginResult();
+        return const SocialLoginResult();
       } else {
         if (await isKakaoTalkInstalled()) {
           token = await _tryLogin(UserApi.instance.loginWithKakaoTalk);
@@ -139,7 +139,7 @@ class KakaoLogin implements SocialLogin {
         token ??= await _tryLogin(UserApi.instance.loginWithKakaoAccount);
 
         if (token == null) {
-          return SocialLoginResult();
+          return const SocialLoginResult();
         }
 
         final user = await UserApi.instance.me();
@@ -155,7 +155,7 @@ class KakaoLogin implements SocialLogin {
       }
     } catch (e) {
       logger.e('login error: $e');
-      return SocialLoginResult();
+      return const SocialLoginResult();
     }
   }
 

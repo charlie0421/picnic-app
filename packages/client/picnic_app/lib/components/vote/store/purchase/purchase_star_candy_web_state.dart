@@ -70,7 +70,7 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
   }
 
   Widget _buildProductsList() {
-    return Container(child: Text('준비중입니다.'));
+    return Container(child: const Text('준비중입니다.'));
   }
 
   Widget _buildShimmer() {
