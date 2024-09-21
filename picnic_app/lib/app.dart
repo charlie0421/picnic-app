@@ -3,7 +3,6 @@ import 'dart:developer' as developer;
 import 'package:another_flutter_splash_screen/another_flutter_splash_screen.dart';
 import 'package:app_links/app_links.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -24,6 +23,7 @@ import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/screens/pic/pic_camera_screen.dart';
 import 'package:picnic_app/screens/portal.dart';
 import 'package:picnic_app/screens/privacy.dart';
+import 'package:picnic_app/screens/purchase.dart';
 import 'package:picnic_app/screens/signup/signup_screen.dart';
 import 'package:picnic_app/screens/terms.dart';
 import 'package:picnic_app/supabase_options.dart';
@@ -85,9 +85,6 @@ class _AppState extends ConsumerState<App> {
 
   void _setupSupabaseAuthListener() {
     supabase.auth.onAuthStateChange.listen((data) async {
-      if (!kIsWeb) {
-        FirebaseCrashlytics.instance.log('Auth state changed: ${data.event}');
-      }
       logger.i('Auth state changed: ${data.event}');
       logger.i('User: ${data.session}');
       final session = data.session;
@@ -223,6 +220,7 @@ class _AppState extends ConsumerState<App> {
       '/pic-camera': (context) => const PicCameraScreen(),
       TermsScreen.routeName: (context) => const TermsScreen(),
       PrivacyScreen.routeName: (context) => const PrivacyScreen(),
+      PurchaseScreen.routeName: (context) => const PurchaseScreen(),
     };
   }
 

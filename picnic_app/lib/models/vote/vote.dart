@@ -1,6 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/models/reward.dart';
+import 'package:picnic_app/models/vote/artist.dart';
+import 'package:picnic_app/models/vote/artist_group.dart';
 import 'package:picnic_app/reflector.dart';
 
 part 'vote.freezed.dart';
@@ -61,42 +63,6 @@ class VoteItemModel with _$VoteItemModel {
 
   factory VoteItemModel.fromJson(Map<String, dynamic> json) =>
       _$VoteItemModelFromJson(json);
-}
-
-@reflector
-@freezed
-class ArtistModel with _$ArtistModel {
-  const ArtistModel._();
-
-  const factory ArtistModel({
-    required int id,
-    required Map<String, dynamic> name,
-    required int? yy,
-    required int? mm,
-    required int? dd,
-    required String gender,
-    required String image,
-    required ArtistGroupModel artist_group,
-    required bool? isBookmarked,
-    int? originalIndex,
-  }) = _ArtistModel;
-
-  factory ArtistModel.fromJson(Map<String, dynamic> json) =>
-      _$ArtistModelFromJson(json);
-}
-
-@reflector
-@freezed
-class ArtistGroupModel with _$ArtistGroupModel {
-  const ArtistGroupModel._();
-
-  const factory ArtistGroupModel(
-      {required int id,
-      required Map<String, dynamic> name,
-      required String image}) = _ArtistGroupModel;
-
-  factory ArtistGroupModel.fromJson(Map<String, dynamic> json) =>
-      _$ArtistGroupModelFromJson(json);
 }
 
 // 새로 추가된 ArtistModelWithHighlight 클래스

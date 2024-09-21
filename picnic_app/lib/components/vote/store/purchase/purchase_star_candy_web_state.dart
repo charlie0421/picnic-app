@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_app/components/vote/store/common/store_point_info.dart';
-import 'package:picnic_app/components/vote/store/common/usage_policy_dialog.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_app/components/error.dart';
+import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
 import 'package:picnic_app/components/vote/store/purchase/analytics_service.dart';
 import 'package:picnic_app/components/vote/store/purchase/purchase_star_candy_web.dart';
+import 'package:picnic_app/components/vote/store/purchase/store_list_tile.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
-import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/providers/product_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:supabase_extensions/supabase_extensions.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
   final AnalyticsService _analyticsService = AnalyticsService();
@@ -27,50 +31,108 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.cw),
+      padding: EdgeInsets.symmetric(horizontal: 8.cw, vertical: 50),
       child: ListView(
         children: [
-          if (supabase.isLogged) ...[
-            const SizedBox(height: 36),
-            StorePointInfo(
-              title: S.of(context).label_star_candy_pouch,
-              width: double.infinity,
-              height: 90,
-            ),
-          ],
+          Stack(
+            children: [
+              Container(
+                height: 150,
+                margin: EdgeInsets.only(top: 24, left: 8.cw, right: 8.cw),
+                padding: const EdgeInsets.only(top: 16),
+                decoration: BoxDecoration(
+                    border: Border.all(
+                      color: AppColors.primary500,
+                      width: 1.5.r,
+                    ),
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(40.r),
+                        topRight: Radius.circular(40.r),
+                        bottomLeft: Radius.circular(40.r),
+                        bottomRight: Radius.circular(40.r))),
+                alignment: Alignment.center,
+                child: const Text(
+                  '앱결제가 불가능한 분들을 위한 결제 창입니다.\n 미리 난수 아이디를 복사해 주세요.\n 복사 후 아래 버튼을 눌러 결제를 진행해 주세요.',
+                ),
+              ),
+              Positioned.fill(
+                  child: Container(
+                      alignment: Alignment.topCenter,
+                      padding: EdgeInsets.symmetric(horizontal: 33.cw),
+                      child: VoteCommonTitle(title: '수동 결제'))),
+            ],
+          ),
           const SizedBox(height: 36),
           _buildProductsList(),
           const Divider(color: AppColors.grey200, height: 32),
           Text(S.of(context).text_purchase_vat_included,
               style: getTextStyle(AppTypo.caption12M, AppColors.grey600)),
           const SizedBox(height: 2),
-          GestureDetector(
-            onTap: () => showUsagePolicyDialog(context, ref),
-            child: Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: S.of(context).candy_usage_policy_guide,
-                    style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
-                  ),
-                  const TextSpan(text: ' '),
-                  TextSpan(
-                    text: S.of(context).candy_usage_policy_guide_button,
-                    style: getTextStyle(AppTypo.caption12B, AppColors.grey600)
-                        .copyWith(decoration: TextDecoration.underline),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 36),
         ],
       ),
     );
   }
 
   Widget _buildProductsList() {
-    return Container(child: const Text('준비중입니다.'));
+    final serverProductsAsyncValue = ref.watch(serverProductsProvider);
+
+    return serverProductsAsyncValue.when(
+      loading: () => _buildShimmer(),
+      error: (error, stackTrace) =>
+          ErrorView(context, error: error, stackTrace: stackTrace),
+      data: (serverProducts) => _buildProductList(serverProducts),
+    );
+  }
+
+  Widget _buildProductList(
+    List<Map<String, dynamic>> serverProducts,
+  ) {
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemBuilder: (BuildContext context, int index) =>
+          _buildProductItem(serverProducts[index]),
+      separatorBuilder: (BuildContext context, int index) =>
+          const Divider(color: AppColors.grey200, height: 32),
+      itemCount: serverProducts.length,
+    );
+  }
+
+  Widget _buildProductItem(Map<String, dynamic> serverProduct) {
+    return StoreListTile(
+      icon: Image.asset(
+        'assets/icons/store/star_${serverProduct['id'].replaceAll('STAR', '')}.png',
+        width: 48.cw,
+        height: 48,
+      ),
+      title: Text(serverProduct['id'],
+          style: getTextStyle(AppTypo.body16B, AppColors.grey900)),
+      subtitle: Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(
+              text: getLocaleTextFromJson(serverProduct['description']),
+              style: getTextStyle(AppTypo.caption12B, AppColors.point900),
+            ),
+          ],
+        ),
+      ),
+      buttonText: '${serverProduct['price']} \$',
+      buttonOnPressed: () => _handleBuyButtonPressed(context, serverProduct),
+    );
+  }
+
+  Future<void> _handleBuyButtonPressed(
+    BuildContext context,
+    Map<String, dynamic> serverProduct,
+  ) async {
+    final url = serverProduct['paypal_link'];
+    logger.i('Buy button pressed: ${serverProduct['paypal_link']}');
+    if (await canLaunchUrlString(url)) {
+      await launchUrlString(url);
+    } else {
+      throw '앱 스토어를 열 수 없습니다.';
+    }
   }
 
   Widget _buildShimmer() {

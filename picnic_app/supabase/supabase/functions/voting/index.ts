@@ -177,9 +177,34 @@ async function performVoteDeduction(user_id, vote_amount, vote_pick_id) {
   }
 }
 
+async function isVoteOpen(vote_id) {
+  const { rows } = await queryDatabase(`
+    SELECT stop_at
+    FROM vote
+    WHERE id = $1
+  `, vote_id);
+
+  if (rows.length === 0) {
+    throw new Error('Vote not found');
+  }
+
+  const { stop_at } = rows[0];
+  const currentTime = new Date();
+  console.log('stop_at:', stop_at);
+  console.log('Current time:', currentTime);
+
+  return currentTime < stop_at;
+}
+
 async function performTransaction(connection, vote_id, vote_item_id, amount, user_id) {
   await connection.queryObject('BEGIN');
   try {
+    const isOpen = await isVoteOpen(vote_id);
+    console.log('isOpen:', isOpen);
+    if (!isOpen) {
+      throw new Error('투표가 마감되었습니다');
+    }
+
     const voteTotalResult = await queryDatabase(`
       SELECT vote_total
       FROM vote_item

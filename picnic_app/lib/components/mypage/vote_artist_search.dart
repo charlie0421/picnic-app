@@ -10,7 +10,7 @@ import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
-import 'package:picnic_app/models/vote/vote.dart';
+import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/providers/mypage/bookmarked_artists_provider.dart';
 import 'package:picnic_app/providers/mypage/vote_artist_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';

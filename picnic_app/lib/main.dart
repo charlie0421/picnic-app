@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -43,21 +42,6 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
 
-    if (!kIsWeb && (isMobile() || isDesktop())) {
-      if (!kDebugMode) {
-        FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
-      } else {
-        FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
-      }
-      FlutterError.onError = (errorDetails) {
-        FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
-      };
-      // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
-      PlatformDispatcher.instance.onError = (error, stack) {
-        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-        return true;
-      };
-    }
     logStorageData();
     final authService = AuthService();
     final isSessionRecovered = await authService.recoverSession();
@@ -110,9 +94,6 @@ void logStorageData() async {
   final storageData = await storage.readAll();
 
   storageData.forEach((key, value) {
-    if (!kIsWeb) {
-      FirebaseCrashlytics.instance.log('key: $key, value: $value');
-    }
     logger.i('key: $key, value: $value');
   });
 }

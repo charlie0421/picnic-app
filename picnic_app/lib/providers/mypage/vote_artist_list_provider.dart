@@ -1,5 +1,5 @@
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/models/vote/vote.dart';
+import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/providers/mypage/bookmarked_artists_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -95,9 +95,10 @@ class AsyncVoteArtistList extends _$AsyncVoteArtistList {
 
       final response = await supabase
           .from('artist')
-          .select('id,name,image,gender, artist_group(id,name)')
+          .select('id,name,image,gender, artist_group(id,name,image)')
           .or('name->>ko.ilike.%$query%,name->>en.ilike.%$query%,name->>ja.ilike.%$query%,name->>zh.ilike.%$query%')
           .not('id', 'in', bookmarkedArtistIds.toList())
+          .not('id', 'in', [0])
           .order('name->>$language', ascending: true)
           .limit(20)
           .range(page * 20, (page + 1) * 20 - 1);
