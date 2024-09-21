@@ -1,5 +1,5 @@
 import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/models/vote/vote.dart';
+import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -16,7 +16,9 @@ class AsyncBookmarkedArtists extends _$AsyncBookmarkedArtists {
   Future<List<ArtistModel>> _fetchBookmarkedArtists() async {
     try {
       final response = await supabase.from('artist_user_bookmark').select(
-          'artist_id, artist(id, name, image, gender, artist_group(id, name))');
+          'artist_id, artist(id, name, image, gender, artist_group(id, name, image))');
+
+      logger.i('북마크된 아티스트 가져오기 응답: $response');
 
       List<ArtistModel> bookmarkedArtists = response.map((data) {
         final artistData = data['artist'] as Map<String, dynamic>;

@@ -139,8 +139,8 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
                                   style: getTextStyle(
                                       AppTypo.body14M, AppColors.grey900))
                               : TextSpan(
-                                  text:
-                                      getLocaleTextFromJson(item.vote_item.artist_group.name),
+                                  text: getLocaleTextFromJson(
+                                      item.vote_item.artist_group.name),
                                   style: getTextStyle(
                                       AppTypo.body14M, AppColors.grey900)),
                         ])),

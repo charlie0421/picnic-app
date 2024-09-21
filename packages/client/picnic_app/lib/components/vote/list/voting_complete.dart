@@ -18,6 +18,8 @@ import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/models/vote/artist.dart';
+import 'package:picnic_app/models/vote/artist_group.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';

@@ -71,12 +71,12 @@
 		<key>NSExceptionDomains</key>
 		<dict/>
 	</dict>
+	<key>NSAppleIDUsageDescription</key>
+	<string>We use your Apple ID to sign you in to the app.</string>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_dartobservatory._tcp</string>
 	</array>
-	<key>NSAppleIDUsageDescription</key>
-	<string>We use your Apple ID to sign you in to the app.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>프로필 이미지 등록을 위한 카메라 사용에 동의하시겠습니까?</string>
 	<key>NSMicrophoneUsageDescription</key>
@@ -810,20 +810,11 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<key>UIStatusBarHidden</key>
+	<false/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UIStatusBarHidden</key>
-	<false/>
 </dict>
 </plist>

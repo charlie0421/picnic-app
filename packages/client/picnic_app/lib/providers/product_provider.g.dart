@@ -6,7 +6,7 @@ part of 'product_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$serverProductsHash() => r'54663d984d2b2592d06581a82e9b24133ae7d7b5';
+String _$serverProductsHash() => r'97df7c19a5c56b32c86b6aeebc461653911393d0';
 
 /// See also [ServerProducts].
 @ProviderFor(ServerProducts)
@@ -22,7 +22,7 @@ final serverProductsProvider =
 );
 
 typedef _$ServerProducts = AsyncNotifier<List<Map<String, dynamic>>>;
-String _$storeProductsHash() => r'6f2cd478749c17ebd5bb639a787234fb4024b46a';
+String _$storeProductsHash() => r'779a8531c83d03dfc18f675195de29954d306020';
 
 /// See also [StoreProducts].
 @ProviderFor(StoreProducts)

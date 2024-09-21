@@ -5,14 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bea28b15-e62d-4068-89d6-12f56abe1309" name="Changes" comment="chore (api) .gitignore 추가">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/android/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/ios/Podfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/ios/Podfile.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/ios/Runner/Info.plist" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/ios/Runner/Info.plist" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/picnic_app.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/picnic_app.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/screens/login_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/screens/login_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../serverless/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../serverless/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/components/vote/list/vote_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/components/vote/list/vote_list.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/pages/mypage/vote_history_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/pages/mypage/vote_history_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/pages/vote/vote_home_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/pages/vote/vote_home_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/mypage/bookmarked_artists_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/mypage/bookmarked_artists_provider.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/vote_detail_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/vote_detail_provider.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/vote_list_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/vote_list_provider.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,12 +29,12 @@
     &quot;assignee&quot;: &quot;charlie0421&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/charlie0421/celab.git&quot;,
-    &quot;accountId&quot;: &quot;72986d97-69de-44c5-be03-c54602de640e&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/charlie0421/picnic.git",
+    "accountId": "72986d97-69de-44c5-be03-c54602de640e"
   }
-}</component>
+}]]></component>
   <component name="KubernetesApiPersistence">{}</component>
   <component name="KubernetesApiProvider">{
   &quot;isMigrated&quot;: true
@@ -51,35 +49,35 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;database.data.extractors.current.export.id&quot;: &quot;Comma-separated (CSV)_id&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;develop&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/charlie.hyun/Repositories/picnic/packages/api&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;yarn&quot;,
-    &quot;npm.auth(dev).executor&quot;: &quot;Run&quot;,
-    &quot;npm.user(dev).executor&quot;: &quot;Run&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.17&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;project.propVCSSupport.DirectoryMappings&quot;,
-    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/Users/charlie.hyun/Repositories/picnic/packages/api/node_modules/typescript/lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "database.data.extractors.current.export.id": "Comma-separated (CSV)_id",
+    "git-widget-placeholder": "production",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/charlie.hyun/Repositories/picnic/packages/api",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "yarn",
+    "npm.auth(dev).executor": "Run",
+    "npm.user(dev).executor": "Run",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.17",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings",
+    "show.migrate.to.gradle.popup": "false",
+    "ts.external.directory.path": "/Users/charlie.hyun/Repositories/picnic/packages/api/node_modules/typescript/lib",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;postgresql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
@@ -173,8 +171,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9f38398b9061-39b83d9b5494-intellij.indexing.shared.core-IU-241.17011.79" />
-        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-IU-241.17011.79" />
+        <option value="bundled-jdk-9f38398b9061-39b83d9b5494-intellij.indexing.shared.core-IU-241.18034.62" />
+        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-IU-241.18034.62" />
       </set>
     </attachedChunks>
   </component>
@@ -195,6 +193,7 @@
       <workItem from="1715958808318" duration="8493000" />
       <workItem from="1716368399923" duration="599000" />
       <workItem from="1716527983239" duration="46000" />
+      <workItem from="1726943050948" duration="882000" />
     </task>
     <task id="LOCAL-00001" summary="feat (api) 프로젝트 분리">
       <option name="closed" value="true" />
