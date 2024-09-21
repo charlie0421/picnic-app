@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/community/post.dart';
@@ -35,61 +36,78 @@ class PostListItem extends ConsumerWidget {
             ),
           ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(getLocaleTextFromJson(post.boards.name),
-                    style:
-                        getTextStyle(AppTypo.caption12B, AppColors.primary500)),
-                SizedBox(width: 4.cw),
-                ProfileImageContainer(
-                  avatarUrl: post.user_profiles?.avatar_url,
-                  borderRadius: 4,
-                  width: 18,
-                  height: 18,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(getLocaleTextFromJson(post.boards.name),
+                        style: getTextStyle(
+                            AppTypo.caption12B, AppColors.primary500)),
+                    SizedBox(width: 4.cw),
+                    ProfileImageContainer(
+                      avatarUrl: post.user_profiles?.avatar_url,
+                      borderRadius: 4,
+                      width: 18,
+                      height: 18,
+                    ),
+                    SizedBox(width: 4.cw),
+                    Text(post.user_profiles?.nickname ?? '',
+                        style: getTextStyle(
+                            AppTypo.caption12B, AppColors.grey900)),
+                    SizedBox(width: 4.cw),
+                    Text(formatTimeAgo(context, post.created_at),
+                        style: getTextStyle(
+                            AppTypo.caption10SB, AppColors.grey400)),
+                  ],
                 ),
-                SizedBox(width: 4.cw),
-                Text(post.user_profiles?.nickname ?? '',
-                    style: getTextStyle(AppTypo.caption12B, AppColors.grey900)),
-                SizedBox(width: 4.cw),
-                Text(formatTimeAgo(context, post.created_at),
-                    style:
-                        getTextStyle(AppTypo.caption10SB, AppColors.grey400)),
+                Text(post.title,
+                    style: getTextStyle(AppTypo.body14M, AppColors.grey900)),
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '조회',
+                        style: getTextStyle(
+                            AppTypo.caption10SB, AppColors.grey600),
+                      ),
+                      TextSpan(
+                        text: post.view_count.toString(),
+                        style: getTextStyle(
+                            AppTypo.caption10SB, AppColors.grey600),
+                      ),
+                      TextSpan(
+                        text: ' ',
+                        style: getTextStyle(
+                            AppTypo.caption10SB, AppColors.grey600),
+                      ),
+                      TextSpan(
+                        text: '댓글',
+                        style: getTextStyle(
+                            AppTypo.caption10SB, AppColors.grey600),
+                      ),
+                      TextSpan(
+                        text: post.view_count.toString(),
+                        style: getTextStyle(
+                            AppTypo.caption10SB, AppColors.grey600),
+                      ),
+                    ],
+                  ),
+                ),
+                // if (post.imageUrls.isNotEmpty)
+                //   Image.network(post.imageUrls.first, width: double.infinity),
               ],
             ),
-            Text(post.title,
-                style: getTextStyle(AppTypo.body14M, AppColors.grey900)),
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: '조회',
-                    style: getTextStyle(AppTypo.caption10SB, AppColors.grey600),
-                  ),
-                  TextSpan(
-                    text: post.view_count.toString(),
-                    style: getTextStyle(AppTypo.caption10SB, AppColors.grey600),
-                  ),
-                  TextSpan(
-                    text: ' ',
-                    style: getTextStyle(AppTypo.caption10SB, AppColors.grey600),
-                  ),
-                  TextSpan(
-                    text: '조회',
-                    style: getTextStyle(AppTypo.caption10SB, AppColors.grey600),
-                  ),
-                  TextSpan(
-                    text: post.view_count.toString(),
-                    style: getTextStyle(AppTypo.caption10SB, AppColors.grey600),
-                  ),
-                ],
-              ),
+            SvgPicture.asset(
+              'assets/icons/more_style=line.svg',
+              width: 24,
+              height: 24,
+              color: AppColors.grey500,
             ),
-            // if (post.imageUrls.isNotEmpty)
-            //   Image.network(post.imageUrls.first, width: double.infinity),
           ],
         ),
       ),
