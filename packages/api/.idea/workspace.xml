@@ -5,12 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bea28b15-e62d-4068-89d6-12f56abe1309" name="Changes" comment="chore (api) .gitignore 추가">
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/components/vote/list/vote_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/components/vote/list/vote_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/pages/mypage/vote_history_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/pages/mypage/vote_history_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/pages/vote/vote_home_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/pages/vote/vote_home_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/mypage/bookmarked_artists_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/mypage/bookmarked_artists_provider.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/vote_detail_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/vote_detail_provider.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/vote_list_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/vote_list_provider.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/components/community/common/post_list_item.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/components/community/common/post_list_item.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
