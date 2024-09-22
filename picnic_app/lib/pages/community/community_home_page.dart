@@ -18,6 +18,7 @@ class CommunityHomePage extends ConsumerStatefulWidget {
 
 class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
   int? _selectedArtistId;
+  String? _selectedArtistName;
 
   @override
   void initState() {
@@ -45,7 +46,10 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
         child: bookmarkedArtists.when(
           data: (artists) {
             if (_selectedArtistId == null && artists.isNotEmpty) {
-              _selectedArtistId = artists.first.id;
+              setState(() {
+                _selectedArtistId = artists.first.id;
+                _selectedArtistName = getLocaleTextFromJson(artists.first.name);
+              });
             }
             return artists.isNotEmpty
                 ? Column(
@@ -61,6 +65,8 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
                               onTap: () {
                                 setState(() {
                                   _selectedArtistId = artists[index].id;
+                                  _selectedArtistName = getLocaleTextFromJson(
+                                      artists[index].name);
                                 });
                               },
                               child: Row(
@@ -109,7 +115,7 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
                         ),
                       ),
                       if (_selectedArtistId != null)
-                        PostHomeList(_selectedArtistId!),
+                        PostHomeList(_selectedArtistId!, _selectedArtistName!),
                     ],
                   )
                 : Container(

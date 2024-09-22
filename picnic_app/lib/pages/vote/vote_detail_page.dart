@@ -31,7 +31,6 @@ import 'package:supabase_extensions/supabase_extensions.dart';
 final searchQueryProvider = StateProvider<String>((ref) => '');
 
 class VoteDetailPage extends ConsumerStatefulWidget {
-  final String pageName = 'page_title_vote_detail';
   final int voteId;
 
   const VoteDetailPage({super.key, required this.voteId});
@@ -60,12 +59,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     _setupListeners();
     _setupUpdateTimer();
 
-    ref.listenManual(navigationInfoProvider, (previous, next) {
-      if (mounted) {
-        ref
-            .read(navigationInfoProvider.notifier)
-            .settingNavigation(showPortal: false, showBottomNavigation: false);
-      }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+          showPortal: false,
+          showBottomNavigation: false,
+          pageTitle: S.of(context).page_title_vote_detail);
     });
   }
 
@@ -364,8 +362,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                           children: item.artist.id != 0
                               ? [
                                   TextSpan(
-                                    text: getLocaleTextFromJson(
-                                        item.artist.name),
+                                    text:
+                                        getLocaleTextFromJson(item.artist.name),
                                     style: getTextStyle(
                                         AppTypo.body14B, AppColors.grey900),
                                   ),

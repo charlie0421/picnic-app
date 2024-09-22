@@ -9,9 +9,10 @@ import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class PostListPage extends ConsumerStatefulWidget {
-  const PostListPage(this.artistId, {super.key});
-  final pageName = 'PostListPage';
+  const PostListPage(this.artistId, this.artistName, {super.key});
   final int artistId;
+  final String artistName;
+
   @override
   ConsumerState<PostListPage> createState() => _PostListPageState();
 }
@@ -25,9 +26,10 @@ class _PostListPageState extends ConsumerState<PostListPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(navigationInfoProvider.notifier)
-          .settingNavigation(showPortal: true, showBottomNavigation: false);
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+          showPortal: true,
+          showBottomNavigation: false,
+          pageTitle: widget.artistName);
     });
 
     _pageController = PageController(
