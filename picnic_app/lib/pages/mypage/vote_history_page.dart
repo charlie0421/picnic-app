@@ -44,26 +44,32 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
   }
 
   _fetch(int page, int limit, String sort, String order) async {
-    final response = await supabase
-        .from('vote_pick')
-        .select('*, vote(*), vote_item(*, artist(*, artist_group(*)))')
-        .order(
-          sort,
-          ascending: order == 'ASC',
-        )
-        .range((page - 1) * limit, page * limit - 1)
-        .limit(limit)
-        .count();
+    try {
+      final response = await supabase
+          .from('vote_pick')
+          .select(
+              '*, vote(*), vote_item(*, artist(*, artist_group(*)),artist_group(*))')
+          .order(
+            sort,
+            ascending: order == 'ASC',
+          )
+          .range((page - 1) * limit, page * limit - 1)
+          .limit(limit)
+          .count();
 
-    final meta = {
-      'totalItems': response.count,
-      'currentPage': page,
-      'itemCount': response.data.length,
-      'itemsPerPage': limit,
-      'totalPages': response.count / limit,
-    };
+      final meta = {
+        'totalItems': response.count,
+        'currentPage': page,
+        'itemCount': response.data.length,
+        'itemsPerPage': limit,
+        'totalPages': response.count / limit,
+      };
 
-    return VotePickListModel.fromJson({'items': response.data, 'meta': meta});
+      return VotePickListModel.fromJson({'items': response.data, 'meta': meta});
+    } catch (e, s) {
+      logger.e(e, stackTrace: s);
+      return null;
+    }
   }
 
   @override
