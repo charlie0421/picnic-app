@@ -3,11 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/common_banner.dart';
 import 'package:picnic_app/components/community/home/post_home_list.dart';
-import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/models/community/board.dart';
 import 'package:picnic_app/providers/mypage/bookmarked_artists_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
-import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/ui.dart';
@@ -112,7 +109,7 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
                         ),
                       ),
                       if (_selectedArtistId != null)
-                        BoardContent(artistId: _selectedArtistId!),
+                        PostHomeList(_selectedArtistId!),
                     ],
                   )
                 : Container(
@@ -129,36 +126,3 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
     ]);
   }
 }
-
-class BoardContent extends ConsumerWidget {
-  final int artistId;
-
-  const BoardContent({super.key, required this.artistId});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final boardState = ref.watch(boardProvider(artistId));
-
-    return boardState.when(
-      data: (board) => PostHomeList(board.board_id),
-      loading: () => buildLoadingOverlay(),
-      error: (error, stack) => Text('Error: $error'),
-    );
-  }
-}
-
-final boardProvider = FutureProvider.family((ref, int artistId) async {
-  try {
-    final response = await supabase
-        .schema('community')
-        .from('boards')
-        .select('* ')
-        .eq('artist_id', artistId)
-        .maybeSingle();
-    logger.d('response: $response');
-    return BoardModel.fromJson(response!);
-  } catch (e, s) {
-    logger.e('Error fetching posts:', error: e, stackTrace: s);
-    return Future.error(e);
-  }
-});
