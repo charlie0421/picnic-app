@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/community/common/post_list_item.dart';
-import 'package:picnic_app/components/community/common/post_list_provider.dart';
-import 'package:picnic_app/components/community/list/post_list.dart';
 import 'package:picnic_app/components/error.dart';
-import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/pages/community/post_write_page.dart';
+import 'package:picnic_app/pages/community/post_list_page.dart';
+import 'package:picnic_app/providers/community/post_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class PostHomeList extends ConsumerStatefulWidget {
-  const PostHomeList(this.boardId, {super.key});
+  const PostHomeList(this.artistId, {super.key});
 
-  final String boardId;
+  final int artistId;
 
   @override
   _PostHomeListState createState() => _PostHomeListState();
@@ -27,8 +25,8 @@ class _PostHomeListState extends ConsumerState<PostHomeList> {
 
   @override
   Widget build(BuildContext context) {
-    final postListAsyncValue = ref.watch(postListProvider(widget.boardId));
-    logger.i('postListAsyncValue: $postListAsyncValue');
+    final postListAsyncValue =
+        ref.watch(postsByArtistProvider(widget.artistId, 3, 1));
 
     return Column(
       children: [
@@ -61,12 +59,12 @@ class _PostHomeListState extends ConsumerState<PostHomeList> {
                             ),
                           ),
                           onPressed: () {
-                            ref
-                                .read(navigationInfoProvider.notifier)
-                                .setCurrentPage(
-                                  PostWritePage(
-                                      boardId: widget.boardId.toString()),
-                                );
+                            // ref
+                            //     .read(navigationInfoProvider.notifier)
+                            //     .setCurrentPage(
+                            //       PostWritePage(
+                            //           boardId: widget.boardId.toString()),
+                            //     );
                           },
                           child: Text('게시글 작성하기',
                               style: getTextStyle(
@@ -94,8 +92,7 @@ class _PostHomeListState extends ConsumerState<PostHomeList> {
                         onPressed: () {
                           ref
                               .read(navigationInfoProvider.notifier)
-                              .setCurrentPage(
-                                  PostListPage(widget.boardId.toString()));
+                              .setCurrentPage(PostListPage(widget.artistId));
                         },
                         child: Text('My Artist 게시판 보기',
                             style: getTextStyle(

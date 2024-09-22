@@ -25,7 +25,6 @@ class UserInfo extends _$UserInfo {
 
   @override
   Future<UserProfilesModel?> build() async {
-    logger.i('Building UserInfo provider');
     _configService = ref.read(configServiceProvider);
     if (!supabase.isLogged) {
       logger.i('User is not logged in');
@@ -48,8 +47,6 @@ class UserInfo extends _$UserInfo {
   Future<void> _initializeRealtimeSubscription() async {
     final configValue = await _configService.getConfig('USE_REALTIME_PROFILE');
     _isRealtimeEnabled = configValue == 'true';
-    logger.i(
-        'Initial USE_REALTIME_PROFILE value: $_isRealtimeEnabled (raw value: $configValue)');
     _updateRealtimeSubscription();
   }
 
@@ -58,20 +55,12 @@ class UserInfo extends _$UserInfo {
     _configSubscription =
         _configService.streamConfig('USE_REALTIME_PROFILE').listen(
       (value) {
-        logger.i('Received new USE_REALTIME_PROFILE value: $value');
         final newIsRealtimeEnabled = value == 'true';
-        logger
-            .i('Interpreted USE_REALTIME_PROFILE value: $newIsRealtimeEnabled');
 
         if (_isRealtimeEnabled != newIsRealtimeEnabled) {
-          logger.i(
-              'Realtime subscription status is changing from $_isRealtimeEnabled to $newIsRealtimeEnabled');
           _isRealtimeEnabled = newIsRealtimeEnabled;
           _updateRealtimeSubscription();
-        } else {
-          logger.i(
-              'Realtime subscription status remains unchanged: $_isRealtimeEnabled');
-        }
+        } else {}
       },
       onError: (error) {
         logger.e('Error in USE_REALTIME_PROFILE config stream', error: error);
@@ -81,10 +70,8 @@ class UserInfo extends _$UserInfo {
 
   void _updateRealtimeSubscription() {
     if (_isRealtimeEnabled) {
-      logger.i('Enabling realtime subscription');
       subscribeToUserProfiles();
     } else {
-      logger.i('Disabling realtime subscription');
       unsubscribeFromUserProfiles();
     }
   }

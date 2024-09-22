@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/pages/community/post_view_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -19,7 +18,6 @@ class PostListItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    logger.i('post: $post');
     return GestureDetector(
       onTap: () {
         ref.read(navigationInfoProvider.notifier).setCurrentPage(PostViewPage(
