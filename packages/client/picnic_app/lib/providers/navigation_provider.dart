@@ -97,10 +97,12 @@ class NavigationInfo extends _$NavigationInfo {
   void settingNavigation({
     required bool showPortal,
     required bool showBottomNavigation,
+    String? pageTitle,
   }) {
     state = state.copyWith(
       showTopMenu: showPortal,
       showBottomNavigation: showBottomNavigation,
+      pageTitle: pageTitle ?? '',
     );
   }
 
@@ -229,6 +231,7 @@ class Navigation {
   Widget currentScreen = const VoteHomeScreen();
   bool showTopMenu = true;
   bool showBottomNavigation = true;
+  String pageTitle = '';
   NavigationStack? voteNavigationStack = NavigationStack()
     ..push(const VoteHomePage());
   NavigationStack? drawerNavigationStack = NavigationStack()
@@ -293,6 +296,7 @@ class Navigation {
     Widget? currentScreen,
     bool? showTopMenu,
     bool? showBottomNavigation,
+    String? pageTitle,
     NavigationStack? voteNavaigationStack,
     NavigationStack? drawerNavigationStack,
     NavigationStack? signUpNavigationStack,
@@ -309,6 +313,7 @@ class Navigation {
           novelBottomNavigationIndex ?? this.novelBottomNavigationIndex
       ..currentScreen = currentScreen ?? this.currentScreen
       ..showTopMenu = showTopMenu ?? this.showTopMenu
+      ..pageTitle = pageTitle ?? this.pageTitle
       ..showBottomNavigation = showBottomNavigation ?? this.showBottomNavigation
       ..voteNavigationStack = voteNavaigationStack ?? voteNavigationStack
       ..drawerNavigationStack =

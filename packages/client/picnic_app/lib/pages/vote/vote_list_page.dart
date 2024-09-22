@@ -6,8 +6,6 @@ import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
 
 class VoteListPage extends ConsumerStatefulWidget {
-  final String pageName = 'page_title_vote_gather';
-
   const VoteListPage({super.key});
 
   @override
@@ -22,9 +20,10 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
   initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(navigationInfoProvider.notifier)
-          .settingNavigation(showPortal: false, showBottomNavigation: true);
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+          showPortal: false,
+          showBottomNavigation: true,
+          pageTitle: S.of(context).page_title_vote_gather);
     });
 
     _tabController = TabController(

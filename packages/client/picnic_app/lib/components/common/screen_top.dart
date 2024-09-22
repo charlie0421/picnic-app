@@ -35,17 +35,8 @@ class _TopState extends ConsumerState<ScreenTop> {
     final navigationInfoNotifier = ref.watch(navigationInfoProvider.notifier);
     final userInfoState = ref.watch(userInfoProvider);
 
-    String pageName;
-    try {
-      pageName =
-          (navigationInfo.voteNavigationStack?.peek() as dynamic).pageName;
-    } catch (e) {
-      if (e is NoSuchMethodError) {
-        pageName = '';
-      } else {
-        rethrow;
-      }
-    }
+    String pageName = navigationInfo.pageTitle;
+
     return Container(
       height: 54,
       padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 10),

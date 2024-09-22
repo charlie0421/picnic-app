@@ -9,9 +9,10 @@ import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class PostHomeList extends ConsumerStatefulWidget {
-  const PostHomeList(this.artistId, {super.key});
+  const PostHomeList(this.artistId, this.artistName, {super.key});
 
   final int artistId;
+  final String artistName;
 
   @override
   _PostHomeListState createState() => _PostHomeListState();
@@ -92,7 +93,8 @@ class _PostHomeListState extends ConsumerState<PostHomeList> {
                         onPressed: () {
                           ref
                               .read(navigationInfoProvider.notifier)
-                              .setCurrentPage(PostListPage(widget.artistId));
+                              .setCurrentPage(PostListPage(
+                                  widget.artistId, widget.artistName));
                         },
                         child: Text('My Artist 게시판 보기',
                             style: getTextStyle(

@@ -5,20 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bea28b15-e62d-4068-89d6-12f56abe1309" name="Changes" comment="chore (api) .gitignore 추가">
-      <change afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/community/boards_provider.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/community/boards_provider.g.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/community/post_provider.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/community/post_provider.g.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/components/community/common/post_list_item.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/components/community/common/post_list_item.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/components/common/screen_top.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/components/common/screen_top.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/components/community/home/post_home_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/components/community/home/post_home_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/components/community/list/post_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/components/community/list/post_list.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/main.reflectable.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/main.reflectable.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/models/vote/vote.freezed.dart" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/community_home_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/community_home_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/post_list_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/post_list_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/user_info_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/user_info_provider.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/user_info_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/user_info_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/pages/vote/vote_detail_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/pages/vote/vote_detail_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/pages/vote/vote_list_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/pages/vote/vote_list_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/navigation_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/navigation_provider.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/navigation_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/navigation_provider.g.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/picnic_app/test/widget_test.reflectable.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/test/widget_test.reflectable.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -202,7 +198,7 @@
       <workItem from="1715958808318" duration="8493000" />
       <workItem from="1716368399923" duration="599000" />
       <workItem from="1716527983239" duration="46000" />
-      <workItem from="1726943050948" duration="882000" />
+      <workItem from="1726943050948" duration="1160000" />
     </task>
     <task id="LOCAL-00001" summary="feat (api) 프로젝트 분리">
       <option name="closed" value="true" />
