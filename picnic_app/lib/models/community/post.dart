@@ -1,12 +1,10 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/community/board.dart';
 import 'package:picnic_app/models/user_profiles.dart';
-import 'package:picnic_app/reflector.dart';
 
 part 'post.freezed.dart';
 part 'post.g.dart';
 
-@reflector
 @freezed
 class PostModel with _$PostModel {
   const PostModel._();

@@ -30,6 +30,8 @@ class _PortalState extends ConsumerState<Portal> {
   Widget build(BuildContext context) {
     final currentScreen = ref
         .watch(navigationInfoProvider.select((value) => value.currentScreen));
+    final showTopMenu =
+        ref.watch(navigationInfoProvider.select((value) => value.showTopMenu));
     final userInfoState = ref.watch(userInfoProvider);
     return Container(
       decoration: const BoxDecoration(
@@ -44,7 +46,7 @@ class _PortalState extends ConsumerState<Portal> {
           ),
           appBar: AppBar(
             toolbarHeight: ref.watch(
-                    navigationInfoProvider.select((value) => value.showTopMenu))
+                    navigationInfoProvider.select((value) => value.showPortal))
                 ? 56
                 : 0,
             leading: Builder(
@@ -125,16 +127,16 @@ class _PortalState extends ConsumerState<Portal> {
                       child: SizedBox(
                       width: webDesignSize.width,
                       child: Column(children: [
-                        const ScreenTop(),
-                        Expanded(child: currentScreen ?? const SizedBox()),
+                        if (showTopMenu) const ScreenTop(),
+                        Expanded(child: currentScreen),
                       ]),
                     ))
                   : SizedBox(
                       width: constraints.maxWidth,
                       height: constraints.maxHeight,
                       child: Column(children: [
-                        const ScreenTop(),
-                        Expanded(child: currentScreen ?? const SizedBox()),
+                        if (showTopMenu) const ScreenTop(),
+                        Expanded(child: currentScreen),
                       ]),
                     );
             },

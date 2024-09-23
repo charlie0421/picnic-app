@@ -1,11 +1,9 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_app/reflector.dart';
 
 part 'reward.freezed.dart';
 part 'reward.g.dart';
 
-@reflector
 @freezed
 class RewardModel with _$RewardModel {
   const RewardModel._();

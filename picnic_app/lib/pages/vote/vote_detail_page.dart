@@ -62,6 +62,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
           showPortal: false,
+          showTopMenu: true,
           showBottomNavigation: false,
           pageTitle: S.of(context).page_title_vote_detail);
     });

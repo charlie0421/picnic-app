@@ -225,7 +225,7 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
   },
-  "label_button_agreement": "同意",
+  "label_button_agreement": "接受",
   "@label_button_agreement": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
@@ -887,8 +887,20 @@
   "@post_header_temporary_save": {
     "manualTranslation": false
   },
+  "post_hyperlink": "超链接",
+  "@post_hyperlink": {
+    "manualTranslation": false
+  },
+  "post_insert_link": "插入链接",
+  "@post_insert_link": {
+    "manualTranslation": false
+  },
   "post_title_placeholder": "请输入标题。",
   "@post_title_placeholder": {
+    "manualTranslation": false
+  },
+  "post_youtube_link": "YouTube 链接",
+  "@post_youtube_link": {
     "manualTranslation": false
   },
   "share_image_fail": "图像共享失败",
@@ -947,6 +959,10 @@
   "text_comming_soon_pic_chart_title": "什么是饼图？",
   "@text_comming_soon_pic_chart_title": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
+    "manualTranslation": false
+  },
+  "text_community_board_search": "搜索艺术家板",
+  "@text_community_board_search": {
     "manualTranslation": false
   },
   "text_copied_address": "地址已复制。",
@@ -1075,18 +1091,6 @@
   },
   "update_required_title": "需要更新。",
   "@update_required_title": {
-    "manualTranslation": false
-  },
-  "post_hyperlink": "超链接",
-  "@post_hyperlink": {
-    "manualTranslation": false
-  },
-  "post_insert_link": "插入链接",
-  "@post_insert_link": {
-    "manualTranslation": false
-  },
-  "post_youtube_link": "YouTube 链接",
-  "@post_youtube_link": {
     "manualTranslation": false
   }
 }

@@ -2,12 +2,10 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/models/pic/celeb.dart';
-import 'package:picnic_app/reflector.dart';
 
 part 'gallery.freezed.dart';
 part 'gallery.g.dart';
 
-@reflector
 @freezed
 class GalleryListModel with _$GalleryListModel {
   const GalleryListModel._();
@@ -21,7 +19,6 @@ class GalleryListModel with _$GalleryListModel {
       _$GalleryListModelFromJson(json);
 }
 
-@reflector
 @freezed
 class GalleryModel with _$GalleryModel {
   const GalleryModel._();

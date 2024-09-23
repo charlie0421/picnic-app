@@ -1,10 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:picnic_app/reflector.dart';
 
 part 'app_version.freezed.dart';
 part 'app_version.g.dart';
 
-@reflector
 @freezed
 class AppVersionModel with _$AppVersionModel {
   const AppVersionModel._();

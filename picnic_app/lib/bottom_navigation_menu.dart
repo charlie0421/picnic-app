@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/pages/community/board_page.dart';
 import 'package:picnic_app/pages/community/community_home_page.dart';
 import 'package:picnic_app/pages/pic/gallery_page.dart';
 import 'package:picnic_app/pages/pic/library_page.dart';
@@ -94,11 +95,11 @@ List<BottomNavigationItem> communityPages = [
     index: 0,
     pageWidget: CommunityHomePage(),
   ),
-  BottomNavigationItem(
+  const BottomNavigationItem(
     title: 'nav_board',
     assetPath: 'assets/icons/bottom/board.svg',
     index: 1,
-    pageWidget: Container(),
+    pageWidget: BoardPage(),
   ),
   BottomNavigationItem(
     title: 'nav_my',

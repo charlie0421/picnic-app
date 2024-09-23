@@ -1,12 +1,10 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/models/user_profiles.dart';
-import 'package:picnic_app/reflector.dart';
 
 part 'celeb.freezed.dart';
 part 'celeb.g.dart';
 
-@reflector
 @freezed
 class CelebListModel with _$CelebListModel {
   const CelebListModel._();
@@ -20,7 +18,6 @@ class CelebListModel with _$CelebListModel {
       _$CelebListModelFromJson(json);
 }
 
-@reflector
 @freezed
 class CelebModel with _$CelebModel {
   const CelebModel._();

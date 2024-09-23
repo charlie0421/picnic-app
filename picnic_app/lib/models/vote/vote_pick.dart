@@ -1,12 +1,10 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/models/vote/vote.dart';
-import 'package:picnic_app/reflector.dart';
 
 part 'vote_pick.freezed.dart';
 part 'vote_pick.g.dart';
 
-@reflector
 @freezed
 class VotePickListModel with _$VotePickListModel {
   const VotePickListModel._();
@@ -20,7 +18,6 @@ class VotePickListModel with _$VotePickListModel {
       _$VotePickListModelFromJson(json);
 }
 
-@reflector
 @freezed
 class VotePickModel with _$VotePickModel {
   const VotePickModel._();

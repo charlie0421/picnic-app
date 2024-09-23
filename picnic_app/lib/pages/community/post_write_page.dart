@@ -409,9 +409,8 @@ class _PostWritePageState extends ConsumerState<PostWritePage> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(navigationInfoProvider.notifier)
-          .settingNavigation(showPortal: false, showBottomNavigation: false);
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+          showPortal: false, showTopMenu: true, showBottomNavigation: false);
     });
     super.initState();
   }

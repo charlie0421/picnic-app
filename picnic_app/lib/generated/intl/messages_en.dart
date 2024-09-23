@@ -50,7 +50,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "candy_usage_policy_contents2": MessageLookupByLibrary.simpleMessage(
             "When using Star Candy, Star Candy that is about to expire is prioritized."),
         "candy_usage_policy_guide": MessageLookupByLibrary.simpleMessage(
-            "*Bonuses will disappear the month after they are earned!"),
+            "*Bonuses disappear the month after they are earned!"),
         "candy_usage_policy_guide_button":
             MessageLookupByLibrary.simpleMessage("Learn more"),
         "candy_usage_policy_title":
@@ -68,7 +68,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialog_message_can_resignup": MessageLookupByLibrary.simpleMessage(
             "When you can rejoin if you cancel your membership now"),
         "dialog_message_purchase_canceled":
-            MessageLookupByLibrary.simpleMessage("The purchase was canceled."),
+            MessageLookupByLibrary.simpleMessage(
+                "Your purchase has been canceled."),
         "dialog_message_purchase_failed": MessageLookupByLibrary.simpleMessage(
             "There was an error with your purchase, please try again later."),
         "dialog_message_purchase_success": MessageLookupByLibrary.simpleMessage(
@@ -385,6 +386,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "Get a real-time reflection\nartist\'s brand reputation in real-time!"),
         "text_comming_soon_pic_chart_title":
             MessageLookupByLibrary.simpleMessage("What is a Pie Chart?"),
+        "text_community_board_search":
+            MessageLookupByLibrary.simpleMessage("Searching the Artist Board"),
         "text_copied_address": MessageLookupByLibrary.simpleMessage(
             "The address has been copied."),
         "text_dialog_ad_dismissed": MessageLookupByLibrary.simpleMessage(

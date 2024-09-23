@@ -347,6 +347,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "실시간으로 반영되는\n아티스트의 브랜드 평판을 확인해 보세요!"),
         "text_comming_soon_pic_chart_title":
             MessageLookupByLibrary.simpleMessage("핔차트란?"),
+        "text_community_board_search":
+            MessageLookupByLibrary.simpleMessage("아티스트 게시판 검색"),
         "text_copied_address":
             MessageLookupByLibrary.simpleMessage("주소가 복사되었습니다."),
         "text_dialog_ad_dismissed":

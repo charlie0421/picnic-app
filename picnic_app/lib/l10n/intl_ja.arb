@@ -887,8 +887,20 @@
   "@post_header_temporary_save": {
     "manualTranslation": false
   },
+  "post_hyperlink": "ハイパーリンク",
+  "@post_hyperlink": {
+    "manualTranslation": false
+  },
+  "post_insert_link": "リンク挿入",
+  "@post_insert_link": {
+    "manualTranslation": false
+  },
   "post_title_placeholder": "タイトルを入力してください。",
   "@post_title_placeholder": {
+    "manualTranslation": false
+  },
+  "post_youtube_link": "ユーチューブリンク",
+  "@post_youtube_link": {
     "manualTranslation": false
   },
   "share_image_fail": "画像共有に失敗",
@@ -947,6 +959,10 @@
   "text_comming_soon_pic_chart_title": "ピクチャーチャートとは？",
   "@text_comming_soon_pic_chart_title": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
+    "manualTranslation": false
+  },
+  "text_community_board_search": "アーティスト掲示板検索",
+  "@text_community_board_search": {
     "manualTranslation": false
   },
   "text_copied_address": "アドレスがコピーされました。",
@@ -1075,18 +1091,6 @@
   },
   "update_required_title": "アップデートが必要です。",
   "@update_required_title": {
-    "manualTranslation": false
-  },
-  "post_hyperlink": "ハイパーリンク",
-  "@post_hyperlink": {
-    "manualTranslation": false
-  },
-  "post_insert_link": "リンク挿入",
-  "@post_insert_link": {
-    "manualTranslation": false
-  },
-  "post_youtube_link": "ユーチューブリンク",
-  "@post_youtube_link": {
     "manualTranslation": false
   }
 }

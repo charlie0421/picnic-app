@@ -140,10 +140,10 @@ class S {
     );
   }
 
-  /// `*Bonuses will disappear the month after they are earned!`
+  /// `*Bonuses disappear the month after they are earned!`
   String get candy_usage_policy_guide {
     return Intl.message(
-      '*Bonuses will disappear the month after they are earned!',
+      '*Bonuses disappear the month after they are earned!',
       name: 'candy_usage_policy_guide',
       desc: '',
       args: [],
@@ -240,10 +240,10 @@ class S {
     );
   }
 
-  /// `The purchase was canceled.`
+  /// `Your purchase has been canceled.`
   String get dialog_message_purchase_canceled {
     return Intl.message(
-      'The purchase was canceled.',
+      'Your purchase has been canceled.',
       name: 'dialog_message_purchase_canceled',
       desc: '',
       args: [],
@@ -1880,11 +1880,41 @@ class S {
     );
   }
 
+  /// `Hyperlinks`
+  String get post_hyperlink {
+    return Intl.message(
+      'Hyperlinks',
+      name: 'post_hyperlink',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Inserting links`
+  String get post_insert_link {
+    return Intl.message(
+      'Inserting links',
+      name: 'post_insert_link',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Please enter a title.`
   String get post_title_placeholder {
     return Intl.message(
       'Please enter a title.',
       name: 'post_title_placeholder',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `YouTube link`
+  String get post_youtube_link {
+    return Intl.message(
+      'YouTube link',
+      name: 'post_youtube_link',
       desc: '',
       args: [],
     );
@@ -2005,6 +2035,16 @@ class S {
     return Intl.message(
       'What is a Pie Chart?',
       name: 'text_comming_soon_pic_chart_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Searching the Artist Board`
+  String get text_community_board_search {
+    return Intl.message(
+      'Searching the Artist Board',
+      name: 'text_community_board_search',
       desc: '',
       args: [],
     );
@@ -2275,36 +2315,6 @@ class S {
     return Intl.message(
       'An update is required.',
       name: 'update_required_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Hyperlinks`
-  String get post_hyperlink {
-    return Intl.message(
-      'Hyperlinks',
-      name: 'post_hyperlink',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Inserting links`
-  String get post_insert_link {
-    return Intl.message(
-      'Inserting links',
-      name: 'post_insert_link',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `YouTube link`
-  String get post_youtube_link {
-    return Intl.message(
-      'YouTube link',
-      name: 'post_youtube_link',
       desc: '',
       args: [],
     );
