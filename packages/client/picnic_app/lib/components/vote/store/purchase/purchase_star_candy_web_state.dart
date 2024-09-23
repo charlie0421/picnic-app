@@ -59,7 +59,7 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
                   child: Container(
                       alignment: Alignment.topCenter,
                       padding: EdgeInsets.symmetric(horizontal: 33.cw),
-                      child: VoteCommonTitle(title: '수동 결제'))),
+                      child: const VoteCommonTitle(title: '수동 결제'))),
             ],
           ),
           const SizedBox(height: 36),

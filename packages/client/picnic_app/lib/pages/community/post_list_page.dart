@@ -164,7 +164,7 @@ class _PostListPageState extends ConsumerState<PostListPage>
               '오픈요청',
               style: getTextStyle(AppTypo.caption12B, AppColors.grey700),
             ),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
             SvgPicture.asset(
               'assets/icons/plus_style=fill.svg',
               width: 16,
