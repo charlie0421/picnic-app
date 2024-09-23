@@ -22,6 +22,7 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
           showPortal: false,
+          showTopMenu: true,
           showBottomNavigation: true,
           pageTitle: S.of(context).page_title_vote_gather);
     });

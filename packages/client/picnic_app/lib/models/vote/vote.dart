@@ -3,12 +3,10 @@ import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/models/reward.dart';
 import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/models/vote/artist_group.dart';
-import 'package:picnic_app/reflector.dart';
 
 part 'vote.freezed.dart';
 part 'vote.g.dart';
 
-@reflector
 @freezed
 class VoteListModel with _$VoteListModel {
   const VoteListModel._();
@@ -22,7 +20,6 @@ class VoteListModel with _$VoteListModel {
       _$VoteListModelFromJson(json);
 }
 
-@reflector
 @freezed
 class VoteModel with _$VoteModel {
   const VoteModel._();
@@ -49,7 +46,6 @@ class VoteModel with _$VoteModel {
       _$VoteModelFromJson(json);
 }
 
-@reflector
 @freezed
 class VoteItemModel with _$VoteItemModel {
   const VoteItemModel._();

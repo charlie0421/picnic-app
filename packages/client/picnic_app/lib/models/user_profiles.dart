@@ -1,11 +1,10 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:picnic_app/reflector.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'user_profiles.freezed.dart';
 part 'user_profiles.g.dart';
 
-// @reflector
+//
 // @freezed
 // class UserProfilesListModel with _$UserProfilesListModel {
 //   const UserProfilesListModel._();
@@ -16,7 +15,6 @@ part 'user_profiles.g.dart';
 //   }) = _UserProfilesListModel;
 // }
 
-@reflector
 @freezed
 class UserProfilesModel with _$UserProfilesModel {
   const UserProfilesModel._();
@@ -38,7 +36,6 @@ class UserProfilesModel with _$UserProfilesModel {
       _$UserProfilesModelFromJson(json);
 }
 
-@reflector
 @freezed
 class UserAgreement with _$UserAgreement {
   const UserAgreement._();

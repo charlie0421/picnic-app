@@ -1,10 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:picnic_app/reflector.dart';
 
 part 'meta.freezed.dart';
 part 'meta.g.dart';
 
-@reflector
 @freezed
 class MetaModel with _$MetaModel {
   const MetaModel._();

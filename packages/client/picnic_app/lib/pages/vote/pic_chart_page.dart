@@ -24,9 +24,8 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
   initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(navigationInfoProvider.notifier)
-          .settingNavigation(showPortal: true, showBottomNavigation: true);
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+          showPortal: true, showTopMenu: true, showBottomNavigation: true);
     });
 
     _tabController = TabController(

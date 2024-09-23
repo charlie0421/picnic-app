@@ -40,9 +40,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(navigationInfoProvider.notifier)
-          .settingNavigation(showPortal: true, showBottomNavigation: true);
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+          showPortal: true, showTopMenu: true, showBottomNavigation: true);
     });
     _initPagingController(_upcomingPagingController, 'upcoming');
     _initPagingController(_activePagingController, 'active');

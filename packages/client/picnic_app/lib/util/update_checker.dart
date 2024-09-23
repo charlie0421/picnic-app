@@ -2,9 +2,8 @@ import 'dart:io';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/models/common/app_version.dart';
-import 'package:picnic_app/reflector.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:version/version.dart';
 
@@ -13,7 +12,6 @@ part 'update_checker.g.dart';
 
 enum UpdateStatus { upToDate, updateRecommended, updateRequired }
 
-@reflector
 @freezed
 class UpdateInfo with _$UpdateInfo {
   const UpdateInfo._();

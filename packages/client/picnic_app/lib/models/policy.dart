@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:picnic_app/reflector.dart';
 
 part 'policy.freezed.dart';
 part 'policy.g.dart';
@@ -15,7 +14,7 @@ enum PolicyLanguage {
   ko,
 }
 //
-// @reflector
+//
 // @freezed
 // class PolicyItemModel with _$PolicyItemModel {
 //   factory PolicyItemModel({
@@ -27,7 +26,6 @@ enum PolicyLanguage {
 //       _$PolicyItemModelFromJson(json);
 // }
 
-@reflector
 @freezed
 class PolicyModel with _$PolicyModel {
   const factory PolicyModel({
@@ -41,7 +39,6 @@ class PolicyModel with _$PolicyModel {
       _$PolicyModelFromJson(json);
 }
 
-@reflector
 @freezed
 class PrivacyModel with _$PrivacyModel {
   const factory PrivacyModel({
@@ -53,7 +50,6 @@ class PrivacyModel with _$PrivacyModel {
       _$PrivacyModelFromJson(json);
 }
 
-@reflector
 @freezed
 class TermsModel with _$TermsModel {
   const factory TermsModel({

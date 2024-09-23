@@ -24,9 +24,8 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(navigationInfoProvider.notifier)
-          .settingNavigation(showPortal: true, showBottomNavigation: true);
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+          showPortal: true, showTopMenu: true, showBottomNavigation: true);
     });
   }
 

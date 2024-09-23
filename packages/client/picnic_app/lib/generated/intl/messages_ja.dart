@@ -345,6 +345,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "リアルタイムで反映される\nアーティストのブランド評判をご確認ください！"),
         "text_comming_soon_pic_chart_title":
             MessageLookupByLibrary.simpleMessage("ピクチャーチャートとは？"),
+        "text_community_board_search":
+            MessageLookupByLibrary.simpleMessage("アーティスト掲示板検索"),
         "text_copied_address":
             MessageLookupByLibrary.simpleMessage("アドレスがコピーされました。"),
         "text_dialog_ad_dismissed":

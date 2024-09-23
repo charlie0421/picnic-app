@@ -21,9 +21,8 @@ class _StorePageState extends ConsumerState<StorePage>
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(navigationInfoProvider.notifier)
-          .settingNavigation(showPortal: true, showBottomNavigation: true);
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+          showPortal: true, showTopMenu: true, showBottomNavigation: true);
     });
 
     super.initState();

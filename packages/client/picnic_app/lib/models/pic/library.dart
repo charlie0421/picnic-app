@@ -1,12 +1,10 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/models/pic/article_image.dart';
-import 'package:picnic_app/reflector.dart';
 
 part 'library.freezed.dart';
 part 'library.g.dart';
 
-@reflector
 @freezed
 class LibraryListModel with _$LibraryListModel {
   const LibraryListModel._();
@@ -20,7 +18,6 @@ class LibraryListModel with _$LibraryListModel {
       _$LibraryListModelFromJson(json);
 }
 
-@reflector
 @freezed
 class LibraryModel with _$LibraryModel {
   const LibraryModel._();

@@ -1,11 +1,9 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:picnic_app/reflector.dart';
 
 part 'purchase_product.freezed.dart';
 part 'purchase_product.g.dart';
 
-@reflector
 @freezed
 class PurchaseProduct with _$PurchaseProduct {
   const PurchaseProduct._();

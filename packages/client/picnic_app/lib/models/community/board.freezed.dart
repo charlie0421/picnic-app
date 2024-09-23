@@ -27,6 +27,7 @@ mixin _$BoardModel {
   bool get is_official => throw _privateConstructorUsedError;
   DateTime get created_at => throw _privateConstructorUsedError;
   DateTime get updated_at => throw _privateConstructorUsedError;
+  ArtistModel? get artist => throw _privateConstructorUsedError;
 
   /// Serializes this BoardModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -51,7 +52,10 @@ abstract class $BoardModelCopyWith<$Res> {
       Map<String, dynamic> description,
       bool is_official,
       DateTime created_at,
-      DateTime updated_at});
+      DateTime updated_at,
+      ArtistModel? artist});
+
+  $ArtistModelCopyWith<$Res>? get artist;
 }
 
 /// @nodoc
@@ -76,6 +80,7 @@ class _$BoardModelCopyWithImpl<$Res, $Val extends BoardModel>
     Object? is_official = null,
     Object? created_at = null,
     Object? updated_at = null,
+    Object? artist = freezed,
   }) {
     return _then(_value.copyWith(
       board_id: null == board_id
@@ -106,7 +111,25 @@ class _$BoardModelCopyWithImpl<$Res, $Val extends BoardModel>
           ? _value.updated_at
           : updated_at // ignore: cast_nullable_to_non_nullable
               as DateTime,
+      artist: freezed == artist
+          ? _value.artist
+          : artist // ignore: cast_nullable_to_non_nullable
+              as ArtistModel?,
     ) as $Val);
+  }
+
+  /// Create a copy of BoardModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $ArtistModelCopyWith<$Res>? get artist {
+    if (_value.artist == null) {
+      return null;
+    }
+
+    return $ArtistModelCopyWith<$Res>(_value.artist!, (value) {
+      return _then(_value.copyWith(artist: value) as $Val);
+    });
   }
 }
 
@@ -125,7 +148,11 @@ abstract class _$$BoardModelImplCopyWith<$Res>
       Map<String, dynamic> description,
       bool is_official,
       DateTime created_at,
-      DateTime updated_at});
+      DateTime updated_at,
+      ArtistModel? artist});
+
+  @override
+  $ArtistModelCopyWith<$Res>? get artist;
 }
 
 /// @nodoc
@@ -148,6 +175,7 @@ class __$$BoardModelImplCopyWithImpl<$Res>
     Object? is_official = null,
     Object? created_at = null,
     Object? updated_at = null,
+    Object? artist = freezed,
   }) {
     return _then(_$BoardModelImpl(
       board_id: null == board_id
@@ -178,6 +206,10 @@ class __$$BoardModelImplCopyWithImpl<$Res>
           ? _value.updated_at
           : updated_at // ignore: cast_nullable_to_non_nullable
               as DateTime,
+      artist: freezed == artist
+          ? _value.artist
+          : artist // ignore: cast_nullable_to_non_nullable
+              as ArtistModel?,
     ));
   }
 }
@@ -192,7 +224,8 @@ class _$BoardModelImpl extends _BoardModel {
       required final Map<String, dynamic> description,
       required this.is_official,
       required this.created_at,
-      required this.updated_at})
+      required this.updated_at,
+      required this.artist})
       : _name = name,
         _description = description,
         super._();
@@ -226,10 +259,12 @@ class _$BoardModelImpl extends _BoardModel {
   final DateTime created_at;
   @override
   final DateTime updated_at;
+  @override
+  final ArtistModel? artist;
 
   @override
   String toString() {
-    return 'BoardModel(board_id: $board_id, artist_id: $artist_id, name: $name, description: $description, is_official: $is_official, created_at: $created_at, updated_at: $updated_at)';
+    return 'BoardModel(board_id: $board_id, artist_id: $artist_id, name: $name, description: $description, is_official: $is_official, created_at: $created_at, updated_at: $updated_at, artist: $artist)';
   }
 
   @override
@@ -249,7 +284,8 @@ class _$BoardModelImpl extends _BoardModel {
             (identical(other.created_at, created_at) ||
                 other.created_at == created_at) &&
             (identical(other.updated_at, updated_at) ||
-                other.updated_at == updated_at));
+                other.updated_at == updated_at) &&
+            (identical(other.artist, artist) || other.artist == artist));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -262,7 +298,8 @@ class _$BoardModelImpl extends _BoardModel {
       const DeepCollectionEquality().hash(_description),
       is_official,
       created_at,
-      updated_at);
+      updated_at,
+      artist);
 
   /// Create a copy of BoardModel
   /// with the given fields replaced by the non-null parameter values.
@@ -288,7 +325,8 @@ abstract class _BoardModel extends BoardModel {
       required final Map<String, dynamic> description,
       required final bool is_official,
       required final DateTime created_at,
-      required final DateTime updated_at}) = _$BoardModelImpl;
+      required final DateTime updated_at,
+      required final ArtistModel? artist}) = _$BoardModelImpl;
   const _BoardModel._() : super._();
 
   factory _BoardModel.fromJson(Map<String, dynamic> json) =
@@ -308,6 +346,8 @@ abstract class _BoardModel extends BoardModel {
   DateTime get created_at;
   @override
   DateTime get updated_at;
+  @override
+  ArtistModel? get artist;
 
   /// Create a copy of BoardModel
   /// with the given fields replaced by the non-null parameter values.

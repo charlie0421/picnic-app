@@ -28,6 +28,7 @@ class _PostListPageState extends ConsumerState<PostListPage>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
           showPortal: true,
+          showTopMenu: true,
           showBottomNavigation: false,
           pageTitle: widget.artistName);
     });

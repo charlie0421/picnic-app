@@ -2,12 +2,10 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/models/pic/comment_like.dart';
 import 'package:picnic_app/models/user_profiles.dart';
-import 'package:picnic_app/reflector.dart';
 
 part 'comment.freezed.dart';
 part 'comment.g.dart';
 
-@reflector
 @freezed
 class CommentListModel with _$CommentListModel {
   const CommentListModel._();
@@ -21,7 +19,6 @@ class CommentListModel with _$CommentListModel {
       _$CommentListModelFromJson(json);
 }
 
-@reflector
 @freezed
 class CommentModel with _$CommentModel {
   const CommentModel._();

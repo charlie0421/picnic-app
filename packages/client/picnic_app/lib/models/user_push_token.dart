@@ -1,10 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:picnic_app/reflector.dart';
 
 part 'user_push_token.freezed.dart';
 part 'user_push_token.g.dart';
 
-@reflector
 @freezed
 class UserPushToken with _$UserPushToken {
   const UserPushToken._();

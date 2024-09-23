@@ -31,9 +31,8 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
     super.initState();
     _initializeQuillController();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(navigationInfoProvider.notifier)
-          .settingNavigation(showPortal: true, showBottomNavigation: false);
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+          showPortal: true, showTopMenu: true, showBottomNavigation: false);
     });
   }
 

@@ -112,7 +112,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("成为第一个发表评论的人！"),
         "label_bonus": MessageLookupByLibrary.simpleMessage("奖金"),
-        "label_button_agreement": MessageLookupByLibrary.simpleMessage("同意"),
+        "label_button_agreement": MessageLookupByLibrary.simpleMessage("接受"),
         "label_button_close": MessageLookupByLibrary.simpleMessage("關閉"),
         "label_button_disagreement":
             MessageLookupByLibrary.simpleMessage("不同意"),
@@ -322,6 +322,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("实时查看您的品牌声誉\n实时反映艺术家的品牌声誉！"),
         "text_comming_soon_pic_chart_title":
             MessageLookupByLibrary.simpleMessage("什么是饼图？"),
+        "text_community_board_search":
+            MessageLookupByLibrary.simpleMessage("搜索艺术家板"),
         "text_copied_address": MessageLookupByLibrary.simpleMessage("地址已复制。"),
         "text_dialog_ad_dismissed":
             MessageLookupByLibrary.simpleMessage("广告中途停止。"),

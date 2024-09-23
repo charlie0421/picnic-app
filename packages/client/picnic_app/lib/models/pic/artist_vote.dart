@@ -1,12 +1,10 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/models/meta.dart';
-import 'package:picnic_app/reflector.dart';
 
 part 'artist_vote.freezed.dart';
 part 'artist_vote.g.dart';
 
-@reflector
 @freezed
 class ArtistVoteListModel with _$ArtistVoteListModel {
   const ArtistVoteListModel._();
@@ -20,7 +18,6 @@ class ArtistVoteListModel with _$ArtistVoteListModel {
       _$ArtistVoteListModelFromJson(json);
 }
 
-@reflector
 @freezed
 class ArtistVoteModel with _$ArtistVoteModel {
   const ArtistVoteModel._();
@@ -41,7 +38,6 @@ class ArtistVoteModel with _$ArtistVoteModel {
       _$ArtistVoteModelFromJson(json);
 }
 
-@reflector
 @freezed
 class ArtistVoteItemModel with _$ArtistVoteItemModel {
   const ArtistVoteItemModel._();
@@ -58,7 +54,6 @@ class ArtistVoteItemModel with _$ArtistVoteItemModel {
       _$ArtistVoteItemModelFromJson(json);
 }
 
-@reflector
 @freezed
 class MyStarMemberModel with _$MyStarMemberModel {
   const MyStarMemberModel._();
@@ -90,7 +85,6 @@ class MyStarMemberModel with _$MyStarMemberModel {
       _$MyStarMemberModelFromJson(json);
 }
 
-@reflector
 @freezed
 class MyStarGroupModel with _$MyStarGroupModel {
   const MyStarGroupModel._();
@@ -116,7 +110,6 @@ class MyStarGroupModel with _$MyStarGroupModel {
       _$MyStarGroupModelFromJson(json);
 }
 
-@reflector
 @freezed
 class ArtistMemberModel with _$ArtistMemberModel {
   const ArtistMemberModel._();
@@ -133,7 +126,6 @@ class ArtistMemberModel with _$ArtistMemberModel {
       _$ArtistMemberModelFromJson(json);
 }
 
-@reflector
 @freezed
 class ArtistGroupModel with _$ArtistGroupModel {
   const ArtistGroupModel._();

@@ -1,6 +1,5 @@
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/pic/article.dart';
-import 'package:picnic_app/reflector.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -54,7 +53,6 @@ class SortOption extends _$SortOption {
   }
 }
 
-@reflector
 class SortOptionType {
   String sort = '';
   String order = '';

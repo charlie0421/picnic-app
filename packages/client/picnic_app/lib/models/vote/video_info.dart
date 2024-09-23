@@ -1,10 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:picnic_app/reflector.dart';
 
 part 'video_info.freezed.dart';
 part 'video_info.g.dart';
 
-@reflector
 @freezed
 class VideoInfo with _$VideoInfo {
   const factory VideoInfo({

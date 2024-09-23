@@ -3,12 +3,10 @@ import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/models/pic/article_image.dart';
 import 'package:picnic_app/models/pic/comment.dart';
 import 'package:picnic_app/models/pic/gallery.dart';
-import 'package:picnic_app/reflector.dart';
 
 part 'article.freezed.dart';
 part 'article.g.dart';
 
-@reflector
 @freezed
 class ArticleListModel with _$ArticleListModel {
   const ArticleListModel._();
@@ -22,7 +20,6 @@ class ArticleListModel with _$ArticleListModel {
       _$ArticleListModelFromJson(json);
 }
 
-@reflector
 @freezed
 class ArticleModel with _$ArticleModel {
   const ArticleModel._();

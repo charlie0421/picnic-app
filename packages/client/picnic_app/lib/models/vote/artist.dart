@@ -1,11 +1,9 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/vote/artist_group.dart';
-import 'package:picnic_app/reflector.dart';
 
 part 'artist.freezed.dart';
 part 'artist.g.dart';
 
-@reflector
 @freezed
 class ArtistModel with _$ArtistModel {
   const ArtistModel._();

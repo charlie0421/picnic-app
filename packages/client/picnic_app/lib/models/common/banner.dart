@@ -1,10 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:picnic_app/reflector.dart';
 
 part 'banner.freezed.dart';
 part 'banner.g.dart';
 
-@reflector
 @freezed
 class BannerModel with _$BannerModel {
   const BannerModel._();
