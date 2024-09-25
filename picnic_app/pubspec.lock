@@ -450,10 +450,10 @@ packages:
     dependency: transitive
     description:
       name: dart_quill_delta
-      sha256: "051853d86d9e40b878d1eaddefa538c69e9177592b2a47bcf32e34165b2ee166"
+      sha256: ad16a9782d577552d8bc83eec564eff89ad337c2a0a91daf7a98f2c20cfa4c92
       url: "https://pub.dev"
     source: hosted
-    version: "10.7.5"
+    version: "10.7.7"
   dart_style:
     dependency: transitive
     description:
