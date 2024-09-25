@@ -24,6 +24,7 @@ mixin _$Navigation {
   Widget get currentScreen => throw _privateConstructorUsedError;
   bool get showPortal => throw _privateConstructorUsedError;
   bool get showTopMenu => throw _privateConstructorUsedError;
+  TopRightType get topRightMenu => throw _privateConstructorUsedError;
   bool get showBottomNavigation => throw _privateConstructorUsedError;
   String get pageTitle => throw _privateConstructorUsedError;
   NavigationStack? get voteNavigationStack =>
@@ -55,6 +56,7 @@ abstract class $NavigationCopyWith<$Res> {
       Widget currentScreen,
       bool showPortal,
       bool showTopMenu,
+      TopRightType topRightMenu,
       bool showBottomNavigation,
       String pageTitle,
       NavigationStack? voteNavigationStack,
@@ -85,6 +87,7 @@ class _$NavigationCopyWithImpl<$Res, $Val extends Navigation>
     Object? currentScreen = null,
     Object? showPortal = null,
     Object? showTopMenu = null,
+    Object? topRightMenu = null,
     Object? showBottomNavigation = null,
     Object? pageTitle = null,
     Object? voteNavigationStack = freezed,
@@ -124,6 +127,10 @@ class _$NavigationCopyWithImpl<$Res, $Val extends Navigation>
           ? _value.showTopMenu
           : showTopMenu // ignore: cast_nullable_to_non_nullable
               as bool,
+      topRightMenu: null == topRightMenu
+          ? _value.topRightMenu
+          : topRightMenu // ignore: cast_nullable_to_non_nullable
+              as TopRightType,
       showBottomNavigation: null == showBottomNavigation
           ? _value.showBottomNavigation
           : showBottomNavigation // ignore: cast_nullable_to_non_nullable
@@ -165,6 +172,7 @@ abstract class _$$NavigationImplCopyWith<$Res>
       Widget currentScreen,
       bool showPortal,
       bool showTopMenu,
+      TopRightType topRightMenu,
       bool showBottomNavigation,
       String pageTitle,
       NavigationStack? voteNavigationStack,
@@ -193,6 +201,7 @@ class __$$NavigationImplCopyWithImpl<$Res>
     Object? currentScreen = null,
     Object? showPortal = null,
     Object? showTopMenu = null,
+    Object? topRightMenu = null,
     Object? showBottomNavigation = null,
     Object? pageTitle = null,
     Object? voteNavigationStack = freezed,
@@ -232,6 +241,10 @@ class __$$NavigationImplCopyWithImpl<$Res>
           ? _value.showTopMenu
           : showTopMenu // ignore: cast_nullable_to_non_nullable
               as bool,
+      topRightMenu: null == topRightMenu
+          ? _value.topRightMenu
+          : topRightMenu // ignore: cast_nullable_to_non_nullable
+              as TopRightType,
       showBottomNavigation: null == showBottomNavigation
           ? _value.showBottomNavigation
           : showBottomNavigation // ignore: cast_nullable_to_non_nullable
@@ -268,6 +281,7 @@ class _$NavigationImpl extends _Navigation {
       this.currentScreen = const VoteHomeScreen(),
       this.showPortal = true,
       this.showTopMenu = true,
+      this.topRightMenu = TopRightType.common,
       this.showBottomNavigation = true,
       this.pageTitle = '',
       this.voteNavigationStack,
@@ -301,6 +315,9 @@ class _$NavigationImpl extends _Navigation {
   final bool showTopMenu;
   @override
   @JsonKey()
+  final TopRightType topRightMenu;
+  @override
+  @JsonKey()
   final bool showBottomNavigation;
   @override
   @JsonKey()
@@ -314,7 +331,7 @@ class _$NavigationImpl extends _Navigation {
 
   @override
   String toString() {
-    return 'Navigation(portalType: $portalType, picBottomNavigationIndex: $picBottomNavigationIndex, voteBottomNavigationIndex: $voteBottomNavigationIndex, communityBottomNavigationIndex: $communityBottomNavigationIndex, novelBottomNavigationIndex: $novelBottomNavigationIndex, currentScreen: $currentScreen, showPortal: $showPortal, showTopMenu: $showTopMenu, showBottomNavigation: $showBottomNavigation, pageTitle: $pageTitle, voteNavigationStack: $voteNavigationStack, drawerNavigationStack: $drawerNavigationStack, signUpNavigationStack: $signUpNavigationStack)';
+    return 'Navigation(portalType: $portalType, picBottomNavigationIndex: $picBottomNavigationIndex, voteBottomNavigationIndex: $voteBottomNavigationIndex, communityBottomNavigationIndex: $communityBottomNavigationIndex, novelBottomNavigationIndex: $novelBottomNavigationIndex, currentScreen: $currentScreen, showPortal: $showPortal, showTopMenu: $showTopMenu, topRightMenu: $topRightMenu, showBottomNavigation: $showBottomNavigation, pageTitle: $pageTitle, voteNavigationStack: $voteNavigationStack, drawerNavigationStack: $drawerNavigationStack, signUpNavigationStack: $signUpNavigationStack)';
   }
 
   @override
@@ -324,8 +341,7 @@ class _$NavigationImpl extends _Navigation {
             other is _$NavigationImpl &&
             (identical(other.portalType, portalType) ||
                 other.portalType == portalType) &&
-            (identical(
-                    other.picBottomNavigationIndex, picBottomNavigationIndex) ||
+            (identical(other.picBottomNavigationIndex, picBottomNavigationIndex) ||
                 other.picBottomNavigationIndex == picBottomNavigationIndex) &&
             (identical(other.voteBottomNavigationIndex, voteBottomNavigationIndex) ||
                 other.voteBottomNavigationIndex == voteBottomNavigationIndex) &&
@@ -343,6 +359,8 @@ class _$NavigationImpl extends _Navigation {
                 other.showPortal == showPortal) &&
             (identical(other.showTopMenu, showTopMenu) ||
                 other.showTopMenu == showTopMenu) &&
+            (identical(other.topRightMenu, topRightMenu) ||
+                other.topRightMenu == topRightMenu) &&
             (identical(other.showBottomNavigation, showBottomNavigation) ||
                 other.showBottomNavigation == showBottomNavigation) &&
             (identical(other.pageTitle, pageTitle) ||
@@ -366,6 +384,7 @@ class _$NavigationImpl extends _Navigation {
       currentScreen,
       showPortal,
       showTopMenu,
+      topRightMenu,
       showBottomNavigation,
       pageTitle,
       voteNavigationStack,
@@ -391,6 +410,7 @@ abstract class _Navigation extends Navigation {
       final Widget currentScreen,
       final bool showPortal,
       final bool showTopMenu,
+      final TopRightType topRightMenu,
       final bool showBottomNavigation,
       final String pageTitle,
       final NavigationStack? voteNavigationStack,
@@ -414,6 +434,8 @@ abstract class _Navigation extends Navigation {
   bool get showPortal;
   @override
   bool get showTopMenu;
+  @override
+  TopRightType get topRightMenu;
   @override
   bool get showBottomNavigation;
   @override

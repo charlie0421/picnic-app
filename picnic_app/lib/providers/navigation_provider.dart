@@ -96,12 +96,14 @@ class NavigationInfo extends _$NavigationInfo {
     required bool showPortal,
     required bool showBottomNavigation,
     required bool showTopMenu,
+    TopRightType? topRightMenu,
     String? pageTitle,
   }) {
     state = state.copyWith(
       showPortal: showPortal,
       showBottomNavigation: showBottomNavigation,
       showTopMenu: showTopMenu,
+      topRightMenu: topRightMenu ?? TopRightType.common,
       pageTitle: pageTitle ?? '',
     );
   }

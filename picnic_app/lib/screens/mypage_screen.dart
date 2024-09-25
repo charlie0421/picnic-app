@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_app/components/common/screen_top.dart';
+import 'package:picnic_app/components/common/top/top_right_common.dart';
 import 'package:picnic_app/components/ui/picnic_animated_switcher.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
@@ -62,7 +62,7 @@ class MyPageScreen extends ConsumerWidget {
         actions: [
           userInfoState.when(
               data: (data) => data != null && data.is_admin
-                  ? const TopScreenRight()
+                  ? const TopRightCommon()
                   : Container(),
               loading: () => Container(),
               error: (error, stackTrace) => Container()),
