@@ -1,0 +1,109 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:picnic_app/components/rotate_image.dart';
+import 'package:picnic_app/components/ui/bounce_red_dot.dart';
+import 'package:picnic_app/dialogs/require_login_dialog.dart';
+import 'package:picnic_app/providers/user_info_provider.dart';
+import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/util/ui.dart';
+import 'package:supabase_extensions/supabase_extensions.dart';
+
+class TopRightCommon extends ConsumerStatefulWidget {
+  const TopRightCommon({
+    super.key,
+  });
+
+  @override
+  ConsumerState<TopRightCommon> createState() => _TopRightCommonState();
+}
+
+class _TopRightCommonState extends ConsumerState<TopRightCommon> {
+  @override
+  Widget build(BuildContext context) {
+    final isAdmin =
+        ref.watch(userInfoProvider.select((value) => value.value?.is_admin));
+
+    return isAdmin != null && isAdmin == true
+        ? Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Stack(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      supabase.isLogged
+                          ? ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  duration: Duration(milliseconds: 300),
+                                  content: Text('로그인 되어 있습니다')))
+                          : showRequireLoginDialog(
+                              context: context,
+                            );
+                    },
+                    child: Container(
+                      alignment: Alignment.centerLeft,
+                      width: 40.cw,
+                      height: 36,
+                      child: SvgPicture.asset(
+                        'assets/icons/calendar_style=line.svg',
+                        width: 24.cw,
+                        height: 24,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: Column(
+                      children: [
+                        RotationImage(
+                          image: Image.asset(
+                            'assets/icons/store/star_100.png',
+                            width: 24.cw,
+                            height: 24,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              GestureDetector(
+                onTap: () {
+                  supabase.isLogged
+                      ? ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              duration: Duration(milliseconds: 200),
+                              content: Text('로그인 되어 있습니다')))
+                      : showRequireLoginDialog(
+                          context: context,
+                        );
+                },
+                child: Stack(
+                  children: [
+                    SizedBox(
+                      width: 24.cw,
+                      height: 24,
+                      child: SvgPicture.asset(
+                        'assets/icons/alarm_style=line.svg',
+                        width: 24.cw,
+                        height: 24,
+                      ),
+                    ),
+                    Positioned(
+                      top: 0.cw,
+                      right: 0.cw,
+                      left: 0.cw,
+                      bottom: 3.cw,
+                      child: const BounceRedDot(),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          )
+        : const SizedBox();
+  }
+}

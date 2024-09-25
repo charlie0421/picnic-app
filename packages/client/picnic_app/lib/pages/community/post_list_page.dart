@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/community/list/post_list.dart';
+import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/pages/community/board_reqeust.dart';
 import 'package:picnic_app/providers/community/boards_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -30,6 +31,7 @@ class _PostListPageState extends ConsumerState<PostListPage>
       ref.read(navigationInfoProvider.notifier).settingNavigation(
           showPortal: true,
           showTopMenu: true,
+          topRightMenu: TopRightType.board,
           showBottomNavigation: false,
           pageTitle: widget.artistName);
     });

@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/portal_menu_item.dart';
-import 'package:picnic_app/components/common/screen_top.dart';
+import 'package:picnic_app/components/common/top/top_menu.dart';
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -127,7 +127,7 @@ class _PortalState extends ConsumerState<Portal> {
                       child: SizedBox(
                       width: webDesignSize.width,
                       child: Column(children: [
-                        if (showTopMenu) const ScreenTop(),
+                        if (showTopMenu) const TopMenu(),
                         Expanded(child: currentScreen),
                       ]),
                     ))
@@ -135,7 +135,7 @@ class _PortalState extends ConsumerState<Portal> {
                       width: constraints.maxWidth,
                       height: constraints.maxHeight,
                       child: Column(children: [
-                        if (showTopMenu) const ScreenTop(),
+                        if (showTopMenu) const TopMenu(),
                         Expanded(child: currentScreen),
                       ]),
                     );
