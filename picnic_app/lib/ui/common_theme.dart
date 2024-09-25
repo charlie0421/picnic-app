@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/ui.dart';
 
 TabBarTheme commonTabBarTheme = TabBarTheme(
   labelStyle: getTextStyle(
@@ -15,6 +16,28 @@ TabBarTheme commonTabBarTheme = TabBarTheme(
   indicatorColor: AppColors.grey900,
 );
 
+ElevatedButtonThemeData commonElevatedButtonThemeData = ElevatedButtonThemeData(
+  style: ButtonStyle(
+      padding: WidgetStateProperty.all(
+          EdgeInsets.symmetric(horizontal: 32.cw, vertical: 0)),
+      backgroundColor: WidgetStateProperty.all(AppColors.primary500),
+      shape: WidgetStateProperty.all(
+        RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(
+              color: AppColors.primary500,
+              width: 1,
+              strokeAlign: BorderSide.strokeAlignInside),
+        ),
+      ),
+      textStyle: WidgetStateProperty.all(
+        getTextStyle(
+          AppTypo.body14B,
+          AppColors.grey00,
+        ),
+      ),
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+);
 SwitchThemeData commonSwitchTheme = SwitchThemeData(
   trackColor: WidgetStateProperty.all(AppColors.primary500),
   trackOutlineWidth: const WidgetStatePropertyAll(0),

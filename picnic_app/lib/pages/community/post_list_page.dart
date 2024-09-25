@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/community/list/post_list.dart';
+import 'package:picnic_app/pages/community/board_reqeust.dart';
 import 'package:picnic_app/providers/community/boards_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -68,7 +69,7 @@ class _PostListPageState extends ConsumerState<PostListPage>
                       return _buildMenuItem(
                           data[index - 1].is_official
                               ? 'Picnic!${getLocaleTextFromJson(data[index - 1].name)}'
-                              : getLocaleTextFromJson(data[index - 1].name),
+                              : data[index - 1].name['minor'],
                           index);
                     } else {
                       return _buildOpenRequestItem(data.length + 1);
@@ -89,7 +90,7 @@ class _PostListPageState extends ConsumerState<PostListPage>
                     ...List.generate(data.length, (index) {
                       return PostList(PostListType.board, data[index].board_id);
                     }),
-                    Container(), // 오픈요청 페이지
+                    BoardRequest(widget.artistId), // 오픈요청 페이지
                   ],
                 ),
               ),

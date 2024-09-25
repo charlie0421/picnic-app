@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/ui/common_theme.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util/ui.dart';
 
 ThemeData voteThemeLight = ThemeData.light().copyWith(
   appBarTheme: const AppBarTheme(
@@ -23,28 +21,7 @@ ThemeData voteThemeLight = ThemeData.light().copyWith(
   //   selectedLabelStyle: TextStyle(color: Colors.black),
   //   unselectedLabelStyle: TextStyle(color: Colors.black54),
   // ),
-  elevatedButtonTheme: ElevatedButtonThemeData(
-    style: ButtonStyle(
-        padding: WidgetStateProperty.all(
-            EdgeInsets.symmetric(horizontal: 32.cw, vertical: 0).r),
-        backgroundColor: WidgetStateProperty.all(AppColors.mint500),
-        shape: WidgetStateProperty.all(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: const BorderSide(
-                color: AppColors.primary500,
-                width: 1,
-                strokeAlign: BorderSide.strokeAlignInside),
-          ),
-        ),
-        textStyle: WidgetStateProperty.all(
-          getTextStyle(
-            AppTypo.body14B,
-            AppColors.primary500,
-          ),
-        ),
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-  ),
+  elevatedButtonTheme: commonElevatedButtonThemeData,
   tabBarTheme: commonTabBarTheme,
   switchTheme: commonSwitchTheme,
   colorScheme: const ColorScheme(
