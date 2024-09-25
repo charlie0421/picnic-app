@@ -9,7 +9,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
@@ -82,7 +82,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
       File imgFile = File(path);
       imgFile.writeAsBytesSync(pngBytes);
 
-      final result = await ImageGallerySaver.saveFile(path);
+      final result = await ImageGallerySaverPlus.saveFile(path);
       logger.d('이미지 저장됨: $path, 결과: $result');
     } catch (e, s) {
       logger.e('이미지 저장 실패: $e', stackTrace: s);

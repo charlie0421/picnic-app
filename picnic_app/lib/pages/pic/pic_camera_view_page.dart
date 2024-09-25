@@ -9,7 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image/image.dart' as img;
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:picnic_app/components/pic/bottom_bar_widget.dart';
@@ -467,7 +467,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
   Future<void> _saveImage() async {
     try {
       if (_capturedImageBytes != null) {
-        final result = await ImageGallerySaver.saveImage(
+        final result = await ImageGallerySaverPlus.saveImage(
           _capturedImageBytes!,
           quality: 100,
           name: 'captured_image',
