@@ -23,11 +23,14 @@ mixin _$BoardModel {
   String get board_id => throw _privateConstructorUsedError;
   int get artist_id => throw _privateConstructorUsedError;
   Map<String, dynamic> get name => throw _privateConstructorUsedError;
-  Map<String, dynamic> get description => throw _privateConstructorUsedError;
+  @DescriptionConverter()
+  dynamic get description => throw _privateConstructorUsedError;
   bool get is_official => throw _privateConstructorUsedError;
   DateTime get created_at => throw _privateConstructorUsedError;
   DateTime get updated_at => throw _privateConstructorUsedError;
   ArtistModel? get artist => throw _privateConstructorUsedError;
+  @JsonKey(name: 'request_message')
+  String? get requestMessage => throw _privateConstructorUsedError;
 
   /// Serializes this BoardModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -49,11 +52,12 @@ abstract class $BoardModelCopyWith<$Res> {
       {String board_id,
       int artist_id,
       Map<String, dynamic> name,
-      Map<String, dynamic> description,
+      @DescriptionConverter() dynamic description,
       bool is_official,
       DateTime created_at,
       DateTime updated_at,
-      ArtistModel? artist});
+      ArtistModel? artist,
+      @JsonKey(name: 'request_message') String? requestMessage});
 
   $ArtistModelCopyWith<$Res>? get artist;
 }
@@ -76,11 +80,12 @@ class _$BoardModelCopyWithImpl<$Res, $Val extends BoardModel>
     Object? board_id = null,
     Object? artist_id = null,
     Object? name = null,
-    Object? description = null,
+    Object? description = freezed,
     Object? is_official = null,
     Object? created_at = null,
     Object? updated_at = null,
     Object? artist = freezed,
+    Object? requestMessage = freezed,
   }) {
     return _then(_value.copyWith(
       board_id: null == board_id
@@ -95,10 +100,10 @@ class _$BoardModelCopyWithImpl<$Res, $Val extends BoardModel>
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>,
-      description: null == description
+      description: freezed == description
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>,
+              as dynamic,
       is_official: null == is_official
           ? _value.is_official
           : is_official // ignore: cast_nullable_to_non_nullable
@@ -115,6 +120,10 @@ class _$BoardModelCopyWithImpl<$Res, $Val extends BoardModel>
           ? _value.artist
           : artist // ignore: cast_nullable_to_non_nullable
               as ArtistModel?,
+      requestMessage: freezed == requestMessage
+          ? _value.requestMessage
+          : requestMessage // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 
@@ -145,11 +154,12 @@ abstract class _$$BoardModelImplCopyWith<$Res>
       {String board_id,
       int artist_id,
       Map<String, dynamic> name,
-      Map<String, dynamic> description,
+      @DescriptionConverter() dynamic description,
       bool is_official,
       DateTime created_at,
       DateTime updated_at,
-      ArtistModel? artist});
+      ArtistModel? artist,
+      @JsonKey(name: 'request_message') String? requestMessage});
 
   @override
   $ArtistModelCopyWith<$Res>? get artist;
@@ -171,11 +181,12 @@ class __$$BoardModelImplCopyWithImpl<$Res>
     Object? board_id = null,
     Object? artist_id = null,
     Object? name = null,
-    Object? description = null,
+    Object? description = freezed,
     Object? is_official = null,
     Object? created_at = null,
     Object? updated_at = null,
     Object? artist = freezed,
+    Object? requestMessage = freezed,
   }) {
     return _then(_$BoardModelImpl(
       board_id: null == board_id
@@ -190,10 +201,10 @@ class __$$BoardModelImplCopyWithImpl<$Res>
           ? _value._name
           : name // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>,
-      description: null == description
-          ? _value._description
+      description: freezed == description
+          ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>,
+              as dynamic,
       is_official: null == is_official
           ? _value.is_official
           : is_official // ignore: cast_nullable_to_non_nullable
@@ -210,6 +221,10 @@ class __$$BoardModelImplCopyWithImpl<$Res>
           ? _value.artist
           : artist // ignore: cast_nullable_to_non_nullable
               as ArtistModel?,
+      requestMessage: freezed == requestMessage
+          ? _value.requestMessage
+          : requestMessage // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -221,13 +236,13 @@ class _$BoardModelImpl extends _BoardModel {
       {required this.board_id,
       required this.artist_id,
       required final Map<String, dynamic> name,
-      required final Map<String, dynamic> description,
+      @DescriptionConverter() required this.description,
       required this.is_official,
       required this.created_at,
       required this.updated_at,
-      required this.artist})
+      required this.artist,
+      @JsonKey(name: 'request_message') required this.requestMessage})
       : _name = name,
-        _description = description,
         super._();
 
   factory _$BoardModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -245,14 +260,9 @@ class _$BoardModelImpl extends _BoardModel {
     return EqualUnmodifiableMapView(_name);
   }
 
-  final Map<String, dynamic> _description;
   @override
-  Map<String, dynamic> get description {
-    if (_description is EqualUnmodifiableMapView) return _description;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(_description);
-  }
-
+  @DescriptionConverter()
+  final dynamic description;
   @override
   final bool is_official;
   @override
@@ -261,10 +271,13 @@ class _$BoardModelImpl extends _BoardModel {
   final DateTime updated_at;
   @override
   final ArtistModel? artist;
+  @override
+  @JsonKey(name: 'request_message')
+  final String? requestMessage;
 
   @override
   String toString() {
-    return 'BoardModel(board_id: $board_id, artist_id: $artist_id, name: $name, description: $description, is_official: $is_official, created_at: $created_at, updated_at: $updated_at, artist: $artist)';
+    return 'BoardModel(board_id: $board_id, artist_id: $artist_id, name: $name, description: $description, is_official: $is_official, created_at: $created_at, updated_at: $updated_at, artist: $artist, requestMessage: $requestMessage)';
   }
 
   @override
@@ -278,14 +291,16 @@ class _$BoardModelImpl extends _BoardModel {
                 other.artist_id == artist_id) &&
             const DeepCollectionEquality().equals(other._name, _name) &&
             const DeepCollectionEquality()
-                .equals(other._description, _description) &&
+                .equals(other.description, description) &&
             (identical(other.is_official, is_official) ||
                 other.is_official == is_official) &&
             (identical(other.created_at, created_at) ||
                 other.created_at == created_at) &&
             (identical(other.updated_at, updated_at) ||
                 other.updated_at == updated_at) &&
-            (identical(other.artist, artist) || other.artist == artist));
+            (identical(other.artist, artist) || other.artist == artist) &&
+            (identical(other.requestMessage, requestMessage) ||
+                other.requestMessage == requestMessage));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -295,11 +310,12 @@ class _$BoardModelImpl extends _BoardModel {
       board_id,
       artist_id,
       const DeepCollectionEquality().hash(_name),
-      const DeepCollectionEquality().hash(_description),
+      const DeepCollectionEquality().hash(description),
       is_official,
       created_at,
       updated_at,
-      artist);
+      artist,
+      requestMessage);
 
   /// Create a copy of BoardModel
   /// with the given fields replaced by the non-null parameter values.
@@ -322,11 +338,13 @@ abstract class _BoardModel extends BoardModel {
       {required final String board_id,
       required final int artist_id,
       required final Map<String, dynamic> name,
-      required final Map<String, dynamic> description,
+      @DescriptionConverter() required final dynamic description,
       required final bool is_official,
       required final DateTime created_at,
       required final DateTime updated_at,
-      required final ArtistModel? artist}) = _$BoardModelImpl;
+      required final ArtistModel? artist,
+      @JsonKey(name: 'request_message')
+      required final String? requestMessage}) = _$BoardModelImpl;
   const _BoardModel._() : super._();
 
   factory _BoardModel.fromJson(Map<String, dynamic> json) =
@@ -339,7 +357,8 @@ abstract class _BoardModel extends BoardModel {
   @override
   Map<String, dynamic> get name;
   @override
-  Map<String, dynamic> get description;
+  @DescriptionConverter()
+  dynamic get description;
   @override
   bool get is_official;
   @override
@@ -348,6 +367,9 @@ abstract class _BoardModel extends BoardModel {
   DateTime get updated_at;
   @override
   ArtistModel? get artist;
+  @override
+  @JsonKey(name: 'request_message')
+  String? get requestMessage;
 
   /// Create a copy of BoardModel
   /// with the given fields replaced by the non-null parameter values.

@@ -33,11 +33,7 @@ ThemeData communityThemeLight = ThemeData.light().copyWith(
     unselectedLabelStyle: TextStyle(color: Colors.black54),
   ),
   scaffoldBackgroundColor: AppColors.grey00,
-  elevatedButtonTheme: ElevatedButtonThemeData(
-    style: ButtonStyle(
-      padding: WidgetStateProperty.all(const EdgeInsets.all(4)),
-    ),
-  ),
+  elevatedButtonTheme: commonElevatedButtonThemeData,
   tabBarTheme: commonTabBarTheme,
   switchTheme: commonSwitchTheme,
   colorScheme: const ColorScheme(
