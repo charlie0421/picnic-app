@@ -94,32 +94,6 @@ dependencies:
   google_sign_in_web: ^0.12.4+2
   url_strategy: ^0.3.0
   crypto: ^3.0.5
-dependency_overrides:
-  flutter_inappwebview_platform_interface:
-    git:
-      url: https://github.com/GabriellArthur/flutter_inappwebview.git
-      ref: master
-      path: flutter_inappwebview_platform_interface
-  flutter_inappwebview_android:
-    git:
-      url: https://github.com/GabriellArthur/flutter_inappwebview.git
-      ref: master
-      path: flutter_inappwebview_android
-  flutter_inappwebview_ios:
-    git:
-      url: https://github.com/GabriellArthur/flutter_inappwebview.git
-      ref: master
-      path: flutter_inappwebview_ios
-  flutter_inappwebview_macos:
-    git:
-      url: https://github.com/GabriellArthur/flutter_inappwebview.git
-      ref: master
-      path: flutter_inappwebview_macos
-  flutter_inappwebview_web:
-    git:
-      url: https://github.com/GabriellArthur/flutter_inappwebview.git
-      ref: master
-      path: flutter_inappwebview_web
 dev_dependencies:
   flutter_test:
     sdk: flutter
