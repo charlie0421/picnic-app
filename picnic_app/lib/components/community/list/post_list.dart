@@ -57,7 +57,7 @@ class _PostListState extends ConsumerState<PostList> {
                         ref
                             .read(navigationInfoProvider.notifier)
                             .setCurrentPage(
-                              PostWritePage(boardId: widget.id.toString()),
+                              const PostWritePage(),
                             );
                       },
                       child: Text('게시글 작성하기',

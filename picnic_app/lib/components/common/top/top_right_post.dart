@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
+import 'package:picnic_app/pages/community/post_write_page.dart';
+import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -22,6 +24,7 @@ class _TopRightPostState extends ConsumerState<TopRightPost> {
   Widget build(BuildContext context) {
     final isAdmin =
         ref.watch(userInfoProvider.select((value) => value.value?.is_admin));
+    final navigationInfoNotifier = ref.read(navigationInfoProvider.notifier);
 
     return isAdmin != null && isAdmin == true
         ? Row(
@@ -32,14 +35,13 @@ class _TopRightPostState extends ConsumerState<TopRightPost> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      supabase.isLogged
-                          ? ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  duration: Duration(milliseconds: 300),
-                                  content: Text('로그인 되어 있습니다')))
-                          : showRequireLoginDialog(
-                              context: context,
-                            );
+                      if (supabase.isLogged) {
+                        navigationInfoNotifier.setCurrentPage(PostWritePage());
+                      } else {
+                        showRequireLoginDialog(
+                          context: context,
+                        );
+                      }
                     },
                     child: Container(
                       alignment: Alignment.centerLeft,

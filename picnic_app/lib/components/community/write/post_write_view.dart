@@ -15,9 +15,7 @@ import 'package:picnic_app/supabase_options.dart';
 class PostWriteView extends ConsumerStatefulWidget {
   const PostWriteView({
     super.key,
-    required this.boardId,
   });
-  final String boardId;
 
   @override
   ConsumerState<PostWriteView> createState() => _PostWriteViewState();
@@ -89,7 +87,6 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
     try {
       // Create post first
       final postData = {
-        'board_id': widget.boardId,
         'title': _titleController.text,
         'content': _contentController.document.toDelta().toJson(),
         'is_anonymous': _isAnonymous,
@@ -195,8 +192,9 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
                                 (entry) => LinearProgressIndicator(
                                   value: entry.value,
                                   backgroundColor: Colors.grey[200],
-                                  valueColor: const AlwaysStoppedAnimation<Color>(
-                                      Colors.blue),
+                                  valueColor:
+                                      const AlwaysStoppedAnimation<Color>(
+                                          Colors.blue),
                                 ),
                               ),
                             ],

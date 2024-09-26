@@ -34,6 +34,7 @@ class Navigation with _$Navigation {
     @Default(TopRightType.common) TopRightType topRightMenu,
     @Default(true) bool showBottomNavigation,
     @Default('') String pageTitle,
+    String? currentArtistId,
     NavigationStack? voteNavigationStack,
     NavigationStack? drawerNavigationStack,
     NavigationStack? signUpNavigationStack,
