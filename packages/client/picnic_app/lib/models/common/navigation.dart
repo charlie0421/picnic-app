@@ -35,6 +35,7 @@ class Navigation with _$Navigation {
     @Default(true) bool showBottomNavigation,
     @Default('') String pageTitle,
     @Default(0) int currentArtistId,
+    @Default('') String currentBoardId,
     NavigationStack? voteNavigationStack,
     NavigationStack? drawerNavigationStack,
     NavigationStack? signUpNavigationStack,

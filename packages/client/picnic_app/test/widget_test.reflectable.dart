@@ -47,6 +47,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
               22,
               23,
               24,
+              25,
               0,
               1
             ],
@@ -68,6 +69,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
                       showBottomNavigation,
                       pageTitle,
                       currentArtistId,
+                      currentBoardId,
                       voteNavigationStack,
                       drawerNavigationStack,
                       signUpNavigationStack}) =>
@@ -76,6 +78,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
                           communityBottomNavigationIndex:
                               communityBottomNavigationIndex,
                           currentArtistId: currentArtistId,
+                          currentBoardId: currentBoardId,
                           currentScreen: currentScreen,
                           drawerNavigationStack: drawerNavigationStack,
                           novelBottomNavigationIndex:
@@ -121,7 +124,8 @@ final _data = <r.Reflectable, r.ReflectorData>{
               21,
               22,
               23,
-              24
+              24,
+              25
             ],
             const <int>[
               4,
@@ -144,7 +148,8 @@ final _data = <r.Reflectable, r.ReflectorData>{
               21,
               22,
               23,
-              24
+              24,
+              25
             ],
             const <int>[],
             -1,
@@ -170,17 +175,17 @@ final _data = <r.Reflectable, r.ReflectorData>{
             -1,
             -1,
             null,
-            const <int>[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+            const <int>[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
             const prefix0.Reflector(),
             null),
         r.MethodMirrorImpl(r'initial', 1, 0, -1, -1, -1, null, const <int>[],
             const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'==', 2097154, -1, -1, -1, -1, null,
-            const <int>[15], const prefix0.Reflector(), null),
+            const <int>[16], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'toString', 2097154, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'noSuchMethod', 524290, -1, -1, -1, -1, null,
-            const <int>[16], const prefix0.Reflector(), null),
+            const <int>[17], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'hashCode', 2097155, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'runtimeType', 2097155, -1, -1, -1, -1, null,
@@ -208,6 +213,8 @@ final _data = <r.Reflectable, r.ReflectorData>{
         r.MethodMirrorImpl(r'pageTitle', 2097155, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'currentArtistId', 2097155, -1, -1, -1, -1, null,
+            const <int>[], const prefix0.Reflector(), null),
+        r.MethodMirrorImpl(r'currentBoardId', 2097155, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'voteNavigationStack', 2097155, -1, -1, -1, -1,
             null, const <int>[], const prefix0.Reflector(), null),
@@ -364,6 +371,18 @@ final _data = <r.Reflectable, r.ReflectorData>{
             null,
             #currentArtistId),
         r.ParameterMirrorImpl(
+            r'currentBoardId',
+            134361094,
+            2,
+            const prefix0.Reflector(),
+            -1,
+            -1,
+            -1,
+            null,
+            null,
+            null,
+            #currentBoardId),
+        r.ParameterMirrorImpl(
             r'voteNavigationStack',
             67252230,
             2,
@@ -432,6 +451,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
             instance.showBottomNavigation,
         r'pageTitle': (dynamic instance) => instance.pageTitle,
         r'currentArtistId': (dynamic instance) => instance.currentArtistId,
+        r'currentBoardId': (dynamic instance) => instance.currentBoardId,
         r'voteNavigationStack': (dynamic instance) =>
             instance.voteNavigationStack,
         r'drawerNavigationStack': (dynamic instance) =>
