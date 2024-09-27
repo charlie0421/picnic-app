@@ -28,6 +28,7 @@ mixin _$Navigation {
   bool get showBottomNavigation => throw _privateConstructorUsedError;
   String get pageTitle => throw _privateConstructorUsedError;
   int get currentArtistId => throw _privateConstructorUsedError;
+  String get currentBoardId => throw _privateConstructorUsedError;
   NavigationStack? get voteNavigationStack =>
       throw _privateConstructorUsedError;
   NavigationStack? get drawerNavigationStack =>
@@ -61,6 +62,7 @@ abstract class $NavigationCopyWith<$Res> {
       bool showBottomNavigation,
       String pageTitle,
       int currentArtistId,
+      String currentBoardId,
       NavigationStack? voteNavigationStack,
       NavigationStack? drawerNavigationStack,
       NavigationStack? signUpNavigationStack});
@@ -93,6 +95,7 @@ class _$NavigationCopyWithImpl<$Res, $Val extends Navigation>
     Object? showBottomNavigation = null,
     Object? pageTitle = null,
     Object? currentArtistId = null,
+    Object? currentBoardId = null,
     Object? voteNavigationStack = freezed,
     Object? drawerNavigationStack = freezed,
     Object? signUpNavigationStack = freezed,
@@ -146,6 +149,10 @@ class _$NavigationCopyWithImpl<$Res, $Val extends Navigation>
           ? _value.currentArtistId
           : currentArtistId // ignore: cast_nullable_to_non_nullable
               as int,
+      currentBoardId: null == currentBoardId
+          ? _value.currentBoardId
+          : currentBoardId // ignore: cast_nullable_to_non_nullable
+              as String,
       voteNavigationStack: freezed == voteNavigationStack
           ? _value.voteNavigationStack
           : voteNavigationStack // ignore: cast_nullable_to_non_nullable
@@ -183,6 +190,7 @@ abstract class _$$NavigationImplCopyWith<$Res>
       bool showBottomNavigation,
       String pageTitle,
       int currentArtistId,
+      String currentBoardId,
       NavigationStack? voteNavigationStack,
       NavigationStack? drawerNavigationStack,
       NavigationStack? signUpNavigationStack});
@@ -213,6 +221,7 @@ class __$$NavigationImplCopyWithImpl<$Res>
     Object? showBottomNavigation = null,
     Object? pageTitle = null,
     Object? currentArtistId = null,
+    Object? currentBoardId = null,
     Object? voteNavigationStack = freezed,
     Object? drawerNavigationStack = freezed,
     Object? signUpNavigationStack = freezed,
@@ -266,6 +275,10 @@ class __$$NavigationImplCopyWithImpl<$Res>
           ? _value.currentArtistId
           : currentArtistId // ignore: cast_nullable_to_non_nullable
               as int,
+      currentBoardId: null == currentBoardId
+          ? _value.currentBoardId
+          : currentBoardId // ignore: cast_nullable_to_non_nullable
+              as String,
       voteNavigationStack: freezed == voteNavigationStack
           ? _value.voteNavigationStack
           : voteNavigationStack // ignore: cast_nullable_to_non_nullable
@@ -298,6 +311,7 @@ class _$NavigationImpl extends _Navigation {
       this.showBottomNavigation = true,
       this.pageTitle = '',
       this.currentArtistId = 0,
+      this.currentBoardId = '',
       this.voteNavigationStack,
       this.drawerNavigationStack,
       this.signUpNavigationStack})
@@ -340,6 +354,9 @@ class _$NavigationImpl extends _Navigation {
   @JsonKey()
   final int currentArtistId;
   @override
+  @JsonKey()
+  final String currentBoardId;
+  @override
   final NavigationStack? voteNavigationStack;
   @override
   final NavigationStack? drawerNavigationStack;
@@ -348,7 +365,7 @@ class _$NavigationImpl extends _Navigation {
 
   @override
   String toString() {
-    return 'Navigation(portalType: $portalType, picBottomNavigationIndex: $picBottomNavigationIndex, voteBottomNavigationIndex: $voteBottomNavigationIndex, communityBottomNavigationIndex: $communityBottomNavigationIndex, novelBottomNavigationIndex: $novelBottomNavigationIndex, currentScreen: $currentScreen, showPortal: $showPortal, showTopMenu: $showTopMenu, topRightMenu: $topRightMenu, showBottomNavigation: $showBottomNavigation, pageTitle: $pageTitle, currentArtistId: $currentArtistId, voteNavigationStack: $voteNavigationStack, drawerNavigationStack: $drawerNavigationStack, signUpNavigationStack: $signUpNavigationStack)';
+    return 'Navigation(portalType: $portalType, picBottomNavigationIndex: $picBottomNavigationIndex, voteBottomNavigationIndex: $voteBottomNavigationIndex, communityBottomNavigationIndex: $communityBottomNavigationIndex, novelBottomNavigationIndex: $novelBottomNavigationIndex, currentScreen: $currentScreen, showPortal: $showPortal, showTopMenu: $showTopMenu, topRightMenu: $topRightMenu, showBottomNavigation: $showBottomNavigation, pageTitle: $pageTitle, currentArtistId: $currentArtistId, currentBoardId: $currentBoardId, voteNavigationStack: $voteNavigationStack, drawerNavigationStack: $drawerNavigationStack, signUpNavigationStack: $signUpNavigationStack)';
   }
 
   @override
@@ -358,8 +375,7 @@ class _$NavigationImpl extends _Navigation {
             other is _$NavigationImpl &&
             (identical(other.portalType, portalType) ||
                 other.portalType == portalType) &&
-            (identical(
-                    other.picBottomNavigationIndex, picBottomNavigationIndex) ||
+            (identical(other.picBottomNavigationIndex, picBottomNavigationIndex) ||
                 other.picBottomNavigationIndex == picBottomNavigationIndex) &&
             (identical(other.voteBottomNavigationIndex, voteBottomNavigationIndex) ||
                 other.voteBottomNavigationIndex == voteBottomNavigationIndex) &&
@@ -384,6 +400,8 @@ class _$NavigationImpl extends _Navigation {
                 other.pageTitle == pageTitle) &&
             (identical(other.currentArtistId, currentArtistId) ||
                 other.currentArtistId == currentArtistId) &&
+            (identical(other.currentBoardId, currentBoardId) ||
+                other.currentBoardId == currentBoardId) &&
             (identical(other.voteNavigationStack, voteNavigationStack) ||
                 other.voteNavigationStack == voteNavigationStack) &&
             (identical(other.drawerNavigationStack, drawerNavigationStack) ||
@@ -407,6 +425,7 @@ class _$NavigationImpl extends _Navigation {
       showBottomNavigation,
       pageTitle,
       currentArtistId,
+      currentBoardId,
       voteNavigationStack,
       drawerNavigationStack,
       signUpNavigationStack);
@@ -434,6 +453,7 @@ abstract class _Navigation extends Navigation {
       final bool showBottomNavigation,
       final String pageTitle,
       final int currentArtistId,
+      final String currentBoardId,
       final NavigationStack? voteNavigationStack,
       final NavigationStack? drawerNavigationStack,
       final NavigationStack? signUpNavigationStack}) = _$NavigationImpl;
@@ -463,6 +483,8 @@ abstract class _Navigation extends Navigation {
   String get pageTitle;
   @override
   int get currentArtistId;
+  @override
+  String get currentBoardId;
   @override
   NavigationStack? get voteNavigationStack;
   @override
