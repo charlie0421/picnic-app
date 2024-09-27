@@ -44,7 +44,7 @@
   "@candy_usage_policy_contents2": {
     "manualTranslation": false
   },
-  "candy_usage_policy_guide": "*Bonuses disappear the month after they are earned!",
+  "candy_usage_policy_guide": "*Bonuses will disappear the month after they are earned!",
   "@candy_usage_policy_guide": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
@@ -1092,6 +1092,10 @@
   },
   "update_required_title": "An update is required.",
   "@update_required_title": {
+    "manualTranslation": false
+  },
+  "text_community_post_search": "Search",
+  "@text_community_post_search": {
     "manualTranslation": false
   }
 }

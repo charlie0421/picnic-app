@@ -15,7 +15,7 @@ import 'package:picnic_app/screens/vote/vote_home_screen.dart';
 
 part 'navigation.freezed.dart';
 
-enum TopRightType { common, board }
+enum TopRightType { none, common, board }
 
 @reflector
 @freezed
@@ -34,7 +34,7 @@ class Navigation with _$Navigation {
     @Default(TopRightType.common) TopRightType topRightMenu,
     @Default(true) bool showBottomNavigation,
     @Default('') String pageTitle,
-    String? currentArtistId,
+    @Default(0) int currentArtistId,
     NavigationStack? voteNavigationStack,
     NavigationStack? drawerNavigationStack,
     NavigationStack? signUpNavigationStack,

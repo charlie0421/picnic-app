@@ -349,6 +349,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("핔차트란?"),
         "text_community_board_search":
             MessageLookupByLibrary.simpleMessage("아티스트 게시판 검색"),
+        "text_community_post_search":
+            MessageLookupByLibrary.simpleMessage("검색"),
         "text_copied_address":
             MessageLookupByLibrary.simpleMessage("주소가 복사되었습니다."),
         "text_dialog_ad_dismissed":

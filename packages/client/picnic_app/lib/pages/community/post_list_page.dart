@@ -34,6 +34,10 @@ class _PostListPageState extends ConsumerState<PostListPage>
           topRightMenu: TopRightType.board,
           showBottomNavigation: false,
           pageTitle: widget.artistName);
+
+      ref
+          .read(navigationInfoProvider.notifier)
+          .setCurrentArtistId(widget.artistId, widget.artistName);
     });
 
     _pageController = PageController(

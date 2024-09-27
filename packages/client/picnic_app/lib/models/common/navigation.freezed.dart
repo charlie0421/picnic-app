@@ -27,7 +27,7 @@ mixin _$Navigation {
   TopRightType get topRightMenu => throw _privateConstructorUsedError;
   bool get showBottomNavigation => throw _privateConstructorUsedError;
   String get pageTitle => throw _privateConstructorUsedError;
-  String? get currentArtistId => throw _privateConstructorUsedError;
+  int get currentArtistId => throw _privateConstructorUsedError;
   NavigationStack? get voteNavigationStack =>
       throw _privateConstructorUsedError;
   NavigationStack? get drawerNavigationStack =>
@@ -60,7 +60,7 @@ abstract class $NavigationCopyWith<$Res> {
       TopRightType topRightMenu,
       bool showBottomNavigation,
       String pageTitle,
-      String? currentArtistId,
+      int currentArtistId,
       NavigationStack? voteNavigationStack,
       NavigationStack? drawerNavigationStack,
       NavigationStack? signUpNavigationStack});
@@ -92,7 +92,7 @@ class _$NavigationCopyWithImpl<$Res, $Val extends Navigation>
     Object? topRightMenu = null,
     Object? showBottomNavigation = null,
     Object? pageTitle = null,
-    Object? currentArtistId = freezed,
+    Object? currentArtistId = null,
     Object? voteNavigationStack = freezed,
     Object? drawerNavigationStack = freezed,
     Object? signUpNavigationStack = freezed,
@@ -142,10 +142,10 @@ class _$NavigationCopyWithImpl<$Res, $Val extends Navigation>
           ? _value.pageTitle
           : pageTitle // ignore: cast_nullable_to_non_nullable
               as String,
-      currentArtistId: freezed == currentArtistId
+      currentArtistId: null == currentArtistId
           ? _value.currentArtistId
           : currentArtistId // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as int,
       voteNavigationStack: freezed == voteNavigationStack
           ? _value.voteNavigationStack
           : voteNavigationStack // ignore: cast_nullable_to_non_nullable
@@ -182,7 +182,7 @@ abstract class _$$NavigationImplCopyWith<$Res>
       TopRightType topRightMenu,
       bool showBottomNavigation,
       String pageTitle,
-      String? currentArtistId,
+      int currentArtistId,
       NavigationStack? voteNavigationStack,
       NavigationStack? drawerNavigationStack,
       NavigationStack? signUpNavigationStack});
@@ -212,7 +212,7 @@ class __$$NavigationImplCopyWithImpl<$Res>
     Object? topRightMenu = null,
     Object? showBottomNavigation = null,
     Object? pageTitle = null,
-    Object? currentArtistId = freezed,
+    Object? currentArtistId = null,
     Object? voteNavigationStack = freezed,
     Object? drawerNavigationStack = freezed,
     Object? signUpNavigationStack = freezed,
@@ -262,10 +262,10 @@ class __$$NavigationImplCopyWithImpl<$Res>
           ? _value.pageTitle
           : pageTitle // ignore: cast_nullable_to_non_nullable
               as String,
-      currentArtistId: freezed == currentArtistId
+      currentArtistId: null == currentArtistId
           ? _value.currentArtistId
           : currentArtistId // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as int,
       voteNavigationStack: freezed == voteNavigationStack
           ? _value.voteNavigationStack
           : voteNavigationStack // ignore: cast_nullable_to_non_nullable
@@ -297,7 +297,7 @@ class _$NavigationImpl extends _Navigation {
       this.topRightMenu = TopRightType.common,
       this.showBottomNavigation = true,
       this.pageTitle = '',
-      this.currentArtistId,
+      this.currentArtistId = 0,
       this.voteNavigationStack,
       this.drawerNavigationStack,
       this.signUpNavigationStack})
@@ -337,7 +337,8 @@ class _$NavigationImpl extends _Navigation {
   @JsonKey()
   final String pageTitle;
   @override
-  final String? currentArtistId;
+  @JsonKey()
+  final int currentArtistId;
   @override
   final NavigationStack? voteNavigationStack;
   @override
@@ -432,7 +433,7 @@ abstract class _Navigation extends Navigation {
       final TopRightType topRightMenu,
       final bool showBottomNavigation,
       final String pageTitle,
-      final String? currentArtistId,
+      final int currentArtistId,
       final NavigationStack? voteNavigationStack,
       final NavigationStack? drawerNavigationStack,
       final NavigationStack? signUpNavigationStack}) = _$NavigationImpl;
@@ -461,7 +462,7 @@ abstract class _Navigation extends Navigation {
   @override
   String get pageTitle;
   @override
-  String? get currentArtistId;
+  int get currentArtistId;
   @override
   NavigationStack? get voteNavigationStack;
   @override

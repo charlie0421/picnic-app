@@ -7,16 +7,16 @@ import 'package:picnic_app/util/ui.dart';
 class CommonSearchBox extends StatelessWidget {
   const CommonSearchBox({
     super.key,
-    required FocusNode focusNode,
-    required TextEditingController textEditingController,
-    required String hintText,
-  })  : _focusNode = focusNode,
-        _textEditingController = textEditingController,
-        _hintText = hintText;
+    required this.focusNode,
+    required this.textEditingController,
+    required this.hintText,
+    this.onSubmitted,
+  });
 
-  final FocusNode _focusNode;
-  final TextEditingController _textEditingController;
-  final String _hintText;
+  final FocusNode focusNode;
+  final TextEditingController textEditingController;
+  final String hintText;
+  final Function(String)? onSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -34,31 +34,43 @@ class CommonSearchBox extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Padding(
-            padding: EdgeInsets.only(left: 16.cw, right: 8.cw),
-            child: SvgPicture.asset(
-              'assets/icons/vote/search_icon.svg',
-              width: 20,
-              height: 20,
+          GestureDetector(
+            onTap: () {
+              if (textEditingController.text.isNotEmpty) {
+                onSubmitted?.call(textEditingController.text);
+              }
+            },
+            child: Padding(
+              padding: EdgeInsets.only(left: 16.cw, right: 8.cw),
+              child: SvgPicture.asset(
+                'assets/icons/vote/search_icon.svg',
+                width: 20,
+                height: 20,
+              ),
             ),
           ),
           Expanded(
             child: TextField(
-              focusNode: _focusNode,
-              controller: _textEditingController,
+              focusNode: focusNode,
+              controller: textEditingController,
               decoration: InputDecoration(
-                hintText: _hintText,
+                hintText: hintText,
                 hintStyle: getTextStyle(AppTypo.body16R, AppColors.grey300),
                 border: InputBorder.none,
                 focusColor: AppColors.primary500,
                 fillColor: AppColors.grey900,
               ),
               style: getTextStyle(AppTypo.body16R, AppColors.grey900),
+              onSubmitted: onSubmitted,
+              textInputAction: TextInputAction.search,
             ),
           ),
           GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: () => _textEditingController.clear(),
+            onTap: () {
+              textEditingController.clear();
+              onSubmitted?.call('');
+            },
             child: Padding(
               padding: EdgeInsets.only(left: 8.cw, right: 16.cw),
               child: SvgPicture.asset(
@@ -66,7 +78,7 @@ class CommonSearchBox extends StatelessWidget {
                 width: 20,
                 height: 20,
                 colorFilter: ColorFilter.mode(
-                  _textEditingController.text.isNotEmpty
+                  textEditingController.text.isNotEmpty
                       ? AppColors.grey700
                       : AppColors.grey200,
                   BlendMode.srcIn,

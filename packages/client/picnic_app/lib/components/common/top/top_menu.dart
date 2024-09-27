@@ -77,9 +77,11 @@ class _TopState extends ConsumerState<TopMenu> {
               right: 0,
               top: 0,
               bottom: 0,
-              child: navigationInfo.topRightMenu == TopRightType.common
-                  ? const TopRightCommon()
-                  : const TopRightPost()),
+              child: navigationInfo.topRightMenu == TopRightType.none
+                  ? Container()
+                  : navigationInfo.topRightMenu == TopRightType.common
+                      ? const TopRightCommon()
+                      : const TopRightPost()),
         ],
       ),
     );

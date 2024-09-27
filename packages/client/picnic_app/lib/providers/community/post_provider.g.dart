@@ -351,5 +351,183 @@ class _PostsByBoardProviderElement
   @override
   int get page => (origin as PostsByBoardProvider).page;
 }
+
+String _$postsByQueryHash() => r'96b40a5ff37f1669fc8f2d294c73b55eae46d971';
+
+/// See also [postsByQuery].
+@ProviderFor(postsByQuery)
+const postsByQueryProvider = PostsByQueryFamily();
+
+/// See also [postsByQuery].
+class PostsByQueryFamily extends Family<AsyncValue<List<PostModel>?>> {
+  /// See also [postsByQuery].
+  const PostsByQueryFamily();
+
+  /// See also [postsByQuery].
+  PostsByQueryProvider call(
+    int artistId,
+    String query,
+    int page,
+    int limit,
+  ) {
+    return PostsByQueryProvider(
+      artistId,
+      query,
+      page,
+      limit,
+    );
+  }
+
+  @override
+  PostsByQueryProvider getProviderOverride(
+    covariant PostsByQueryProvider provider,
+  ) {
+    return call(
+      provider.artistId,
+      provider.query,
+      provider.page,
+      provider.limit,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'postsByQueryProvider';
+}
+
+/// See also [postsByQuery].
+class PostsByQueryProvider extends AutoDisposeFutureProvider<List<PostModel>?> {
+  /// See also [postsByQuery].
+  PostsByQueryProvider(
+    int artistId,
+    String query,
+    int page,
+    int limit,
+  ) : this._internal(
+          (ref) => postsByQuery(
+            ref as PostsByQueryRef,
+            artistId,
+            query,
+            page,
+            limit,
+          ),
+          from: postsByQueryProvider,
+          name: r'postsByQueryProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$postsByQueryHash,
+          dependencies: PostsByQueryFamily._dependencies,
+          allTransitiveDependencies:
+              PostsByQueryFamily._allTransitiveDependencies,
+          artistId: artistId,
+          query: query,
+          page: page,
+          limit: limit,
+        );
+
+  PostsByQueryProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.artistId,
+    required this.query,
+    required this.page,
+    required this.limit,
+  }) : super.internal();
+
+  final int artistId;
+  final String query;
+  final int page;
+  final int limit;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<PostModel>?> Function(PostsByQueryRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: PostsByQueryProvider._internal(
+        (ref) => create(ref as PostsByQueryRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        artistId: artistId,
+        query: query,
+        page: page,
+        limit: limit,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<List<PostModel>?> createElement() {
+    return _PostsByQueryProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is PostsByQueryProvider &&
+        other.artistId == artistId &&
+        other.query == query &&
+        other.page == page &&
+        other.limit == limit;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, artistId.hashCode);
+    hash = _SystemHash.combine(hash, query.hashCode);
+    hash = _SystemHash.combine(hash, page.hashCode);
+    hash = _SystemHash.combine(hash, limit.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin PostsByQueryRef on AutoDisposeFutureProviderRef<List<PostModel>?> {
+  /// The parameter `artistId` of this provider.
+  int get artistId;
+
+  /// The parameter `query` of this provider.
+  String get query;
+
+  /// The parameter `page` of this provider.
+  int get page;
+
+  /// The parameter `limit` of this provider.
+  int get limit;
+}
+
+class _PostsByQueryProviderElement
+    extends AutoDisposeFutureProviderElement<List<PostModel>?>
+    with PostsByQueryRef {
+  _PostsByQueryProviderElement(super.provider);
+
+  @override
+  int get artistId => (origin as PostsByQueryProvider).artistId;
+  @override
+  String get query => (origin as PostsByQueryProvider).query;
+  @override
+  int get page => (origin as PostsByQueryProvider).page;
+  @override
+  int get limit => (origin as PostsByQueryProvider).limit;
+}
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

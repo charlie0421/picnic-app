@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
+import 'package:picnic_app/pages/community/post_search_page.dart';
 import 'package:picnic_app/pages/community/post_write_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
@@ -36,7 +37,8 @@ class _TopRightPostState extends ConsumerState<TopRightPost> {
                   GestureDetector(
                     onTap: () {
                       if (supabase.isLogged) {
-                        navigationInfoNotifier.setCurrentPage(PostWritePage());
+                        navigationInfoNotifier
+                            .setCurrentPage(const PostWritePage());
                       } else {
                         showRequireLoginDialog(
                           context: context,
@@ -60,14 +62,14 @@ class _TopRightPostState extends ConsumerState<TopRightPost> {
               ),
               GestureDetector(
                 onTap: () {
-                  supabase.isLogged
-                      ? ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              duration: Duration(milliseconds: 200),
-                              content: Text('로그인 되어 있습니다')))
-                      : showRequireLoginDialog(
-                          context: context,
-                        );
+                  if (supabase.isLogged) {
+                    navigationInfoNotifier
+                        .setCurrentPage(const PostSearchPage());
+                  } else {
+                    showRequireLoginDialog(
+                      context: context,
+                    );
+                  }
                 },
                 child: Stack(
                   children: [

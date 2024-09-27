@@ -347,6 +347,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("ピクチャーチャートとは？"),
         "text_community_board_search":
             MessageLookupByLibrary.simpleMessage("アーティスト掲示板検索"),
+        "text_community_post_search":
+            MessageLookupByLibrary.simpleMessage("検索"),
         "text_copied_address":
             MessageLookupByLibrary.simpleMessage("アドレスがコピーされました。"),
         "text_dialog_ad_dismissed":
