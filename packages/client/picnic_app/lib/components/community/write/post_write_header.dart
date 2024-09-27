@@ -2,6 +2,7 @@ import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/board.dart';
 import 'package:picnic_app/providers/community/boards_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -24,6 +25,19 @@ class PostWriteHeader extends ConsumerStatefulWidget {
 }
 
 class _PostWriteHeaderState extends ConsumerState<PostWriteHeader> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+          showPortal: true,
+          showTopMenu: true,
+          showBottomNavigation: false,
+          pageTitle: S.of(context).page_title_post_write,
+          topRightMenu: TopRightType.none);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentArtistId = ref
