@@ -353,7 +353,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
             #pageTitle),
         r.ParameterMirrorImpl(
             r'currentArtistId',
-            67252230,
+            134361094,
             2,
             const prefix0.Reflector(),
             -1,

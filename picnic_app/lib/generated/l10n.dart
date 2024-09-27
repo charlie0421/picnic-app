@@ -140,10 +140,10 @@ class S {
     );
   }
 
-  /// `*Bonuses disappear the month after they are earned!`
+  /// `*Bonuses will disappear the month after they are earned!`
   String get candy_usage_policy_guide {
     return Intl.message(
-      '*Bonuses disappear the month after they are earned!',
+      '*Bonuses will disappear the month after they are earned!',
       name: 'candy_usage_policy_guide',
       desc: '',
       args: [],
@@ -2315,6 +2315,16 @@ class S {
     return Intl.message(
       'An update is required.',
       name: 'update_required_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search`
+  String get text_community_post_search {
+    return Intl.message(
+      'Search',
+      name: 'text_community_post_search',
       desc: '',
       args: [],
     );

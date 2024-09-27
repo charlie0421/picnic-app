@@ -730,6 +730,8 @@
   },
   "text_community_board_search": "아티스트 게시판 검색",
   "@text_community_board_search": {},
+  "text_community_post_search": "검색",
+  "@text_community_post_search": {},
   "text_copied_address": "주소가 복사되었습니다.",
   "@text_copied_address": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"

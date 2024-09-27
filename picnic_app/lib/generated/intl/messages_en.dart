@@ -50,7 +50,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "candy_usage_policy_contents2": MessageLookupByLibrary.simpleMessage(
             "When using Star Candy, Star Candy that is about to expire is prioritized."),
         "candy_usage_policy_guide": MessageLookupByLibrary.simpleMessage(
-            "*Bonuses disappear the month after they are earned!"),
+            "*Bonuses will disappear the month after they are earned!"),
         "candy_usage_policy_guide_button":
             MessageLookupByLibrary.simpleMessage("Learn more"),
         "candy_usage_policy_title":
@@ -388,6 +388,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("What is a Pie Chart?"),
         "text_community_board_search":
             MessageLookupByLibrary.simpleMessage("Searching the Artist Board"),
+        "text_community_post_search":
+            MessageLookupByLibrary.simpleMessage("Search"),
         "text_copied_address": MessageLookupByLibrary.simpleMessage(
             "The address has been copied."),
         "text_dialog_ad_dismissed": MessageLookupByLibrary.simpleMessage(

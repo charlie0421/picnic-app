@@ -1092,5 +1092,9 @@
   "update_required_title": "アップデートが必要です。",
   "@update_required_title": {
     "manualTranslation": false
+  },
+  "text_community_post_search": "検索",
+  "@text_community_post_search": {
+    "manualTranslation": false
   }
 }
