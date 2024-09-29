@@ -16,7 +16,8 @@ Future<List<BoardModel>?> boards(ref, int artistId) async {
         .select()
         .eq('artist_id', artistId)
         .eq('status', 'approved')
-        .order('is_official', ascending: false);
+        .order('is_official', ascending: false)
+        .order('order', ascending: true);
 
     logger.d('response: $response');
 
