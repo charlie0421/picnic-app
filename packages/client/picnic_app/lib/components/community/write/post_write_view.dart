@@ -130,6 +130,8 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Post saved successfully!')),
       );
+
+      ref.read(navigationInfoProvider.notifier).goBack();
     } catch (e, s) {
       logger.e('Error saving post: $e', stackTrace: s);
 
