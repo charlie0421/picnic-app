@@ -74,7 +74,7 @@ class _PostListPageState extends ConsumerState<PostListPage>
                     } else if (index <= data.length) {
                       return _buildMenuItem(
                           data[index - 1].is_official
-                              ? 'Picnic!${getLocaleTextFromJson(data[index - 1].name)}'
+                              ? getLocaleTextFromJson(data[index - 1].name)
                               : data[index - 1].name['minor'],
                           index);
                     } else {

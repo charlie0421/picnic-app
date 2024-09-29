@@ -10,6 +10,7 @@ import 'package:picnic_app/components/community/write/post_write_header.dart';
 import 'package:picnic_app/components/ui/s3_uploader.dart';
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 
 class PostWriteView extends ConsumerStatefulWidget {
@@ -91,7 +92,10 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
         'content': _contentController.document.toDelta().toJson(),
         'is_anonymous': _isAnonymous,
         'user_id': supabase.auth.currentUser!.id,
+        'board_id': ref.read(navigationInfoProvider).currentBoardId,
       };
+
+      logger.d('Post data: $postData');
 
       final postResponse = await supabase
           .schema('community')

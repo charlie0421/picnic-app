@@ -42,7 +42,7 @@ class _PostWriteHeaderState extends ConsumerState<PostWriteHeader> {
   Widget build(BuildContext context) {
     final currentArtistId = ref
         .watch(navigationInfoProvider.select((value) => value.currentArtistId));
-    final currentBoardId = ref
+    String currentBoardId = ref
         .watch(navigationInfoProvider.select((value) => value.currentBoardId));
 
     return Container(
@@ -55,12 +55,24 @@ class _PostWriteHeaderState extends ConsumerState<PostWriteHeader> {
                 future: boards(ref, currentArtistId),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.done) {
+                    BoardModel? initItem;
+                    if (currentBoardId.isNotEmpty) {
+                      initItem = snapshot.data?.firstWhere(
+                          (element) => element.board_id == currentBoardId);
+                    } else {
+                      initItem = snapshot.data?.first;
+                    }
+                    currentBoardId = initItem!.board_id;
+
                     return Container(
                       constraints:
                           const BoxConstraints(minWidth: 100, maxWidth: 150),
                       child: CustomDropdown<BoardModel>(
                           onChanged: (BoardModel? newValue) {
-                            logger.d(newValue);
+                            logger.d('newValue: ${newValue!.board_id}');
+                            ref
+                                .read(navigationInfoProvider.notifier)
+                                .setCurrentBoardId(newValue!.board_id);
                           },
                           closedHeaderPadding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 0),
@@ -82,19 +94,18 @@ class _PostWriteHeaderState extends ConsumerState<PostWriteHeader> {
                               selectedColor: AppColors.grey200,
                             ),
                           ),
-                          hideSelectedFieldWhenExpanded: true,
+                          hideSelectedFieldWhenExpanded: false,
                           headerBuilder: (context, board, isOpen) {
                             return Text(
-                              getLocaleTextFromJson(board.name),
+                              board.is_official
+                                  ? getLocaleTextFromJson(board.name)
+                                  : board.name['minor'],
                               style: getTextStyle(
                                   AppTypo.caption12R, AppColors.grey700),
                               textAlign: TextAlign.center,
                             );
                           },
-                          initialItem: currentBoardId.isNotEmpty
-                              ? snapshot.data?.firstWhere((element) =>
-                                  element.board_id == currentBoardId)
-                              : snapshot.data?.first,
+                          initialItem: initItem,
                           listItemBuilder: (context, board, isEnable, onTap) {
                             logger.d(board.board_id);
                             return Text(
