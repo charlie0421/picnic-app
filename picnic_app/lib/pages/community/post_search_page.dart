@@ -9,6 +9,7 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/post.dart';
+import 'package:picnic_app/providers/comminuty_navigation_provider.dart';
 import 'package:picnic_app/providers/community/post_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -79,12 +80,12 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
     logger.i('Fetching data for page: $pageKey, query: $_currentSearchQuery');
     if (_currentSearchQuery.isEmpty) return;
 
-    final navigationInfo = ref.read(navigationInfoProvider);
+    final communityNavigationInfo = ref.read(communityNavigationInfoProvider);
 
     try {
       final newItems = await postsByQuery(
             ref,
-            navigationInfo.currentArtistId,
+            communityNavigationInfo.currentArtistId,
             _currentSearchQuery,
             pageKey,
             10,

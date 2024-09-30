@@ -108,19 +108,6 @@ class NavigationInfo extends _$NavigationInfo {
     );
   }
 
-  void setCurrentArtistId(int artistId, String artistName) {
-    state = state.copyWith(
-      currentArtistId: artistId,
-    );
-  }
-
-  void setCurrentBoardId(String boardId) {
-    logger.d('setCurrentBoardId: $boardId');
-    state = state.copyWith(
-      currentBoardId: boardId,
-    );
-  }
-
   setPicBottomNavigationIndex(int index) {
     state = state.copyWith(
       picBottomNavigationIndex: index,

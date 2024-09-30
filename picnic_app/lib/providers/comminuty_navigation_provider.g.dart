@@ -1,26 +1,27 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'navigation_provider.dart';
+part of 'comminuty_navigation_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$navigationInfoHash() => r'4d3555e1f2148f2b19969addcff2e8928b320a54';
+String _$communityNavigationInfoHash() =>
+    r'80050832d92276bd3bf361d64e66bc6b36445a7e';
 
-/// See also [NavigationInfo].
-@ProviderFor(NavigationInfo)
-final navigationInfoProvider =
-    NotifierProvider<NavigationInfo, Navigation>.internal(
-  NavigationInfo.new,
-  name: r'navigationInfoProvider',
+/// See also [CommunityNavigationInfo].
+@ProviderFor(CommunityNavigationInfo)
+final communityNavigationInfoProvider =
+    NotifierProvider<CommunityNavigationInfo, CommunityNavigation>.internal(
+  CommunityNavigationInfo.new,
+  name: r'communityNavigationInfoProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$navigationInfoHash,
+      : _$communityNavigationInfoHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$NavigationInfo = Notifier<Navigation>;
+typedef _$CommunityNavigationInfo = Notifier<CommunityNavigation>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

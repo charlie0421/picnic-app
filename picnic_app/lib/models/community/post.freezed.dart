@@ -27,6 +27,7 @@ mixin _$PostModel {
   String get title => throw _privateConstructorUsedError;
   List<dynamic> get content => throw _privateConstructorUsedError;
   int get view_count => throw _privateConstructorUsedError;
+  int get reply_count => throw _privateConstructorUsedError;
   bool get is_hidden => throw _privateConstructorUsedError;
   DateTime get created_at => throw _privateConstructorUsedError;
   DateTime get updated_at => throw _privateConstructorUsedError;
@@ -55,6 +56,7 @@ abstract class $PostModelCopyWith<$Res> {
       String title,
       List<dynamic> content,
       int view_count,
+      int reply_count,
       bool is_hidden,
       DateTime created_at,
       DateTime updated_at,
@@ -86,6 +88,7 @@ class _$PostModelCopyWithImpl<$Res, $Val extends PostModel>
     Object? title = null,
     Object? content = null,
     Object? view_count = null,
+    Object? reply_count = null,
     Object? is_hidden = null,
     Object? created_at = null,
     Object? updated_at = null,
@@ -119,6 +122,10 @@ class _$PostModelCopyWithImpl<$Res, $Val extends PostModel>
       view_count: null == view_count
           ? _value.view_count
           : view_count // ignore: cast_nullable_to_non_nullable
+              as int,
+      reply_count: null == reply_count
+          ? _value.reply_count
+          : reply_count // ignore: cast_nullable_to_non_nullable
               as int,
       is_hidden: null == is_hidden
           ? _value.is_hidden
@@ -180,6 +187,7 @@ abstract class _$$PostModelImplCopyWith<$Res>
       String title,
       List<dynamic> content,
       int view_count,
+      int reply_count,
       bool is_hidden,
       DateTime created_at,
       DateTime updated_at,
@@ -211,6 +219,7 @@ class __$$PostModelImplCopyWithImpl<$Res>
     Object? title = null,
     Object? content = null,
     Object? view_count = null,
+    Object? reply_count = null,
     Object? is_hidden = null,
     Object? created_at = null,
     Object? updated_at = null,
@@ -245,6 +254,10 @@ class __$$PostModelImplCopyWithImpl<$Res>
           ? _value.view_count
           : view_count // ignore: cast_nullable_to_non_nullable
               as int,
+      reply_count: null == reply_count
+          ? _value.reply_count
+          : reply_count // ignore: cast_nullable_to_non_nullable
+              as int,
       is_hidden: null == is_hidden
           ? _value.is_hidden
           : is_hidden // ignore: cast_nullable_to_non_nullable
@@ -276,6 +289,7 @@ class _$PostModelImpl extends _PostModel {
       required this.title,
       required final List<dynamic> content,
       required this.view_count,
+      required this.reply_count,
       required this.is_hidden,
       required this.created_at,
       required this.updated_at,
@@ -307,6 +321,8 @@ class _$PostModelImpl extends _PostModel {
   @override
   final int view_count;
   @override
+  final int reply_count;
+  @override
   final bool is_hidden;
   @override
   final DateTime created_at;
@@ -317,7 +333,7 @@ class _$PostModelImpl extends _PostModel {
 
   @override
   String toString() {
-    return 'PostModel(post_id: $post_id, user_id: $user_id, user_profiles: $user_profiles, board_id: $board_id, title: $title, content: $content, view_count: $view_count, is_hidden: $is_hidden, created_at: $created_at, updated_at: $updated_at, boards: $boards)';
+    return 'PostModel(post_id: $post_id, user_id: $user_id, user_profiles: $user_profiles, board_id: $board_id, title: $title, content: $content, view_count: $view_count, reply_count: $reply_count, is_hidden: $is_hidden, created_at: $created_at, updated_at: $updated_at, boards: $boards)';
   }
 
   @override
@@ -335,6 +351,8 @@ class _$PostModelImpl extends _PostModel {
             const DeepCollectionEquality().equals(other._content, _content) &&
             (identical(other.view_count, view_count) ||
                 other.view_count == view_count) &&
+            (identical(other.reply_count, reply_count) ||
+                other.reply_count == reply_count) &&
             (identical(other.is_hidden, is_hidden) ||
                 other.is_hidden == is_hidden) &&
             (identical(other.created_at, created_at) ||
@@ -355,6 +373,7 @@ class _$PostModelImpl extends _PostModel {
       title,
       const DeepCollectionEquality().hash(_content),
       view_count,
+      reply_count,
       is_hidden,
       created_at,
       updated_at,
@@ -385,6 +404,7 @@ abstract class _PostModel extends PostModel {
       required final String title,
       required final List<dynamic> content,
       required final int view_count,
+      required final int reply_count,
       required final bool is_hidden,
       required final DateTime created_at,
       required final DateTime updated_at,
@@ -408,6 +428,8 @@ abstract class _PostModel extends PostModel {
   List<dynamic> get content;
   @override
   int get view_count;
+  @override
+  int get reply_count;
   @override
   bool get is_hidden;
   @override

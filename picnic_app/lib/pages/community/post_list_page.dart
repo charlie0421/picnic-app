@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/community/list/post_list.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/pages/community/board_reqeust.dart';
+import 'package:picnic_app/providers/comminuty_navigation_provider.dart';
 import 'package:picnic_app/providers/community/boards_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -36,7 +37,7 @@ class _PostListPageState extends ConsumerState<PostListPage>
           pageTitle: widget.artistName);
 
       ref
-          .read(navigationInfoProvider.notifier)
+          .read(communityNavigationInfoProvider.notifier)
           .setCurrentArtistId(widget.artistId, widget.artistName);
     });
 
@@ -70,12 +71,13 @@ class _PostListPageState extends ConsumerState<PostListPage>
                   itemCount: data.length + 2, // 전체, 각 보드, 오픈요청
                   itemBuilder: (context, index) {
                     if (index == 0) {
-                      return _buildMenuItem('전체', index);
+                      return _buildMenuItem('전체', '', index);
                     } else if (index <= data.length) {
                       return _buildMenuItem(
                           data[index - 1].is_official
                               ? getLocaleTextFromJson(data[index - 1].name)
                               : data[index - 1].name['minor'],
+                          data[index - 1].board_id,
                           index);
                     } else {
                       return _buildOpenRequestItem(data.length + 1);
@@ -111,13 +113,16 @@ class _PostListPageState extends ConsumerState<PostListPage>
     );
   }
 
-  Widget _buildMenuItem(String title, int index) {
+  Widget _buildMenuItem(String title, String boardId, int index) {
     return GestureDetector(
       onTap: () {
         _pageController.jumpToPage(index);
         setState(() {
           _currentIndex = index;
         });
+        ref
+            .read(communityNavigationInfoProvider.notifier)
+            .setCurrentBoardId(boardId, title);
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.cw),

@@ -16,8 +16,9 @@ class ConfigService {
           .from('config')
           .select('value')
           .eq('key', key)
-          .single();
-      return response['value'] as String?;
+          .maybeSingle();
+
+      return response?['value'] as String?;
     } catch (e, s) {
       logger.e('Error fetching config: $e, $s');
       return null;

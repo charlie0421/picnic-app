@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/board.dart';
+import 'package:picnic_app/providers/comminuty_navigation_provider.dart';
 import 'package:picnic_app/providers/community/boards_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -40,10 +41,10 @@ class _PostWriteHeaderState extends ConsumerState<PostWriteHeader> {
 
   @override
   Widget build(BuildContext context) {
-    final currentArtistId = ref
-        .watch(navigationInfoProvider.select((value) => value.currentArtistId));
-    String currentBoardId = ref
-        .watch(navigationInfoProvider.select((value) => value.currentBoardId));
+    final currentArtistId = ref.watch(communityNavigationInfoProvider
+        .select((value) => value.currentArtistId));
+    String currentBoardId = ref.watch(communityNavigationInfoProvider
+        .select((value) => value.currentBoardId));
 
     return Container(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
@@ -71,8 +72,12 @@ class _PostWriteHeaderState extends ConsumerState<PostWriteHeader> {
                           onChanged: (BoardModel? newValue) {
                             logger.d('newValue: ${newValue!.board_id}');
                             ref
-                                .read(navigationInfoProvider.notifier)
-                                .setCurrentBoardId(newValue!.board_id);
+                                .read(communityNavigationInfoProvider.notifier)
+                                .setCurrentBoardId(
+                                    newValue!.board_id,
+                                    newValue.is_official
+                                        ? getLocaleTextFromJson(newValue.name)
+                                        : newValue.name['minor']);
                           },
                           closedHeaderPadding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 0),

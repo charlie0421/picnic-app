@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/pages/community/post_view_page.dart';
+import 'package:picnic_app/providers/comminuty_navigation_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
@@ -23,6 +24,11 @@ class PostListItem extends ConsumerWidget {
         ref.read(navigationInfoProvider.notifier).setCurrentPage(PostViewPage(
               post,
             ));
+        ref.read(communityNavigationInfoProvider.notifier).setCurrentBoardId(
+            post.board_id,
+            post.boards.is_official
+                ? getLocaleTextFromJson(post.boards.name)
+                : post.boards.name['minor']);
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 8),
