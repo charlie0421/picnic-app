@@ -17,6 +17,7 @@ class PostModel with _$PostModel {
     required String title,
     required List<dynamic> content,
     required int view_count,
+    required int reply_count,
     required bool is_hidden,
     required DateTime created_at,
     required DateTime updated_at,
