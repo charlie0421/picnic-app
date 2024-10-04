@@ -45,7 +45,6 @@ class _PostWriteHeaderState extends ConsumerState<PostWriteHeader> {
         .select((value) => value.currentArtistId));
     String currentBoardId = ref.watch(communityNavigationInfoProvider
         .select((value) => value.currentBoardId));
-
     return Container(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
       child: Row(

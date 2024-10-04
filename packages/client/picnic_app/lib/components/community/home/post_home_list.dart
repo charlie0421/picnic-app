@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/community/common/post_list_item.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/pages/community/post_list_page.dart';
+import 'package:picnic_app/pages/community/post_write_page.dart';
 import 'package:picnic_app/providers/community/post_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -60,12 +61,11 @@ class _PostHomeListState extends ConsumerState<PostHomeList> {
                             ),
                           ),
                           onPressed: () {
-                            // ref
-                            //     .read(navigationInfoProvider.notifier)
-                            //     .setCurrentPage(
-                            //       PostWritePage(
-                            //           boardId: widget.boardId.toString()),
-                            //     );
+                            ref
+                                .read(navigationInfoProvider.notifier)
+                                .setCurrentPage(
+                                  PostWritePage(),
+                                );
                           },
                           child: Text('게시글 작성하기',
                               style: getTextStyle(

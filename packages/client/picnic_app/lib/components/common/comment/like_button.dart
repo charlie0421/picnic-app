@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class LikeButton extends StatefulWidget {
-  final int commentId;
+  final String commentId;
   final int initialLikes;
   final bool initiallyLiked;
 
@@ -42,11 +41,11 @@ class LikeButtonState extends State<LikeButton> {
     }
   }
 
-  Future<void> _addCommentLike(int commentId) async {
+  Future<void> _addCommentLike(String commentId) async {
     await supabase.from('comment_like').insert({'comment_id': commentId});
   }
 
-  Future<void> _removeCommentLike(int commentId) async {
+  Future<void> _removeCommentLike(String commentId) async {
     await supabase.from('comment_like').delete().eq('comment_id', commentId);
   }
 
@@ -57,29 +56,26 @@ class LikeButtonState extends State<LikeButton> {
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       child: Container(
-        alignment: Alignment.topRight,
-        padding: const EdgeInsets.only(
-          top: 5,
-          bottom: 10,
-        ),
-        child: SizedBox(
-          height: 40,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                child: Icon(
-                  isLiked
-                      ? FontAwesomeIcons.heartCircleCheck
-                      : FontAwesomeIcons.heart,
-                  size: 20.sp,
-                ),
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              child: SvgPicture.asset(
+                'assets/icons/heart_style=line.svg',
+                width: 24,
+                height: 24,
+                colorFilter: ColorFilter.mode(
+                    isLiked ? AppColors.primary500 : AppColors.mint500,
+                    BlendMode.srcIn),
               ),
-              SizedBox(width: 16.cw),
-              Text('$likes',
-                  style: getTextStyle(AppTypo.body16M, AppColors.grey900))
-            ],
-          ),
+            ),
+            SizedBox(width: 8.cw),
+            Text('$likes',
+                style: getTextStyle(AppTypo.body14M, AppColors.grey900))
+          ],
         ),
       ),
     );

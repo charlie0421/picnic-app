@@ -6,7 +6,7 @@ import 'package:picnic_app/components/article/article_comment_info.dart';
 import 'package:picnic_app/components/article/article_content.dart';
 import 'package:picnic_app/components/article/article_images.dart';
 import 'package:picnic_app/components/article/article_title.dart';
-import 'package:picnic_app/components/article/comment/comment.dart';
+import 'package:picnic_app/components/common/comment/comment.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/pic/article.dart';
@@ -125,7 +125,7 @@ class _ArticleListState extends ConsumerState<ArticleList> {
   }
 
   void _showComments(BuildContext context, ArticleModel articleModel,
-      {int? commentId}) {
+      {String? commentId}) {
     logger.w('showComments');
     showModalBottomSheet(
         context: context,

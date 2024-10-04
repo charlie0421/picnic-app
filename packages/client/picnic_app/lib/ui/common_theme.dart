@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
 
@@ -44,12 +45,11 @@ SwitchThemeData commonSwitchTheme = SwitchThemeData(
   trackOutlineColor: WidgetStateProperty.all(AppColors.grey00),
 );
 
-BottomSheetThemeData commonBottomSheetTheme = const BottomSheetThemeData(
-  dragHandleSize: Size(200, 2),
+BottomSheetThemeData commonBottomSheetTheme = BottomSheetThemeData(
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.only(
-      topLeft: Radius.circular(10),
-      topRight: Radius.circular(10),
+      topLeft: const Radius.circular(40).r,
+      topRight: const Radius.circular(40).r,
     ),
   ),
 );

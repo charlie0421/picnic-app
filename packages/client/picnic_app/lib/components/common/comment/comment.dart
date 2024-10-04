@@ -2,21 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:picnic_app/components/article/comment/comment_item.dart';
-import 'package:picnic_app/components/article/comment/comment_reply_layer.dart';
+import 'package:picnic_app/components/common/comment/comment_input.dart';
+import 'package:picnic_app/components/common/comment/comment_item.dart';
+import 'package:picnic_app/components/common/comment/comment_reply_layer.dart';
 import 'package:picnic_app/components/ui/bottom_sheet_header.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/models/pic/article.dart';
-import 'package:picnic_app/models/pic/comment.dart';
 import 'package:picnic_app/providers/comment_list_provider.dart';
 import 'package:picnic_app/util/ui.dart';
 
-import 'comment_input.dart';
-
 class Comment extends ConsumerStatefulWidget {
   final ArticleModel articleModel;
-  final int? commentId;
+  final String? commentId;
 
   const Comment({super.key, required this.articleModel, this.commentId});
 
@@ -117,9 +116,8 @@ class _CommentState extends ConsumerState<Comment> {
                         CommentItem(
                           commentModel: item,
                           pagingController: _pagingController,
-                          articleId: widget.articleModel.id,
-                          shouldHighlight:
-                              item.id == widget.commentId, // Add this line
+                          shouldHighlight: item.commentId ==
+                              widget.commentId, // Add this line
                         ),
                         item.children != null
                             ? ListView.builder(
@@ -132,9 +130,8 @@ class _CommentState extends ConsumerState<Comment> {
                                     child: CommentItem(
                                       commentModel: item.children![index],
                                       pagingController: _pagingController,
-                                      articleId: widget.articleModel.id,
                                       shouldHighlight:
-                                          item.children?[index].id ==
+                                          item.children?[index].commentId ==
                                               widget.commentId,
                                     ),
                                   );
@@ -150,14 +147,16 @@ class _CommentState extends ConsumerState<Comment> {
               Consumer(builder:
                   (BuildContext context, WidgetRef ref, Widget? child) {
                 final parentComment = ref.watch(parentItemProvider);
-                return parentComment != null && parentComment.id != 0
+                return parentComment != null &&
+                        parentComment.commentId.isNotEmpty
                     ? CommentReplyLayer(
                         parentComment: parentComment,
                         pagingController: _pagingController)
                     : Container();
               }),
               CommentInput(
-                articleId: widget.articleModel.id,
+                id: widget.articleModel.id.toString(),
+                postComment: () {},
                 pagingController: _pagingController,
               ),
             ],

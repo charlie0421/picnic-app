@@ -20,6 +20,8 @@ mixin _$CommunityNavigation {
   String get currentArtistName => throw _privateConstructorUsedError;
   String get currentBoardId => throw _privateConstructorUsedError;
   String get currentBoardName => throw _privateConstructorUsedError;
+  NavigationStack? get communityNavigationStack =>
+      throw _privateConstructorUsedError;
 
   /// Create a copy of CommunityNavigation
   /// with the given fields replaced by the non-null parameter values.
@@ -38,7 +40,8 @@ abstract class $CommunityNavigationCopyWith<$Res> {
       {int currentArtistId,
       String currentArtistName,
       String currentBoardId,
-      String currentBoardName});
+      String currentBoardName,
+      NavigationStack? communityNavigationStack});
 }
 
 /// @nodoc
@@ -60,6 +63,7 @@ class _$CommunityNavigationCopyWithImpl<$Res, $Val extends CommunityNavigation>
     Object? currentArtistName = null,
     Object? currentBoardId = null,
     Object? currentBoardName = null,
+    Object? communityNavigationStack = freezed,
   }) {
     return _then(_value.copyWith(
       currentArtistId: null == currentArtistId
@@ -78,6 +82,10 @@ class _$CommunityNavigationCopyWithImpl<$Res, $Val extends CommunityNavigation>
           ? _value.currentBoardName
           : currentBoardName // ignore: cast_nullable_to_non_nullable
               as String,
+      communityNavigationStack: freezed == communityNavigationStack
+          ? _value.communityNavigationStack
+          : communityNavigationStack // ignore: cast_nullable_to_non_nullable
+              as NavigationStack?,
     ) as $Val);
   }
 }
@@ -94,7 +102,8 @@ abstract class _$$NavigationImplCopyWith<$Res>
       {int currentArtistId,
       String currentArtistName,
       String currentBoardId,
-      String currentBoardName});
+      String currentBoardName,
+      NavigationStack? communityNavigationStack});
 }
 
 /// @nodoc
@@ -114,6 +123,7 @@ class __$$NavigationImplCopyWithImpl<$Res>
     Object? currentArtistName = null,
     Object? currentBoardId = null,
     Object? currentBoardName = null,
+    Object? communityNavigationStack = freezed,
   }) {
     return _then(_$NavigationImpl(
       currentArtistId: null == currentArtistId
@@ -132,6 +142,10 @@ class __$$NavigationImplCopyWithImpl<$Res>
           ? _value.currentBoardName
           : currentBoardName // ignore: cast_nullable_to_non_nullable
               as String,
+      communityNavigationStack: freezed == communityNavigationStack
+          ? _value.communityNavigationStack
+          : communityNavigationStack // ignore: cast_nullable_to_non_nullable
+              as NavigationStack?,
     ));
   }
 }
@@ -143,7 +157,8 @@ class _$NavigationImpl extends _Navigation {
       {this.currentArtistId = 0,
       this.currentArtistName = '',
       this.currentBoardId = '',
-      this.currentBoardName = ''})
+      this.currentBoardName = '',
+      this.communityNavigationStack})
       : super._();
 
   @override
@@ -158,10 +173,12 @@ class _$NavigationImpl extends _Navigation {
   @override
   @JsonKey()
   final String currentBoardName;
+  @override
+  final NavigationStack? communityNavigationStack;
 
   @override
   String toString() {
-    return 'CommunityNavigation(currentArtistId: $currentArtistId, currentArtistName: $currentArtistName, currentBoardId: $currentBoardId, currentBoardName: $currentBoardName)';
+    return 'CommunityNavigation(currentArtistId: $currentArtistId, currentArtistName: $currentArtistName, currentBoardId: $currentBoardId, currentBoardName: $currentBoardName, communityNavigationStack: $communityNavigationStack)';
   }
 
   @override
@@ -176,12 +193,20 @@ class _$NavigationImpl extends _Navigation {
             (identical(other.currentBoardId, currentBoardId) ||
                 other.currentBoardId == currentBoardId) &&
             (identical(other.currentBoardName, currentBoardName) ||
-                other.currentBoardName == currentBoardName));
+                other.currentBoardName == currentBoardName) &&
+            (identical(
+                    other.communityNavigationStack, communityNavigationStack) ||
+                other.communityNavigationStack == communityNavigationStack));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, currentArtistId,
-      currentArtistName, currentBoardId, currentBoardName);
+  int get hashCode => Object.hash(
+      runtimeType,
+      currentArtistId,
+      currentArtistName,
+      currentBoardId,
+      currentBoardName,
+      communityNavigationStack);
 
   /// Create a copy of CommunityNavigation
   /// with the given fields replaced by the non-null parameter values.
@@ -197,7 +222,8 @@ abstract class _Navigation extends CommunityNavigation {
       {final int currentArtistId,
       final String currentArtistName,
       final String currentBoardId,
-      final String currentBoardName}) = _$NavigationImpl;
+      final String currentBoardName,
+      final NavigationStack? communityNavigationStack}) = _$NavigationImpl;
   const _Navigation._() : super._();
 
   @override
@@ -208,6 +234,8 @@ abstract class _Navigation extends CommunityNavigation {
   String get currentBoardId;
   @override
   String get currentBoardName;
+  @override
+  NavigationStack? get communityNavigationStack;
 
   /// Create a copy of CommunityNavigation
   /// with the given fields replaced by the non-null parameter values.
