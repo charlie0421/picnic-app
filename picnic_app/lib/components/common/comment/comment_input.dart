@@ -4,18 +4,21 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
-import 'package:picnic_app/models/pic/comment.dart';
-import 'package:picnic_app/providers/article_list_provider.dart';
+import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/providers/comment_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class CommentInput extends ConsumerStatefulWidget {
   const CommentInput(
-      {required this.articleId, required this.pagingController, super.key});
+      {required this.id,
+      required this.postComment,
+      required this.pagingController,
+      super.key});
 
-  final int articleId;
   final PagingController<int, CommentModel> pagingController;
+  final Function postComment;
+  final String id;
 
   @override
   ConsumerState<CommentInput> createState() => _CommentInputState();
@@ -89,21 +92,24 @@ class _CommentInputState extends ConsumerState<CommentInput> {
 
   _commitComment() {
     final parentItemState = ref.watch(parentItemProvider);
-    ref
-        .read(asyncCommentListProvider(
-          articleId: widget.articleId,
-          pagingController: widget.pagingController,
-        ).notifier)
-        .submitComment(
-            articleId: widget.articleId,
-            content: _textEditingController.text,
-            parentId: parentItemState?.id)
-        .then((value) {
-      ref.read(parentItemProvider.notifier).setParentItem(null);
-      ref.read(commentCountProvider(widget.articleId).notifier).increment();
 
-      widget.pagingController.refresh();
-    });
+    widget.postComment(ref, widget.id, _textEditingController.text);
+
+    // ref
+    //     .read(asyncCommentListProvider(
+    //       articleId: widget.id,
+    //       pagingController: widget.pagingController,
+    //     ).notifier)
+    //     .submitComment(
+    //         articleId: widget.id,
+    //         content: _textEditingController.text,
+    //         parentId: parentItemState?.id)
+    //     .then((value) {
+    //   ref.read(parentItemProvider.notifier).setParentItem(null);
+    //   ref.read(commentCountProvider(widget.id).notifier).increment();
+    //
+    //   widget.pagingController.refresh();
+    // });
     _textEditingController.clear();
   }
 }

@@ -7,14 +7,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:picnic_app/components/common/comment/comment_item.dart';
+import 'package:picnic_app/components/common/comment/comment_list.dart';
 import 'package:picnic_app/components/community/write/embed_builder/link_embed_builder.dart';
 import 'package:picnic_app/components/community/write/embed_builder/media_embed_builder.dart';
 import 'package:picnic_app/components/community/write/embed_builder/youtube_embed_builder.dart';
 import 'package:picnic_app/config/config_service.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/providers/comminuty_navigation_provider.dart';
+import 'package:picnic_app/providers/community/comments_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
@@ -267,7 +271,6 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
           ),
           if (_shouldShowAds) _buildBottomAdSpace(),
           _buildCommentsList(),
-          _buildComment(),
         ],
       ),
     );
@@ -329,45 +332,51 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 16),
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: 3,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text('댓글 $index'),
-              );
+          GestureDetector(
+            onTap: () {
+              showModalBottomSheet(
+                  context: context,
+                  useSafeArea: true,
+                  isScrollControlled: true,
+                  useRootNavigator: true,
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(40)),
+                  ),
+                  constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height - 120),
+                  builder: (context) {
+                    return CommentList(
+                        id: widget.post.post_id,
+                        commentsProvider,
+                        'title',
+                        postComment);
+                  });
             },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildComment() {
-    return Container(
-      padding: EdgeInsets.all(16.cw),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 16),
-          TextField(
-            decoration: InputDecoration(
-              hintText: '댓글을 입력해주세요.',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+            child: FutureBuilder(
+              future: comments(ref, widget.post.post_id, 1, 3),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.connectionState == ConnectionState.done &&
+                    snapshot.data == null) {
+                  return const Center(child: Text('댓글이 없습니다.'));
+                }
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: snapshot.data?.length,
+                  itemBuilder: (context, index) {
+                    CommentModel? comment = snapshot.data?[index];
+                    return CommentItem(
+                      commentModel: snapshot.data![index],
+                      pagingController: null,
+                    );
+                  },
+                );
+              },
             ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              ElevatedButton(
-                onPressed: () {},
-                child: const Text('등록'),
-              ),
-            ],
           ),
         ],
       ),

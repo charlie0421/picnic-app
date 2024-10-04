@@ -104,7 +104,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
             1,
             const prefix0.Reflector(),
             const <int>[24],
-            const <int>[4, 5, 6, 7, 8, 25, 26, 27, 28, 29],
+            const <int>[4, 5, 6, 7, 8, 25, 26, 27, 28, 29, 30],
             const <int>[],
             -1,
             {},
@@ -114,9 +114,11 @@ final _data = <r.Reflectable, r.ReflectorData>{
                       {currentArtistId,
                       currentArtistName,
                       currentBoardId,
-                      currentBoardName}) =>
+                      currentBoardName,
+                      communityNavigationStack}) =>
                   b
                       ? prefix2.CommunityNavigation(
+                          communityNavigationStack: communityNavigationStack,
                           currentArtistId: currentArtistId,
                           currentArtistName: currentArtistName,
                           currentBoardId: currentBoardId,
@@ -189,8 +191,8 @@ final _data = <r.Reflectable, r.ReflectorData>{
             134218311,
             3,
             const prefix0.Reflector(),
-            const <int>[25, 26, 27, 28, 29],
-            const <int>[4, 5, 6, 7, 8, 25, 26, 27, 28, 29],
+            const <int>[25, 26, 27, 28, 29, 30],
+            const <int>[4, 5, 6, 7, 8, 25, 26, 27, 28, 29, 30],
             const <int>[],
             -1,
             const {},
@@ -261,7 +263,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
         r.MethodMirrorImpl(r'copyWith', 35651587, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'', 385, 1, -1, -1, -1, null,
-            const <int>[16, 17, 18, 19], const prefix0.Reflector(), null),
+            const <int>[16, 17, 18, 19, 20], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'currentArtistId', 2097155, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'currentArtistName', 2097155, -1, -1, -1, -1, null,
@@ -270,6 +272,8 @@ final _data = <r.Reflectable, r.ReflectorData>{
             const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'currentBoardName', 2097155, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
+        r.MethodMirrorImpl(r'communityNavigationStack', 2097155, -1, -1, -1, -1,
+            null, const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'copyWith', 35651587, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null)
       ],
@@ -493,7 +497,19 @@ final _data = <r.Reflectable, r.ReflectorData>{
             null,
             null,
             null,
-            #currentBoardName)
+            #currentBoardName),
+        r.ParameterMirrorImpl(
+            r'communityNavigationStack',
+            67252230,
+            24,
+            const prefix0.Reflector(),
+            -1,
+            -1,
+            -1,
+            null,
+            null,
+            null,
+            #communityNavigationStack)
       ],
       <Type>[
         prefix1.Navigation,
@@ -537,7 +553,9 @@ final _data = <r.Reflectable, r.ReflectorData>{
         r'currentArtistId': (dynamic instance) => instance.currentArtistId,
         r'currentArtistName': (dynamic instance) => instance.currentArtistName,
         r'currentBoardId': (dynamic instance) => instance.currentBoardId,
-        r'currentBoardName': (dynamic instance) => instance.currentBoardName
+        r'currentBoardName': (dynamic instance) => instance.currentBoardName,
+        r'communityNavigationStack': (dynamic instance) =>
+            instance.communityNavigationStack
       },
       {},
       null,

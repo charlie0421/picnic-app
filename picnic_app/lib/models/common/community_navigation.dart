@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:picnic_app/navigation_stack.dart';
 import 'package:picnic_app/reflector.dart';
 
 part 'community_navigation.freezed.dart';
@@ -13,5 +14,6 @@ class CommunityNavigation with _$CommunityNavigation {
     @Default('') String currentArtistName,
     @Default('') String currentBoardId,
     @Default('') String currentBoardName,
+    NavigationStack? communityNavigationStack,
   }) = _Navigation;
 }

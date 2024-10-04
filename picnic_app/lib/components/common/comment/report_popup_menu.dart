@@ -1,21 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
-import 'package:picnic_app/models/pic/comment.dart';
 import 'package:picnic_app/supabase_options.dart';
 
 class ReportPopupMenu extends StatelessWidget {
   final BuildContext context;
-  final PagingController<int, CommentModel> pagingController;
-  final int commentId;
+  final String commentId;
 
   const ReportPopupMenu(
-      {super.key,
-      required this.commentId,
-      required this.pagingController,
-      required this.context});
+      {super.key, required this.commentId, required this.context});
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +48,7 @@ class ReportPopupMenu extends StatelessWidget {
     );
   }
 
-  Future<void> _reportComment({required int commentId}) async {
+  Future<void> _reportComment({required String commentId}) async {
     await supabase.from('comment').update({
       'report': true,
     }).eq('id', commentId);

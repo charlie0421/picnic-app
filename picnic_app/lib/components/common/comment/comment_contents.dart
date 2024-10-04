@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_app/models/pic/comment.dart';
+import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class CommentContents extends StatelessWidget {
@@ -16,7 +16,7 @@ class CommentContents extends StatelessWidget {
         width: double.infinity,
         child: Text(
           item.content,
-          style: getTextStyle(AppTypo.body14R, AppColors.grey900),
+          style: getTextStyle(AppTypo.body14M, AppColors.grey900),
         ));
   }
 }

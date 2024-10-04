@@ -20,6 +20,9 @@ Future<List<PostModel>?> postsByArtist(
         .range((page - 1) * limit, page * limit - 1);
 
     final postData = response.map(PostModel.fromJson).toList();
+
+    logger.i('postData: $postData');
+
     final userIds = postData.map((post) => post.user_id).toSet().toList();
     final userProfiles =
         await supabase.from('user_profiles').select().inFilter('id', userIds);

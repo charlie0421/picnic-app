@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:picnic_app/models/pic/comment.dart';
+import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 
 class CommentHeader extends StatelessWidget {
   final CommentModel item;
-  final PagingController<int, CommentModel> pagingController;
 
   const CommentHeader({
     super.key,
     required this.item,
-    required this.pagingController,
   });
 
   @override
@@ -25,10 +22,11 @@ class CommentHeader extends StatelessWidget {
             TextSpan(children: <TextSpan>[
               TextSpan(
                   text: '${item.user?.nickname} ',
-                  style: getTextStyle(AppTypo.body16B, AppColors.grey900)),
+                  style:
+                      getTextStyle(AppTypo.caption12B, AppColors.primary500)),
               TextSpan(
                   text: formatTimeAgo(context, item.created_at),
-                  style: getTextStyle(AppTypo.body14M, AppColors.grey900)),
+                  style: getTextStyle(AppTypo.caption10SB, AppColors.grey400)),
             ]),
           ),
         ],

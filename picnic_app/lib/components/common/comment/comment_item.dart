@@ -1,27 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:picnic_app/components/article/comment/comment_actions.dart';
-import 'package:picnic_app/components/article/comment/comment_contents.dart';
-import 'package:picnic_app/components/article/comment/comment_header.dart';
-import 'package:picnic_app/components/article/comment/comment_user.dart';
-import 'package:picnic_app/components/article/comment/report_popup_menu.dart';
-import 'package:picnic_app/models/pic/comment.dart';
+import 'package:picnic_app/components/common/avartar_container.dart';
+import 'package:picnic_app/components/common/comment/comment_actions.dart';
+import 'package:picnic_app/components/common/comment/comment_contents.dart';
+import 'package:picnic_app/components/common/comment/comment_header.dart';
+import 'package:picnic_app/components/common/comment/like_button.dart';
+import 'package:picnic_app/components/common/comment/report_popup_menu.dart';
+import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class CommentItem extends ConsumerStatefulWidget {
   const CommentItem({
     super.key,
-    required PagingController<int, CommentModel> pagingController,
+    required this.pagingController,
     required this.commentModel,
-    required this.articleId,
     this.shouldHighlight = false,
-  }) : _pagingController = pagingController;
-
-  final PagingController<int, CommentModel> _pagingController;
+  });
+  final PagingController<int, CommentModel>? pagingController;
   final CommentModel commentModel;
-  final int articleId;
   final bool shouldHighlight;
 
   @override
@@ -99,19 +97,18 @@ class _CommentItemState extends ConsumerState<CommentItem>
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CommentUser(
-                nickname: widget.commentModel.user?.nickname ?? '',
-                profileImage: '',
-                // profileImage: widget.commentModel.user?.profileImage ?? '',
+              ProfileImageContainer(
+                avatarUrl: widget.commentModel.user?.avatar_url,
+                borderRadius: 16,
+                width: 32,
+                height: 32,
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     CommentHeader(
                       item: widget.commentModel,
-                      pagingController: widget._pagingController,
                     ),
                     CommentContents(item: widget.commentModel),
                     CommentActions(
@@ -120,10 +117,15 @@ class _CommentItemState extends ConsumerState<CommentItem>
                   ],
                 ),
               ),
+              LikeButton(
+                commentId: widget.commentModel.commentId,
+                initialLikes: widget.commentModel.likes,
+                initiallyLiked: widget.commentModel.myLike != null,
+              ),
               ReportPopupMenu(
-                  context: context,
-                  commentId: widget.commentModel.id,
-                  pagingController: widget._pagingController),
+                context: context,
+                commentId: widget.commentModel.commentId,
+              ),
             ],
           ),
         ),

@@ -214,7 +214,10 @@ CommentModel _$CommentModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$CommentModel {
-  int get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'comment_id')
+  String get commentId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'user_id')
+  String? get userId => throw _privateConstructorUsedError;
   List<CommentModel>? get children => throw _privateConstructorUsedError;
   UserCommentLikeModel? get myLike => throw _privateConstructorUsedError;
   UserProfilesModel? get user => throw _privateConstructorUsedError;
@@ -240,7 +243,8 @@ abstract class $CommentModelCopyWith<$Res> {
       _$CommentModelCopyWithImpl<$Res, CommentModel>;
   @useResult
   $Res call(
-      {int id,
+      {@JsonKey(name: 'comment_id') String commentId,
+      @JsonKey(name: 'user_id') String? userId,
       List<CommentModel>? children,
       UserCommentLikeModel? myLike,
       UserProfilesModel? user,
@@ -268,7 +272,8 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
+    Object? commentId = null,
+    Object? userId = freezed,
     Object? children = freezed,
     Object? myLike = freezed,
     Object? user = freezed,
@@ -278,10 +283,14 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
     Object? created_at = null,
   }) {
     return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as int,
+      commentId: null == commentId
+          ? _value.commentId
+          : commentId // ignore: cast_nullable_to_non_nullable
+              as String,
+      userId: freezed == userId
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
+              as String?,
       children: freezed == children
           ? _value.children
           : children // ignore: cast_nullable_to_non_nullable
@@ -351,7 +360,8 @@ abstract class _$$CommentModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int id,
+      {@JsonKey(name: 'comment_id') String commentId,
+      @JsonKey(name: 'user_id') String? userId,
       List<CommentModel>? children,
       UserCommentLikeModel? myLike,
       UserProfilesModel? user,
@@ -379,7 +389,8 @@ class __$$CommentModelImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
+    Object? commentId = null,
+    Object? userId = freezed,
     Object? children = freezed,
     Object? myLike = freezed,
     Object? user = freezed,
@@ -389,10 +400,14 @@ class __$$CommentModelImplCopyWithImpl<$Res>
     Object? created_at = null,
   }) {
     return _then(_$CommentModelImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as int,
+      commentId: null == commentId
+          ? _value.commentId
+          : commentId // ignore: cast_nullable_to_non_nullable
+              as String,
+      userId: freezed == userId
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
+              as String?,
       children: freezed == children
           ? _value._children
           : children // ignore: cast_nullable_to_non_nullable
@@ -429,7 +444,8 @@ class __$$CommentModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$CommentModelImpl extends _CommentModel {
   const _$CommentModelImpl(
-      {required this.id,
+      {@JsonKey(name: 'comment_id') required this.commentId,
+      @JsonKey(name: 'user_id') this.userId,
       required final List<CommentModel>? children,
       required this.myLike,
       required this.user,
@@ -444,7 +460,11 @@ class _$CommentModelImpl extends _CommentModel {
       _$$CommentModelImplFromJson(json);
 
   @override
-  final int id;
+  @JsonKey(name: 'comment_id')
+  final String commentId;
+  @override
+  @JsonKey(name: 'user_id')
+  final String? userId;
   final List<CommentModel>? _children;
   @override
   List<CommentModel>? get children {
@@ -470,7 +490,7 @@ class _$CommentModelImpl extends _CommentModel {
 
   @override
   String toString() {
-    return 'CommentModel(id: $id, children: $children, myLike: $myLike, user: $user, likes: $likes, content: $content, parentId: $parentId, created_at: $created_at)';
+    return 'CommentModel(commentId: $commentId, userId: $userId, children: $children, myLike: $myLike, user: $user, likes: $likes, content: $content, parentId: $parentId, created_at: $created_at)';
   }
 
   @override
@@ -478,7 +498,9 @@ class _$CommentModelImpl extends _CommentModel {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$CommentModelImpl &&
-            (identical(other.id, id) || other.id == id) &&
+            (identical(other.commentId, commentId) ||
+                other.commentId == commentId) &&
+            (identical(other.userId, userId) || other.userId == userId) &&
             const DeepCollectionEquality().equals(other._children, _children) &&
             (identical(other.myLike, myLike) || other.myLike == myLike) &&
             (identical(other.user, user) || other.user == user) &&
@@ -494,7 +516,8 @@ class _$CommentModelImpl extends _CommentModel {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      id,
+      commentId,
+      userId,
       const DeepCollectionEquality().hash(_children),
       myLike,
       user,
@@ -521,7 +544,8 @@ class _$CommentModelImpl extends _CommentModel {
 
 abstract class _CommentModel extends CommentModel {
   const factory _CommentModel(
-      {required final int id,
+      {@JsonKey(name: 'comment_id') required final String commentId,
+      @JsonKey(name: 'user_id') final String? userId,
       required final List<CommentModel>? children,
       required final UserCommentLikeModel? myLike,
       required final UserProfilesModel? user,
@@ -535,7 +559,11 @@ abstract class _CommentModel extends CommentModel {
       _$CommentModelImpl.fromJson;
 
   @override
-  int get id;
+  @JsonKey(name: 'comment_id')
+  String get commentId;
+  @override
+  @JsonKey(name: 'user_id')
+  String? get userId;
   @override
   List<CommentModel>? get children;
   @override
