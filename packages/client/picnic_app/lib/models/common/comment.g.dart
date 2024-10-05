@@ -24,7 +24,8 @@ Map<String, dynamic> _$$CommentListModelImplToJson(
 
 _$CommentModelImpl _$$CommentModelImplFromJson(Map<String, dynamic> json) =>
     _$CommentModelImpl(
-      id: (json['id'] as num).toInt(),
+      commentId: json['comment_id'] as String,
+      userId: json['user_id'] as String?,
       children: (json['children'] as List<dynamic>?)
           ?.map((e) => CommentModel.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -37,18 +38,21 @@ _$CommentModelImpl _$$CommentModelImplFromJson(Map<String, dynamic> json) =>
           : UserProfilesModel.fromJson(json['user'] as Map<String, dynamic>),
       likes: (json['likes'] as num).toInt(),
       content: json['content'] as String,
-      parentId: (json['parentId'] as num?)?.toInt(),
-      created_at: DateTime.parse(json['created_at'] as String),
+      isLiked: json['isLiked'] as bool?,
+      parentCommentId: json['parent_comment_id'] as String?,
+      createdAt: DateTime.parse(json['created_at'] as String),
     );
 
 Map<String, dynamic> _$$CommentModelImplToJson(_$CommentModelImpl instance) =>
     <String, dynamic>{
-      'id': instance.id,
+      'comment_id': instance.commentId,
+      'user_id': instance.userId,
       'children': instance.children,
       'myLike': instance.myLike,
       'user': instance.user,
       'likes': instance.likes,
       'content': instance.content,
-      'parentId': instance.parentId,
-      'created_at': instance.created_at.toIso8601String(),
+      'isLiked': instance.isLiked,
+      'parent_comment_id': instance.parentCommentId,
+      'created_at': instance.createdAt.toIso8601String(),
     };

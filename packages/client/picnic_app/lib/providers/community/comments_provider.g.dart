@@ -6,7 +6,7 @@ part of 'comments_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$commentsHash() => r'f82ba61706ab4f0d623eb7135b524b083acf4753';
+String _$commentsHash() => r'f836cf32807960d68f2e072ef75463f6e39a1c79';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -34,7 +34,7 @@ class _SystemHash {
 const commentsProvider = CommentsFamily();
 
 /// See also [comments].
-class CommentsFamily extends Family<AsyncValue<List<CommentModel>?>> {
+class CommentsFamily extends Family<AsyncValue<List<CommentModel>>> {
   /// See also [comments].
   const CommentsFamily();
 
@@ -78,7 +78,7 @@ class CommentsFamily extends Family<AsyncValue<List<CommentModel>?>> {
 }
 
 /// See also [comments].
-class CommentsProvider extends AutoDisposeFutureProvider<List<CommentModel>?> {
+class CommentsProvider extends AutoDisposeFutureProvider<List<CommentModel>> {
   /// See also [comments].
   CommentsProvider(
     String postId,
@@ -122,7 +122,7 @@ class CommentsProvider extends AutoDisposeFutureProvider<List<CommentModel>?> {
 
   @override
   Override overrideWith(
-    FutureOr<List<CommentModel>?> Function(CommentsRef provider) create,
+    FutureOr<List<CommentModel>> Function(CommentsRef provider) create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -141,7 +141,7 @@ class CommentsProvider extends AutoDisposeFutureProvider<List<CommentModel>?> {
   }
 
   @override
-  AutoDisposeFutureProviderElement<List<CommentModel>?> createElement() {
+  AutoDisposeFutureProviderElement<List<CommentModel>> createElement() {
     return _CommentsProviderElement(this);
   }
 
@@ -164,7 +164,7 @@ class CommentsProvider extends AutoDisposeFutureProvider<List<CommentModel>?> {
   }
 }
 
-mixin CommentsRef on AutoDisposeFutureProviderRef<List<CommentModel>?> {
+mixin CommentsRef on AutoDisposeFutureProviderRef<List<CommentModel>> {
   /// The parameter `postId` of this provider.
   String get postId;
 
@@ -176,7 +176,7 @@ mixin CommentsRef on AutoDisposeFutureProviderRef<List<CommentModel>?> {
 }
 
 class _CommentsProviderElement
-    extends AutoDisposeFutureProviderElement<List<CommentModel>?>
+    extends AutoDisposeFutureProviderElement<List<CommentModel>>
     with CommentsRef {
   _CommentsProviderElement(super.provider);
 
@@ -188,7 +188,7 @@ class _CommentsProviderElement
   int get limit => (origin as CommentsProvider).limit;
 }
 
-String _$postCommentHash() => r'beb4e1e431613ec0435e47d3fcacc8295755a575';
+String _$postCommentHash() => r'6aa12ccedf8e43f07a4c37aac3e84a1bbb9c9b86';
 
 /// See also [postComment].
 @ProviderFor(postComment)
@@ -202,10 +202,12 @@ class PostCommentFamily extends Family<AsyncValue<void>> {
   /// See also [postComment].
   PostCommentProvider call(
     String postId,
+    String? parentId,
     String content,
   ) {
     return PostCommentProvider(
       postId,
+      parentId,
       content,
     );
   }
@@ -216,6 +218,7 @@ class PostCommentFamily extends Family<AsyncValue<void>> {
   ) {
     return call(
       provider.postId,
+      provider.parentId,
       provider.content,
     );
   }
@@ -240,11 +243,13 @@ class PostCommentProvider extends AutoDisposeFutureProvider<void> {
   /// See also [postComment].
   PostCommentProvider(
     String postId,
+    String? parentId,
     String content,
   ) : this._internal(
           (ref) => postComment(
             ref as PostCommentRef,
             postId,
+            parentId,
             content,
           ),
           from: postCommentProvider,
@@ -257,6 +262,7 @@ class PostCommentProvider extends AutoDisposeFutureProvider<void> {
           allTransitiveDependencies:
               PostCommentFamily._allTransitiveDependencies,
           postId: postId,
+          parentId: parentId,
           content: content,
         );
 
@@ -268,10 +274,12 @@ class PostCommentProvider extends AutoDisposeFutureProvider<void> {
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.postId,
+    required this.parentId,
     required this.content,
   }) : super.internal();
 
   final String postId;
+  final String? parentId;
   final String content;
 
   @override
@@ -288,6 +296,7 @@ class PostCommentProvider extends AutoDisposeFutureProvider<void> {
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         postId: postId,
+        parentId: parentId,
         content: content,
       ),
     );
@@ -302,6 +311,7 @@ class PostCommentProvider extends AutoDisposeFutureProvider<void> {
   bool operator ==(Object other) {
     return other is PostCommentProvider &&
         other.postId == postId &&
+        other.parentId == parentId &&
         other.content == content;
   }
 
@@ -309,6 +319,7 @@ class PostCommentProvider extends AutoDisposeFutureProvider<void> {
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, postId.hashCode);
+    hash = _SystemHash.combine(hash, parentId.hashCode);
     hash = _SystemHash.combine(hash, content.hashCode);
 
     return _SystemHash.finish(hash);
@@ -318,6 +329,9 @@ class PostCommentProvider extends AutoDisposeFutureProvider<void> {
 mixin PostCommentRef on AutoDisposeFutureProviderRef<void> {
   /// The parameter `postId` of this provider.
   String get postId;
+
+  /// The parameter `parentId` of this provider.
+  String? get parentId;
 
   /// The parameter `content` of this provider.
   String get content;
@@ -330,7 +344,265 @@ class _PostCommentProviderElement extends AutoDisposeFutureProviderElement<void>
   @override
   String get postId => (origin as PostCommentProvider).postId;
   @override
+  String? get parentId => (origin as PostCommentProvider).parentId;
+  @override
   String get content => (origin as PostCommentProvider).content;
+}
+
+String _$likeCommentHash() => r'ad0100a6ef69daa83c38501643d094080ba5531c';
+
+/// See also [likeComment].
+@ProviderFor(likeComment)
+const likeCommentProvider = LikeCommentFamily();
+
+/// See also [likeComment].
+class LikeCommentFamily extends Family<AsyncValue<void>> {
+  /// See also [likeComment].
+  const LikeCommentFamily();
+
+  /// See also [likeComment].
+  LikeCommentProvider call(
+    String commentId,
+  ) {
+    return LikeCommentProvider(
+      commentId,
+    );
+  }
+
+  @override
+  LikeCommentProvider getProviderOverride(
+    covariant LikeCommentProvider provider,
+  ) {
+    return call(
+      provider.commentId,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'likeCommentProvider';
+}
+
+/// See also [likeComment].
+class LikeCommentProvider extends AutoDisposeFutureProvider<void> {
+  /// See also [likeComment].
+  LikeCommentProvider(
+    String commentId,
+  ) : this._internal(
+          (ref) => likeComment(
+            ref as LikeCommentRef,
+            commentId,
+          ),
+          from: likeCommentProvider,
+          name: r'likeCommentProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$likeCommentHash,
+          dependencies: LikeCommentFamily._dependencies,
+          allTransitiveDependencies:
+              LikeCommentFamily._allTransitiveDependencies,
+          commentId: commentId,
+        );
+
+  LikeCommentProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.commentId,
+  }) : super.internal();
+
+  final String commentId;
+
+  @override
+  Override overrideWith(
+    FutureOr<void> Function(LikeCommentRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: LikeCommentProvider._internal(
+        (ref) => create(ref as LikeCommentRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        commentId: commentId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<void> createElement() {
+    return _LikeCommentProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is LikeCommentProvider && other.commentId == commentId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, commentId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin LikeCommentRef on AutoDisposeFutureProviderRef<void> {
+  /// The parameter `commentId` of this provider.
+  String get commentId;
+}
+
+class _LikeCommentProviderElement extends AutoDisposeFutureProviderElement<void>
+    with LikeCommentRef {
+  _LikeCommentProviderElement(super.provider);
+
+  @override
+  String get commentId => (origin as LikeCommentProvider).commentId;
+}
+
+String _$unlikeCommentHash() => r'dcf57e3dbd7494bc439968206f8af684b29139d2';
+
+/// See also [unlikeComment].
+@ProviderFor(unlikeComment)
+const unlikeCommentProvider = UnlikeCommentFamily();
+
+/// See also [unlikeComment].
+class UnlikeCommentFamily extends Family<AsyncValue<void>> {
+  /// See also [unlikeComment].
+  const UnlikeCommentFamily();
+
+  /// See also [unlikeComment].
+  UnlikeCommentProvider call(
+    String commentId,
+  ) {
+    return UnlikeCommentProvider(
+      commentId,
+    );
+  }
+
+  @override
+  UnlikeCommentProvider getProviderOverride(
+    covariant UnlikeCommentProvider provider,
+  ) {
+    return call(
+      provider.commentId,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'unlikeCommentProvider';
+}
+
+/// See also [unlikeComment].
+class UnlikeCommentProvider extends AutoDisposeFutureProvider<void> {
+  /// See also [unlikeComment].
+  UnlikeCommentProvider(
+    String commentId,
+  ) : this._internal(
+          (ref) => unlikeComment(
+            ref as UnlikeCommentRef,
+            commentId,
+          ),
+          from: unlikeCommentProvider,
+          name: r'unlikeCommentProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$unlikeCommentHash,
+          dependencies: UnlikeCommentFamily._dependencies,
+          allTransitiveDependencies:
+              UnlikeCommentFamily._allTransitiveDependencies,
+          commentId: commentId,
+        );
+
+  UnlikeCommentProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.commentId,
+  }) : super.internal();
+
+  final String commentId;
+
+  @override
+  Override overrideWith(
+    FutureOr<void> Function(UnlikeCommentRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: UnlikeCommentProvider._internal(
+        (ref) => create(ref as UnlikeCommentRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        commentId: commentId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<void> createElement() {
+    return _UnlikeCommentProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is UnlikeCommentProvider && other.commentId == commentId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, commentId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin UnlikeCommentRef on AutoDisposeFutureProviderRef<void> {
+  /// The parameter `commentId` of this provider.
+  String get commentId;
+}
+
+class _UnlikeCommentProviderElement
+    extends AutoDisposeFutureProviderElement<void> with UnlikeCommentRef {
+  _UnlikeCommentProviderElement(super.provider);
+
+  @override
+  String get commentId => (origin as UnlikeCommentProvider).commentId;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

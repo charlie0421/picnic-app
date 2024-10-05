@@ -17,10 +17,12 @@ class CommentItem extends ConsumerStatefulWidget {
     required this.pagingController,
     required this.commentModel,
     this.shouldHighlight = false,
+    this.showReplyButton = true,
   });
   final PagingController<int, CommentModel>? pagingController;
   final CommentModel commentModel;
   final bool shouldHighlight;
+  final bool showReplyButton;
 
   @override
   ConsumerState<CommentItem> createState() => _CommentItemState();
@@ -92,7 +94,6 @@ class _CommentItemState extends ConsumerState<CommentItem>
         ),
         child: Container(
           padding: EdgeInsets.only(left: 20.cw),
-          margin: const EdgeInsets.only(bottom: 20),
           width: getPlatformScreenSize(context).width,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,7 +104,7 @@ class _CommentItemState extends ConsumerState<CommentItem>
                 width: 32,
                 height: 32,
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10.cw),
               Expanded(
                 child: Column(
                   children: [
@@ -111,16 +112,18 @@ class _CommentItemState extends ConsumerState<CommentItem>
                       item: widget.commentModel,
                     ),
                     CommentContents(item: widget.commentModel),
-                    CommentActions(
-                      item: widget.commentModel,
-                    ),
+                    if (widget.showReplyButton)
+                      CommentActions(
+                        item: widget.commentModel,
+                      ),
                   ],
                 ),
               ),
+              SizedBox(width: 10.cw),
               LikeButton(
                 commentId: widget.commentModel.commentId,
                 initialLikes: widget.commentModel.likes,
-                initiallyLiked: widget.commentModel.myLike != null,
+                isLiked: widget.commentModel.isLiked ?? false,
               ),
               ReportPopupMenu(
                 context: context,

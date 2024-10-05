@@ -6,18 +6,15 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/providers/comment_list_provider.dart';
+import 'package:picnic_app/providers/community/comments_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class CommentInput extends ConsumerStatefulWidget {
   const CommentInput(
-      {required this.id,
-      required this.postComment,
-      required this.pagingController,
-      super.key});
+      {required this.id, required this.pagingController, super.key});
 
   final PagingController<int, CommentModel> pagingController;
-  final Function postComment;
   final String id;
 
   @override
@@ -92,9 +89,14 @@ class _CommentInputState extends ConsumerState<CommentInput> {
 
   _commitComment() {
     final parentItemState = ref.watch(parentItemProvider);
+    postComment(
+        ref,
+        widget.id,
+        parentItemState?.parentCommentId ?? parentItemState?.commentId,
+        _textEditingController.text);
+    ref.read(parentItemProvider.notifier).setParentItem(null);
 
-    widget.postComment(ref, widget.id, _textEditingController.text);
-
+    widget.pagingController.refresh();
     // ref
     //     .read(asyncCommentListProvider(
     //       articleId: widget.id,

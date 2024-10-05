@@ -223,8 +223,11 @@ mixin _$CommentModel {
   UserProfilesModel? get user => throw _privateConstructorUsedError;
   int get likes => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
-  int? get parentId => throw _privateConstructorUsedError;
-  DateTime get created_at => throw _privateConstructorUsedError;
+  bool? get isLiked => throw _privateConstructorUsedError;
+  @JsonKey(name: 'parent_comment_id')
+  String? get parentCommentId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'created_at')
+  DateTime get createdAt => throw _privateConstructorUsedError;
 
   /// Serializes this CommentModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -250,8 +253,9 @@ abstract class $CommentModelCopyWith<$Res> {
       UserProfilesModel? user,
       int likes,
       String content,
-      int? parentId,
-      DateTime created_at});
+      bool? isLiked,
+      @JsonKey(name: 'parent_comment_id') String? parentCommentId,
+      @JsonKey(name: 'created_at') DateTime createdAt});
 
   $UserCommentLikeModelCopyWith<$Res>? get myLike;
   $UserProfilesModelCopyWith<$Res>? get user;
@@ -279,8 +283,9 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
     Object? user = freezed,
     Object? likes = null,
     Object? content = null,
-    Object? parentId = freezed,
-    Object? created_at = null,
+    Object? isLiked = freezed,
+    Object? parentCommentId = freezed,
+    Object? createdAt = null,
   }) {
     return _then(_value.copyWith(
       commentId: null == commentId
@@ -311,13 +316,17 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
               as String,
-      parentId: freezed == parentId
-          ? _value.parentId
-          : parentId // ignore: cast_nullable_to_non_nullable
-              as int?,
-      created_at: null == created_at
-          ? _value.created_at
-          : created_at // ignore: cast_nullable_to_non_nullable
+      isLiked: freezed == isLiked
+          ? _value.isLiked
+          : isLiked // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      parentCommentId: freezed == parentCommentId
+          ? _value.parentCommentId
+          : parentCommentId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      createdAt: null == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
     ) as $Val);
   }
@@ -367,8 +376,9 @@ abstract class _$$CommentModelImplCopyWith<$Res>
       UserProfilesModel? user,
       int likes,
       String content,
-      int? parentId,
-      DateTime created_at});
+      bool? isLiked,
+      @JsonKey(name: 'parent_comment_id') String? parentCommentId,
+      @JsonKey(name: 'created_at') DateTime createdAt});
 
   @override
   $UserCommentLikeModelCopyWith<$Res>? get myLike;
@@ -396,8 +406,9 @@ class __$$CommentModelImplCopyWithImpl<$Res>
     Object? user = freezed,
     Object? likes = null,
     Object? content = null,
-    Object? parentId = freezed,
-    Object? created_at = null,
+    Object? isLiked = freezed,
+    Object? parentCommentId = freezed,
+    Object? createdAt = null,
   }) {
     return _then(_$CommentModelImpl(
       commentId: null == commentId
@@ -428,13 +439,17 @@ class __$$CommentModelImplCopyWithImpl<$Res>
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
               as String,
-      parentId: freezed == parentId
-          ? _value.parentId
-          : parentId // ignore: cast_nullable_to_non_nullable
-              as int?,
-      created_at: null == created_at
-          ? _value.created_at
-          : created_at // ignore: cast_nullable_to_non_nullable
+      isLiked: freezed == isLiked
+          ? _value.isLiked
+          : isLiked // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      parentCommentId: freezed == parentCommentId
+          ? _value.parentCommentId
+          : parentCommentId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      createdAt: null == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
     ));
   }
@@ -451,8 +466,9 @@ class _$CommentModelImpl extends _CommentModel {
       required this.user,
       required this.likes,
       required this.content,
-      required this.parentId,
-      required this.created_at})
+      required this.isLiked,
+      @JsonKey(name: 'parent_comment_id') required this.parentCommentId,
+      @JsonKey(name: 'created_at') required this.createdAt})
       : _children = children,
         super._();
 
@@ -484,13 +500,17 @@ class _$CommentModelImpl extends _CommentModel {
   @override
   final String content;
   @override
-  final int? parentId;
+  final bool? isLiked;
   @override
-  final DateTime created_at;
+  @JsonKey(name: 'parent_comment_id')
+  final String? parentCommentId;
+  @override
+  @JsonKey(name: 'created_at')
+  final DateTime createdAt;
 
   @override
   String toString() {
-    return 'CommentModel(commentId: $commentId, userId: $userId, children: $children, myLike: $myLike, user: $user, likes: $likes, content: $content, parentId: $parentId, created_at: $created_at)';
+    return 'CommentModel(commentId: $commentId, userId: $userId, children: $children, myLike: $myLike, user: $user, likes: $likes, content: $content, isLiked: $isLiked, parentCommentId: $parentCommentId, createdAt: $createdAt)';
   }
 
   @override
@@ -506,10 +526,11 @@ class _$CommentModelImpl extends _CommentModel {
             (identical(other.user, user) || other.user == user) &&
             (identical(other.likes, likes) || other.likes == likes) &&
             (identical(other.content, content) || other.content == content) &&
-            (identical(other.parentId, parentId) ||
-                other.parentId == parentId) &&
-            (identical(other.created_at, created_at) ||
-                other.created_at == created_at));
+            (identical(other.isLiked, isLiked) || other.isLiked == isLiked) &&
+            (identical(other.parentCommentId, parentCommentId) ||
+                other.parentCommentId == parentCommentId) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -523,8 +544,9 @@ class _$CommentModelImpl extends _CommentModel {
       user,
       likes,
       content,
-      parentId,
-      created_at);
+      isLiked,
+      parentCommentId,
+      createdAt);
 
   /// Create a copy of CommentModel
   /// with the given fields replaced by the non-null parameter values.
@@ -544,15 +566,18 @@ class _$CommentModelImpl extends _CommentModel {
 
 abstract class _CommentModel extends CommentModel {
   const factory _CommentModel(
-      {@JsonKey(name: 'comment_id') required final String commentId,
-      @JsonKey(name: 'user_id') final String? userId,
-      required final List<CommentModel>? children,
-      required final UserCommentLikeModel? myLike,
-      required final UserProfilesModel? user,
-      required final int likes,
-      required final String content,
-      required final int? parentId,
-      required final DateTime created_at}) = _$CommentModelImpl;
+          {@JsonKey(name: 'comment_id') required final String commentId,
+          @JsonKey(name: 'user_id') final String? userId,
+          required final List<CommentModel>? children,
+          required final UserCommentLikeModel? myLike,
+          required final UserProfilesModel? user,
+          required final int likes,
+          required final String content,
+          required final bool? isLiked,
+          @JsonKey(name: 'parent_comment_id')
+          required final String? parentCommentId,
+          @JsonKey(name: 'created_at') required final DateTime createdAt}) =
+      _$CommentModelImpl;
   const _CommentModel._() : super._();
 
   factory _CommentModel.fromJson(Map<String, dynamic> json) =
@@ -575,9 +600,13 @@ abstract class _CommentModel extends CommentModel {
   @override
   String get content;
   @override
-  int? get parentId;
+  bool? get isLiked;
   @override
-  DateTime get created_at;
+  @JsonKey(name: 'parent_comment_id')
+  String? get parentCommentId;
+  @override
+  @JsonKey(name: 'created_at')
+  DateTime get createdAt;
 
   /// Create a copy of CommentModel
   /// with the given fields replaced by the non-null parameter values.

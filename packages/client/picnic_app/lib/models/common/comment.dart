@@ -24,14 +24,16 @@ class CommentModel with _$CommentModel {
   const CommentModel._();
 
   const factory CommentModel({
-    required int id,
+    @JsonKey(name: 'comment_id') required String commentId,
+    @JsonKey(name: 'user_id') String? userId,
     required List<CommentModel>? children,
     required UserCommentLikeModel? myLike,
     required UserProfilesModel? user,
     required int likes,
     required String content,
-    required int? parentId,
-    required DateTime created_at,
+    required bool? isLiked,
+    @JsonKey(name: 'parent_comment_id') required String? parentCommentId,
+    @JsonKey(name: 'created_at') required DateTime createdAt,
   }) = _CommentModel;
 
   factory CommentModel.fromJson(Map<String, dynamic> json) =>
