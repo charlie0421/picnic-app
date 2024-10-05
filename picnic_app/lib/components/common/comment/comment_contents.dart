@@ -12,11 +12,12 @@ class CommentContents extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-        width: double.infinity,
-        child: Text(
-          item.content,
-          style: getTextStyle(AppTypo.body14M, AppColors.grey900),
-        ));
+    return Container(
+      alignment: Alignment.topLeft,
+      child: Text(
+        item.content,
+        style: getTextStyle(AppTypo.body14M, AppColors.grey900),
+      ),
+    );
   }
 }

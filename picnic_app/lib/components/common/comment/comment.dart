@@ -156,7 +156,6 @@ class _CommentState extends ConsumerState<Comment> {
               }),
               CommentInput(
                 id: widget.articleModel.id.toString(),
-                postComment: () {},
                 pagingController: _pagingController,
               ),
             ],

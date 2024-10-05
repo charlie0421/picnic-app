@@ -1,26 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/providers/community/comments_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
 
-class LikeButton extends StatefulWidget {
+class LikeButton extends ConsumerStatefulWidget {
   final String commentId;
   final int initialLikes;
-  final bool initiallyLiked;
+  final bool isLiked;
 
   const LikeButton({
     super.key,
     required this.commentId,
     required this.initialLikes,
-    required this.initiallyLiked,
+    required this.isLiked,
   });
 
   @override
   LikeButtonState createState() => LikeButtonState();
 }
 
-class LikeButtonState extends State<LikeButton> {
+class LikeButtonState extends ConsumerState<LikeButton> {
   late int likes;
   late bool isLiked;
 
@@ -28,51 +29,44 @@ class LikeButtonState extends State<LikeButton> {
   void initState() {
     super.initState();
     likes = widget.initialLikes;
-    isLiked = widget.initiallyLiked;
+    isLiked = widget.isLiked;
   }
 
   void _toggleLike() {
     if (isLiked) {
-      // API 호출로 좋아요 취소
-      _removeCommentLike(widget.commentId);
+      unlikeComment(ref, widget.commentId);
+      setState(() {
+        likes--;
+        isLiked = false;
+      });
     } else {
-      // API 호출로 좋아요 추가
-      _addCommentLike(widget.commentId);
+      likeComment(ref, widget.commentId);
+      setState(() {
+        likes++;
+        isLiked = true;
+      });
     }
-  }
-
-  Future<void> _addCommentLike(String commentId) async {
-    await supabase.from('comment_like').insert({'comment_id': commentId});
-  }
-
-  Future<void> _removeCommentLike(String commentId) async {
-    await supabase.from('comment_like').delete().eq('comment_id', commentId);
   }
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
       onTap: _toggleLike,
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
+      behavior: HitTestBehavior.opaque,
       child: Container(
-        alignment: Alignment.center,
+        padding: const EdgeInsets.all(8), // 터치 영역 제한
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
-              child: SvgPicture.asset(
-                'assets/icons/heart_style=line.svg',
-                width: 24,
-                height: 24,
-                colorFilter: ColorFilter.mode(
-                    isLiked ? AppColors.primary500 : AppColors.mint500,
-                    BlendMode.srcIn),
-              ),
+            SvgPicture.asset(
+              'assets/icons/heart_style=line.svg',
+              width: 24,
+              height: 24,
+              colorFilter: ColorFilter.mode(
+                  isLiked ? AppColors.primary500 : AppColors.mint500,
+                  BlendMode.srcIn),
             ),
-            SizedBox(width: 8.cw),
+            SizedBox(width: 4.cw),
             Text('$likes',
                 style: getTextStyle(AppTypo.body14M, AppColors.grey900))
           ],

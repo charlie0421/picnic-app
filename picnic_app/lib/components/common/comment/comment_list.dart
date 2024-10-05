@@ -13,10 +13,7 @@ import 'package:picnic_app/providers/community/comments_provider.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class CommentList extends ConsumerStatefulWidget {
-  const CommentList(this.fetchComments, this.title, this.postComment,
-      {required this.id, super.key});
-  final Function fetchComments;
-  final Function postComment;
+  const CommentList(this.title, {required this.id, super.key});
   final String title;
   final String id;
 
@@ -36,10 +33,6 @@ class _CommentListState extends ConsumerState<CommentList> {
     _pagingController.addPageRequestListener((pageKey) async {
       List<CommentModel>? newItems =
           await comments(ref, widget.id, pageKey, 10);
-      if (newItems == null) {
-        _pagingController.error = S.of(context).error_title;
-        return;
-      }
       logger.i('newItems: $newItems');
       final isLastPage = newItems.length < 10;
       if (isLastPage) {
@@ -100,7 +93,7 @@ class _CommentListState extends ConsumerState<CommentList> {
                         itemCount: item.children!.length,
                         itemBuilder: (context, index) {
                           return Container(
-                            padding: EdgeInsets.only(left: 50.cw),
+                            padding: EdgeInsets.only(left: 40.cw),
                             child: CommentItem(
                               commentModel: item.children![index],
                               pagingController: _pagingController,
@@ -129,7 +122,6 @@ class _CommentListState extends ConsumerState<CommentList> {
             }),
             CommentInput(
               id: widget.id,
-              postComment: widget.postComment,
               pagingController: _pagingController,
             ),
           ],
