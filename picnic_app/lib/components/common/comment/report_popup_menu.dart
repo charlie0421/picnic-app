@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:picnic_app/dialogs/simple_dialog.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/providers/community/comments_provider.dart';
@@ -11,12 +11,16 @@ class CommentPopupMenu extends ConsumerStatefulWidget {
   final BuildContext context;
   final CommentModel comment;
   final PagingController<int, CommentModel>? pagingController;
+  final Function? openReportModal;
 
-  const CommentPopupMenu(
-      {super.key,
-      required this.comment,
-      required this.context,
-      required this.pagingController});
+  const CommentPopupMenu({
+    super.key,
+    required this.comment,
+    required this.context,
+    required this.pagingController,
+    this.openReportModal,
+  });
+  // required
 
   @override
   ConsumerState<CommentPopupMenu> createState() => _CommentPopupMenuState();
@@ -30,17 +34,21 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
       icon: const Icon(Icons.more_vert),
       onSelected: (String result) async {
         if (result == 'Report') {
-          showSimpleDialog(
-              title: S.of(context).label_title_report,
-              content: S.of(context).message_report_confirm,
-              onOk: () async {
-                _reportComment(commentId: widget.comment.commentId);
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(S.of(context).message_report_ok),
-                    duration: const Duration(microseconds: 500)));
-                Navigator.pop(context);
-              },
-              onCancel: () => Navigator.pop(context));
+          logger.i('widget.openReportModal: ${widget.openReportModal}');
+          if (widget.openReportModal != null) {
+            widget.openReportModal!();
+          }
+          // showSimpleDialog(
+          //     title: S.of(context).label_title_report,
+          //     content: S.of(context).message_report_confirm,
+          //     onOk: () async {
+          //       _reportComment(commentId: widget.comment.commentId);
+          //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          //           content: Text(S.of(context).message_report_ok),
+          //           duration: const Duration(microseconds: 500)));
+          //       Navigator.pop(context);
+          //     },
+          //     onCancel: () => Navigator.pop(context));
         } else if (result == 'Delete') {
           await deleteComment(ref, widget.comment.commentId);
           widget.pagingController?.refresh();

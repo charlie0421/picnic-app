@@ -6,6 +6,7 @@ import 'package:picnic_app/components/common/comment/comment_actions.dart';
 import 'package:picnic_app/components/common/comment/comment_contents.dart';
 import 'package:picnic_app/components/common/comment/comment_header.dart';
 import 'package:picnic_app/components/common/comment/report_popup_menu.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
@@ -18,6 +19,7 @@ class CommentItem extends ConsumerStatefulWidget {
     this.shouldHighlight = false,
     this.showReplyButton = true,
     this.openCommentsModal,
+    this.openReportModal,
   });
 
   final PagingController<int, CommentModel>? pagingController;
@@ -25,6 +27,7 @@ class CommentItem extends ConsumerStatefulWidget {
   final bool shouldHighlight;
   final bool showReplyButton;
   final Function? openCommentsModal;
+  final Function? openReportModal;
 
   @override
   ConsumerState<CommentItem> createState() => _CommentItemState();
@@ -39,6 +42,8 @@ class _CommentItemState extends ConsumerState<CommentItem>
   @override
   void initState() {
     super.initState();
+
+    logger.i('widget.commentModel: ${widget.commentModel}');
 
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 500),
@@ -141,6 +146,7 @@ class _CommentItemState extends ConsumerState<CommentItem>
                 context: context,
                 comment: widget.commentModel,
                 pagingController: widget.pagingController,
+                openReportModal: widget.openReportModal,
               ),
             ],
           ),

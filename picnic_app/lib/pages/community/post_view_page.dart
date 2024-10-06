@@ -14,6 +14,7 @@ import 'package:picnic_app/components/community/write/embed_builder/media_embed_
 import 'package:picnic_app/components/community/write/embed_builder/youtube_embed_builder.dart';
 import 'package:picnic_app/config/config_service.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/dialogs/report_dialog.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/post.dart';
@@ -287,6 +288,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                                   pagingController: null,
                                   showReplyButton: false,
                                   openCommentsModal: _openCommentsModal,
+                                  openReportModal: _openReportModal,
                                 );
                               },
                             ),
@@ -342,10 +344,36 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
           child: CommentList(
             id: widget.post.post_id,
             '댓글',
+            openReportModal: _openReportModal,
           ),
         );
       },
     ).then((_) {
+      setState(() {
+        _isModalOpen = false;
+        if (_shouldShowAds) {
+          _loadAds();
+        }
+      });
+      _loadComments(); // Reload comments after modal is closed
+    });
+  }
+
+  void _openReportModal() {
+    setState(() {
+      _isModalOpen = true;
+      for (var ad in _bannerAds.values) {
+        ad?.dispose();
+      }
+      _bannerAds.clear();
+    });
+    logger.d('Open report modal');
+    showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return ReportDialog();
+        }).then((_) {
       setState(() {
         _isModalOpen = false;
         if (_shouldShowAds) {

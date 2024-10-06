@@ -14,10 +14,14 @@ import 'package:picnic_app/util/ui.dart';
 
 class CommentList extends ConsumerStatefulWidget {
   const CommentList(this.title,
-      {required this.id, this.openCommentsModal, super.key});
+      {required this.id,
+      this.openCommentsModal,
+      this.openReportModal,
+      super.key});
   final String title;
   final String id;
   final Function? openCommentsModal;
+  final Function? openReportModal;
 
   @override
   ConsumerState<CommentList> createState() => _CommentListState();
@@ -121,6 +125,7 @@ class _CommentListState extends ConsumerState<CommentList> {
                                         pagingController: _pagingController,
                                         openCommentsModal:
                                             widget.openCommentsModal,
+                                        openReportModal: widget.openReportModal,
                                       ),
                                       if (item.children != null &&
                                           item.children!.isNotEmpty)
