@@ -1097,5 +1097,9 @@
   "text_community_post_search": "Search",
   "@text_community_post_search": {
     "manualTranslation": false
+  },
+  "popup_label_delete": "Delete",
+  "@popup_label_delete": {
+    "manualTranslation": false
   }
 }

@@ -2329,6 +2329,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Delete`
+  String get popup_label_delete {
+    return Intl.message(
+      'Delete',
+      name: 'popup_label_delete',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

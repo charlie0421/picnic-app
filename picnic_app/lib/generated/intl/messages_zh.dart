@@ -294,6 +294,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("条款和条件"),
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("投票"),
         "page_title_vote_gather": MessageLookupByLibrary.simpleMessage("收集选票"),
+        "popup_label_delete": MessageLookupByLibrary.simpleMessage("删除"),
         "post_anonymous": MessageLookupByLibrary.simpleMessage("匿名张贴"),
         "post_content_placeholder":
             MessageLookupByLibrary.simpleMessage("请输入内容。"),

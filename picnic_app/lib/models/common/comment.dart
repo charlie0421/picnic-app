@@ -36,6 +36,8 @@ class CommentModel with _$CommentModel {
     required bool? isReplied,
     @JsonKey(name: 'parent_comment_id') required String? parentCommentId,
     @JsonKey(name: 'created_at') required DateTime createdAt,
+    @JsonKey(name: 'updated_at') required DateTime updatedAt,
+    @JsonKey(name: 'deleted_at') DateTime? deletedAt,
   }) = _CommentModel;
 
   factory CommentModel.fromJson(Map<String, dynamic> json) =>

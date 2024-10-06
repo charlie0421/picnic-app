@@ -163,3 +163,33 @@ Future<void> unlikeComment(ref, String commentId) async {
     return Future.error(e);
   }
 }
+
+@riverpod
+Future<void> reportComment(ref, String commentId) async {
+  try {
+    final response =
+        await supabase.schema('community').from('comments').update({
+      'report': true,
+    }).eq('comment_id', commentId);
+
+    logger.d('response: $response');
+  } catch (e, s) {
+    logger.e('Error reporting comment:', error: e, stackTrace: s);
+    return Future.error(e);
+  }
+}
+
+@riverpod
+Future<void> deleteComment(ref, String commentId) async {
+  try {
+    final response =
+        await supabase.schema('community').from('comments').update({
+      'deleted_at': DateTime.now().toIso8601String(),
+    }).eq('comment_id', commentId);
+
+    logger.d('response: $response');
+  } catch (e, s) {
+    logger.e('Error deleting comment:', error: e, stackTrace: s);
+    return Future.error(e);
+  }
+}

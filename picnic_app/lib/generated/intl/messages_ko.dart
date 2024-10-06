@@ -316,6 +316,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("투표하기"),
         "page_title_vote_gather":
             MessageLookupByLibrary.simpleMessage("투표 모아보기"),
+        "popup_label_delete": MessageLookupByLibrary.simpleMessage("삭제"),
         "post_anonymous": MessageLookupByLibrary.simpleMessage("익명 게시"),
         "post_content_placeholder":
             MessageLookupByLibrary.simpleMessage("내용을 입력해주세요."),

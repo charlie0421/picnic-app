@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/comment/comment_actions.dart';
 import 'package:picnic_app/components/common/comment/comment_contents.dart';
 import 'package:picnic_app/components/common/comment/comment_header.dart';
+import 'package:picnic_app/components/common/comment/report_popup_menu.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
@@ -137,17 +137,10 @@ class _CommentItemState extends ConsumerState<CommentItem>
                 ),
               ),
               SizedBox(width: 10.cw),
-              Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: SvgPicture.asset(
-                  'assets/icons/more_style=line.svg',
-                  width: 24,
-                  height: 24,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.grey500,
-                    BlendMode.srcIn,
-                  ),
-                ),
+              CommentPopupMenu(
+                context: context,
+                comment: widget.commentModel,
+                pagingController: widget.pagingController,
               ),
             ],
           ),
