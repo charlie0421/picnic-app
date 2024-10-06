@@ -30,8 +30,10 @@ class CommentModel with _$CommentModel {
     required UserCommentLikeModel? myLike,
     required UserProfilesModel? user,
     required int likes,
+    required int replies,
     required String content,
     required bool? isLiked,
+    required bool? isReplied,
     @JsonKey(name: 'parent_comment_id') required String? parentCommentId,
     @JsonKey(name: 'created_at') required DateTime createdAt,
   }) = _CommentModel;

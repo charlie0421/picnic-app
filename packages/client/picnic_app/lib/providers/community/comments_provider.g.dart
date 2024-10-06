@@ -6,7 +6,7 @@ part of 'comments_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$commentsHash() => r'f836cf32807960d68f2e072ef75463f6e39a1c79';
+String _$commentsHash() => r'0be779f8ef0524a1513806e2df87a70d86904005';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -477,7 +477,7 @@ class _LikeCommentProviderElement extends AutoDisposeFutureProviderElement<void>
   String get commentId => (origin as LikeCommentProvider).commentId;
 }
 
-String _$unlikeCommentHash() => r'dcf57e3dbd7494bc439968206f8af684b29139d2';
+String _$unlikeCommentHash() => r'bfd322c9f12d588df5de203b75e9a5d3cfb05eb6';
 
 /// See also [unlikeComment].
 @ProviderFor(unlikeComment)

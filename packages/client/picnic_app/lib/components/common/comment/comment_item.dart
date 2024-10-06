@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/comment/comment_actions.dart';
 import 'package:picnic_app/components/common/comment/comment_contents.dart';
 import 'package:picnic_app/components/common/comment/comment_header.dart';
-import 'package:picnic_app/components/common/comment/like_button.dart';
-import 'package:picnic_app/components/common/comment/report_popup_menu.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
@@ -18,11 +17,14 @@ class CommentItem extends ConsumerStatefulWidget {
     required this.commentModel,
     this.shouldHighlight = false,
     this.showReplyButton = true,
+    this.openCommentsModal,
   });
+
   final PagingController<int, CommentModel>? pagingController;
   final CommentModel commentModel;
   final bool shouldHighlight;
   final bool showReplyButton;
+  final Function? openCommentsModal;
 
   @override
   ConsumerState<CommentItem> createState() => _CommentItemState();
@@ -93,16 +95,28 @@ class _CommentItemState extends ConsumerState<CommentItem>
           ],
         ),
         child: Container(
-          padding: EdgeInsets.only(left: 20.cw),
+          padding: EdgeInsets.symmetric(
+            horizontal: 16.cw,
+            vertical: 8,
+          ),
           width: getPlatformScreenSize(context).width,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ProfileImageContainer(
-                avatarUrl: widget.commentModel.user?.avatar_url,
-                borderRadius: 16,
-                width: 32,
-                height: 32,
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: AppColors.primary500,
+                    width: 1,
+                  ),
+                ),
+                child: ProfileImageContainer(
+                  avatarUrl: widget.commentModel.user?.avatar_url,
+                  borderRadius: 16,
+                  width: 32,
+                  height: 32,
+                ),
               ),
               SizedBox(width: 10.cw),
               Expanded(
@@ -111,23 +125,29 @@ class _CommentItemState extends ConsumerState<CommentItem>
                     CommentHeader(
                       item: widget.commentModel,
                     ),
+                    const SizedBox(height: 4),
                     CommentContents(item: widget.commentModel),
-                    if (widget.showReplyButton)
-                      CommentActions(
-                        item: widget.commentModel,
-                      ),
+                    const SizedBox(height: 4),
+                    CommentActions(
+                      item: widget.commentModel,
+                      showReplyButton: widget.showReplyButton,
+                      openCommentsModal: widget.openCommentsModal,
+                    ),
                   ],
                 ),
               ),
               SizedBox(width: 10.cw),
-              LikeButton(
-                commentId: widget.commentModel.commentId,
-                initialLikes: widget.commentModel.likes,
-                isLiked: widget.commentModel.isLiked ?? false,
-              ),
-              ReportPopupMenu(
-                context: context,
-                commentId: widget.commentModel.commentId,
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: SvgPicture.asset(
+                  'assets/icons/more_style=line.svg',
+                  width: 24,
+                  height: 24,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.grey500,
+                    BlendMode.srcIn,
+                  ),
+                ),
               ),
             ],
           ),
