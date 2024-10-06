@@ -16,8 +16,13 @@ import 'package:picnic_app/util/ui.dart';
 class Comment extends ConsumerStatefulWidget {
   final ArticleModel articleModel;
   final String? commentId;
+  final Function? openCommentsModal;
 
-  const Comment({super.key, required this.articleModel, this.commentId});
+  const Comment(
+      {super.key,
+      required this.articleModel,
+      this.commentId,
+      this.openCommentsModal});
 
   @override
   ConsumerState<Comment> createState() => _CommentState();
@@ -118,6 +123,7 @@ class _CommentState extends ConsumerState<Comment> {
                           pagingController: _pagingController,
                           shouldHighlight: item.commentId ==
                               widget.commentId, // Add this line
+                          openCommentsModal: widget.openCommentsModal,
                         ),
                         item.children != null
                             ? ListView.builder(
@@ -133,6 +139,8 @@ class _CommentState extends ConsumerState<Comment> {
                                       shouldHighlight:
                                           item.children?[index].commentId ==
                                               widget.commentId,
+                                      openCommentsModal:
+                                          widget.openCommentsModal,
                                     ),
                                   );
                                 })

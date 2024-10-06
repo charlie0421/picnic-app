@@ -44,6 +44,7 @@ Future<List<CommentModel>> comments(
         .from('comment_likes')
         .select('comment_id')
         .eq('user_id', currentUserId!)
+        .isFilter('deleted_at', null)
         .inFilter('comment_id',
             [...rootCommentIds, ...childComments.map((c) => c.commentId)]);
 
@@ -59,15 +60,29 @@ Future<List<CommentModel>> comments(
     final userProfiles =
         await supabase.from('user_profiles').select().inFilter('id', userIds);
 
-    // 6. 댓글에 사용자 정보 추가 및 자식 댓글 그룹화
+    // 6. 현재 사용자가 작성한 대댓글 ID 목록 가져오기
+    final userRepliesResponse = await supabase
+        .schema('community')
+        .from('comments')
+        .select('parent_comment_id')
+        .eq('user_id', currentUserId)
+        .inFilter('parent_comment_id', rootCommentIds);
+
+    final userRepliedCommentIds = userRepliesResponse
+        .map((row) => row['parent_comment_id'] as String)
+        .toSet();
+
+    // 7. 댓글에 사용자 정보 추가 및 자식 댓글 그룹화
     final Map<String, CommentModel> commentMap = {};
 
     for (var comment in allComments) {
       final userProfile =
           userProfiles.firstWhere((profile) => profile['id'] == comment.userId);
       final commentWithUser = comment.copyWith(
-          user: UserProfilesModel.fromJson(userProfile),
-          isLiked: likedCommentIds.contains(comment.commentId));
+        user: UserProfilesModel.fromJson(userProfile),
+        isLiked: likedCommentIds.contains(comment.commentId),
+        isReplied: userRepliedCommentIds.contains(comment.commentId),
+      );
 
       if (comment.parentCommentId == null) {
         commentMap[comment.commentId] = commentWithUser.copyWith(children: []);
@@ -81,7 +96,7 @@ Future<List<CommentModel>> comments(
       }
     }
 
-    // 7. 최종 결과 정렬 및 반환
+    // 8. 최종 결과 정렬 및 반환
     final result = commentMap.values
         .where((comment) => comment.parentCommentId == null)
         .toList();
@@ -95,6 +110,7 @@ Future<List<CommentModel>> comments(
   }
 }
 
+// postComment, likeComment, unlikeComment 함수는 변경 없음
 @riverpod
 Future<void> postComment(
     ref, String postId, String? parentId, String content) async {
@@ -137,7 +153,7 @@ Future<void> unlikeComment(ref, String commentId) async {
     final response = await supabase
         .schema('community')
         .from('comment_likes')
-        .update({'deleted_at': DateTime.now()})
+        .update({'deleted_at': DateTime.now().toIso8601String()})
         .eq('comment_id', commentId)
         .eq('user_id', supabase.auth.currentUser!.id);
 

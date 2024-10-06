@@ -222,8 +222,10 @@ mixin _$CommentModel {
   UserCommentLikeModel? get myLike => throw _privateConstructorUsedError;
   UserProfilesModel? get user => throw _privateConstructorUsedError;
   int get likes => throw _privateConstructorUsedError;
+  int get replies => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
   bool? get isLiked => throw _privateConstructorUsedError;
+  bool? get isReplied => throw _privateConstructorUsedError;
   @JsonKey(name: 'parent_comment_id')
   String? get parentCommentId => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
@@ -252,8 +254,10 @@ abstract class $CommentModelCopyWith<$Res> {
       UserCommentLikeModel? myLike,
       UserProfilesModel? user,
       int likes,
+      int replies,
       String content,
       bool? isLiked,
+      bool? isReplied,
       @JsonKey(name: 'parent_comment_id') String? parentCommentId,
       @JsonKey(name: 'created_at') DateTime createdAt});
 
@@ -282,8 +286,10 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
     Object? myLike = freezed,
     Object? user = freezed,
     Object? likes = null,
+    Object? replies = null,
     Object? content = null,
     Object? isLiked = freezed,
+    Object? isReplied = freezed,
     Object? parentCommentId = freezed,
     Object? createdAt = null,
   }) {
@@ -312,6 +318,10 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
           ? _value.likes
           : likes // ignore: cast_nullable_to_non_nullable
               as int,
+      replies: null == replies
+          ? _value.replies
+          : replies // ignore: cast_nullable_to_non_nullable
+              as int,
       content: null == content
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
@@ -319,6 +329,10 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
       isLiked: freezed == isLiked
           ? _value.isLiked
           : isLiked // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      isReplied: freezed == isReplied
+          ? _value.isReplied
+          : isReplied // ignore: cast_nullable_to_non_nullable
               as bool?,
       parentCommentId: freezed == parentCommentId
           ? _value.parentCommentId
@@ -375,8 +389,10 @@ abstract class _$$CommentModelImplCopyWith<$Res>
       UserCommentLikeModel? myLike,
       UserProfilesModel? user,
       int likes,
+      int replies,
       String content,
       bool? isLiked,
+      bool? isReplied,
       @JsonKey(name: 'parent_comment_id') String? parentCommentId,
       @JsonKey(name: 'created_at') DateTime createdAt});
 
@@ -405,8 +421,10 @@ class __$$CommentModelImplCopyWithImpl<$Res>
     Object? myLike = freezed,
     Object? user = freezed,
     Object? likes = null,
+    Object? replies = null,
     Object? content = null,
     Object? isLiked = freezed,
+    Object? isReplied = freezed,
     Object? parentCommentId = freezed,
     Object? createdAt = null,
   }) {
@@ -435,6 +453,10 @@ class __$$CommentModelImplCopyWithImpl<$Res>
           ? _value.likes
           : likes // ignore: cast_nullable_to_non_nullable
               as int,
+      replies: null == replies
+          ? _value.replies
+          : replies // ignore: cast_nullable_to_non_nullable
+              as int,
       content: null == content
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
@@ -442,6 +464,10 @@ class __$$CommentModelImplCopyWithImpl<$Res>
       isLiked: freezed == isLiked
           ? _value.isLiked
           : isLiked // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      isReplied: freezed == isReplied
+          ? _value.isReplied
+          : isReplied // ignore: cast_nullable_to_non_nullable
               as bool?,
       parentCommentId: freezed == parentCommentId
           ? _value.parentCommentId
@@ -465,8 +491,10 @@ class _$CommentModelImpl extends _CommentModel {
       required this.myLike,
       required this.user,
       required this.likes,
+      required this.replies,
       required this.content,
       required this.isLiked,
+      required this.isReplied,
       @JsonKey(name: 'parent_comment_id') required this.parentCommentId,
       @JsonKey(name: 'created_at') required this.createdAt})
       : _children = children,
@@ -498,9 +526,13 @@ class _$CommentModelImpl extends _CommentModel {
   @override
   final int likes;
   @override
+  final int replies;
+  @override
   final String content;
   @override
   final bool? isLiked;
+  @override
+  final bool? isReplied;
   @override
   @JsonKey(name: 'parent_comment_id')
   final String? parentCommentId;
@@ -510,7 +542,7 @@ class _$CommentModelImpl extends _CommentModel {
 
   @override
   String toString() {
-    return 'CommentModel(commentId: $commentId, userId: $userId, children: $children, myLike: $myLike, user: $user, likes: $likes, content: $content, isLiked: $isLiked, parentCommentId: $parentCommentId, createdAt: $createdAt)';
+    return 'CommentModel(commentId: $commentId, userId: $userId, children: $children, myLike: $myLike, user: $user, likes: $likes, replies: $replies, content: $content, isLiked: $isLiked, isReplied: $isReplied, parentCommentId: $parentCommentId, createdAt: $createdAt)';
   }
 
   @override
@@ -525,8 +557,11 @@ class _$CommentModelImpl extends _CommentModel {
             (identical(other.myLike, myLike) || other.myLike == myLike) &&
             (identical(other.user, user) || other.user == user) &&
             (identical(other.likes, likes) || other.likes == likes) &&
+            (identical(other.replies, replies) || other.replies == replies) &&
             (identical(other.content, content) || other.content == content) &&
             (identical(other.isLiked, isLiked) || other.isLiked == isLiked) &&
+            (identical(other.isReplied, isReplied) ||
+                other.isReplied == isReplied) &&
             (identical(other.parentCommentId, parentCommentId) ||
                 other.parentCommentId == parentCommentId) &&
             (identical(other.createdAt, createdAt) ||
@@ -543,8 +578,10 @@ class _$CommentModelImpl extends _CommentModel {
       myLike,
       user,
       likes,
+      replies,
       content,
       isLiked,
+      isReplied,
       parentCommentId,
       createdAt);
 
@@ -572,8 +609,10 @@ abstract class _CommentModel extends CommentModel {
           required final UserCommentLikeModel? myLike,
           required final UserProfilesModel? user,
           required final int likes,
+          required final int replies,
           required final String content,
           required final bool? isLiked,
+          required final bool? isReplied,
           @JsonKey(name: 'parent_comment_id')
           required final String? parentCommentId,
           @JsonKey(name: 'created_at') required final DateTime createdAt}) =
@@ -598,9 +637,13 @@ abstract class _CommentModel extends CommentModel {
   @override
   int get likes;
   @override
+  int get replies;
+  @override
   String get content;
   @override
   bool? get isLiked;
+  @override
+  bool? get isReplied;
   @override
   @JsonKey(name: 'parent_comment_id')
   String? get parentCommentId;

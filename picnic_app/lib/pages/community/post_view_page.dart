@@ -14,6 +14,7 @@ import 'package:picnic_app/components/community/write/embed_builder/media_embed_
 import 'package:picnic_app/components/community/write/embed_builder/youtube_embed_builder.dart';
 import 'package:picnic_app/config/config_service.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/providers/comminuty_navigation_provider.dart';
@@ -38,6 +39,8 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
   bool _isModalOpen = false;
   bool _shouldShowAds = !kIsWeb && (Platform.isAndroid || Platform.isIOS);
   Map<String, BannerAd?> _bannerAds = {};
+  List<CommentModel>? _comments;
+  bool _isLoadingComments = false;
 
   @override
   void initState() {
@@ -46,6 +49,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
     if (_shouldShowAds) {
       _loadAds();
     }
+    _loadComments();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final currentBoardName = ref.read(
         communityNavigationInfoProvider
@@ -109,6 +113,25 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
         },
       ),
     )..load();
+  }
+
+  Future<void> _loadComments() async {
+    if (_isLoadingComments) return;
+    setState(() {
+      _isLoadingComments = true;
+    });
+    try {
+      final loadedComments = await comments(ref, widget.post.post_id, 1, 3);
+      setState(() {
+        _comments = loadedComments;
+        _isLoadingComments = false;
+      });
+    } catch (e) {
+      logger.e('Error loading comments: $e');
+      setState(() {
+        _isLoadingComments = false;
+      });
+    }
   }
 
   List<dynamic> _parseContent(dynamic content) {
@@ -248,74 +271,33 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 16),
-              FutureBuilder(
-                future: comments(ref, widget.post.post_id, 1, 3),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (snapshot.connectionState == ConnectionState.done &&
-                      snapshot.data == null) {
-                    return const Center(child: Text('댓글이 없습니다.'));
-                  }
-                  return Column(
-                    children: [
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: snapshot.data?.length,
-                        itemBuilder: (context, index) {
-                          return CommentItem(
-                            commentModel: snapshot.data![index],
-                            pagingController: null,
-                            showReplyButton: false,
-                          );
-                        },
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            _isModalOpen = true;
-                            for (var ad in _bannerAds.values) {
-                              ad?.dispose();
-                            }
-                            _bannerAds.clear();
-                          });
-                          showModalBottomSheet(
-                            context: context,
-                            useSafeArea: true,
-                            isScrollControlled: true,
-                            useRootNavigator: true,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(40)),
+              _isLoadingComments
+                  ? const Center(child: CircularProgressIndicator())
+                  : _comments == null || _comments!.isEmpty
+                      ? const Center(child: Text('댓글이 없습니다.'))
+                      : Column(
+                          children: [
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: _comments!.length,
+                              itemBuilder: (context, index) {
+                                return CommentItem(
+                                  commentModel: _comments![index],
+                                  pagingController: null,
+                                  showReplyButton: false,
+                                  openCommentsModal: _openCommentsModal,
+                                );
+                              },
                             ),
-                            constraints: BoxConstraints(
-                                maxHeight:
-                                    MediaQuery.of(context).size.height - 120),
-                            builder: (context) {
-                              return CommentList(
-                                id: widget.post.post_id,
-                                '댓글',
-                              );
-                            },
-                          ).then((_) {
-                            setState(() {
-                              _isModalOpen = false;
-                              if (_shouldShowAds) {
-                                _loadAds();
-                              }
-                            });
-                          });
-                        },
-                        child: Text('더보기',
-                            style: getTextStyle(
-                                AppTypo.body14B, AppColors.grey00)),
-                      ),
-                    ],
-                  );
-                },
-              ),
+                            ElevatedButton(
+                              onPressed: _openCommentsModal,
+                              child: Text('더보기',
+                                  style: getTextStyle(
+                                      AppTypo.body14B, AppColors.grey00)),
+                            ),
+                          ],
+                        ),
             ],
           ),
         ),
@@ -335,5 +317,42 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
         ),
       ],
     );
+  }
+
+  void _openCommentsModal() {
+    setState(() {
+      _isModalOpen = true;
+      for (var ad in _bannerAds.values) {
+        ad?.dispose();
+      }
+      _bannerAds.clear();
+    });
+    showModalBottomSheet(
+      context: context,
+      useSafeArea: true,
+      isScrollControlled: true,
+      useRootNavigator: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
+      ),
+      constraints:
+          BoxConstraints(maxHeight: MediaQuery.of(context).size.height - 120),
+      builder: (context) {
+        return SafeArea(
+          child: CommentList(
+            id: widget.post.post_id,
+            '댓글',
+          ),
+        );
+      },
+    ).then((_) {
+      setState(() {
+        _isModalOpen = false;
+        if (_shouldShowAds) {
+          _loadAds();
+        }
+      });
+      _loadComments(); // Reload comments after modal is closed
+    });
   }
 }

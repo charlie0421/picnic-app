@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/providers/comment_list_provider.dart';
@@ -23,6 +23,33 @@ class CommentInput extends ConsumerStatefulWidget {
 
 class _CommentInputState extends ConsumerState<CommentInput> {
   final _textEditingController = TextEditingController();
+  final int _maxLength = 100;
+  bool _isInputValid = false;
+  int _currentLength = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _textEditingController.addListener(_onTextChanged);
+  }
+
+  @override
+  void dispose() {
+    _textEditingController.removeListener(_onTextChanged);
+    _textEditingController.dispose();
+    super.dispose();
+  }
+
+  void _onTextChanged() {
+    final text = _textEditingController.text;
+    final isValid = text.trim().isNotEmpty;
+    final newLength = text.length;
+
+    setState(() {
+      _isInputValid = isValid;
+      _currentLength = newLength;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,16 +70,23 @@ class _CommentInputState extends ConsumerState<CommentInput> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            child: SizedBox(
-              height: 60,
-              child: TextFormField(
+            child: Stack(
+              alignment: Alignment.bottomRight,
+              children: [
+                TextFormField(
                   controller: _textEditingController,
                   decoration: InputDecoration(
-                    counterText: '',
                     hintText: S.of(context).label_hint_comment,
                     hintStyle: TextStyle(
                       fontSize: 16.sp,
                       color: AppColors.grey400,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                      borderSide: const BorderSide(
+                        color: AppColors.primary500,
+                        width: 1,
+                      ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30.0),
@@ -61,57 +95,63 @@ class _CommentInputState extends ConsumerState<CommentInput> {
                         width: 1,
                       ),
                     ),
-                    contentPadding: EdgeInsets.only(left: 10.cw),
-                    suffixIcon: Container(
-                      // alignment: Alignment.bottomRight,
-                      padding: const EdgeInsets.only(top: 30),
-                      child: Text(
-                        '${_textEditingController.text.length}/100',
-                        style:
-                            getTextStyle(AppTypo.caption12R, AppColors.grey400),
+                    contentPadding: EdgeInsets.only(
+                        left: 10.cw, right: 80.cw, bottom: 30.ch),
+                    counterText: '', // Hide default counter
+                  ),
+                  maxLength: _maxLength,
+                  textInputAction: TextInputAction.done,
+                  style: getTextStyle(AppTypo.body16R, AppColors.grey900),
+                  onFieldSubmitted: (value) => _commitComment(),
+                ),
+                Positioned(
+                  right: 60.cw,
+                  bottom: 8.ch,
+                  child: Text(
+                    '$_currentLength/$_maxLength',
+                    style: getTextStyle(AppTypo.caption12R, AppColors.grey400),
+                  ),
+                ),
+                Positioned(
+                  right: 16.cw,
+                  bottom: 8.ch,
+                  child: GestureDetector(
+                    onTap: _isInputValid ? _commitComment : null,
+                    child: SvgPicture.asset(
+                      'assets/icons/send_style=fill.svg',
+                      width: 24,
+                      height: 24,
+                      colorFilter: ColorFilter.mode(
+                        _isInputValid
+                            ? AppColors.primary500
+                            : AppColors.grey400,
+                        BlendMode.srcIn,
                       ),
                     ),
                   ),
-                  maxLength: 100,
-                  textInputAction: TextInputAction.done,
-                  style: getTextStyle(AppTypo.body16R, AppColors.grey900),
-                  onFieldSubmitted: (value) => _commitComment()),
+                ),
+              ],
             ),
           ),
-          IconButton(
-            onPressed: () => _commitComment(),
-            icon: const Icon(Icons.send, color: picMainColor),
-          ),
+          SizedBox(width: 10.cw),
         ],
       ),
     );
   }
 
-  _commitComment() {
+  void _commitComment() {
+    if (!_isInputValid) return;
+
     final parentItemState = ref.watch(parentItemProvider);
     postComment(
         ref,
         widget.id,
         parentItemState?.parentCommentId ?? parentItemState?.commentId,
-        _textEditingController.text);
+        _textEditingController.text.trim());
     ref.read(parentItemProvider.notifier).setParentItem(null);
 
     widget.pagingController.refresh();
-    // ref
-    //     .read(asyncCommentListProvider(
-    //       articleId: widget.id,
-    //       pagingController: widget.pagingController,
-    //     ).notifier)
-    //     .submitComment(
-    //         articleId: widget.id,
-    //         content: _textEditingController.text,
-    //         parentId: parentItemState?.id)
-    //     .then((value) {
-    //   ref.read(parentItemProvider.notifier).setParentItem(null);
-    //   ref.read(commentCountProvider(widget.id).notifier).increment();
-    //
-    //   widget.pagingController.refresh();
-    // });
     _textEditingController.clear();
+    _onTextChanged(); // Ensure state is updated after clearing
   }
 }

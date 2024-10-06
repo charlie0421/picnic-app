@@ -37,8 +37,10 @@ _$CommentModelImpl _$$CommentModelImplFromJson(Map<String, dynamic> json) =>
           ? null
           : UserProfilesModel.fromJson(json['user'] as Map<String, dynamic>),
       likes: (json['likes'] as num).toInt(),
+      replies: (json['replies'] as num).toInt(),
       content: json['content'] as String,
       isLiked: json['isLiked'] as bool?,
+      isReplied: json['isReplied'] as bool?,
       parentCommentId: json['parent_comment_id'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
     );
@@ -51,8 +53,10 @@ Map<String, dynamic> _$$CommentModelImplToJson(_$CommentModelImpl instance) =>
       'myLike': instance.myLike,
       'user': instance.user,
       'likes': instance.likes,
+      'replies': instance.replies,
       'content': instance.content,
       'isLiked': instance.isLiked,
+      'isReplied': instance.isReplied,
       'parent_comment_id': instance.parentCommentId,
       'created_at': instance.createdAt.toIso8601String(),
     };
