@@ -348,6 +348,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("Vote"),
         "page_title_vote_gather":
             MessageLookupByLibrary.simpleMessage("Collecting votes"),
+        "popup_label_delete": MessageLookupByLibrary.simpleMessage("Delete"),
         "post_anonymous":
             MessageLookupByLibrary.simpleMessage("Anonymous posting"),
         "post_content_placeholder":

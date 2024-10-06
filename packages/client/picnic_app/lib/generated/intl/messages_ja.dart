@@ -315,6 +315,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("投票する"),
         "page_title_vote_gather":
             MessageLookupByLibrary.simpleMessage("投票集を見る"),
+        "popup_label_delete": MessageLookupByLibrary.simpleMessage("削除"),
         "post_anonymous": MessageLookupByLibrary.simpleMessage("匿名投稿"),
         "post_content_placeholder":
             MessageLookupByLibrary.simpleMessage("内容を入力してください。"),

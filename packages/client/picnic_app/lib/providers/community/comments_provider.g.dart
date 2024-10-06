@@ -604,5 +604,261 @@ class _UnlikeCommentProviderElement
   @override
   String get commentId => (origin as UnlikeCommentProvider).commentId;
 }
+
+String _$reportCommentHash() => r'b77aec995fab41f6d8d6fbd4110112c0c2927ebe';
+
+/// See also [reportComment].
+@ProviderFor(reportComment)
+const reportCommentProvider = ReportCommentFamily();
+
+/// See also [reportComment].
+class ReportCommentFamily extends Family<AsyncValue<void>> {
+  /// See also [reportComment].
+  const ReportCommentFamily();
+
+  /// See also [reportComment].
+  ReportCommentProvider call(
+    String commentId,
+  ) {
+    return ReportCommentProvider(
+      commentId,
+    );
+  }
+
+  @override
+  ReportCommentProvider getProviderOverride(
+    covariant ReportCommentProvider provider,
+  ) {
+    return call(
+      provider.commentId,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'reportCommentProvider';
+}
+
+/// See also [reportComment].
+class ReportCommentProvider extends AutoDisposeFutureProvider<void> {
+  /// See also [reportComment].
+  ReportCommentProvider(
+    String commentId,
+  ) : this._internal(
+          (ref) => reportComment(
+            ref as ReportCommentRef,
+            commentId,
+          ),
+          from: reportCommentProvider,
+          name: r'reportCommentProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$reportCommentHash,
+          dependencies: ReportCommentFamily._dependencies,
+          allTransitiveDependencies:
+              ReportCommentFamily._allTransitiveDependencies,
+          commentId: commentId,
+        );
+
+  ReportCommentProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.commentId,
+  }) : super.internal();
+
+  final String commentId;
+
+  @override
+  Override overrideWith(
+    FutureOr<void> Function(ReportCommentRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: ReportCommentProvider._internal(
+        (ref) => create(ref as ReportCommentRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        commentId: commentId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<void> createElement() {
+    return _ReportCommentProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ReportCommentProvider && other.commentId == commentId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, commentId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin ReportCommentRef on AutoDisposeFutureProviderRef<void> {
+  /// The parameter `commentId` of this provider.
+  String get commentId;
+}
+
+class _ReportCommentProviderElement
+    extends AutoDisposeFutureProviderElement<void> with ReportCommentRef {
+  _ReportCommentProviderElement(super.provider);
+
+  @override
+  String get commentId => (origin as ReportCommentProvider).commentId;
+}
+
+String _$deleteCommentHash() => r'52c1ac1b0f17fa1812af79621904e1d19918c0ae';
+
+/// See also [deleteComment].
+@ProviderFor(deleteComment)
+const deleteCommentProvider = DeleteCommentFamily();
+
+/// See also [deleteComment].
+class DeleteCommentFamily extends Family<AsyncValue<void>> {
+  /// See also [deleteComment].
+  const DeleteCommentFamily();
+
+  /// See also [deleteComment].
+  DeleteCommentProvider call(
+    String commentId,
+  ) {
+    return DeleteCommentProvider(
+      commentId,
+    );
+  }
+
+  @override
+  DeleteCommentProvider getProviderOverride(
+    covariant DeleteCommentProvider provider,
+  ) {
+    return call(
+      provider.commentId,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'deleteCommentProvider';
+}
+
+/// See also [deleteComment].
+class DeleteCommentProvider extends AutoDisposeFutureProvider<void> {
+  /// See also [deleteComment].
+  DeleteCommentProvider(
+    String commentId,
+  ) : this._internal(
+          (ref) => deleteComment(
+            ref as DeleteCommentRef,
+            commentId,
+          ),
+          from: deleteCommentProvider,
+          name: r'deleteCommentProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$deleteCommentHash,
+          dependencies: DeleteCommentFamily._dependencies,
+          allTransitiveDependencies:
+              DeleteCommentFamily._allTransitiveDependencies,
+          commentId: commentId,
+        );
+
+  DeleteCommentProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.commentId,
+  }) : super.internal();
+
+  final String commentId;
+
+  @override
+  Override overrideWith(
+    FutureOr<void> Function(DeleteCommentRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: DeleteCommentProvider._internal(
+        (ref) => create(ref as DeleteCommentRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        commentId: commentId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<void> createElement() {
+    return _DeleteCommentProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is DeleteCommentProvider && other.commentId == commentId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, commentId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin DeleteCommentRef on AutoDisposeFutureProviderRef<void> {
+  /// The parameter `commentId` of this provider.
+  String get commentId;
+}
+
+class _DeleteCommentProviderElement
+    extends AutoDisposeFutureProviderElement<void> with DeleteCommentRef {
+  _DeleteCommentProviderElement(super.provider);
+
+  @override
+  String get commentId => (origin as DeleteCommentProvider).commentId;
+}
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

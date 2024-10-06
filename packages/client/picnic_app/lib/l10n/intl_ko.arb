@@ -482,6 +482,9 @@
   "@label_title_report": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "popup_label_delete": "삭제",
+    "@popup_label_delete": {
+    },
   "label_vote_end": "투표 종료",
   "@label_vote_end": {},
   "label_vote_reward_list": "리워드 리스트",
