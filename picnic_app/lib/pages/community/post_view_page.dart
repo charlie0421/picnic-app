@@ -126,8 +126,8 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
         _comments = loadedComments;
         _isLoadingComments = false;
       });
-    } catch (e) {
-      logger.e('Error loading comments: $e');
+    } catch (e, s) {
+      logger.e('Error loading comments: $e', stackTrace: s);
       setState(() {
         _isLoadingComments = false;
       });

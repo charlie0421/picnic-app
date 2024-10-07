@@ -181,7 +181,10 @@ class _PostListPageState extends ConsumerState<PostListPage>
               'assets/icons/plus_style=fill.svg',
               width: 16,
               height: 16,
-              color: AppColors.grey700,
+              colorFilter: const ColorFilter.mode(
+                AppColors.grey700,
+                BlendMode.srcIn,
+              ),
             ),
           ],
         ),

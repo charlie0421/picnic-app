@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:picnic_app/constants.dart';
 
 class DeletableEmbedBuilder extends EmbedBuilder {
   final String embedType;
@@ -98,8 +99,8 @@ class _DeletableEmbedWidgetState extends State<_DeletableEmbedWidget> {
             return doc.toPlainText().indexOf(data[widget.embedType].toString());
           }
         }
-      } catch (e) {
-        print('Error while searching for embed: $e');
+      } catch (e, s) {
+        logger.e('Error while searching for embed: $e', stackTrace: s);
       }
     }
     return -1;
