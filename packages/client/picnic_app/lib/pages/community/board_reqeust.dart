@@ -177,19 +177,19 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
                 EdgeInsets.symmetric(horizontal: 16.cw, vertical: 16.cw),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(4),
-              borderSide: BorderSide(color: AppColors.grey400),
+              borderSide: const BorderSide(color: AppColors.grey400),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(4),
-              borderSide: BorderSide(color: AppColors.primary500),
+              borderSide: const BorderSide(color: AppColors.primary500),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(4),
-              borderSide: BorderSide(color: Colors.red),
+              borderSide: const BorderSide(color: Colors.red),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(4),
-              borderSide: BorderSide(color: Colors.red),
+              borderSide: const BorderSide(color: Colors.red),
             ),
           ),
           validator: validator,

@@ -7,8 +7,7 @@ class BannerAdWidget extends ConsumerStatefulWidget {
   final String adUnitId;
   final AdSize adSize;
 
-  const BannerAdWidget({Key? key, required this.adUnitId, required this.adSize})
-      : super(key: key);
+  const BannerAdWidget({super.key, required this.adUnitId, required this.adSize});
 
   @override
   ConsumerState<BannerAdWidget> createState() => _BannerAdWidgetState();

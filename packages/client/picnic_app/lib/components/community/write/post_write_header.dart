@@ -73,7 +73,7 @@ class _PostWriteHeaderState extends ConsumerState<PostWriteHeader> {
                             ref
                                 .read(communityStateInfoProvider.notifier)
                                 .setCurrentBoardId(
-                                    newValue!.board_id,
+                                    newValue.board_id,
                                     newValue.is_official
                                         ? getLocaleTextFromJson(newValue.name)
                                         : newValue.name['minor']);
