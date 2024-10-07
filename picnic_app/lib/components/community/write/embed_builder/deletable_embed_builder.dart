@@ -101,6 +101,7 @@ class _DeletableEmbedWidgetState extends State<_DeletableEmbedWidget> {
         }
       } catch (e, s) {
         logger.e('Error while searching for embed: $e', stackTrace: s);
+        rethrow;
       }
     }
     return -1;

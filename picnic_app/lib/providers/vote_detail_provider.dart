@@ -33,8 +33,11 @@ class AsyncVoteDetail extends _$AsyncVoteDetail {
 
       return VoteModel.fromJson(response);
     } catch (e, s) {
-      logger.e('Failed to load vote detail: $e');
-      logger.e('Failed to load vote detail: $s');
+      logger.e('Failed to load vote detail: $e', stackTrace: s);
+      Sentry.captureException(
+        e,
+        stackTrace: s,
+      );
     }
     return null;
   }
@@ -94,10 +97,7 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
       }
     } catch (e, s) {
       logger.e(e, stackTrace: s);
-      Sentry.captureException(
-        e,
-        stackTrace: s,
-      );
+      rethrow;
     }
   }
 }

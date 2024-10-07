@@ -319,6 +319,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
       }
     } catch (e, s) {
       logger.e('Error fetching recent image: $e', stackTrace: s);
+      rethrow;
     }
   }
 
@@ -412,6 +413,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
         _viewMode = ViewMode.ready;
       });
       _controller?.resumePreview(); // Resume the camera preview on error
+      rethrow;
     }
   }
 
@@ -481,6 +483,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
       }
     } catch (e, s) {
       logger.e("Error saving image: $e", stackTrace: s);
+      rethrow;
     }
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/common/common_search_box.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/community/board.dart';
 import 'package:picnic_app/pages/community/post_list_page.dart';
@@ -69,8 +70,10 @@ class _BoardPageState extends ConsumerState<BoardPage> {
       isLastPage
           ? _pagingController.appendLastPage(newItems)
           : _pagingController.appendPage(newItems, pageKey + 1);
-    } catch (error) {
-      _pagingController.error = error;
+    } catch (e, s) {
+      logger.e(e, stackTrace: s);
+      _pagingController.error = e;
+      rethrow;
     }
   }
 

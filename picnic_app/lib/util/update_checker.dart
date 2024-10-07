@@ -72,6 +72,7 @@ class UpdateChecker extends _$UpdateChecker {
       ));
     } catch (e, s) {
       state = AsyncValue.error(e, s);
+      rethrow;
     }
   }
 

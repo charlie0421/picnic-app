@@ -6,7 +6,9 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/community/write/embed_builder/deletable_embed_builder.dart';
 import 'package:picnic_app/config/environment.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/util/number.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 class YouTubeEmbedBuilder extends EmbedBuilder {
   @override
@@ -216,8 +218,9 @@ class _YouTubeEmbedContent extends StatelessWidget {
           );
         }
       }
-    } catch (e) {
-      print('Error fetching video info: $e');
+    } catch (e, s) {
+      logger.e('Error fetching video info: $e', stackTrace: s);
+      rethrow;
     }
 
     return VideoInfo(
@@ -234,7 +237,12 @@ class _YouTubeEmbedContent extends StatelessWidget {
     Uri? uri;
     try {
       uri = Uri.parse(url);
-    } catch (e) {
+    } catch (e, s) {
+      logger.e(e, stackTrace: s);
+      Sentry.captureException(
+        e,
+        stackTrace: s,
+      );
       return null;
     }
 

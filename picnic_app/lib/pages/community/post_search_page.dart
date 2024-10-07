@@ -103,6 +103,7 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
     } catch (e, s) {
       logger.e('Error fetching data: $e', stackTrace: s);
       _pagingController.error = e;
+      rethrow;
     }
   }
 
@@ -114,6 +115,7 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
       });
     } catch (e, s) {
       logger.e('Error loading search history: $e', stackTrace: s);
+      rethrow;
     }
   }
 
@@ -140,6 +142,7 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
       await prefs.setStringList('search_history', _searchHistory);
     } catch (e, s) {
       logger.e('Error saving search history: $e', stackTrace: s);
+      rethrow;
     }
   }
 

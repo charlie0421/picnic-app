@@ -65,8 +65,10 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
       } else {
         _pagingController.appendPage(filteredItems, pageKey + 1);
       }
-    } catch (error) {
-      _pagingController.error = error;
+    } catch (e, s) {
+      logger.e(e, stackTrace: s);
+      _pagingController.error = e;
+      rethrow;
     }
   }
 
@@ -149,6 +151,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
       }
     } catch (e, s) {
       logger.e('북마크 상태 변경 중 오류 발생:', error: e, stackTrace: s);
+      rethrow;
     } finally {
       if (mounted) {
         // 로딩 progress를 멈추기 전에 위젯이 여전히 마운트되어 있는지 확인

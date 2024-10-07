@@ -13,6 +13,7 @@ import 'package:picnic_app/models/common/social_login_result.dart';
 import 'package:picnic_app/storage/storage.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/network.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as Supabase;
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -42,8 +43,13 @@ class GoogleLogin implements SocialLogin {
           'photoUrl': googleUser.photoUrl,
         },
       );
-    } catch (e) {
-      logger.e('Google login error: $e');
+    } catch (e, s) {
+      logger.e('Google login error: $e', stackTrace: s);
+      Sentry.captureException(
+        e,
+        stackTrace: s,
+      );
+
       return const SocialLoginResult();
     }
   }
@@ -93,8 +99,8 @@ class AppleLogin implements SocialLogin {
           'name': '${credential.givenName} ${credential.familyName}',
         },
       );
-    } catch (e) {
-      logger.e('Apple login error: $e');
+    } catch (e, s) {
+      logger.e('Apple login error: $e', stackTrace: s);
       return const SocialLoginResult();
     }
   }
@@ -109,9 +115,13 @@ class KakaoLogin implements SocialLogin {
   Future<OAuthToken?> _tryLogin(Function loginMethod) async {
     try {
       return await loginMethod();
-    } catch (error) {
-      logger.e('Login failed $error');
-      if (error is PlatformException && error.code == 'CANCELED') {
+    } catch (e, s) {
+      logger.e('Login failed $e', stackTrace: s);
+      Sentry.captureException(
+        e,
+        stackTrace: s,
+      );
+      if (e is PlatformException && e.code == 'CANCELED') {
         return null;
       }
     }
@@ -153,8 +163,12 @@ class KakaoLogin implements SocialLogin {
           },
         );
       }
-    } catch (e) {
-      logger.e('login error: $e');
+    } catch (e, s) {
+      logger.e('login error: $e', stackTrace: s);
+      Sentry.captureException(
+        e,
+        stackTrace: s,
+      );
       return const SocialLoginResult();
     }
   }
@@ -207,6 +221,7 @@ class AuthService {
       }
     } catch (e, s) {
       logger.e('Error during sign in: $e', stackTrace: s);
+      rethrow;
     }
     return null;
   }
@@ -241,6 +256,10 @@ class AuthService {
           .firstWhere((e) => e.name == lastProvider));
     } catch (e, s) {
       logger.e('Error during session recovery: $e', stackTrace: s);
+      Sentry.captureException(
+        e,
+        stackTrace: s,
+      );
       return false;
     }
   }
@@ -267,8 +286,10 @@ class AuthService {
           logger
               .w('Re-authentication failed for $provider: No session returned');
         }
-      } catch (e) {
-        logger.e('Error during OAuth re-authentication for $provider: $e');
+      } catch (e, s) {
+        logger.e('Error during OAuth re-authentication for $provider: $e',
+            stackTrace: s);
+        rethrow;
       }
     } else {
       logger.w('No ID token found in storage for $provider');
@@ -292,8 +313,9 @@ class AuthService {
       final remainingValues = await _storage.readAll();
       logger.i('After clearing: $remainingValues');
       logger.i('Stored session cleared except last_provider');
-    } catch (e) {
-      logger.e('Error while clearing storage: $e');
+    } catch (e, s) {
+      logger.e('Error while clearing storage: $e', stackTrace: s);
+      rethrow;
     }
 
     await _storage.readAll().then((value) => logger.i(value));
@@ -306,9 +328,9 @@ class AuthService {
         final response = await supabase.auth.refreshSession();
         logger.i(
             'Token refreshed successfully: ${response.session?.accessToken}');
-      } catch (e) {
-        logger.e('Token refresh failed: $e');
-        // 에러 처리 (예: 사용자에게 재로그인 요청)
+      } catch (e, s) {
+        logger.e('Token refresh failed: $e', stackTrace: s);
+        rethrow; // 에러 처리 (예: 사용자에게 재로그인 요청)
       }
     } else {
       logger.w('Skipping token refresh due to offline status');

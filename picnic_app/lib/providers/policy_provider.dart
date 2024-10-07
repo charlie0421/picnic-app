@@ -2,7 +2,6 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/policy.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 part 'policy_provider.g.dart';
 
@@ -52,12 +51,7 @@ class AsyncPolicy extends _$AsyncPolicy {
       // return PolicyModel.fromJson(response);
     } catch (e, s) {
       logger.e(e, stackTrace: s);
-      Sentry.captureException(
-        e,
-        stackTrace: s,
-      );
-
-      throw Exception('Failed to load policy');
+      rethrow;
     }
   }
 }

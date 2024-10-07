@@ -85,6 +85,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
       if (mounted) {
         await _showErrorDialog(S.of(context).dialog_message_purchase_failed);
       }
+      rethrow;
     } finally {
       // OverlayLoadingProgress.stop();
     }
@@ -128,11 +129,12 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
       if (mounted) {
         await _showSuccessDialog();
       }
-    } catch (e) {
-      logger.e('Error in handleSuccessfulPurchase: $e');
+    } catch (e, s) {
+      logger.e('Error in handleSuccessfulPurchase: $e', stackTrace: s);
       if (mounted) {
         await _showErrorDialog(S.of(context).dialog_message_purchase_failed);
       }
+      rethrow;
     }
   }
 
@@ -159,11 +161,12 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
       );
 
       await _inAppPurchaseService.buyConsumable(productDetails);
-    } catch (e) {
-      logger.e('Error during buy button press: $e');
+    } catch (e, s) {
+      logger.e('Error during buy button press: $e', stackTrace: s);
       if (mounted) {
         await _showErrorDialog(S.of(context).dialog_message_purchase_failed);
       }
+      rethrow;
     } finally {}
   }
 

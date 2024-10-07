@@ -7,6 +7,7 @@ import 'package:html/parser.dart' show parse;
 import 'package:http/http.dart' as http;
 import 'package:picnic_app/components/community/write/embed_builder/deletable_embed_builder.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LinkEmbedBuilder extends EmbedBuilder {
@@ -92,7 +93,8 @@ mixin _LinkPreviewWidgetStateMixin<T extends StatefulWidget> on State<T> {
         } else {
           url = data;
         }
-      } catch (e) {
+      } catch (e, s) {
+        logger.e(e, stackTrace: s);
         url = data;
       }
     } else if (data is Map<String, dynamic>) {
@@ -116,8 +118,12 @@ mixin _LinkPreviewWidgetStateMixin<T extends StatefulWidget> on State<T> {
     Uri? uri;
     try {
       uri = Uri.parse(inputUrl);
-    } catch (e) {
-      logger.e('Invalid URL: $inputUrl');
+    } catch (e, s) {
+      logger.e('Invalid URL: $inputUrl', stackTrace: s);
+      Sentry.captureException(
+        e,
+        stackTrace: s,
+      );
       return '';
     }
 
@@ -151,8 +157,8 @@ mixin _LinkPreviewWidgetStateMixin<T extends StatefulWidget> on State<T> {
         logger.e('HTTP request failed with status: ${response.statusCode}');
         setState(() => isLoading = false);
       }
-    } catch (e) {
-      logger.e('Error fetching link preview: $e');
+    } catch (e, s) {
+      logger.e('Error fetching link preview: $e', stackTrace: s);
       setState(() => isLoading = false);
     }
   }

@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/error.dart';
+import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/vote/video_info.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
@@ -83,8 +84,10 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
         final nextPageKey = pageKey + newItems.length;
         _pagingController.appendPage(newItems, nextPageKey);
       }
-    } catch (error) {
-      _pagingController.error = error;
+    } catch (e, s) {
+      logger.e(e, stackTrace: s);
+      _pagingController.error = e;
+      rethrow;
     }
   }
 }
