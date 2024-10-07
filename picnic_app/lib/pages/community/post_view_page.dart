@@ -359,7 +359,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
     });
   }
 
-  void _openReportModal() {
+  void _openReportModal(String title, CommentModel comment) {
     setState(() {
       _isModalOpen = true;
       for (var ad in _bannerAds.values) {
@@ -372,7 +372,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
         context: context,
         barrierDismissible: true,
         builder: (BuildContext context) {
-          return ReportDialog();
+          return ReportDialog(title: title, comment: comment);
         }).then((_) {
       setState(() {
         _isModalOpen = false;

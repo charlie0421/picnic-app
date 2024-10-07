@@ -6,7 +6,7 @@ part of 'comments_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$commentsHash() => r'0be779f8ef0524a1513806e2df87a70d86904005';
+String _$commentsHash() => r'6fe3f81cb187618ae6c8d587d9b985c6a03faa1b';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -605,7 +605,7 @@ class _UnlikeCommentProviderElement
   String get commentId => (origin as UnlikeCommentProvider).commentId;
 }
 
-String _$reportCommentHash() => r'b77aec995fab41f6d8d6fbd4110112c0c2927ebe';
+String _$reportCommentHash() => r'fd608a9f5a798d84780b96af76f7c3e5e5f371c9';
 
 /// See also [reportComment].
 @ProviderFor(reportComment)
@@ -618,10 +618,14 @@ class ReportCommentFamily extends Family<AsyncValue<void>> {
 
   /// See also [reportComment].
   ReportCommentProvider call(
-    String commentId,
+    CommentModel comment,
+    String reason,
+    String text,
   ) {
     return ReportCommentProvider(
-      commentId,
+      comment,
+      reason,
+      text,
     );
   }
 
@@ -630,7 +634,9 @@ class ReportCommentFamily extends Family<AsyncValue<void>> {
     covariant ReportCommentProvider provider,
   ) {
     return call(
-      provider.commentId,
+      provider.comment,
+      provider.reason,
+      provider.text,
     );
   }
 
@@ -653,11 +659,15 @@ class ReportCommentFamily extends Family<AsyncValue<void>> {
 class ReportCommentProvider extends AutoDisposeFutureProvider<void> {
   /// See also [reportComment].
   ReportCommentProvider(
-    String commentId,
+    CommentModel comment,
+    String reason,
+    String text,
   ) : this._internal(
           (ref) => reportComment(
             ref as ReportCommentRef,
-            commentId,
+            comment,
+            reason,
+            text,
           ),
           from: reportCommentProvider,
           name: r'reportCommentProvider',
@@ -668,7 +678,9 @@ class ReportCommentProvider extends AutoDisposeFutureProvider<void> {
           dependencies: ReportCommentFamily._dependencies,
           allTransitiveDependencies:
               ReportCommentFamily._allTransitiveDependencies,
-          commentId: commentId,
+          comment: comment,
+          reason: reason,
+          text: text,
         );
 
   ReportCommentProvider._internal(
@@ -678,10 +690,14 @@ class ReportCommentProvider extends AutoDisposeFutureProvider<void> {
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
-    required this.commentId,
+    required this.comment,
+    required this.reason,
+    required this.text,
   }) : super.internal();
 
-  final String commentId;
+  final CommentModel comment;
+  final String reason;
+  final String text;
 
   @override
   Override overrideWith(
@@ -696,7 +712,9 @@ class ReportCommentProvider extends AutoDisposeFutureProvider<void> {
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
-        commentId: commentId,
+        comment: comment,
+        reason: reason,
+        text: text,
       ),
     );
   }
@@ -708,21 +726,32 @@ class ReportCommentProvider extends AutoDisposeFutureProvider<void> {
 
   @override
   bool operator ==(Object other) {
-    return other is ReportCommentProvider && other.commentId == commentId;
+    return other is ReportCommentProvider &&
+        other.comment == comment &&
+        other.reason == reason &&
+        other.text == text;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, commentId.hashCode);
+    hash = _SystemHash.combine(hash, comment.hashCode);
+    hash = _SystemHash.combine(hash, reason.hashCode);
+    hash = _SystemHash.combine(hash, text.hashCode);
 
     return _SystemHash.finish(hash);
   }
 }
 
 mixin ReportCommentRef on AutoDisposeFutureProviderRef<void> {
-  /// The parameter `commentId` of this provider.
-  String get commentId;
+  /// The parameter `comment` of this provider.
+  CommentModel get comment;
+
+  /// The parameter `reason` of this provider.
+  String get reason;
+
+  /// The parameter `text` of this provider.
+  String get text;
 }
 
 class _ReportCommentProviderElement
@@ -730,7 +759,11 @@ class _ReportCommentProviderElement
   _ReportCommentProviderElement(super.provider);
 
   @override
-  String get commentId => (origin as ReportCommentProvider).commentId;
+  CommentModel get comment => (origin as ReportCommentProvider).comment;
+  @override
+  String get reason => (origin as ReportCommentProvider).reason;
+  @override
+  String get text => (origin as ReportCommentProvider).text;
 }
 
 String _$deleteCommentHash() => r'52c1ac1b0f17fa1812af79621904e1d19918c0ae';

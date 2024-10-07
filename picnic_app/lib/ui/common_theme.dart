@@ -33,7 +33,7 @@ ElevatedButtonThemeData commonElevatedButtonThemeData = ElevatedButtonThemeData(
       ),
       textStyle: WidgetStateProperty.all(
         getTextStyle(
-          AppTypo.body14B,
+          AppTypo.caption12B,
           AppColors.grey00,
         ),
       ),
@@ -64,3 +64,36 @@ MarkdownStyleSheet commonMarkdownStyleSheet = MarkdownStyleSheet(
 DialogTheme commonDialogTheme = const DialogTheme(
   backgroundColor: AppColors.grey00,
 );
+
+getElevatedButtonThemeData(
+    {Color? backgroundColor,
+    Color? borderColor,
+    AppTypo? appTypo,
+    Color? textColor,
+    double? borderRadius,
+    double? borderWidth}) {
+  return ElevatedButtonThemeData(
+    style: ButtonStyle(
+        padding: WidgetStateProperty.all(
+            EdgeInsets.symmetric(horizontal: 32.cw, vertical: 0)),
+        backgroundColor:
+            WidgetStateProperty.all(backgroundColor ?? AppColors.primary500),
+        foregroundColor: WidgetStateProperty.all(textColor ?? AppColors.grey00),
+        shape: WidgetStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(borderRadius ?? 20),
+            side: BorderSide(
+                color: borderColor ?? AppColors.primary500,
+                width: borderWidth ?? 1,
+                style: BorderStyle.solid),
+          ),
+        ),
+        textStyle: WidgetStateProperty.all(
+          getTextStyle(
+            appTypo ?? AppTypo.caption12B,
+            textColor ?? AppColors.grey00,
+          ),
+        ),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+  );
+}
