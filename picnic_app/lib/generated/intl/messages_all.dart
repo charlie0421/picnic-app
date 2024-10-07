@@ -62,7 +62,7 @@ Future<bool> initializeMessages(String localeName) {
 bool _messagesExistFor(String locale) {
   try {
     return _findExact(locale) != null;
-  } catch (e, s) {
+  } catch (e) {
     return false;
   }
 }
