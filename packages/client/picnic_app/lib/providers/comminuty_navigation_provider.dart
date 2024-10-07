@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/common/community_navigation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -28,16 +27,5 @@ class CommunityNavigationInfo extends _$CommunityNavigationInfo {
       currentBoardId: boardId,
       currentBoardName: boardName,
     );
-  }
-
-  void setCurrentPage(Widget page) {
-    final communityNavigationStack = state.communityNavigationStack;
-
-    communityNavigationStack?.push(page);
-    logger.d('communityNavigationStack: $communityNavigationStack');
-    state = state.copyWith(
-      communityNavigationStack: communityNavigationStack,
-    );
-    logger.d('communityNavigationStack: $communityNavigationStack');
   }
 }
