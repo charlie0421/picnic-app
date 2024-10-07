@@ -7,8 +7,8 @@ import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/community/board.dart';
 import 'package:picnic_app/pages/community/post_list_page.dart';
-import 'package:picnic_app/providers/comminuty_navigation_provider.dart';
 import 'package:picnic_app/providers/community/boards_provider.dart';
+import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
@@ -93,14 +93,14 @@ class _BoardPageState extends ConsumerState<BoardPage> {
                 return GestureDetector(
                   onTap: () {
                     ref
-                        .read(communityNavigationInfoProvider.notifier)
+                        .read(communityStateInfoProvider.notifier)
                         .setCurrentBoardId(
                             board.board_id,
                             board.is_official
                                 ? getLocaleTextFromJson(board.name)
                                 : getLocaleTextFromJson(board.name));
                     ref
-                        .read(communityNavigationInfoProvider.notifier)
+                        .read(communityStateInfoProvider.notifier)
                         .setCurrentArtistId(board.artist!.id,
                             getLocaleTextFromJson(board.artist!.name));
                     ref

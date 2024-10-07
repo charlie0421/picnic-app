@@ -101,13 +101,13 @@ final _data = <r.Reflectable, r.ReflectorData>{
             null,
             null),
         r.NonGenericClassMirrorImpl(
-            r'CommunityNavigation',
-            r'.CommunityNavigation',
+            r'CommunityState',
+            r'.CommunityState',
             134217735,
             1,
             const prefix0.Reflector(),
             const <int>[25],
-            const <int>[4, 5, 6, 7, 8, 26, 27, 28, 29, 30, 31],
+            const <int>[4, 5, 6, 7, 8, 26, 27, 28, 29, 30],
             const <int>[],
             -1,
             {},
@@ -117,11 +117,9 @@ final _data = <r.Reflectable, r.ReflectorData>{
                       {currentArtistId,
                       currentArtistName,
                       currentBoardId,
-                      currentBoardName,
-                      communityNavigationStack}) =>
+                      currentBoardName}) =>
                   b
-                      ? prefix2.CommunityNavigation(
-                          communityNavigationStack: communityNavigationStack,
+                      ? prefix2.CommunityState(
                           currentArtistId: currentArtistId,
                           currentArtistName: currentArtistName,
                           currentBoardId: currentBoardId,
@@ -191,13 +189,13 @@ final _data = <r.Reflectable, r.ReflectorData>{
             null,
             null),
         r.NonGenericClassMirrorImpl(
-            r'dart.core.Object with ._$CommunityNavigation',
-            r'.dart.core.Object with ._$CommunityNavigation',
+            r'dart.core.Object with ._$CommunityState',
+            r'.dart.core.Object with ._$CommunityState',
             134218311,
             3,
             const prefix0.Reflector(),
-            const <int>[26, 27, 28, 29, 30, 31],
-            const <int>[4, 5, 6, 7, 8, 26, 27, 28, 29, 30, 31],
+            const <int>[26, 27, 28, 29, 30],
+            const <int>[4, 5, 6, 7, 8, 26, 27, 28, 29, 30],
             const <int>[],
             -1,
             const {},
@@ -270,7 +268,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
         r.MethodMirrorImpl(r'copyWith', 35651587, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'', 385, 1, -1, -1, -1, null,
-            const <int>[17, 18, 19, 20, 21], const prefix0.Reflector(), null),
+            const <int>[17, 18, 19, 20], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'currentArtistId', 2097155, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'currentArtistName', 2097155, -1, -1, -1, -1, null,
@@ -279,8 +277,6 @@ final _data = <r.Reflectable, r.ReflectorData>{
             const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'currentBoardName', 2097155, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
-        r.MethodMirrorImpl(r'communityNavigationStack', 2097155, -1, -1, -1, -1,
-            null, const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'copyWith', 35651587, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null)
       ],
@@ -516,25 +512,13 @@ final _data = <r.Reflectable, r.ReflectorData>{
             null,
             null,
             null,
-            #currentBoardName),
-        r.ParameterMirrorImpl(
-            r'communityNavigationStack',
-            67252230,
-            25,
-            const prefix0.Reflector(),
-            -1,
-            -1,
-            -1,
-            null,
-            null,
-            null,
-            #communityNavigationStack)
+            #currentBoardName)
       ],
       <Type>[
         prefix1.Navigation,
-        prefix2.CommunityNavigation,
+        prefix2.CommunityState,
         const r.FakeType(r'.dart.core.Object with ._$Navigation'),
-        const r.FakeType(r'.dart.core.Object with ._$CommunityNavigation')
+        const r.FakeType(r'.dart.core.Object with ._$CommunityState')
       ],
       4,
       {

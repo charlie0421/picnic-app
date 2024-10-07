@@ -2,13 +2,13 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/common/community_navigation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'comminuty_navigation_provider.g.dart';
+part 'community_navigation_provider.g.dart';
 
 @Riverpod(keepAlive: true)
-class CommunityNavigationInfo extends _$CommunityNavigationInfo {
+class CommunityStateInfo extends _$CommunityStateInfo {
   @override
-  CommunityNavigation build() {
-    return CommunityNavigation();
+  CommunityState build() {
+    return CommunityState();
   }
 
   void setCurrentArtistId(int artistId, String artistName) {
