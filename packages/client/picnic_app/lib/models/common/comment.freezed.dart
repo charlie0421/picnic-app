@@ -226,6 +226,8 @@ mixin _$CommentModel {
   String get content => throw _privateConstructorUsedError;
   bool? get isLiked => throw _privateConstructorUsedError;
   bool? get isReplied => throw _privateConstructorUsedError;
+  bool? get isReportedByUser => throw _privateConstructorUsedError;
+  bool? get isBlindedByAdmin => throw _privateConstructorUsedError;
   @JsonKey(name: 'parent_comment_id')
   String? get parentCommentId => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
@@ -262,6 +264,8 @@ abstract class $CommentModelCopyWith<$Res> {
       String content,
       bool? isLiked,
       bool? isReplied,
+      bool? isReportedByUser,
+      bool? isBlindedByAdmin,
       @JsonKey(name: 'parent_comment_id') String? parentCommentId,
       @JsonKey(name: 'created_at') DateTime createdAt,
       @JsonKey(name: 'updated_at') DateTime updatedAt,
@@ -296,6 +300,8 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
     Object? content = null,
     Object? isLiked = freezed,
     Object? isReplied = freezed,
+    Object? isReportedByUser = freezed,
+    Object? isBlindedByAdmin = freezed,
     Object? parentCommentId = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
@@ -341,6 +347,14 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
       isReplied: freezed == isReplied
           ? _value.isReplied
           : isReplied // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      isReportedByUser: freezed == isReportedByUser
+          ? _value.isReportedByUser
+          : isReportedByUser // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      isBlindedByAdmin: freezed == isBlindedByAdmin
+          ? _value.isBlindedByAdmin
+          : isBlindedByAdmin // ignore: cast_nullable_to_non_nullable
               as bool?,
       parentCommentId: freezed == parentCommentId
           ? _value.parentCommentId
@@ -409,6 +423,8 @@ abstract class _$$CommentModelImplCopyWith<$Res>
       String content,
       bool? isLiked,
       bool? isReplied,
+      bool? isReportedByUser,
+      bool? isBlindedByAdmin,
       @JsonKey(name: 'parent_comment_id') String? parentCommentId,
       @JsonKey(name: 'created_at') DateTime createdAt,
       @JsonKey(name: 'updated_at') DateTime updatedAt,
@@ -443,6 +459,8 @@ class __$$CommentModelImplCopyWithImpl<$Res>
     Object? content = null,
     Object? isLiked = freezed,
     Object? isReplied = freezed,
+    Object? isReportedByUser = freezed,
+    Object? isBlindedByAdmin = freezed,
     Object? parentCommentId = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
@@ -489,6 +507,14 @@ class __$$CommentModelImplCopyWithImpl<$Res>
           ? _value.isReplied
           : isReplied // ignore: cast_nullable_to_non_nullable
               as bool?,
+      isReportedByUser: freezed == isReportedByUser
+          ? _value.isReportedByUser
+          : isReportedByUser // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      isBlindedByAdmin: freezed == isBlindedByAdmin
+          ? _value.isBlindedByAdmin
+          : isBlindedByAdmin // ignore: cast_nullable_to_non_nullable
+              as bool?,
       parentCommentId: freezed == parentCommentId
           ? _value.parentCommentId
           : parentCommentId // ignore: cast_nullable_to_non_nullable
@@ -523,6 +549,8 @@ class _$CommentModelImpl extends _CommentModel {
       required this.content,
       required this.isLiked,
       required this.isReplied,
+      required this.isReportedByUser,
+      required this.isBlindedByAdmin,
       @JsonKey(name: 'parent_comment_id') required this.parentCommentId,
       @JsonKey(name: 'created_at') required this.createdAt,
       @JsonKey(name: 'updated_at') required this.updatedAt,
@@ -564,6 +592,10 @@ class _$CommentModelImpl extends _CommentModel {
   @override
   final bool? isReplied;
   @override
+  final bool? isReportedByUser;
+  @override
+  final bool? isBlindedByAdmin;
+  @override
   @JsonKey(name: 'parent_comment_id')
   final String? parentCommentId;
   @override
@@ -578,7 +610,7 @@ class _$CommentModelImpl extends _CommentModel {
 
   @override
   String toString() {
-    return 'CommentModel(commentId: $commentId, userId: $userId, children: $children, myLike: $myLike, user: $user, likes: $likes, replies: $replies, content: $content, isLiked: $isLiked, isReplied: $isReplied, parentCommentId: $parentCommentId, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt)';
+    return 'CommentModel(commentId: $commentId, userId: $userId, children: $children, myLike: $myLike, user: $user, likes: $likes, replies: $replies, content: $content, isLiked: $isLiked, isReplied: $isReplied, isReportedByUser: $isReportedByUser, isBlindedByAdmin: $isBlindedByAdmin, parentCommentId: $parentCommentId, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt)';
   }
 
   @override
@@ -598,6 +630,10 @@ class _$CommentModelImpl extends _CommentModel {
             (identical(other.isLiked, isLiked) || other.isLiked == isLiked) &&
             (identical(other.isReplied, isReplied) ||
                 other.isReplied == isReplied) &&
+            (identical(other.isReportedByUser, isReportedByUser) ||
+                other.isReportedByUser == isReportedByUser) &&
+            (identical(other.isBlindedByAdmin, isBlindedByAdmin) ||
+                other.isBlindedByAdmin == isBlindedByAdmin) &&
             (identical(other.parentCommentId, parentCommentId) ||
                 other.parentCommentId == parentCommentId) &&
             (identical(other.createdAt, createdAt) ||
@@ -622,6 +658,8 @@ class _$CommentModelImpl extends _CommentModel {
       content,
       isLiked,
       isReplied,
+      isReportedByUser,
+      isBlindedByAdmin,
       parentCommentId,
       createdAt,
       updatedAt,
@@ -655,6 +693,8 @@ abstract class _CommentModel extends CommentModel {
           required final String content,
           required final bool? isLiked,
           required final bool? isReplied,
+          required final bool? isReportedByUser,
+          required final bool? isBlindedByAdmin,
           @JsonKey(name: 'parent_comment_id')
           required final String? parentCommentId,
           @JsonKey(name: 'created_at') required final DateTime createdAt,
@@ -688,6 +728,10 @@ abstract class _CommentModel extends CommentModel {
   bool? get isLiked;
   @override
   bool? get isReplied;
+  @override
+  bool? get isReportedByUser;
+  @override
+  bool? get isBlindedByAdmin;
   @override
   @JsonKey(name: 'parent_comment_id')
   String? get parentCommentId;

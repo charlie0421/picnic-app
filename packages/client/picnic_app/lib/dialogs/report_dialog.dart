@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_app/models/common/comment.dart';
+import 'package:picnic_app/providers/community/comments_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 
-class ReportDialog extends StatefulWidget {
-  const ReportDialog({Key? key}) : super(key: key);
+class ReportDialog extends ConsumerStatefulWidget {
+  const ReportDialog({super.key, required this.title, required this.comment});
+  final String title;
+  final CommentModel comment;
 
   @override
-  State<ReportDialog> createState() => _ReportDialogState();
+  ConsumerState<ReportDialog> createState() => _ReportDialogState();
 }
 
-class _ReportDialogState extends State<ReportDialog> {
+class _ReportDialogState extends ConsumerState<ReportDialog> {
   int? _selectedReason;
   final TextEditingController _otherReasonController = TextEditingController();
   String? _errorText;
@@ -40,17 +45,20 @@ class _ReportDialogState extends State<ReportDialog> {
         padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              '게시글 신고',
+              widget.title,
               style: getTextStyle(AppTypo.caption12B, AppColors.primary500),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 26),
-            Text(
-              '신고사유',
-              style: getTextStyle(AppTypo.caption10SB, AppColors.grey900),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                '신고사유',
+                style: getTextStyle(AppTypo.caption10SB, AppColors.grey900),
+              ),
             ),
             const SizedBox(height: 12),
             ..._buildReasonOptions(),
@@ -94,15 +102,8 @@ class _ReportDialogState extends State<ReportDialog> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _submitReport,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary500,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
               child: Text(
                 '신고하기',
-                style: getTextStyle(AppTypo.caption12B, AppColors.grey00),
               ),
             ),
           ],
@@ -137,6 +138,9 @@ class _ReportDialogState extends State<ReportDialog> {
       });
       return;
     }
+
+    reportComment(ref, widget.comment, _reasons[_selectedReason!],
+        _otherReasonController.text);
 
     // Handle report submission
     Navigator.of(context).pop();

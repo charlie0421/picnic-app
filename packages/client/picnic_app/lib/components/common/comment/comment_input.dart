@@ -97,7 +97,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
                     ),
                     contentPadding: EdgeInsets.only(
                         left: 10.cw, right: 80.cw, bottom: 30.ch),
-                    counterText: '', // Hide default counter
+                    counterText: '',
                   ),
                   maxLength: _maxLength,
                   textInputAction: TextInputAction.done,
@@ -114,18 +114,21 @@ class _CommentInputState extends ConsumerState<CommentInput> {
                 ),
                 Positioned(
                   right: 16.cw,
-                  bottom: 8.ch,
-                  child: GestureDetector(
-                    onTap: _isInputValid ? _commitComment : null,
-                    child: SvgPicture.asset(
-                      'assets/icons/send_style=fill.svg',
-                      width: 24,
-                      height: 24,
-                      colorFilter: ColorFilter.mode(
-                        _isInputValid
-                            ? AppColors.primary500
-                            : AppColors.grey400,
-                        BlendMode.srcIn,
+                  top: 0,
+                  bottom: 0,
+                  child: Center(
+                    child: GestureDetector(
+                      onTap: _isInputValid ? _commitComment : null,
+                      child: SvgPicture.asset(
+                        'assets/icons/send_style=fill.svg',
+                        width: 24,
+                        height: 24,
+                        colorFilter: ColorFilter.mode(
+                          _isInputValid
+                              ? AppColors.primary500
+                              : AppColors.grey400,
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ),
                   ),
@@ -152,6 +155,6 @@ class _CommentInputState extends ConsumerState<CommentInput> {
 
     widget.pagingController.refresh();
     _textEditingController.clear();
-    _onTextChanged(); // Ensure state is updated after clearing
+    _onTextChanged();
   }
 }

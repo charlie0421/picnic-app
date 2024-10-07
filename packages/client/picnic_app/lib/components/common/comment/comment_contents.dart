@@ -52,14 +52,20 @@ class _CommentContentsState extends State<CommentContents> {
               children: [
                 Expanded(
                   child: Text(
-                    widget.item.deletedAt != null
-                        ? '(삭제된 댓글입니다.)'
-                        : widget.item.content,
+                    widget.item.isReportedByUser! ||
+                            (widget.item.isBlindedByAdmin ?? false)
+                        ? '(신고된 댓글입니다.)'
+                        : widget.item.deletedAt != null
+                            ? '(삭제된 댓글입니다.)'
+                            : widget.item.content,
                     style: getTextStyle(
                         AppTypo.body14M,
-                        widget.item.deletedAt != null
-                            ? AppColors.grey500
-                            : AppColors.grey900),
+                        widget.item.isReportedByUser! ||
+                                (widget.item.isBlindedByAdmin ?? false)
+                            ? AppColors.point500
+                            : widget.item.deletedAt != null
+                                ? AppColors.grey500
+                                : AppColors.grey900),
                     maxLines: _expanded ? null : 1,
                     overflow: _expanded
                         ? TextOverflow.visible

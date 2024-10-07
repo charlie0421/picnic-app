@@ -36,7 +36,8 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
         if (result == 'Report') {
           logger.i('widget.openReportModal: ${widget.openReportModal}');
           if (widget.openReportModal != null) {
-            widget.openReportModal!();
+            widget.openReportModal!(
+                S.of(context).label_title_report, widget.comment);
           }
           // showSimpleDialog(
           //     title: S.of(context).label_title_report,
