@@ -155,6 +155,19 @@ class NavigationInfo extends _$NavigationInfo {
     logger.d('voteNavigationStack: $voteNavigationStack');
   }
 
+  setCommunityCurrentPage(Widget page,
+      {bool showTopMenu = false, bool showBottomNavigation = true}) {
+    final communityNavigationStack = state.voteNavigationStack;
+
+    communityNavigationStack?.push(page);
+    logger.d('voteNavigationStack: $communityNavigationStack');
+    state = state.copyWith(
+      voteNavigationStack: communityNavigationStack,
+      showBottomNavigation: showBottomNavigation,
+    );
+    logger.d('voteNavigationStack: $communityNavigationStack');
+  }
+
   setResetStackMyPage() {
     state = state.copyWith(
       drawerNavigationStack: NavigationStack()..push(const MyPage()),

@@ -35,6 +35,7 @@ class Navigation with _$Navigation {
     @Default(true) bool showBottomNavigation,
     @Default('') String pageTitle,
     NavigationStack? voteNavigationStack,
+    NavigationStack? communityNavigationStack,
     NavigationStack? drawerNavigationStack,
     NavigationStack? signUpNavigationStack,
   }) = _Navigation;

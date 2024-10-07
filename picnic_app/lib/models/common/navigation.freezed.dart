@@ -29,6 +29,8 @@ mixin _$Navigation {
   String get pageTitle => throw _privateConstructorUsedError;
   NavigationStack? get voteNavigationStack =>
       throw _privateConstructorUsedError;
+  NavigationStack? get communityNavigationStack =>
+      throw _privateConstructorUsedError;
   NavigationStack? get drawerNavigationStack =>
       throw _privateConstructorUsedError;
   NavigationStack? get signUpNavigationStack =>
@@ -60,6 +62,7 @@ abstract class $NavigationCopyWith<$Res> {
       bool showBottomNavigation,
       String pageTitle,
       NavigationStack? voteNavigationStack,
+      NavigationStack? communityNavigationStack,
       NavigationStack? drawerNavigationStack,
       NavigationStack? signUpNavigationStack});
 }
@@ -91,6 +94,7 @@ class _$NavigationCopyWithImpl<$Res, $Val extends Navigation>
     Object? showBottomNavigation = null,
     Object? pageTitle = null,
     Object? voteNavigationStack = freezed,
+    Object? communityNavigationStack = freezed,
     Object? drawerNavigationStack = freezed,
     Object? signUpNavigationStack = freezed,
   }) {
@@ -143,6 +147,10 @@ class _$NavigationCopyWithImpl<$Res, $Val extends Navigation>
           ? _value.voteNavigationStack
           : voteNavigationStack // ignore: cast_nullable_to_non_nullable
               as NavigationStack?,
+      communityNavigationStack: freezed == communityNavigationStack
+          ? _value.communityNavigationStack
+          : communityNavigationStack // ignore: cast_nullable_to_non_nullable
+              as NavigationStack?,
       drawerNavigationStack: freezed == drawerNavigationStack
           ? _value.drawerNavigationStack
           : drawerNavigationStack // ignore: cast_nullable_to_non_nullable
@@ -176,6 +184,7 @@ abstract class _$$NavigationImplCopyWith<$Res>
       bool showBottomNavigation,
       String pageTitle,
       NavigationStack? voteNavigationStack,
+      NavigationStack? communityNavigationStack,
       NavigationStack? drawerNavigationStack,
       NavigationStack? signUpNavigationStack});
 }
@@ -205,6 +214,7 @@ class __$$NavigationImplCopyWithImpl<$Res>
     Object? showBottomNavigation = null,
     Object? pageTitle = null,
     Object? voteNavigationStack = freezed,
+    Object? communityNavigationStack = freezed,
     Object? drawerNavigationStack = freezed,
     Object? signUpNavigationStack = freezed,
   }) {
@@ -257,6 +267,10 @@ class __$$NavigationImplCopyWithImpl<$Res>
           ? _value.voteNavigationStack
           : voteNavigationStack // ignore: cast_nullable_to_non_nullable
               as NavigationStack?,
+      communityNavigationStack: freezed == communityNavigationStack
+          ? _value.communityNavigationStack
+          : communityNavigationStack // ignore: cast_nullable_to_non_nullable
+              as NavigationStack?,
       drawerNavigationStack: freezed == drawerNavigationStack
           ? _value.drawerNavigationStack
           : drawerNavigationStack // ignore: cast_nullable_to_non_nullable
@@ -285,6 +299,7 @@ class _$NavigationImpl extends _Navigation {
       this.showBottomNavigation = true,
       this.pageTitle = '',
       this.voteNavigationStack,
+      this.communityNavigationStack,
       this.drawerNavigationStack,
       this.signUpNavigationStack})
       : super._();
@@ -325,13 +340,15 @@ class _$NavigationImpl extends _Navigation {
   @override
   final NavigationStack? voteNavigationStack;
   @override
+  final NavigationStack? communityNavigationStack;
+  @override
   final NavigationStack? drawerNavigationStack;
   @override
   final NavigationStack? signUpNavigationStack;
 
   @override
   String toString() {
-    return 'Navigation(portalType: $portalType, picBottomNavigationIndex: $picBottomNavigationIndex, voteBottomNavigationIndex: $voteBottomNavigationIndex, communityBottomNavigationIndex: $communityBottomNavigationIndex, novelBottomNavigationIndex: $novelBottomNavigationIndex, currentScreen: $currentScreen, showPortal: $showPortal, showTopMenu: $showTopMenu, topRightMenu: $topRightMenu, showBottomNavigation: $showBottomNavigation, pageTitle: $pageTitle, voteNavigationStack: $voteNavigationStack, drawerNavigationStack: $drawerNavigationStack, signUpNavigationStack: $signUpNavigationStack)';
+    return 'Navigation(portalType: $portalType, picBottomNavigationIndex: $picBottomNavigationIndex, voteBottomNavigationIndex: $voteBottomNavigationIndex, communityBottomNavigationIndex: $communityBottomNavigationIndex, novelBottomNavigationIndex: $novelBottomNavigationIndex, currentScreen: $currentScreen, showPortal: $showPortal, showTopMenu: $showTopMenu, topRightMenu: $topRightMenu, showBottomNavigation: $showBottomNavigation, pageTitle: $pageTitle, voteNavigationStack: $voteNavigationStack, communityNavigationStack: $communityNavigationStack, drawerNavigationStack: $drawerNavigationStack, signUpNavigationStack: $signUpNavigationStack)';
   }
 
   @override
@@ -349,8 +366,7 @@ class _$NavigationImpl extends _Navigation {
                     communityBottomNavigationIndex) ||
                 other.communityBottomNavigationIndex ==
                     communityBottomNavigationIndex) &&
-            (identical(other.novelBottomNavigationIndex,
-                    novelBottomNavigationIndex) ||
+            (identical(other.novelBottomNavigationIndex, novelBottomNavigationIndex) ||
                 other.novelBottomNavigationIndex ==
                     novelBottomNavigationIndex) &&
             (identical(other.currentScreen, currentScreen) ||
@@ -367,6 +383,9 @@ class _$NavigationImpl extends _Navigation {
                 other.pageTitle == pageTitle) &&
             (identical(other.voteNavigationStack, voteNavigationStack) ||
                 other.voteNavigationStack == voteNavigationStack) &&
+            (identical(
+                    other.communityNavigationStack, communityNavigationStack) ||
+                other.communityNavigationStack == communityNavigationStack) &&
             (identical(other.drawerNavigationStack, drawerNavigationStack) ||
                 other.drawerNavigationStack == drawerNavigationStack) &&
             (identical(other.signUpNavigationStack, signUpNavigationStack) ||
@@ -388,6 +407,7 @@ class _$NavigationImpl extends _Navigation {
       showBottomNavigation,
       pageTitle,
       voteNavigationStack,
+      communityNavigationStack,
       drawerNavigationStack,
       signUpNavigationStack);
 
@@ -414,6 +434,7 @@ abstract class _Navigation extends Navigation {
       final bool showBottomNavigation,
       final String pageTitle,
       final NavigationStack? voteNavigationStack,
+      final NavigationStack? communityNavigationStack,
       final NavigationStack? drawerNavigationStack,
       final NavigationStack? signUpNavigationStack}) = _$NavigationImpl;
   const _Navigation._() : super._();
@@ -442,6 +463,8 @@ abstract class _Navigation extends Navigation {
   String get pageTitle;
   @override
   NavigationStack? get voteNavigationStack;
+  @override
+  NavigationStack? get communityNavigationStack;
   @override
   NavigationStack? get drawerNavigationStack;
   @override

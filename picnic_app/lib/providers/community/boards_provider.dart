@@ -41,6 +41,7 @@ Future<List<BoardModel>?> boardsByArtistName(
           .neq('artist_id', 0)
           .eq('status', 'approved')
           .range(page * limit, (page + 1) * limit - 1)
+          .order('artist_id', ascending: true)
           .order('is_official', ascending: false)
           .order('name->>${Intl.getCurrentLocale()}', ascending: true);
 

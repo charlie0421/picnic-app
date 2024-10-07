@@ -6,6 +6,8 @@ import 'package:picnic_app/components/common/common_search_box.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/community/board.dart';
+import 'package:picnic_app/pages/community/post_list_page.dart';
+import 'package:picnic_app/providers/comminuty_navigation_provider.dart';
 import 'package:picnic_app/providers/community/boards_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -87,31 +89,51 @@ class _BoardPageState extends ConsumerState<BoardPage> {
           child: PagedListView<int, BoardModel>(
             pagingController: _pagingController,
             builderDelegate: PagedChildBuilderDelegate<BoardModel>(
-              itemBuilder: (context, board, index) {
-                return Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 16.cw, vertical: 16),
-                  child: Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(20.r),
-                        child: PicnicCachedNetworkImage(
-                            imageUrl: board.artist!.image,
-                            width: 40,
-                            height: 40),
-                      ),
-                      SizedBox(width: 4.cw),
-                      Text(getLocaleTextFromJson(board.artist!.name),
+              itemBuilder: (context, BoardModel board, index) {
+                return GestureDetector(
+                  onTap: () {
+                    ref
+                        .read(communityNavigationInfoProvider.notifier)
+                        .setCurrentBoardId(
+                            board.board_id,
+                            board.is_official
+                                ? getLocaleTextFromJson(board.name)
+                                : getLocaleTextFromJson(board.name));
+                    ref
+                        .read(communityNavigationInfoProvider.notifier)
+                        .setCurrentArtistId(board.artist!.id,
+                            getLocaleTextFromJson(board.artist!.name));
+                    ref
+                        .read(navigationInfoProvider.notifier)
+                        .setCommunityCurrentPage(PostListPage(board.artist!.id,
+                            getLocaleTextFromJson(board.artist!.name)));
+                  },
+                  child: Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 16.cw, vertical: 16),
+                    child: Row(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(20.r),
+                          child: PicnicCachedNetworkImage(
+                              imageUrl: board.artist!.image,
+                              width: 40,
+                              height: 40),
+                        ),
+                        SizedBox(width: 4.cw),
+                        Text(getLocaleTextFromJson(board.artist!.name),
+                            style: getTextStyle(
+                                AppTypo.body16B, AppColors.grey900)),
+                        SizedBox(width: 4.cw),
+                        Text(
+                          board.is_official
+                              ? getLocaleTextFromJson(board.name)
+                              : board.name['minor'],
                           style:
-                              getTextStyle(AppTypo.body16B, AppColors.grey900)),
-                      SizedBox(width: 4.cw),
-                      Text(
-                        board.is_official
-                            ? 'Picnic!${getLocaleTextFromJson(board.name)}'
-                            : getLocaleTextFromJson(board.name),
-                        style: getTextStyle(AppTypo.body16M, AppColors.grey900),
-                      ),
-                    ],
+                              getTextStyle(AppTypo.body16M, AppColors.grey900),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
