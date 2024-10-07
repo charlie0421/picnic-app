@@ -4,8 +4,8 @@ import 'package:picnic_app/components/community/common/post_list_item.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/pages/community/post_list_page.dart';
 import 'package:picnic_app/pages/community/post_write_page.dart';
+import 'package:picnic_app/providers/comminuty_navigation_provider.dart';
 import 'package:picnic_app/providers/community/post_provider.dart';
-import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
 
@@ -62,7 +62,7 @@ class _PostHomeListState extends ConsumerState<PostHomeList> {
                           ),
                           onPressed: () {
                             ref
-                                .read(navigationInfoProvider.notifier)
+                                .read(communityNavigationInfoProvider.notifier)
                                 .setCurrentPage(
                                   PostWritePage(),
                                 );
@@ -92,7 +92,7 @@ class _PostHomeListState extends ConsumerState<PostHomeList> {
                         ),
                         onPressed: () {
                           ref
-                              .read(navigationInfoProvider.notifier)
+                              .read(communityNavigationInfoProvider.notifier)
                               .setCurrentPage(PostListPage(
                                   widget.artistId, widget.artistName));
                         },

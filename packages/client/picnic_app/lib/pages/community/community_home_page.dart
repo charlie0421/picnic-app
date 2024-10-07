@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/common_banner.dart';
 import 'package:picnic_app/components/community/home/post_home_list.dart';
+import 'package:picnic_app/providers/comminuty_navigation_provider.dart';
 import 'package:picnic_app/providers/mypage/bookmarked_artists_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -67,6 +68,14 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
                                   _selectedArtistName = getLocaleTextFromJson(
                                       artists[index].name);
                                 });
+
+                                ref
+                                    .read(communityNavigationInfoProvider
+                                        .notifier)
+                                    .setCurrentArtistId(
+                                        artists[index].id,
+                                        getLocaleTextFromJson(
+                                            artists[index].name));
                               },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
