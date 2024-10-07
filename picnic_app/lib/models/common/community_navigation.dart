@@ -1,19 +1,17 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:picnic_app/navigation_stack.dart';
 import 'package:picnic_app/reflector.dart';
 
 part 'community_navigation.freezed.dart';
 
 @reflector
 @freezed
-class CommunityNavigation with _$CommunityNavigation {
-  const CommunityNavigation._();
+class CommunityState with _$CommunityState {
+  const CommunityState._();
 
-  const factory CommunityNavigation({
+  const factory CommunityState({
     @Default(0) int currentArtistId,
     @Default('') String currentArtistName,
     @Default('') String currentBoardId,
     @Default('') String currentBoardName,
-    NavigationStack? communityNavigationStack,
-  }) = _Navigation;
+  }) = Navigation;
 }

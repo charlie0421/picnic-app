@@ -18,8 +18,8 @@ import 'package:picnic_app/dialogs/report_dialog.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/post.dart';
-import 'package:picnic_app/providers/comminuty_navigation_provider.dart';
 import 'package:picnic_app/providers/community/comments_provider.dart';
+import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
@@ -53,8 +53,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
     _loadComments();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final currentBoardName = ref.read(
-        communityNavigationInfoProvider
-            .select((value) => value.currentBoardName),
+        communityStateInfoProvider.select((value) => value.currentBoardName),
       );
       logger.d('currentBoardName: $currentBoardName');
       ref.read(navigationInfoProvider.notifier).settingNavigation(
