@@ -11,7 +11,7 @@ class BottomSheetHeader extends StatelessWidget {
     return Container(
       height: 70,
       alignment: Alignment.center,
-      padding: EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       color: AppColors.transparent,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

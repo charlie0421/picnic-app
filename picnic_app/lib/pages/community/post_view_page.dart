@@ -38,8 +38,8 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
   quill.QuillController? _quillController;
   String? _errorMessage;
   bool _isModalOpen = false;
-  bool _shouldShowAds = !kIsWeb && (Platform.isAndroid || Platform.isIOS);
-  Map<String, BannerAd?> _bannerAds = {};
+  final bool _shouldShowAds = !kIsWeb && (Platform.isAndroid || Platform.isIOS);
+  final Map<String, BannerAd?> _bannerAds = {};
   List<CommentModel>? _comments;
   bool _isLoadingComments = false;
 
@@ -102,7 +102,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
     _bannerAds[position] = BannerAd(
       adUnitId: adUnitId,
       size: size,
-      request: AdRequest(),
+      request: const AdRequest(),
       listener: BannerAdListener(
         onAdLoaded: (_) {
           setState(() {});
@@ -244,7 +244,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
 
   Widget _buildAdSpace(String position, AdSize size) {
     return Center(
-      child: Container(
+      child: SizedBox(
         width: size.width.toDouble(),
         height: size.height.toDouble(),
         child: _isModalOpen
@@ -262,7 +262,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
       children: [
         Container(
           margin: const EdgeInsets.all(16),
-          padding: EdgeInsets.only(top: 20, bottom: 20),
+          padding: const EdgeInsets.only(top: 20, bottom: 20),
           decoration: BoxDecoration(
             border: Border.all(color: AppColors.primary500),
             borderRadius: BorderRadius.circular(24),

@@ -102,7 +102,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _submitReport,
-              child: Text(
+              child: const Text(
                 '신고하기',
               ),
             ),
@@ -154,12 +154,12 @@ class CustomRadioListTile extends StatelessWidget {
   final ValueChanged<int?> onChanged;
 
   const CustomRadioListTile({
-    Key? key,
+    super.key,
     required this.title,
     required this.value,
     required this.groupValue,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -178,9 +178,9 @@ class CustomRadioListTile extends StatelessWidget {
                 groupValue: groupValue,
                 onChanged: onChanged,
                 activeColor: AppColors.primary500,
-                fillColor: MaterialStateProperty.resolveWith<Color>(
-                  (Set<MaterialState> states) {
-                    if (states.contains(MaterialState.selected)) {
+                fillColor: WidgetStateProperty.resolveWith<Color>(
+                  (Set<WidgetState> states) {
+                    if (states.contains(WidgetState.selected)) {
                       return AppColors.primary500;
                     }
                     return AppColors.grey300; // 선택되지 않은 경우의 회색

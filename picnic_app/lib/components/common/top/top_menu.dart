@@ -61,7 +61,7 @@ class _TopState extends ConsumerState<TopMenu> {
                     onTap: () {
                       navigationInfoNotifier.goBack();
                     },
-                    child: Container(
+                    child: SizedBox(
                       width: 24.cw,
                       height: 24,
                       child: SvgPicture.asset(

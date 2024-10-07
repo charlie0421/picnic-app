@@ -6,9 +6,9 @@ class CommentContents extends StatefulWidget {
   final CommentModel item;
 
   const CommentContents({
-    Key? key,
+    super.key,
     required this.item,
-  }) : super(key: key);
+  });
 
   @override
   _CommentContentsState createState() => _CommentContentsState();

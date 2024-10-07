@@ -8,7 +8,7 @@ part 'community_navigation_provider.g.dart';
 class CommunityStateInfo extends _$CommunityStateInfo {
   @override
   CommunityState build() {
-    return CommunityState();
+    return const CommunityState();
   }
 
   void setCurrentArtistId(int artistId, String artistName) {

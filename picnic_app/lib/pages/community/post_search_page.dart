@@ -213,7 +213,7 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
                             getTextStyle(AppTypo.body16M, AppColors.grey400)),
                     ElevatedButton(
                       onPressed: () => _pagingController.refresh(),
-                      child: Text('다시 시도'),
+                      child: const Text('다시 시도'),
                     ),
                   ],
                 ),
@@ -247,7 +247,7 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
-          margin: EdgeInsets.only(bottom: 24),
+          margin: const EdgeInsets.only(bottom: 24),
           padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 8),
           decoration: BoxDecoration(
             border: Border.all(color: AppColors.primary500, width: 1),

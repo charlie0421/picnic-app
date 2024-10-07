@@ -64,7 +64,7 @@ class _PostHomeListState extends ConsumerState<PostHomeList> {
                             ref
                                 .read(navigationInfoProvider.notifier)
                                 .setCommunityCurrentPage(
-                                  PostWritePage(),
+                                  const PostWritePage(),
                                 );
                           },
                           child: Text('게시글 작성하기',
