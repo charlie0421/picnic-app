@@ -5,6 +5,7 @@ import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:picnic_app/util/webp_support_checker.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 class PicnicCachedNetworkImage extends StatefulWidget {
@@ -110,6 +111,10 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
       );
     } catch (e, s) {
       logger.e('이미지 로딩 중 오류 발생:', error: e, stackTrace: s);
+      Sentry.captureException(
+        e,
+        stackTrace: s,
+      );
       return const SizedBox.shrink();
     }
   }

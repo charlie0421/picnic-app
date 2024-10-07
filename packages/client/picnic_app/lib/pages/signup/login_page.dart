@@ -296,15 +296,16 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         Navigator.of(context).pop();
         Navigator.of(context).pop();
       }
-    } catch (e) {
+    } catch (e, s) {
       OverlayLoadingProgress.stop();
-      print('Error handling successful login: $e');
+      logger.e('Error handling successful login: $e', stackTrace: s);
       showSimpleDialog(
           title: S.of(context).error_title,
           content: S.of(context).error_message_login_failed,
           onOk: () {
             Navigator.of(context).pop();
           });
+      rethrow;
     }
   }
 
@@ -400,6 +401,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                     onOk: () {
                       Navigator.of(context).pop();
                     });
+                rethrow;
               }
             },
             child: SizedBox(
@@ -467,6 +469,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
             } catch (e, s) {
               OverlayLoadingProgress.stop();
               logger.e('Error signing in with Kakao: $e', stackTrace: s);
+              rethrow;
             }
           },
           child: SizedBox(

@@ -149,8 +149,10 @@ class RewardedAds extends _$RewardedAds {
           onAdFailedToLoad: (error) => _onAdFailedToLoad(index, error),
         ),
       );
-    } catch (e) {
+    } catch (e, s) {
+      logger.e(e, stackTrace: s);
       _onAdLoadError(index, e);
+      rethrow;
     }
   }
 
@@ -194,6 +196,7 @@ class RewardedAds extends _$RewardedAds {
 
       _updateAdState(index, isShowing: false, ad: null);
       resultCompleter.complete(AdResult.error);
+      rethrow;
     }
 
     final result = await resultCompleter.future;

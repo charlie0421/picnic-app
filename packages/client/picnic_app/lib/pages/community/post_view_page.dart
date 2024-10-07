@@ -73,11 +73,12 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
         document: quill.Document.fromJson(content),
         selection: const TextSelection.collapsed(offset: 0),
       );
-    } catch (e) {
-      logger.i('Error initializing QuillController: $e');
+    } catch (e, s) {
+      logger.e('Error initializing QuillController: $e', stackTrace: s);
       setState(() {
         _errorMessage = '내용을 불러오는 중 오류가 발생했습니다.';
       });
+      rethrow;
     }
   }
 
@@ -115,19 +116,21 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
     )..load();
   }
 
-  Future<void> _loadComments() async {
-    if (_isLoadingComments) return;
+  void _loadComments() async {
+    if (!mounted) return; // 먼저 체크
     setState(() {
       _isLoadingComments = true;
     });
     try {
       final loadedComments = await comments(ref, widget.post.post_id, 1, 3);
+      if (!mounted) return; // 비동기 작업 후 다시 체크
       setState(() {
         _comments = loadedComments;
         _isLoadingComments = false;
       });
     } catch (e, s) {
       logger.e('Error loading comments: $e', stackTrace: s);
+      if (!mounted) return; // 예외 처리 시에도 체크
       setState(() {
         _isLoadingComments = false;
       });
@@ -140,8 +143,9 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
         return (jsonDecode(content) as List)
             .map((item) => item is String ? jsonDecode(item) : item)
             .toList();
-      } catch (e) {
-        throw FormatException('Failed to parse content as JSON: $e');
+      } catch (e, s) {
+        logger.e(e, stackTrace: s);
+        rethrow;
       }
     } else if (content is List) {
       return content

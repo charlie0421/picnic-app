@@ -1,6 +1,7 @@
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'config_service.g.dart';
@@ -21,6 +22,10 @@ class ConfigService {
       return response?['value'] as String?;
     } catch (e, s) {
       logger.e('Error fetching config: $e, $s');
+      Sentry.captureException(
+        e,
+        stackTrace: s,
+      );
       return null;
     }
   }

@@ -86,6 +86,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
       logger.d('이미지 저장됨: $path, 결과: $result');
     } catch (e, s) {
       logger.e('이미지 저장 실패: $e', stackTrace: s);
+      rethrow;
     } finally {
       setState(() {
         _isSaving = false;
@@ -137,10 +138,12 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
           );
         }
       });
-    } catch (e) {
+    } catch (e, s) {
+      logger.e(e, stackTrace: s);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           duration: const Duration(milliseconds: 300),
           content: Text(S.of(context).share_image_fail)));
+      rethrow;
     } finally {
       setState(() {
         _isSaving = false;

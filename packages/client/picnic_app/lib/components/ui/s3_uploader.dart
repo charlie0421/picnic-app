@@ -6,6 +6,7 @@ import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
+import 'package:picnic_app/constants.dart';
 
 class S3Uploader {
   final String accessKey;
@@ -85,8 +86,8 @@ class S3Uploader {
         throw Exception(
             'Failed to upload file: ${response.statusCode}, ${response.body}');
       }
-    } catch (e) {
-      print('Error uploading file: $e');
+    } catch (e, s) {
+      logger.e('Error uploading file: $e', stackTrace: s);
       rethrow;
     }
   }

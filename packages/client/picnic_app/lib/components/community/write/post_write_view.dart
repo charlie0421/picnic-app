@@ -71,8 +71,8 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
       });
 
       return uploadedUrl;
-    } catch (e) {
-      print('Error uploading file: $e');
+    } catch (e, s) {
+      logger.e('Error uploading file: $e', stackTrace: s);
       rethrow;
     }
   }
@@ -146,12 +146,14 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
               .eq('id', postId);
         } catch (rollbackError) {
           logger.e('Error during rollback: $rollbackError');
+          rethrow;
         }
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error saving post: $e')),
       );
+      rethrow;
     } finally {
       setState(() {
         _isSaving = false;

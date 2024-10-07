@@ -15,7 +15,6 @@ import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 
@@ -308,7 +307,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       }
     } catch (e, s) {
       logger.e(e, stackTrace: s);
-      Sentry.captureException(e, stackTrace: s);
+      rethrow;
     } finally {}
   }
 
@@ -379,7 +378,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       );
     } catch (e, s) {
       logger.e(e, stackTrace: s);
-      Sentry.captureException(e, stackTrace: s);
+      rethrow;
     }
   }
 

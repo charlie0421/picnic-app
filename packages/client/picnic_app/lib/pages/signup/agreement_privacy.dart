@@ -164,6 +164,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                               Navigator.pop(context);
                             });
                       });
+                      rethrow;
                     } finally {
                       OverlayLoadingProgress.stop();
                     }

@@ -30,12 +30,12 @@ class _OAuthCallbackPageState extends State<OAuthCallbackPage> {
 
         // 성공적인 인증 후 처리
         Navigator.of(context).pop();
-            } else {
+      } else {
         throw Exception('Invalid OAuth callback: missing code');
       }
     } catch (e, s) {
       logger.e('Error handling OAuth callback: $e', stackTrace: s);
-      // 에러 처리...
+      rethrow;
     }
   }
 

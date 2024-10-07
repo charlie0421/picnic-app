@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:picnic_app/constants.dart';
@@ -66,10 +65,9 @@ class NetworkStatusListener {
     try {
       final result = await Connectivity().checkConnectivity();
       _updateConnectionStatus(result);
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error checking initial connectivity: $e');
-      }
+    } catch (e, s) {
+      logger.e('Error checking initial connectivity: $e', stackTrace: s);
+      rethrow;
     }
   }
 

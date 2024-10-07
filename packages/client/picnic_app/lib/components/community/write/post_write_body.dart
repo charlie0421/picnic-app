@@ -139,7 +139,7 @@ class _PostWriteBodyState extends State<PostWriteBody> {
       setState(() {
         _uploadProgress.remove(file.path);
       });
-      // Show error message to user
+      rethrow;
     }
   }
 

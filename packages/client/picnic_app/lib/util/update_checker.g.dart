@@ -6,7 +6,7 @@ part of 'update_checker.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$updateCheckerHash() => r'd4e81c2f737d2f7f77cf204fa63e764cc1a12589';
+String _$updateCheckerHash() => r'33bf20e353799e5ffc4689b68a14a0e49dd9c081';
 
 /// See also [UpdateChecker].
 @ProviderFor(UpdateChecker)

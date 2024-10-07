@@ -34,7 +34,8 @@ class ServerProducts extends _$ServerProducts {
       }
 
       return products;
-    } catch (e) {
+    } catch (e,s) {
+      logger.e(e,stackTrace: s);
       throw Exception('Error fetching products: $e');
     }
   }
@@ -85,8 +86,8 @@ class StoreProducts extends _$StoreProducts {
       }
 
       return response.productDetails;
-    } catch (e) {
-      logger.e('Error loading products: $e');
+    } catch (e,s) {
+      logger.e('Error loading products: $e',stackTrace: s);
       throw Exception('Error loading products: $e');
     }
   }
