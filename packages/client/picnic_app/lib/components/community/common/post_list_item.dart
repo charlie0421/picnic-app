@@ -110,7 +110,10 @@ class PostListItem extends ConsumerWidget {
               'assets/icons/more_style=line.svg',
               width: 24,
               height: 24,
-              color: AppColors.grey500,
+              colorFilter: const ColorFilter.mode(
+                AppColors.grey500,
+                BlendMode.srcIn,
+              ),
             ),
           ],
         ),

@@ -7,7 +7,6 @@ import 'package:picnic_app/components/common/top/top_right_common.dart';
 import 'package:picnic_app/components/common/top/top_right_post.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
-import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
 
@@ -31,7 +30,6 @@ class _TopState extends ConsumerState<TopMenu> {
   Widget build(BuildContext context) {
     final navigationInfo = ref.watch(navigationInfoProvider);
     final navigationInfoNotifier = ref.watch(navigationInfoProvider.notifier);
-    final userInfoState = ref.watch(userInfoProvider);
 
     String pageName = navigationInfo.pageTitle;
 

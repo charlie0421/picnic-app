@@ -3,8 +3,8 @@ import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class BottomSheetHeader extends StatelessWidget {
-  BottomSheetHeader({super.key, required this.title});
-  String title = '';
+  const BottomSheetHeader({super.key, required this.title});
+  final String title;
 
   @override
   Widget build(BuildContext context) {
