@@ -57,11 +57,15 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
           onTap: () {},
         ),
         firstPageErrorIndicatorBuilder: (context) {
-          return ErrorView(
-            context,
-            error: _pagingController.error.toString(),
-            retryFunction: () => _pagingController.refresh(),
-            stackTrace: _pagingController.error.stackTrace,
+          return SliverToBoxAdapter(
+            child: ErrorView(
+              context,
+              error: _pagingController.error.toString(),
+              retryFunction: () => _pagingController.refresh(),
+              stackTrace: _pagingController.error is Error
+                  ? (_pagingController.error as Error).stackTrace
+                  : StackTrace.current,
+            ),
           );
         },
       ),
