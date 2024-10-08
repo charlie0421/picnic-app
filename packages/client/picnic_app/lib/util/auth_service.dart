@@ -198,7 +198,8 @@ class AuthService {
     try {
       final socialLogin = _loginProviders[provider];
       if (socialLogin == null) {
-        throw Exception('Unsupported provider');
+        logger.w('지원되지 않는 프로바이더: $provider');
+        throw Exception('지원되지 않는 프로바이더: $provider');
       }
 
       final result = await socialLogin.login();
