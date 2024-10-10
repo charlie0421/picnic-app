@@ -75,8 +75,21 @@ void main() async {
         options.profilesSampleRate = 1.0;
         options.beforeSend = (event, hint) {
           if (!Environment.enableSentry || kDebugMode) {
-            logger.i(
-                'Sentry event in local environment (not sent): ${event.eventId}');
+            event.exceptions?.forEach((element) {
+              logger.e('Exception: ${element.value}');
+              if (element.stackTrace != null) {
+                final frames = element.stackTrace?.frames;
+                if (frames != null && frames.isNotEmpty) {
+                  final stackTraceString = frames
+                      .map((frame) =>
+                          '${frame.fileName}:${frame.lineNo} - ${frame.function}')
+                      .join('\n');
+                  logger.e('Stacktrace:\n$stackTraceString');
+                } else {
+                  logger.e('Stacktrace: No frames available');
+                }
+              }
+            });
             return null; // null을 반환하면 이벤트가 Sentry로 전송되지 않습니다.
           }
           return event;

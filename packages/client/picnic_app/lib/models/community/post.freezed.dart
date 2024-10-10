@@ -32,6 +32,8 @@ mixin _$PostModel {
   DateTime get created_at => throw _privateConstructorUsedError;
   DateTime get updated_at => throw _privateConstructorUsedError;
   BoardModel get boards => throw _privateConstructorUsedError;
+  @JsonKey(name: 'deleted_at')
+  DateTime? get deletedAt => throw _privateConstructorUsedError;
 
   /// Serializes this PostModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -60,7 +62,8 @@ abstract class $PostModelCopyWith<$Res> {
       bool is_hidden,
       DateTime created_at,
       DateTime updated_at,
-      BoardModel boards});
+      BoardModel boards,
+      @JsonKey(name: 'deleted_at') DateTime? deletedAt});
 
   $UserProfilesModelCopyWith<$Res>? get user_profiles;
   $BoardModelCopyWith<$Res> get boards;
@@ -93,6 +96,7 @@ class _$PostModelCopyWithImpl<$Res, $Val extends PostModel>
     Object? created_at = null,
     Object? updated_at = null,
     Object? boards = null,
+    Object? deletedAt = freezed,
   }) {
     return _then(_value.copyWith(
       post_id: null == post_id
@@ -143,6 +147,10 @@ class _$PostModelCopyWithImpl<$Res, $Val extends PostModel>
           ? _value.boards
           : boards // ignore: cast_nullable_to_non_nullable
               as BoardModel,
+      deletedAt: freezed == deletedAt
+          ? _value.deletedAt
+          : deletedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ) as $Val);
   }
 
@@ -191,7 +199,8 @@ abstract class _$$PostModelImplCopyWith<$Res>
       bool is_hidden,
       DateTime created_at,
       DateTime updated_at,
-      BoardModel boards});
+      BoardModel boards,
+      @JsonKey(name: 'deleted_at') DateTime? deletedAt});
 
   @override
   $UserProfilesModelCopyWith<$Res>? get user_profiles;
@@ -224,6 +233,7 @@ class __$$PostModelImplCopyWithImpl<$Res>
     Object? created_at = null,
     Object? updated_at = null,
     Object? boards = null,
+    Object? deletedAt = freezed,
   }) {
     return _then(_$PostModelImpl(
       post_id: null == post_id
@@ -274,6 +284,10 @@ class __$$PostModelImplCopyWithImpl<$Res>
           ? _value.boards
           : boards // ignore: cast_nullable_to_non_nullable
               as BoardModel,
+      deletedAt: freezed == deletedAt
+          ? _value.deletedAt
+          : deletedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ));
   }
 }
@@ -293,7 +307,8 @@ class _$PostModelImpl extends _PostModel {
       required this.is_hidden,
       required this.created_at,
       required this.updated_at,
-      required this.boards})
+      required this.boards,
+      @JsonKey(name: 'deleted_at') this.deletedAt})
       : _content = content,
         super._();
 
@@ -330,10 +345,13 @@ class _$PostModelImpl extends _PostModel {
   final DateTime updated_at;
   @override
   final BoardModel boards;
+  @override
+  @JsonKey(name: 'deleted_at')
+  final DateTime? deletedAt;
 
   @override
   String toString() {
-    return 'PostModel(post_id: $post_id, user_id: $user_id, user_profiles: $user_profiles, board_id: $board_id, title: $title, content: $content, view_count: $view_count, reply_count: $reply_count, is_hidden: $is_hidden, created_at: $created_at, updated_at: $updated_at, boards: $boards)';
+    return 'PostModel(post_id: $post_id, user_id: $user_id, user_profiles: $user_profiles, board_id: $board_id, title: $title, content: $content, view_count: $view_count, reply_count: $reply_count, is_hidden: $is_hidden, created_at: $created_at, updated_at: $updated_at, boards: $boards, deletedAt: $deletedAt)';
   }
 
   @override
@@ -359,7 +377,9 @@ class _$PostModelImpl extends _PostModel {
                 other.created_at == created_at) &&
             (identical(other.updated_at, updated_at) ||
                 other.updated_at == updated_at) &&
-            (identical(other.boards, boards) || other.boards == boards));
+            (identical(other.boards, boards) || other.boards == boards) &&
+            (identical(other.deletedAt, deletedAt) ||
+                other.deletedAt == deletedAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -377,7 +397,8 @@ class _$PostModelImpl extends _PostModel {
       is_hidden,
       created_at,
       updated_at,
-      boards);
+      boards,
+      deletedAt);
 
   /// Create a copy of PostModel
   /// with the given fields replaced by the non-null parameter values.
@@ -397,18 +418,20 @@ class _$PostModelImpl extends _PostModel {
 
 abstract class _PostModel extends PostModel {
   const factory _PostModel(
-      {required final String post_id,
-      required final String user_id,
-      required final UserProfilesModel? user_profiles,
-      required final String board_id,
-      required final String title,
-      required final List<dynamic> content,
-      required final int view_count,
-      required final int reply_count,
-      required final bool is_hidden,
-      required final DateTime created_at,
-      required final DateTime updated_at,
-      required final BoardModel boards}) = _$PostModelImpl;
+          {required final String post_id,
+          required final String user_id,
+          required final UserProfilesModel? user_profiles,
+          required final String board_id,
+          required final String title,
+          required final List<dynamic> content,
+          required final int view_count,
+          required final int reply_count,
+          required final bool is_hidden,
+          required final DateTime created_at,
+          required final DateTime updated_at,
+          required final BoardModel boards,
+          @JsonKey(name: 'deleted_at') final DateTime? deletedAt}) =
+      _$PostModelImpl;
   const _PostModel._() : super._();
 
   factory _PostModel.fromJson(Map<String, dynamic> json) =
@@ -438,6 +461,9 @@ abstract class _PostModel extends PostModel {
   DateTime get updated_at;
   @override
   BoardModel get boards;
+  @override
+  @JsonKey(name: 'deleted_at')
+  DateTime? get deletedAt;
 
   /// Create a copy of PostModel
   /// with the given fields replaced by the non-null parameter values.

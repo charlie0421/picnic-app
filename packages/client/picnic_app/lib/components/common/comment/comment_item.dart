@@ -5,7 +5,7 @@ import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/comment/comment_actions.dart';
 import 'package:picnic_app/components/common/comment/comment_contents.dart';
 import 'package:picnic_app/components/common/comment/comment_header.dart';
-import 'package:picnic_app/components/common/comment/report_popup_menu.dart';
+import 'package:picnic_app/components/common/comment/comment_popup_menu.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/ui/style.dart';
