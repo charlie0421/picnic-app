@@ -26,11 +26,12 @@ class BoardPage extends ConsumerStatefulWidget {
 class _BoardPageState extends ConsumerState<BoardPage> {
   final FocusNode focusNode = FocusNode();
   final TextEditingController _textEditingController = TextEditingController();
-  final _pagingController = PagingController<int, BoardModel>(firstPageKey: 0);
+  final _pagingController =
+      PagingController<int, List<BoardModel>>(firstPageKey: 0);
   final _searchSubject = BehaviorSubject<String>();
 
   @override
-  initState() {
+  void initState() {
     super.initState();
     focusNode.addListener(() {
       if (!focusNode.hasFocus) {
@@ -53,6 +54,8 @@ class _BoardPageState extends ConsumerState<BoardPage> {
   void dispose() {
     focusNode.dispose();
     _textEditingController.dispose();
+    _searchSubject.close();
+    _pagingController.dispose();
     super.dispose();
   }
 
@@ -66,10 +69,14 @@ class _BoardPageState extends ConsumerState<BoardPage> {
               ref, _textEditingController.text, pageKey, 10) ??
           [];
 
+      final groupedBoards = _groupBoardsByArtist(newItems);
+
       final isLastPage = newItems.length < 10;
-      isLastPage
-          ? _pagingController.appendLastPage(newItems)
-          : _pagingController.appendPage(newItems, pageKey + 1);
+      if (isLastPage) {
+        _pagingController.appendLastPage(groupedBoards);
+      } else {
+        _pagingController.appendPage(groupedBoards, pageKey + 1);
+      }
     } catch (e, s) {
       logger.e(e, stackTrace: s);
       _pagingController.error = e;
@@ -77,73 +84,108 @@ class _BoardPageState extends ConsumerState<BoardPage> {
     }
   }
 
+  List<List<BoardModel>> _groupBoardsByArtist(List<BoardModel> boards) {
+    final map = <String, List<BoardModel>>{};
+    for (var board in boards) {
+      final artistId = board.artist!.id;
+      if (!map.containsKey(artistId.toString())) {
+        map[artistId.toString()] = [];
+      }
+      map[artistId.toString()]!.add(board);
+    }
+    return map.values.toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 24),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 12),
           child: CommonSearchBox(
               focusNode: focusNode,
               textEditingController: _textEditingController,
               hintText: S.of(context).text_community_board_search),
         ),
         Expanded(
-          child: PagedListView<int, BoardModel>(
+          child: PagedListView<int, List<BoardModel>>(
             pagingController: _pagingController,
-            builderDelegate: PagedChildBuilderDelegate<BoardModel>(
-              itemBuilder: (context, BoardModel board, index) {
-                return GestureDetector(
-                  onTap: () {
-                    ref
-                        .read(communityStateInfoProvider.notifier)
-                        .setCurrentBoardId(
-                            board.board_id,
-                            board.is_official
-                                ? getLocaleTextFromJson(board.name)
-                                : getLocaleTextFromJson(board.name));
-                    ref
-                        .read(communityStateInfoProvider.notifier)
-                        .setCurrentArtistId(board.artist!.id,
-                            getLocaleTextFromJson(board.artist!.name));
-                    ref
-                        .read(navigationInfoProvider.notifier)
-                        .setCommunityCurrentPage(PostListPage(board.artist!.id,
-                            getLocaleTextFromJson(board.artist!.name)));
-                  },
-                  child: Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 16.cw, vertical: 16),
-                    child: Row(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(20.r),
-                          child: PicnicCachedNetworkImage(
-                              imageUrl: board.artist!.image,
-                              width: 40,
-                              height: 40),
-                        ),
-                        SizedBox(width: 4.cw),
-                        Text(getLocaleTextFromJson(board.artist!.name),
-                            style: getTextStyle(
-                                AppTypo.body16B, AppColors.grey900)),
-                        SizedBox(width: 4.cw),
-                        Text(
-                          board.is_official
-                              ? getLocaleTextFromJson(board.name)
-                              : board.name['minor'],
-                          style:
-                              getTextStyle(AppTypo.body16M, AppColors.grey900),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
+            builderDelegate: PagedChildBuilderDelegate<List<BoardModel>>(
+              itemBuilder: (context, List<BoardModel> artistBoards, index) {
+                return _buildArtistBoardGroup(artistBoards);
               },
             ),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildArtistBoardGroup(List<BoardModel> artistBoards) {
+    final artist = artistBoards.first.artist!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 8),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16.r),
+                child: PicnicCachedNetworkImage(
+                    imageUrl: artist.image, width: 32, height: 32),
+              ),
+              SizedBox(width: 8.cw),
+              Expanded(
+                child: Text(
+                  getLocaleTextFromJson(artist.name),
+                  style: getTextStyle(AppTypo.body14B, AppColors.grey900),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.cw),
+          child: Wrap(
+            spacing: 8.cw,
+            children:
+                artistBoards.map((board) => _buildBoardChip(board)).toList(),
+          ),
+        ),
+        const SizedBox(height: 8),
+        const Divider(height: 1, thickness: .5, color: AppColors.grey300),
+      ],
+    );
+  }
+
+  Widget _buildBoardChip(BoardModel board) {
+    return GestureDetector(
+      onTap: () {
+        ref.read(communityStateInfoProvider.notifier).setCurrentBoardId(
+            board.board_id,
+            board.is_official
+                ? getLocaleTextFromJson(board.name)
+                : getLocaleTextFromJson(board.name));
+        ref.read(communityStateInfoProvider.notifier).setCurrentArtistId(
+            board.artist!.id, getLocaleTextFromJson(board.artist!.name));
+        ref.read(navigationInfoProvider.notifier).setCommunityCurrentPage(
+            PostListPage(
+                board.artist!.id, getLocaleTextFromJson(board.artist!.name)));
+      },
+      child: Chip(
+        label: Text(
+          board.is_official
+              ? getLocaleTextFromJson(board.name)
+              : board.name['minor'],
+          style: getTextStyle(AppTypo.caption12B,
+              board.is_official ? AppColors.primary500 : AppColors.grey900),
+        ),
+        side: const BorderSide(color: AppColors.grey300, width: 1),
+        backgroundColor: AppColors.grey00,
+        padding: EdgeInsets.symmetric(horizontal: 8.cw, vertical: 4),
+      ),
     );
   }
 }

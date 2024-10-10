@@ -98,11 +98,8 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
 
       logger.d('Post data: $postData');
 
-      final postResponse = await supabase
-          .schema('community')
-          .from('posts')
-          .insert(postData)
-          .select();
+      final postResponse =
+          await supabase.from('posts').insert(postData).select();
       postId = postResponse[0]['post_id'];
 
       // Upload attachments and save to attachments table
@@ -122,10 +119,7 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
       logger.d('Attachment data: $attachmentData');
 
       // Insert all attachments
-      await supabase
-          .schema('community')
-          .from('attachments')
-          .insert(attachmentData);
+      await supabase.from('post_attachments').insert(attachmentData);
 
       // Show success message or navigate back
       ScaffoldMessenger.of(context).showSnackBar(
@@ -139,11 +133,7 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
       // Rollback: Delete the post if it was created
       if (postId != null) {
         try {
-          await supabase
-              .schema('community')
-              .from('posts')
-              .delete()
-              .eq('id', postId);
+          await supabase.from('posts').delete().eq('id', postId);
         } catch (rollbackError) {
           logger.e('Error during rollback: $rollbackError');
           rethrow;

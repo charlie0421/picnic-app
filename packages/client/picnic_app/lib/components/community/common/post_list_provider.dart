@@ -8,7 +8,6 @@ final postListProvider = FutureProvider.family((ref, String boardId) async {
   try {
     logger.d('Fetching posts for boardId: $boardId');
     final postsResponse = await supabase
-        .schema('community')
         .from('posts')
         .select('''
           *,

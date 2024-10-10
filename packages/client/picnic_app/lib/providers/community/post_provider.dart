@@ -12,7 +12,6 @@ Future<List<PostModel>?> postsByArtist(
     ref, int artistId, int limit, int page) async {
   try {
     final response = await supabase
-        .schema('community')
         .from('posts')
         .select('*, boards!inner(*), user_id')
         .eq('boards.artist_id', artistId)
@@ -44,7 +43,6 @@ Future<List<PostModel>?> postsByBoard(
     ref, String boardId, int limit, int page) async {
   try {
     final response = await supabase
-        .schema('community')
         .from('posts')
         .select('*, boards!inner(*), user_id')
         .eq('boards.board_id', boardId)
@@ -79,7 +77,6 @@ Future<List<PostModel>?> postsByQuery(
     List<PostModel> postData = [];
 
     final response = await supabase
-        .schema('community')
         .from('posts')
         .select('*, boards(*)')
         // .neq('boards.artist_id', 0)
