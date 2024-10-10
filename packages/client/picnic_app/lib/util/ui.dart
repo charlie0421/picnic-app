@@ -2,12 +2,15 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:universal_platform/universal_platform.dart';
+
+import '../providers/global_media_query.dart';
 
 void showOverlayToast(BuildContext context, Widget child) {
   OverlayEntry overlayEntry = OverlayEntry(
@@ -106,8 +109,8 @@ bool isMobile() {
   } else {
     try {
       return Platform.isAndroid || Platform.isIOS;
-    } catch (e,s) {
-      logger.e(e,stackTrace: s);
+    } catch (e, s) {
+      logger.e(e, stackTrace: s);
       return false;
     }
   }
@@ -132,4 +135,18 @@ bool isLinux() {
 extension CustomSizeExtension on num {
   double get cw => kIsWeb ? (this * 600 / 393) : w;
   double get ch => kIsWeb ? (this * 800 / 852) : h;
+}
+
+double getAppBarHeight(WidgetRef ref) {
+  final mediaQuery = ref.watch(globalMediaQueryProvider);
+  final double topPadding = mediaQuery.padding.top;
+
+  // 안전 영역 상단 패딩 (노치, 상태 바 등을 포함)
+  double safeAreaTop = topPadding;
+
+  // AppBar의 기본 높이
+  const double appBarHeight = kToolbarHeight; // 일반적으로 56.0
+
+  // 총 AppBar 높이 (안전 영역 상단 + AppBar)
+  return safeAreaTop + appBarHeight;
 }

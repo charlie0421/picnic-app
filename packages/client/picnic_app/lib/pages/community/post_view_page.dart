@@ -354,8 +354,8 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
       ),
-      constraints:
-          BoxConstraints(maxHeight: MediaQuery.of(context).size.height - 120),
+      constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height - getAppBarHeight(ref)),
       builder: (context) {
         return SafeArea(
           child: CommentList(

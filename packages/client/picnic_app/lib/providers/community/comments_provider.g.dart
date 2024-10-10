@@ -6,7 +6,7 @@ part of 'comments_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$commentsHash() => r'6fe3f81cb187618ae6c8d587d9b985c6a03faa1b';
+String _$commentsHash() => r'ff80fc7c3b31950126829ab56287af9ddd55827b';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -42,12 +42,16 @@ class CommentsFamily extends Family<AsyncValue<List<CommentModel>>> {
   CommentsProvider call(
     String postId,
     int page,
-    int limit,
-  ) {
+    int limit, {
+    bool includeDeleted = true,
+    bool includeReported = true,
+  }) {
     return CommentsProvider(
       postId,
       page,
       limit,
+      includeDeleted: includeDeleted,
+      includeReported: includeReported,
     );
   }
 
@@ -59,6 +63,8 @@ class CommentsFamily extends Family<AsyncValue<List<CommentModel>>> {
       provider.postId,
       provider.page,
       provider.limit,
+      includeDeleted: provider.includeDeleted,
+      includeReported: provider.includeReported,
     );
   }
 
@@ -83,13 +89,17 @@ class CommentsProvider extends AutoDisposeFutureProvider<List<CommentModel>> {
   CommentsProvider(
     String postId,
     int page,
-    int limit,
-  ) : this._internal(
+    int limit, {
+    bool includeDeleted = true,
+    bool includeReported = true,
+  }) : this._internal(
           (ref) => comments(
             ref as CommentsRef,
             postId,
             page,
             limit,
+            includeDeleted: includeDeleted,
+            includeReported: includeReported,
           ),
           from: commentsProvider,
           name: r'commentsProvider',
@@ -102,6 +112,8 @@ class CommentsProvider extends AutoDisposeFutureProvider<List<CommentModel>> {
           postId: postId,
           page: page,
           limit: limit,
+          includeDeleted: includeDeleted,
+          includeReported: includeReported,
         );
 
   CommentsProvider._internal(
@@ -114,11 +126,15 @@ class CommentsProvider extends AutoDisposeFutureProvider<List<CommentModel>> {
     required this.postId,
     required this.page,
     required this.limit,
+    required this.includeDeleted,
+    required this.includeReported,
   }) : super.internal();
 
   final String postId;
   final int page;
   final int limit;
+  final bool includeDeleted;
+  final bool includeReported;
 
   @override
   Override overrideWith(
@@ -136,6 +152,8 @@ class CommentsProvider extends AutoDisposeFutureProvider<List<CommentModel>> {
         postId: postId,
         page: page,
         limit: limit,
+        includeDeleted: includeDeleted,
+        includeReported: includeReported,
       ),
     );
   }
@@ -150,7 +168,9 @@ class CommentsProvider extends AutoDisposeFutureProvider<List<CommentModel>> {
     return other is CommentsProvider &&
         other.postId == postId &&
         other.page == page &&
-        other.limit == limit;
+        other.limit == limit &&
+        other.includeDeleted == includeDeleted &&
+        other.includeReported == includeReported;
   }
 
   @override
@@ -159,6 +179,8 @@ class CommentsProvider extends AutoDisposeFutureProvider<List<CommentModel>> {
     hash = _SystemHash.combine(hash, postId.hashCode);
     hash = _SystemHash.combine(hash, page.hashCode);
     hash = _SystemHash.combine(hash, limit.hashCode);
+    hash = _SystemHash.combine(hash, includeDeleted.hashCode);
+    hash = _SystemHash.combine(hash, includeReported.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -173,6 +195,12 @@ mixin CommentsRef on AutoDisposeFutureProviderRef<List<CommentModel>> {
 
   /// The parameter `limit` of this provider.
   int get limit;
+
+  /// The parameter `includeDeleted` of this provider.
+  bool get includeDeleted;
+
+  /// The parameter `includeReported` of this provider.
+  bool get includeReported;
 }
 
 class _CommentsProviderElement
@@ -186,9 +214,13 @@ class _CommentsProviderElement
   int get page => (origin as CommentsProvider).page;
   @override
   int get limit => (origin as CommentsProvider).limit;
+  @override
+  bool get includeDeleted => (origin as CommentsProvider).includeDeleted;
+  @override
+  bool get includeReported => (origin as CommentsProvider).includeReported;
 }
 
-String _$postCommentHash() => r'6aa12ccedf8e43f07a4c37aac3e84a1bbb9c9b86';
+String _$postCommentHash() => r'f8ac399c48bd649194da84d2d39df2834dac3846';
 
 /// See also [postComment].
 @ProviderFor(postComment)
@@ -349,7 +381,7 @@ class _PostCommentProviderElement extends AutoDisposeFutureProviderElement<void>
   String get content => (origin as PostCommentProvider).content;
 }
 
-String _$likeCommentHash() => r'ad0100a6ef69daa83c38501643d094080ba5531c';
+String _$likeCommentHash() => r'2dddbbfcde82885cf5f99dcf54cf6e299a54318a';
 
 /// See also [likeComment].
 @ProviderFor(likeComment)
@@ -477,7 +509,7 @@ class _LikeCommentProviderElement extends AutoDisposeFutureProviderElement<void>
   String get commentId => (origin as LikeCommentProvider).commentId;
 }
 
-String _$unlikeCommentHash() => r'bfd322c9f12d588df5de203b75e9a5d3cfb05eb6';
+String _$unlikeCommentHash() => r'aa88522fce0c051d626c6d278843d21910c4e83c';
 
 /// See also [unlikeComment].
 @ProviderFor(unlikeComment)
@@ -605,7 +637,7 @@ class _UnlikeCommentProviderElement
   String get commentId => (origin as UnlikeCommentProvider).commentId;
 }
 
-String _$reportCommentHash() => r'fd608a9f5a798d84780b96af76f7c3e5e5f371c9';
+String _$reportCommentHash() => r'c6839248c0652340e30353003b15447eaad01437';
 
 /// See also [reportComment].
 @ProviderFor(reportComment)
@@ -766,7 +798,7 @@ class _ReportCommentProviderElement
   String get text => (origin as ReportCommentProvider).text;
 }
 
-String _$deleteCommentHash() => r'52c1ac1b0f17fa1812af79621904e1d19918c0ae';
+String _$deleteCommentHash() => r'3e59c9c3ccc8b5a25d75d31015960f81b304d9a8';
 
 /// See also [deleteComment].
 @ProviderFor(deleteComment)
