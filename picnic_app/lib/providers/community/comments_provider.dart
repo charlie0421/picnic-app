@@ -14,7 +14,6 @@ Future<List<CommentModel>> comments(
   try {
     // 1. 사용자가 신고한 댓글 ID 목록 가져오기
     final reportedCommentsResponse = await supabase
-        .schema('community')
         .from('comment_reports')
         .select('comment_id')
         .eq('user_id', currentUserId!);
@@ -25,7 +24,6 @@ Future<List<CommentModel>> comments(
 
     // 2. 루트 댓글 가져오기
     final rootResponse = await supabase
-        .schema('community')
         .from('comments')
         .select('*, comment_likes(count)')
         .eq('post_id', postId)
@@ -45,7 +43,6 @@ Future<List<CommentModel>> comments(
 
     // 3. 자식 댓글 가져오기
     final childResponse = await supabase
-        .schema('community')
         .from('comments')
         .select('*, comment_likes(count)')
         .eq('post_id', postId)
@@ -69,7 +66,6 @@ Future<List<CommentModel>> comments(
 
     // 5. 현재 사용자가 좋아요를 누른 댓글 ID 목록 가져오기
     final likedCommentsResponse = await supabase
-        .schema('community')
         .from('comment_likes')
         .select('comment_id')
         .eq('user_id', currentUserId)
@@ -130,8 +126,7 @@ Future<List<CommentModel>> comments(
 Future<void> postComment(
     ref, String postId, String? parentId, String content) async {
   try {
-    final response =
-        await supabase.schema('community').from('comments').insert({
+    final response = await supabase.from('comments').insert({
       'post_id': postId,
       'user_id': supabase.auth.currentUser!.id,
       'parent_comment_id': parentId,
@@ -149,8 +144,7 @@ Future<void> postComment(
 Future<void> likeComment(ref, String commentId) async {
   logger.d('Liking comment: $commentId');
   try {
-    final response =
-        await supabase.schema('community').from('comment_likes').upsert({
+    final response = await supabase.from('comment_likes').upsert({
       'comment_id': commentId,
       'user_id': supabase.auth.currentUser!.id,
     });
@@ -166,7 +160,6 @@ Future<void> likeComment(ref, String commentId) async {
 Future<void> unlikeComment(ref, String commentId) async {
   try {
     final response = await supabase
-        .schema('community')
         .from('comment_likes')
         .update({'deleted_at': DateTime.now().toIso8601String()})
         .eq('comment_id', commentId)
@@ -183,8 +176,7 @@ Future<void> unlikeComment(ref, String commentId) async {
 Future<void> reportComment(
     ref, CommentModel comment, String reason, String text) async {
   try {
-    final response =
-        await supabase.schema('community').from('comment_reports').upsert({
+    final response = await supabase.from('comment_reports').upsert({
       'comment_id': comment.commentId,
       'user_id': supabase.auth.currentUser!.id,
       'reason': reason + (text.isNotEmpty ? ' - $text' : ''),
@@ -200,8 +192,7 @@ Future<void> reportComment(
 @riverpod
 Future<void> deleteComment(ref, String commentId) async {
   try {
-    final response =
-        await supabase.schema('community').from('comments').update({
+    final response = await supabase.from('comments').update({
       'deleted_at': DateTime.now().toIso8601String(),
     }).eq('comment_id', commentId);
 

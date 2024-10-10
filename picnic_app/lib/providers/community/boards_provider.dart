@@ -11,7 +11,6 @@ part 'boards_provider.g.dart';
 Future<List<BoardModel>?> boards(ref, int artistId) async {
   try {
     final response = await supabase
-        .schema('community')
         .from('boards')
         .select()
         .eq('artist_id', artistId)
@@ -32,23 +31,22 @@ Future<List<BoardModel>?> boards(ref, int artistId) async {
 Future<List<BoardModel>?> boardsByArtistName(
     ref, String query, int page, int limit) async {
   try {
+    final currentLocale = Intl.getCurrentLocale();
     List<BoardModel> boardData = [];
     if (query.isEmpty) {
       final response = await supabase
-          .schema('community')
           .from('boards')
-          .select()
+          .select('*,artist(*, artist_group(*))')
           .neq('artist_id', 0)
           .eq('status', 'approved')
           .range(page * limit, (page + 1) * limit - 1)
-          .order('artist_id', ascending: true)
+          .order('artist_id')
           .order('is_official', ascending: false)
-          .order('name->>${Intl.getCurrentLocale()}', ascending: true);
+          .order('order', ascending: true);
 
       boardData = response.map(BoardModel.fromJson).toList();
     } else {
       final response = await supabase
-          .schema('community')
           .from('boards')
           .select()
           .neq('artist_id', 0)
@@ -93,7 +91,6 @@ Future<List<BoardModel>?> boardsByArtistName(
 Future<BoardModel?> checkPendingRequest(ref) async {
   try {
     final response = await supabase
-        .schema('community')
         .from('boards')
         .select()
         .eq('creator_id', supabase.auth.currentUser!.id)
@@ -113,7 +110,6 @@ Future<BoardModel?> checkPendingRequest(ref) async {
 Future<BoardModel?> checkDuplicateBoard(ref, String title) async {
   try {
     final response = await supabase
-        .schema('community')
         .from('boards')
         .select()
         .or('name->>ko.eq.$title,name->>en.eq.$title,name->>ja.eq.$title,name->>zh.eq.$title')
@@ -132,7 +128,7 @@ Future<BoardModel?> checkDuplicateBoard(ref, String title) async {
 Future<BoardModel?> createBoard(
     ref, int artistId, String title, String description, requestMessage) async {
   try {
-    final response = await supabase.schema('community').from('boards').insert([
+    final response = await supabase.from('boards').insert([
       {
         'artist_id': artistId,
         'name': {
