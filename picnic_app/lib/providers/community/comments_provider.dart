@@ -7,109 +7,98 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'comments_provider.g.dart';
 
 @riverpod
-Future<List<CommentModel>> comments(
-    ref, String postId, int page, int limit) async {
+Future<List<CommentModel>> comments(ref, String postId, int page, int limit,
+    {bool includeDeleted = true, bool includeReported = true}) async {
   final currentUserId = supabase.auth.currentUser?.id;
   logger.i('Fetching comments for post: $postId, page: $page, limit: $limit');
   try {
-    // 1. 사용자가 신고한 댓글 ID 목록 가져오기
-    final reportedCommentsResponse = await supabase
-        .from('comment_reports')
-        .select('comment_id')
-        .eq('user_id', currentUserId!);
+    // 1. 루트 댓글과 관련 데이터 가져오기 (직접 조인 사용)
+    var query = supabase.from('comments').select('''
+      *,
+      comment_likes:comment_likes(count),
+      user:user_profiles(*),
+      comment_reports!left(comment_id),
+      user_likes:comment_likes!left(comment_id)
+    ''').eq('post_id', postId);
 
-    final reportedCommentIds = reportedCommentsResponse
-        .map((row) => row['comment_id'] as String)
-        .toSet();
+    // 삭제된 댓글 필터링
+    if (!includeDeleted) {
+      query = query.isFilter('deleted_at', null);
+    }
 
-    // 2. 루트 댓글 가져오기
-    final rootResponse = await supabase
-        .from('comments')
-        .select('*, comment_likes(count)')
-        .eq('post_id', postId)
+    // 신고된 댓글 필터링
+    if (!includeReported) {
+      query = query.isFilter('comment_reports', null);
+    }
+
+    final rootResponse = await query
         .isFilter('parent_comment_id', null)
+        .eq('comment_reports.user_id', currentUserId!)
+        .eq('user_likes.user_id', currentUserId)
+        .isFilter('user_likes.deleted_at', null)
         .order('created_at', ascending: false)
         .range((page - 1) * limit, page * limit - 1);
+
+    logger.d('rootResponse: $rootResponse');
 
     final rootComments = rootResponse.map((row) {
       final comment = CommentModel.fromJson(row);
       return comment.copyWith(
-        isReportedByUser: reportedCommentIds.contains(comment.commentId),
+        user: UserProfilesModel.fromJson(row['user']),
+        isReportedByUser: row['comment_reports'].length > 0,
+        isLiked: row['user_likes'] != null,
         likes: (row['comment_likes'] as List).first['count'] as int,
       );
     }).toList();
 
     final rootCommentIds = rootComments.map((c) => c.commentId).toList();
 
-    // 3. 자식 댓글 가져오기
+    // 2. 자식 댓글과 관련 데이터 가져오기 (직접 조인 사용)
     final childResponse = await supabase
         .from('comments')
-        .select('*, comment_likes(count)')
+        .select('''
+          *,
+          comment_likes(count),
+          user:user_profiles(*),
+          comment_reports!left(comment_id),
+          user_likes:comment_likes!left(comment_id)
+        ''')
         .eq('post_id', postId)
         .inFilter('parent_comment_id', rootCommentIds)
+        .eq('comment_reports.user_id', currentUserId)
+        .eq('user_likes.user_id', currentUserId)
+        .isFilter('user_likes.deleted_at', null)
         .order('created_at', ascending: true);
 
     final childComments = childResponse.map((row) {
       final comment = CommentModel.fromJson(row);
       return comment.copyWith(
-        isReportedByUser: reportedCommentIds.contains(comment.commentId),
+        user: UserProfilesModel.fromJson(row['user']),
+        isReportedByUser: row['comment_reports'] != null,
+        isLiked: row['user_likes'] != null,
         likes: (row['comment_likes'] as List).first['count'] as int,
       );
     }).toList();
 
-    // 4. 대댓글 수 계산
-    final replyCounts = {};
-    for (var child in childComments) {
-      replyCounts[child.parentCommentId] =
-          (replyCounts[child.parentCommentId] ?? 0) + 1;
-    }
-
-    // 5. 현재 사용자가 좋아요를 누른 댓글 ID 목록 가져오기
-    final likedCommentsResponse = await supabase
-        .from('comment_likes')
-        .select('comment_id')
-        .eq('user_id', currentUserId)
-        .isFilter('deleted_at', null)
-        .inFilter('comment_id',
-            [...rootCommentIds, ...childComments.map((c) => c.commentId)]);
-
-    final likedCommentIds =
-        likedCommentsResponse.map((row) => row['comment_id'] as String).toSet();
-
-    // 6. 모든 댓글의 사용자 ID 수집
-    final allComments = [...rootComments, ...childComments];
-    final userIds =
-        allComments.map((comment) => comment.userId).toSet().toList();
-
-    // 7. 사용자 프로필 정보 가져오기
-    final userProfiles =
-        await supabase.from('user_profiles').select().inFilter('id', userIds);
-
-    // 8. 댓글에 사용자 정보 추가 및 자식 댓글 그룹화
+    // 3. 댓글에 자식 댓글 그룹화
     final Map<String, CommentModel> commentMap = {};
 
-    for (var comment in allComments) {
-      final userProfile =
-          userProfiles.firstWhere((profile) => profile['id'] == comment.userId);
-      final commentWithUser = comment.copyWith(
-        user: UserProfilesModel.fromJson(userProfile),
-        isLiked: likedCommentIds.contains(comment.commentId),
-        replies: replyCounts[comment.commentId] ?? 0,
-      );
-
+    for (var comment in [...rootComments, ...childComments]) {
       if (comment.parentCommentId == null) {
-        commentMap[comment.commentId] = commentWithUser.copyWith(children: []);
+        commentMap[comment.commentId] = comment.copyWith(
+          children: [],
+        );
       } else {
         final parentComment = commentMap[comment.parentCommentId];
         if (parentComment != null) {
-          final updatedReplies = [...parentComment.children!, commentWithUser];
+          final updatedReplies = [...parentComment.children!, comment];
           commentMap[parentComment.commentId] =
               parentComment.copyWith(children: updatedReplies);
         }
       }
     }
 
-    // 9. 최종 결과 정렬 및 반환
+    // 4. 최종 결과 정렬 및 반환
     final result =
         rootComments.map((comment) => commentMap[comment.commentId]!).toList();
     result.sort((a, b) => b.createdAt.compareTo(a.createdAt));

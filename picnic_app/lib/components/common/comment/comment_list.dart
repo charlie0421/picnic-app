@@ -5,7 +5,6 @@ import 'package:picnic_app/components/common/comment/comment_input.dart';
 import 'package:picnic_app/components/common/comment/comment_item.dart';
 import 'package:picnic_app/components/common/comment/comment_reply_layer.dart';
 import 'package:picnic_app/components/ui/bottom_sheet_header.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/providers/comment_list_provider.dart';
@@ -34,17 +33,28 @@ class _CommentListState extends ConsumerState<CommentList> {
   @override
   void initState() {
     super.initState();
-    _pagingController.addPageRequestListener((pageKey) async {
-      List<CommentModel>? newItems =
-          await comments(ref, widget.id, pageKey, 10);
-      logger.i('newItems: $newItems');
+    _pagingController.addPageRequestListener((pageKey) {
+      _fetchPage(pageKey);
+    });
+  }
+
+  Future<void> _fetchPage(int pageKey) async {
+    try {
+      final newItems = await comments(ref, widget.id, pageKey, 10);
       final isLastPage = newItems.length < 10;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
       } else {
-        _pagingController.appendPage(newItems, pageKey + newItems.length);
+        final nextPageKey = pageKey + newItems.length;
+        _pagingController.appendPage(newItems, nextPageKey);
       }
-    });
+    } catch (error) {
+      _pagingController.error = error;
+    }
+  }
+
+  Future<void> _refreshComments() async {
+    _pagingController.refresh();
   }
 
   @override
@@ -84,80 +94,64 @@ class _CommentListState extends ConsumerState<CommentList> {
                       _dismissKeyboard();
                       return true;
                     },
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height -
-                                280 -
-                                (isReplyMode ? 40 : 0),
-                            child: PagedListView<int, CommentModel>(
-                              pagingController: _pagingController,
-                              builderDelegate:
-                                  PagedChildBuilderDelegate<CommentModel>(
-                                noItemsFoundIndicatorBuilder: (context) =>
-                                    Center(
-                                  child: Container(
-                                    padding: const EdgeInsets.all(10),
-                                    child: Text(
-                                      S.of(context).label_article_comment_empty,
-                                      style: const TextStyle(
-                                          fontSize: 30,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                ),
-                                firstPageErrorIndicatorBuilder: (context) =>
-                                    Center(
-                                  child: Text(
-                                      'Error loading comments: ${_pagingController.error}'),
-                                ),
-                                newPageErrorIndicatorBuilder: (context) =>
-                                    Center(
-                                  child: Text(
-                                      'Error loading more comments: ${_pagingController.error}'),
-                                ),
-                                itemBuilder: (context, item, index) {
-                                  return Column(
-                                    children: [
-                                      CommentItem(
-                                        commentModel: item,
-                                        pagingController: _pagingController,
-                                        openCommentsModal:
-                                            widget.openCommentsModal,
-                                        openReportModal: widget.openReportModal,
-                                      ),
-                                      if (item.children != null &&
-                                          item.children!.isNotEmpty)
-                                        ListView.builder(
-                                          shrinkWrap: true,
-                                          physics:
-                                              const NeverScrollableScrollPhysics(),
-                                          itemCount: item.children!.length,
-                                          itemBuilder: (context, index) {
-                                            return Container(
-                                              padding:
-                                                  EdgeInsets.only(left: 40.cw),
-                                              child: CommentItem(
-                                                commentModel:
-                                                    item.children![index],
-                                                pagingController:
-                                                    _pagingController,
-                                                openCommentsModal:
-                                                    widget.openCommentsModal,
-                                              ),
-                                            );
-                                          },
-                                        )
-                                      else
-                                        const SizedBox.shrink(),
-                                    ],
-                                  );
-                                },
+                    child: RefreshIndicator(
+                      onRefresh: _refreshComments,
+                      child: PagedListView<int, CommentModel>(
+                        pagingController: _pagingController,
+                        builderDelegate:
+                            PagedChildBuilderDelegate<CommentModel>(
+                          noItemsFoundIndicatorBuilder: (context) => Center(
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Text(
+                                S.of(context).label_article_comment_empty,
+                                style: const TextStyle(
+                                    fontSize: 30, fontWeight: FontWeight.bold),
                               ),
                             ),
                           ),
-                        ],
+                          firstPageErrorIndicatorBuilder: (context) => Center(
+                            child: Text(
+                                'Error loading comments: ${_pagingController.error}'),
+                          ),
+                          newPageErrorIndicatorBuilder: (context) => Center(
+                            child: Text(
+                                'Error loading more comments: ${_pagingController.error}'),
+                          ),
+                          itemBuilder: (context, item, index) {
+                            return Column(
+                              children: [
+                                CommentItem(
+                                  commentModel: item,
+                                  pagingController: _pagingController,
+                                  openCommentsModal: widget.openCommentsModal,
+                                  openReportModal: widget.openReportModal,
+                                ),
+                                if (item.children != null &&
+                                    item.children!.isNotEmpty)
+                                  ListView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: item.children!.length,
+                                    itemBuilder: (context, index) {
+                                      return Container(
+                                        padding: EdgeInsets.only(left: 40.cw),
+                                        child: CommentItem(
+                                          commentModel: item.children![index],
+                                          pagingController: _pagingController,
+                                          openCommentsModal:
+                                              widget.openCommentsModal,
+                                        ),
+                                      );
+                                    },
+                                  )
+                                else
+                                  const SizedBox.shrink(),
+                              ],
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),
