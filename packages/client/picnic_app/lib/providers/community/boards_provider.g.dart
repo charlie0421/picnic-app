@@ -155,7 +155,7 @@ class _BoardsProviderElement
 }
 
 String _$boardsByArtistNameHash() =>
-    r'16d5ccb09c44662c837c6d5dc5270205123cb475';
+    r'777f1cfa3103f56daa55de25faade44d28d39bdb';
 
 /// See also [boardsByArtistName].
 @ProviderFor(boardsByArtistName)

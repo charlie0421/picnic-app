@@ -45,8 +45,7 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
                       alignment: Alignment.topCenter,
                       width: width,
                       child: PicnicCachedNetworkImage(
-                          imageUrl:
-                              getLocaleTextFromJson(data[index].image) ?? '',
+                          imageUrl: getLocaleTextFromJson(data[index].image),
                           width: width.toInt(),
                           height: (width / 2).toInt(),
                           fit: BoxFit.fitHeight),

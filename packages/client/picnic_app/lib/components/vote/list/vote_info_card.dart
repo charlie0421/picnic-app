@@ -87,22 +87,6 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
     // }
   }
 
-  Future<List<int>> _getCurrentRanking() async {
-    final voteItemList = await ref
-        .read(asyncVoteItemListProvider(voteId: widget.vote.id).future);
-    final sortedList = List<VoteItemModel>.from(voteItemList)
-      ..sort((a, b) => b.vote_total.compareTo(a.vote_total));
-    return sortedList.take(3).map((item) => item.id).toList();
-  }
-
-  bool _hasRankingChanged(List<int> oldRanking, List<int> newRanking) {
-    if (oldRanking.length != newRanking.length) return true;
-    for (int i = 0; i < oldRanking.length; i++) {
-      if (oldRanking[i] != newRanking[i]) return true;
-    }
-    return false;
-  }
-
   @override
   Widget build(BuildContext context) {
     final asyncVoteDetail =
