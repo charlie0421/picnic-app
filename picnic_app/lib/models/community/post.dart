@@ -22,6 +22,7 @@ class PostModel with _$PostModel {
     required DateTime created_at,
     required DateTime updated_at,
     required BoardModel boards,
+    @JsonKey(name: 'deleted_at') DateTime? deletedAt,
   }) = _PostModel;
 
   factory PostModel.fromJson(Map<String, dynamic> json) =>

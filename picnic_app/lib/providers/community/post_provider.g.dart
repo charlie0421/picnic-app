@@ -6,7 +6,7 @@ part of 'post_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$postsByArtistHash() => r'eab6e33b24f57886cbe1b3e9794c4d04166d53a4';
+String _$postsByArtistHash() => r'41b88f1110b5a8be62f04d3e1ce96826e39a1214';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -190,7 +190,7 @@ class _PostsByArtistProviderElement
   int get page => (origin as PostsByArtistProvider).page;
 }
 
-String _$postsByBoardHash() => r'c02605c116825ce11e27c0f3365fea880faf3bf3';
+String _$postsByBoardHash() => r'e9867742e6569b7083d7a41fde3627fad768e8bf';
 
 /// See also [postsByBoard].
 @ProviderFor(postsByBoard)
@@ -352,7 +352,7 @@ class _PostsByBoardProviderElement
   int get page => (origin as PostsByBoardProvider).page;
 }
 
-String _$postsByQueryHash() => r'992d3709e8644eb620a0aa9304661081dd639f89';
+String _$postsByQueryHash() => r'cfe5f063693fabd2d327da2647689762ce4e6ea8';
 
 /// See also [postsByQuery].
 @ProviderFor(postsByQuery)
@@ -528,6 +528,295 @@ class _PostsByQueryProviderElement
   int get page => (origin as PostsByQueryProvider).page;
   @override
   int get limit => (origin as PostsByQueryProvider).limit;
+}
+
+String _$reportPostHash() => r'28f977633099c0168e5a2b6bf58be1bd28ebfcb2';
+
+/// See also [reportPost].
+@ProviderFor(reportPost)
+const reportPostProvider = ReportPostFamily();
+
+/// See also [reportPost].
+class ReportPostFamily extends Family<AsyncValue<void>> {
+  /// See also [reportPost].
+  const ReportPostFamily();
+
+  /// See also [reportPost].
+  ReportPostProvider call(
+    PostModel post,
+    String reason,
+    String text,
+  ) {
+    return ReportPostProvider(
+      post,
+      reason,
+      text,
+    );
+  }
+
+  @override
+  ReportPostProvider getProviderOverride(
+    covariant ReportPostProvider provider,
+  ) {
+    return call(
+      provider.post,
+      provider.reason,
+      provider.text,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'reportPostProvider';
+}
+
+/// See also [reportPost].
+class ReportPostProvider extends AutoDisposeFutureProvider<void> {
+  /// See also [reportPost].
+  ReportPostProvider(
+    PostModel post,
+    String reason,
+    String text,
+  ) : this._internal(
+          (ref) => reportPost(
+            ref as ReportPostRef,
+            post,
+            reason,
+            text,
+          ),
+          from: reportPostProvider,
+          name: r'reportPostProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$reportPostHash,
+          dependencies: ReportPostFamily._dependencies,
+          allTransitiveDependencies:
+              ReportPostFamily._allTransitiveDependencies,
+          post: post,
+          reason: reason,
+          text: text,
+        );
+
+  ReportPostProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.post,
+    required this.reason,
+    required this.text,
+  }) : super.internal();
+
+  final PostModel post;
+  final String reason;
+  final String text;
+
+  @override
+  Override overrideWith(
+    FutureOr<void> Function(ReportPostRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: ReportPostProvider._internal(
+        (ref) => create(ref as ReportPostRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        post: post,
+        reason: reason,
+        text: text,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<void> createElement() {
+    return _ReportPostProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ReportPostProvider &&
+        other.post == post &&
+        other.reason == reason &&
+        other.text == text;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, post.hashCode);
+    hash = _SystemHash.combine(hash, reason.hashCode);
+    hash = _SystemHash.combine(hash, text.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin ReportPostRef on AutoDisposeFutureProviderRef<void> {
+  /// The parameter `post` of this provider.
+  PostModel get post;
+
+  /// The parameter `reason` of this provider.
+  String get reason;
+
+  /// The parameter `text` of this provider.
+  String get text;
+}
+
+class _ReportPostProviderElement extends AutoDisposeFutureProviderElement<void>
+    with ReportPostRef {
+  _ReportPostProviderElement(super.provider);
+
+  @override
+  PostModel get post => (origin as ReportPostProvider).post;
+  @override
+  String get reason => (origin as ReportPostProvider).reason;
+  @override
+  String get text => (origin as ReportPostProvider).text;
+}
+
+String _$deletePostHash() => r'62a474082029ab5eba95a307b487e6de1dad818c';
+
+/// See also [deletePost].
+@ProviderFor(deletePost)
+const deletePostProvider = DeletePostFamily();
+
+/// See also [deletePost].
+class DeletePostFamily extends Family<AsyncValue<void>> {
+  /// See also [deletePost].
+  const DeletePostFamily();
+
+  /// See also [deletePost].
+  DeletePostProvider call(
+    String postId,
+  ) {
+    return DeletePostProvider(
+      postId,
+    );
+  }
+
+  @override
+  DeletePostProvider getProviderOverride(
+    covariant DeletePostProvider provider,
+  ) {
+    return call(
+      provider.postId,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'deletePostProvider';
+}
+
+/// See also [deletePost].
+class DeletePostProvider extends AutoDisposeFutureProvider<void> {
+  /// See also [deletePost].
+  DeletePostProvider(
+    String postId,
+  ) : this._internal(
+          (ref) => deletePost(
+            ref as DeletePostRef,
+            postId,
+          ),
+          from: deletePostProvider,
+          name: r'deletePostProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$deletePostHash,
+          dependencies: DeletePostFamily._dependencies,
+          allTransitiveDependencies:
+              DeletePostFamily._allTransitiveDependencies,
+          postId: postId,
+        );
+
+  DeletePostProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.postId,
+  }) : super.internal();
+
+  final String postId;
+
+  @override
+  Override overrideWith(
+    FutureOr<void> Function(DeletePostRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: DeletePostProvider._internal(
+        (ref) => create(ref as DeletePostRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        postId: postId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<void> createElement() {
+    return _DeletePostProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is DeletePostProvider && other.postId == postId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, postId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin DeletePostRef on AutoDisposeFutureProviderRef<void> {
+  /// The parameter `postId` of this provider.
+  String get postId;
+}
+
+class _DeletePostProviderElement extends AutoDisposeFutureProviderElement<void>
+    with DeletePostRef {
+  _DeletePostProviderElement(super.provider);
+
+  @override
+  String get postId => (origin as DeletePostProvider).postId;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

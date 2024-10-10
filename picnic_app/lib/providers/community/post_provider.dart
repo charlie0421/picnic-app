@@ -13,8 +13,11 @@ Future<List<PostModel>?> postsByArtist(
   try {
     final response = await supabase
         .from('posts')
-        .select('*, boards!inner(*), user_profiles(*)')
+        .select(
+            '*, boards!inner(*), user_profiles(*), post_reports!left(post_id)')
         .eq('boards.artist_id', artistId)
+        .isFilter('post_reports', null)
+        .isFilter('deleted_at', null)
         .order('created_at', ascending: false)
         .range((page - 1) * limit, page * limit - 1);
 
@@ -35,8 +38,11 @@ Future<List<PostModel>?> postsByBoard(
   try {
     final response = await supabase
         .from('posts')
-        .select('*, boards!inner(*), user_profiles(*)')
+        .select(
+            '*, boards!inner(*), user_profiles(*), post_reports!left(post_id)')
         .eq('boards.board_id', boardId)
+        .isFilter('deleted_at', null)
+        .isFilter('post_reports', null)
         .order('created_at', ascending: false)
         .range((page - 1) * limit, page * limit - 1);
 
@@ -61,7 +67,10 @@ Future<List<PostModel>?> postsByQuery(
 
     final response = await supabase
         .from('posts')
-        .select('*, boards(*), user_profiles(*)')
+        .select(
+            '*, boards!inner(*), user_profiles(*), post_reports!left(post_id)')
+        .isFilter('deleted_at', null)
+        .isFilter('post_reports', null)
         .or('title.ilike.%$query%,content.ilike.%$query%')
         .range(page * limit, (page + 1) * limit - 1)
         .order('title->>${Intl.getCurrentLocale()}', ascending: true);
@@ -73,6 +82,36 @@ Future<List<PostModel>?> postsByQuery(
     }).toList();
   } catch (e, s) {
     logger.e('Error fetching posts:', error: e, stackTrace: s);
+    return Future.error(e);
+  }
+}
+
+@riverpod
+Future<void> reportPost(ref, PostModel post, String reason, String text) async {
+  try {
+    final response = await supabase.from('post_reports').upsert({
+      'post_id': post.post_id,
+      'user_id': supabase.auth.currentUser!.id,
+      'reason': reason + (text.isNotEmpty ? ' - $text' : ''),
+    });
+
+    logger.d('response: $response');
+  } catch (e, s) {
+    logger.e('Error reporting comment:', error: e, stackTrace: s);
+    return Future.error(e);
+  }
+}
+
+@riverpod
+Future<void> deletePost(ref, String postId) async {
+  try {
+    final response = await supabase.from('posts').update({
+      'deleted_at': DateTime.now().toIso8601String(),
+    }).eq('post_id', postId);
+
+    logger.d('response: $response');
+  } catch (e, s) {
+    logger.e('Error deleting post:', error: e, stackTrace: s);
     return Future.error(e);
   }
 }

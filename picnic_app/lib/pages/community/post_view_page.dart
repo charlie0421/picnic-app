@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:picnic_app/components/common/comment/comment_item.dart';
 import 'package:picnic_app/components/common/comment/comment_list.dart';
+import 'package:picnic_app/components/common/comment/post_popup_menu.dart';
 import 'package:picnic_app/components/community/write/embed_builder/link_embed_builder.dart';
 import 'package:picnic_app/components/community/write/embed_builder/media_embed_builder.dart';
 import 'package:picnic_app/components/community/write/embed_builder/youtube_embed_builder.dart';
@@ -206,9 +207,12 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                             AppTypo.caption10SB, const Color(0XFF8E8E8E))),
                   ],
                 ),
-                Text('신고',
-                    style: getTextStyle(
-                        AppTypo.caption10SB, const Color(0XFF8E8E8E))),
+                PostPopupMenu(
+                    post: widget.post,
+                    context: context,
+                    openReportModal: _openPostReportModal,
+                    refreshFunction:
+                        ref.read(navigationInfoProvider.notifier).goBack),
               ],
             ),
           ),
@@ -306,7 +310,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                                   pagingController: null,
                                   showReplyButton: false,
                                   openCommentsModal: _openCommentsModal,
-                                  openReportModal: _openReportModal,
+                                  openReportModal: _openCommentReportModal,
                                 );
                               },
                             ),
@@ -363,7 +367,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
           child: CommentList(
             id: widget.post.post_id,
             '댓글',
-            openReportModal: _openReportModal,
+            openReportModal: _openCommentReportModal,
           ),
         );
       },
@@ -378,7 +382,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
     });
   }
 
-  void _openReportModal(String title, CommentModel comment) {
+  void _openCommentReportModal(String title, CommentModel comment) {
     setState(() {
       _isModalOpen = true;
       for (var ad in _bannerAds.values) {
@@ -391,7 +395,8 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
         context: context,
         barrierDismissible: true,
         builder: (BuildContext context) {
-          return ReportDialog(title: title, comment: comment);
+          return ReportDialog(
+              title: title, type: ReportType.comment, target: comment);
         }).then((_) {
       setState(() {
         _isModalOpen = false;
@@ -401,6 +406,35 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
       });
       _loadComments(); // Reload comments after modal is closed
     });
+  }
+
+  void _openPostReportModal(String title, PostModel post) {
+    try {
+      setState(() {
+        _isModalOpen = true;
+        for (var ad in _bannerAds.values) {
+          ad?.dispose();
+        }
+        _bannerAds.clear();
+      });
+      logger.d('Open report modal');
+      showDialog(
+          context: context,
+          barrierDismissible: true,
+          builder: (BuildContext context) {
+            return ReportDialog(
+                title: title, type: ReportType.post, target: post);
+          }).then((_) {
+        setState(() {
+          _isModalOpen = false;
+          if (_shouldShowAds) {
+            _loadAds();
+          }
+        });
+      });
+    } catch (e, s) {
+      logger.e('Error: $e, StackTrace: $s');
+    }
   }
 }
 

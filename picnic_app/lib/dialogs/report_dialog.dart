@@ -1,14 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_app/components/common/comment/comment.dart';
 import 'package:picnic_app/models/common/comment.dart';
+import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/providers/community/comments_provider.dart';
+import 'package:picnic_app/providers/community/post_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 
+enum ReportType { comment, post }
+
 class ReportDialog extends ConsumerStatefulWidget {
-  const ReportDialog({super.key, required this.title, required this.comment});
+  const ReportDialog(
+      {super.key,
+      required this.title,
+      required this.type,
+      required this.target});
+  final ReportType type;
   final String title;
-  final CommentModel comment;
+  final Object target;
 
   @override
   ConsumerState<ReportDialog> createState() => _ReportDialogState();
@@ -139,8 +149,11 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
       return;
     }
 
-    reportComment(ref, widget.comment, _reasons[_selectedReason!],
-        _otherReasonController.text);
+    widget.target is Comment
+        ? reportComment(ref, widget.target as CommentModel,
+            _reasons[_selectedReason!], _otherReasonController.text)
+        : reportPost(ref, widget.target as PostModel,
+            _reasons[_selectedReason!], _otherReasonController.text);
 
     // Handle report submission
     Navigator.of(context).pop();
