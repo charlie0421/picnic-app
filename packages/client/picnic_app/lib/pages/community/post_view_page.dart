@@ -123,7 +123,8 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
       _isLoadingComments = true;
     });
     try {
-      final loadedComments = await comments(ref, widget.post.post_id, 1, 3);
+      final loadedComments = await comments(ref, widget.post.post_id, 1, 3,
+          includeDeleted: false, includeReported: false);
       if (!mounted) return; // 비동기 작업 후 다시 체크
       setState(() {
         _comments = loadedComments;
