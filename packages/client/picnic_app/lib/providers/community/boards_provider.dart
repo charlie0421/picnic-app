@@ -1,7 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/community/board.dart';
-import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -48,7 +47,7 @@ Future<List<BoardModel>?> boardsByArtistName(
     } else {
       final response = await supabase
           .from('boards')
-          .select()
+          .select('*,artist(*, artist_group(*))')
           .neq('artist_id', 0)
           .or('name->>ko.ilike.%$query%,name->>en.ilike.%$query%,name->>ja.ilike.%$query%,name->>zh.ilike.%$query%')
           .range(page * limit, (page + 1) * limit - 1)
@@ -56,31 +55,7 @@ Future<List<BoardModel>?> boardsByArtistName(
       boardData = response.map(BoardModel.fromJson).toList();
     }
 
-    final artistIds =
-        boardData.map((board) => board.artist_id).toSet().toList();
-
-    logger.d('artistIds: $artistIds');
-
-    final artistData = await supabase
-        .from('artist')
-        .select('*, artist_group(*)')
-        .inFilter('id', artistIds);
-
-    if (artistData.isEmpty) {
-      return [];
-    }
-
-    return boardData.map((board) {
-      logger.d('board: $board');
-      logger.d('artistData: $artistData');
-      return board.copyWith(
-          artist: ArtistModel.fromJson(artistData.firstWhere((artist) {
-        logger.d('artist: ${artist['id']}');
-        logger.d('board.artist_id: ${board.artist_id}');
-
-        return artist['id'] == board.artist_id;
-      })));
-    }).toList();
+    return boardData;
   } catch (e, s) {
     logger.e('Error fetching boards:', error: e, stackTrace: s);
     return Future.error(e);
