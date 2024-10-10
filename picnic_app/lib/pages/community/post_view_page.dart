@@ -280,7 +280,19 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
               _isLoadingComments
                   ? const Center(child: CircularProgressIndicator())
                   : _comments == null || _comments!.isEmpty
-                      ? const Center(child: Text('댓글이 없습니다.'))
+                      ? Center(
+                          child: Column(
+                          children: [
+                            const Text('댓글이 없습니다.'),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: _openCommentsModal,
+                              child: Text('댓글 쓰기',
+                                  style: getTextStyle(
+                                      AppTypo.body14B, AppColors.grey00)),
+                            ),
+                          ],
+                        ))
                       : Column(
                           children: [
                             ListView.builder(
