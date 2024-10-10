@@ -138,7 +138,7 @@ extension CustomSizeExtension on num {
 }
 
 double getAppBarHeight(WidgetRef ref) {
-  final mediaQuery = ref.watch(globalMediaQueryProvider);
+  final mediaQuery = ref.watch(globalMediaQueryProviderProvider);
   final double topPadding = mediaQuery.padding.top;
 
   // 안전 영역 상단 패딩 (노치, 상태 바 등을 포함)

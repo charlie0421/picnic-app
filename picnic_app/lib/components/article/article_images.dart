@@ -6,6 +6,7 @@ import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/library/library_list.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/pic/article.dart';
+import 'package:picnic_app/providers/global_media_query.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/util/ui.dart';
 
@@ -129,16 +130,17 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
   }
 }
 
-class FullScreenImageViewer extends StatefulWidget {
+class FullScreenImageViewer extends ConsumerStatefulWidget {
   final String imageUrl;
 
   const FullScreenImageViewer({super.key, required this.imageUrl});
 
   @override
-  _FullScreenImageViewerState createState() => _FullScreenImageViewerState();
+  ConsumerState<FullScreenImageViewer> createState() =>
+      _FullScreenImageViewerState();
 }
 
-class _FullScreenImageViewerState extends State<FullScreenImageViewer>
+class _FullScreenImageViewerState extends ConsumerState<FullScreenImageViewer>
     with SingleTickerProviderStateMixin {
   late TransformationController _controller;
   late AnimationController _animationController;
@@ -170,7 +172,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Container(
-        padding: MediaQuery.of(context).padding,
+        padding: ref.watch(globalMediaQueryProviderProvider).padding,
         decoration: const BoxDecoration(gradient: commonGradient),
         child: Stack(
           children: [

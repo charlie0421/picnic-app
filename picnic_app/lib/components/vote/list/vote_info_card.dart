@@ -5,6 +5,7 @@ import 'package:picnic_app/components/vote/list/vote_header.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_vertical.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/pages/vote/vote_detail_page.dart';
+import 'package:picnic_app/providers/global_media_query.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
@@ -155,7 +156,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
       AsyncValue<List<VoteItemModel?>> asyncVoteItemList) {
     return asyncVoteItemList.when(
       data: (voteItems) => Container(
-        width: MediaQuery.of(context).size.width,
+        width: ref.watch(globalMediaQueryProviderProvider).size.width,
         height: 260,
         padding: const EdgeInsets.only(left: 36, right: 36, top: 16),
         margin: const EdgeInsets.only(top: 24),

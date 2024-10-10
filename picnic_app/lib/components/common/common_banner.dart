@@ -5,6 +5,7 @@ import 'package:picnic_app/components/common/custom_pagination.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/providers/banner_list_provider.dart';
+import 'package:picnic_app/providers/global_media_query.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/ui.dart';
@@ -26,7 +27,7 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
   Widget build(BuildContext context) {
     final asyncBannerListState =
         ref.watch(asyncBannerListProvider(location: widget.location));
-    final width = MediaQuery.of(context).size.width;
+    final width = ref.watch(globalMediaQueryProviderProvider).size.width;
     return asyncBannerListState.when(
       data: (data) => Column(
         mainAxisSize: MainAxisSize.min,

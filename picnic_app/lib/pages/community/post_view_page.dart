@@ -20,6 +20,7 @@ import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/providers/community/comments_provider.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
+import 'package:picnic_app/providers/global_media_query.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
@@ -355,7 +356,8 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
       ),
       constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height - getAppBarHeight(ref)),
+          maxHeight: ref.watch(globalMediaQueryProviderProvider).size.height -
+              getAppBarHeight(ref)),
       builder: (context) {
         return SafeArea(
           child: CommentList(
