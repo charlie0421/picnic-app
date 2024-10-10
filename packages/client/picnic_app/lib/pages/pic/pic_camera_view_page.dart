@@ -17,6 +17,7 @@ import 'package:picnic_app/components/pic/image_overlay_painter.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/providers/global_media_query.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
 
@@ -59,7 +60,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        padding: MediaQuery.of(context).padding,
+        padding: ref.watch(globalMediaQueryProviderProvider).padding,
         color: AppColors.grey00,
         child: Column(
           children: [

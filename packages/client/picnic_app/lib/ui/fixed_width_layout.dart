@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:picnic_app/providers/global_media_query.dart';
 
-class FixedWidthLayout extends StatelessWidget {
+class FixedWidthLayout extends ConsumerWidget {
   final Widget child;
   final double maxWidth;
 
@@ -11,16 +13,16 @@ class FixedWidthLayout extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return LayoutBuilder(
       builder: (context, constraints) {
         return Center(
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: maxWidth),
             child: MediaQuery(
-              data: MediaQuery.of(context).copyWith(
-                size: Size(maxWidth, constraints.maxHeight),
-              ),
+              data: ref.watch(globalMediaQueryProviderProvider).copyWith(
+                    size: Size(maxWidth, constraints.maxHeight),
+                  ),
               child: child,
             ),
           ),

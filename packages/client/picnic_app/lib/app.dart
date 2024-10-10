@@ -63,7 +63,7 @@ class _AppState extends ConsumerState<App> {
   void _initializeApp() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
-          .read(globalMediaQueryProvider.notifier)
+          .read(globalMediaQueryProviderProvider.notifier)
           .updateMediaQueryData(MediaQuery.of(context));
     });
 
@@ -268,7 +268,7 @@ class _AppState extends ConsumerState<App> {
   }
 }
 
-class _ScaleAwareBuilder extends StatelessWidget {
+class _ScaleAwareBuilder extends ConsumerWidget {
   final Widget child;
   final Widget Function(BuildContext, Widget?) builder;
 
@@ -278,14 +278,14 @@ class _ScaleAwareBuilder extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (kIsWeb) {
       // For web, use a custom scaling factor
       return MediaQuery(
-        data: MediaQuery.of(context).copyWith(
-          size: const Size(600, 800),
-          // textScaleFactor: 600 / 393, // Adjust text scale for web
-        ),
+        data: ref.watch(globalMediaQueryProviderProvider).copyWith(
+              size: const Size(600, 800),
+              // textScaleFactor: 600 / 393, // Adjust text scale for web
+            ),
         child: builder(context, child),
       );
     } else {

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class LocalImageEmbedBuilder extends EmbedBuilder {
   final bool isUploading;
@@ -16,7 +17,7 @@ class LocalImageEmbedBuilder extends EmbedBuilder {
   Widget build(BuildContext context, QuillController controller, Embed node,
       bool readOnly, bool inline, TextStyle? textStyle) {
     final filePath = node.value.data;
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = getPlatformScreenSize(context).width;
     final width = screenWidth / 2;
     return Stack(
       children: [
@@ -54,7 +55,7 @@ class NetworkImageEmbedBuilder extends EmbedBuilder {
   Widget build(BuildContext context, QuillController controller, Embed node,
       bool readOnly, bool inline, TextStyle? textStyle) {
     final imageUrl = node.value.data;
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = getPlatformScreenSize(context).width;
     final width = screenWidth / 2;
     return SizedBox(
       width: width,
