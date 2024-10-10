@@ -29,51 +29,55 @@ class CommentPopupMenu extends ConsumerStatefulWidget {
 class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton<String>(
-      padding: EdgeInsets.zero,
-      icon: const Icon(Icons.more_vert),
-      onSelected: (String result) async {
-        if (result == 'Report') {
-          logger.i('widget.openReportModal: ${widget.openReportModal}');
-          if (widget.openReportModal != null) {
-            widget.openReportModal!(
-                S.of(context).label_title_report, widget.comment);
-          }
-          // showSimpleDialog(
-          //     title: S.of(context).label_title_report,
-          //     content: S.of(context).message_report_confirm,
-          //     onOk: () async {
-          //       _reportComment(commentId: widget.comment.commentId);
-          //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          //           content: Text(S.of(context).message_report_ok),
-          //           duration: const Duration(microseconds: 500)));
-          //       Navigator.pop(context);
-          //     },
-          //     onCancel: () => Navigator.pop(context));
-        } else if (result == 'Delete') {
-          await deleteComment(ref, widget.comment.commentId);
-          widget.pagingController?.refresh();
-        }
-      },
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        if (widget.comment.userId == supabase.auth.currentUser?.id)
-          PopupMenuItem<String>(
-              value: 'Delete',
-              child: Row(
-                children: [Text(S.of(context).popup_label_delete)],
-              )),
-        PopupMenuItem<String>(
-            value: 'Report',
-            child: Row(
-              children: [Text(S.of(context).label_title_report)],
-            )),
-      ],
-    );
+    return (_canDeleteComment() || _canReportComment())
+        ? PopupMenuButton<String>(
+            padding: EdgeInsets.zero,
+            icon: const Icon(Icons.more_vert),
+            onSelected: (String result) async {
+              if (result == 'Report') {
+                logger.i('widget.openReportModal: ${widget.openReportModal}');
+                if (widget.openReportModal != null) {
+                  widget.openReportModal!(
+                      S.of(context).label_title_report, widget.comment);
+                }
+              } else if (result == 'Delete') {
+                await deleteComment(ref, widget.comment.commentId);
+                widget.pagingController?.refresh();
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              if (_canDeleteComment())
+                PopupMenuItem<String>(
+                    value: 'Delete',
+                    child: Row(
+                      children: [Text(S.of(context).popup_label_delete)],
+                    )),
+              if (_canReportComment())
+                PopupMenuItem<String>(
+                    value: 'Report',
+                    child: Row(
+                      children: [Text(S.of(context).label_title_report)],
+                    )),
+            ],
+          )
+        : Container(
+            width: 24,
+          );
   }
 
   Future<void> _reportComment({required String commentId}) async {
     await supabase.from('comment').update({
       'report': true,
     }).eq('id', commentId);
+  }
+
+  bool _canDeleteComment() {
+    return widget.comment.userId == supabase.auth.currentUser?.id &&
+        widget.comment.deletedAt == null;
+  }
+
+  bool _canReportComment() {
+    return widget.comment.userId != supabase.auth.currentUser?.id &&
+        widget.comment.deletedAt == null;
   }
 }
