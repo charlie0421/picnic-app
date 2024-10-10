@@ -6,7 +6,7 @@ part of 'boards_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$boardsHash() => r'143cab1a6c5ec3b4f4070041bcac4895cb338e82';
+String _$boardsHash() => r'6738956c9359d86a5b902fc202a78d052544a8bf';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -155,7 +155,7 @@ class _BoardsProviderElement
 }
 
 String _$boardsByArtistNameHash() =>
-    r'd9d0769d2a98815ed119d00cb307231ca2356c7a';
+    r'a9aa228e4106be53f76818733f7cdeb0e24c7ffe';
 
 /// See also [boardsByArtistName].
 @ProviderFor(boardsByArtistName)
@@ -319,7 +319,7 @@ class _BoardsByArtistNameProviderElement
 }
 
 String _$checkPendingRequestHash() =>
-    r'd0ee84f40e93e9f047a5ffb16b078c8995775943';
+    r'de05998da67fda9a9610d444c0a8febbd9d8cd59';
 
 /// See also [checkPendingRequest].
 @ProviderFor(checkPendingRequest)
@@ -336,7 +336,7 @@ final checkPendingRequestProvider =
 
 typedef CheckPendingRequestRef = AutoDisposeFutureProviderRef<BoardModel?>;
 String _$checkDuplicateBoardHash() =>
-    r'4972606a3d3fc7e3de594bea2969e69152e5cc61';
+    r'baa009ded6747634188df7d5f3710e691ecfc3d3';
 
 /// See also [checkDuplicateBoard].
 @ProviderFor(checkDuplicateBoard)
@@ -466,7 +466,7 @@ class _CheckDuplicateBoardProviderElement
   String get title => (origin as CheckDuplicateBoardProvider).title;
 }
 
-String _$createBoardHash() => r'74b7f1294ac096766413cfce97472675ce714a72';
+String _$createBoardHash() => r'607990e37cc0dbf39d24093491c708c706954951';
 
 /// See also [createBoard].
 @ProviderFor(createBoard)

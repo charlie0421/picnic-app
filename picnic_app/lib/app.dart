@@ -16,6 +16,7 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/pages/oauth_callback_page.dart';
 import 'package:picnic_app/providers/ad_providers.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
+import 'package:picnic_app/providers/global_media_query.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/product_provider.dart';
 import 'package:picnic_app/providers/screen_protector_provider.dart';
@@ -60,6 +61,12 @@ class _AppState extends ConsumerState<App> {
   }
 
   void _initializeApp() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(globalMediaQueryProvider.notifier)
+          .updateMediaQueryData(MediaQuery.of(context));
+    });
+
     SchedulerBinding.instance.addPostFrameCallback((_) {
       ref.read(updateCheckerProvider.notifier).checkForUpdate();
     });
