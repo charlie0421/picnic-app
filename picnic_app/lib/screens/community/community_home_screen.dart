@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/bottom_navigation_menu.dart';
 import 'package:picnic_app/components/common/bottom/common_bottom_navigation_bar.dart';
 import 'package:picnic_app/components/ui/picnic_animated_switcher.dart';
-import 'package:picnic_app/providers/global_media_query.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 
 class CommunityHomeScreen extends ConsumerWidget {
@@ -11,10 +10,6 @@ class CommunityHomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Get the bottom padding of the screen (usually the height of the system navigation bar)
-    final bottomPadding =
-        ref.watch(globalMediaQueryProviderProvider).padding.bottom;
-
     final navigationInfo = ref.watch(navigationInfoProvider);
 
     return Stack(

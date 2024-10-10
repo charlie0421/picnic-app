@@ -30,7 +30,6 @@ Future<List<BoardModel>?> boards(ref, int artistId) async {
 Future<List<BoardModel>?> boardsByArtistName(
     ref, String query, int page, int limit) async {
   try {
-    final currentLocale = Intl.getCurrentLocale();
     List<BoardModel> boardData = [];
     if (query.isEmpty) {
       final response = await supabase
