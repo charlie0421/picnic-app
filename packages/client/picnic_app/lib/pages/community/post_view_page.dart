@@ -72,6 +72,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
       _quillController = quill.QuillController(
         document: quill.Document.fromJson(content),
         selection: const TextSelection.collapsed(offset: 0),
+        readOnly: true,
       );
     } catch (e, s) {
       logger.e('Error initializing QuillController: $e', stackTrace: s);
@@ -234,7 +235,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
       child: quill.QuillEditor(
         controller: _quillController!,
         scrollController: ScrollController(),
-        focusNode: FocusNode(),
+        focusNode: AlwaysDisabledFocusNode(),
         configurations: quill.QuillEditorConfigurations(
           embedBuilders: [
             LinkEmbedBuilder(),
@@ -386,4 +387,9 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
       _loadComments(); // Reload comments after modal is closed
     });
   }
+}
+
+class AlwaysDisabledFocusNode extends FocusNode {
+  @override
+  bool get hasFocus => false;
 }
