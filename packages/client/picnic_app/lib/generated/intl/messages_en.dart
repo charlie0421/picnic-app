@@ -380,7 +380,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_bookmark_over_5": MessageLookupByLibrary.simpleMessage(
             "You can have up to five bookmarks"),
         "text_comming_soon_pic_chart1": MessageLookupByLibrary.simpleMessage(
-            "Welcome to PikChart!\nSee you in August 2024!"),
+            "Welcome to Peek Charts!\nSee you in November 2024!"),
         "text_comming_soon_pic_chart2": MessageLookupByLibrary.simpleMessage(
             "Pie charts are a new chart unique to Peeknick that reflects daily, weekly, and monthly scores.\nPeeknick\'s new chart that reflects daily, weekly, and monthly scores."),
         "text_comming_soon_pic_chart3": MessageLookupByLibrary.simpleMessage(

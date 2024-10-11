@@ -316,7 +316,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_bookmark_over_5":
             MessageLookupByLibrary.simpleMessage("您最多可以拥有五个书签"),
         "text_comming_soon_pic_chart1": MessageLookupByLibrary.simpleMessage(
-            "欢迎访问 Pik Charts！\n2024 年 8 月再见！"),
+            "欢迎访问 Pik Charts！\n2024 年 11 月再见！"),
         "text_comming_soon_pic_chart2": MessageLookupByLibrary.simpleMessage(
             "饼图是 Peeknick 独有的新图表，可反映每日、每周和每月的分数。\nPiknick 反映每日、每周和每月得分的新图表。"),
         "text_comming_soon_pic_chart3":
