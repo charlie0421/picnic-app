@@ -14,7 +14,7 @@ import 'package:picnic_app/util/ui.dart';
 import '../../../generated/l10n.dart';
 
 class PostWriteHeader extends ConsumerStatefulWidget {
-  final VoidCallback onSave;
+  final Function onSave;
 
   const PostWriteHeader({
     super.key,
@@ -140,8 +140,11 @@ class _PostWriteHeaderState extends ConsumerState<PostWriteHeader> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Text(S.of(context).post_header_temporary_save,
-                  style: getTextStyle(AppTypo.body14B, AppColors.primary500)),
+              GestureDetector(
+                onTap: () => widget.onSave(isTemporary: true),
+                child: Text(S.of(context).post_header_temporary_save,
+                    style: getTextStyle(AppTypo.body14B, AppColors.primary500)),
+              ),
               SizedBox(width: 16.cw),
               SizedBox(
                 height: 32,
@@ -157,7 +160,7 @@ class _PostWriteHeaderState extends ConsumerState<PostWriteHeader> {
                             color: AppColors.primary500, width: 1),
                       ),
                     ),
-                    onPressed: widget.onSave,
+                    onPressed: () => widget.onSave,
                     child: Text(S.of(context).post_header_publish,
                         style: getTextStyle(
                             AppTypo.body14B, AppColors.primary500))),
