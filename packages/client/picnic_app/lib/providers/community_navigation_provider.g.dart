@@ -7,7 +7,7 @@ part of 'community_navigation_provider.dart';
 // **************************************************************************
 
 String _$communityStateInfoHash() =>
-    r'f238800230f07cff39b29ca613aeacaa76781c92';
+    r'175620d582be14d764c6527d728cdf6116e8e57c';
 
 /// See also [CommunityStateInfo].
 @ProviderFor(CommunityStateInfo)

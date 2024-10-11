@@ -45,31 +45,3 @@ class PostWriteBottomBar extends ConsumerWidget {
     );
   }
 }
-
-class _LinkDialog extends StatelessWidget {
-  final TextEditingController _controller = TextEditingController();
-  final String title;
-
-  _LinkDialog({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(title),
-      content: TextField(
-        controller: _controller,
-        decoration: const InputDecoration(hintText: "Enter link here"),
-      ),
-      actions: <Widget>[
-        TextButton(
-          child: const Text('Cancel'),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        TextButton(
-          child: const Text('Insert'),
-          onPressed: () => Navigator.of(context).pop(_controller.text),
-        ),
-      ],
-    );
-  }
-}

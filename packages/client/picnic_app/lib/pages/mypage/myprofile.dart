@@ -518,7 +518,12 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
               borderRadius: BorderRadius.circular(24.cw),
             ),
             child: SvgPicture.asset('assets/icons/pencil_style=fill.svg',
-                color: AppColors.grey900, width: 24.cw, height: 24),
+                colorFilter: const ColorFilter.mode(
+                  AppColors.grey900,
+                  BlendMode.srcIn,
+                ),
+                width: 24.cw,
+                height: 24),
           ),
         ),
       ],

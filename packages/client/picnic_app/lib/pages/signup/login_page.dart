@@ -20,7 +20,6 @@ import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/auth_service.dart';
-import 'package:picnic_app/util/auth_state_manager.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -51,8 +50,6 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final navigationInfoNotifier = ref.read(navigationInfoProvider.notifier);
-
     return Container(
       decoration: const BoxDecoration(gradient: commonGradient),
       child: Center(
@@ -79,7 +76,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                           'assets/icons/arrow_left_style=line.svg',
                           width: 24.cw,
                           height: 24,
-                          color: AppColors.grey900,
+                          colorFilter: const ColorFilter.mode(
+                              AppColors.grey900, BlendMode.srcIn),
                         ),
                       ),
                     ),
@@ -507,21 +505,5 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
           )
       ]);
     });
-  }
-
-  Future<void> _waitForAuthStateChange(WidgetRef ref) async {
-    // Wait for a maximum of 30 seconds
-    for (int i = 0; i < 30; i++) {
-      await Future.delayed(const Duration(seconds: 1));
-      final authState = ref.read(authStateProvider);
-      if (authState.isAuthenticated) {
-        // User is authenticated, navigate to home
-        // You might want to use a navigation method that works with Riverpod
-        return;
-      }
-    }
-
-    // If we get here, authentication failed or timed out
-    throw Exception('Authentication timed out');
   }
 }

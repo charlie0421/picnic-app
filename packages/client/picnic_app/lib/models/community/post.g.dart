@@ -24,6 +24,7 @@ _$PostModelImpl _$$PostModelImplFromJson(Map<String, dynamic> json) =>
       updated_at: DateTime.parse(json['updated_at'] as String),
       boards: BoardModel.fromJson(json['boards'] as Map<String, dynamic>),
       is_anonymous: json['is_anonymous'] as bool,
+      is_scraped: json['is_scraped'] as bool?,
       deletedAt: json['deleted_at'] == null
           ? null
           : DateTime.parse(json['deleted_at'] as String),
@@ -44,5 +45,6 @@ Map<String, dynamic> _$$PostModelImplToJson(_$PostModelImpl instance) =>
       'updated_at': instance.updated_at.toIso8601String(),
       'boards': instance.boards,
       'is_anonymous': instance.is_anonymous,
+      'is_scraped': instance.is_scraped,
       'deleted_at': instance.deletedAt?.toIso8601String(),
     };

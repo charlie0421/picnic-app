@@ -1,5 +1,6 @@
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/common/community_navigation.dart';
+import 'package:picnic_app/models/community/post.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'community_navigation_provider.g.dart';
@@ -26,6 +27,18 @@ class CommunityStateInfo extends _$CommunityStateInfo {
     state = state.copyWith(
       currentBoardId: boardId,
       currentBoardName: boardName,
+    );
+  }
+
+  void setCurrentPost(PostModel post) {
+    state = state.copyWith(
+      currentPost: post,
+    );
+  }
+
+  void setCurrentPostScraped(bool isScraped) {
+    state = state.copyWith(
+      currentPost: state.currentPost!.copyWith(is_scraped: isScraped),
     );
   }
 }

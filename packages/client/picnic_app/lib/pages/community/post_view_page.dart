@@ -57,13 +57,14 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
       final currentBoardName = ref.read(
         communityStateInfoProvider.select((value) => value.currentBoardName),
       );
+      ref.read(communityStateInfoProvider.notifier).setCurrentPost(widget.post);
       logger.d('currentBoardName: $currentBoardName');
       ref.read(navigationInfoProvider.notifier).settingNavigation(
             showPortal: true,
             showTopMenu: true,
             showBottomNavigation: false,
             pageTitle: currentBoardName,
-            topRightMenu: TopRightType.none,
+            topRightMenu: TopRightType.postView,
           );
     });
   }

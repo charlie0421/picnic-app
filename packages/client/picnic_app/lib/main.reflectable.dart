@@ -47,6 +47,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
               21,
               22,
               23,
+              24,
               0,
               1
             ],
@@ -66,6 +67,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
                       showTopMenu,
                       topRightMenu,
                       showBottomNavigation,
+                      pageTitle,
                       voteNavigationStack,
                       communityNavigationStack,
                       drawerNavigationStack,
@@ -79,6 +81,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
                           drawerNavigationStack: drawerNavigationStack,
                           novelBottomNavigationIndex:
                               novelBottomNavigationIndex,
+                          pageTitle: pageTitle,
                           picBottomNavigationIndex: picBottomNavigationIndex,
                           portalType: portalType,
                           showBottomNavigation: showBottomNavigation,
@@ -103,8 +106,8 @@ final _data = <r.Reflectable, r.ReflectorData>{
             134217735,
             1,
             const prefix0.Reflector(),
-            const <int>[24],
-            const <int>[4, 5, 6, 7, 8, 25, 26, 27, 28, 29],
+            const <int>[25],
+            const <int>[4, 5, 6, 7, 8, 26, 27, 28, 29, 30, 31],
             const <int>[],
             -1,
             {},
@@ -114,13 +117,15 @@ final _data = <r.Reflectable, r.ReflectorData>{
                       {currentArtistId,
                       currentArtistName,
                       currentBoardId,
-                      currentBoardName}) =>
+                      currentBoardName,
+                      currentPost}) =>
                   b
                       ? prefix2.CommunityState(
                           currentArtistId: currentArtistId,
                           currentArtistName: currentArtistName,
                           currentBoardId: currentBoardId,
-                          currentBoardName: currentBoardName)
+                          currentBoardName: currentBoardName,
+                          currentPost: currentPost)
                       : null
             },
             -1,
@@ -149,7 +154,8 @@ final _data = <r.Reflectable, r.ReflectorData>{
               20,
               21,
               22,
-              23
+              23,
+              24
             ],
             const <int>[
               4,
@@ -171,7 +177,8 @@ final _data = <r.Reflectable, r.ReflectorData>{
               20,
               21,
               22,
-              23
+              23,
+              24
             ],
             const <int>[],
             -1,
@@ -189,8 +196,8 @@ final _data = <r.Reflectable, r.ReflectorData>{
             134218311,
             3,
             const prefix0.Reflector(),
-            const <int>[25, 26, 27, 28, 29],
-            const <int>[4, 5, 6, 7, 8, 25, 26, 27, 28, 29],
+            const <int>[26, 27, 28, 29, 30, 31],
+            const <int>[4, 5, 6, 7, 8, 26, 27, 28, 29, 30, 31],
             const <int>[],
             -1,
             const {},
@@ -215,17 +222,17 @@ final _data = <r.Reflectable, r.ReflectorData>{
             -1,
             -1,
             null,
-            const <int>[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+            const <int>[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
             const prefix0.Reflector(),
             null),
         r.MethodMirrorImpl(r'initial', 1, 0, -1, -1, -1, null, const <int>[],
             const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'==', 2097154, -1, -1, -1, -1, null,
-            const <int>[14], const prefix0.Reflector(), null),
+            const <int>[15], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'toString', 2097154, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'noSuchMethod', 524290, -1, -1, -1, -1, null,
-            const <int>[15], const prefix0.Reflector(), null),
+            const <int>[16], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'hashCode', 2097155, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'runtimeType', 2097155, -1, -1, -1, -1, null,
@@ -250,6 +257,8 @@ final _data = <r.Reflectable, r.ReflectorData>{
             const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'showBottomNavigation', 2097155, -1, -1, -1, -1,
             null, const <int>[], const prefix0.Reflector(), null),
+        r.MethodMirrorImpl(r'pageTitle', 2097155, -1, -1, -1, -1, null,
+            const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'voteNavigationStack', 2097155, -1, -1, -1, -1,
             null, const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'communityNavigationStack', 2097155, -1, -1, -1, -1,
@@ -261,7 +270,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
         r.MethodMirrorImpl(r'copyWith', 35651587, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'', 385, 1, -1, -1, -1, null,
-            const <int>[16, 17, 18, 19], const prefix0.Reflector(), null),
+            const <int>[17, 18, 19, 20, 21], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'currentArtistId', 2097155, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'currentArtistName', 2097155, -1, -1, -1, -1, null,
@@ -269,6 +278,8 @@ final _data = <r.Reflectable, r.ReflectorData>{
         r.MethodMirrorImpl(r'currentBoardId', 2097155, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'currentBoardName', 2097155, -1, -1, -1, -1, null,
+            const <int>[], const prefix0.Reflector(), null),
+        r.MethodMirrorImpl(r'currentPost', 2097155, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'copyWith', 35651587, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null)
@@ -395,6 +406,18 @@ final _data = <r.Reflectable, r.ReflectorData>{
             null,
             #showBottomNavigation),
         r.ParameterMirrorImpl(
+            r'pageTitle',
+            134361094,
+            2,
+            const prefix0.Reflector(),
+            -1,
+            -1,
+            -1,
+            null,
+            null,
+            null,
+            #pageTitle),
+        r.ParameterMirrorImpl(
             r'voteNavigationStack',
             67252230,
             2,
@@ -449,7 +472,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
         r.ParameterMirrorImpl(
             r'currentArtistId',
             134361094,
-            24,
+            25,
             const prefix0.Reflector(),
             -1,
             -1,
@@ -461,7 +484,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
         r.ParameterMirrorImpl(
             r'currentArtistName',
             134361094,
-            24,
+            25,
             const prefix0.Reflector(),
             -1,
             -1,
@@ -473,7 +496,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
         r.ParameterMirrorImpl(
             r'currentBoardId',
             134361094,
-            24,
+            25,
             const prefix0.Reflector(),
             -1,
             -1,
@@ -485,7 +508,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
         r.ParameterMirrorImpl(
             r'currentBoardName',
             134361094,
-            24,
+            25,
             const prefix0.Reflector(),
             -1,
             -1,
@@ -493,7 +516,19 @@ final _data = <r.Reflectable, r.ReflectorData>{
             null,
             null,
             null,
-            #currentBoardName)
+            #currentBoardName),
+        r.ParameterMirrorImpl(
+            r'currentPost',
+            67252230,
+            25,
+            const prefix0.Reflector(),
+            -1,
+            -1,
+            -1,
+            null,
+            null,
+            null,
+            #currentPost)
       ],
       <Type>[
         prefix1.Navigation,
@@ -523,6 +558,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
         r'topRightMenu': (dynamic instance) => instance.topRightMenu,
         r'showBottomNavigation': (dynamic instance) =>
             instance.showBottomNavigation,
+        r'pageTitle': (dynamic instance) => instance.pageTitle,
         r'voteNavigationStack': (dynamic instance) =>
             instance.voteNavigationStack,
         r'communityNavigationStack': (dynamic instance) =>
@@ -538,7 +574,8 @@ final _data = <r.Reflectable, r.ReflectorData>{
         r'currentArtistId': (dynamic instance) => instance.currentArtistId,
         r'currentArtistName': (dynamic instance) => instance.currentArtistName,
         r'currentBoardId': (dynamic instance) => instance.currentBoardId,
-        r'currentBoardName': (dynamic instance) => instance.currentBoardName
+        r'currentBoardName': (dynamic instance) => instance.currentBoardName,
+        r'currentPost': (dynamic instance) => instance.currentPost
       },
       {},
       null,
