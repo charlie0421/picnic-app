@@ -106,7 +106,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "image_save_success":
             MessageLookupByLibrary.simpleMessage("画像が保存されました。"),
         "label_ads_exceeded":
-            MessageLookupByLibrary.simpleMessage("IDごとに視聴可能な広告を使い切りました。"),
+            MessageLookupByLibrary.simpleMessage("IDごとに視聴可能な広告をすべて使い切りました。"),
         "label_ads_next_available_time":
             MessageLookupByLibrary.simpleMessage("次の広告視聴可能時間。"),
         "label_agreement_privacy":
@@ -339,7 +339,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_bookmark_over_5":
             MessageLookupByLibrary.simpleMessage("ブックマークは最大5個まで可能です。"),
         "text_comming_soon_pic_chart1": MessageLookupByLibrary.simpleMessage(
-            "ピックチャートへようこそ！\n2024年8月にお会いしましょう！"),
+            "ピックチャートへようこそ！\n2024年11月にお会いしましょう！"),
         "text_comming_soon_pic_chart2": MessageLookupByLibrary.simpleMessage(
             "ピックチャートは、日次、週次、月次のスコアを反映している\nピクニックならではの新しいチャートです。"),
         "text_comming_soon_pic_chart3": MessageLookupByLibrary.simpleMessage(
@@ -370,7 +370,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_no_search_result":
             MessageLookupByLibrary.simpleMessage("検索結果がありません。"),
         "text_purchase_vat_included":
-            MessageLookupByLibrary.simpleMessage("*価格はVAT込みの価格です。"),
+            MessageLookupByLibrary.simpleMessage("*価格は税込価格です。"),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("スターキャンディー"),
         "text_star_candy_with_bonus": m3,
         "text_this_time_vote": MessageLookupByLibrary.simpleMessage("今回の投票"),

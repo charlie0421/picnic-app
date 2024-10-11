@@ -2000,10 +2000,10 @@ class S {
     );
   }
 
-  /// `Welcome to PikChart!\nSee you in August 2024!`
+  /// `Welcome to Peek Charts!\nSee you in November 2024!`
   String get text_comming_soon_pic_chart1 {
     return Intl.message(
-      'Welcome to PikChart!\nSee you in August 2024!',
+      'Welcome to Peek Charts!\nSee you in November 2024!',
       name: 'text_comming_soon_pic_chart1',
       desc: '',
       args: [],

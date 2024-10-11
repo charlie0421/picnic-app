@@ -192,7 +192,7 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
   },
-  "label_ads_exceeded": "IDごとに視聴可能な広告を使い切りました。",
+  "label_ads_exceeded": "IDごとに視聴可能な広告をすべて使い切りました。",
   "@label_ads_exceeded": {
     "manualTranslation": false
   },
@@ -941,7 +941,7 @@
   "@text_bookmark_over_5": {
     "manualTranslation": false
   },
-  "text_comming_soon_pic_chart1": "ピックチャートへようこそ！\n2024年8月にお会いしましょう！",
+  "text_comming_soon_pic_chart1": "ピックチャートへようこそ！\n2024年11月にお会いしましょう！",
   "@text_comming_soon_pic_chart1": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
@@ -1017,7 +1017,7 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
   },
-  "text_purchase_vat_included": "*価格はVAT込みの価格です。",
+  "text_purchase_vat_included": "*価格は税込価格です。",
   "@text_purchase_vat_included": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
