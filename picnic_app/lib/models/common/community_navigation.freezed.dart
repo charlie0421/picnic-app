@@ -20,6 +20,7 @@ mixin _$CommunityState {
   String get currentArtistName => throw _privateConstructorUsedError;
   String get currentBoardId => throw _privateConstructorUsedError;
   String get currentBoardName => throw _privateConstructorUsedError;
+  PostModel? get currentPost => throw _privateConstructorUsedError;
 
   /// Create a copy of CommunityState
   /// with the given fields replaced by the non-null parameter values.
@@ -38,7 +39,10 @@ abstract class $CommunityStateCopyWith<$Res> {
       {int currentArtistId,
       String currentArtistName,
       String currentBoardId,
-      String currentBoardName});
+      String currentBoardName,
+      PostModel? currentPost});
+
+  $PostModelCopyWith<$Res>? get currentPost;
 }
 
 /// @nodoc
@@ -60,6 +64,7 @@ class _$CommunityStateCopyWithImpl<$Res, $Val extends CommunityState>
     Object? currentArtistName = null,
     Object? currentBoardId = null,
     Object? currentBoardName = null,
+    Object? currentPost = freezed,
   }) {
     return _then(_value.copyWith(
       currentArtistId: null == currentArtistId
@@ -78,7 +83,25 @@ class _$CommunityStateCopyWithImpl<$Res, $Val extends CommunityState>
           ? _value.currentBoardName
           : currentBoardName // ignore: cast_nullable_to_non_nullable
               as String,
+      currentPost: freezed == currentPost
+          ? _value.currentPost
+          : currentPost // ignore: cast_nullable_to_non_nullable
+              as PostModel?,
     ) as $Val);
+  }
+
+  /// Create a copy of CommunityState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $PostModelCopyWith<$Res>? get currentPost {
+    if (_value.currentPost == null) {
+      return null;
+    }
+
+    return $PostModelCopyWith<$Res>(_value.currentPost!, (value) {
+      return _then(_value.copyWith(currentPost: value) as $Val);
+    });
   }
 }
 
@@ -94,7 +117,11 @@ abstract class _$$NavigationImplCopyWith<$Res>
       {int currentArtistId,
       String currentArtistName,
       String currentBoardId,
-      String currentBoardName});
+      String currentBoardName,
+      PostModel? currentPost});
+
+  @override
+  $PostModelCopyWith<$Res>? get currentPost;
 }
 
 /// @nodoc
@@ -114,6 +141,7 @@ class __$$NavigationImplCopyWithImpl<$Res>
     Object? currentArtistName = null,
     Object? currentBoardId = null,
     Object? currentBoardName = null,
+    Object? currentPost = freezed,
   }) {
     return _then(_$NavigationImpl(
       currentArtistId: null == currentArtistId
@@ -132,6 +160,10 @@ class __$$NavigationImplCopyWithImpl<$Res>
           ? _value.currentBoardName
           : currentBoardName // ignore: cast_nullable_to_non_nullable
               as String,
+      currentPost: freezed == currentPost
+          ? _value.currentPost
+          : currentPost // ignore: cast_nullable_to_non_nullable
+              as PostModel?,
     ));
   }
 }
@@ -143,7 +175,8 @@ class _$NavigationImpl extends Navigation {
       {this.currentArtistId = 0,
       this.currentArtistName = '',
       this.currentBoardId = '',
-      this.currentBoardName = ''})
+      this.currentBoardName = '',
+      this.currentPost})
       : super._();
 
   @override
@@ -158,10 +191,12 @@ class _$NavigationImpl extends Navigation {
   @override
   @JsonKey()
   final String currentBoardName;
+  @override
+  final PostModel? currentPost;
 
   @override
   String toString() {
-    return 'CommunityState(currentArtistId: $currentArtistId, currentArtistName: $currentArtistName, currentBoardId: $currentBoardId, currentBoardName: $currentBoardName)';
+    return 'CommunityState(currentArtistId: $currentArtistId, currentArtistName: $currentArtistName, currentBoardId: $currentBoardId, currentBoardName: $currentBoardName, currentPost: $currentPost)';
   }
 
   @override
@@ -176,12 +211,14 @@ class _$NavigationImpl extends Navigation {
             (identical(other.currentBoardId, currentBoardId) ||
                 other.currentBoardId == currentBoardId) &&
             (identical(other.currentBoardName, currentBoardName) ||
-                other.currentBoardName == currentBoardName));
+                other.currentBoardName == currentBoardName) &&
+            (identical(other.currentPost, currentPost) ||
+                other.currentPost == currentPost));
   }
 
   @override
   int get hashCode => Object.hash(runtimeType, currentArtistId,
-      currentArtistName, currentBoardId, currentBoardName);
+      currentArtistName, currentBoardId, currentBoardName, currentPost);
 
   /// Create a copy of CommunityState
   /// with the given fields replaced by the non-null parameter values.
@@ -197,7 +234,8 @@ abstract class Navigation extends CommunityState {
       {final int currentArtistId,
       final String currentArtistName,
       final String currentBoardId,
-      final String currentBoardName}) = _$NavigationImpl;
+      final String currentBoardName,
+      final PostModel? currentPost}) = _$NavigationImpl;
   const Navigation._() : super._();
 
   @override
@@ -208,6 +246,8 @@ abstract class Navigation extends CommunityState {
   String get currentBoardId;
   @override
   String get currentBoardName;
+  @override
+  PostModel? get currentPost;
 
   /// Create a copy of CommunityState
   /// with the given fields replaced by the non-null parameter values.

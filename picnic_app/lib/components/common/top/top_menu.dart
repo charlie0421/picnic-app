@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/common_my_point_info.dart';
 import 'package:picnic_app/components/common/top/top_right_common.dart';
 import 'package:picnic_app/components/common/top/top_right_post.dart';
+import 'package:picnic_app/components/common/top/top_right_post_view.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class TopMenu extends ConsumerStatefulWidget {
@@ -29,11 +32,23 @@ class _TopState extends ConsumerState<TopMenu> {
     final navigationInfo = ref.watch(navigationInfoProvider);
     final navigationInfoNotifier = ref.watch(navigationInfoProvider.notifier);
 
+    final String pageName = navigationInfo.pageTitle;
+
     return Container(
       height: 54,
       padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 10),
       child: Stack(
         children: [
+          Container(
+            width: double.infinity,
+            alignment: Alignment.center,
+            child: Center(
+              child: Text(
+                Intl.message(pageName),
+                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+              ),
+            ),
+          ),
           Positioned(
             left: 0,
             top: 0,
@@ -65,7 +80,9 @@ class _TopState extends ConsumerState<TopMenu> {
                   ? Container()
                   : navigationInfo.topRightMenu == TopRightType.common
                       ? const TopRightCommon()
-                      : const TopRightPost()),
+                      : navigationInfo.topRightMenu == TopRightType.board
+                          ? const TopRightPost()
+                          : const TopRightPostView()),
         ],
       ),
     );

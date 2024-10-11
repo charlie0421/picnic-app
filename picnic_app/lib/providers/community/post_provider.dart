@@ -14,7 +14,7 @@ Future<List<PostModel>?> postsByArtist(
     final response = await supabase
         .from('posts')
         .select(
-            '*, boards!inner(*), user_profiles(*), post_reports!left(post_id)')
+            '*, boards!inner(*), user_profiles(*), post_reports!left(post_id), post_scraps!left(post_id)')
         .eq('boards.artist_id', artistId)
         .isFilter('post_reports', null)
         .isFilter('deleted_at', null)
@@ -39,7 +39,7 @@ Future<List<PostModel>?> postsByBoard(
     final response = await supabase
         .from('posts')
         .select(
-            '*, boards!inner(*), user_profiles(*), post_reports!left(post_id)')
+            '*, boards!inner(*), user_profiles(*), post_reports!left(post_id), post_scraps!left(post_id)')
         .eq('boards.board_id', boardId)
         .isFilter('deleted_at', null)
         .isFilter('post_reports', null)
@@ -68,7 +68,7 @@ Future<List<PostModel>?> postsByQuery(
     final response = await supabase
         .from('posts')
         .select(
-            '*, boards!inner(*), user_profiles(*), post_reports!left(post_id)')
+            '*, boards!inner(*), user_profiles(*), post_reports!left(post_id), post_scraps!left(post_id)')
         .isFilter('deleted_at', null)
         .isFilter('post_reports', null)
         .or('title.ilike.%$query%,content.ilike.%$query%')
@@ -112,6 +112,37 @@ Future<void> deletePost(ref, String postId) async {
     logger.d('response: $response');
   } catch (e, s) {
     logger.e('Error deleting post:', error: e, stackTrace: s);
+    return Future.error(e);
+  }
+}
+
+@riverpod
+Future<void> scrapPost(ref, String postId) async {
+  try {
+    final response = await supabase.from('post_scraps').upsert({
+      'post_id': postId,
+      'user_id': supabase.auth.currentUser!.id,
+    });
+
+    logger.d('response: $response');
+  } catch (e, s) {
+    logger.e('Error scrapping post:', error: e, stackTrace: s);
+    return Future.error(e);
+  }
+}
+
+@riverpod
+Future<void> unscrapPost(ref, String postId) async {
+  try {
+    final response = await supabase
+        .from('post_scraps')
+        .delete()
+        .eq('post_id', postId)
+        .eq('user_id', supabase.auth.currentUser!.id);
+
+    logger.d('response: $response');
+  } catch (e, s) {
+    logger.e('Error unscrapping post:', error: e, stackTrace: s);
     return Future.error(e);
   }
 }

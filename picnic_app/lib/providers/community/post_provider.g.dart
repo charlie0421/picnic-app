@@ -6,7 +6,7 @@ part of 'post_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$postsByArtistHash() => r'41b88f1110b5a8be62f04d3e1ce96826e39a1214';
+String _$postsByArtistHash() => r'ae738e0037699ed6b120df7d8de3bcd9841a7d9d';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -190,7 +190,7 @@ class _PostsByArtistProviderElement
   int get page => (origin as PostsByArtistProvider).page;
 }
 
-String _$postsByBoardHash() => r'e9867742e6569b7083d7a41fde3627fad768e8bf';
+String _$postsByBoardHash() => r'4b70712f1a9c3c84762feb81075a76fbbc249986';
 
 /// See also [postsByBoard].
 @ProviderFor(postsByBoard)
@@ -352,7 +352,7 @@ class _PostsByBoardProviderElement
   int get page => (origin as PostsByBoardProvider).page;
 }
 
-String _$postsByQueryHash() => r'cfe5f063693fabd2d327da2647689762ce4e6ea8';
+String _$postsByQueryHash() => r'078752a611ea9d76950308423a857b87e1635e85';
 
 /// See also [postsByQuery].
 @ProviderFor(postsByQuery)
@@ -817,6 +817,261 @@ class _DeletePostProviderElement extends AutoDisposeFutureProviderElement<void>
 
   @override
   String get postId => (origin as DeletePostProvider).postId;
+}
+
+String _$scrapPostHash() => r'd762939a544aed6d02c1a27628200c9ede024b60';
+
+/// See also [scrapPost].
+@ProviderFor(scrapPost)
+const scrapPostProvider = ScrapPostFamily();
+
+/// See also [scrapPost].
+class ScrapPostFamily extends Family<AsyncValue<void>> {
+  /// See also [scrapPost].
+  const ScrapPostFamily();
+
+  /// See also [scrapPost].
+  ScrapPostProvider call(
+    String postId,
+  ) {
+    return ScrapPostProvider(
+      postId,
+    );
+  }
+
+  @override
+  ScrapPostProvider getProviderOverride(
+    covariant ScrapPostProvider provider,
+  ) {
+    return call(
+      provider.postId,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'scrapPostProvider';
+}
+
+/// See also [scrapPost].
+class ScrapPostProvider extends AutoDisposeFutureProvider<void> {
+  /// See also [scrapPost].
+  ScrapPostProvider(
+    String postId,
+  ) : this._internal(
+          (ref) => scrapPost(
+            ref as ScrapPostRef,
+            postId,
+          ),
+          from: scrapPostProvider,
+          name: r'scrapPostProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$scrapPostHash,
+          dependencies: ScrapPostFamily._dependencies,
+          allTransitiveDependencies: ScrapPostFamily._allTransitiveDependencies,
+          postId: postId,
+        );
+
+  ScrapPostProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.postId,
+  }) : super.internal();
+
+  final String postId;
+
+  @override
+  Override overrideWith(
+    FutureOr<void> Function(ScrapPostRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: ScrapPostProvider._internal(
+        (ref) => create(ref as ScrapPostRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        postId: postId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<void> createElement() {
+    return _ScrapPostProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ScrapPostProvider && other.postId == postId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, postId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin ScrapPostRef on AutoDisposeFutureProviderRef<void> {
+  /// The parameter `postId` of this provider.
+  String get postId;
+}
+
+class _ScrapPostProviderElement extends AutoDisposeFutureProviderElement<void>
+    with ScrapPostRef {
+  _ScrapPostProviderElement(super.provider);
+
+  @override
+  String get postId => (origin as ScrapPostProvider).postId;
+}
+
+String _$unscrapPostHash() => r'44073b7c674e9ca4a87615b770b6a78abda83807';
+
+/// See also [unscrapPost].
+@ProviderFor(unscrapPost)
+const unscrapPostProvider = UnscrapPostFamily();
+
+/// See also [unscrapPost].
+class UnscrapPostFamily extends Family<AsyncValue<void>> {
+  /// See also [unscrapPost].
+  const UnscrapPostFamily();
+
+  /// See also [unscrapPost].
+  UnscrapPostProvider call(
+    String postId,
+  ) {
+    return UnscrapPostProvider(
+      postId,
+    );
+  }
+
+  @override
+  UnscrapPostProvider getProviderOverride(
+    covariant UnscrapPostProvider provider,
+  ) {
+    return call(
+      provider.postId,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'unscrapPostProvider';
+}
+
+/// See also [unscrapPost].
+class UnscrapPostProvider extends AutoDisposeFutureProvider<void> {
+  /// See also [unscrapPost].
+  UnscrapPostProvider(
+    String postId,
+  ) : this._internal(
+          (ref) => unscrapPost(
+            ref as UnscrapPostRef,
+            postId,
+          ),
+          from: unscrapPostProvider,
+          name: r'unscrapPostProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$unscrapPostHash,
+          dependencies: UnscrapPostFamily._dependencies,
+          allTransitiveDependencies:
+              UnscrapPostFamily._allTransitiveDependencies,
+          postId: postId,
+        );
+
+  UnscrapPostProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.postId,
+  }) : super.internal();
+
+  final String postId;
+
+  @override
+  Override overrideWith(
+    FutureOr<void> Function(UnscrapPostRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: UnscrapPostProvider._internal(
+        (ref) => create(ref as UnscrapPostRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        postId: postId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<void> createElement() {
+    return _UnscrapPostProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is UnscrapPostProvider && other.postId == postId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, postId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin UnscrapPostRef on AutoDisposeFutureProviderRef<void> {
+  /// The parameter `postId` of this provider.
+  String get postId;
+}
+
+class _UnscrapPostProviderElement extends AutoDisposeFutureProviderElement<void>
+    with UnscrapPostRef {
+  _UnscrapPostProviderElement(super.provider);
+
+  @override
+  String get postId => (origin as UnscrapPostProvider).postId;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
