@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util/ui.dart';
 
-class ListItem extends StatelessWidget {
+class PicnicListItem extends StatelessWidget {
   final String leading;
   final String assetPath;
   final VoidCallback? onTap;
   final Widget? tailing;
   final Widget? title;
 
-  const ListItem({
+  const PicnicListItem({
     super.key,
     required this.leading,
     required this.assetPath,
@@ -21,29 +20,40 @@ class ListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: SizedBox(
-        height: 56,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(leading, style: getTextStyle(AppTypo.body16M)),
-            Expanded(child: title ?? const SizedBox.shrink()),
-            tailing ??
-                SvgPicture.asset(
-                  assetPath,
-                  width: 20.cw,
-                  height: 20,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.grey900,
-                    BlendMode.srcIn,
-                  ),
+    return Column(
+      children: [
+        Container(
+          height: 61,
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              InkWell(
+                onTap: onTap,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(leading, style: getTextStyle(AppTypo.body16M)),
+                    Expanded(child: title ?? const SizedBox.shrink()),
+                    tailing ??
+                        SvgPicture.asset(
+                          assetPath,
+                          width: 20,
+                          height: 20,
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.grey900,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                  ],
                 ),
-          ],
+              ),
+            ],
+          ),
         ),
-      ),
+        const Divider(color: AppColors.grey200),
+      ],
     );
   }
 }

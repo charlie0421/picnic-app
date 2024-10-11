@@ -1,0 +1,97 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:picnic_app/components/common/avartar_container.dart';
+import 'package:picnic_app/components/common/picnic_list_item.dart';
+import 'package:picnic_app/providers/app_setting_provider.dart';
+import 'package:picnic_app/providers/user_info_provider.dart';
+import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/ui.dart';
+
+class CommunityMyPage extends ConsumerStatefulWidget {
+  const CommunityMyPage({super.key});
+
+  @override
+  ConsumerState<CommunityMyPage> createState() => _MyPageState();
+}
+
+class _MyPageState extends ConsumerState<CommunityMyPage> {
+  @override
+  Widget build(BuildContext context) {
+    final userInfoState = ref.watch(userInfoProvider);
+    final postAnonymousMode = ref
+        .watch(appSettingProvider.select((value) => value.postAnonymousMode));
+    final appSettingNotifier = ref.read(appSettingProvider.notifier);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        children: [
+          const SizedBox(height: 24),
+          postAnonymousMode
+              ? Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                  NoAvatar(width: 60, height: 60, borderRadius: 30),
+                  SizedBox(width: 16.cw),
+                  Text(
+                    '잌명',
+                    style: getTextStyle(AppTypo.title18B, AppColors.grey900),
+                  )
+                ])
+              : userInfoState.when(
+                  data: (data) {
+                    if (data == null) {
+                      return const SizedBox();
+                    }
+                    return Row(
+                      children: [
+                        ProfileImageContainer(
+                          avatarUrl: data.avatar_url,
+                          borderRadius: 30,
+                          width: 60,
+                          height: 60,
+                        ),
+                        const SizedBox(width: 16),
+                        Text(
+                          data.nickname ?? '',
+                          style:
+                              getTextStyle(AppTypo.title18B, AppColors.grey900),
+                        )
+                      ],
+                    );
+                  },
+                  loading: () => const CircularProgressIndicator(),
+                  error: (error, stack) => Text('error: $error'),
+                ),
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('익명모드', style: getTextStyle(AppTypo.body16M)),
+              Switch(
+                  inactiveTrackColor: AppColors.grey300,
+                  inactiveThumbColor: AppColors.grey00,
+                  value: postAnonymousMode,
+                  onChanged: (value) =>
+                      appSettingNotifier.setPostAnonymousMode(value)),
+            ],
+          ),
+          const Divider(color: AppColors.grey200),
+          PicnicListItem(
+            leading: '내가 쓴 글',
+            assetPath: 'assets/icons/arrow_right_style=line.svg',
+            onTap: () {},
+          ),
+          PicnicListItem(
+            leading: '내 스크랩',
+            assetPath: 'assets/icons/arrow_right_style=line.svg',
+            onTap: () {},
+          ),
+          PicnicListItem(
+            leading: '내가 쓴 댓글',
+            assetPath: 'assets/icons/arrow_right_style=line.svg',
+            onTap: () {},
+          ),
+        ],
+      ),
+    );
+  }
+}

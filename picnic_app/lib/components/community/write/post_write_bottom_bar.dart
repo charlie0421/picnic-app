@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
 
-class PostWriteBottomBar extends StatelessWidget {
+class PostWriteBottomBar extends ConsumerWidget {
   const PostWriteBottomBar({
     super.key,
-    required this.isAnonymous,
-    required this.onAnonymousChanged,
   });
-  final bool isAnonymous;
-  final ValueChanged<bool> onAnonymousChanged;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final postAnonymousMode = ref
+        .watch(appSettingProvider.select((value) => value.postAnonymousMode));
+    final appSettingNotifier = ref.read(appSettingProvider.notifier);
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 4),
       decoration: const BoxDecoration(
@@ -33,8 +35,11 @@ class PostWriteBottomBar extends StatelessWidget {
           ),
           SizedBox(width: 8.cw),
           Switch(
-              value: isAnonymous,
-              onChanged: (value) => onAnonymousChanged(value)),
+              inactiveTrackColor: AppColors.grey300,
+              inactiveThumbColor: AppColors.grey00,
+              value: postAnonymousMode,
+              onChanged: (value) =>
+                  appSettingNotifier.setPostAnonymousMode(value)),
         ],
       ),
     );

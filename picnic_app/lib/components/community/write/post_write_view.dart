@@ -167,8 +167,6 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
 
   @override
   Widget build(BuildContext context) {
-    final postAnonymousMode =
-        ref.read(appSettingProvider.select((value) => value.postAnonymousMode));
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -219,12 +217,7 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
                   ),
                 ),
               ),
-              PostWriteBottomBar(
-                isAnonymous: postAnonymousMode,
-                onAnonymousChanged: (value) => ref
-                    .read(appSettingProvider.notifier)
-                    .setPostAnonymousMode(value),
-              ),
+              const PostWriteBottomBar(),
             ],
           ),
         ),

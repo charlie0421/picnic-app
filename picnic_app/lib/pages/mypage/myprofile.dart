@@ -84,7 +84,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
               height: 24,
             ),
             if (supabase.isLogged)
-              ListItem(
+              PicnicListItem(
                 leading: S.of(context).label_mypage_picnic_id,
                 title: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -104,7 +104,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
               thickness: 1,
               height: 24,
             ),
-            ListItem(
+            PicnicListItem(
                 leading: S.of(context).label_mypage_terms_of_use,
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () {
@@ -117,7 +117,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
               thickness: 1,
               height: 24,
             ),
-            ListItem(
+            PicnicListItem(
                 leading: S.of(context).label_mypage_privacy_policy,
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () {
@@ -130,7 +130,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
               thickness: 1,
               height: 24,
             ),
-            ListItem(
+            PicnicListItem(
                 leading: S.of(context).label_mypage_logout,
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () {
@@ -145,7 +145,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
               thickness: 1,
               height: 24,
             ),
-            ListItem(
+            PicnicListItem(
                 leading: S.of(context).label_mypage_withdrawal,
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () => _showWithdrawalModal()),
