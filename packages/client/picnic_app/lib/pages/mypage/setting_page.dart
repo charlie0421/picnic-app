@@ -57,7 +57,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   Text(S.of(context).label_setting_alarm,
                       style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
                   const SizedBox(height: 4),
-                  ListItem(
+                  PicnicListItem(
                     leading: S.of(context).label_setting_push_alarm,
                     assetPath: 'assets/icons/arrow_right_style=line.svg',
                     tailing: LoadSwitch(
@@ -93,7 +93,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     ),
                   ),
                   const Divider(color: AppColors.grey200),
-                  ListItem(
+                  PicnicListItem(
                     leading: S.of(context).label_setting_event_alarm,
                     title: Container(
                       margin: EdgeInsets.only(left: 8.cw),
@@ -184,7 +184,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   const SizedBox(height: 48),
                   Text(S.of(context).label_setting_storage,
                       style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
-                  ListItem(
+                  PicnicListItem(
                       leading: S.of(context).label_setting_remove_cache,
                       assetPath: 'assets/icons/arrow_right_style=line.svg',
                       onTap: () async {
@@ -210,7 +210,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         }
                         switch (info.status) {
                           case UpdateStatus.updateRequired:
-                            return ListItem(
+                            return PicnicListItem(
                               leading:
                                   '${S.of(context).label_setting_current_version} ${info.currentVersion}',
                               title: Align(
@@ -231,7 +231,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               },
                             );
                           case UpdateStatus.updateRecommended:
-                            return ListItem(
+                            return PicnicListItem(
                               leading:
                                   '${S.of(context).label_setting_current_version} ${info.currentVersion}',
                               title: Align(
@@ -252,7 +252,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               },
                             );
                           case UpdateStatus.upToDate:
-                            return ListItem(
+                            return PicnicListItem(
                               leading:
                                   '${S.of(context).label_setting_current_version} ${info.currentVersion}',
                               title: Align(

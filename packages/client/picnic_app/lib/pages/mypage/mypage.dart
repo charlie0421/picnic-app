@@ -61,45 +61,35 @@ class _MyPageState extends ConsumerState<MyPage> {
                           child: StarCandyInfoText(
                               alignment: MainAxisAlignment.start))
                       : const SizedBox(height: 16),
-
-                  const Divider(color: AppColors.grey200),
                   // 공지사항
                   if (data != null && data.is_admin)
-                    ListItem(
+                    PicnicListItem(
                         leading: S.of(context).label_mypage_notice,
                         assetPath: 'assets/icons/arrow_right_style=line.svg',
                         onTap: () {}),
-                  if (data != null && data.is_admin)
-                    const Divider(color: AppColors.grey200),
                   // 충전내역
                   if (data != null && data.is_admin)
-                    ListItem(
+                    PicnicListItem(
                         leading: S.of(context).label_mypage_charge_history,
                         assetPath: 'assets/icons/arrow_right_style=line.svg',
                         onTap: () {}),
-                  if (data != null && data.is_admin)
-                    const Divider(color: AppColors.grey200),
                   // 고객센터
-                  ListItem(
+                  PicnicListItem(
                       leading: S.of(context).label_mypage_customer_center,
                       assetPath: 'assets/icons/arrow_right_style=line.svg',
                       onTap: () {
                         _launchURL('https://forms.gle/VPfgdt2JSMyBisps5');
                       }),
-                  const Divider(color: AppColors.grey200),
-                  // 설정
-                  ListItem(
+                  PicnicListItem(
                       leading: S.of(context).label_mypage_setting,
                       assetPath: 'assets/icons/arrow_right_style=line.svg',
                       onTap: () => ref
                           .read(navigationInfoProvider.notifier)
                           .setCurrentMyPage(const SettingPage())),
-                  const Divider(color: AppColors.grey200),
                   // 나의 아티스트
                   _buildMyStar('VOTE'),
-                  const Divider(color: AppColors.grey200),
                   // 투표내역
-                  ListItem(
+                  PicnicListItem(
                       leading: S.of(context).label_mypage_vote_history,
                       assetPath: 'assets/icons/arrow_right_style=line.svg',
                       onTap: () => data != null
@@ -107,7 +97,6 @@ class _MyPageState extends ConsumerState<MyPage> {
                               .read(navigationInfoProvider.notifier)
                               .setCurrentMyPage(const VoteHistoryPage())
                           : showRequireLoginDialog(context: context)),
-                  const Divider(color: AppColors.grey200),
                   // _buildMyStar('PIC'),
                   // const Divider(color: AppColors.Grey200),
                   // ListItem(
