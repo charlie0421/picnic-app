@@ -22,7 +22,7 @@ class PicnicListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
+        SizedBox(
           height: 61,
           child: Column(
             mainAxisSize: MainAxisSize.max,

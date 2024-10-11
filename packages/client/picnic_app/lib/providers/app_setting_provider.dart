@@ -9,7 +9,7 @@ part 'app_setting_provider.g.dart';
 
 @riverpod
 class AppSetting extends _$AppSetting {
-  Setting setting = Setting(); // 초기 값이 필요하다면 임시로 할당
+  Setting setting = const Setting(); // 초기 값이 필요하다면 임시로 할당
 
   AppSetting() {
     loadSettings();
@@ -21,7 +21,7 @@ class AppSetting extends _$AppSetting {
   }
 
   Future<void> loadSettings() async {
-    final loadedSetting = await Setting().load();
+    final loadedSetting = await const Setting().load();
     logger.d('로드된 설정 (loadSettings): ${loadedSetting.toString()}');
     state = loadedSetting;
     logger.d('업데이트된 상태 (loadSettings): ${state.toString()}');
