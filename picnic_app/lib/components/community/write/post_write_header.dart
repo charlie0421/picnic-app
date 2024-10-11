@@ -58,11 +58,20 @@ class _PostWriteHeaderState extends ConsumerState<PostWriteHeader> {
                     BoardModel? initItem;
                     if (currentBoardId.isNotEmpty) {
                       initItem = snapshot.data?.firstWhere(
-                          (element) => element.board_id == currentBoardId);
+                          (element) => element.board_id == currentBoardId,
+                          orElse: () => snapshot.data!.first);
                     } else {
                       initItem = snapshot.data?.first;
                     }
-                    currentBoardId = initItem!.board_id;
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      ref
+                          .read(communityStateInfoProvider.notifier)
+                          .setCurrentBoardId(
+                              initItem!.board_id,
+                              initItem.is_official
+                                  ? getLocaleTextFromJson(initItem.name)
+                                  : initItem.name['minor']);
+                    });
 
                     return Container(
                       constraints:
