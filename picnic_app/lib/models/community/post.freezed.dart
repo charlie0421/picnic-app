@@ -32,6 +32,7 @@ mixin _$PostModel {
   DateTime get created_at => throw _privateConstructorUsedError;
   DateTime get updated_at => throw _privateConstructorUsedError;
   BoardModel get boards => throw _privateConstructorUsedError;
+  bool get is_anonymous => throw _privateConstructorUsedError;
   @JsonKey(name: 'deleted_at')
   DateTime? get deletedAt => throw _privateConstructorUsedError;
 
@@ -63,6 +64,7 @@ abstract class $PostModelCopyWith<$Res> {
       DateTime created_at,
       DateTime updated_at,
       BoardModel boards,
+      bool is_anonymous,
       @JsonKey(name: 'deleted_at') DateTime? deletedAt});
 
   $UserProfilesModelCopyWith<$Res>? get user_profiles;
@@ -96,6 +98,7 @@ class _$PostModelCopyWithImpl<$Res, $Val extends PostModel>
     Object? created_at = null,
     Object? updated_at = null,
     Object? boards = null,
+    Object? is_anonymous = null,
     Object? deletedAt = freezed,
   }) {
     return _then(_value.copyWith(
@@ -147,6 +150,10 @@ class _$PostModelCopyWithImpl<$Res, $Val extends PostModel>
           ? _value.boards
           : boards // ignore: cast_nullable_to_non_nullable
               as BoardModel,
+      is_anonymous: null == is_anonymous
+          ? _value.is_anonymous
+          : is_anonymous // ignore: cast_nullable_to_non_nullable
+              as bool,
       deletedAt: freezed == deletedAt
           ? _value.deletedAt
           : deletedAt // ignore: cast_nullable_to_non_nullable
@@ -200,6 +207,7 @@ abstract class _$$PostModelImplCopyWith<$Res>
       DateTime created_at,
       DateTime updated_at,
       BoardModel boards,
+      bool is_anonymous,
       @JsonKey(name: 'deleted_at') DateTime? deletedAt});
 
   @override
@@ -233,6 +241,7 @@ class __$$PostModelImplCopyWithImpl<$Res>
     Object? created_at = null,
     Object? updated_at = null,
     Object? boards = null,
+    Object? is_anonymous = null,
     Object? deletedAt = freezed,
   }) {
     return _then(_$PostModelImpl(
@@ -284,6 +293,10 @@ class __$$PostModelImplCopyWithImpl<$Res>
           ? _value.boards
           : boards // ignore: cast_nullable_to_non_nullable
               as BoardModel,
+      is_anonymous: null == is_anonymous
+          ? _value.is_anonymous
+          : is_anonymous // ignore: cast_nullable_to_non_nullable
+              as bool,
       deletedAt: freezed == deletedAt
           ? _value.deletedAt
           : deletedAt // ignore: cast_nullable_to_non_nullable
@@ -308,6 +321,7 @@ class _$PostModelImpl extends _PostModel {
       required this.created_at,
       required this.updated_at,
       required this.boards,
+      required this.is_anonymous,
       @JsonKey(name: 'deleted_at') this.deletedAt})
       : _content = content,
         super._();
@@ -346,12 +360,14 @@ class _$PostModelImpl extends _PostModel {
   @override
   final BoardModel boards;
   @override
+  final bool is_anonymous;
+  @override
   @JsonKey(name: 'deleted_at')
   final DateTime? deletedAt;
 
   @override
   String toString() {
-    return 'PostModel(post_id: $post_id, user_id: $user_id, user_profiles: $user_profiles, board_id: $board_id, title: $title, content: $content, view_count: $view_count, reply_count: $reply_count, is_hidden: $is_hidden, created_at: $created_at, updated_at: $updated_at, boards: $boards, deletedAt: $deletedAt)';
+    return 'PostModel(post_id: $post_id, user_id: $user_id, user_profiles: $user_profiles, board_id: $board_id, title: $title, content: $content, view_count: $view_count, reply_count: $reply_count, is_hidden: $is_hidden, created_at: $created_at, updated_at: $updated_at, boards: $boards, is_anonymous: $is_anonymous, deletedAt: $deletedAt)';
   }
 
   @override
@@ -378,6 +394,8 @@ class _$PostModelImpl extends _PostModel {
             (identical(other.updated_at, updated_at) ||
                 other.updated_at == updated_at) &&
             (identical(other.boards, boards) || other.boards == boards) &&
+            (identical(other.is_anonymous, is_anonymous) ||
+                other.is_anonymous == is_anonymous) &&
             (identical(other.deletedAt, deletedAt) ||
                 other.deletedAt == deletedAt));
   }
@@ -398,6 +416,7 @@ class _$PostModelImpl extends _PostModel {
       created_at,
       updated_at,
       boards,
+      is_anonymous,
       deletedAt);
 
   /// Create a copy of PostModel
@@ -430,6 +449,7 @@ abstract class _PostModel extends PostModel {
           required final DateTime created_at,
           required final DateTime updated_at,
           required final BoardModel boards,
+          required final bool is_anonymous,
           @JsonKey(name: 'deleted_at') final DateTime? deletedAt}) =
       _$PostModelImpl;
   const _PostModel._() : super._();
@@ -461,6 +481,8 @@ abstract class _PostModel extends PostModel {
   DateTime get updated_at;
   @override
   BoardModel get boards;
+  @override
+  bool get is_anonymous;
   @override
   @JsonKey(name: 'deleted_at')
   DateTime? get deletedAt;

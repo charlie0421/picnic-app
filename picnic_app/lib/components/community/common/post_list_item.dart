@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/comment/post_popup_menu.dart';
 import 'package:picnic_app/constants.dart';
@@ -43,7 +42,7 @@ class _PostListItemState extends ConsumerState<PostListItem> {
           border: Border(
             bottom: BorderSide(
               color: AppColors.grey300,
-              width: 1.h,
+              width: 1.cw,
             ),
           ),
         ),
@@ -60,16 +59,26 @@ class _PostListItemState extends ConsumerState<PostListItem> {
                         style: getTextStyle(
                             AppTypo.caption12B, AppColors.primary500)),
                     SizedBox(width: 4.cw),
-                    ProfileImageContainer(
-                      avatarUrl: widget.post.user_profiles?.avatar_url,
-                      borderRadius: 4,
-                      width: 18,
-                      height: 18,
-                    ),
+                    widget.post.is_anonymous
+                        ? NoAvatar(
+                            width: 18,
+                            height: 18,
+                            borderRadius: 4,
+                          )
+                        : ProfileImageContainer(
+                            avatarUrl: widget.post.user_profiles?.avatar_url,
+                            borderRadius: 4,
+                            width: 18,
+                            height: 18,
+                          ),
                     SizedBox(width: 4.cw),
-                    Text(widget.post.user_profiles?.nickname ?? '',
-                        style: getTextStyle(
-                            AppTypo.caption12B, AppColors.grey900)),
+                    widget.post.is_anonymous
+                        ? Text('잌명',
+                            style: getTextStyle(
+                                AppTypo.caption12B, AppColors.grey900))
+                        : Text(widget.post.user_profiles?.nickname ?? '',
+                            style: getTextStyle(
+                                AppTypo.caption12B, AppColors.grey900)),
                     SizedBox(width: 4.cw),
                     Text(formatTimeAgo(context, widget.post.created_at),
                         style: getTextStyle(

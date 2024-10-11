@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/reflector.dart';
 import 'package:reflectable/reflectable.dart';
@@ -21,7 +22,9 @@ class LoggingObserver extends ProviderObserver {
         previousValue.runtimeType.toString().startsWith('String') ||
         newValue.runtimeType.toString().startsWith('String') ||
         previousValue.runtimeType.toString().startsWith('minified:') ||
-        newValue.runtimeType.toString().startsWith('minified:')) {
+        newValue.runtimeType.toString().startsWith('minified:') ||
+        previousValue is MediaQueryData ||
+        newValue is MediaQueryData) {
       return;
     }
 

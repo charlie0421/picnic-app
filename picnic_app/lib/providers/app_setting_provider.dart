@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+part 'app_setting_provider.freezed.dart';
 part 'app_setting_provider.g.dart';
 
 @riverpod
 class AppSetting extends _$AppSetting {
   Setting setting = Setting(); // 초기 값이 필요하다면 임시로 할당
+
+  AppSetting() {
+    loadSettings();
+  }
 
   @override
   Setting build() {
@@ -15,9 +21,10 @@ class AppSetting extends _$AppSetting {
   }
 
   Future<void> loadSettings() async {
-    setting = await Setting.load();
-    state =
-        state.copyWith(themeMode: setting.themeMode, locale: setting.locale);
+    final loadedSetting = await Setting().load();
+    logger.d('로드된 설정 (loadSettings): ${loadedSetting.toString()}');
+    state = loadedSetting;
+    logger.d('업데이트된 상태 (loadSettings): ${state.toString()}');
   }
 
   setThemeMode(String modeStr) {
@@ -31,29 +38,37 @@ class AppSetting extends _$AppSetting {
         'locale', '${locale.languageCode}_${locale.countryCode}');
     state = state.copyWith(locale: locale);
   }
+
+  void setPostAnonymousMode(bool postAnonymousMode) {
+    logger.d('setPostAnonymousMode 호출: $postAnonymousMode');
+    globalStorage.saveData('postAnonymousMode', postAnonymousMode.toString());
+    state = state.copyWith(postAnonymousMode: postAnonymousMode);
+    logger.d('업데이트된 상태 (setPostAnonymousMode): ${state.toString()}');
+  }
 }
 
-class Setting {
-  ThemeMode themeMode = ThemeMode.system;
-  Locale locale = const Locale('ko_KR');
+@freezed
+class Setting with _$Setting {
+  const Setting._();
 
-  Setting();
+  const factory Setting({
+    @Default(ThemeMode.system) ThemeMode themeMode,
+    @Default(Locale("ko", "KR")) Locale locale,
+    @Default(false) bool postAnonymousMode,
+  }) = _Setting;
 
-  static Future<Setting> load() async {
+  Future<Setting> load() async {
     var themeModeStr = await globalStorage.loadData('themeMode', 'system');
     var localeStr = await globalStorage.loadData('locale', 'ko_KR');
-    return Setting()
-      ..themeMode = parseThemeMode(themeModeStr!)
-      ..locale = parseLocale(localeStr!);
-  }
+    var postAnonymousModeStr =
+        await globalStorage.loadData('postAnonymousMode', 'false');
 
-  Setting copyWith({
-    ThemeMode? themeMode,
-    Locale? locale,
-  }) {
-    return Setting()
-      ..themeMode = themeMode ?? this.themeMode
-      ..locale = locale ?? this.locale;
+    logger.d(
+        '로드된 설정: themeMode=$themeModeStr, locale=$localeStr, postAnonymousMode=$postAnonymousModeStr');
+    return copyWith(
+        themeMode: parseThemeMode(themeModeStr!),
+        locale: parseLocale(localeStr!),
+        postAnonymousMode: postAnonymousModeStr == 'true');
   }
 }
 

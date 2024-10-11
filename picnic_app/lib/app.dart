@@ -71,7 +71,7 @@ class _AppState extends ConsumerState<App> {
       ref.read(updateCheckerProvider.notifier).checkForUpdate();
     });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await ref.read(appSettingProvider.notifier).loadSettings();
+      ref.read(appSettingProvider.notifier);
 
       if (!kIsWeb) {
         ref.read(rewardedAdsProvider.notifier).loadAd(0);

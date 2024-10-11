@@ -40,7 +40,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
   String? lastProvider;
 
   @override
-  initState() {
+  void initState() {
+    super.initState();
     const storage = FlutterSecureStorage();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       lastProvider = await storage.read(key: 'last_provider');
