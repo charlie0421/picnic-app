@@ -10,6 +10,7 @@ import 'package:picnic_app/components/community/write/post_write_header.dart';
 import 'package:picnic_app/components/ui/s3_uploader.dart';
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
@@ -77,7 +78,7 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
     }
   }
 
-  Future<void> _savePost() async {
+  Future<void> _savePost({bool isTemporary = false}) async {
     if (_isSaving) return;
 
     setState(() {
@@ -94,6 +95,7 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
         'is_anonymous': _isAnonymous,
         'user_id': supabase.auth.currentUser!.id,
         'board_id': ref.read(communityStateInfoProvider).currentBoardId,
+        'is_temporary': isTemporary,
       };
 
       logger.d('Post data: $postData');
@@ -121,12 +123,21 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
       // Insert all attachments
       await supabase.from('post_attachments').insert(attachmentData);
 
-      // Show success message or navigate back
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Post saved successfully!')),
-      );
-
-      ref.read(navigationInfoProvider.notifier).goBack();
+      if (isTemporary) {
+        showSimpleDialog(
+          title: '임시 저장 완료',
+          content: '임시저장글 목록으로 이동할까요?',
+          onOk: () {},
+          onCancel: () {
+            Navigator.of(context).pop();
+          },
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Post saved successfully!')),
+        );
+        ref.read(navigationInfoProvider.notifier).goBack();
+      }
     } catch (e, s) {
       logger.e('Error saving post: $e', stackTrace: s);
 
