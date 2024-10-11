@@ -11,6 +11,7 @@ import 'package:picnic_app/components/ui/s3_uploader.dart';
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
+import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
@@ -28,7 +29,6 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
   final TextEditingController _titleController = TextEditingController();
   final quill.QuillController _contentController =
       quill.QuillController.basic();
-  bool _isAnonymous = false;
   final List<PlatformFile> _attachments = [];
   final Map<String, double> _uploadProgress = {};
   late final S3Uploader _s3Uploader;
@@ -79,6 +79,9 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
   }
 
   Future<void> _savePost({bool isTemporary = false}) async {
+    final postAnonymousMode = ref
+        .watch(appSettingProvider.select((value) => value.postAnonymousMode));
+
     if (_isSaving) return;
 
     setState(() {
@@ -92,7 +95,7 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
       final postData = {
         'title': _titleController.text,
         'content': _contentController.document.toDelta().toJson(),
-        'is_anonymous': _isAnonymous,
+        'is_anonymous': postAnonymousMode,
         'user_id': supabase.auth.currentUser!.id,
         'board_id': ref.read(communityStateInfoProvider).currentBoardId,
         'is_temporary': isTemporary,
@@ -164,6 +167,8 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
 
   @override
   Widget build(BuildContext context) {
+    final postAnonymousMode =
+        ref.read(appSettingProvider.select((value) => value.postAnonymousMode));
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -215,9 +220,10 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
                 ),
               ),
               PostWriteBottomBar(
-                isAnonymous: _isAnonymous,
-                onAnonymousChanged: (value) =>
-                    setState(() => _isAnonymous = value),
+                isAnonymous: postAnonymousMode,
+                onAnonymousChanged: (value) => ref
+                    .read(appSettingProvider.notifier)
+                    .setPostAnonymousMode(value),
               ),
             ],
           ),

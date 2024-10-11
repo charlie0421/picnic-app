@@ -33,7 +33,6 @@ class Navigation with _$Navigation {
     @Default(true) bool showTopMenu,
     @Default(TopRightType.common) TopRightType topRightMenu,
     @Default(true) bool showBottomNavigation,
-    @Default('') String pageTitle,
     NavigationStack? voteNavigationStack,
     NavigationStack? communityNavigationStack,
     NavigationStack? drawerNavigationStack,

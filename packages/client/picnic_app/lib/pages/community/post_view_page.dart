@@ -183,10 +183,14 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                     const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           ),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 8),
-            child: Text(widget.post.user_profiles?.nickname ?? '',
-                style: getTextStyle(AppTypo.caption12B, AppColors.primary500)),
-          ),
+              padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 8),
+              child: widget.post.is_anonymous
+                  ? Text('잌명',
+                      style: getTextStyle(
+                          AppTypo.caption12B, AppColors.primary500))
+                  : Text(widget.post.user_profiles?.nickname ?? '',
+                      style: getTextStyle(
+                          AppTypo.caption12B, AppColors.primary500))),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 8),
             child: Row(

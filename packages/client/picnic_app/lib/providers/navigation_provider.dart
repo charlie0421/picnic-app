@@ -104,7 +104,6 @@ class NavigationInfo extends _$NavigationInfo {
       showBottomNavigation: showBottomNavigation,
       showTopMenu: showTopMenu,
       topRightMenu: topRightMenu ?? TopRightType.common,
-      pageTitle: pageTitle ?? '',
     );
   }
 

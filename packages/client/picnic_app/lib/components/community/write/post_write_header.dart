@@ -160,7 +160,7 @@ class _PostWriteHeaderState extends ConsumerState<PostWriteHeader> {
                             color: AppColors.primary500, width: 1),
                       ),
                     ),
-                    onPressed: () => widget.onSave,
+                    onPressed: () => widget.onSave(),
                     child: Text(S.of(context).post_header_publish,
                         style: getTextStyle(
                             AppTypo.body14B, AppColors.primary500))),
