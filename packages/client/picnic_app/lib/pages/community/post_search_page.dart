@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:picnic_app/components/common/comment/post_popup_menu.dart';
 import 'package:picnic_app/components/common/common_search_box.dart';
 import 'package:picnic_app/components/community/common/post_list_item.dart';
 import 'package:picnic_app/constants.dart';
@@ -186,11 +187,22 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
                     children: [
                       _buildSearchResultLabel(),
                       const SizedBox(height: 24),
-                      PostListItem(post: post),
+                      PostListItem(
+                        post: post,
+                        popupMenu: PostPopupMenu(
+                            post: post,
+                            context: context,
+                            refreshFunction: ref.refresh),
+                      ),
                     ],
                   );
                 }
-                return PostListItem(post: post);
+                return PostListItem(
+                    post: post,
+                    popupMenu: PostPopupMenu(
+                        post: post,
+                        context: context,
+                        refreshFunction: ref.refresh));
               },
               firstPageProgressIndicatorBuilder: (_) => const Center(
                 child: CircularProgressIndicator(),

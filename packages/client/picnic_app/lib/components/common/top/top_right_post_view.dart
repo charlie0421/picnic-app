@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/community/post_provider.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class TopRightPostView extends ConsumerStatefulWidget {
@@ -28,7 +29,8 @@ class _TopRightPostViewState extends ConsumerState<TopRightPostView> {
         (currentPost.is_scraped ?? false)
             ? GestureDetector(
                 onTap: () {
-                  unscrapPost(ref, currentPost.post_id);
+                  unscrapPost(
+                      ref, currentPost.post_id, supabase.auth.currentUser!.id);
                   currentPostNotifier
                       .setCurrentPost(currentPost.copyWith(is_scraped: false));
                 },

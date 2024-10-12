@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:picnic_app/components/common/comment/post_popup_menu.dart';
 import 'package:picnic_app/components/community/common/post_list_item.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/pages/community/post_write_page.dart';
@@ -67,7 +68,13 @@ class _PostListState extends ConsumerState<PostList> {
               ))
           : ListView.builder(
               itemCount: data.length,
-              itemBuilder: (context, index) => PostListItem(post: data[index]),
+              itemBuilder: (context, index) => PostListItem(
+                post: data[index],
+                popupMenu: PostPopupMenu(
+                    post: data[index],
+                    context: context,
+                    refreshFunction: ref.refresh),
+              ),
             ),
       error: (err, stack) => ErrorView(context, error: err, stackTrace: stack),
       loading: () => buildLoadingOverlay(),

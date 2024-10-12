@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:picnic_app/app.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
@@ -11,14 +11,14 @@ import 'package:picnic_app/supabase_options.dart';
 class CommentPopupMenu extends ConsumerStatefulWidget {
   final BuildContext context;
   final CommentModel comment;
-  final PagingController<int, CommentModel>? pagingController;
+  final Function? refreshFunction;
   final Function? openReportModal;
 
   const CommentPopupMenu({
     super.key,
     required this.comment,
     required this.context,
-    required this.pagingController,
+    this.refreshFunction,
     this.openReportModal,
   });
   // required
@@ -46,14 +46,16 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
               content: '정말로 삭제하시겠습니까?',
               onOk: () async {
                 await deleteComment(ref, widget.comment.commentId);
-                widget.pagingController?.refresh();
-                Navigator.of(context).pop();
+                if (widget.refreshFunction != null) {
+                  widget.refreshFunction!();
+                }
+                if (navigatorKey.currentContext != null) {
+                  Navigator.of(navigatorKey.currentContext!).pop();
+                }
               },
               onCancel: () {
                 Navigator.of(context).pop();
               });
-          await deleteComment(ref, widget.comment.commentId);
-          widget.pagingController?.refresh();
         }
       },
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[

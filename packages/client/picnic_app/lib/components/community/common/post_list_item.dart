@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
-import 'package:picnic_app/components/common/comment/post_popup_menu.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/report_dialog.dart';
 import 'package:picnic_app/models/community/post.dart';
@@ -15,8 +14,8 @@ import 'package:picnic_app/util/ui.dart';
 
 class PostListItem extends ConsumerStatefulWidget {
   final PostModel post;
-
-  const PostListItem({super.key, required this.post});
+  final Widget? popupMenu;
+  const PostListItem({super.key, required this.post, required this.popupMenu});
 
   @override
   ConsumerState<PostListItem> createState() => _PostListItemState();
@@ -121,11 +120,7 @@ class _PostListItemState extends ConsumerState<PostListItem> {
                 //   Image.network(widget.post.imageUrls.first, width: double.infinity),
               ],
             ),
-            PostPopupMenu(
-                post: widget.post,
-                context: context,
-                openReportModal: _openPostReportModal,
-                refreshFunction: ref.refresh),
+            widget.popupMenu ?? Container(),
           ],
         ),
       ),

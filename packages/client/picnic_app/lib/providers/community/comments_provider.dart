@@ -18,7 +18,8 @@ Future<List<CommentModel>> comments(ref, String postId, int page, int limit,
       comment_likes:comment_likes(count),
       user:user_profiles(*),
       comment_reports!left(comment_id),
-      user_likes:comment_likes!left(comment_id)
+      user_likes:comment_likes!left(comment_id),
+      post:posts(*)
     ''').eq('post_id', postId);
 
     // 삭제된 댓글 필터링

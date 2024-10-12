@@ -17,6 +17,7 @@ import 'package:picnic_app/config/config_service.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/report_dialog.dart';
 import 'package:picnic_app/models/common/comment.dart';
+import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/providers/community/comments_provider.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
@@ -61,6 +62,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
             showPortal: true,
             showTopMenu: true,
+            topRightMenu: TopRightType.postView,
             showBottomNavigation: false,
             pageTitle: currentBoard!.is_official
                 ? getLocaleTextFromJson(currentBoard.name)

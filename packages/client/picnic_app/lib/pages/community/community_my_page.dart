@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
 import 'package:picnic_app/pages/community/community_my_comment.dart';
+import 'package:picnic_app/pages/community/community_my_scraps.dart';
 import 'package:picnic_app/pages/community/community_my_writen.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -18,6 +19,15 @@ class CommunityMyPage extends ConsumerStatefulWidget {
 }
 
 class _MyPageState extends ConsumerState<CommunityMyPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+          showPortal: true, showTopMenu: true, showBottomNavigation: true);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final userInfoState = ref.watch(userInfoProvider);
@@ -84,13 +94,17 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
             onTap: () {
               ref
                   .read(navigationInfoProvider.notifier)
-                  .setCurrentPage(CommunityMyWriten());
+                  .setCurrentPage(const CommunityMyWriten());
             },
           ),
           PicnicListItem(
             leading: '내 스크랩',
             assetPath: 'assets/icons/arrow_right_style=line.svg',
-            onTap: () {},
+            onTap: () {
+              ref
+                  .read(navigationInfoProvider.notifier)
+                  .setCurrentPage(const CommunityMyScraps());
+            },
           ),
           PicnicListItem(
             leading: '내가 쓴 댓글',
@@ -98,7 +112,7 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
             onTap: () {
               ref
                   .read(navigationInfoProvider.notifier)
-                  .setCurrentPage(CommunityMyComment());
+                  .setCurrentPage(const CommunityMyComment());
             },
           ),
         ],

@@ -32,6 +32,7 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
     final bookmarkedArtists = ref.watch(asyncBookmarkedArtistsProvider);
     final currentArtist = ref.watch(
         communityStateInfoProvider.select((value) => value.currentArtist));
+
     return ListView(children: [
       const CommonBanner('community_home', 150),
       Container(
@@ -43,7 +44,13 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
       Container(
         child: bookmarkedArtists.when(
           data: (artists) {
-            if (currentArtist?.id == null && artists.isNotEmpty) {}
+            if (currentArtist?.id == null && artists.isNotEmpty) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                ref
+                    .read(communityStateInfoProvider.notifier)
+                    .setCurrentArtist(artists[0]);
+              });
+            }
             return artists.isNotEmpty
                 ? Column(
                     children: [
