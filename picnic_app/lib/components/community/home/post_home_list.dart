@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:picnic_app/components/common/comment/post_popup_menu.dart';
 import 'package:picnic_app/components/community/common/post_list_item.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/pages/community/post_list_page.dart';
@@ -79,8 +80,15 @@ class _PostHomeListState extends ConsumerState<PostHomeList> {
               : SizedBox(
                   child: Column(children: [
                     const SizedBox(height: 19),
-                    ...List.generate(data.length,
-                        (index) => PostListItem(post: data[index])),
+                    ...List.generate(
+                        data.length,
+                        (index) => PostListItem(
+                              post: data[index],
+                              popupMenu: PostPopupMenu(
+                                  post: data[index],
+                                  context: context,
+                                  refreshFunction: ref.refresh),
+                            )),
                     const SizedBox(height: 30),
                     ElevatedButton(
                         style: ElevatedButton.styleFrom(

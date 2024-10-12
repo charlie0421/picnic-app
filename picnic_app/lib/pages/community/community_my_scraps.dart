@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:picnic_app/components/common/comment/post_popup_menu.dart';
+import 'package:picnic_app/components/common/comment/my_scrap_popup_menu.dart';
 import 'package:picnic_app/components/community/common/post_list_item.dart';
 import 'package:picnic_app/models/common/navigation.dart';
-import 'package:picnic_app/models/community/post.dart';
+import 'package:picnic_app/models/community/post_scrap.dart';
 import 'package:picnic_app/providers/community/post_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 
-class CommunityMyWriten extends ConsumerStatefulWidget {
-  const CommunityMyWriten({super.key});
+class CommunityMyScraps extends ConsumerStatefulWidget {
+  const CommunityMyScraps({super.key});
 
   @override
-  ConsumerState<CommunityMyWriten> createState() => _CommunityMyWritenState();
+  ConsumerState<CommunityMyScraps> createState() => _CommunityMyScrapsState();
 }
 
-class _CommunityMyWritenState extends ConsumerState<CommunityMyWriten>
+class _CommunityMyScrapsState extends ConsumerState<CommunityMyScraps>
     with SingleTickerProviderStateMixin {
-  late final PagingController<int, PostModel> _pagingController =
+  late final PagingController<int, PostScrapModel> _pagingController =
       PagingController(firstPageKey: 1);
 
   @override
@@ -30,12 +30,12 @@ class _CommunityMyWritenState extends ConsumerState<CommunityMyWriten>
           showTopMenu: true,
           topRightMenu: TopRightType.none,
           showBottomNavigation: false,
-          pageTitle: '내가 쓴 글');
+          pageTitle: '내 스크랩');
     });
 
     _pagingController.addPageRequestListener((pageKey) async {
-      final newItems =
-          await postsByUser(pageKey, supabase.auth.currentUser!.id, 10, 1);
+      final newItems = await postsScrapedByUser(
+          pageKey, supabase.auth.currentUser!.id, 10, 1);
       final isLastPage = newItems.length < 10;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -48,16 +48,19 @@ class _CommunityMyWritenState extends ConsumerState<CommunityMyWriten>
 
   @override
   Widget build(BuildContext context) {
-    return PagedListView<int, PostModel>(
+    return PagedListView<int, PostScrapModel>(
         pagingController: _pagingController,
-        builderDelegate: PagedChildBuilderDelegate<PostModel>(
+        builderDelegate: PagedChildBuilderDelegate<PostScrapModel>(
             itemBuilder: (context, item, index) {
-          return Container(
-            child: PostListItem(
-              post: item,
-              popupMenu: PostPopupMenu(
-                  post: item, context: context, refreshFunction: ref.refresh),
-            ),
+          return PostListItem(
+            post: item.post!,
+            popupMenu: MyScrapPopupMenu(
+                post: item.post!,
+                context: context,
+                refreshFunction: () {
+                  _pagingController.refresh();
+                  return Future.value();
+                }),
           );
         }));
   }

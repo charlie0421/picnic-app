@@ -692,6 +692,173 @@ class _PostsByUserProviderElement
   int get page => (origin as PostsByUserProvider).page;
 }
 
+String _$postsScrapedByUserHash() =>
+    r'50d95b89ccf10368e0128fba30a81f61c812d794';
+
+/// See also [postsScrapedByUser].
+@ProviderFor(postsScrapedByUser)
+const postsScrapedByUserProvider = PostsScrapedByUserFamily();
+
+/// See also [postsScrapedByUser].
+class PostsScrapedByUserFamily
+    extends Family<AsyncValue<List<PostScrapModel>>> {
+  /// See also [postsScrapedByUser].
+  const PostsScrapedByUserFamily();
+
+  /// See also [postsScrapedByUser].
+  PostsScrapedByUserProvider call(
+    String userId,
+    int limit,
+    int page,
+  ) {
+    return PostsScrapedByUserProvider(
+      userId,
+      limit,
+      page,
+    );
+  }
+
+  @override
+  PostsScrapedByUserProvider getProviderOverride(
+    covariant PostsScrapedByUserProvider provider,
+  ) {
+    return call(
+      provider.userId,
+      provider.limit,
+      provider.page,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'postsScrapedByUserProvider';
+}
+
+/// See also [postsScrapedByUser].
+class PostsScrapedByUserProvider
+    extends AutoDisposeFutureProvider<List<PostScrapModel>> {
+  /// See also [postsScrapedByUser].
+  PostsScrapedByUserProvider(
+    String userId,
+    int limit,
+    int page,
+  ) : this._internal(
+          (ref) => postsScrapedByUser(
+            ref as PostsScrapedByUserRef,
+            userId,
+            limit,
+            page,
+          ),
+          from: postsScrapedByUserProvider,
+          name: r'postsScrapedByUserProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$postsScrapedByUserHash,
+          dependencies: PostsScrapedByUserFamily._dependencies,
+          allTransitiveDependencies:
+              PostsScrapedByUserFamily._allTransitiveDependencies,
+          userId: userId,
+          limit: limit,
+          page: page,
+        );
+
+  PostsScrapedByUserProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.userId,
+    required this.limit,
+    required this.page,
+  }) : super.internal();
+
+  final String userId;
+  final int limit;
+  final int page;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<PostScrapModel>> Function(PostsScrapedByUserRef provider)
+        create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: PostsScrapedByUserProvider._internal(
+        (ref) => create(ref as PostsScrapedByUserRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        userId: userId,
+        limit: limit,
+        page: page,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<List<PostScrapModel>> createElement() {
+    return _PostsScrapedByUserProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is PostsScrapedByUserProvider &&
+        other.userId == userId &&
+        other.limit == limit &&
+        other.page == page;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, userId.hashCode);
+    hash = _SystemHash.combine(hash, limit.hashCode);
+    hash = _SystemHash.combine(hash, page.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin PostsScrapedByUserRef
+    on AutoDisposeFutureProviderRef<List<PostScrapModel>> {
+  /// The parameter `userId` of this provider.
+  String get userId;
+
+  /// The parameter `limit` of this provider.
+  int get limit;
+
+  /// The parameter `page` of this provider.
+  int get page;
+}
+
+class _PostsScrapedByUserProviderElement
+    extends AutoDisposeFutureProviderElement<List<PostScrapModel>>
+    with PostsScrapedByUserRef {
+  _PostsScrapedByUserProviderElement(super.provider);
+
+  @override
+  String get userId => (origin as PostsScrapedByUserProvider).userId;
+  @override
+  int get limit => (origin as PostsScrapedByUserProvider).limit;
+  @override
+  int get page => (origin as PostsScrapedByUserProvider).page;
+}
+
 String _$reportPostHash() => r'28f977633099c0168e5a2b6bf58be1bd28ebfcb2';
 
 /// See also [reportPost].
@@ -1108,7 +1275,7 @@ class _ScrapPostProviderElement extends AutoDisposeFutureProviderElement<void>
   String get postId => (origin as ScrapPostProvider).postId;
 }
 
-String _$unscrapPostHash() => r'44073b7c674e9ca4a87615b770b6a78abda83807';
+String _$unscrapPostHash() => r'3adf9ecbd5b1bfafa73f056dd6ad34335796d15b';
 
 /// See also [unscrapPost].
 @ProviderFor(unscrapPost)
@@ -1122,9 +1289,11 @@ class UnscrapPostFamily extends Family<AsyncValue<void>> {
   /// See also [unscrapPost].
   UnscrapPostProvider call(
     String postId,
+    String userId,
   ) {
     return UnscrapPostProvider(
       postId,
+      userId,
     );
   }
 
@@ -1134,6 +1303,7 @@ class UnscrapPostFamily extends Family<AsyncValue<void>> {
   ) {
     return call(
       provider.postId,
+      provider.userId,
     );
   }
 
@@ -1157,10 +1327,12 @@ class UnscrapPostProvider extends AutoDisposeFutureProvider<void> {
   /// See also [unscrapPost].
   UnscrapPostProvider(
     String postId,
+    String userId,
   ) : this._internal(
           (ref) => unscrapPost(
             ref as UnscrapPostRef,
             postId,
+            userId,
           ),
           from: unscrapPostProvider,
           name: r'unscrapPostProvider',
@@ -1172,6 +1344,7 @@ class UnscrapPostProvider extends AutoDisposeFutureProvider<void> {
           allTransitiveDependencies:
               UnscrapPostFamily._allTransitiveDependencies,
           postId: postId,
+          userId: userId,
         );
 
   UnscrapPostProvider._internal(
@@ -1182,9 +1355,11 @@ class UnscrapPostProvider extends AutoDisposeFutureProvider<void> {
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.postId,
+    required this.userId,
   }) : super.internal();
 
   final String postId;
+  final String userId;
 
   @override
   Override overrideWith(
@@ -1200,6 +1375,7 @@ class UnscrapPostProvider extends AutoDisposeFutureProvider<void> {
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         postId: postId,
+        userId: userId,
       ),
     );
   }
@@ -1211,13 +1387,16 @@ class UnscrapPostProvider extends AutoDisposeFutureProvider<void> {
 
   @override
   bool operator ==(Object other) {
-    return other is UnscrapPostProvider && other.postId == postId;
+    return other is UnscrapPostProvider &&
+        other.postId == postId &&
+        other.userId == userId;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, postId.hashCode);
+    hash = _SystemHash.combine(hash, userId.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -1226,6 +1405,9 @@ class UnscrapPostProvider extends AutoDisposeFutureProvider<void> {
 mixin UnscrapPostRef on AutoDisposeFutureProviderRef<void> {
   /// The parameter `postId` of this provider.
   String get postId;
+
+  /// The parameter `userId` of this provider.
+  String get userId;
 }
 
 class _UnscrapPostProviderElement extends AutoDisposeFutureProviderElement<void>
@@ -1234,6 +1416,8 @@ class _UnscrapPostProviderElement extends AutoDisposeFutureProviderElement<void>
 
   @override
   String get postId => (origin as UnscrapPostProvider).postId;
+  @override
+  String get userId => (origin as UnscrapPostProvider).userId;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

@@ -145,7 +145,7 @@ class _CommentItemState extends ConsumerState<CommentItem>
               CommentPopupMenu(
                 context: context,
                 comment: widget.commentModel,
-                pagingController: widget.pagingController,
+                refreshFunction: widget.pagingController?.refresh,
                 openReportModal: widget.openReportModal,
               ),
             ],

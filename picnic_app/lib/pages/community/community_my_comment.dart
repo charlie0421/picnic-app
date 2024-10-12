@@ -64,7 +64,7 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment>
               horizontal: 16.cw,
               vertical: 8,
             ),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               border: Border(
                 bottom: BorderSide(
                   color: AppColors.grey300,
@@ -118,8 +118,7 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment>
                 CommentPopupMenu(
                   context: context,
                   comment: item,
-                  pagingController: _pagingController,
-                  openReportModal: () {},
+                  refreshFunction: _pagingController.refresh,
                 ),
               ],
             ),

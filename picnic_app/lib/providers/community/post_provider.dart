@@ -2,6 +2,7 @@ import 'package:intl/intl.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/community/board.dart';
 import 'package:picnic_app/models/community/post.dart';
+import 'package:picnic_app/models/community/post_scrap.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -119,6 +120,24 @@ Future<List<PostModel>> postsByUser(
 }
 
 @riverpod
+Future<List<PostScrapModel>> postsScrapedByUser(
+    ref, String userId, int limit, int page) async {
+  try {
+    final response = await supabase
+        .from('post_scraps')
+        .select(
+            '*, post:posts!inner(*, board:boards!inner(*)), user_profiles(*)')
+        .eq('user_id', userId)
+        .range((page - 1) * limit, page * limit - 1);
+
+    return response.map((data) => PostScrapModel.fromJson(data)).toList();
+  } catch (e, s) {
+    logger.e('Error fetching posts:', error: e, stackTrace: s);
+    return Future.error(e);
+  }
+}
+
+@riverpod
 Future<void> reportPost(ref, PostModel post, String reason, String text) async {
   try {
     final response = await supabase.from('post_reports').upsert({
@@ -164,7 +183,8 @@ Future<void> scrapPost(ref, String postId) async {
 }
 
 @riverpod
-Future<void> unscrapPost(ref, String postId) async {
+Future<void> unscrapPost(ref, String postId, String userId) async {
+  logger.d('Unscrapping post: $postId');
   try {
     final response = await supabase
         .from('post_scraps')
