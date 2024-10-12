@@ -530,6 +530,168 @@ class _PostsByQueryProviderElement
   int get limit => (origin as PostsByQueryProvider).limit;
 }
 
+String _$postsByUserHash() => r'01fe4d21ae96cb0c02b992eaf70a387e84a1fe1d';
+
+/// See also [postsByUser].
+@ProviderFor(postsByUser)
+const postsByUserProvider = PostsByUserFamily();
+
+/// See also [postsByUser].
+class PostsByUserFamily extends Family<AsyncValue<List<PostModel>>> {
+  /// See also [postsByUser].
+  const PostsByUserFamily();
+
+  /// See also [postsByUser].
+  PostsByUserProvider call(
+    String userId,
+    int limit,
+    int page,
+  ) {
+    return PostsByUserProvider(
+      userId,
+      limit,
+      page,
+    );
+  }
+
+  @override
+  PostsByUserProvider getProviderOverride(
+    covariant PostsByUserProvider provider,
+  ) {
+    return call(
+      provider.userId,
+      provider.limit,
+      provider.page,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'postsByUserProvider';
+}
+
+/// See also [postsByUser].
+class PostsByUserProvider extends AutoDisposeFutureProvider<List<PostModel>> {
+  /// See also [postsByUser].
+  PostsByUserProvider(
+    String userId,
+    int limit,
+    int page,
+  ) : this._internal(
+          (ref) => postsByUser(
+            ref as PostsByUserRef,
+            userId,
+            limit,
+            page,
+          ),
+          from: postsByUserProvider,
+          name: r'postsByUserProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$postsByUserHash,
+          dependencies: PostsByUserFamily._dependencies,
+          allTransitiveDependencies:
+              PostsByUserFamily._allTransitiveDependencies,
+          userId: userId,
+          limit: limit,
+          page: page,
+        );
+
+  PostsByUserProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.userId,
+    required this.limit,
+    required this.page,
+  }) : super.internal();
+
+  final String userId;
+  final int limit;
+  final int page;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<PostModel>> Function(PostsByUserRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: PostsByUserProvider._internal(
+        (ref) => create(ref as PostsByUserRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        userId: userId,
+        limit: limit,
+        page: page,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<List<PostModel>> createElement() {
+    return _PostsByUserProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is PostsByUserProvider &&
+        other.userId == userId &&
+        other.limit == limit &&
+        other.page == page;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, userId.hashCode);
+    hash = _SystemHash.combine(hash, limit.hashCode);
+    hash = _SystemHash.combine(hash, page.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin PostsByUserRef on AutoDisposeFutureProviderRef<List<PostModel>> {
+  /// The parameter `userId` of this provider.
+  String get userId;
+
+  /// The parameter `limit` of this provider.
+  int get limit;
+
+  /// The parameter `page` of this provider.
+  int get page;
+}
+
+class _PostsByUserProviderElement
+    extends AutoDisposeFutureProviderElement<List<PostModel>>
+    with PostsByUserRef {
+  _PostsByUserProviderElement(super.provider);
+
+  @override
+  String get userId => (origin as PostsByUserProvider).userId;
+  @override
+  int get limit => (origin as PostsByUserProvider).limit;
+  @override
+  int get page => (origin as PostsByUserProvider).page;
+}
+
 String _$reportPostHash() => r'28f977633099c0168e5a2b6bf58be1bd28ebfcb2';
 
 /// See also [reportPost].

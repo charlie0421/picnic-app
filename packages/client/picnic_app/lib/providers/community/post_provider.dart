@@ -92,6 +92,33 @@ Future<List<PostModel>?> postsByQuery(
 }
 
 @riverpod
+Future<List<PostModel>> postsByUser(
+    ref, String userId, int limit, int page) async {
+  try {
+    final response = await supabase
+        .from('posts')
+        .select(
+            '*, boards!inner(*), user_profiles(*), post_reports!left(post_id), post_scraps!left(post_id)')
+        .eq('user_id', userId)
+        .isFilter('deleted_at', null)
+        .isFilter('post_reports', null)
+        .order('created_at', ascending: false)
+        .range((page - 1) * limit, page * limit - 1);
+
+    return response.map((data) {
+      final post = PostModel.fromJson(data);
+      final userProfile = UserProfilesModel.fromJson(data['user_profiles']);
+      final board =
+          data['boards'] != null ? BoardModel.fromJson(data['boards']) : null;
+      return post.copyWith(user_profiles: userProfile, board: board);
+    }).toList();
+  } catch (e, s) {
+    logger.e('Error fetching posts:', error: e, stackTrace: s);
+    return Future.error(e);
+  }
+}
+
+@riverpod
 Future<void> reportPost(ref, PostModel post, String reason, String text) async {
   try {
     final response = await supabase.from('post_reports').upsert({

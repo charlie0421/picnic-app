@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/providers/community/post_provider.dart';
@@ -34,13 +35,21 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
       onSelected: (String result) async {
         if (result == 'Report') {
           logger.i('widget.openReportModal: ${widget.openReportModal}');
+
           if (widget.openReportModal != null) {
             widget.openReportModal!(
                 S.of(context).label_title_report, widget.post);
           }
         } else if (result == 'Delete') {
-          await deletePost(ref, widget.post.post_id);
-          widget.refreshFunction();
+          showSimpleDialog(
+            title: S.of(context).label_title_report,
+            content: '정말로 삭제하시겠습니까?',
+            onOk: () async {
+              await deletePost(ref, widget.post.post_id);
+              widget.refreshFunction();
+            },
+            onCancel: () => Navigator.of(context).pop(),
+          );
         }
       },
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -66,8 +75,7 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
   }
 
   bool _canReportPost() {
-    return true;
-    // return widget.post.user_id != supabase.auth.currentUser?.id &&
-    //     widget.post.deletedAt == null;
+    return widget.post.user_id != supabase.auth.currentUser?.id &&
+        widget.post.deletedAt == null;
   }
 }

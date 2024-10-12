@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
+import 'package:picnic_app/pages/community/community_my_writen.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
+import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
@@ -78,7 +80,11 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
           PicnicListItem(
             leading: '내가 쓴 글',
             assetPath: 'assets/icons/arrow_right_style=line.svg',
-            onTap: () {},
+            onTap: () {
+              ref
+                  .read(navigationInfoProvider.notifier)
+                  .setCurrentPage(CommunityMyWriten());
+            },
           ),
           PicnicListItem(
             leading: '내 스크랩',
