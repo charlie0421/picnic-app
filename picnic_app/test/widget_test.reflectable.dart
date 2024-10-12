@@ -107,7 +107,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
             1,
             const prefix0.Reflector(),
             const <int>[25],
-            const <int>[4, 5, 6, 7, 8, 26, 27, 28, 29, 30, 31],
+            const <int>[4, 5, 6, 7, 8, 26, 27, 28, 29, 30, 31, 32],
             const <int>[],
             -1,
             {},
@@ -118,11 +118,13 @@ final _data = <r.Reflectable, r.ReflectorData>{
                       currentArtistName,
                       currentBoardId,
                       currentBoardName,
-                      currentPost}) =>
+                      currentPost,
+                      currentBoard}) =>
                   b
                       ? prefix2.CommunityState(
                           currentArtistId: currentArtistId,
                           currentArtistName: currentArtistName,
+                          currentBoard: currentBoard,
                           currentBoardId: currentBoardId,
                           currentBoardName: currentBoardName,
                           currentPost: currentPost)
@@ -196,8 +198,8 @@ final _data = <r.Reflectable, r.ReflectorData>{
             134218311,
             3,
             const prefix0.Reflector(),
-            const <int>[26, 27, 28, 29, 30, 31],
-            const <int>[4, 5, 6, 7, 8, 26, 27, 28, 29, 30, 31],
+            const <int>[26, 27, 28, 29, 30, 31, 32],
+            const <int>[4, 5, 6, 7, 8, 26, 27, 28, 29, 30, 31, 32],
             const <int>[],
             -1,
             const {},
@@ -269,8 +271,17 @@ final _data = <r.Reflectable, r.ReflectorData>{
             null, const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'copyWith', 35651587, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
-        r.MethodMirrorImpl(r'', 385, 1, -1, -1, -1, null,
-            const <int>[17, 18, 19, 20, 21], const prefix0.Reflector(), null),
+        r.MethodMirrorImpl(
+            r'',
+            385,
+            1,
+            -1,
+            -1,
+            -1,
+            null,
+            const <int>[17, 18, 19, 20, 21, 22],
+            const prefix0.Reflector(),
+            null),
         r.MethodMirrorImpl(r'currentArtistId', 2097155, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'currentArtistName', 2097155, -1, -1, -1, -1, null,
@@ -280,6 +291,8 @@ final _data = <r.Reflectable, r.ReflectorData>{
         r.MethodMirrorImpl(r'currentBoardName', 2097155, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'currentPost', 2097155, -1, -1, -1, -1, null,
+            const <int>[], const prefix0.Reflector(), null),
+        r.MethodMirrorImpl(r'currentBoard', 2097155, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'copyWith', 35651587, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null)
@@ -528,7 +541,19 @@ final _data = <r.Reflectable, r.ReflectorData>{
             null,
             null,
             null,
-            #currentPost)
+            #currentPost),
+        r.ParameterMirrorImpl(
+            r'currentBoard',
+            67252230,
+            25,
+            const prefix0.Reflector(),
+            -1,
+            -1,
+            -1,
+            null,
+            null,
+            null,
+            #currentBoard)
       ],
       <Type>[
         prefix1.Navigation,
@@ -575,7 +600,8 @@ final _data = <r.Reflectable, r.ReflectorData>{
         r'currentArtistName': (dynamic instance) => instance.currentArtistName,
         r'currentBoardId': (dynamic instance) => instance.currentBoardId,
         r'currentBoardName': (dynamic instance) => instance.currentBoardName,
-        r'currentPost': (dynamic instance) => instance.currentPost
+        r'currentPost': (dynamic instance) => instance.currentPost,
+        r'currentBoard': (dynamic instance) => instance.currentBoard
       },
       {},
       null,
