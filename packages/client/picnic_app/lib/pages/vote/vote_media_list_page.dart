@@ -27,7 +27,7 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
   static const _pageSize = 10;
 
   final PagingController<int, VideoInfo> _pagingController =
-      PagingController(firstPageKey: 0);
+      PagingController(firstPageKey: 1);
 
   @override
   void initState() {
@@ -78,7 +78,7 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
           .from("media")
           .select()
           .order('created_at', ascending: false)
-          .range(pageKey, pageKey + _pageSize - 1);
+          .range((pageKey - 1) * _pageSize, pageKey * _pageSize - 1);
 
       final newItems = response.map((e) => VideoInfo.fromJson(e)).toList();
       final isLastPage = newItems.length < _pageSize;
