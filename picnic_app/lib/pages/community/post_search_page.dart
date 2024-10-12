@@ -28,7 +28,7 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
   final FocusNode focusNode = FocusNode();
   final TextEditingController _textController = TextEditingController();
   final PagingController<int, PostModel> _pagingController =
-      PagingController(firstPageKey: 0);
+      PagingController(firstPageKey: 1);
   List<String> _searchHistory = [];
   String _currentSearchQuery = '';
 

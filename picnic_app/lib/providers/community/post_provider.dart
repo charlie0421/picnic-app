@@ -76,7 +76,7 @@ Future<List<PostModel>?> postsByQuery(
         .isFilter('deleted_at', null)
         .isFilter('post_reports', null)
         .or('title.ilike.%$query%,content.ilike.%$query%')
-        .range(page * limit, (page + 1) * limit - 1)
+        .range((page - 1) * limit, page * limit - 1)
         .order('title->>${Intl.getCurrentLocale()}', ascending: true);
 
     return response.map((data) {
