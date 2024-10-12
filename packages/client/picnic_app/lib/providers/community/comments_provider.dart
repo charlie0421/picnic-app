@@ -112,6 +112,26 @@ Future<List<CommentModel>> comments(ref, String postId, int page, int limit,
 }
 
 @riverpod
+Future<List<CommentModel>> commentsByUser(
+    ref, String userId, int page, int limit,
+    {bool includeDeleted = true, bool includeReported = true}) async {
+  try {
+    final response = await supabase
+        .from('comments')
+        .select('*, post:posts(*, board:boards(*)), user:user_profiles(*)')
+        .eq('user_id', userId)
+        .isFilter('deleted_at', null)
+        .order('created_at', ascending: false)
+        .range((page - 1) * limit, page * limit - 1);
+
+    return response.map((data) => CommentModel.fromJson(data)).toList();
+  } catch (e, s) {
+    logger.e('Error fetching comments:', error: e, stackTrace: s);
+    return Future.error(e);
+  }
+}
+
+@riverpod
 Future<void> postComment(
     ref, String postId, String? parentId, String content) async {
   try {

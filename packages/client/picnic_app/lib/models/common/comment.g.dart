@@ -33,9 +33,7 @@ _$CommentModelImpl _$$CommentModelImplFromJson(Map<String, dynamic> json) =>
           ? null
           : UserCommentLikeModel.fromJson(
               json['myLike'] as Map<String, dynamic>),
-      user: json['user'] == null
-          ? null
-          : UserProfilesModel.fromJson(json['user'] as Map<String, dynamic>),
+      user: UserProfilesModel.fromJson(json['user'] as Map<String, dynamic>),
       likes: (json['likes'] as num).toInt(),
       replies: (json['replies'] as num).toInt(),
       content: json['content'] as String,
@@ -43,6 +41,7 @@ _$CommentModelImpl _$$CommentModelImplFromJson(Map<String, dynamic> json) =>
       isReplied: json['isReplied'] as bool?,
       isReportedByUser: json['isReportedByUser'] as bool?,
       isBlindedByAdmin: json['isBlindedByAdmin'] as bool?,
+      post: PostModel.fromJson(json['post'] as Map<String, dynamic>),
       parentCommentId: json['parent_comment_id'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
@@ -65,6 +64,7 @@ Map<String, dynamic> _$$CommentModelImplToJson(_$CommentModelImpl instance) =>
       'isReplied': instance.isReplied,
       'isReportedByUser': instance.isReportedByUser,
       'isBlindedByAdmin': instance.isBlindedByAdmin,
+      'post': instance.post,
       'parent_comment_id': instance.parentCommentId,
       'created_at': instance.createdAt.toIso8601String(),
       'updated_at': instance.updatedAt.toIso8601String(),

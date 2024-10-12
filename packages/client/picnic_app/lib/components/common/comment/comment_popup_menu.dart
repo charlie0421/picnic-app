@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/providers/community/comments_provider.dart';
@@ -40,6 +41,17 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
                 S.of(context).label_title_report, widget.comment);
           }
         } else if (result == 'Delete') {
+          showSimpleDialog(
+              title: S.of(context).popup_label_delete,
+              content: '정말로 삭제하시겠습니까?',
+              onOk: () async {
+                await deleteComment(ref, widget.comment.commentId);
+                widget.pagingController?.refresh();
+                Navigator.of(context).pop();
+              },
+              onCancel: () {
+                Navigator.of(context).pop();
+              });
           await deleteComment(ref, widget.comment.commentId);
           widget.pagingController?.refresh();
         }
