@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
-import 'package:picnic_app/constants.dart';
-import 'package:picnic_app/dialogs/report_dialog.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/pages/community/post_view_page.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
@@ -125,17 +123,5 @@ class _PostListItemState extends ConsumerState<PostListItem> {
         ),
       ),
     );
-  }
-
-  void _openPostReportModal(String title, PostModel post) {
-    try {
-      showDialog(
-        context: context,
-        builder: (context) => ReportDialog(
-            title: '게시글 신고하기', type: ReportType.post, target: post),
-      );
-    } catch (e, s) {
-      logger.e('Error: $e, StackTrace: $s');
-    }
   }
 }
