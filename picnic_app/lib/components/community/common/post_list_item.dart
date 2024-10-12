@@ -27,14 +27,13 @@ class _PostListItemState extends ConsumerState<PostListItem> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        ref
+            .read(communityStateInfoProvider.notifier)
+            .setCurrentBoard(widget.post.board!);
+
         ref.read(navigationInfoProvider.notifier).setCurrentPage(PostViewPage(
               widget.post,
             ));
-        ref.read(communityStateInfoProvider.notifier).setCurrentBoardId(
-            widget.post.board_id,
-            widget.post.boards.is_official
-                ? getLocaleTextFromJson(widget.post.boards.name)
-                : widget.post.boards.name['minor']);
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 8),
@@ -55,7 +54,7 @@ class _PostListItemState extends ConsumerState<PostListItem> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text(getLocaleTextFromJson(widget.post.boards.name),
+                    Text(getLocaleTextFromJson(widget.post.board!.name),
                         style: getTextStyle(
                             AppTypo.caption12B, AppColors.primary500)),
                     SizedBox(width: 4.cw),

@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/community/board.dart';
 import 'package:picnic_app/models/community/post.dart';
+import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/reflector.dart';
 
 part 'community_navigation.freezed.dart';
@@ -11,10 +12,7 @@ class CommunityState with _$CommunityState {
   const CommunityState._();
 
   const factory CommunityState({
-    @Default(0) int currentArtistId,
-    @Default('') String currentArtistName,
-    @Default('') String currentBoardId,
-    @Default('') String currentBoardName,
+    ArtistModel? currentArtist,
     PostModel? currentPost,
     BoardModel? currentBoard,
   }) = Navigation;

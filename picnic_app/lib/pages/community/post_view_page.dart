@@ -17,7 +17,6 @@ import 'package:picnic_app/config/config_service.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/report_dialog.dart';
 import 'package:picnic_app/models/common/comment.dart';
-import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/providers/community/comments_provider.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
@@ -25,6 +24,7 @@ import 'package:picnic_app/providers/global_media_query.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
+import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class PostViewPage extends ConsumerStatefulWidget {
@@ -54,17 +54,17 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
     }
     _loadComments();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final currentBoardName = ref.read(
-        communityStateInfoProvider.select((value) => value.currentBoardName),
+      final currentBoard = ref.watch(
+        communityStateInfoProvider.select((value) => value.currentBoard),
       );
       ref.read(communityStateInfoProvider.notifier).setCurrentPost(widget.post);
-      logger.d('currentBoardName: $currentBoardName');
       ref.read(navigationInfoProvider.notifier).settingNavigation(
             showPortal: true,
             showTopMenu: true,
             showBottomNavigation: false,
-            pageTitle: currentBoardName,
-            topRightMenu: TopRightType.postView,
+            pageTitle: currentBoard!.is_official
+                ? getLocaleTextFromJson(currentBoard.name)
+                : widget.post.title,
           );
     });
   }

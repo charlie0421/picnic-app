@@ -97,7 +97,7 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
         'content': _contentController.document.toDelta().toJson(),
         'is_anonymous': postAnonymousMode,
         'user_id': supabase.auth.currentUser!.id,
-        'board_id': ref.read(communityStateInfoProvider).currentBoardId,
+        'board_id': ref.read(communityStateInfoProvider).currentBoard?.board_id,
         'is_temporary': isTemporary,
       };
 

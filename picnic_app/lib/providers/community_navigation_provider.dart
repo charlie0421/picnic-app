@@ -1,6 +1,7 @@
 import 'package:picnic_app/models/common/community_navigation.dart';
 import 'package:picnic_app/models/community/board.dart';
 import 'package:picnic_app/models/community/post.dart';
+import 'package:picnic_app/models/vote/artist.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'community_navigation_provider.g.dart';
@@ -12,17 +13,9 @@ class CommunityStateInfo extends _$CommunityStateInfo {
     return const CommunityState();
   }
 
-  void setCurrentArtistId(int artistId, String artistName) {
+  void setCurrentArtist(ArtistModel artist) {
     state = state.copyWith(
-      currentArtistId: artistId,
-      currentArtistName: artistName,
-    );
-  }
-
-  void setCurrentBoardId(String boardId, boardName) {
-    state = state.copyWith(
-      currentBoardId: boardId,
-      currentBoardName: boardName,
+      currentArtist: artist,
     );
   }
 

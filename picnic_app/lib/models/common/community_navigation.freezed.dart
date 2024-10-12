@@ -16,10 +16,7 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$CommunityState {
-  int get currentArtistId => throw _privateConstructorUsedError;
-  String get currentArtistName => throw _privateConstructorUsedError;
-  String get currentBoardId => throw _privateConstructorUsedError;
-  String get currentBoardName => throw _privateConstructorUsedError;
+  ArtistModel? get currentArtist => throw _privateConstructorUsedError;
   PostModel? get currentPost => throw _privateConstructorUsedError;
   BoardModel? get currentBoard => throw _privateConstructorUsedError;
 
@@ -37,13 +34,11 @@ abstract class $CommunityStateCopyWith<$Res> {
       _$CommunityStateCopyWithImpl<$Res, CommunityState>;
   @useResult
   $Res call(
-      {int currentArtistId,
-      String currentArtistName,
-      String currentBoardId,
-      String currentBoardName,
+      {ArtistModel? currentArtist,
       PostModel? currentPost,
       BoardModel? currentBoard});
 
+  $ArtistModelCopyWith<$Res>? get currentArtist;
   $PostModelCopyWith<$Res>? get currentPost;
   $BoardModelCopyWith<$Res>? get currentBoard;
 }
@@ -63,30 +58,15 @@ class _$CommunityStateCopyWithImpl<$Res, $Val extends CommunityState>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? currentArtistId = null,
-    Object? currentArtistName = null,
-    Object? currentBoardId = null,
-    Object? currentBoardName = null,
+    Object? currentArtist = freezed,
     Object? currentPost = freezed,
     Object? currentBoard = freezed,
   }) {
     return _then(_value.copyWith(
-      currentArtistId: null == currentArtistId
-          ? _value.currentArtistId
-          : currentArtistId // ignore: cast_nullable_to_non_nullable
-              as int,
-      currentArtistName: null == currentArtistName
-          ? _value.currentArtistName
-          : currentArtistName // ignore: cast_nullable_to_non_nullable
-              as String,
-      currentBoardId: null == currentBoardId
-          ? _value.currentBoardId
-          : currentBoardId // ignore: cast_nullable_to_non_nullable
-              as String,
-      currentBoardName: null == currentBoardName
-          ? _value.currentBoardName
-          : currentBoardName // ignore: cast_nullable_to_non_nullable
-              as String,
+      currentArtist: freezed == currentArtist
+          ? _value.currentArtist
+          : currentArtist // ignore: cast_nullable_to_non_nullable
+              as ArtistModel?,
       currentPost: freezed == currentPost
           ? _value.currentPost
           : currentPost // ignore: cast_nullable_to_non_nullable
@@ -96,6 +76,20 @@ class _$CommunityStateCopyWithImpl<$Res, $Val extends CommunityState>
           : currentBoard // ignore: cast_nullable_to_non_nullable
               as BoardModel?,
     ) as $Val);
+  }
+
+  /// Create a copy of CommunityState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $ArtistModelCopyWith<$Res>? get currentArtist {
+    if (_value.currentArtist == null) {
+      return null;
+    }
+
+    return $ArtistModelCopyWith<$Res>(_value.currentArtist!, (value) {
+      return _then(_value.copyWith(currentArtist: value) as $Val);
+    });
   }
 
   /// Create a copy of CommunityState
@@ -136,13 +130,12 @@ abstract class _$$NavigationImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int currentArtistId,
-      String currentArtistName,
-      String currentBoardId,
-      String currentBoardName,
+      {ArtistModel? currentArtist,
       PostModel? currentPost,
       BoardModel? currentBoard});
 
+  @override
+  $ArtistModelCopyWith<$Res>? get currentArtist;
   @override
   $PostModelCopyWith<$Res>? get currentPost;
   @override
@@ -162,30 +155,15 @@ class __$$NavigationImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? currentArtistId = null,
-    Object? currentArtistName = null,
-    Object? currentBoardId = null,
-    Object? currentBoardName = null,
+    Object? currentArtist = freezed,
     Object? currentPost = freezed,
     Object? currentBoard = freezed,
   }) {
     return _then(_$NavigationImpl(
-      currentArtistId: null == currentArtistId
-          ? _value.currentArtistId
-          : currentArtistId // ignore: cast_nullable_to_non_nullable
-              as int,
-      currentArtistName: null == currentArtistName
-          ? _value.currentArtistName
-          : currentArtistName // ignore: cast_nullable_to_non_nullable
-              as String,
-      currentBoardId: null == currentBoardId
-          ? _value.currentBoardId
-          : currentBoardId // ignore: cast_nullable_to_non_nullable
-              as String,
-      currentBoardName: null == currentBoardName
-          ? _value.currentBoardName
-          : currentBoardName // ignore: cast_nullable_to_non_nullable
-              as String,
+      currentArtist: freezed == currentArtist
+          ? _value.currentArtist
+          : currentArtist // ignore: cast_nullable_to_non_nullable
+              as ArtistModel?,
       currentPost: freezed == currentPost
           ? _value.currentPost
           : currentPost // ignore: cast_nullable_to_non_nullable
@@ -202,26 +180,11 @@ class __$$NavigationImplCopyWithImpl<$Res>
 
 class _$NavigationImpl extends Navigation {
   const _$NavigationImpl(
-      {this.currentArtistId = 0,
-      this.currentArtistName = '',
-      this.currentBoardId = '',
-      this.currentBoardName = '',
-      this.currentPost,
-      this.currentBoard})
+      {this.currentArtist, this.currentPost, this.currentBoard})
       : super._();
 
   @override
-  @JsonKey()
-  final int currentArtistId;
-  @override
-  @JsonKey()
-  final String currentArtistName;
-  @override
-  @JsonKey()
-  final String currentBoardId;
-  @override
-  @JsonKey()
-  final String currentBoardName;
+  final ArtistModel? currentArtist;
   @override
   final PostModel? currentPost;
   @override
@@ -229,7 +192,7 @@ class _$NavigationImpl extends Navigation {
 
   @override
   String toString() {
-    return 'CommunityState(currentArtistId: $currentArtistId, currentArtistName: $currentArtistName, currentBoardId: $currentBoardId, currentBoardName: $currentBoardName, currentPost: $currentPost, currentBoard: $currentBoard)';
+    return 'CommunityState(currentArtist: $currentArtist, currentPost: $currentPost, currentBoard: $currentBoard)';
   }
 
   @override
@@ -237,14 +200,8 @@ class _$NavigationImpl extends Navigation {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$NavigationImpl &&
-            (identical(other.currentArtistId, currentArtistId) ||
-                other.currentArtistId == currentArtistId) &&
-            (identical(other.currentArtistName, currentArtistName) ||
-                other.currentArtistName == currentArtistName) &&
-            (identical(other.currentBoardId, currentBoardId) ||
-                other.currentBoardId == currentBoardId) &&
-            (identical(other.currentBoardName, currentBoardName) ||
-                other.currentBoardName == currentBoardName) &&
+            (identical(other.currentArtist, currentArtist) ||
+                other.currentArtist == currentArtist) &&
             (identical(other.currentPost, currentPost) ||
                 other.currentPost == currentPost) &&
             (identical(other.currentBoard, currentBoard) ||
@@ -252,14 +209,8 @@ class _$NavigationImpl extends Navigation {
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      currentArtistId,
-      currentArtistName,
-      currentBoardId,
-      currentBoardName,
-      currentPost,
-      currentBoard);
+  int get hashCode =>
+      Object.hash(runtimeType, currentArtist, currentPost, currentBoard);
 
   /// Create a copy of CommunityState
   /// with the given fields replaced by the non-null parameter values.
@@ -272,22 +223,13 @@ class _$NavigationImpl extends Navigation {
 
 abstract class Navigation extends CommunityState {
   const factory Navigation(
-      {final int currentArtistId,
-      final String currentArtistName,
-      final String currentBoardId,
-      final String currentBoardName,
+      {final ArtistModel? currentArtist,
       final PostModel? currentPost,
       final BoardModel? currentBoard}) = _$NavigationImpl;
   const Navigation._() : super._();
 
   @override
-  int get currentArtistId;
-  @override
-  String get currentArtistName;
-  @override
-  String get currentBoardId;
-  @override
-  String get currentBoardName;
+  ArtistModel? get currentArtist;
   @override
   PostModel? get currentPost;
   @override

@@ -5,15 +5,14 @@ import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/pages/community/post_list_page.dart';
 import 'package:picnic_app/pages/community/post_write_page.dart';
 import 'package:picnic_app/providers/community/post_provider.dart';
+import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class PostHomeList extends ConsumerStatefulWidget {
-  const PostHomeList(this.artistId, this.artistName, {super.key});
-
-  final int artistId;
-  final String artistName;
+  const PostHomeList({super.key});
 
   @override
   _PostHomeListState createState() => _PostHomeListState();
@@ -27,8 +26,13 @@ class _PostHomeListState extends ConsumerState<PostHomeList> {
 
   @override
   Widget build(BuildContext context) {
+    final currentArtist = ref.watch(
+        communityStateInfoProvider.select((value) => value.currentArtist));
+    if (currentArtist == null) {
+      return Container();
+    }
     final postListAsyncValue =
-        ref.watch(postsByArtistProvider(widget.artistId, 3, 1));
+        ref.watch(postsByArtistProvider(currentArtist!.id, 3, 1));
 
     return Column(
       children: [
@@ -94,7 +98,8 @@ class _PostHomeListState extends ConsumerState<PostHomeList> {
                           ref
                               .read(navigationInfoProvider.notifier)
                               .setCommunityCurrentPage(PostListPage(
-                                  widget.artistId, widget.artistName));
+                                  currentArtist.id,
+                                  getLocaleTextFromJson(currentArtist.name)));
                         },
                         child: Text('My Artist 게시판 보기',
                             style: getTextStyle(

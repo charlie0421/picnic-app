@@ -85,7 +85,7 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
     try {
       final newItems = await postsByQuery(
             ref,
-            communityNavigationInfo.currentArtistId,
+            communityNavigationInfo.currentArtist!.id,
             _currentSearchQuery,
             pageKey,
             10,

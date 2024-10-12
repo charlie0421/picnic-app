@@ -6,7 +6,6 @@ import 'package:picnic_app/providers/community/boards_provider.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/ui.dart';
 
 import '../../../generated/l10n.dart';
@@ -40,10 +39,10 @@ class _PostWriteHeaderState extends ConsumerState<PostWriteHeader> {
 
   @override
   Widget build(BuildContext context) {
-    final currentArtistId = ref.watch(
-        communityStateInfoProvider.select((value) => value.currentArtistId));
-    String currentBoardId = ref.watch(
-        communityStateInfoProvider.select((value) => value.currentBoardId));
+    final currentArtist = ref.watch(
+        communityStateInfoProvider.select((value) => value.currentArtist));
+    final currentBoard = ref.watch(
+        communityStateInfoProvider.select((value) => value.currentBoard));
     return Container(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
       child: Row(
@@ -51,13 +50,14 @@ class _PostWriteHeaderState extends ConsumerState<PostWriteHeader> {
         children: [
           SizedBox(
             child: FutureBuilder(
-                future: boards(ref, currentArtistId),
+                future: boards(ref, currentArtist!.id),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.done) {
                     BoardModel? initItem;
-                    if (currentBoardId.isNotEmpty) {
+                    if (currentBoard != null) {
                       initItem = snapshot.data?.firstWhere(
-                          (element) => element.board_id == currentBoardId,
+                          (element) =>
+                              element.board_id == currentBoard.board_id,
                           orElse: () => snapshot.data!.first);
                     } else {
                       initItem = snapshot.data?.first;
@@ -65,18 +65,13 @@ class _PostWriteHeaderState extends ConsumerState<PostWriteHeader> {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       ref
                           .read(communityStateInfoProvider.notifier)
-                          .setCurrentBoardId(
-                              initItem!.board_id,
-                              initItem.is_official
-                                  ? getLocaleTextFromJson(initItem.name)
-                                  : initItem.name['minor']);
+                          .setCurrentBoard(initItem!);
                     });
-
                     return Container(
                       constraints:
                           const BoxConstraints(minWidth: 100, maxWidth: 150),
                       child: PostBoardSelectPopupMenu(
-                        artistId: currentArtistId,
+                        artistId: currentArtist.id,
                         refreshFunction: () {},
                       ),
                       // child: CustomDropdown<BoardModel>(
