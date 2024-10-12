@@ -17,8 +17,6 @@ Future<List<BoardModel>?> boards(ref, int artistId) async {
         .order('is_official', ascending: false)
         .order('order', ascending: true);
 
-    logger.d('response: $response');
-
     return response.map((data) => BoardModel.fromJson(data)).toList();
   } catch (e, s) {
     logger.e('Error fetching boards:', error: e, stackTrace: s);

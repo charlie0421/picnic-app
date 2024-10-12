@@ -1,7 +1,5 @@
-import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/board.dart';
 import 'package:picnic_app/providers/community/boards_provider.dart';
@@ -12,6 +10,7 @@ import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/ui.dart';
 
 import '../../../generated/l10n.dart';
+import '../common/post_board_select_popup_menu.dart';
 
 class PostWriteHeader extends ConsumerStatefulWidget {
   final Function onSave;
@@ -76,61 +75,65 @@ class _PostWriteHeaderState extends ConsumerState<PostWriteHeader> {
                     return Container(
                       constraints:
                           const BoxConstraints(minWidth: 100, maxWidth: 150),
-                      child: CustomDropdown<BoardModel>(
-                          onChanged: (BoardModel? newValue) {
-                            logger.d('newValue: ${newValue!.board_id}');
-                            ref
-                                .read(communityStateInfoProvider.notifier)
-                                .setCurrentBoardId(
-                                    newValue.board_id,
-                                    newValue.is_official
-                                        ? getLocaleTextFromJson(newValue.name)
-                                        : newValue.name['minor']);
-                          },
-                          closedHeaderPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 0),
-                          decoration: CustomDropdownDecoration(
-                            headerStyle: getTextStyle(
-                                AppTypo.caption12R, AppColors.grey700),
-                            closedFillColor: AppColors.grey00,
-                            closedBorderRadius: BorderRadius.circular(16),
-                            closedBorder:
-                                Border.all(color: AppColors.grey300, width: 1),
-                            closedSuffixIcon: const Icon(Icons.arrow_drop_down),
-                            closedErrorBorder:
-                                Border.all(color: AppColors.mint500, width: 1),
-                            expandedSuffixIcon: const Icon(Icons.arrow_drop_up),
-                            listItemStyle: getTextStyle(
-                                AppTypo.caption12R, AppColors.grey700),
-                            listItemDecoration: const ListItemDecoration(
-                              splashColor: AppColors.grey400,
-                              selectedColor: AppColors.grey200,
-                            ),
-                          ),
-                          hideSelectedFieldWhenExpanded: false,
-                          headerBuilder: (context, board, isOpen) {
-                            return Text(
-                              board.is_official
-                                  ? getLocaleTextFromJson(board.name)
-                                  : board.name['minor'],
-                              style: getTextStyle(
-                                  AppTypo.caption12R, AppColors.grey700),
-                              textAlign: TextAlign.center,
-                            );
-                          },
-                          initialItem: initItem,
-                          listItemBuilder: (context, board, isEnable, onTap) {
-                            logger.d(board.board_id);
-                            return Text(
-                              board.is_official
-                                  ? getLocaleTextFromJson(board.name)
-                                  : board.name['minor'],
-                              style: getTextStyle(
-                                  AppTypo.caption12R, AppColors.grey700),
-                              textAlign: TextAlign.center,
-                            );
-                          },
-                          items: snapshot.data),
+                      child: PostBoardSelectPopupMenu(
+                        artistId: currentArtistId,
+                        refreshFunction: () {},
+                      ),
+                      // child: CustomDropdown<BoardModel>(
+                      //     onChanged: (BoardModel? newValue) {
+                      //       logger.d('newValue: ${newValue!.board_id}');
+                      //       ref
+                      //           .read(communityStateInfoProvider.notifier)
+                      //           .setCurrentBoardId(
+                      //               newValue.board_id,
+                      //               newValue.is_official
+                      //                   ? getLocaleTextFromJson(newValue.name)
+                      //                   : newValue.name['minor']);
+                      //     },
+                      //     closedHeaderPadding: const EdgeInsets.symmetric(
+                      //         horizontal: 16, vertical: 0),
+                      //     decoration: CustomDropdownDecoration(
+                      //       headerStyle: getTextStyle(
+                      //           AppTypo.caption12R, AppColors.grey700),
+                      //       closedFillColor: AppColors.grey00,
+                      //       closedBorderRadius: BorderRadius.circular(16),
+                      //       closedBorder:
+                      //           Border.all(color: AppColors.grey300, width: 1),
+                      //       closedSuffixIcon: const Icon(Icons.arrow_drop_down),
+                      //       closedErrorBorder:
+                      //           Border.all(color: AppColors.mint500, width: 1),
+                      //       expandedSuffixIcon: const Icon(Icons.arrow_drop_up),
+                      //       listItemStyle: getTextStyle(
+                      //           AppTypo.caption12R, AppColors.grey700),
+                      //       listItemDecoration: const ListItemDecoration(
+                      //         splashColor: AppColors.grey400,
+                      //         selectedColor: AppColors.grey200,
+                      //       ),
+                      //     ),
+                      //     hideSelectedFieldWhenExpanded: false,
+                      //     headerBuilder: (context, board, isOpen) {
+                      //       return Text(
+                      //         board.is_official
+                      //             ? getLocaleTextFromJson(board.name)
+                      //             : board.name['minor'],
+                      //         style: getTextStyle(
+                      //             AppTypo.caption12R, AppColors.grey700),
+                      //         textAlign: TextAlign.center,
+                      //       );
+                      //     },
+                      //     initialItem: initItem,
+                      //     listItemBuilder: (context, board, isEnable, onTap) {
+                      //       logger.d(board.board_id);
+                      //       return Text(
+                      //         board.is_official
+                      //             ? getLocaleTextFromJson(board.name)
+                      //             : board.name['minor'],
+                      //         style: getTextStyle(
+                      //             AppTypo.caption12R, AppColors.grey700),
+                      //         textAlign: TextAlign.center,
+                      //       );
+                      //     },
+                      //     items: snapshot.data),
                     );
                   } else {
                     return const CircularProgressIndicator();

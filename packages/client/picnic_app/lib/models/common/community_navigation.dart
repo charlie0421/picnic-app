@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:picnic_app/models/community/board.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/reflector.dart';
 
@@ -15,5 +16,6 @@ class CommunityState with _$CommunityState {
     @Default('') String currentBoardId,
     @Default('') String currentBoardName,
     PostModel? currentPost,
+    BoardModel? currentBoard,
   }) = Navigation;
 }

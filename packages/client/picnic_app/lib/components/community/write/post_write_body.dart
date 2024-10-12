@@ -93,7 +93,6 @@ class _PostWriteBodyState extends State<PostWriteBody> {
       setState(() {
         _isEditorFocused = _editorFocusNode.hasFocus;
       });
-      logger.d('Editor focus changed: $_isEditorFocused');
     }
   }
 
