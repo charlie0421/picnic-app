@@ -52,12 +52,12 @@ class _CommunityMyWritenState extends ConsumerState<CommunityMyWriten>
         pagingController: _pagingController,
         builderDelegate: PagedChildBuilderDelegate<PostModel>(
             itemBuilder: (context, item, index) {
-          return Container(
-            child: PostListItem(
-              post: item,
-              popupMenu: PostPopupMenu(
-                  post: item, context: context, refreshFunction: ref.refresh),
-            ),
+          return PostListItem(
+            post: item,
+            popupMenu: PostPopupMenu(
+                post: item,
+                context: context,
+                refreshFunction: () => _pagingController.refresh()),
           );
         }));
   }
