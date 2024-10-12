@@ -33,7 +33,7 @@ class _PostHomeListState extends ConsumerState<PostHomeList> {
       return Container();
     }
     final postListAsyncValue =
-        ref.watch(postsByArtistProvider(currentArtist!.id, 3, 1));
+        ref.watch(postsByArtistProvider(currentArtist.id, 3, 1));
 
     return Column(
       children: [

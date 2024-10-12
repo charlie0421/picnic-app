@@ -30,7 +30,7 @@ class CommentReplyLayer extends ConsumerWidget {
             TextSpan(
               children: [
                 TextSpan(
-                    text: '${parentComment.user?.nickname ?? ''} ',
+                    text: '${parentComment.user.nickname ?? ''} ',
                     style: getTextStyle(AppTypo.caption12B, AppColors.grey00)),
                 TextSpan(
                     text: '님에게 답글 쓰는 중...',
