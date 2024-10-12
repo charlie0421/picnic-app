@@ -21,7 +21,7 @@ class CommentHeader extends StatelessWidget {
           Text.rich(
             TextSpan(children: <TextSpan>[
               TextSpan(
-                  text: '${item.user?.nickname} ',
+                  text: '${item.user.nickname} ',
                   style:
                       getTextStyle(AppTypo.caption12B, AppColors.primary500)),
               TextSpan(

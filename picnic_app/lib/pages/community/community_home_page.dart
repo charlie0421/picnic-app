@@ -112,7 +112,7 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
                           },
                         ),
                       ),
-                      if (currentArtist != null) PostHomeList(),
+                      if (currentArtist != null) const PostHomeList(),
                     ],
                   )
                 : Container(
