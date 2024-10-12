@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/models/pic/comment_like.dart';
 import 'package:picnic_app/models/user_profiles.dart';
@@ -28,7 +29,7 @@ class CommentModel with _$CommentModel {
     @JsonKey(name: 'user_id') String? userId,
     required List<CommentModel>? children,
     required UserCommentLikeModel? myLike,
-    required UserProfilesModel? user,
+    required UserProfilesModel user,
     required int likes,
     required int replies,
     required String content,
@@ -36,6 +37,7 @@ class CommentModel with _$CommentModel {
     required bool? isReplied,
     required bool? isReportedByUser,
     required bool? isBlindedByAdmin,
+    required PostModel post,
     @JsonKey(name: 'parent_comment_id') required String? parentCommentId,
     @JsonKey(name: 'created_at') required DateTime createdAt,
     @JsonKey(name: 'updated_at') required DateTime updatedAt,

@@ -220,6 +220,202 @@ class _CommentsProviderElement
   bool get includeReported => (origin as CommentsProvider).includeReported;
 }
 
+String _$commentsByUserHash() => r'91590c8d07c665a4115d1aabd2b99761e5baf08a';
+
+/// See also [commentsByUser].
+@ProviderFor(commentsByUser)
+const commentsByUserProvider = CommentsByUserFamily();
+
+/// See also [commentsByUser].
+class CommentsByUserFamily extends Family<AsyncValue<List<CommentModel>>> {
+  /// See also [commentsByUser].
+  const CommentsByUserFamily();
+
+  /// See also [commentsByUser].
+  CommentsByUserProvider call(
+    String userId,
+    int page,
+    int limit, {
+    bool includeDeleted = true,
+    bool includeReported = true,
+  }) {
+    return CommentsByUserProvider(
+      userId,
+      page,
+      limit,
+      includeDeleted: includeDeleted,
+      includeReported: includeReported,
+    );
+  }
+
+  @override
+  CommentsByUserProvider getProviderOverride(
+    covariant CommentsByUserProvider provider,
+  ) {
+    return call(
+      provider.userId,
+      provider.page,
+      provider.limit,
+      includeDeleted: provider.includeDeleted,
+      includeReported: provider.includeReported,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'commentsByUserProvider';
+}
+
+/// See also [commentsByUser].
+class CommentsByUserProvider
+    extends AutoDisposeFutureProvider<List<CommentModel>> {
+  /// See also [commentsByUser].
+  CommentsByUserProvider(
+    String userId,
+    int page,
+    int limit, {
+    bool includeDeleted = true,
+    bool includeReported = true,
+  }) : this._internal(
+          (ref) => commentsByUser(
+            ref as CommentsByUserRef,
+            userId,
+            page,
+            limit,
+            includeDeleted: includeDeleted,
+            includeReported: includeReported,
+          ),
+          from: commentsByUserProvider,
+          name: r'commentsByUserProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$commentsByUserHash,
+          dependencies: CommentsByUserFamily._dependencies,
+          allTransitiveDependencies:
+              CommentsByUserFamily._allTransitiveDependencies,
+          userId: userId,
+          page: page,
+          limit: limit,
+          includeDeleted: includeDeleted,
+          includeReported: includeReported,
+        );
+
+  CommentsByUserProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.userId,
+    required this.page,
+    required this.limit,
+    required this.includeDeleted,
+    required this.includeReported,
+  }) : super.internal();
+
+  final String userId;
+  final int page;
+  final int limit;
+  final bool includeDeleted;
+  final bool includeReported;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<CommentModel>> Function(CommentsByUserRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: CommentsByUserProvider._internal(
+        (ref) => create(ref as CommentsByUserRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        userId: userId,
+        page: page,
+        limit: limit,
+        includeDeleted: includeDeleted,
+        includeReported: includeReported,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<List<CommentModel>> createElement() {
+    return _CommentsByUserProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is CommentsByUserProvider &&
+        other.userId == userId &&
+        other.page == page &&
+        other.limit == limit &&
+        other.includeDeleted == includeDeleted &&
+        other.includeReported == includeReported;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, userId.hashCode);
+    hash = _SystemHash.combine(hash, page.hashCode);
+    hash = _SystemHash.combine(hash, limit.hashCode);
+    hash = _SystemHash.combine(hash, includeDeleted.hashCode);
+    hash = _SystemHash.combine(hash, includeReported.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin CommentsByUserRef on AutoDisposeFutureProviderRef<List<CommentModel>> {
+  /// The parameter `userId` of this provider.
+  String get userId;
+
+  /// The parameter `page` of this provider.
+  int get page;
+
+  /// The parameter `limit` of this provider.
+  int get limit;
+
+  /// The parameter `includeDeleted` of this provider.
+  bool get includeDeleted;
+
+  /// The parameter `includeReported` of this provider.
+  bool get includeReported;
+}
+
+class _CommentsByUserProviderElement
+    extends AutoDisposeFutureProviderElement<List<CommentModel>>
+    with CommentsByUserRef {
+  _CommentsByUserProviderElement(super.provider);
+
+  @override
+  String get userId => (origin as CommentsByUserProvider).userId;
+  @override
+  int get page => (origin as CommentsByUserProvider).page;
+  @override
+  int get limit => (origin as CommentsByUserProvider).limit;
+  @override
+  bool get includeDeleted => (origin as CommentsByUserProvider).includeDeleted;
+  @override
+  bool get includeReported =>
+      (origin as CommentsByUserProvider).includeReported;
+}
+
 String _$postCommentHash() => r'f8ac399c48bd649194da84d2d39df2834dac3846';
 
 /// See also [postComment].

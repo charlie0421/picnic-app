@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
+import 'package:picnic_app/pages/community/community_my_comment.dart';
 import 'package:picnic_app/pages/community/community_my_writen.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -94,7 +95,11 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
           PicnicListItem(
             leading: '내가 쓴 댓글',
             assetPath: 'assets/icons/arrow_right_style=line.svg',
-            onTap: () {},
+            onTap: () {
+              ref
+                  .read(navigationInfoProvider.notifier)
+                  .setCurrentPage(CommunityMyComment());
+            },
           ),
         ],
       ),

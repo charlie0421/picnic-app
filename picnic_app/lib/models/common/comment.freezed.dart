@@ -220,7 +220,7 @@ mixin _$CommentModel {
   String? get userId => throw _privateConstructorUsedError;
   List<CommentModel>? get children => throw _privateConstructorUsedError;
   UserCommentLikeModel? get myLike => throw _privateConstructorUsedError;
-  UserProfilesModel? get user => throw _privateConstructorUsedError;
+  UserProfilesModel get user => throw _privateConstructorUsedError;
   int get likes => throw _privateConstructorUsedError;
   int get replies => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
@@ -228,6 +228,7 @@ mixin _$CommentModel {
   bool? get isReplied => throw _privateConstructorUsedError;
   bool? get isReportedByUser => throw _privateConstructorUsedError;
   bool? get isBlindedByAdmin => throw _privateConstructorUsedError;
+  PostModel get post => throw _privateConstructorUsedError;
   @JsonKey(name: 'parent_comment_id')
   String? get parentCommentId => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
@@ -258,7 +259,7 @@ abstract class $CommentModelCopyWith<$Res> {
       @JsonKey(name: 'user_id') String? userId,
       List<CommentModel>? children,
       UserCommentLikeModel? myLike,
-      UserProfilesModel? user,
+      UserProfilesModel user,
       int likes,
       int replies,
       String content,
@@ -266,13 +267,15 @@ abstract class $CommentModelCopyWith<$Res> {
       bool? isReplied,
       bool? isReportedByUser,
       bool? isBlindedByAdmin,
+      PostModel post,
       @JsonKey(name: 'parent_comment_id') String? parentCommentId,
       @JsonKey(name: 'created_at') DateTime createdAt,
       @JsonKey(name: 'updated_at') DateTime updatedAt,
       @JsonKey(name: 'deleted_at') DateTime? deletedAt});
 
   $UserCommentLikeModelCopyWith<$Res>? get myLike;
-  $UserProfilesModelCopyWith<$Res>? get user;
+  $UserProfilesModelCopyWith<$Res> get user;
+  $PostModelCopyWith<$Res> get post;
 }
 
 /// @nodoc
@@ -294,7 +297,7 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
     Object? userId = freezed,
     Object? children = freezed,
     Object? myLike = freezed,
-    Object? user = freezed,
+    Object? user = null,
     Object? likes = null,
     Object? replies = null,
     Object? content = null,
@@ -302,6 +305,7 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
     Object? isReplied = freezed,
     Object? isReportedByUser = freezed,
     Object? isBlindedByAdmin = freezed,
+    Object? post = null,
     Object? parentCommentId = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
@@ -324,10 +328,10 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
           ? _value.myLike
           : myLike // ignore: cast_nullable_to_non_nullable
               as UserCommentLikeModel?,
-      user: freezed == user
+      user: null == user
           ? _value.user
           : user // ignore: cast_nullable_to_non_nullable
-              as UserProfilesModel?,
+              as UserProfilesModel,
       likes: null == likes
           ? _value.likes
           : likes // ignore: cast_nullable_to_non_nullable
@@ -356,6 +360,10 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
           ? _value.isBlindedByAdmin
           : isBlindedByAdmin // ignore: cast_nullable_to_non_nullable
               as bool?,
+      post: null == post
+          ? _value.post
+          : post // ignore: cast_nullable_to_non_nullable
+              as PostModel,
       parentCommentId: freezed == parentCommentId
           ? _value.parentCommentId
           : parentCommentId // ignore: cast_nullable_to_non_nullable
@@ -393,13 +401,19 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $UserProfilesModelCopyWith<$Res>? get user {
-    if (_value.user == null) {
-      return null;
-    }
-
-    return $UserProfilesModelCopyWith<$Res>(_value.user!, (value) {
+  $UserProfilesModelCopyWith<$Res> get user {
+    return $UserProfilesModelCopyWith<$Res>(_value.user, (value) {
       return _then(_value.copyWith(user: value) as $Val);
+    });
+  }
+
+  /// Create a copy of CommentModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $PostModelCopyWith<$Res> get post {
+    return $PostModelCopyWith<$Res>(_value.post, (value) {
+      return _then(_value.copyWith(post: value) as $Val);
     });
   }
 }
@@ -417,7 +431,7 @@ abstract class _$$CommentModelImplCopyWith<$Res>
       @JsonKey(name: 'user_id') String? userId,
       List<CommentModel>? children,
       UserCommentLikeModel? myLike,
-      UserProfilesModel? user,
+      UserProfilesModel user,
       int likes,
       int replies,
       String content,
@@ -425,6 +439,7 @@ abstract class _$$CommentModelImplCopyWith<$Res>
       bool? isReplied,
       bool? isReportedByUser,
       bool? isBlindedByAdmin,
+      PostModel post,
       @JsonKey(name: 'parent_comment_id') String? parentCommentId,
       @JsonKey(name: 'created_at') DateTime createdAt,
       @JsonKey(name: 'updated_at') DateTime updatedAt,
@@ -433,7 +448,9 @@ abstract class _$$CommentModelImplCopyWith<$Res>
   @override
   $UserCommentLikeModelCopyWith<$Res>? get myLike;
   @override
-  $UserProfilesModelCopyWith<$Res>? get user;
+  $UserProfilesModelCopyWith<$Res> get user;
+  @override
+  $PostModelCopyWith<$Res> get post;
 }
 
 /// @nodoc
@@ -453,7 +470,7 @@ class __$$CommentModelImplCopyWithImpl<$Res>
     Object? userId = freezed,
     Object? children = freezed,
     Object? myLike = freezed,
-    Object? user = freezed,
+    Object? user = null,
     Object? likes = null,
     Object? replies = null,
     Object? content = null,
@@ -461,6 +478,7 @@ class __$$CommentModelImplCopyWithImpl<$Res>
     Object? isReplied = freezed,
     Object? isReportedByUser = freezed,
     Object? isBlindedByAdmin = freezed,
+    Object? post = null,
     Object? parentCommentId = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
@@ -483,10 +501,10 @@ class __$$CommentModelImplCopyWithImpl<$Res>
           ? _value.myLike
           : myLike // ignore: cast_nullable_to_non_nullable
               as UserCommentLikeModel?,
-      user: freezed == user
+      user: null == user
           ? _value.user
           : user // ignore: cast_nullable_to_non_nullable
-              as UserProfilesModel?,
+              as UserProfilesModel,
       likes: null == likes
           ? _value.likes
           : likes // ignore: cast_nullable_to_non_nullable
@@ -515,6 +533,10 @@ class __$$CommentModelImplCopyWithImpl<$Res>
           ? _value.isBlindedByAdmin
           : isBlindedByAdmin // ignore: cast_nullable_to_non_nullable
               as bool?,
+      post: null == post
+          ? _value.post
+          : post // ignore: cast_nullable_to_non_nullable
+              as PostModel,
       parentCommentId: freezed == parentCommentId
           ? _value.parentCommentId
           : parentCommentId // ignore: cast_nullable_to_non_nullable
@@ -551,6 +573,7 @@ class _$CommentModelImpl extends _CommentModel {
       required this.isReplied,
       required this.isReportedByUser,
       required this.isBlindedByAdmin,
+      required this.post,
       @JsonKey(name: 'parent_comment_id') required this.parentCommentId,
       @JsonKey(name: 'created_at') required this.createdAt,
       @JsonKey(name: 'updated_at') required this.updatedAt,
@@ -580,7 +603,7 @@ class _$CommentModelImpl extends _CommentModel {
   @override
   final UserCommentLikeModel? myLike;
   @override
-  final UserProfilesModel? user;
+  final UserProfilesModel user;
   @override
   final int likes;
   @override
@@ -596,6 +619,8 @@ class _$CommentModelImpl extends _CommentModel {
   @override
   final bool? isBlindedByAdmin;
   @override
+  final PostModel post;
+  @override
   @JsonKey(name: 'parent_comment_id')
   final String? parentCommentId;
   @override
@@ -610,7 +635,7 @@ class _$CommentModelImpl extends _CommentModel {
 
   @override
   String toString() {
-    return 'CommentModel(commentId: $commentId, userId: $userId, children: $children, myLike: $myLike, user: $user, likes: $likes, replies: $replies, content: $content, isLiked: $isLiked, isReplied: $isReplied, isReportedByUser: $isReportedByUser, isBlindedByAdmin: $isBlindedByAdmin, parentCommentId: $parentCommentId, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt)';
+    return 'CommentModel(commentId: $commentId, userId: $userId, children: $children, myLike: $myLike, user: $user, likes: $likes, replies: $replies, content: $content, isLiked: $isLiked, isReplied: $isReplied, isReportedByUser: $isReportedByUser, isBlindedByAdmin: $isBlindedByAdmin, post: $post, parentCommentId: $parentCommentId, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt)';
   }
 
   @override
@@ -634,6 +659,7 @@ class _$CommentModelImpl extends _CommentModel {
                 other.isReportedByUser == isReportedByUser) &&
             (identical(other.isBlindedByAdmin, isBlindedByAdmin) ||
                 other.isBlindedByAdmin == isBlindedByAdmin) &&
+            (identical(other.post, post) || other.post == post) &&
             (identical(other.parentCommentId, parentCommentId) ||
                 other.parentCommentId == parentCommentId) &&
             (identical(other.createdAt, createdAt) ||
@@ -660,6 +686,7 @@ class _$CommentModelImpl extends _CommentModel {
       isReplied,
       isReportedByUser,
       isBlindedByAdmin,
+      post,
       parentCommentId,
       createdAt,
       updatedAt,
@@ -687,7 +714,7 @@ abstract class _CommentModel extends CommentModel {
           @JsonKey(name: 'user_id') final String? userId,
           required final List<CommentModel>? children,
           required final UserCommentLikeModel? myLike,
-          required final UserProfilesModel? user,
+          required final UserProfilesModel user,
           required final int likes,
           required final int replies,
           required final String content,
@@ -695,6 +722,7 @@ abstract class _CommentModel extends CommentModel {
           required final bool? isReplied,
           required final bool? isReportedByUser,
           required final bool? isBlindedByAdmin,
+          required final PostModel post,
           @JsonKey(name: 'parent_comment_id')
           required final String? parentCommentId,
           @JsonKey(name: 'created_at') required final DateTime createdAt,
@@ -717,7 +745,7 @@ abstract class _CommentModel extends CommentModel {
   @override
   UserCommentLikeModel? get myLike;
   @override
-  UserProfilesModel? get user;
+  UserProfilesModel get user;
   @override
   int get likes;
   @override
@@ -732,6 +760,8 @@ abstract class _CommentModel extends CommentModel {
   bool? get isReportedByUser;
   @override
   bool? get isBlindedByAdmin;
+  @override
+  PostModel get post;
   @override
   @JsonKey(name: 'parent_comment_id')
   String? get parentCommentId;
