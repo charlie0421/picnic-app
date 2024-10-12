@@ -12,9 +12,9 @@ import 'package:picnic_app/util/ui.dart';
 enum PostListType { artist, board }
 
 class PostList extends ConsumerStatefulWidget {
-  PostList(this.type, this.id, {super.key});
+  const PostList(this.type, this.id, {super.key});
   final Object id;
-  PostListType type;
+  final PostListType type;
   @override
   ConsumerState<PostList> createState() => _PostListState();
 }
