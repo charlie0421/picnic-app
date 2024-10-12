@@ -1,5 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/models/community/board.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/supabase_options.dart';
@@ -24,7 +25,9 @@ Future<List<PostModel>?> postsByArtist(
     return response.map((data) {
       final post = PostModel.fromJson(data);
       final userProfile = UserProfilesModel.fromJson(data['user_profiles']);
-      return post.copyWith(user_profiles: userProfile);
+      final board =
+          data['boards'] != null ? BoardModel.fromJson(data['boards']) : null;
+      return post.copyWith(user_profiles: userProfile, board: board);
     }).toList();
   } catch (e, s) {
     logger.e('Error fetching posts:', error: e, stackTrace: s);
@@ -78,7 +81,9 @@ Future<List<PostModel>?> postsByQuery(
     return response.map((data) {
       final post = PostModel.fromJson(data);
       final userProfile = UserProfilesModel.fromJson(data['user_profiles']);
-      return post.copyWith(user_profiles: userProfile);
+      final board =
+          data['boards'] != null ? BoardModel.fromJson(data['boards']) : null;
+      return post.copyWith(user_profiles: userProfile, board: board);
     }).toList();
   } catch (e, s) {
     logger.e('Error fetching posts:', error: e, stackTrace: s);

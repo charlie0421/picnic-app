@@ -21,7 +21,7 @@ class PostModel with _$PostModel {
     required bool is_hidden,
     required DateTime created_at,
     required DateTime updated_at,
-    required BoardModel boards,
+    required BoardModel? board,
     required bool is_anonymous,
     required bool? is_scraped,
     @JsonKey(name: 'deleted_at') DateTime? deletedAt,

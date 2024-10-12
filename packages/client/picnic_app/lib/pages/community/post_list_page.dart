@@ -5,7 +5,6 @@ import 'package:picnic_app/components/community/list/post_list.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/pages/community/board_reqeust.dart';
 import 'package:picnic_app/providers/community/boards_provider.dart';
-import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
@@ -35,10 +34,6 @@ class _PostListPageState extends ConsumerState<PostListPage>
           topRightMenu: TopRightType.board,
           showBottomNavigation: false,
           pageTitle: widget.artistName);
-
-      ref
-          .read(communityStateInfoProvider.notifier)
-          .setCurrentArtistId(widget.artistId, widget.artistName);
     });
 
     _pageController = PageController(
@@ -120,9 +115,6 @@ class _PostListPageState extends ConsumerState<PostListPage>
         setState(() {
           _currentIndex = index;
         });
-        ref
-            .read(communityStateInfoProvider.notifier)
-            .setCurrentBoardId(boardId, title);
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.cw),

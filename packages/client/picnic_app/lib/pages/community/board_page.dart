@@ -163,13 +163,10 @@ class _BoardPageState extends ConsumerState<BoardPage> {
   Widget _buildBoardChip(BoardModel board) {
     return GestureDetector(
       onTap: () {
-        ref.read(communityStateInfoProvider.notifier).setCurrentBoardId(
-            board.board_id,
-            board.is_official
-                ? getLocaleTextFromJson(board.name)
-                : getLocaleTextFromJson(board.name));
-        ref.read(communityStateInfoProvider.notifier).setCurrentArtistId(
-            board.artist!.id, getLocaleTextFromJson(board.artist!.name));
+        ref.read(communityStateInfoProvider.notifier).setCurrentBoard(board);
+        ref
+            .read(communityStateInfoProvider.notifier)
+            .setCurrentArtist(board.artist!);
         ref.read(navigationInfoProvider.notifier).setCommunityCurrentPage(
             PostListPage(
                 board.artist!.id, getLocaleTextFromJson(board.artist!.name)));

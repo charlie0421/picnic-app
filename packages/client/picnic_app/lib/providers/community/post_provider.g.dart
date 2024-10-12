@@ -6,7 +6,7 @@ part of 'post_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$postsByArtistHash() => r'ae738e0037699ed6b120df7d8de3bcd9841a7d9d';
+String _$postsByArtistHash() => r'fe972a6abb8e65b1a7dbab1f73894ca90a796087';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -352,7 +352,7 @@ class _PostsByBoardProviderElement
   int get page => (origin as PostsByBoardProvider).page;
 }
 
-String _$postsByQueryHash() => r'078752a611ea9d76950308423a857b87e1635e85';
+String _$postsByQueryHash() => r'39d130fbe0ec0d4f020b9c30bce77729288255ad';
 
 /// See also [postsByQuery].
 @ProviderFor(postsByQuery)

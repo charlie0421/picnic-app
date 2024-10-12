@@ -18,9 +18,6 @@ class CommunityHomePage extends ConsumerStatefulWidget {
 }
 
 class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
-  int? _selectedArtistId;
-  String? _selectedArtistName;
-
   @override
   void initState() {
     super.initState();
@@ -33,7 +30,8 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
   @override
   Widget build(BuildContext context) {
     final bookmarkedArtists = ref.watch(asyncBookmarkedArtistsProvider);
-
+    final currentArtist = ref.watch(
+        communityStateInfoProvider.select((value) => value.currentArtist));
     return ListView(children: [
       const CommonBanner('community_home', 150),
       Container(
@@ -45,12 +43,7 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
       Container(
         child: bookmarkedArtists.when(
           data: (artists) {
-            if (_selectedArtistId == null && artists.isNotEmpty) {
-              setState(() {
-                _selectedArtistId = artists.first.id;
-                _selectedArtistName = getLocaleTextFromJson(artists.first.name);
-              });
-            }
+            if (currentArtist?.id == null && artists.isNotEmpty) {}
             return artists.isNotEmpty
                 ? Column(
                     children: [
@@ -63,18 +56,9 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
                           itemBuilder: (context, index) {
                             return GestureDetector(
                               onTap: () {
-                                setState(() {
-                                  _selectedArtistId = artists[index].id;
-                                  _selectedArtistName = getLocaleTextFromJson(
-                                      artists[index].name);
-                                });
-
                                 ref
                                     .read(communityStateInfoProvider.notifier)
-                                    .setCurrentArtistId(
-                                        artists[index].id,
-                                        getLocaleTextFromJson(
-                                            artists[index].name));
+                                    .setCurrentArtist(artists[index]);
                               },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
@@ -88,7 +72,7 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
                                           borderRadius:
                                               BorderRadius.circular(64),
                                           border: Border.all(
-                                              color: _selectedArtistId ==
+                                              color: currentArtist?.id ==
                                                       artists[index].id
                                                   ? AppColors.primary500
                                                   : Colors.transparent,
@@ -121,8 +105,7 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
                           },
                         ),
                       ),
-                      if (_selectedArtistId != null)
-                        PostHomeList(_selectedArtistId!, _selectedArtistName!),
+                      if (currentArtist != null) PostHomeList(),
                     ],
                   )
                 : Container(
