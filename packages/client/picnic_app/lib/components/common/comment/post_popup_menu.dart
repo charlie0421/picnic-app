@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:picnic_app/app.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
@@ -47,6 +48,9 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
             onOk: () async {
               await deletePost(ref, widget.post.post_id);
               widget.refreshFunction();
+              if (navigatorKey.currentContext != null) {
+                Navigator.of(navigatorKey.currentContext!).pop();
+              }
             },
             onCancel: () => Navigator.of(context).pop(),
           );
