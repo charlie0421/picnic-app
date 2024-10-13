@@ -6,7 +6,7 @@ part of 'boards_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$boardsHash() => r'f2b4ab8b7f26d28ef0d1bb7682f4d88e5c61ca34';
+String _$boardsHash() => r'b959fcc1cc1e26f737a9a5a306f7282229d2a15d';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -155,7 +155,7 @@ class _BoardsProviderElement
 }
 
 String _$boardsByArtistNameHash() =>
-    r'777f1cfa3103f56daa55de25faade44d28d39bdb';
+    r'd749b99cd0c73db17fac28f41495515c8471e364';
 
 /// See also [boardsByArtistName].
 @ProviderFor(boardsByArtistName)
