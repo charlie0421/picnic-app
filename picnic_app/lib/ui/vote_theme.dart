@@ -12,16 +12,8 @@ ThemeData voteThemeLight = ThemeData.light().copyWith(
     color: Colors.transparent,
   ),
   scaffoldBackgroundColor: AppColors.grey00,
-  // bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-  //   backgroundColor: voteMainColorLight,
-  //   selectedIconTheme: IconThemeData(color: Colors.black),
-  //   unselectedIconTheme: IconThemeData(color: Colors.black54),
-  //   selectedItemColor: Colors.black,
-  //   unselectedItemColor: Colors.black54,
-  //   selectedLabelStyle: TextStyle(color: Colors.black),
-  //   unselectedLabelStyle: TextStyle(color: Colors.black54),
-  // ),
-  elevatedButtonTheme: commonElevatedButtonThemeData,
+  elevatedButtonTheme: getElevatedButtonThemeData(
+      borderColor: AppColors.sub500, textColor: AppColors.grey00),
   tabBarTheme: commonTabBarTheme,
   switchTheme: commonSwitchTheme,
   colorScheme: const ColorScheme(
