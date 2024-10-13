@@ -35,6 +35,7 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
 
     return ListView(children: [
       const CommonBanner('community_home', 150),
+      const SizedBox(height: 32),
       Container(
         padding: EdgeInsets.symmetric(horizontal: 16.cw),
         child: Text('My ARTISTS',
