@@ -142,11 +142,11 @@ class _CommentInputState extends ConsumerState<CommentInput> {
     );
   }
 
-  void _commitComment() {
+  void _commitComment() async {
     if (!_isInputValid) return;
 
     final parentItemState = ref.watch(parentItemProvider);
-    postComment(
+    await postComment(
         ref,
         widget.id,
         parentItemState?.parentCommentId ?? parentItemState?.commentId,

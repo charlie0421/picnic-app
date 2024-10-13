@@ -228,7 +228,7 @@ mixin _$CommentModel {
   bool? get isReplied => throw _privateConstructorUsedError;
   bool? get isReportedByUser => throw _privateConstructorUsedError;
   bool? get isBlindedByAdmin => throw _privateConstructorUsedError;
-  PostModel get post => throw _privateConstructorUsedError;
+  PostModel? get post => throw _privateConstructorUsedError;
   @JsonKey(name: 'parent_comment_id')
   String? get parentCommentId => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
@@ -267,7 +267,7 @@ abstract class $CommentModelCopyWith<$Res> {
       bool? isReplied,
       bool? isReportedByUser,
       bool? isBlindedByAdmin,
-      PostModel post,
+      PostModel? post,
       @JsonKey(name: 'parent_comment_id') String? parentCommentId,
       @JsonKey(name: 'created_at') DateTime createdAt,
       @JsonKey(name: 'updated_at') DateTime updatedAt,
@@ -275,7 +275,7 @@ abstract class $CommentModelCopyWith<$Res> {
 
   $UserCommentLikeModelCopyWith<$Res>? get myLike;
   $UserProfilesModelCopyWith<$Res> get user;
-  $PostModelCopyWith<$Res> get post;
+  $PostModelCopyWith<$Res>? get post;
 }
 
 /// @nodoc
@@ -305,7 +305,7 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
     Object? isReplied = freezed,
     Object? isReportedByUser = freezed,
     Object? isBlindedByAdmin = freezed,
-    Object? post = null,
+    Object? post = freezed,
     Object? parentCommentId = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
@@ -360,10 +360,10 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
           ? _value.isBlindedByAdmin
           : isBlindedByAdmin // ignore: cast_nullable_to_non_nullable
               as bool?,
-      post: null == post
+      post: freezed == post
           ? _value.post
           : post // ignore: cast_nullable_to_non_nullable
-              as PostModel,
+              as PostModel?,
       parentCommentId: freezed == parentCommentId
           ? _value.parentCommentId
           : parentCommentId // ignore: cast_nullable_to_non_nullable
@@ -411,8 +411,12 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $PostModelCopyWith<$Res> get post {
-    return $PostModelCopyWith<$Res>(_value.post, (value) {
+  $PostModelCopyWith<$Res>? get post {
+    if (_value.post == null) {
+      return null;
+    }
+
+    return $PostModelCopyWith<$Res>(_value.post!, (value) {
       return _then(_value.copyWith(post: value) as $Val);
     });
   }
@@ -439,7 +443,7 @@ abstract class _$$CommentModelImplCopyWith<$Res>
       bool? isReplied,
       bool? isReportedByUser,
       bool? isBlindedByAdmin,
-      PostModel post,
+      PostModel? post,
       @JsonKey(name: 'parent_comment_id') String? parentCommentId,
       @JsonKey(name: 'created_at') DateTime createdAt,
       @JsonKey(name: 'updated_at') DateTime updatedAt,
@@ -450,7 +454,7 @@ abstract class _$$CommentModelImplCopyWith<$Res>
   @override
   $UserProfilesModelCopyWith<$Res> get user;
   @override
-  $PostModelCopyWith<$Res> get post;
+  $PostModelCopyWith<$Res>? get post;
 }
 
 /// @nodoc
@@ -478,7 +482,7 @@ class __$$CommentModelImplCopyWithImpl<$Res>
     Object? isReplied = freezed,
     Object? isReportedByUser = freezed,
     Object? isBlindedByAdmin = freezed,
-    Object? post = null,
+    Object? post = freezed,
     Object? parentCommentId = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
@@ -533,10 +537,10 @@ class __$$CommentModelImplCopyWithImpl<$Res>
           ? _value.isBlindedByAdmin
           : isBlindedByAdmin // ignore: cast_nullable_to_non_nullable
               as bool?,
-      post: null == post
+      post: freezed == post
           ? _value.post
           : post // ignore: cast_nullable_to_non_nullable
-              as PostModel,
+              as PostModel?,
       parentCommentId: freezed == parentCommentId
           ? _value.parentCommentId
           : parentCommentId // ignore: cast_nullable_to_non_nullable
@@ -619,7 +623,7 @@ class _$CommentModelImpl extends _CommentModel {
   @override
   final bool? isBlindedByAdmin;
   @override
-  final PostModel post;
+  final PostModel? post;
   @override
   @JsonKey(name: 'parent_comment_id')
   final String? parentCommentId;
@@ -722,7 +726,7 @@ abstract class _CommentModel extends CommentModel {
           required final bool? isReplied,
           required final bool? isReportedByUser,
           required final bool? isBlindedByAdmin,
-          required final PostModel post,
+          required final PostModel? post,
           @JsonKey(name: 'parent_comment_id')
           required final String? parentCommentId,
           @JsonKey(name: 'created_at') required final DateTime createdAt,
@@ -761,7 +765,7 @@ abstract class _CommentModel extends CommentModel {
   @override
   bool? get isBlindedByAdmin;
   @override
-  PostModel get post;
+  PostModel? get post;
   @override
   @JsonKey(name: 'parent_comment_id')
   String? get parentCommentId;
