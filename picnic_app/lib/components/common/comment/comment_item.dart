@@ -143,7 +143,6 @@ class _CommentItemState extends ConsumerState<CommentItem>
               ),
               SizedBox(width: 10.cw),
               CommentPopupMenu(
-                context: context,
                 comment: widget.commentModel,
                 refreshFunction: widget.pagingController?.refresh,
                 openReportModal: widget.openReportModal,

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/comment/comment_popup_menu.dart';
+import 'package:picnic_app/components/common/no_item_container.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/providers/community/comments_provider.dart';
@@ -56,74 +57,77 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment>
     return PagedListView<int, CommentModel>(
         pagingController: _pagingController,
         builderDelegate: PagedChildBuilderDelegate<CommentModel>(
-            itemBuilder: (context, item, index) {
-          return Container(
-            height: 71,
-            alignment: Alignment.centerLeft,
-            padding: EdgeInsets.symmetric(
-              horizontal: 16.cw,
-              vertical: 8,
-            ),
-            decoration: const BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: AppColors.grey300,
-                  width: 1,
-                ),
+          itemBuilder: (context, item, index) {
+            return Container(
+              height: 71,
+              alignment: Alignment.centerLeft,
+              padding: EdgeInsets.symmetric(
+                horizontal: 16.cw,
+                vertical: 8,
               ),
-            ),
-            width: getPlatformScreenSize(context).width,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            item.post.board!.is_official
-                                ? getLocaleTextFromJson(item.post.board!.name)
-                                : item.post.board?.name['minor'],
-                            style: getTextStyle(
-                                AppTypo.caption12B, AppColors.primary500),
-                          ),
-                          SizedBox(width: 4.cw),
-                          ProfileImageContainer(
-                            avatarUrl: item.user.avatar_url,
-                            borderRadius: 4,
-                            width: 18,
-                            height: 18,
-                          ),
-                          SizedBox(width: 4.cw),
-                          Text(
-                            item.user.nickname ?? '',
-                            style: getTextStyle(
-                                AppTypo.caption12B, AppColors.grey900),
-                          ),
-                          SizedBox(width: 4.cw),
-                          Text(formatTimeAgo(context, item.createdAt),
-                              style: getTextStyle(
-                                  AppTypo.caption10SB, AppColors.grey400)),
-                        ],
-                      ),
-                      const SizedBox(height: 5),
-                      CommentContents(item: item),
-                    ],
+              decoration: const BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: AppColors.grey300,
+                    width: 1,
                   ),
                 ),
-                SizedBox(width: 10.cw),
-                CommentPopupMenu(
-                  context: context,
-                  comment: item,
-                  refreshFunction: _pagingController.refresh,
-                ),
-              ],
-            ),
-          );
-        }));
+              ),
+              width: getPlatformScreenSize(context).width,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              item.post.board!.is_official
+                                  ? getLocaleTextFromJson(item.post.board!.name)
+                                  : item.post.board?.name['minor'],
+                              style: getTextStyle(
+                                  AppTypo.caption12B, AppColors.primary500),
+                            ),
+                            SizedBox(width: 4.cw),
+                            ProfileImageContainer(
+                              avatarUrl: item.user.avatar_url,
+                              borderRadius: 4,
+                              width: 18,
+                              height: 18,
+                            ),
+                            SizedBox(width: 4.cw),
+                            Text(
+                              item.user.nickname ?? '',
+                              style: getTextStyle(
+                                  AppTypo.caption12B, AppColors.grey900),
+                            ),
+                            SizedBox(width: 4.cw),
+                            Text(formatTimeAgo(context, item.createdAt),
+                                style: getTextStyle(
+                                    AppTypo.caption10SB, AppColors.grey400)),
+                          ],
+                        ),
+                        const SizedBox(height: 5),
+                        CommentContents(item: item),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 10.cw),
+                  CommentPopupMenu(
+                    comment: item,
+                    refreshFunction: _pagingController.refresh,
+                  ),
+                ],
+              ),
+            );
+          },
+          noItemsFoundIndicatorBuilder: (context) {
+            return const NoItemContainer();
+          },
+        ));
   }
 }
 

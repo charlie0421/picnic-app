@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/app.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/comment.dart';
@@ -9,7 +8,6 @@ import 'package:picnic_app/providers/community/comments_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 
 class CommentPopupMenu extends ConsumerStatefulWidget {
-  final BuildContext context;
   final CommentModel comment;
   final Function? refreshFunction;
   final Function? openReportModal;
@@ -17,11 +15,9 @@ class CommentPopupMenu extends ConsumerStatefulWidget {
   const CommentPopupMenu({
     super.key,
     required this.comment,
-    required this.context,
     this.refreshFunction,
     this.openReportModal,
   });
-  // required
 
   @override
   ConsumerState<CommentPopupMenu> createState() => _CommentPopupMenuState();
@@ -35,7 +31,6 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
       icon: const Icon(Icons.more_vert),
       onSelected: (String result) async {
         if (result == 'Report') {
-          logger.i('widget.openReportModal: ${widget.openReportModal}');
           if (widget.openReportModal != null) {
             widget.openReportModal!(
                 S.of(context).label_title_report, widget.comment);
@@ -62,15 +57,11 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
         PopupMenuItem<String>(
             value: 'Delete',
             enabled: _canDeleteComment(),
-            child: Row(
-              children: [Text(S.of(context).popup_label_delete)],
-            )),
+            child: Text(S.of(context).popup_label_delete)),
         PopupMenuItem<String>(
             value: 'Report',
             enabled: _canReportComment(),
-            child: Row(
-              children: [Text(S.of(context).label_title_report)],
-            )),
+            child: Text(S.of(context).label_title_report)),
       ],
     );
   }

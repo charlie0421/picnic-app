@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/common/comment/my_scrap_popup_menu.dart';
+import 'package:picnic_app/components/common/no_item_container.dart';
 import 'package:picnic_app/components/community/common/post_list_item.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/post_scrap.dart';
@@ -51,17 +52,21 @@ class _CommunityMyScrapsState extends ConsumerState<CommunityMyScraps>
     return PagedListView<int, PostScrapModel>(
         pagingController: _pagingController,
         builderDelegate: PagedChildBuilderDelegate<PostScrapModel>(
-            itemBuilder: (context, item, index) {
-          return PostListItem(
-            post: item.post!,
-            popupMenu: MyScrapPopupMenu(
-                post: item.post!,
-                context: context,
-                refreshFunction: () {
-                  _pagingController.refresh();
-                  return Future.value();
-                }),
-          );
-        }));
+          itemBuilder: (context, item, index) {
+            return PostListItem(
+              post: item.post!,
+              popupMenu: MyScrapPopupMenu(
+                  post: item.post!,
+                  context: context,
+                  refreshFunction: () {
+                    _pagingController.refresh();
+                    return Future.value();
+                  }),
+            );
+          },
+          noItemsFoundIndicatorBuilder: (context) {
+            return const NoItemContainer();
+          },
+        ));
   }
 }

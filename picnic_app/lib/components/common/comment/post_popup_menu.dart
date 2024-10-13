@@ -43,7 +43,7 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
           }
         } else if (result == 'Delete') {
           showSimpleDialog(
-            title: S.of(context).label_title_report,
+            title: S.of(context).popup_label_delete,
             content: '정말로 삭제하시겠습니까?',
             onOk: () async {
               await deletePost(ref, widget.post.post_id);

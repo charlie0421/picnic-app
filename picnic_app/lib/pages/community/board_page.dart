@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/common/common_search_box.dart';
+import 'package:picnic_app/components/common/no_item_container.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
@@ -113,6 +114,11 @@ class _BoardPageState extends ConsumerState<BoardPage> {
             builderDelegate: PagedChildBuilderDelegate<List<BoardModel>>(
               itemBuilder: (context, List<BoardModel> artistBoards, index) {
                 return _buildArtistBoardGroup(artistBoards);
+              },
+              noItemsFoundIndicatorBuilder: (context) {
+                return const NoItemContainer(
+                  message: '검색결과가 없습니다.',
+                );
               },
             ),
           ),
