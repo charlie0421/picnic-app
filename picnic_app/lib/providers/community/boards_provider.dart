@@ -11,7 +11,7 @@ Future<List<BoardModel>?> boards(ref, int artistId) async {
   try {
     final response = await supabase
         .from('boards')
-        .select()
+        .select('*, artist(*, artist_group(*))')
         .eq('artist_id', artistId)
         .eq('status', 'approved')
         .order('is_official', ascending: false)
@@ -32,23 +32,24 @@ Future<List<BoardModel>?> boardsByArtistName(
     if (query.isEmpty) {
       final response = await supabase
           .from('boards')
-          .select('*,artist(*, artist_group(*))')
+          .select('*, artist!inner(*, artist_group(*))')
           .neq('artist_id', 0)
           .eq('status', 'approved')
-          .range(page * limit, (page + 1) * limit - 1)
-          .order('artist_id')
+          .order('artist(name->>${Intl.getCurrentLocale()})', ascending: true)
           .order('is_official', ascending: false)
-          .order('order', ascending: true);
+          .order('order', ascending: true)
+          .range(page * limit, (page + 1) * limit - 1);
 
       boardData = response.map(BoardModel.fromJson).toList();
     } else {
       final response = await supabase
           .from('boards')
-          .select('*,artist(*, artist_group(*))')
+          .select('*, artist!inner(*, artist_group(*))')
           .neq('artist_id', 0)
           .or('name->>ko.ilike.%$query%,name->>en.ilike.%$query%,name->>ja.ilike.%$query%,name->>zh.ilike.%$query%')
-          .range(page * limit, (page + 1) * limit - 1)
-          .order('name->>${Intl.getCurrentLocale()}', ascending: true);
+          .order('artist(name->>${Intl.getCurrentLocale()})', ascending: true)
+          .range(page * limit, (page + 1) * limit - 1);
+
       boardData = response.map(BoardModel.fromJson).toList();
     }
 
