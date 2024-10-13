@@ -36,13 +36,16 @@ class CommentActions extends ConsumerWidget {
                 isLiked: item.isLiked ?? false,
               ),
               SizedBox(width: 16.cw),
-              ReplyButton(
-                comment: item,
-                initialReplies: item.replies,
-                isReplied: item.isReplied ?? false,
-                openCommentsModal: openCommentsModal,
-              ),
-              SizedBox(width: 16.cw),
+              if (item.parentCommentId == null)
+                Container(
+                  margin: EdgeInsets.only(right: 16.cw),
+                  child: ReplyButton(
+                    comment: item,
+                    initialReplies: item.replies,
+                    isReplied: item.isReplied ?? false,
+                    openCommentsModal: openCommentsModal,
+                  ),
+                ),
               if (showReplyButton)
                 InkWell(
                   onTap: () {
@@ -52,7 +55,7 @@ class CommentActions extends ConsumerWidget {
                   splashColor: Colors.transparent,
                   highlightColor: Colors.transparent,
                   child: Container(
-                    alignment: Alignment.topLeft,
+                    alignment: Alignment.center,
                     child: Text(S.of(context).label_reply,
                         style: getTextStyle(
                             AppTypo.caption12B, AppColors.grey500)),
