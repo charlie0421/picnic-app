@@ -12,7 +12,6 @@ Future<List<CommentModel>> comments(ref, String postId, int page, int limit,
   final currentUserId = supabase.auth.currentUser?.id;
   logger.i('Fetching comments for post: $postId, page: $page, limit: $limit');
   try {
-    // 1. 루트 댓글과 관련 데이터 가져오기 (직접 조인 사용)
     var query = supabase.from('comments').select('''
       *,
       comment_likes:comment_likes(count),
@@ -22,15 +21,8 @@ Future<List<CommentModel>> comments(ref, String postId, int page, int limit,
       post:posts(*)
     ''').eq('post_id', postId);
 
-    // 삭제된 댓글 필터링
-    if (!includeDeleted) {
-      query = query.isFilter('deleted_at', null);
-    }
-
-    // 신고된 댓글 필터링
-    if (!includeReported) {
-      query = query.isFilter('comment_reports', null);
-    }
+    if (!includeDeleted) query = query.isFilter('deleted_at', null);
+    if (!includeReported) query = query.isFilter('comment_reports', null);
 
     final rootResponse = await query
         .isFilter('parent_comment_id', null)
@@ -39,8 +31,6 @@ Future<List<CommentModel>> comments(ref, String postId, int page, int limit,
         .isFilter('user_likes.deleted_at', null)
         .order('created_at', ascending: false)
         .range((page - 1) * limit, page * limit - 1);
-
-    logger.d('rootResponse: $rootResponse');
 
     final rootComments = rootResponse.map((row) {
       final comment = CommentModel.fromJson(row);
@@ -54,7 +44,6 @@ Future<List<CommentModel>> comments(ref, String postId, int page, int limit,
 
     final rootCommentIds = rootComments.map((c) => c.commentId).toList();
 
-    // 2. 자식 댓글과 관련 데이터 가져오기 (직접 조인 사용)
     final childResponse = await supabase
         .from('comments')
         .select('''
@@ -81,14 +70,11 @@ Future<List<CommentModel>> comments(ref, String postId, int page, int limit,
       );
     }).toList();
 
-    // 3. 댓글에 자식 댓글 그룹화
     final Map<String, CommentModel> commentMap = {};
 
     for (var comment in [...rootComments, ...childComments]) {
       if (comment.parentCommentId == null) {
-        commentMap[comment.commentId] = comment.copyWith(
-          children: [],
-        );
+        commentMap[comment.commentId] = comment.copyWith(children: []);
       } else {
         final parentComment = commentMap[comment.parentCommentId];
         if (parentComment != null) {
@@ -99,7 +85,6 @@ Future<List<CommentModel>> comments(ref, String postId, int page, int limit,
       }
     }
 
-    // 4. 최종 결과 정렬 및 반환
     final result =
         rootComments.map((comment) => commentMap[comment.commentId]!).toList();
     result.sort((a, b) => b.createdAt.compareTo(a.createdAt));
@@ -136,14 +121,12 @@ Future<List<CommentModel>> commentsByUser(
 Future<void> postComment(
     ref, String postId, String? parentId, String content) async {
   try {
-    final response = await supabase.from('comments').insert({
+    await supabase.from('comments').insert({
       'post_id': postId,
       'user_id': supabase.auth.currentUser!.id,
       'parent_comment_id': parentId,
       'content': content,
     });
-
-    logger.d('response: $response');
   } catch (e, s) {
     logger.e('Error posting comment:', error: e, stackTrace: s);
     return Future.error(e);
@@ -152,14 +135,11 @@ Future<void> postComment(
 
 @riverpod
 Future<void> likeComment(ref, String commentId) async {
-  logger.d('Liking comment: $commentId');
   try {
-    final response = await supabase.from('comment_likes').upsert({
+    await supabase.from('comment_likes').upsert({
       'comment_id': commentId,
       'user_id': supabase.auth.currentUser!.id,
     });
-
-    logger.d('response: $response');
   } catch (e, s) {
     logger.e('Error liking comment:', error: e, stackTrace: s);
     return Future.error(e);
@@ -169,13 +149,11 @@ Future<void> likeComment(ref, String commentId) async {
 @riverpod
 Future<void> unlikeComment(ref, String commentId) async {
   try {
-    final response = await supabase
+    await supabase
         .from('comment_likes')
         .update({'deleted_at': DateTime.now().toIso8601String()})
         .eq('comment_id', commentId)
         .eq('user_id', supabase.auth.currentUser!.id);
-
-    logger.d('response: $response');
   } catch (e, s) {
     logger.e('Error unliking comment:', error: e, stackTrace: s);
     return Future.error(e);
@@ -186,13 +164,11 @@ Future<void> unlikeComment(ref, String commentId) async {
 Future<void> reportComment(
     ref, CommentModel comment, String reason, String text) async {
   try {
-    final response = await supabase.from('comment_reports').upsert({
+    await supabase.from('comment_reports').upsert({
       'comment_id': comment.commentId,
       'user_id': supabase.auth.currentUser!.id,
       'reason': reason + (text.isNotEmpty ? ' - $text' : ''),
     });
-
-    logger.d('response: $response');
   } catch (e, s) {
     logger.e('Error reporting comment:', error: e, stackTrace: s);
     return Future.error(e);
@@ -202,11 +178,9 @@ Future<void> reportComment(
 @riverpod
 Future<void> deleteComment(ref, String commentId) async {
   try {
-    final response = await supabase.from('comments').update({
+    await supabase.from('comments').update({
       'deleted_at': DateTime.now().toIso8601String(),
     }).eq('comment_id', commentId);
-
-    logger.d('response: $response');
   } catch (e, s) {
     logger.e('Error deleting comment:', error: e, stackTrace: s);
     return Future.error(e);

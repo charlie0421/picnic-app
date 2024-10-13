@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/common/comment/post_popup_menu.dart';
+import 'package:picnic_app/components/common/no_item_container.dart';
 import 'package:picnic_app/components/community/common/post_list_item.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/post.dart';
@@ -51,14 +52,18 @@ class _CommunityMyWritenState extends ConsumerState<CommunityMyWriten>
     return PagedListView<int, PostModel>(
         pagingController: _pagingController,
         builderDelegate: PagedChildBuilderDelegate<PostModel>(
-            itemBuilder: (context, item, index) {
-          return PostListItem(
-            post: item,
-            popupMenu: PostPopupMenu(
-                post: item,
-                context: context,
-                refreshFunction: () => _pagingController.refresh()),
-          );
-        }));
+          itemBuilder: (context, item, index) {
+            return PostListItem(
+              post: item,
+              popupMenu: PostPopupMenu(
+                  post: item,
+                  context: context,
+                  refreshFunction: () => _pagingController.refresh()),
+            );
+          },
+          noItemsFoundIndicatorBuilder: (context) {
+            return const NoItemContainer();
+          },
+        ));
   }
 }
