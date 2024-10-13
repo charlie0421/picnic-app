@@ -72,20 +72,14 @@ Future<List<PostModel>?> postsByQuery(
     final response = await supabase
         .from('posts')
         .select(
-            '*, boards!inner(*), user_profiles(*), post_reports!left(post_id), post_scraps!left(post_id)')
+            '*, board:boards!inner(*), user_profiles(*), post_reports!left(post_id), post_scraps!left(post_id)')
         .isFilter('deleted_at', null)
         .isFilter('post_reports', null)
-        .or('title.ilike.%$query%,content.ilike.%$query%')
+        .or('title.ilike.%$query%')
         .range((page - 1) * limit, page * limit - 1)
         .order('title->>${Intl.getCurrentLocale()}', ascending: true);
 
-    return response.map((data) {
-      final post = PostModel.fromJson(data);
-      final userProfile = UserProfilesModel.fromJson(data['user_profiles']);
-      final board =
-          data['boards'] != null ? BoardModel.fromJson(data['boards']) : null;
-      return post.copyWith(user_profiles: userProfile, board: board);
-    }).toList();
+    return response.map((data) => PostModel.fromJson(data)).toList();
   } catch (e, s) {
     logger.e('Error fetching posts:', error: e, stackTrace: s);
     return Future.error(e);
