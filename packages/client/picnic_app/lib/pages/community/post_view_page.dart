@@ -201,7 +201,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                               AppTypo.caption12B, AppColors.primary500)),
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 8),
+                  padding: EdgeInsets.symmetric(horizontal: 16.cw),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

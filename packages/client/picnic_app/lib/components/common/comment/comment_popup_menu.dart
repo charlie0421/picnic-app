@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/app.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
@@ -28,7 +29,13 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
   Widget build(BuildContext context) {
     return PopupMenuButton<String>(
       padding: EdgeInsets.zero,
-      icon: const Icon(Icons.more_vert),
+      child: SvgPicture.asset(
+        'assets/icons/more_style=line.svg',
+        width: 20,
+        height: 20,
+        colorFilter:
+            ColorFilter.mode(Theme.of(context).primaryColor, BlendMode.srcIn),
+      ),
       onSelected: (String result) async {
         if (result == 'Report') {
           if (widget.openReportModal != null) {
