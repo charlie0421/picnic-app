@@ -1,7 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
 import 'intl/messages_all.dart';
 
 // **************************************************************************
@@ -1001,7 +1000,7 @@ class S {
     );
   }
 
-  /// `More 'comments`
+  /// `More comments`
   String get label_read_more_comment {
     return Intl.message(
       'More comments',

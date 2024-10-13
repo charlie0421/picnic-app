@@ -81,7 +81,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
   int _getMyStarCandy() {
     final userInfo = ref.read(userInfoProvider).value;
-    return (userInfo?.star_candy ?? 0) + (userInfo?.star_candy_bonus ?? 0);
+    return (userInfo?.starCandy ?? 0) + (userInfo?.starCandyBonus ?? 0);
   }
 
   @override

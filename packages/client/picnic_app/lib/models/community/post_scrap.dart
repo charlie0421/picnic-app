@@ -11,13 +11,13 @@ class PostScrapModel with _$PostScrapModel {
   const PostScrapModel._();
 
   const factory PostScrapModel({
-    required String post_id,
-    required String user_id,
-    required UserProfilesModel? user_profiles,
-    required DateTime created_at,
-    required DateTime updated_at,
-    required BoardModel? board,
-    required PostModel? post,
+    @JsonKey(name: 'post_id') required String postId,
+    @JsonKey(name: 'user_id') required String userId,
+    @JsonKey(name: 'user_profiles') required UserProfilesModel? userProfiles,
+    @JsonKey(name: 'created_at') required DateTime createdAt,
+    @JsonKey(name: 'updated_at') required DateTime updatedAt,
+    @JsonKey(name: 'board') required BoardModel? board,
+    @JsonKey(name: 'post') required PostModel? post,
     @JsonKey(name: 'deleted_at') DateTime? deletedAt,
   }) = _PostScrapModel;
 

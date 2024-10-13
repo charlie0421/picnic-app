@@ -6,7 +6,7 @@ part of 'comments_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$commentsHash() => r'526a75bbd45d4edbf10ea9fd7ead028cfd6f6bd9';
+String _$commentsHash() => r'b4372a9fd4d32ca76539b602ed7cacbd7ab99da3';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -416,7 +416,7 @@ class _CommentsByUserProviderElement
       (origin as CommentsByUserProvider).includeReported;
 }
 
-String _$postCommentHash() => r'f8ac399c48bd649194da84d2d39df2834dac3846';
+String _$postCommentHash() => r'fce885b65ecf81406935f48692e70dd565fdb18a';
 
 /// See also [postComment].
 @ProviderFor(postComment)
@@ -577,7 +577,7 @@ class _PostCommentProviderElement extends AutoDisposeFutureProviderElement<void>
   String get content => (origin as PostCommentProvider).content;
 }
 
-String _$likeCommentHash() => r'2dddbbfcde82885cf5f99dcf54cf6e299a54318a';
+String _$likeCommentHash() => r'2e9f18c42f87327090014dfd8b02dd497b3f6c52';
 
 /// See also [likeComment].
 @ProviderFor(likeComment)
@@ -705,7 +705,7 @@ class _LikeCommentProviderElement extends AutoDisposeFutureProviderElement<void>
   String get commentId => (origin as LikeCommentProvider).commentId;
 }
 
-String _$unlikeCommentHash() => r'aa88522fce0c051d626c6d278843d21910c4e83c';
+String _$unlikeCommentHash() => r'0e0407ed65881e8ce4007da831c758bc2d6e617d';
 
 /// See also [unlikeComment].
 @ProviderFor(unlikeComment)
@@ -833,7 +833,7 @@ class _UnlikeCommentProviderElement
   String get commentId => (origin as UnlikeCommentProvider).commentId;
 }
 
-String _$reportCommentHash() => r'c6839248c0652340e30353003b15447eaad01437';
+String _$reportCommentHash() => r'771073bb93768683788ea34f904a8590ca68292b';
 
 /// See also [reportComment].
 @ProviderFor(reportComment)
@@ -994,7 +994,7 @@ class _ReportCommentProviderElement
   String get text => (origin as ReportCommentProvider).text;
 }
 
-String _$deleteCommentHash() => r'3e59c9c3ccc8b5a25d75d31015960f81b304d9a8';
+String _$deleteCommentHash() => r'86d9f8fbd1c7d62ac0463f2e93384deea3aa240c';
 
 /// See also [deleteComment].
 @ProviderFor(deleteComment)

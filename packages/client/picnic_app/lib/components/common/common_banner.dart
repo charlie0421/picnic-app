@@ -27,7 +27,7 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
   Widget build(BuildContext context) {
     final asyncBannerListState =
         ref.watch(asyncBannerListProvider(location: widget.location));
-    final width = ref.watch(globalMediaQueryProviderProvider).size.width;
+    final width = ref.watch(globalMediaQueryProvider).size.width;
     return asyncBannerListState.when(
       data: (data) => Column(
         mainAxisSize: MainAxisSize.min,

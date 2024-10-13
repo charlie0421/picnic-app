@@ -20,12 +20,19 @@ PostScrapModel _$PostScrapModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$PostScrapModel {
-  String get post_id => throw _privateConstructorUsedError;
-  String get user_id => throw _privateConstructorUsedError;
-  UserProfilesModel? get user_profiles => throw _privateConstructorUsedError;
-  DateTime get created_at => throw _privateConstructorUsedError;
-  DateTime get updated_at => throw _privateConstructorUsedError;
+  @JsonKey(name: 'post_id')
+  String get postId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'user_id')
+  String get userId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'user_profiles')
+  UserProfilesModel? get userProfiles => throw _privateConstructorUsedError;
+  @JsonKey(name: 'created_at')
+  DateTime get createdAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'updated_at')
+  DateTime get updatedAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'board')
   BoardModel? get board => throw _privateConstructorUsedError;
+  @JsonKey(name: 'post')
   PostModel? get post => throw _privateConstructorUsedError;
   @JsonKey(name: 'deleted_at')
   DateTime? get deletedAt => throw _privateConstructorUsedError;
@@ -47,16 +54,16 @@ abstract class $PostScrapModelCopyWith<$Res> {
       _$PostScrapModelCopyWithImpl<$Res, PostScrapModel>;
   @useResult
   $Res call(
-      {String post_id,
-      String user_id,
-      UserProfilesModel? user_profiles,
-      DateTime created_at,
-      DateTime updated_at,
-      BoardModel? board,
-      PostModel? post,
+      {@JsonKey(name: 'post_id') String postId,
+      @JsonKey(name: 'user_id') String userId,
+      @JsonKey(name: 'user_profiles') UserProfilesModel? userProfiles,
+      @JsonKey(name: 'created_at') DateTime createdAt,
+      @JsonKey(name: 'updated_at') DateTime updatedAt,
+      @JsonKey(name: 'board') BoardModel? board,
+      @JsonKey(name: 'post') PostModel? post,
       @JsonKey(name: 'deleted_at') DateTime? deletedAt});
 
-  $UserProfilesModelCopyWith<$Res>? get user_profiles;
+  $UserProfilesModelCopyWith<$Res>? get userProfiles;
   $BoardModelCopyWith<$Res>? get board;
   $PostModelCopyWith<$Res>? get post;
 }
@@ -76,35 +83,35 @@ class _$PostScrapModelCopyWithImpl<$Res, $Val extends PostScrapModel>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? post_id = null,
-    Object? user_id = null,
-    Object? user_profiles = freezed,
-    Object? created_at = null,
-    Object? updated_at = null,
+    Object? postId = null,
+    Object? userId = null,
+    Object? userProfiles = freezed,
+    Object? createdAt = null,
+    Object? updatedAt = null,
     Object? board = freezed,
     Object? post = freezed,
     Object? deletedAt = freezed,
   }) {
     return _then(_value.copyWith(
-      post_id: null == post_id
-          ? _value.post_id
-          : post_id // ignore: cast_nullable_to_non_nullable
+      postId: null == postId
+          ? _value.postId
+          : postId // ignore: cast_nullable_to_non_nullable
               as String,
-      user_id: null == user_id
-          ? _value.user_id
-          : user_id // ignore: cast_nullable_to_non_nullable
+      userId: null == userId
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
               as String,
-      user_profiles: freezed == user_profiles
-          ? _value.user_profiles
-          : user_profiles // ignore: cast_nullable_to_non_nullable
+      userProfiles: freezed == userProfiles
+          ? _value.userProfiles
+          : userProfiles // ignore: cast_nullable_to_non_nullable
               as UserProfilesModel?,
-      created_at: null == created_at
-          ? _value.created_at
-          : created_at // ignore: cast_nullable_to_non_nullable
+      createdAt: null == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      updated_at: null == updated_at
-          ? _value.updated_at
-          : updated_at // ignore: cast_nullable_to_non_nullable
+      updatedAt: null == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
       board: freezed == board
           ? _value.board
@@ -125,13 +132,13 @@ class _$PostScrapModelCopyWithImpl<$Res, $Val extends PostScrapModel>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $UserProfilesModelCopyWith<$Res>? get user_profiles {
-    if (_value.user_profiles == null) {
+  $UserProfilesModelCopyWith<$Res>? get userProfiles {
+    if (_value.userProfiles == null) {
       return null;
     }
 
-    return $UserProfilesModelCopyWith<$Res>(_value.user_profiles!, (value) {
-      return _then(_value.copyWith(user_profiles: value) as $Val);
+    return $UserProfilesModelCopyWith<$Res>(_value.userProfiles!, (value) {
+      return _then(_value.copyWith(userProfiles: value) as $Val);
     });
   }
 
@@ -173,17 +180,17 @@ abstract class _$$PostScrapModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String post_id,
-      String user_id,
-      UserProfilesModel? user_profiles,
-      DateTime created_at,
-      DateTime updated_at,
-      BoardModel? board,
-      PostModel? post,
+      {@JsonKey(name: 'post_id') String postId,
+      @JsonKey(name: 'user_id') String userId,
+      @JsonKey(name: 'user_profiles') UserProfilesModel? userProfiles,
+      @JsonKey(name: 'created_at') DateTime createdAt,
+      @JsonKey(name: 'updated_at') DateTime updatedAt,
+      @JsonKey(name: 'board') BoardModel? board,
+      @JsonKey(name: 'post') PostModel? post,
       @JsonKey(name: 'deleted_at') DateTime? deletedAt});
 
   @override
-  $UserProfilesModelCopyWith<$Res>? get user_profiles;
+  $UserProfilesModelCopyWith<$Res>? get userProfiles;
   @override
   $BoardModelCopyWith<$Res>? get board;
   @override
@@ -203,35 +210,35 @@ class __$$PostScrapModelImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? post_id = null,
-    Object? user_id = null,
-    Object? user_profiles = freezed,
-    Object? created_at = null,
-    Object? updated_at = null,
+    Object? postId = null,
+    Object? userId = null,
+    Object? userProfiles = freezed,
+    Object? createdAt = null,
+    Object? updatedAt = null,
     Object? board = freezed,
     Object? post = freezed,
     Object? deletedAt = freezed,
   }) {
     return _then(_$PostScrapModelImpl(
-      post_id: null == post_id
-          ? _value.post_id
-          : post_id // ignore: cast_nullable_to_non_nullable
+      postId: null == postId
+          ? _value.postId
+          : postId // ignore: cast_nullable_to_non_nullable
               as String,
-      user_id: null == user_id
-          ? _value.user_id
-          : user_id // ignore: cast_nullable_to_non_nullable
+      userId: null == userId
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
               as String,
-      user_profiles: freezed == user_profiles
-          ? _value.user_profiles
-          : user_profiles // ignore: cast_nullable_to_non_nullable
+      userProfiles: freezed == userProfiles
+          ? _value.userProfiles
+          : userProfiles // ignore: cast_nullable_to_non_nullable
               as UserProfilesModel?,
-      created_at: null == created_at
-          ? _value.created_at
-          : created_at // ignore: cast_nullable_to_non_nullable
+      createdAt: null == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      updated_at: null == updated_at
-          ? _value.updated_at
-          : updated_at // ignore: cast_nullable_to_non_nullable
+      updatedAt: null == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
       board: freezed == board
           ? _value.board
@@ -253,13 +260,13 @@ class __$$PostScrapModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$PostScrapModelImpl extends _PostScrapModel {
   const _$PostScrapModelImpl(
-      {required this.post_id,
-      required this.user_id,
-      required this.user_profiles,
-      required this.created_at,
-      required this.updated_at,
-      required this.board,
-      required this.post,
+      {@JsonKey(name: 'post_id') required this.postId,
+      @JsonKey(name: 'user_id') required this.userId,
+      @JsonKey(name: 'user_profiles') required this.userProfiles,
+      @JsonKey(name: 'created_at') required this.createdAt,
+      @JsonKey(name: 'updated_at') required this.updatedAt,
+      @JsonKey(name: 'board') required this.board,
+      @JsonKey(name: 'post') required this.post,
       @JsonKey(name: 'deleted_at') this.deletedAt})
       : super._();
 
@@ -267,18 +274,25 @@ class _$PostScrapModelImpl extends _PostScrapModel {
       _$$PostScrapModelImplFromJson(json);
 
   @override
-  final String post_id;
+  @JsonKey(name: 'post_id')
+  final String postId;
   @override
-  final String user_id;
+  @JsonKey(name: 'user_id')
+  final String userId;
   @override
-  final UserProfilesModel? user_profiles;
+  @JsonKey(name: 'user_profiles')
+  final UserProfilesModel? userProfiles;
   @override
-  final DateTime created_at;
+  @JsonKey(name: 'created_at')
+  final DateTime createdAt;
   @override
-  final DateTime updated_at;
+  @JsonKey(name: 'updated_at')
+  final DateTime updatedAt;
   @override
+  @JsonKey(name: 'board')
   final BoardModel? board;
   @override
+  @JsonKey(name: 'post')
   final PostModel? post;
   @override
   @JsonKey(name: 'deleted_at')
@@ -286,7 +300,7 @@ class _$PostScrapModelImpl extends _PostScrapModel {
 
   @override
   String toString() {
-    return 'PostScrapModel(post_id: $post_id, user_id: $user_id, user_profiles: $user_profiles, created_at: $created_at, updated_at: $updated_at, board: $board, post: $post, deletedAt: $deletedAt)';
+    return 'PostScrapModel(postId: $postId, userId: $userId, userProfiles: $userProfiles, createdAt: $createdAt, updatedAt: $updatedAt, board: $board, post: $post, deletedAt: $deletedAt)';
   }
 
   @override
@@ -294,14 +308,14 @@ class _$PostScrapModelImpl extends _PostScrapModel {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$PostScrapModelImpl &&
-            (identical(other.post_id, post_id) || other.post_id == post_id) &&
-            (identical(other.user_id, user_id) || other.user_id == user_id) &&
-            (identical(other.user_profiles, user_profiles) ||
-                other.user_profiles == user_profiles) &&
-            (identical(other.created_at, created_at) ||
-                other.created_at == created_at) &&
-            (identical(other.updated_at, updated_at) ||
-                other.updated_at == updated_at) &&
+            (identical(other.postId, postId) || other.postId == postId) &&
+            (identical(other.userId, userId) || other.userId == userId) &&
+            (identical(other.userProfiles, userProfiles) ||
+                other.userProfiles == userProfiles) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt) &&
             (identical(other.board, board) || other.board == board) &&
             (identical(other.post, post) || other.post == post) &&
             (identical(other.deletedAt, deletedAt) ||
@@ -310,8 +324,8 @@ class _$PostScrapModelImpl extends _PostScrapModel {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, post_id, user_id, user_profiles,
-      created_at, updated_at, board, post, deletedAt);
+  int get hashCode => Object.hash(runtimeType, postId, userId, userProfiles,
+      createdAt, updatedAt, board, post, deletedAt);
 
   /// Create a copy of PostScrapModel
   /// with the given fields replaced by the non-null parameter values.
@@ -332,13 +346,14 @@ class _$PostScrapModelImpl extends _PostScrapModel {
 
 abstract class _PostScrapModel extends PostScrapModel {
   const factory _PostScrapModel(
-          {required final String post_id,
-          required final String user_id,
-          required final UserProfilesModel? user_profiles,
-          required final DateTime created_at,
-          required final DateTime updated_at,
-          required final BoardModel? board,
-          required final PostModel? post,
+          {@JsonKey(name: 'post_id') required final String postId,
+          @JsonKey(name: 'user_id') required final String userId,
+          @JsonKey(name: 'user_profiles')
+          required final UserProfilesModel? userProfiles,
+          @JsonKey(name: 'created_at') required final DateTime createdAt,
+          @JsonKey(name: 'updated_at') required final DateTime updatedAt,
+          @JsonKey(name: 'board') required final BoardModel? board,
+          @JsonKey(name: 'post') required final PostModel? post,
           @JsonKey(name: 'deleted_at') final DateTime? deletedAt}) =
       _$PostScrapModelImpl;
   const _PostScrapModel._() : super._();
@@ -347,18 +362,25 @@ abstract class _PostScrapModel extends PostScrapModel {
       _$PostScrapModelImpl.fromJson;
 
   @override
-  String get post_id;
+  @JsonKey(name: 'post_id')
+  String get postId;
   @override
-  String get user_id;
+  @JsonKey(name: 'user_id')
+  String get userId;
   @override
-  UserProfilesModel? get user_profiles;
+  @JsonKey(name: 'user_profiles')
+  UserProfilesModel? get userProfiles;
   @override
-  DateTime get created_at;
+  @JsonKey(name: 'created_at')
+  DateTime get createdAt;
   @override
-  DateTime get updated_at;
+  @JsonKey(name: 'updated_at')
+  DateTime get updatedAt;
   @override
+  @JsonKey(name: 'board')
   BoardModel? get board;
   @override
+  @JsonKey(name: 'post')
   PostModel? get post;
   @override
   @JsonKey(name: 'deleted_at')

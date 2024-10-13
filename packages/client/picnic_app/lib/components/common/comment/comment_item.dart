@@ -117,7 +117,7 @@ class _CommentItemState extends ConsumerState<CommentItem>
                   ),
                 ),
                 child: ProfileImageContainer(
-                  avatarUrl: widget.commentModel.user.avatar_url,
+                  avatarUrl: widget.commentModel.user.avatarUrl,
                   borderRadius: 16,
                   width: 32,
                   height: 32,

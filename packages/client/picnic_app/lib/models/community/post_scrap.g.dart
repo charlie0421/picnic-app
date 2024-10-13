@@ -8,14 +8,14 @@ part of 'post_scrap.dart';
 
 _$PostScrapModelImpl _$$PostScrapModelImplFromJson(Map<String, dynamic> json) =>
     _$PostScrapModelImpl(
-      post_id: json['post_id'] as String,
-      user_id: json['user_id'] as String,
-      user_profiles: json['user_profiles'] == null
+      postId: json['post_id'] as String,
+      userId: json['user_id'] as String,
+      userProfiles: json['user_profiles'] == null
           ? null
           : UserProfilesModel.fromJson(
               json['user_profiles'] as Map<String, dynamic>),
-      created_at: DateTime.parse(json['created_at'] as String),
-      updated_at: DateTime.parse(json['updated_at'] as String),
+      createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: DateTime.parse(json['updated_at'] as String),
       board: json['board'] == null
           ? null
           : BoardModel.fromJson(json['board'] as Map<String, dynamic>),
@@ -30,11 +30,11 @@ _$PostScrapModelImpl _$$PostScrapModelImplFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$$PostScrapModelImplToJson(
         _$PostScrapModelImpl instance) =>
     <String, dynamic>{
-      'post_id': instance.post_id,
-      'user_id': instance.user_id,
-      'user_profiles': instance.user_profiles,
-      'created_at': instance.created_at.toIso8601String(),
-      'updated_at': instance.updated_at.toIso8601String(),
+      'post_id': instance.postId,
+      'user_id': instance.userId,
+      'user_profiles': instance.userProfiles,
+      'created_at': instance.createdAt.toIso8601String(),
+      'updated_at': instance.updatedAt.toIso8601String(),
       'board': instance.board,
       'post': instance.post,
       'deleted_at': instance.deletedAt?.toIso8601String(),

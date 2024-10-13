@@ -8,10 +8,10 @@ class BannerModel with _$BannerModel {
   const BannerModel._();
 
   const factory BannerModel({
-    required int id,
-    required Map<String, dynamic> title,
-    required String thumbnail,
-    required Map<String, dynamic> image,
+    @JsonKey(name: 'id') required int id,
+    @JsonKey(name: 'title') required Map<String, dynamic> title,
+    @JsonKey(name: 'thumbnail') required String thumbnail,
+    @JsonKey(name: 'image') required Map<String, dynamic> image,
   }) = _BannerModel;
 
   factory BannerModel.fromJson(Map<String, dynamic> json) =>

@@ -20,7 +20,7 @@ class FixedWidthLayout extends ConsumerWidget {
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: maxWidth),
             child: MediaQuery(
-              data: ref.watch(globalMediaQueryProviderProvider).copyWith(
+              data: ref.watch(globalMediaQueryProvider).copyWith(
                     size: Size(maxWidth, constraints.maxHeight),
                   ),
               child: child,

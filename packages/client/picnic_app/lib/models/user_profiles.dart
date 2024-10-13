@@ -20,18 +20,17 @@ class UserProfilesModel with _$UserProfilesModel {
   const UserProfilesModel._();
 
   const factory UserProfilesModel({
-    String? id,
-    String? nickname,
-    String? avatar_url,
-    String? country_code,
-    DateTime? deleted_at,
-    UserAgreement? user_agreement,
-    required bool is_admin,
-    required int star_candy,
-    required int star_candy_bonus,
-    @JsonKey(includeFromJson: false) RealtimeChannel? realtime_channel,
+    @JsonKey(name: 'id') String? id,
+    @JsonKey(name: 'nickname') String? nickname,
+    @JsonKey(name: 'avatar_url') String? avatarUrl,
+    @JsonKey(name: 'country_code') String? countryCode,
+    @JsonKey(name: 'deleted_at') DateTime? deletedAt,
+    @JsonKey(name: 'user_agreement') UserAgreement? userAgreement,
+    @JsonKey(name: 'is_admin') required bool isAdmin,
+    @JsonKey(name: 'star_candy') required int starCandy,
+    @JsonKey(name: 'star_candy_bonus') required int starCandyBonus,
+    @JsonKey(includeFromJson: false) RealtimeChannel? realtimeChannel,
   }) = _UserProfilesModel;
-
   factory UserProfilesModel.fromJson(Map<String, dynamic> json) =>
       _$UserProfilesModelFromJson(json);
 }

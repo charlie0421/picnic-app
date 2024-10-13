@@ -6,7 +6,7 @@ part of 'post_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$postsByArtistHash() => r'fe972a6abb8e65b1a7dbab1f73894ca90a796087';
+String _$postsByArtistHash() => r'a9a6fe681e02b53118489b452f2347c6ea431c97';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -190,7 +190,7 @@ class _PostsByArtistProviderElement
   int get page => (origin as PostsByArtistProvider).page;
 }
 
-String _$postsByBoardHash() => r'4b70712f1a9c3c84762feb81075a76fbbc249986';
+String _$postsByBoardHash() => r'3a9e05bbbdfc55d34b542fad87d70188f3ef00ae';
 
 /// See also [postsByBoard].
 @ProviderFor(postsByBoard)
@@ -352,7 +352,7 @@ class _PostsByBoardProviderElement
   int get page => (origin as PostsByBoardProvider).page;
 }
 
-String _$postsByQueryHash() => r'9b401ff00506959497bc6acdb104629409b8dfdd';
+String _$postsByQueryHash() => r'744ab49d53874b8dfe9100332d51ee35b89ec16b';
 
 /// See also [postsByQuery].
 @ProviderFor(postsByQuery)
@@ -530,7 +530,7 @@ class _PostsByQueryProviderElement
   int get limit => (origin as PostsByQueryProvider).limit;
 }
 
-String _$postsByUserHash() => r'01fe4d21ae96cb0c02b992eaf70a387e84a1fe1d';
+String _$postsByUserHash() => r'c520ccba515b82ec6d15c0cdbe0ac45d2e174ffa';
 
 /// See also [postsByUser].
 @ProviderFor(postsByUser)
@@ -859,7 +859,7 @@ class _PostsScrapedByUserProviderElement
   int get page => (origin as PostsScrapedByUserProvider).page;
 }
 
-String _$reportPostHash() => r'28f977633099c0168e5a2b6bf58be1bd28ebfcb2';
+String _$reportPostHash() => r'10ef6d4b45308144017aa0d5c0ca626d1e53d509';
 
 /// See also [reportPost].
 @ProviderFor(reportPost)

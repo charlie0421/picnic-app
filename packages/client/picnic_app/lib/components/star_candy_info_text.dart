@@ -26,10 +26,10 @@ class _StarCandyInfoTextState extends ConsumerState<StarCandyInfoText> {
 
   @override
   Widget build(BuildContext context) {
-    final starCandy = ref.watch(
-        userInfoProvider.select((value) => value.value?.star_candy ?? 0));
+    final starCandy = ref
+        .watch(userInfoProvider.select((value) => value.value?.starCandy ?? 0));
     final starCandyBonus = ref.watch(
-        userInfoProvider.select((value) => value.value?.star_candy_bonus ?? 0));
+        userInfoProvider.select((value) => value.value?.starCandyBonus ?? 0));
 
     String firstPart = '';
     String secondPart = '';

@@ -544,7 +544,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                       width: 100.cw,
                       height: 100.cw,
                       child: ProfileImageContainer(
-                        avatarUrl: userInfo.value?.avatar_url,
+                        avatarUrl: userInfo.value?.avatarUrl,
                         borderRadius: 50.cw,
                         width: 100.cw,
                         height: 100.cw,

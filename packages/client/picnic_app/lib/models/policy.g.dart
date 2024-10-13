@@ -8,20 +8,20 @@ part of 'policy.dart';
 
 _$PolicyModelImpl _$$PolicyModelImplFromJson(Map<String, dynamic> json) =>
     _$PolicyModelImpl(
-      privacy_en:
+      privacyEn:
           PrivacyModel.fromJson(json['privacy_en'] as Map<String, dynamic>),
-      terms_en: TermsModel.fromJson(json['terms_en'] as Map<String, dynamic>),
-      privacy_ko:
+      termsEn: TermsModel.fromJson(json['terms_en'] as Map<String, dynamic>),
+      privacyKo:
           PrivacyModel.fromJson(json['privacy_ko'] as Map<String, dynamic>),
-      terms_ko: TermsModel.fromJson(json['terms_ko'] as Map<String, dynamic>),
+      termsKo: TermsModel.fromJson(json['terms_ko'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$$PolicyModelImplToJson(_$PolicyModelImpl instance) =>
     <String, dynamic>{
-      'privacy_en': instance.privacy_en,
-      'terms_en': instance.terms_en,
-      'privacy_ko': instance.privacy_ko,
-      'terms_ko': instance.terms_ko,
+      'privacy_en': instance.privacyEn,
+      'terms_en': instance.termsEn,
+      'privacy_ko': instance.privacyKo,
+      'terms_ko': instance.termsKo,
     };
 
 _$PrivacyModelImpl _$$PrivacyModelImplFromJson(Map<String, dynamic> json) =>

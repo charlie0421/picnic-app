@@ -55,28 +55,28 @@ class _PostListItemState extends ConsumerState<PostListItem> {
                         style: getTextStyle(
                             AppTypo.caption12B, AppColors.primary500)),
                     SizedBox(width: 4.cw),
-                    widget.post.is_anonymous
+                    widget.post.isAnonymous
                         ? NoAvatar(
                             width: 18,
                             height: 18,
                             borderRadius: 4,
                           )
                         : ProfileImageContainer(
-                            avatarUrl: widget.post.user_profiles?.avatar_url,
+                            avatarUrl: widget.post.userProfiles?.avatarUrl,
                             borderRadius: 4,
                             width: 18,
                             height: 18,
                           ),
                     SizedBox(width: 4.cw),
-                    widget.post.is_anonymous
+                    widget.post.isAnonymous
                         ? Text('잌명',
                             style: getTextStyle(
                                 AppTypo.caption12B, AppColors.grey900))
-                        : Text(widget.post.user_profiles?.nickname ?? '',
+                        : Text(widget.post.userProfiles?.nickname ?? '',
                             style: getTextStyle(
                                 AppTypo.caption12B, AppColors.grey900)),
                     SizedBox(width: 4.cw),
-                    Text(formatTimeAgo(context, widget.post.created_at),
+                    Text(formatTimeAgo(context, widget.post.createdAt),
                         style: getTextStyle(
                             AppTypo.caption10SB, AppColors.grey400)),
                   ],
@@ -92,7 +92,7 @@ class _PostListItemState extends ConsumerState<PostListItem> {
                             AppTypo.caption10SB, AppColors.grey600),
                       ),
                       TextSpan(
-                        text: widget.post.view_count.toString(),
+                        text: widget.post.viewCount.toString(),
                         style: getTextStyle(
                             AppTypo.caption10SB, AppColors.grey600),
                       ),
@@ -107,7 +107,7 @@ class _PostListItemState extends ConsumerState<PostListItem> {
                             AppTypo.caption10SB, AppColors.grey600),
                       ),
                       TextSpan(
-                        text: widget.post.view_count.toString(),
+                        text: widget.post.viewCount.toString(),
                         style: getTextStyle(
                             AppTypo.caption10SB, AppColors.grey600),
                       ),

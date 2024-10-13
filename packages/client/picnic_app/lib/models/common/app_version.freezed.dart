@@ -20,11 +20,17 @@ AppVersionModel _$AppVersionModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$AppVersionModel {
+  @JsonKey(name: 'id')
   int get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'ios')
   Map<String, dynamic> get ios => throw _privateConstructorUsedError;
+  @JsonKey(name: 'android')
   Map<String, dynamic> get android => throw _privateConstructorUsedError;
+  @JsonKey(name: 'macos')
   Map<String, dynamic> get macos => throw _privateConstructorUsedError;
+  @JsonKey(name: 'windows')
   Map<String, dynamic> get windows => throw _privateConstructorUsedError;
+  @JsonKey(name: 'linux')
   Map<String, dynamic> get linux => throw _privateConstructorUsedError;
 
   /// Serializes this AppVersionModel to a JSON map.
@@ -44,12 +50,12 @@ abstract class $AppVersionModelCopyWith<$Res> {
       _$AppVersionModelCopyWithImpl<$Res, AppVersionModel>;
   @useResult
   $Res call(
-      {int id,
-      Map<String, dynamic> ios,
-      Map<String, dynamic> android,
-      Map<String, dynamic> macos,
-      Map<String, dynamic> windows,
-      Map<String, dynamic> linux});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'ios') Map<String, dynamic> ios,
+      @JsonKey(name: 'android') Map<String, dynamic> android,
+      @JsonKey(name: 'macos') Map<String, dynamic> macos,
+      @JsonKey(name: 'windows') Map<String, dynamic> windows,
+      @JsonKey(name: 'linux') Map<String, dynamic> linux});
 }
 
 /// @nodoc
@@ -112,12 +118,12 @@ abstract class _$$AppVersionModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int id,
-      Map<String, dynamic> ios,
-      Map<String, dynamic> android,
-      Map<String, dynamic> macos,
-      Map<String, dynamic> windows,
-      Map<String, dynamic> linux});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'ios') Map<String, dynamic> ios,
+      @JsonKey(name: 'android') Map<String, dynamic> android,
+      @JsonKey(name: 'macos') Map<String, dynamic> macos,
+      @JsonKey(name: 'windows') Map<String, dynamic> windows,
+      @JsonKey(name: 'linux') Map<String, dynamic> linux});
 }
 
 /// @nodoc
@@ -171,28 +177,29 @@ class __$$AppVersionModelImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$AppVersionModelImpl extends _AppVersionModel {
+class _$AppVersionModelImpl implements _AppVersionModel {
   const _$AppVersionModelImpl(
-      {required this.id,
-      required final Map<String, dynamic> ios,
-      required final Map<String, dynamic> android,
-      required final Map<String, dynamic> macos,
-      required final Map<String, dynamic> windows,
-      required final Map<String, dynamic> linux})
+      {@JsonKey(name: 'id') required this.id,
+      @JsonKey(name: 'ios') required final Map<String, dynamic> ios,
+      @JsonKey(name: 'android') required final Map<String, dynamic> android,
+      @JsonKey(name: 'macos') required final Map<String, dynamic> macos,
+      @JsonKey(name: 'windows') required final Map<String, dynamic> windows,
+      @JsonKey(name: 'linux') required final Map<String, dynamic> linux})
       : _ios = ios,
         _android = android,
         _macos = macos,
         _windows = windows,
-        _linux = linux,
-        super._();
+        _linux = linux;
 
   factory _$AppVersionModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$AppVersionModelImplFromJson(json);
 
   @override
+  @JsonKey(name: 'id')
   final int id;
   final Map<String, dynamic> _ios;
   @override
+  @JsonKey(name: 'ios')
   Map<String, dynamic> get ios {
     if (_ios is EqualUnmodifiableMapView) return _ios;
     // ignore: implicit_dynamic_type
@@ -201,6 +208,7 @@ class _$AppVersionModelImpl extends _AppVersionModel {
 
   final Map<String, dynamic> _android;
   @override
+  @JsonKey(name: 'android')
   Map<String, dynamic> get android {
     if (_android is EqualUnmodifiableMapView) return _android;
     // ignore: implicit_dynamic_type
@@ -209,6 +217,7 @@ class _$AppVersionModelImpl extends _AppVersionModel {
 
   final Map<String, dynamic> _macos;
   @override
+  @JsonKey(name: 'macos')
   Map<String, dynamic> get macos {
     if (_macos is EqualUnmodifiableMapView) return _macos;
     // ignore: implicit_dynamic_type
@@ -217,6 +226,7 @@ class _$AppVersionModelImpl extends _AppVersionModel {
 
   final Map<String, dynamic> _windows;
   @override
+  @JsonKey(name: 'windows')
   Map<String, dynamic> get windows {
     if (_windows is EqualUnmodifiableMapView) return _windows;
     // ignore: implicit_dynamic_type
@@ -225,6 +235,7 @@ class _$AppVersionModelImpl extends _AppVersionModel {
 
   final Map<String, dynamic> _linux;
   @override
+  @JsonKey(name: 'linux')
   Map<String, dynamic> get linux {
     if (_linux is EqualUnmodifiableMapView) return _linux;
     // ignore: implicit_dynamic_type
@@ -277,30 +288,36 @@ class _$AppVersionModelImpl extends _AppVersionModel {
   }
 }
 
-abstract class _AppVersionModel extends AppVersionModel {
+abstract class _AppVersionModel implements AppVersionModel {
   const factory _AppVersionModel(
-      {required final int id,
-      required final Map<String, dynamic> ios,
-      required final Map<String, dynamic> android,
-      required final Map<String, dynamic> macos,
-      required final Map<String, dynamic> windows,
-      required final Map<String, dynamic> linux}) = _$AppVersionModelImpl;
-  const _AppVersionModel._() : super._();
+          {@JsonKey(name: 'id') required final int id,
+          @JsonKey(name: 'ios') required final Map<String, dynamic> ios,
+          @JsonKey(name: 'android') required final Map<String, dynamic> android,
+          @JsonKey(name: 'macos') required final Map<String, dynamic> macos,
+          @JsonKey(name: 'windows') required final Map<String, dynamic> windows,
+          @JsonKey(name: 'linux') required final Map<String, dynamic> linux}) =
+      _$AppVersionModelImpl;
 
   factory _AppVersionModel.fromJson(Map<String, dynamic> json) =
       _$AppVersionModelImpl.fromJson;
 
   @override
+  @JsonKey(name: 'id')
   int get id;
   @override
+  @JsonKey(name: 'ios')
   Map<String, dynamic> get ios;
   @override
+  @JsonKey(name: 'android')
   Map<String, dynamic> get android;
   @override
+  @JsonKey(name: 'macos')
   Map<String, dynamic> get macos;
   @override
+  @JsonKey(name: 'windows')
   Map<String, dynamic> get windows;
   @override
+  @JsonKey(name: 'linux')
   Map<String, dynamic> get linux;
 
   /// Create a copy of AppVersionModel

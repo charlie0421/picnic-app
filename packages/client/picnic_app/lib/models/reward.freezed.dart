@@ -20,12 +20,19 @@ RewardModel _$RewardModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$RewardModel {
+  @JsonKey(name: 'id')
   int get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'title')
   Map<String, dynamic>? get title => throw _privateConstructorUsedError;
+  @JsonKey(name: 'thumbnail')
   String? get thumbnail => throw _privateConstructorUsedError;
-  List<String>? get overview_images => throw _privateConstructorUsedError;
+  @JsonKey(name: 'overview_images')
+  List<String>? get overviewImages => throw _privateConstructorUsedError;
+  @JsonKey(name: 'location')
   Map<String, dynamic>? get location => throw _privateConstructorUsedError;
-  Map<String, dynamic>? get size_guide => throw _privateConstructorUsedError;
+  @JsonKey(name: 'size_guide')
+  Map<String, dynamic>? get sizeGuide => throw _privateConstructorUsedError;
+  @JsonKey(name: 'size_guide_images')
   List<String>? get size_guide_images => throw _privateConstructorUsedError;
 
   /// Serializes this RewardModel to a JSON map.
@@ -45,13 +52,13 @@ abstract class $RewardModelCopyWith<$Res> {
       _$RewardModelCopyWithImpl<$Res, RewardModel>;
   @useResult
   $Res call(
-      {int id,
-      Map<String, dynamic>? title,
-      String? thumbnail,
-      List<String>? overview_images,
-      Map<String, dynamic>? location,
-      Map<String, dynamic>? size_guide,
-      List<String>? size_guide_images});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'title') Map<String, dynamic>? title,
+      @JsonKey(name: 'thumbnail') String? thumbnail,
+      @JsonKey(name: 'overview_images') List<String>? overviewImages,
+      @JsonKey(name: 'location') Map<String, dynamic>? location,
+      @JsonKey(name: 'size_guide') Map<String, dynamic>? sizeGuide,
+      @JsonKey(name: 'size_guide_images') List<String>? size_guide_images});
 }
 
 /// @nodoc
@@ -72,9 +79,9 @@ class _$RewardModelCopyWithImpl<$Res, $Val extends RewardModel>
     Object? id = null,
     Object? title = freezed,
     Object? thumbnail = freezed,
-    Object? overview_images = freezed,
+    Object? overviewImages = freezed,
     Object? location = freezed,
-    Object? size_guide = freezed,
+    Object? sizeGuide = freezed,
     Object? size_guide_images = freezed,
   }) {
     return _then(_value.copyWith(
@@ -90,17 +97,17 @@ class _$RewardModelCopyWithImpl<$Res, $Val extends RewardModel>
           ? _value.thumbnail
           : thumbnail // ignore: cast_nullable_to_non_nullable
               as String?,
-      overview_images: freezed == overview_images
-          ? _value.overview_images
-          : overview_images // ignore: cast_nullable_to_non_nullable
+      overviewImages: freezed == overviewImages
+          ? _value.overviewImages
+          : overviewImages // ignore: cast_nullable_to_non_nullable
               as List<String>?,
       location: freezed == location
           ? _value.location
           : location // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>?,
-      size_guide: freezed == size_guide
-          ? _value.size_guide
-          : size_guide // ignore: cast_nullable_to_non_nullable
+      sizeGuide: freezed == sizeGuide
+          ? _value.sizeGuide
+          : sizeGuide // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>?,
       size_guide_images: freezed == size_guide_images
           ? _value.size_guide_images
@@ -119,13 +126,13 @@ abstract class _$$RewardModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int id,
-      Map<String, dynamic>? title,
-      String? thumbnail,
-      List<String>? overview_images,
-      Map<String, dynamic>? location,
-      Map<String, dynamic>? size_guide,
-      List<String>? size_guide_images});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'title') Map<String, dynamic>? title,
+      @JsonKey(name: 'thumbnail') String? thumbnail,
+      @JsonKey(name: 'overview_images') List<String>? overviewImages,
+      @JsonKey(name: 'location') Map<String, dynamic>? location,
+      @JsonKey(name: 'size_guide') Map<String, dynamic>? sizeGuide,
+      @JsonKey(name: 'size_guide_images') List<String>? size_guide_images});
 }
 
 /// @nodoc
@@ -144,9 +151,9 @@ class __$$RewardModelImplCopyWithImpl<$Res>
     Object? id = null,
     Object? title = freezed,
     Object? thumbnail = freezed,
-    Object? overview_images = freezed,
+    Object? overviewImages = freezed,
     Object? location = freezed,
-    Object? size_guide = freezed,
+    Object? sizeGuide = freezed,
     Object? size_guide_images = freezed,
   }) {
     return _then(_$RewardModelImpl(
@@ -162,17 +169,17 @@ class __$$RewardModelImplCopyWithImpl<$Res>
           ? _value.thumbnail
           : thumbnail // ignore: cast_nullable_to_non_nullable
               as String?,
-      overview_images: freezed == overview_images
-          ? _value._overview_images
-          : overview_images // ignore: cast_nullable_to_non_nullable
+      overviewImages: freezed == overviewImages
+          ? _value._overviewImages
+          : overviewImages // ignore: cast_nullable_to_non_nullable
               as List<String>?,
       location: freezed == location
           ? _value._location
           : location // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>?,
-      size_guide: freezed == size_guide
-          ? _value._size_guide
-          : size_guide // ignore: cast_nullable_to_non_nullable
+      sizeGuide: freezed == sizeGuide
+          ? _value._sizeGuide
+          : sizeGuide // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>?,
       size_guide_images: freezed == size_guide_images
           ? _value._size_guide_images
@@ -186,17 +193,18 @@ class __$$RewardModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$RewardModelImpl extends _RewardModel {
   const _$RewardModelImpl(
-      {required this.id,
-      final Map<String, dynamic>? title,
-      this.thumbnail,
-      final List<String>? overview_images,
-      final Map<String, dynamic>? location,
-      final Map<String, dynamic>? size_guide,
+      {@JsonKey(name: 'id') required this.id,
+      @JsonKey(name: 'title') final Map<String, dynamic>? title,
+      @JsonKey(name: 'thumbnail') this.thumbnail,
+      @JsonKey(name: 'overview_images') final List<String>? overviewImages,
+      @JsonKey(name: 'location') final Map<String, dynamic>? location,
+      @JsonKey(name: 'size_guide') final Map<String, dynamic>? sizeGuide,
+      @JsonKey(name: 'size_guide_images')
       final List<String>? size_guide_images})
       : _title = title,
-        _overview_images = overview_images,
+        _overviewImages = overviewImages,
         _location = location,
-        _size_guide = size_guide,
+        _sizeGuide = sizeGuide,
         _size_guide_images = size_guide_images,
         super._();
 
@@ -204,9 +212,11 @@ class _$RewardModelImpl extends _RewardModel {
       _$$RewardModelImplFromJson(json);
 
   @override
+  @JsonKey(name: 'id')
   final int id;
   final Map<String, dynamic>? _title;
   @override
+  @JsonKey(name: 'title')
   Map<String, dynamic>? get title {
     final value = _title;
     if (value == null) return null;
@@ -216,19 +226,22 @@ class _$RewardModelImpl extends _RewardModel {
   }
 
   @override
+  @JsonKey(name: 'thumbnail')
   final String? thumbnail;
-  final List<String>? _overview_images;
+  final List<String>? _overviewImages;
   @override
-  List<String>? get overview_images {
-    final value = _overview_images;
+  @JsonKey(name: 'overview_images')
+  List<String>? get overviewImages {
+    final value = _overviewImages;
     if (value == null) return null;
-    if (_overview_images is EqualUnmodifiableListView) return _overview_images;
+    if (_overviewImages is EqualUnmodifiableListView) return _overviewImages;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(value);
   }
 
   final Map<String, dynamic>? _location;
   @override
+  @JsonKey(name: 'location')
   Map<String, dynamic>? get location {
     final value = _location;
     if (value == null) return null;
@@ -237,18 +250,20 @@ class _$RewardModelImpl extends _RewardModel {
     return EqualUnmodifiableMapView(value);
   }
 
-  final Map<String, dynamic>? _size_guide;
+  final Map<String, dynamic>? _sizeGuide;
   @override
-  Map<String, dynamic>? get size_guide {
-    final value = _size_guide;
+  @JsonKey(name: 'size_guide')
+  Map<String, dynamic>? get sizeGuide {
+    final value = _sizeGuide;
     if (value == null) return null;
-    if (_size_guide is EqualUnmodifiableMapView) return _size_guide;
+    if (_sizeGuide is EqualUnmodifiableMapView) return _sizeGuide;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableMapView(value);
   }
 
   final List<String>? _size_guide_images;
   @override
+  @JsonKey(name: 'size_guide_images')
   List<String>? get size_guide_images {
     final value = _size_guide_images;
     if (value == null) return null;
@@ -260,7 +275,7 @@ class _$RewardModelImpl extends _RewardModel {
 
   @override
   String toString() {
-    return 'RewardModel(id: $id, title: $title, thumbnail: $thumbnail, overview_images: $overview_images, location: $location, size_guide: $size_guide, size_guide_images: $size_guide_images)';
+    return 'RewardModel(id: $id, title: $title, thumbnail: $thumbnail, overviewImages: $overviewImages, location: $location, sizeGuide: $sizeGuide, size_guide_images: $size_guide_images)';
   }
 
   @override
@@ -273,10 +288,10 @@ class _$RewardModelImpl extends _RewardModel {
             (identical(other.thumbnail, thumbnail) ||
                 other.thumbnail == thumbnail) &&
             const DeepCollectionEquality()
-                .equals(other._overview_images, _overview_images) &&
+                .equals(other._overviewImages, _overviewImages) &&
             const DeepCollectionEquality().equals(other._location, _location) &&
             const DeepCollectionEquality()
-                .equals(other._size_guide, _size_guide) &&
+                .equals(other._sizeGuide, _sizeGuide) &&
             const DeepCollectionEquality()
                 .equals(other._size_guide_images, _size_guide_images));
   }
@@ -288,9 +303,9 @@ class _$RewardModelImpl extends _RewardModel {
       id,
       const DeepCollectionEquality().hash(_title),
       thumbnail,
-      const DeepCollectionEquality().hash(_overview_images),
+      const DeepCollectionEquality().hash(_overviewImages),
       const DeepCollectionEquality().hash(_location),
-      const DeepCollectionEquality().hash(_size_guide),
+      const DeepCollectionEquality().hash(_sizeGuide),
       const DeepCollectionEquality().hash(_size_guide_images));
 
   /// Create a copy of RewardModel
@@ -311,12 +326,13 @@ class _$RewardModelImpl extends _RewardModel {
 
 abstract class _RewardModel extends RewardModel {
   const factory _RewardModel(
-      {required final int id,
-      final Map<String, dynamic>? title,
-      final String? thumbnail,
-      final List<String>? overview_images,
-      final Map<String, dynamic>? location,
-      final Map<String, dynamic>? size_guide,
+      {@JsonKey(name: 'id') required final int id,
+      @JsonKey(name: 'title') final Map<String, dynamic>? title,
+      @JsonKey(name: 'thumbnail') final String? thumbnail,
+      @JsonKey(name: 'overview_images') final List<String>? overviewImages,
+      @JsonKey(name: 'location') final Map<String, dynamic>? location,
+      @JsonKey(name: 'size_guide') final Map<String, dynamic>? sizeGuide,
+      @JsonKey(name: 'size_guide_images')
       final List<String>? size_guide_images}) = _$RewardModelImpl;
   const _RewardModel._() : super._();
 
@@ -324,18 +340,25 @@ abstract class _RewardModel extends RewardModel {
       _$RewardModelImpl.fromJson;
 
   @override
+  @JsonKey(name: 'id')
   int get id;
   @override
+  @JsonKey(name: 'title')
   Map<String, dynamic>? get title;
   @override
+  @JsonKey(name: 'thumbnail')
   String? get thumbnail;
   @override
-  List<String>? get overview_images;
+  @JsonKey(name: 'overview_images')
+  List<String>? get overviewImages;
   @override
+  @JsonKey(name: 'location')
   Map<String, dynamic>? get location;
   @override
-  Map<String, dynamic>? get size_guide;
+  @JsonKey(name: 'size_guide')
+  Map<String, dynamic>? get sizeGuide;
   @override
+  @JsonKey(name: 'size_guide_images')
   List<String>? get size_guide_images;
 
   /// Create a copy of RewardModel

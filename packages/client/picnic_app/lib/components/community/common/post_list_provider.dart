@@ -23,7 +23,7 @@ final postListProvider = FutureProvider.family((ref, String boardId) async {
     logger.d('posts: $posts');
 
     // Fetch user profiles separately
-    final userIds = posts.map((post) => post.user_id).toSet().toList();
+    final userIds = posts.map((post) => post.userId).toSet().toList();
     final userProfilesResponse =
         await supabase.from('user_profiles').select().inFilter('id', userIds);
 
@@ -34,7 +34,7 @@ final postListProvider = FutureProvider.family((ref, String boardId) async {
 
     for (var i = 0; i < posts.length; i++) {
       posts[i] =
-          posts[i].copyWith(user_profiles: userProfiles[posts[i].user_id]!);
+          posts[i].copyWith(userProfiles: userProfiles[posts[i].userId]!);
     }
     return posts;
   } catch (e, s) {

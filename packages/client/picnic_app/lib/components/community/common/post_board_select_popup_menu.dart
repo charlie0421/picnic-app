@@ -42,7 +42,7 @@ class _PostBoardSelectPopupMenuState
             snapshot.hasData) {
           final boards = snapshot.data as List<BoardModel>;
           final selectedBoard = boards.firstWhere(
-            (board) => board.board_id == currentBoard?.board_id,
+            (board) => board.boardId == currentBoard?.boardId,
             orElse: () => boards.first,
           );
 
@@ -61,7 +61,7 @@ class _PostBoardSelectPopupMenuState
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    selectedBoard.is_official
+                    selectedBoard.isOfficial
                         ? getLocaleTextFromJson(selectedBoard.name)
                         : selectedBoard.name['minor'],
                     textAlign: TextAlign.center,
@@ -81,10 +81,10 @@ class _PostBoardSelectPopupMenuState
               return PopupMenuItem<BoardModel>(
                 value: board,
                 child: Text(
-                  board.is_official
+                  board.isOfficial
                       ? getLocaleTextFromJson(board.name)
                       : board.name['minor'],
-                  style: board.board_id == currentBoard?.board_id
+                  style: board.boardId == currentBoard?.boardId
                       ? getTextStyle(AppTypo.caption12R, AppColors.grey700)
                       : getTextStyle(AppTypo.caption12B, AppColors.grey400),
                   textAlign: TextAlign.center,

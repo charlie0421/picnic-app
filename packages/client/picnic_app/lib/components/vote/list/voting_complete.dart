@@ -245,7 +245,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                         ClipRRect(
                           borderRadius: BorderRadius.circular(48.r),
                           child: ProfileImageContainer(
-                            avatarUrl: userInfo.value?.avatar_url,
+                            avatarUrl: userInfo.value?.avatarUrl,
                             width: 48,
                             height: 48,
                             borderRadius: 48,

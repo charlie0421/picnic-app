@@ -64,7 +64,7 @@ class _PortalState extends ConsumerState<Portal> {
                                     Scaffold.of(context).openDrawer();
                                   },
                                   child: ProfileImageContainer(
-                                    avatarUrl: data.avatar_url,
+                                    avatarUrl: data.avatarUrl,
                                     width: 36,
                                     height: 36,
                                     borderRadius: 8.r,
@@ -102,7 +102,7 @@ class _PortalState extends ConsumerState<Portal> {
                     if (supabase.isLogged)
                       userInfoState.when(
                         data: (userInfo) {
-                          if (userInfo != null && userInfo.is_admin) {
+                          if (userInfo != null && userInfo.isAdmin) {
                             return const Row(children: [
                               PortalMenuItem(portalType: PortalType.pic),
                               PortalMenuItem(portalType: PortalType.community),

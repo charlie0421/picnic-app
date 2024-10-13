@@ -62,13 +62,13 @@ class _MyPageState extends ConsumerState<MyPage> {
                               alignment: MainAxisAlignment.start))
                       : const SizedBox(height: 16),
                   // 공지사항
-                  if (data != null && data.is_admin)
+                  if (data != null && data.isAdmin)
                     PicnicListItem(
                         leading: S.of(context).label_mypage_notice,
                         assetPath: 'assets/icons/arrow_right_style=line.svg',
                         onTap: () {}),
                   // 충전내역
-                  if (data != null && data.is_admin)
+                  if (data != null && data.isAdmin)
                     PicnicListItem(
                         leading: S.of(context).label_mypage_charge_history,
                         assetPath: 'assets/icons/arrow_right_style=line.svg',
@@ -166,7 +166,7 @@ class _MyPageState extends ConsumerState<MyPage> {
             return Row(
               children: [
                 ProfileImageContainer(
-                  avatarUrl: data?.avatar_url,
+                  avatarUrl: data?.avatarUrl,
                   width: 80.cw,
                   height: 80.cw,
                   borderRadius: 80.r,

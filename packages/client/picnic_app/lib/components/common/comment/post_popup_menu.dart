@@ -46,7 +46,7 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
             title: S.of(context).popup_label_delete,
             content: '정말로 삭제하시겠습니까?',
             onOk: () async {
-              await deletePost(ref, widget.post.post_id);
+              await deletePost(ref, widget.post.postId);
               widget.refreshFunction();
               if (navigatorKey.currentContext != null) {
                 Navigator.of(navigatorKey.currentContext!).pop();
@@ -74,12 +74,12 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
   }
 
   bool _canDeletePost() {
-    return widget.post.user_id == supabase.auth.currentUser?.id &&
+    return widget.post.userId == supabase.auth.currentUser?.id &&
         widget.post.deletedAt == null;
   }
 
   bool _canReportPost() {
-    return widget.post.user_id != supabase.auth.currentUser?.id &&
+    return widget.post.userId != supabase.auth.currentUser?.id &&
         widget.post.deletedAt == null;
   }
 }

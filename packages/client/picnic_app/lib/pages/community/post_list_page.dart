@@ -69,10 +69,10 @@ class _PostListPageState extends ConsumerState<PostListPage>
                       return _buildMenuItem('전체', '', index);
                     } else if (index <= data.length) {
                       return _buildMenuItem(
-                          data[index - 1].is_official
+                          data[index - 1].isOfficial
                               ? getLocaleTextFromJson(data[index - 1].name)
                               : data[index - 1].name['minor'],
-                          data[index - 1].board_id,
+                          data[index - 1].boardId,
                           index);
                     } else {
                       return _buildOpenRequestItem(data.length + 1);
@@ -91,7 +91,7 @@ class _PostListPageState extends ConsumerState<PostListPage>
                   children: [
                     PostList(PostListType.artist, widget.artistId),
                     ...List.generate(data.length, (index) {
-                      return PostList(PostListType.board, data[index].board_id);
+                      return PostList(PostListType.board, data[index].boardId);
                     }),
                     BoardRequest(widget.artistId), // 오픈요청 페이지
                   ],

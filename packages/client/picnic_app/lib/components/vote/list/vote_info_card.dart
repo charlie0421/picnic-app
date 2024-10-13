@@ -140,7 +140,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
       AsyncValue<List<VoteItemModel?>> asyncVoteItemList) {
     return asyncVoteItemList.when(
       data: (voteItems) => Container(
-        width: ref.watch(globalMediaQueryProviderProvider).size.width,
+        width: ref.watch(globalMediaQueryProvider).size.width,
         height: 260,
         padding: const EdgeInsets.only(left: 36, right: 36, top: 16),
         margin: const EdgeInsets.only(top: 24),

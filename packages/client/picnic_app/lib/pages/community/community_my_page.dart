@@ -57,7 +57,7 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
                     return Row(
                       children: [
                         ProfileImageContainer(
-                          avatarUrl: data.avatar_url,
+                          avatarUrl: data.avatarUrl,
                           borderRadius: 30,
                           width: 60,
                           height: 60,

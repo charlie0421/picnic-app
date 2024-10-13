@@ -11,18 +11,18 @@ _$UserProfilesModelImpl _$$UserProfilesModelImplFromJson(
     _$UserProfilesModelImpl(
       id: json['id'] as String?,
       nickname: json['nickname'] as String?,
-      avatar_url: json['avatar_url'] as String?,
-      country_code: json['country_code'] as String?,
-      deleted_at: json['deleted_at'] == null
+      avatarUrl: json['avatar_url'] as String?,
+      countryCode: json['country_code'] as String?,
+      deletedAt: json['deleted_at'] == null
           ? null
           : DateTime.parse(json['deleted_at'] as String),
-      user_agreement: json['user_agreement'] == null
+      userAgreement: json['user_agreement'] == null
           ? null
           : UserAgreement.fromJson(
               json['user_agreement'] as Map<String, dynamic>),
-      is_admin: json['is_admin'] as bool,
-      star_candy: (json['star_candy'] as num).toInt(),
-      star_candy_bonus: (json['star_candy_bonus'] as num).toInt(),
+      isAdmin: json['is_admin'] as bool,
+      starCandy: (json['star_candy'] as num).toInt(),
+      starCandyBonus: (json['star_candy_bonus'] as num).toInt(),
     );
 
 Map<String, dynamic> _$$UserProfilesModelImplToJson(
@@ -30,13 +30,13 @@ Map<String, dynamic> _$$UserProfilesModelImplToJson(
     <String, dynamic>{
       'id': instance.id,
       'nickname': instance.nickname,
-      'avatar_url': instance.avatar_url,
-      'country_code': instance.country_code,
-      'deleted_at': instance.deleted_at?.toIso8601String(),
-      'user_agreement': instance.user_agreement,
-      'is_admin': instance.is_admin,
-      'star_candy': instance.star_candy,
-      'star_candy_bonus': instance.star_candy_bonus,
+      'avatar_url': instance.avatarUrl,
+      'country_code': instance.countryCode,
+      'deleted_at': instance.deletedAt?.toIso8601String(),
+      'user_agreement': instance.userAgreement,
+      'is_admin': instance.isAdmin,
+      'star_candy': instance.starCandy,
+      'star_candy_bonus': instance.starCandyBonus,
     };
 
 _$UserAgreementImpl _$$UserAgreementImplFromJson(Map<String, dynamic> json) =>
