@@ -82,11 +82,13 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
     if (_currentSearchQuery.isEmpty) return;
 
     final communityNavigationInfo = ref.read(communityStateInfoProvider);
+    final currentArtist = ref.watch(
+        communityStateInfoProvider.select((value) => value.currentArtist));
 
     try {
       final newItems = await postsByQuery(
             ref,
-            communityNavigationInfo.currentArtist!.id,
+            currentArtist!.id,
             _currentSearchQuery,
             pageKey,
             10,
