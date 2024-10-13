@@ -18,8 +18,6 @@ class AsyncBookmarkedArtists extends _$AsyncBookmarkedArtists {
       final response = await supabase.from('artist_user_bookmark').select(
           'artist_id, artist(id, name, image, gender, artist_group(id, name, image))');
 
-      logger.i('북마크된 아티스트 가져오기 응답: $response');
-
       List<ArtistModel> bookmarkedArtists = response.map((data) {
         final artistData = data['artist'] as Map<String, dynamic>;
         return ArtistModel.fromJson({

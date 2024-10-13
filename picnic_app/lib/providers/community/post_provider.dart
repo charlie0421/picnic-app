@@ -77,6 +77,34 @@ Future<List<PostModel>?> postsByQuery(
 }
 
 @riverpod
+Future<PostModel?> postById(ref, String postId,
+    {bool isIncrementViewCount = true}) async {
+  try {
+    logger.d(
+        'Fetching post: $postId, isIncrementViewCount: $isIncrementViewCount');
+    // 조회수 증가 함수 호출
+    if (isIncrementViewCount) {
+      await supabase
+          .rpc('increment_view_count', params: {'post_id_param': postId});
+    }
+
+    final response = await supabase
+        .from('posts')
+        .select(
+            '*, board:boards!inner(*), user_profiles(*), post_reports!left(post_id), post_scraps!left(post_id)')
+        .eq('post_id', postId)
+        .isFilter('deleted_at', null)
+        .isFilter('post_reports', null)
+        .single();
+
+    return PostModel.fromJson(response);
+  } catch (e, s) {
+    logger.e('Error fetching post:', error: e, stackTrace: s);
+    return Future.error(e);
+  }
+}
+
+@riverpod
 Future<List<PostModel>> postsByUser(
     ref, String userId, int limit, int page) async {
   try {

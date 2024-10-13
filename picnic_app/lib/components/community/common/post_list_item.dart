@@ -28,9 +28,9 @@ class _PostListItemState extends ConsumerState<PostListItem> {
             .read(communityStateInfoProvider.notifier)
             .setCurrentBoard(widget.post.board!);
 
-        ref.read(navigationInfoProvider.notifier).setCurrentPage(PostViewPage(
-              widget.post,
-            ));
+        ref
+            .read(navigationInfoProvider.notifier)
+            .setCurrentPage(PostViewPage(widget.post.postId));
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 8),
@@ -107,7 +107,7 @@ class _PostListItemState extends ConsumerState<PostListItem> {
                             AppTypo.caption10SB, AppColors.grey600),
                       ),
                       TextSpan(
-                        text: widget.post.viewCount.toString(),
+                        text: widget.post.replyCount.toString(),
                         style: getTextStyle(
                             AppTypo.caption10SB, AppColors.grey600),
                       ),

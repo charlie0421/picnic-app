@@ -147,12 +147,10 @@ class NavigationInfo extends _$NavigationInfo {
     final voteNavigationStack = state.voteNavigationStack;
 
     voteNavigationStack?.push(page);
-    logger.d('voteNavigationStack: $voteNavigationStack');
     state = state.copyWith(
       voteNavigationStack: voteNavigationStack,
       showBottomNavigation: showBottomNavigation,
     );
-    logger.d('voteNavigationStack: $voteNavigationStack');
   }
 
   setCommunityCurrentPage(Widget page,
