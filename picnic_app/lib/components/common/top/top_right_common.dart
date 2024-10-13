@@ -22,7 +22,7 @@ class _TopRightCommonState extends ConsumerState<TopRightCommon> {
   @override
   Widget build(BuildContext context) {
     final isAdmin =
-        ref.watch(userInfoProvider.select((value) => value.value?.is_admin));
+        ref.watch(userInfoProvider.select((value) => value.value?.isAdmin));
 
     return isAdmin != null && isAdmin == true
         ? Row(

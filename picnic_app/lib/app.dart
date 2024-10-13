@@ -63,7 +63,7 @@ class _AppState extends ConsumerState<App> {
   void _initializeApp() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
-          .read(globalMediaQueryProviderProvider.notifier)
+          .read(globalMediaQueryProvider.notifier)
           .updateMediaQueryData(MediaQuery.of(context));
     });
 
@@ -282,7 +282,7 @@ class _ScaleAwareBuilder extends ConsumerWidget {
     if (kIsWeb) {
       // For web, use a custom scaling factor
       return MediaQuery(
-        data: ref.watch(globalMediaQueryProviderProvider).copyWith(
+        data: ref.watch(globalMediaQueryProvider).copyWith(
               size: const Size(600, 800),
               // textScaleFactor: 600 / 393, // Adjust text scale for web
             ),

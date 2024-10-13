@@ -24,7 +24,7 @@ class _TopRightPostState extends ConsumerState<TopRightPost> {
   @override
   Widget build(BuildContext context) {
     final isAdmin =
-        ref.watch(userInfoProvider.select((value) => value.value?.is_admin));
+        ref.watch(userInfoProvider.select((value) => value.value?.isAdmin));
     final navigationInfoNotifier = ref.read(navigationInfoProvider.notifier);
 
     return isAdmin != null && isAdmin == true

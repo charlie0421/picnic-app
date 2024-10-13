@@ -64,7 +64,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
             showTopMenu: true,
             topRightMenu: TopRightType.postView,
             showBottomNavigation: false,
-            pageTitle: currentBoard!.is_official
+            pageTitle: currentBoard!.isOfficial
                 ? getLocaleTextFromJson(currentBoard.name)
                 : widget.post.title,
           );
@@ -128,7 +128,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
       _isLoadingComments = true;
     });
     try {
-      final loadedComments = await comments(ref, widget.post.post_id, 1, 3,
+      final loadedComments = await comments(ref, widget.post.postId, 1, 3,
           includeDeleted: false, includeReported: false);
       if (!mounted) return; // 비동기 작업 후 다시 체크
       setState(() {
@@ -187,11 +187,11 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
           ),
           Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 8),
-              child: widget.post.is_anonymous
+              child: widget.post.isAnonymous
                   ? Text('잌명',
                       style: getTextStyle(
                           AppTypo.caption12B, AppColors.primary500))
-                  : Text(widget.post.user_profiles?.nickname ?? '',
+                  : Text(widget.post.userProfiles?.nickname ?? '',
                       style: getTextStyle(
                           AppTypo.caption12B, AppColors.primary500))),
           Padding(
@@ -201,15 +201,15 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
               children: [
                 Row(
                   children: [
-                    Text('조회: ${widget.post.view_count}',
+                    Text('조회: ${widget.post.viewCount}',
                         style: getTextStyle(
                             AppTypo.caption10SB, const Color(0XFF8E8E8E))),
                     SizedBox(width: 8.cw),
-                    Text('댓글: ${widget.post.reply_count}',
+                    Text('댓글: ${widget.post.replyCount}',
                         style: getTextStyle(
                             AppTypo.caption10SB, const Color(0XFF8E8E8E))),
                     SizedBox(width: 8.cw),
-                    Text(formatDateTimeYYYYMMDDHHM(widget.post.created_at),
+                    Text(formatDateTimeYYYYMMDDHHM(widget.post.createdAt),
                         style: getTextStyle(
                             AppTypo.caption10SB, const Color(0XFF8E8E8E))),
                   ],
@@ -367,12 +367,12 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
       ),
       constraints: BoxConstraints(
-          maxHeight: ref.watch(globalMediaQueryProviderProvider).size.height -
+          maxHeight: ref.watch(globalMediaQueryProvider).size.height -
               getAppBarHeight(ref)),
       builder: (context) {
         return SafeArea(
           child: CommentList(
-            id: widget.post.post_id,
+            id: widget.post.postId,
             '댓글',
             openReportModal: _openCommentReportModal,
           ),

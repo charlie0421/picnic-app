@@ -95,7 +95,7 @@ class UserInfo extends _$UserInfo {
         state = AsyncValue.data(userProfile);
 
         if (!kIsWeb) {
-          if (kDebugMode || userProfile.is_admin == true) {
+          if (kDebugMode || userProfile.isAdmin == true) {
             logger.i('Disabling screenshot prevention');
             ScreenProtector.preventScreenshotOff();
           } else {
@@ -160,7 +160,7 @@ class UserInfo extends _$UserInfo {
     await supabase.from('user_profiles').update({
       'avatar_url': url,
     });
-    state = AsyncValue.data(state.value!.copyWith(avatar_url: url));
+    state = AsyncValue.data(state.value!.copyWith(avatarUrl: url));
     logger.i('Avatar URL updated successfully');
   }
 
@@ -213,7 +213,7 @@ class UserInfo extends _$UserInfo {
     logger.i('Old state: ${oldState.value}');
 
     state = AsyncValue.data(state.value
-        ?.copyWith(star_candy: starCandy, star_candy_bonus: starCandyBonus));
+        ?.copyWith(starCandy: starCandy, starCandyBonus: starCandyBonus));
 
     ref.notifyListeners();
     logger.i('State updated. Old: ${oldState.value}, New: ${state.value}');

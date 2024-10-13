@@ -85,7 +85,7 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment>
                         Row(
                           children: [
                             Text(
-                              item.post.board!.is_official
+                              item.post.board!.isOfficial
                                   ? getLocaleTextFromJson(item.post.board!.name)
                                   : item.post.board?.name['minor'],
                               style: getTextStyle(
@@ -93,7 +93,7 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment>
                             ),
                             SizedBox(width: 4.cw),
                             ProfileImageContainer(
-                              avatarUrl: item.user.avatar_url,
+                              avatarUrl: item.user.avatarUrl,
                               borderRadius: 4,
                               width: 18,
                               height: 18,

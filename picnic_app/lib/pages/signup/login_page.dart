@@ -276,14 +276,14 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
             .read(navigationInfoProvider.notifier)
             .setCurrentSignUpPage(const AgreementTermsPage());
         Navigator.of(context).pop();
-      } else if (userProfile.deleted_at != null) {
+      } else if (userProfile.deletedAt != null) {
         // 탈퇴한 사용자
         showSimpleDialog(
             content: S.of(context).error_message_withdrawal,
             onOk: () {
               Navigator.of(context).pop();
             });
-      } else if (userProfile.user_agreement == null) {
+      } else if (userProfile.userAgreement == null) {
         // 약관 동의가 필요한 경우
         ref
             .read(navigationInfoProvider.notifier)

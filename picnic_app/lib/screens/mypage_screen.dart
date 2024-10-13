@@ -63,7 +63,7 @@ class MyPageScreen extends ConsumerWidget {
         leadingWidth: 40.cw,
         actions: [
           userInfoState.when(
-              data: (data) => data != null && data.is_admin
+              data: (data) => data != null && data.isAdmin
                   ? const TopRightCommon()
                   : Container(),
               loading: () => Container(),

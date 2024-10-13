@@ -21,11 +21,11 @@ class CommonMyPoint extends ConsumerStatefulWidget {
 class _CommonMyPointState extends ConsumerState<CommonMyPoint> {
   @override
   Widget build(BuildContext context) {
-    final starCandy = ref.watch(
-            userInfoProvider.select((value) => value.value?.star_candy)) ??
-        0;
-    final starCandyBonus = ref.watch(userInfoProvider
-            .select((value) => value.value?.star_candy_bonus)) ??
+    final starCandy =
+        ref.watch(userInfoProvider.select((value) => value.value?.starCandy)) ??
+            0;
+    final starCandyBonus = ref.watch(
+            userInfoProvider.select((value) => value.value?.starCandyBonus)) ??
         0;
 
     return GestureDetector(

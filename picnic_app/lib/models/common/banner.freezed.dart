@@ -20,9 +20,13 @@ BannerModel _$BannerModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$BannerModel {
+  @JsonKey(name: 'id')
   int get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'title')
   Map<String, dynamic> get title => throw _privateConstructorUsedError;
+  @JsonKey(name: 'thumbnail')
   String get thumbnail => throw _privateConstructorUsedError;
+  @JsonKey(name: 'image')
   Map<String, dynamic> get image => throw _privateConstructorUsedError;
 
   /// Serializes this BannerModel to a JSON map.
@@ -42,10 +46,10 @@ abstract class $BannerModelCopyWith<$Res> {
       _$BannerModelCopyWithImpl<$Res, BannerModel>;
   @useResult
   $Res call(
-      {int id,
-      Map<String, dynamic> title,
-      String thumbnail,
-      Map<String, dynamic> image});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'title') Map<String, dynamic> title,
+      @JsonKey(name: 'thumbnail') String thumbnail,
+      @JsonKey(name: 'image') Map<String, dynamic> image});
 }
 
 /// @nodoc
@@ -98,10 +102,10 @@ abstract class _$$BannerModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int id,
-      Map<String, dynamic> title,
-      String thumbnail,
-      Map<String, dynamic> image});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'title') Map<String, dynamic> title,
+      @JsonKey(name: 'thumbnail') String thumbnail,
+      @JsonKey(name: 'image') Map<String, dynamic> image});
 }
 
 /// @nodoc
@@ -147,10 +151,10 @@ class __$$BannerModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$BannerModelImpl extends _BannerModel {
   const _$BannerModelImpl(
-      {required this.id,
-      required final Map<String, dynamic> title,
-      required this.thumbnail,
-      required final Map<String, dynamic> image})
+      {@JsonKey(name: 'id') required this.id,
+      @JsonKey(name: 'title') required final Map<String, dynamic> title,
+      @JsonKey(name: 'thumbnail') required this.thumbnail,
+      @JsonKey(name: 'image') required final Map<String, dynamic> image})
       : _title = title,
         _image = image,
         super._();
@@ -159,9 +163,11 @@ class _$BannerModelImpl extends _BannerModel {
       _$$BannerModelImplFromJson(json);
 
   @override
+  @JsonKey(name: 'id')
   final int id;
   final Map<String, dynamic> _title;
   @override
+  @JsonKey(name: 'title')
   Map<String, dynamic> get title {
     if (_title is EqualUnmodifiableMapView) return _title;
     // ignore: implicit_dynamic_type
@@ -169,9 +175,11 @@ class _$BannerModelImpl extends _BannerModel {
   }
 
   @override
+  @JsonKey(name: 'thumbnail')
   final String thumbnail;
   final Map<String, dynamic> _image;
   @override
+  @JsonKey(name: 'image')
   Map<String, dynamic> get image {
     if (_image is EqualUnmodifiableMapView) return _image;
     // ignore: implicit_dynamic_type
@@ -222,22 +230,27 @@ class _$BannerModelImpl extends _BannerModel {
 
 abstract class _BannerModel extends BannerModel {
   const factory _BannerModel(
-      {required final int id,
-      required final Map<String, dynamic> title,
-      required final String thumbnail,
-      required final Map<String, dynamic> image}) = _$BannerModelImpl;
+          {@JsonKey(name: 'id') required final int id,
+          @JsonKey(name: 'title') required final Map<String, dynamic> title,
+          @JsonKey(name: 'thumbnail') required final String thumbnail,
+          @JsonKey(name: 'image') required final Map<String, dynamic> image}) =
+      _$BannerModelImpl;
   const _BannerModel._() : super._();
 
   factory _BannerModel.fromJson(Map<String, dynamic> json) =
       _$BannerModelImpl.fromJson;
 
   @override
+  @JsonKey(name: 'id')
   int get id;
   @override
+  @JsonKey(name: 'title')
   Map<String, dynamic> get title;
   @override
+  @JsonKey(name: 'thumbnail')
   String get thumbnail;
   @override
+  @JsonKey(name: 'image')
   Map<String, dynamic> get image;
 
   /// Create a copy of BannerModel

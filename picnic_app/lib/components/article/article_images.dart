@@ -172,7 +172,7 @@ class _FullScreenImageViewerState extends ConsumerState<FullScreenImageViewer>
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Container(
-        padding: ref.watch(globalMediaQueryProviderProvider).padding,
+        padding: ref.watch(globalMediaQueryProvider).padding,
         decoration: const BoxDecoration(gradient: commonGradient),
         child: Stack(
           children: [

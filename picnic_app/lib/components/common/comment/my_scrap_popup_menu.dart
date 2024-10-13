@@ -37,7 +37,7 @@ class _MyScrapPopupMenuState extends ConsumerState<MyScrapPopupMenu> {
             content: '정말로 삭제하시겠습니까?',
             onOk: () async {
               await unscrapPost(
-                  ref, widget.post.post_id, supabase.auth.currentUser!.id);
+                  ref, widget.post.postId, supabase.auth.currentUser!.id);
               widget.refreshFunction();
               if (navigatorKey.currentContext != null) {
                 Navigator.of(navigatorKey.currentContext!).pop();

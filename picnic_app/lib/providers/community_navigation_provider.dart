@@ -27,7 +27,7 @@ class CommunityStateInfo extends _$CommunityStateInfo {
 
   void setCurrentPostScraped(bool isScraped) {
     state = state.copyWith(
-      currentPost: state.currentPost!.copyWith(is_scraped: isScraped),
+      currentPost: state.currentPost!.copyWith(isScraped: isScraped),
     );
   }
 

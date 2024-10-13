@@ -6,18 +6,17 @@ part of 'global_media_query.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$globalMediaQueryProviderHash() =>
-    r'f9d0273a4086ac54689d50abffc7f179727b6b53';
+String _$globalMediaQueryHash() => r'f9d0273a4086ac54689d50abffc7f179727b6b53';
 
 /// See also [GlobalMediaQuery].
 @ProviderFor(GlobalMediaQuery)
-final globalMediaQueryProviderProvider =
+final globalMediaQueryProvider =
     NotifierProvider<GlobalMediaQuery, MediaQueryData>.internal(
   GlobalMediaQuery.new,
-  name: r'globalMediaQueryProviderProvider',
+  name: r'globalMediaQueryProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$globalMediaQueryProviderHash,
+      : _$globalMediaQueryHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );

@@ -20,17 +20,26 @@ UserProfilesModel _$UserProfilesModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$UserProfilesModel {
+  @JsonKey(name: 'id')
   String? get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'nickname')
   String? get nickname => throw _privateConstructorUsedError;
-  String? get avatar_url => throw _privateConstructorUsedError;
-  String? get country_code => throw _privateConstructorUsedError;
-  DateTime? get deleted_at => throw _privateConstructorUsedError;
-  UserAgreement? get user_agreement => throw _privateConstructorUsedError;
-  bool get is_admin => throw _privateConstructorUsedError;
-  int get star_candy => throw _privateConstructorUsedError;
-  int get star_candy_bonus => throw _privateConstructorUsedError;
+  @JsonKey(name: 'avatar_url')
+  String? get avatarUrl => throw _privateConstructorUsedError;
+  @JsonKey(name: 'country_code')
+  String? get countryCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'deleted_at')
+  DateTime? get deletedAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'user_agreement')
+  UserAgreement? get userAgreement => throw _privateConstructorUsedError;
+  @JsonKey(name: 'is_admin')
+  bool get isAdmin => throw _privateConstructorUsedError;
+  @JsonKey(name: 'star_candy')
+  int get starCandy => throw _privateConstructorUsedError;
+  @JsonKey(name: 'star_candy_bonus')
+  int get starCandyBonus => throw _privateConstructorUsedError;
   @JsonKey(includeFromJson: false)
-  RealtimeChannel? get realtime_channel => throw _privateConstructorUsedError;
+  RealtimeChannel? get realtimeChannel => throw _privateConstructorUsedError;
 
   /// Serializes this UserProfilesModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -49,18 +58,18 @@ abstract class $UserProfilesModelCopyWith<$Res> {
       _$UserProfilesModelCopyWithImpl<$Res, UserProfilesModel>;
   @useResult
   $Res call(
-      {String? id,
-      String? nickname,
-      String? avatar_url,
-      String? country_code,
-      DateTime? deleted_at,
-      UserAgreement? user_agreement,
-      bool is_admin,
-      int star_candy,
-      int star_candy_bonus,
-      @JsonKey(includeFromJson: false) RealtimeChannel? realtime_channel});
+      {@JsonKey(name: 'id') String? id,
+      @JsonKey(name: 'nickname') String? nickname,
+      @JsonKey(name: 'avatar_url') String? avatarUrl,
+      @JsonKey(name: 'country_code') String? countryCode,
+      @JsonKey(name: 'deleted_at') DateTime? deletedAt,
+      @JsonKey(name: 'user_agreement') UserAgreement? userAgreement,
+      @JsonKey(name: 'is_admin') bool isAdmin,
+      @JsonKey(name: 'star_candy') int starCandy,
+      @JsonKey(name: 'star_candy_bonus') int starCandyBonus,
+      @JsonKey(includeFromJson: false) RealtimeChannel? realtimeChannel});
 
-  $UserAgreementCopyWith<$Res>? get user_agreement;
+  $UserAgreementCopyWith<$Res>? get userAgreement;
 }
 
 /// @nodoc
@@ -80,14 +89,14 @@ class _$UserProfilesModelCopyWithImpl<$Res, $Val extends UserProfilesModel>
   $Res call({
     Object? id = freezed,
     Object? nickname = freezed,
-    Object? avatar_url = freezed,
-    Object? country_code = freezed,
-    Object? deleted_at = freezed,
-    Object? user_agreement = freezed,
-    Object? is_admin = null,
-    Object? star_candy = null,
-    Object? star_candy_bonus = null,
-    Object? realtime_channel = freezed,
+    Object? avatarUrl = freezed,
+    Object? countryCode = freezed,
+    Object? deletedAt = freezed,
+    Object? userAgreement = freezed,
+    Object? isAdmin = null,
+    Object? starCandy = null,
+    Object? starCandyBonus = null,
+    Object? realtimeChannel = freezed,
   }) {
     return _then(_value.copyWith(
       id: freezed == id
@@ -98,37 +107,37 @@ class _$UserProfilesModelCopyWithImpl<$Res, $Val extends UserProfilesModel>
           ? _value.nickname
           : nickname // ignore: cast_nullable_to_non_nullable
               as String?,
-      avatar_url: freezed == avatar_url
-          ? _value.avatar_url
-          : avatar_url // ignore: cast_nullable_to_non_nullable
+      avatarUrl: freezed == avatarUrl
+          ? _value.avatarUrl
+          : avatarUrl // ignore: cast_nullable_to_non_nullable
               as String?,
-      country_code: freezed == country_code
-          ? _value.country_code
-          : country_code // ignore: cast_nullable_to_non_nullable
+      countryCode: freezed == countryCode
+          ? _value.countryCode
+          : countryCode // ignore: cast_nullable_to_non_nullable
               as String?,
-      deleted_at: freezed == deleted_at
-          ? _value.deleted_at
-          : deleted_at // ignore: cast_nullable_to_non_nullable
+      deletedAt: freezed == deletedAt
+          ? _value.deletedAt
+          : deletedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      user_agreement: freezed == user_agreement
-          ? _value.user_agreement
-          : user_agreement // ignore: cast_nullable_to_non_nullable
+      userAgreement: freezed == userAgreement
+          ? _value.userAgreement
+          : userAgreement // ignore: cast_nullable_to_non_nullable
               as UserAgreement?,
-      is_admin: null == is_admin
-          ? _value.is_admin
-          : is_admin // ignore: cast_nullable_to_non_nullable
+      isAdmin: null == isAdmin
+          ? _value.isAdmin
+          : isAdmin // ignore: cast_nullable_to_non_nullable
               as bool,
-      star_candy: null == star_candy
-          ? _value.star_candy
-          : star_candy // ignore: cast_nullable_to_non_nullable
+      starCandy: null == starCandy
+          ? _value.starCandy
+          : starCandy // ignore: cast_nullable_to_non_nullable
               as int,
-      star_candy_bonus: null == star_candy_bonus
-          ? _value.star_candy_bonus
-          : star_candy_bonus // ignore: cast_nullable_to_non_nullable
+      starCandyBonus: null == starCandyBonus
+          ? _value.starCandyBonus
+          : starCandyBonus // ignore: cast_nullable_to_non_nullable
               as int,
-      realtime_channel: freezed == realtime_channel
-          ? _value.realtime_channel
-          : realtime_channel // ignore: cast_nullable_to_non_nullable
+      realtimeChannel: freezed == realtimeChannel
+          ? _value.realtimeChannel
+          : realtimeChannel // ignore: cast_nullable_to_non_nullable
               as RealtimeChannel?,
     ) as $Val);
   }
@@ -137,13 +146,13 @@ class _$UserProfilesModelCopyWithImpl<$Res, $Val extends UserProfilesModel>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $UserAgreementCopyWith<$Res>? get user_agreement {
-    if (_value.user_agreement == null) {
+  $UserAgreementCopyWith<$Res>? get userAgreement {
+    if (_value.userAgreement == null) {
       return null;
     }
 
-    return $UserAgreementCopyWith<$Res>(_value.user_agreement!, (value) {
-      return _then(_value.copyWith(user_agreement: value) as $Val);
+    return $UserAgreementCopyWith<$Res>(_value.userAgreement!, (value) {
+      return _then(_value.copyWith(userAgreement: value) as $Val);
     });
   }
 }
@@ -157,19 +166,19 @@ abstract class _$$UserProfilesModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String? id,
-      String? nickname,
-      String? avatar_url,
-      String? country_code,
-      DateTime? deleted_at,
-      UserAgreement? user_agreement,
-      bool is_admin,
-      int star_candy,
-      int star_candy_bonus,
-      @JsonKey(includeFromJson: false) RealtimeChannel? realtime_channel});
+      {@JsonKey(name: 'id') String? id,
+      @JsonKey(name: 'nickname') String? nickname,
+      @JsonKey(name: 'avatar_url') String? avatarUrl,
+      @JsonKey(name: 'country_code') String? countryCode,
+      @JsonKey(name: 'deleted_at') DateTime? deletedAt,
+      @JsonKey(name: 'user_agreement') UserAgreement? userAgreement,
+      @JsonKey(name: 'is_admin') bool isAdmin,
+      @JsonKey(name: 'star_candy') int starCandy,
+      @JsonKey(name: 'star_candy_bonus') int starCandyBonus,
+      @JsonKey(includeFromJson: false) RealtimeChannel? realtimeChannel});
 
   @override
-  $UserAgreementCopyWith<$Res>? get user_agreement;
+  $UserAgreementCopyWith<$Res>? get userAgreement;
 }
 
 /// @nodoc
@@ -187,14 +196,14 @@ class __$$UserProfilesModelImplCopyWithImpl<$Res>
   $Res call({
     Object? id = freezed,
     Object? nickname = freezed,
-    Object? avatar_url = freezed,
-    Object? country_code = freezed,
-    Object? deleted_at = freezed,
-    Object? user_agreement = freezed,
-    Object? is_admin = null,
-    Object? star_candy = null,
-    Object? star_candy_bonus = null,
-    Object? realtime_channel = freezed,
+    Object? avatarUrl = freezed,
+    Object? countryCode = freezed,
+    Object? deletedAt = freezed,
+    Object? userAgreement = freezed,
+    Object? isAdmin = null,
+    Object? starCandy = null,
+    Object? starCandyBonus = null,
+    Object? realtimeChannel = freezed,
   }) {
     return _then(_$UserProfilesModelImpl(
       id: freezed == id
@@ -205,37 +214,37 @@ class __$$UserProfilesModelImplCopyWithImpl<$Res>
           ? _value.nickname
           : nickname // ignore: cast_nullable_to_non_nullable
               as String?,
-      avatar_url: freezed == avatar_url
-          ? _value.avatar_url
-          : avatar_url // ignore: cast_nullable_to_non_nullable
+      avatarUrl: freezed == avatarUrl
+          ? _value.avatarUrl
+          : avatarUrl // ignore: cast_nullable_to_non_nullable
               as String?,
-      country_code: freezed == country_code
-          ? _value.country_code
-          : country_code // ignore: cast_nullable_to_non_nullable
+      countryCode: freezed == countryCode
+          ? _value.countryCode
+          : countryCode // ignore: cast_nullable_to_non_nullable
               as String?,
-      deleted_at: freezed == deleted_at
-          ? _value.deleted_at
-          : deleted_at // ignore: cast_nullable_to_non_nullable
+      deletedAt: freezed == deletedAt
+          ? _value.deletedAt
+          : deletedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      user_agreement: freezed == user_agreement
-          ? _value.user_agreement
-          : user_agreement // ignore: cast_nullable_to_non_nullable
+      userAgreement: freezed == userAgreement
+          ? _value.userAgreement
+          : userAgreement // ignore: cast_nullable_to_non_nullable
               as UserAgreement?,
-      is_admin: null == is_admin
-          ? _value.is_admin
-          : is_admin // ignore: cast_nullable_to_non_nullable
+      isAdmin: null == isAdmin
+          ? _value.isAdmin
+          : isAdmin // ignore: cast_nullable_to_non_nullable
               as bool,
-      star_candy: null == star_candy
-          ? _value.star_candy
-          : star_candy // ignore: cast_nullable_to_non_nullable
+      starCandy: null == starCandy
+          ? _value.starCandy
+          : starCandy // ignore: cast_nullable_to_non_nullable
               as int,
-      star_candy_bonus: null == star_candy_bonus
-          ? _value.star_candy_bonus
-          : star_candy_bonus // ignore: cast_nullable_to_non_nullable
+      starCandyBonus: null == starCandyBonus
+          ? _value.starCandyBonus
+          : starCandyBonus // ignore: cast_nullable_to_non_nullable
               as int,
-      realtime_channel: freezed == realtime_channel
-          ? _value.realtime_channel
-          : realtime_channel // ignore: cast_nullable_to_non_nullable
+      realtimeChannel: freezed == realtimeChannel
+          ? _value.realtimeChannel
+          : realtimeChannel // ignore: cast_nullable_to_non_nullable
               as RealtimeChannel?,
     ));
   }
@@ -245,46 +254,55 @@ class __$$UserProfilesModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$UserProfilesModelImpl extends _UserProfilesModel {
   const _$UserProfilesModelImpl(
-      {this.id,
-      this.nickname,
-      this.avatar_url,
-      this.country_code,
-      this.deleted_at,
-      this.user_agreement,
-      required this.is_admin,
-      required this.star_candy,
-      required this.star_candy_bonus,
-      @JsonKey(includeFromJson: false) this.realtime_channel})
+      {@JsonKey(name: 'id') this.id,
+      @JsonKey(name: 'nickname') this.nickname,
+      @JsonKey(name: 'avatar_url') this.avatarUrl,
+      @JsonKey(name: 'country_code') this.countryCode,
+      @JsonKey(name: 'deleted_at') this.deletedAt,
+      @JsonKey(name: 'user_agreement') this.userAgreement,
+      @JsonKey(name: 'is_admin') required this.isAdmin,
+      @JsonKey(name: 'star_candy') required this.starCandy,
+      @JsonKey(name: 'star_candy_bonus') required this.starCandyBonus,
+      @JsonKey(includeFromJson: false) this.realtimeChannel})
       : super._();
 
   factory _$UserProfilesModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$UserProfilesModelImplFromJson(json);
 
   @override
+  @JsonKey(name: 'id')
   final String? id;
   @override
+  @JsonKey(name: 'nickname')
   final String? nickname;
   @override
-  final String? avatar_url;
+  @JsonKey(name: 'avatar_url')
+  final String? avatarUrl;
   @override
-  final String? country_code;
+  @JsonKey(name: 'country_code')
+  final String? countryCode;
   @override
-  final DateTime? deleted_at;
+  @JsonKey(name: 'deleted_at')
+  final DateTime? deletedAt;
   @override
-  final UserAgreement? user_agreement;
+  @JsonKey(name: 'user_agreement')
+  final UserAgreement? userAgreement;
   @override
-  final bool is_admin;
+  @JsonKey(name: 'is_admin')
+  final bool isAdmin;
   @override
-  final int star_candy;
+  @JsonKey(name: 'star_candy')
+  final int starCandy;
   @override
-  final int star_candy_bonus;
+  @JsonKey(name: 'star_candy_bonus')
+  final int starCandyBonus;
   @override
   @JsonKey(includeFromJson: false)
-  final RealtimeChannel? realtime_channel;
+  final RealtimeChannel? realtimeChannel;
 
   @override
   String toString() {
-    return 'UserProfilesModel(id: $id, nickname: $nickname, avatar_url: $avatar_url, country_code: $country_code, deleted_at: $deleted_at, user_agreement: $user_agreement, is_admin: $is_admin, star_candy: $star_candy, star_candy_bonus: $star_candy_bonus, realtime_channel: $realtime_channel)';
+    return 'UserProfilesModel(id: $id, nickname: $nickname, avatarUrl: $avatarUrl, countryCode: $countryCode, deletedAt: $deletedAt, userAgreement: $userAgreement, isAdmin: $isAdmin, starCandy: $starCandy, starCandyBonus: $starCandyBonus, realtimeChannel: $realtimeChannel)';
   }
 
   @override
@@ -295,22 +313,21 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.nickname, nickname) ||
                 other.nickname == nickname) &&
-            (identical(other.avatar_url, avatar_url) ||
-                other.avatar_url == avatar_url) &&
-            (identical(other.country_code, country_code) ||
-                other.country_code == country_code) &&
-            (identical(other.deleted_at, deleted_at) ||
-                other.deleted_at == deleted_at) &&
-            (identical(other.user_agreement, user_agreement) ||
-                other.user_agreement == user_agreement) &&
-            (identical(other.is_admin, is_admin) ||
-                other.is_admin == is_admin) &&
-            (identical(other.star_candy, star_candy) ||
-                other.star_candy == star_candy) &&
-            (identical(other.star_candy_bonus, star_candy_bonus) ||
-                other.star_candy_bonus == star_candy_bonus) &&
-            (identical(other.realtime_channel, realtime_channel) ||
-                other.realtime_channel == realtime_channel));
+            (identical(other.avatarUrl, avatarUrl) ||
+                other.avatarUrl == avatarUrl) &&
+            (identical(other.countryCode, countryCode) ||
+                other.countryCode == countryCode) &&
+            (identical(other.deletedAt, deletedAt) ||
+                other.deletedAt == deletedAt) &&
+            (identical(other.userAgreement, userAgreement) ||
+                other.userAgreement == userAgreement) &&
+            (identical(other.isAdmin, isAdmin) || other.isAdmin == isAdmin) &&
+            (identical(other.starCandy, starCandy) ||
+                other.starCandy == starCandy) &&
+            (identical(other.starCandyBonus, starCandyBonus) ||
+                other.starCandyBonus == starCandyBonus) &&
+            (identical(other.realtimeChannel, realtimeChannel) ||
+                other.realtimeChannel == realtimeChannel));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -319,14 +336,14 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
       runtimeType,
       id,
       nickname,
-      avatar_url,
-      country_code,
-      deleted_at,
-      user_agreement,
-      is_admin,
-      star_candy,
-      star_candy_bonus,
-      realtime_channel);
+      avatarUrl,
+      countryCode,
+      deletedAt,
+      userAgreement,
+      isAdmin,
+      starCandy,
+      starCandyBonus,
+      realtimeChannel);
 
   /// Create a copy of UserProfilesModel
   /// with the given fields replaced by the non-null parameter values.
@@ -347,43 +364,52 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
 
 abstract class _UserProfilesModel extends UserProfilesModel {
   const factory _UserProfilesModel(
-      {final String? id,
-      final String? nickname,
-      final String? avatar_url,
-      final String? country_code,
-      final DateTime? deleted_at,
-      final UserAgreement? user_agreement,
-      required final bool is_admin,
-      required final int star_candy,
-      required final int star_candy_bonus,
+      {@JsonKey(name: 'id') final String? id,
+      @JsonKey(name: 'nickname') final String? nickname,
+      @JsonKey(name: 'avatar_url') final String? avatarUrl,
+      @JsonKey(name: 'country_code') final String? countryCode,
+      @JsonKey(name: 'deleted_at') final DateTime? deletedAt,
+      @JsonKey(name: 'user_agreement') final UserAgreement? userAgreement,
+      @JsonKey(name: 'is_admin') required final bool isAdmin,
+      @JsonKey(name: 'star_candy') required final int starCandy,
+      @JsonKey(name: 'star_candy_bonus') required final int starCandyBonus,
       @JsonKey(includeFromJson: false)
-      final RealtimeChannel? realtime_channel}) = _$UserProfilesModelImpl;
+      final RealtimeChannel? realtimeChannel}) = _$UserProfilesModelImpl;
   const _UserProfilesModel._() : super._();
 
   factory _UserProfilesModel.fromJson(Map<String, dynamic> json) =
       _$UserProfilesModelImpl.fromJson;
 
   @override
+  @JsonKey(name: 'id')
   String? get id;
   @override
+  @JsonKey(name: 'nickname')
   String? get nickname;
   @override
-  String? get avatar_url;
+  @JsonKey(name: 'avatar_url')
+  String? get avatarUrl;
   @override
-  String? get country_code;
+  @JsonKey(name: 'country_code')
+  String? get countryCode;
   @override
-  DateTime? get deleted_at;
+  @JsonKey(name: 'deleted_at')
+  DateTime? get deletedAt;
   @override
-  UserAgreement? get user_agreement;
+  @JsonKey(name: 'user_agreement')
+  UserAgreement? get userAgreement;
   @override
-  bool get is_admin;
+  @JsonKey(name: 'is_admin')
+  bool get isAdmin;
   @override
-  int get star_candy;
+  @JsonKey(name: 'star_candy')
+  int get starCandy;
   @override
-  int get star_candy_bonus;
+  @JsonKey(name: 'star_candy_bonus')
+  int get starCandyBonus;
   @override
   @JsonKey(includeFromJson: false)
-  RealtimeChannel? get realtime_channel;
+  RealtimeChannel? get realtimeChannel;
 
   /// Create a copy of UserProfilesModel
   /// with the given fields replaced by the non-null parameter values.

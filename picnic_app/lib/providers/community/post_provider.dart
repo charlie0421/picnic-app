@@ -95,7 +95,7 @@ Future<List<PostModel>> postsByUser(
       final userProfile = UserProfilesModel.fromJson(data['user_profiles']);
       final board =
           data['boards'] != null ? BoardModel.fromJson(data['boards']) : null;
-      return post.copyWith(user_profiles: userProfile, board: board);
+      return post.copyWith(userProfiles: userProfile, board: board);
     }).toList();
   } catch (e, s) {
     logger.e('Error fetching posts:', error: e, stackTrace: s);
@@ -125,7 +125,7 @@ Future<List<PostScrapModel>> postsScrapedByUser(
 Future<void> reportPost(ref, PostModel post, String reason, String text) async {
   try {
     final response = await supabase.from('post_reports').upsert({
-      'post_id': post.post_id,
+      'post_id': post.postId,
       'user_id': supabase.auth.currentUser!.id,
       'reason': reason + (text.isNotEmpty ? ' - $text' : ''),
     });

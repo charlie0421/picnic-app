@@ -56,8 +56,7 @@ class _PostWriteHeaderState extends ConsumerState<PostWriteHeader> {
                     BoardModel? initItem;
                     if (currentBoard != null) {
                       initItem = snapshot.data?.firstWhere(
-                          (element) =>
-                              element.board_id == currentBoard.board_id,
+                          (element) => element.boardId == currentBoard.boardId,
                           orElse: () => snapshot.data!.first);
                     } else {
                       initItem = snapshot.data?.first;

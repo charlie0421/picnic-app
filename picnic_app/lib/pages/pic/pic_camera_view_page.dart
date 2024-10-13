@@ -60,7 +60,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        padding: ref.watch(globalMediaQueryProviderProvider).padding,
+        padding: ref.watch(globalMediaQueryProvider).padding,
         color: AppColors.grey00,
         child: Column(
           children: [

@@ -39,8 +39,8 @@ class _TermsPageState extends ConsumerState<TermsPage>
             Expanded(
               child: Markdown(
                   data: language == PolicyLanguage.ko
-                      ? policy.terms_ko.content
-                      : policy.terms_en.content),
+                      ? policy.termsKo.content
+                      : policy.termsEn.content),
             ),
           ],
         );

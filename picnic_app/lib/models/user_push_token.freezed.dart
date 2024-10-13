@@ -20,13 +20,20 @@ UserPushToken _$UserPushTokenFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$UserPushToken {
+  @JsonKey(name: 'id')
   int get id => throw _privateConstructorUsedError;
-  int get user_id => throw _privateConstructorUsedError;
-  String get token_ios => throw _privateConstructorUsedError;
-  String get token_android => throw _privateConstructorUsedError;
-  String get token_web => throw _privateConstructorUsedError;
-  String get token_macos => throw _privateConstructorUsedError;
-  String get token_windows => throw _privateConstructorUsedError;
+  @JsonKey(name: 'user_id')
+  int get userId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'token_ios')
+  String get tokenIos => throw _privateConstructorUsedError;
+  @JsonKey(name: 'token_android')
+  String get tokenAndroid => throw _privateConstructorUsedError;
+  @JsonKey(name: 'token_web')
+  String get tokenWeb => throw _privateConstructorUsedError;
+  @JsonKey(name: 'token_macos')
+  String get tokenMacos => throw _privateConstructorUsedError;
+  @JsonKey(name: 'token_windows')
+  String get tokenWindows => throw _privateConstructorUsedError;
 
   /// Serializes this UserPushToken to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -45,13 +52,13 @@ abstract class $UserPushTokenCopyWith<$Res> {
       _$UserPushTokenCopyWithImpl<$Res, UserPushToken>;
   @useResult
   $Res call(
-      {int id,
-      int user_id,
-      String token_ios,
-      String token_android,
-      String token_web,
-      String token_macos,
-      String token_windows});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'user_id') int userId,
+      @JsonKey(name: 'token_ios') String tokenIos,
+      @JsonKey(name: 'token_android') String tokenAndroid,
+      @JsonKey(name: 'token_web') String tokenWeb,
+      @JsonKey(name: 'token_macos') String tokenMacos,
+      @JsonKey(name: 'token_windows') String tokenWindows});
 }
 
 /// @nodoc
@@ -70,41 +77,41 @@ class _$UserPushTokenCopyWithImpl<$Res, $Val extends UserPushToken>
   @override
   $Res call({
     Object? id = null,
-    Object? user_id = null,
-    Object? token_ios = null,
-    Object? token_android = null,
-    Object? token_web = null,
-    Object? token_macos = null,
-    Object? token_windows = null,
+    Object? userId = null,
+    Object? tokenIos = null,
+    Object? tokenAndroid = null,
+    Object? tokenWeb = null,
+    Object? tokenMacos = null,
+    Object? tokenWindows = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      user_id: null == user_id
-          ? _value.user_id
-          : user_id // ignore: cast_nullable_to_non_nullable
+      userId: null == userId
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
               as int,
-      token_ios: null == token_ios
-          ? _value.token_ios
-          : token_ios // ignore: cast_nullable_to_non_nullable
+      tokenIos: null == tokenIos
+          ? _value.tokenIos
+          : tokenIos // ignore: cast_nullable_to_non_nullable
               as String,
-      token_android: null == token_android
-          ? _value.token_android
-          : token_android // ignore: cast_nullable_to_non_nullable
+      tokenAndroid: null == tokenAndroid
+          ? _value.tokenAndroid
+          : tokenAndroid // ignore: cast_nullable_to_non_nullable
               as String,
-      token_web: null == token_web
-          ? _value.token_web
-          : token_web // ignore: cast_nullable_to_non_nullable
+      tokenWeb: null == tokenWeb
+          ? _value.tokenWeb
+          : tokenWeb // ignore: cast_nullable_to_non_nullable
               as String,
-      token_macos: null == token_macos
-          ? _value.token_macos
-          : token_macos // ignore: cast_nullable_to_non_nullable
+      tokenMacos: null == tokenMacos
+          ? _value.tokenMacos
+          : tokenMacos // ignore: cast_nullable_to_non_nullable
               as String,
-      token_windows: null == token_windows
-          ? _value.token_windows
-          : token_windows // ignore: cast_nullable_to_non_nullable
+      tokenWindows: null == tokenWindows
+          ? _value.tokenWindows
+          : tokenWindows // ignore: cast_nullable_to_non_nullable
               as String,
     ) as $Val);
   }
@@ -119,13 +126,13 @@ abstract class _$$UserPushTokenImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int id,
-      int user_id,
-      String token_ios,
-      String token_android,
-      String token_web,
-      String token_macos,
-      String token_windows});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'user_id') int userId,
+      @JsonKey(name: 'token_ios') String tokenIos,
+      @JsonKey(name: 'token_android') String tokenAndroid,
+      @JsonKey(name: 'token_web') String tokenWeb,
+      @JsonKey(name: 'token_macos') String tokenMacos,
+      @JsonKey(name: 'token_windows') String tokenWindows});
 }
 
 /// @nodoc
@@ -142,41 +149,41 @@ class __$$UserPushTokenImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? user_id = null,
-    Object? token_ios = null,
-    Object? token_android = null,
-    Object? token_web = null,
-    Object? token_macos = null,
-    Object? token_windows = null,
+    Object? userId = null,
+    Object? tokenIos = null,
+    Object? tokenAndroid = null,
+    Object? tokenWeb = null,
+    Object? tokenMacos = null,
+    Object? tokenWindows = null,
   }) {
     return _then(_$UserPushTokenImpl(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      user_id: null == user_id
-          ? _value.user_id
-          : user_id // ignore: cast_nullable_to_non_nullable
+      userId: null == userId
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
               as int,
-      token_ios: null == token_ios
-          ? _value.token_ios
-          : token_ios // ignore: cast_nullable_to_non_nullable
+      tokenIos: null == tokenIos
+          ? _value.tokenIos
+          : tokenIos // ignore: cast_nullable_to_non_nullable
               as String,
-      token_android: null == token_android
-          ? _value.token_android
-          : token_android // ignore: cast_nullable_to_non_nullable
+      tokenAndroid: null == tokenAndroid
+          ? _value.tokenAndroid
+          : tokenAndroid // ignore: cast_nullable_to_non_nullable
               as String,
-      token_web: null == token_web
-          ? _value.token_web
-          : token_web // ignore: cast_nullable_to_non_nullable
+      tokenWeb: null == tokenWeb
+          ? _value.tokenWeb
+          : tokenWeb // ignore: cast_nullable_to_non_nullable
               as String,
-      token_macos: null == token_macos
-          ? _value.token_macos
-          : token_macos // ignore: cast_nullable_to_non_nullable
+      tokenMacos: null == tokenMacos
+          ? _value.tokenMacos
+          : tokenMacos // ignore: cast_nullable_to_non_nullable
               as String,
-      token_windows: null == token_windows
-          ? _value.token_windows
-          : token_windows // ignore: cast_nullable_to_non_nullable
+      tokenWindows: null == tokenWindows
+          ? _value.tokenWindows
+          : tokenWindows // ignore: cast_nullable_to_non_nullable
               as String,
     ));
   }
@@ -186,36 +193,43 @@ class __$$UserPushTokenImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$UserPushTokenImpl extends _UserPushToken {
   const _$UserPushTokenImpl(
-      {required this.id,
-      required this.user_id,
-      required this.token_ios,
-      required this.token_android,
-      required this.token_web,
-      required this.token_macos,
-      required this.token_windows})
+      {@JsonKey(name: 'id') required this.id,
+      @JsonKey(name: 'user_id') required this.userId,
+      @JsonKey(name: 'token_ios') required this.tokenIos,
+      @JsonKey(name: 'token_android') required this.tokenAndroid,
+      @JsonKey(name: 'token_web') required this.tokenWeb,
+      @JsonKey(name: 'token_macos') required this.tokenMacos,
+      @JsonKey(name: 'token_windows') required this.tokenWindows})
       : super._();
 
   factory _$UserPushTokenImpl.fromJson(Map<String, dynamic> json) =>
       _$$UserPushTokenImplFromJson(json);
 
   @override
+  @JsonKey(name: 'id')
   final int id;
   @override
-  final int user_id;
+  @JsonKey(name: 'user_id')
+  final int userId;
   @override
-  final String token_ios;
+  @JsonKey(name: 'token_ios')
+  final String tokenIos;
   @override
-  final String token_android;
+  @JsonKey(name: 'token_android')
+  final String tokenAndroid;
   @override
-  final String token_web;
+  @JsonKey(name: 'token_web')
+  final String tokenWeb;
   @override
-  final String token_macos;
+  @JsonKey(name: 'token_macos')
+  final String tokenMacos;
   @override
-  final String token_windows;
+  @JsonKey(name: 'token_windows')
+  final String tokenWindows;
 
   @override
   String toString() {
-    return 'UserPushToken(id: $id, user_id: $user_id, token_ios: $token_ios, token_android: $token_android, token_web: $token_web, token_macos: $token_macos, token_windows: $token_windows)';
+    return 'UserPushToken(id: $id, userId: $userId, tokenIos: $tokenIos, tokenAndroid: $tokenAndroid, tokenWeb: $tokenWeb, tokenMacos: $tokenMacos, tokenWindows: $tokenWindows)';
   }
 
   @override
@@ -224,23 +238,23 @@ class _$UserPushTokenImpl extends _UserPushToken {
         (other.runtimeType == runtimeType &&
             other is _$UserPushTokenImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.user_id, user_id) || other.user_id == user_id) &&
-            (identical(other.token_ios, token_ios) ||
-                other.token_ios == token_ios) &&
-            (identical(other.token_android, token_android) ||
-                other.token_android == token_android) &&
-            (identical(other.token_web, token_web) ||
-                other.token_web == token_web) &&
-            (identical(other.token_macos, token_macos) ||
-                other.token_macos == token_macos) &&
-            (identical(other.token_windows, token_windows) ||
-                other.token_windows == token_windows));
+            (identical(other.userId, userId) || other.userId == userId) &&
+            (identical(other.tokenIos, tokenIos) ||
+                other.tokenIos == tokenIos) &&
+            (identical(other.tokenAndroid, tokenAndroid) ||
+                other.tokenAndroid == tokenAndroid) &&
+            (identical(other.tokenWeb, tokenWeb) ||
+                other.tokenWeb == tokenWeb) &&
+            (identical(other.tokenMacos, tokenMacos) ||
+                other.tokenMacos == tokenMacos) &&
+            (identical(other.tokenWindows, tokenWindows) ||
+                other.tokenWindows == tokenWindows));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, user_id, token_ios,
-      token_android, token_web, token_macos, token_windows);
+  int get hashCode => Object.hash(runtimeType, id, userId, tokenIos,
+      tokenAndroid, tokenWeb, tokenMacos, tokenWindows);
 
   /// Create a copy of UserPushToken
   /// with the given fields replaced by the non-null parameter values.
@@ -260,32 +274,40 @@ class _$UserPushTokenImpl extends _UserPushToken {
 
 abstract class _UserPushToken extends UserPushToken {
   const factory _UserPushToken(
-      {required final int id,
-      required final int user_id,
-      required final String token_ios,
-      required final String token_android,
-      required final String token_web,
-      required final String token_macos,
-      required final String token_windows}) = _$UserPushTokenImpl;
+          {@JsonKey(name: 'id') required final int id,
+          @JsonKey(name: 'user_id') required final int userId,
+          @JsonKey(name: 'token_ios') required final String tokenIos,
+          @JsonKey(name: 'token_android') required final String tokenAndroid,
+          @JsonKey(name: 'token_web') required final String tokenWeb,
+          @JsonKey(name: 'token_macos') required final String tokenMacos,
+          @JsonKey(name: 'token_windows') required final String tokenWindows}) =
+      _$UserPushTokenImpl;
   const _UserPushToken._() : super._();
 
   factory _UserPushToken.fromJson(Map<String, dynamic> json) =
       _$UserPushTokenImpl.fromJson;
 
   @override
+  @JsonKey(name: 'id')
   int get id;
   @override
-  int get user_id;
+  @JsonKey(name: 'user_id')
+  int get userId;
   @override
-  String get token_ios;
+  @JsonKey(name: 'token_ios')
+  String get tokenIos;
   @override
-  String get token_android;
+  @JsonKey(name: 'token_android')
+  String get tokenAndroid;
   @override
-  String get token_web;
+  @JsonKey(name: 'token_web')
+  String get tokenWeb;
   @override
-  String get token_macos;
+  @JsonKey(name: 'token_macos')
+  String get tokenMacos;
   @override
-  String get token_windows;
+  @JsonKey(name: 'token_windows')
+  String get tokenWindows;
 
   /// Create a copy of UserPushToken
   /// with the given fields replaced by the non-null parameter values.

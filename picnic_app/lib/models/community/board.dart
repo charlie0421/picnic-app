@@ -9,13 +9,13 @@ class BoardModel with _$BoardModel {
   const BoardModel._();
 
   const factory BoardModel({
-    required String board_id,
-    required int artist_id,
-    required Map<String, dynamic> name,
+    @JsonKey(name: 'board_id') required String boardId,
+    @JsonKey(name: 'artist_id') required int artistId,
+    @JsonKey(name: 'name') required Map<String, dynamic> name,
     @DescriptionConverter() required dynamic description,
-    required bool is_official,
-    required DateTime created_at,
-    required DateTime updated_at,
+    @JsonKey(name: 'is_official') required bool isOfficial,
+    @JsonKey(name: 'created_at') required DateTime createdAt,
+    @JsonKey(name: 'updated_at') required DateTime updatedAt,
     required ArtistModel? artist,
     @JsonKey(name: 'request_message') required String? requestMessage,
   }) = _BoardModel;

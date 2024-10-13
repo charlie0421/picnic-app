@@ -20,10 +20,14 @@ PolicyModel _$PolicyModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$PolicyModel {
-  PrivacyModel get privacy_en => throw _privateConstructorUsedError;
-  TermsModel get terms_en => throw _privateConstructorUsedError;
-  PrivacyModel get privacy_ko => throw _privateConstructorUsedError;
-  TermsModel get terms_ko => throw _privateConstructorUsedError;
+  @JsonKey(name: 'privacy_en')
+  PrivacyModel get privacyEn => throw _privateConstructorUsedError;
+  @JsonKey(name: 'terms_en')
+  TermsModel get termsEn => throw _privateConstructorUsedError;
+  @JsonKey(name: 'privacy_ko')
+  PrivacyModel get privacyKo => throw _privateConstructorUsedError;
+  @JsonKey(name: 'terms_ko')
+  TermsModel get termsKo => throw _privateConstructorUsedError;
 
   /// Serializes this PolicyModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -42,15 +46,15 @@ abstract class $PolicyModelCopyWith<$Res> {
       _$PolicyModelCopyWithImpl<$Res, PolicyModel>;
   @useResult
   $Res call(
-      {PrivacyModel privacy_en,
-      TermsModel terms_en,
-      PrivacyModel privacy_ko,
-      TermsModel terms_ko});
+      {@JsonKey(name: 'privacy_en') PrivacyModel privacyEn,
+      @JsonKey(name: 'terms_en') TermsModel termsEn,
+      @JsonKey(name: 'privacy_ko') PrivacyModel privacyKo,
+      @JsonKey(name: 'terms_ko') TermsModel termsKo});
 
-  $PrivacyModelCopyWith<$Res> get privacy_en;
-  $TermsModelCopyWith<$Res> get terms_en;
-  $PrivacyModelCopyWith<$Res> get privacy_ko;
-  $TermsModelCopyWith<$Res> get terms_ko;
+  $PrivacyModelCopyWith<$Res> get privacyEn;
+  $TermsModelCopyWith<$Res> get termsEn;
+  $PrivacyModelCopyWith<$Res> get privacyKo;
+  $TermsModelCopyWith<$Res> get termsKo;
 }
 
 /// @nodoc
@@ -68,27 +72,27 @@ class _$PolicyModelCopyWithImpl<$Res, $Val extends PolicyModel>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? privacy_en = null,
-    Object? terms_en = null,
-    Object? privacy_ko = null,
-    Object? terms_ko = null,
+    Object? privacyEn = null,
+    Object? termsEn = null,
+    Object? privacyKo = null,
+    Object? termsKo = null,
   }) {
     return _then(_value.copyWith(
-      privacy_en: null == privacy_en
-          ? _value.privacy_en
-          : privacy_en // ignore: cast_nullable_to_non_nullable
+      privacyEn: null == privacyEn
+          ? _value.privacyEn
+          : privacyEn // ignore: cast_nullable_to_non_nullable
               as PrivacyModel,
-      terms_en: null == terms_en
-          ? _value.terms_en
-          : terms_en // ignore: cast_nullable_to_non_nullable
+      termsEn: null == termsEn
+          ? _value.termsEn
+          : termsEn // ignore: cast_nullable_to_non_nullable
               as TermsModel,
-      privacy_ko: null == privacy_ko
-          ? _value.privacy_ko
-          : privacy_ko // ignore: cast_nullable_to_non_nullable
+      privacyKo: null == privacyKo
+          ? _value.privacyKo
+          : privacyKo // ignore: cast_nullable_to_non_nullable
               as PrivacyModel,
-      terms_ko: null == terms_ko
-          ? _value.terms_ko
-          : terms_ko // ignore: cast_nullable_to_non_nullable
+      termsKo: null == termsKo
+          ? _value.termsKo
+          : termsKo // ignore: cast_nullable_to_non_nullable
               as TermsModel,
     ) as $Val);
   }
@@ -97,9 +101,9 @@ class _$PolicyModelCopyWithImpl<$Res, $Val extends PolicyModel>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $PrivacyModelCopyWith<$Res> get privacy_en {
-    return $PrivacyModelCopyWith<$Res>(_value.privacy_en, (value) {
-      return _then(_value.copyWith(privacy_en: value) as $Val);
+  $PrivacyModelCopyWith<$Res> get privacyEn {
+    return $PrivacyModelCopyWith<$Res>(_value.privacyEn, (value) {
+      return _then(_value.copyWith(privacyEn: value) as $Val);
     });
   }
 
@@ -107,9 +111,9 @@ class _$PolicyModelCopyWithImpl<$Res, $Val extends PolicyModel>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $TermsModelCopyWith<$Res> get terms_en {
-    return $TermsModelCopyWith<$Res>(_value.terms_en, (value) {
-      return _then(_value.copyWith(terms_en: value) as $Val);
+  $TermsModelCopyWith<$Res> get termsEn {
+    return $TermsModelCopyWith<$Res>(_value.termsEn, (value) {
+      return _then(_value.copyWith(termsEn: value) as $Val);
     });
   }
 
@@ -117,9 +121,9 @@ class _$PolicyModelCopyWithImpl<$Res, $Val extends PolicyModel>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $PrivacyModelCopyWith<$Res> get privacy_ko {
-    return $PrivacyModelCopyWith<$Res>(_value.privacy_ko, (value) {
-      return _then(_value.copyWith(privacy_ko: value) as $Val);
+  $PrivacyModelCopyWith<$Res> get privacyKo {
+    return $PrivacyModelCopyWith<$Res>(_value.privacyKo, (value) {
+      return _then(_value.copyWith(privacyKo: value) as $Val);
     });
   }
 
@@ -127,9 +131,9 @@ class _$PolicyModelCopyWithImpl<$Res, $Val extends PolicyModel>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $TermsModelCopyWith<$Res> get terms_ko {
-    return $TermsModelCopyWith<$Res>(_value.terms_ko, (value) {
-      return _then(_value.copyWith(terms_ko: value) as $Val);
+  $TermsModelCopyWith<$Res> get termsKo {
+    return $TermsModelCopyWith<$Res>(_value.termsKo, (value) {
+      return _then(_value.copyWith(termsKo: value) as $Val);
     });
   }
 }
@@ -143,19 +147,19 @@ abstract class _$$PolicyModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {PrivacyModel privacy_en,
-      TermsModel terms_en,
-      PrivacyModel privacy_ko,
-      TermsModel terms_ko});
+      {@JsonKey(name: 'privacy_en') PrivacyModel privacyEn,
+      @JsonKey(name: 'terms_en') TermsModel termsEn,
+      @JsonKey(name: 'privacy_ko') PrivacyModel privacyKo,
+      @JsonKey(name: 'terms_ko') TermsModel termsKo});
 
   @override
-  $PrivacyModelCopyWith<$Res> get privacy_en;
+  $PrivacyModelCopyWith<$Res> get privacyEn;
   @override
-  $TermsModelCopyWith<$Res> get terms_en;
+  $TermsModelCopyWith<$Res> get termsEn;
   @override
-  $PrivacyModelCopyWith<$Res> get privacy_ko;
+  $PrivacyModelCopyWith<$Res> get privacyKo;
   @override
-  $TermsModelCopyWith<$Res> get terms_ko;
+  $TermsModelCopyWith<$Res> get termsKo;
 }
 
 /// @nodoc
@@ -171,27 +175,27 @@ class __$$PolicyModelImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? privacy_en = null,
-    Object? terms_en = null,
-    Object? privacy_ko = null,
-    Object? terms_ko = null,
+    Object? privacyEn = null,
+    Object? termsEn = null,
+    Object? privacyKo = null,
+    Object? termsKo = null,
   }) {
     return _then(_$PolicyModelImpl(
-      privacy_en: null == privacy_en
-          ? _value.privacy_en
-          : privacy_en // ignore: cast_nullable_to_non_nullable
+      privacyEn: null == privacyEn
+          ? _value.privacyEn
+          : privacyEn // ignore: cast_nullable_to_non_nullable
               as PrivacyModel,
-      terms_en: null == terms_en
-          ? _value.terms_en
-          : terms_en // ignore: cast_nullable_to_non_nullable
+      termsEn: null == termsEn
+          ? _value.termsEn
+          : termsEn // ignore: cast_nullable_to_non_nullable
               as TermsModel,
-      privacy_ko: null == privacy_ko
-          ? _value.privacy_ko
-          : privacy_ko // ignore: cast_nullable_to_non_nullable
+      privacyKo: null == privacyKo
+          ? _value.privacyKo
+          : privacyKo // ignore: cast_nullable_to_non_nullable
               as PrivacyModel,
-      terms_ko: null == terms_ko
-          ? _value.terms_ko
-          : terms_ko // ignore: cast_nullable_to_non_nullable
+      termsKo: null == termsKo
+          ? _value.termsKo
+          : termsKo // ignore: cast_nullable_to_non_nullable
               as TermsModel,
     ));
   }
@@ -201,26 +205,30 @@ class __$$PolicyModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$PolicyModelImpl implements _PolicyModel {
   const _$PolicyModelImpl(
-      {required this.privacy_en,
-      required this.terms_en,
-      required this.privacy_ko,
-      required this.terms_ko});
+      {@JsonKey(name: 'privacy_en') required this.privacyEn,
+      @JsonKey(name: 'terms_en') required this.termsEn,
+      @JsonKey(name: 'privacy_ko') required this.privacyKo,
+      @JsonKey(name: 'terms_ko') required this.termsKo});
 
   factory _$PolicyModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$PolicyModelImplFromJson(json);
 
   @override
-  final PrivacyModel privacy_en;
+  @JsonKey(name: 'privacy_en')
+  final PrivacyModel privacyEn;
   @override
-  final TermsModel terms_en;
+  @JsonKey(name: 'terms_en')
+  final TermsModel termsEn;
   @override
-  final PrivacyModel privacy_ko;
+  @JsonKey(name: 'privacy_ko')
+  final PrivacyModel privacyKo;
   @override
-  final TermsModel terms_ko;
+  @JsonKey(name: 'terms_ko')
+  final TermsModel termsKo;
 
   @override
   String toString() {
-    return 'PolicyModel(privacy_en: $privacy_en, terms_en: $terms_en, privacy_ko: $privacy_ko, terms_ko: $terms_ko)';
+    return 'PolicyModel(privacyEn: $privacyEn, termsEn: $termsEn, privacyKo: $privacyKo, termsKo: $termsKo)';
   }
 
   @override
@@ -228,20 +236,18 @@ class _$PolicyModelImpl implements _PolicyModel {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$PolicyModelImpl &&
-            (identical(other.privacy_en, privacy_en) ||
-                other.privacy_en == privacy_en) &&
-            (identical(other.terms_en, terms_en) ||
-                other.terms_en == terms_en) &&
-            (identical(other.privacy_ko, privacy_ko) ||
-                other.privacy_ko == privacy_ko) &&
-            (identical(other.terms_ko, terms_ko) ||
-                other.terms_ko == terms_ko));
+            (identical(other.privacyEn, privacyEn) ||
+                other.privacyEn == privacyEn) &&
+            (identical(other.termsEn, termsEn) || other.termsEn == termsEn) &&
+            (identical(other.privacyKo, privacyKo) ||
+                other.privacyKo == privacyKo) &&
+            (identical(other.termsKo, termsKo) || other.termsKo == termsKo));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, privacy_en, terms_en, privacy_ko, terms_ko);
+      Object.hash(runtimeType, privacyEn, termsEn, privacyKo, termsKo);
 
   /// Create a copy of PolicyModel
   /// with the given fields replaced by the non-null parameter values.
@@ -261,22 +267,27 @@ class _$PolicyModelImpl implements _PolicyModel {
 
 abstract class _PolicyModel implements PolicyModel {
   const factory _PolicyModel(
-      {required final PrivacyModel privacy_en,
-      required final TermsModel terms_en,
-      required final PrivacyModel privacy_ko,
-      required final TermsModel terms_ko}) = _$PolicyModelImpl;
+          {@JsonKey(name: 'privacy_en') required final PrivacyModel privacyEn,
+          @JsonKey(name: 'terms_en') required final TermsModel termsEn,
+          @JsonKey(name: 'privacy_ko') required final PrivacyModel privacyKo,
+          @JsonKey(name: 'terms_ko') required final TermsModel termsKo}) =
+      _$PolicyModelImpl;
 
   factory _PolicyModel.fromJson(Map<String, dynamic> json) =
       _$PolicyModelImpl.fromJson;
 
   @override
-  PrivacyModel get privacy_en;
+  @JsonKey(name: 'privacy_en')
+  PrivacyModel get privacyEn;
   @override
-  TermsModel get terms_en;
+  @JsonKey(name: 'terms_en')
+  TermsModel get termsEn;
   @override
-  PrivacyModel get privacy_ko;
+  @JsonKey(name: 'privacy_ko')
+  PrivacyModel get privacyKo;
   @override
-  TermsModel get terms_ko;
+  @JsonKey(name: 'terms_ko')
+  TermsModel get termsKo;
 
   /// Create a copy of PolicyModel
   /// with the given fields replaced by the non-null parameter values.
@@ -292,7 +303,9 @@ PrivacyModel _$PrivacyModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$PrivacyModel {
+  @JsonKey(name: 'content')
   String get content => throw _privateConstructorUsedError;
+  @JsonKey(name: 'version')
   String get version => throw _privateConstructorUsedError;
 
   /// Serializes this PrivacyModel to a JSON map.
@@ -311,7 +324,9 @@ abstract class $PrivacyModelCopyWith<$Res> {
           PrivacyModel value, $Res Function(PrivacyModel) then) =
       _$PrivacyModelCopyWithImpl<$Res, PrivacyModel>;
   @useResult
-  $Res call({String content, String version});
+  $Res call(
+      {@JsonKey(name: 'content') String content,
+      @JsonKey(name: 'version') String version});
 }
 
 /// @nodoc
@@ -353,7 +368,9 @@ abstract class _$$PrivacyModelImplCopyWith<$Res>
       __$$PrivacyModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String content, String version});
+  $Res call(
+      {@JsonKey(name: 'content') String content,
+      @JsonKey(name: 'version') String version});
 }
 
 /// @nodoc
@@ -388,14 +405,18 @@ class __$$PrivacyModelImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$PrivacyModelImpl implements _PrivacyModel {
-  const _$PrivacyModelImpl({required this.content, required this.version});
+  const _$PrivacyModelImpl(
+      {@JsonKey(name: 'content') required this.content,
+      @JsonKey(name: 'version') required this.version});
 
   factory _$PrivacyModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$PrivacyModelImplFromJson(json);
 
   @override
+  @JsonKey(name: 'content')
   final String content;
   @override
+  @JsonKey(name: 'version')
   final String version;
 
   @override
@@ -434,15 +455,18 @@ class _$PrivacyModelImpl implements _PrivacyModel {
 
 abstract class _PrivacyModel implements PrivacyModel {
   const factory _PrivacyModel(
-      {required final String content,
-      required final String version}) = _$PrivacyModelImpl;
+          {@JsonKey(name: 'content') required final String content,
+          @JsonKey(name: 'version') required final String version}) =
+      _$PrivacyModelImpl;
 
   factory _PrivacyModel.fromJson(Map<String, dynamic> json) =
       _$PrivacyModelImpl.fromJson;
 
   @override
+  @JsonKey(name: 'content')
   String get content;
   @override
+  @JsonKey(name: 'version')
   String get version;
 
   /// Create a copy of PrivacyModel
@@ -459,7 +483,9 @@ TermsModel _$TermsModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$TermsModel {
+  @JsonKey(name: 'content')
   String get content => throw _privateConstructorUsedError;
+  @JsonKey(name: 'version')
   String get version => throw _privateConstructorUsedError;
 
   /// Serializes this TermsModel to a JSON map.
@@ -478,7 +504,9 @@ abstract class $TermsModelCopyWith<$Res> {
           TermsModel value, $Res Function(TermsModel) then) =
       _$TermsModelCopyWithImpl<$Res, TermsModel>;
   @useResult
-  $Res call({String content, String version});
+  $Res call(
+      {@JsonKey(name: 'content') String content,
+      @JsonKey(name: 'version') String version});
 }
 
 /// @nodoc
@@ -520,7 +548,9 @@ abstract class _$$TermsModelImplCopyWith<$Res>
       __$$TermsModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String content, String version});
+  $Res call(
+      {@JsonKey(name: 'content') String content,
+      @JsonKey(name: 'version') String version});
 }
 
 /// @nodoc
@@ -555,14 +585,18 @@ class __$$TermsModelImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$TermsModelImpl implements _TermsModel {
-  const _$TermsModelImpl({required this.content, required this.version});
+  const _$TermsModelImpl(
+      {@JsonKey(name: 'content') required this.content,
+      @JsonKey(name: 'version') required this.version});
 
   factory _$TermsModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$TermsModelImplFromJson(json);
 
   @override
+  @JsonKey(name: 'content')
   final String content;
   @override
+  @JsonKey(name: 'version')
   final String version;
 
   @override
@@ -601,15 +635,18 @@ class _$TermsModelImpl implements _TermsModel {
 
 abstract class _TermsModel implements TermsModel {
   const factory _TermsModel(
-      {required final String content,
-      required final String version}) = _$TermsModelImpl;
+          {@JsonKey(name: 'content') required final String content,
+          @JsonKey(name: 'version') required final String version}) =
+      _$TermsModelImpl;
 
   factory _TermsModel.fromJson(Map<String, dynamic> json) =
       _$TermsModelImpl.fromJson;
 
   @override
+  @JsonKey(name: 'content')
   String get content;
   @override
+  @JsonKey(name: 'version')
   String get version;
 
   /// Create a copy of TermsModel

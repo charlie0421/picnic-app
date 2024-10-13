@@ -9,14 +9,14 @@ class RewardModel with _$RewardModel {
   const RewardModel._();
 
   const factory RewardModel(
-      {required int id,
-      Map<String, dynamic>? title,
-      String? thumbnail,
-      List<String>? overview_images,
-      Map<String, dynamic>? location,
-      Map<String, dynamic>? size_guide,
+      {@JsonKey(name: 'id') required int id,
+      @JsonKey(name: 'title') Map<String, dynamic>? title,
+      @JsonKey(name: 'thumbnail') String? thumbnail,
+      @JsonKey(name: 'overview_images') List<String>? overviewImages,
+      @JsonKey(name: 'location') Map<String, dynamic>? location,
+      @JsonKey(name: 'size_guide') Map<String, dynamic>? sizeGuide,
+      @JsonKey(name: 'size_guide_images')
       List<String>? size_guide_images}) = _RewardModel;
-
   String getTitle() {
     if (Intl.getCurrentLocale() == 'ko') {
       return title!['ko'];

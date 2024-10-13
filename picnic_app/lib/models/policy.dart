@@ -29,10 +29,10 @@ enum PolicyLanguage {
 @freezed
 class PolicyModel with _$PolicyModel {
   const factory PolicyModel({
-    required PrivacyModel privacy_en,
-    required TermsModel terms_en,
-    required PrivacyModel privacy_ko,
-    required TermsModel terms_ko,
+    @JsonKey(name: 'privacy_en') required PrivacyModel privacyEn,
+    @JsonKey(name: 'terms_en') required TermsModel termsEn,
+    @JsonKey(name: 'privacy_ko') required PrivacyModel privacyKo,
+    @JsonKey(name: 'terms_ko') required TermsModel termsKo,
   }) = _PolicyModel;
 
   factory PolicyModel.fromJson(Map<String, dynamic> json) =>
@@ -42,8 +42,8 @@ class PolicyModel with _$PolicyModel {
 @freezed
 class PrivacyModel with _$PrivacyModel {
   const factory PrivacyModel({
-    required String content,
-    required String version,
+    @JsonKey(name: 'content') required String content,
+    @JsonKey(name: 'version') required String version,
   }) = _PrivacyModel;
 
   factory PrivacyModel.fromJson(Map<String, dynamic> json) =>
@@ -53,8 +53,8 @@ class PrivacyModel with _$PrivacyModel {
 @freezed
 class TermsModel with _$TermsModel {
   const factory TermsModel({
-    required String content,
-    required String version,
+    @JsonKey(name: 'content') required String content,
+    @JsonKey(name: 'version') required String version,
   }) = _TermsModel;
 
   factory TermsModel.fromJson(Map<String, dynamic> json) =>

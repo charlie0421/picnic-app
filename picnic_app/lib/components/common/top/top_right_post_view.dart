@@ -26,13 +26,13 @@ class _TopRightPostViewState extends ConsumerState<TopRightPostView> {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        (currentPost.is_scraped ?? false)
+        (currentPost.isScraped ?? false)
             ? GestureDetector(
                 onTap: () {
                   unscrapPost(
-                      ref, currentPost.post_id, supabase.auth.currentUser!.id);
+                      ref, currentPost.postId, supabase.auth.currentUser!.id);
                   currentPostNotifier
-                      .setCurrentPost(currentPost.copyWith(is_scraped: false));
+                      .setCurrentPost(currentPost.copyWith(isScraped: false));
                 },
                 child: SvgPicture.asset(
                   'assets/icons/scrap_style=fill.svg',
@@ -44,9 +44,9 @@ class _TopRightPostViewState extends ConsumerState<TopRightPostView> {
               )
             : GestureDetector(
                 onTap: () {
-                  scrapPost(ref, currentPost.post_id);
+                  scrapPost(ref, currentPost.postId);
                   currentPostNotifier
-                      .setCurrentPost(currentPost.copyWith(is_scraped: true));
+                      .setCurrentPost(currentPost.copyWith(isScraped: true));
                 },
                 child: SvgPicture.asset(
                   'assets/icons/scrap_style=fill.svg',

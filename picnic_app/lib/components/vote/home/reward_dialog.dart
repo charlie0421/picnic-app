@@ -137,7 +137,7 @@ class _RewardDialogState extends State<RewardDialog> {
   List<Widget> buildSectionContent(RewardType type) {
     switch (type) {
       case RewardType.overview:
-        return buildImageList(widget.data.overview_images);
+        return buildImageList(widget.data.overviewImages);
       case RewardType.location:
         final locale = Intl.getCurrentLocale();
         return [
@@ -167,9 +167,9 @@ class _RewardDialogState extends State<RewardDialog> {
       case RewardType.size_guide:
         final locale = Intl.getCurrentLocale();
 
-        return widget.data.size_guide != null &&
-                widget.data.size_guide?[locale] != null
-            ? widget.data.size_guide![locale].map<Widget>((value) {
+        return widget.data.sizeGuide != null &&
+                widget.data.sizeGuide?[locale] != null
+            ? widget.data.sizeGuide![locale].map<Widget>((value) {
                 // logger.i(value);
                 return Column(
                   children: [
