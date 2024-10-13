@@ -5,6 +5,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/common/comment/comment_input.dart';
 import 'package:picnic_app/components/common/comment/comment_item.dart';
 import 'package:picnic_app/components/common/comment/comment_reply_layer.dart';
+import 'package:picnic_app/components/common/no_item_container.dart';
 import 'package:picnic_app/components/ui/bottom_sheet_header.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
@@ -104,15 +105,8 @@ class _CommentState extends ConsumerState<Comment> {
               physics: const ScrollPhysics(),
               pagingController: _pagingController,
               builderDelegate: PagedChildBuilderDelegate<CommentModel>(
-                  noItemsFoundIndicatorBuilder: (context) => Center(
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          child: Text(
-                            S.of(context).label_article_comment_empty,
-                            style: const TextStyle(
-                                fontSize: 30, fontWeight: FontWeight.bold),
-                          ),
-                        ),
+                  noItemsFoundIndicatorBuilder: (context) => NoItemContainer(
+                        message: S.of(context).label_article_comment_empty,
                       ),
                   itemBuilder: (context, item, index) {
                     logger.i('item: $item');
