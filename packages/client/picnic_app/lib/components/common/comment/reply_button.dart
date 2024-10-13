@@ -24,13 +24,13 @@ class ReplyButton extends ConsumerStatefulWidget {
 }
 
 class ReplyButtonState extends ConsumerState<ReplyButton> {
-  late int likes;
+  late int replies;
   late bool isReplied;
 
   @override
   void initState() {
     super.initState();
-    likes = widget.initialReplies;
+    replies = widget.initialReplies;
     isReplied = widget.isReplied;
   }
 
@@ -58,7 +58,7 @@ class ReplyButtonState extends ConsumerState<ReplyButton> {
                   BlendMode.srcIn),
             ),
             SizedBox(width: 4.cw),
-            Text('$likes',
+            Text('$replies',
                 style: getTextStyle(AppTypo.body14M, AppColors.grey900))
           ],
         ),

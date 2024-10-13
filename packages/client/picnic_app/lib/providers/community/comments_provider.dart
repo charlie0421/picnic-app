@@ -37,7 +37,7 @@ Future<List<CommentModel>> comments(ref, String postId, int page, int limit,
       return comment.copyWith(
         user: UserProfilesModel.fromJson(row['user']),
         isReportedByUser: row['comment_reports'].length > 0,
-        isLiked: row['user_likes'] != null,
+        isLiked: row['user_likes'].length > 0,
         likes: (row['comment_likes'] as List).first['count'] as int,
       );
     }).toList();
@@ -48,7 +48,7 @@ Future<List<CommentModel>> comments(ref, String postId, int page, int limit,
         .from('comments')
         .select('''
           *,
-          comment_likes(count),
+          comment_likes:comment_likes(count),
           user:user_profiles(*),
           comment_reports!left(comment_id),
           user_likes:comment_likes!left(comment_id)
@@ -63,11 +63,10 @@ Future<List<CommentModel>> comments(ref, String postId, int page, int limit,
     final childComments = childResponse.map((row) {
       final comment = CommentModel.fromJson(row);
       return comment.copyWith(
-        user: UserProfilesModel.fromJson(row['user']),
-        isReportedByUser: row['comment_reports'].length > 0,
-        isLiked: row['user_likes'] != null,
-        likes: (row['comment_likes'] as List).first['count'] as int,
-      );
+          user: UserProfilesModel.fromJson(row['user']),
+          isReportedByUser: row['comment_reports'].length > 0,
+          isLiked: row['user_likes'].length > 0,
+          likes: (row['comment_likes'] as List).first['count'] as int);
     }).toList();
 
     final Map<String, CommentModel> commentMap = {};
