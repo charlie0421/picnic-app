@@ -64,7 +64,7 @@ Future<List<CommentModel>> comments(ref, String postId, int page, int limit,
       final comment = CommentModel.fromJson(row);
       return comment.copyWith(
         user: UserProfilesModel.fromJson(row['user']),
-        isReportedByUser: row['comment_reports'] != null,
+        isReportedByUser: row['comment_reports'].length > 0,
         isLiked: row['user_likes'] != null,
         likes: (row['comment_likes'] as List).first['count'] as int,
       );

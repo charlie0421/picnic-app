@@ -41,7 +41,9 @@ _$CommentModelImpl _$$CommentModelImplFromJson(Map<String, dynamic> json) =>
       isReplied: json['isReplied'] as bool?,
       isReportedByUser: json['isReportedByUser'] as bool?,
       isBlindedByAdmin: json['isBlindedByAdmin'] as bool?,
-      post: PostModel.fromJson(json['post'] as Map<String, dynamic>),
+      post: json['post'] == null
+          ? null
+          : PostModel.fromJson(json['post'] as Map<String, dynamic>),
       parentCommentId: json['parent_comment_id'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
