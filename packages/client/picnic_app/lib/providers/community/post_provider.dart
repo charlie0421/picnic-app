@@ -16,20 +16,14 @@ Future<List<PostModel>?> postsByArtist(
     final response = await supabase
         .from('posts')
         .select(
-            '*, boards!inner(*), user_profiles(*), post_reports!left(post_id), post_scraps!left(post_id)')
+            '*, board:boards!inner(*), user_profiles(*), post_reports!left(post_id), post_scraps!left(post_id)')
         .eq('boards.artist_id', artistId)
         .isFilter('post_reports', null)
         .isFilter('deleted_at', null)
         .order('created_at', ascending: false)
         .range((page - 1) * limit, page * limit - 1);
 
-    return response.map((data) {
-      final post = PostModel.fromJson(data);
-      final userProfile = UserProfilesModel.fromJson(data['user_profiles']);
-      final board =
-          data['boards'] != null ? BoardModel.fromJson(data['boards']) : null;
-      return post.copyWith(user_profiles: userProfile, board: board);
-    }).toList();
+    return response.map((data) => PostModel.fromJson(data)).toList();
   } catch (e, s) {
     logger.e('Error fetching posts:', error: e, stackTrace: s);
     return Future.error(e);
@@ -43,18 +37,14 @@ Future<List<PostModel>?> postsByBoard(
     final response = await supabase
         .from('posts')
         .select(
-            '*, boards!inner(*), user_profiles(*), post_reports!left(post_id), post_scraps!left(post_id)')
+            '*, board:boards!inner(*), user_profiles(*), post_reports!left(post_id), post_scraps!left(post_id)')
         .eq('boards.board_id', boardId)
         .isFilter('deleted_at', null)
         .isFilter('post_reports', null)
         .order('created_at', ascending: false)
         .range((page - 1) * limit, page * limit - 1);
 
-    return response.map((data) {
-      final post = PostModel.fromJson(data);
-      final userProfile = UserProfilesModel.fromJson(data['user_profiles']);
-      return post.copyWith(user_profiles: userProfile);
-    }).toList();
+    return response.map((data) => PostModel.fromJson(data)).toList();
   } catch (e, s) {
     logger.e('Error fetching posts:', error: e, stackTrace: s);
     return Future.error(e);

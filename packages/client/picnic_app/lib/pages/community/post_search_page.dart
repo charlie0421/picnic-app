@@ -81,7 +81,6 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
     logger.i('Fetching data for page: $pageKey, query: $_currentSearchQuery');
     if (_currentSearchQuery.isEmpty) return;
 
-    final communityNavigationInfo = ref.read(communityStateInfoProvider);
     final currentArtist = ref.watch(
         communityStateInfoProvider.select((value) => value.currentArtist));
 
