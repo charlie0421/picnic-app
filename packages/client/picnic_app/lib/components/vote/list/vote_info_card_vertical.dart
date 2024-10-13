@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -24,8 +23,6 @@ class VoteCardColumnVertical extends StatelessWidget {
   Widget build(
     BuildContext context,
   ) {
-    logger.i('voteItem: $voteItem');
-
     const width = 80.0;
     final barHeight = (rank == 1
         ? 220 * .65
@@ -131,8 +128,7 @@ class VoteCardColumnVertical extends StatelessWidget {
                     : voteItem.artist_group.id != 0
                         ? [
                             Text(
-                              getLocaleTextFromJson(
-                                  voteItem.artist_group.name),
+                              getLocaleTextFromJson(voteItem.artist_group.name),
                               style: getTextStyle(
                                 AppTypo.body14B,
                                 AppColors.grey900,

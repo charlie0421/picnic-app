@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/providers/community/post_provider.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
@@ -21,7 +20,6 @@ class _TopRightPostViewState extends ConsumerState<TopRightPostView> {
   Widget build(BuildContext context) {
     final currentPost = ref.watch(communityStateInfoProvider).currentPost!;
     final currentPostNotifier = ref.watch(communityStateInfoProvider.notifier);
-    logger.i('currentPost: $currentPost');
     return Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.end,

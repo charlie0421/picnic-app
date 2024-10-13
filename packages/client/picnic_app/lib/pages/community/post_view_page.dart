@@ -20,6 +20,7 @@ import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/providers/community/comments_provider.dart';
+import 'package:picnic_app/providers/community/post_provider.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/global_media_query.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -29,15 +30,16 @@ import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class PostViewPage extends ConsumerStatefulWidget {
-  const PostViewPage(this.post, {super.key});
+  const PostViewPage(this.postId, {super.key});
 
-  final PostModel post;
+  final String postId;
 
   @override
   ConsumerState<PostViewPage> createState() => _PostViewPageState();
 }
 
 class _PostViewPageState extends ConsumerState<PostViewPage> {
+  late Future<PostModel> _postFuture;
   quill.QuillController? _quillController;
   String? _errorMessage;
   bool _isModalOpen = false;
@@ -49,31 +51,31 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
   @override
   void initState() {
     super.initState();
-    _initializeQuillController();
-    if (_shouldShowAds) {
-      _loadAds();
-    }
-    _loadComments();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final currentBoard = ref.watch(
-        communityStateInfoProvider.select((value) => value.currentBoard),
-      );
-      ref.read(communityStateInfoProvider.notifier).setCurrentPost(widget.post);
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-            showPortal: true,
-            showTopMenu: true,
-            topRightMenu: TopRightType.postView,
-            showBottomNavigation: false,
-            pageTitle: currentBoard!.isOfficial
-                ? getLocaleTextFromJson(currentBoard.name)
-                : widget.post.title,
-          );
-    });
+    _postFuture = _loadPost();
+    if (_shouldShowAds) _loadAds();
   }
 
-  void _initializeQuillController() {
+  Future<PostModel> _loadPost({bool isIncrementViewCount = true}) async {
     try {
-      final content = _parseContent(widget.post.content);
+      final updatedPost = await postById(ref, widget.postId,
+          isIncrementViewCount: isIncrementViewCount);
+      if (updatedPost != null) {
+        _initializeQuillController(updatedPost);
+        _updateNavigationInfo(updatedPost);
+        await _loadComments(updatedPost.postId);
+        return updatedPost;
+      } else {
+        throw Exception('Failed to load post');
+      }
+    } catch (e, s) {
+      logger.e('Error loading post: $e', stackTrace: s);
+      rethrow;
+    }
+  }
+
+  void _initializeQuillController(PostModel post) {
+    try {
+      final content = _parseContent(post.content);
       _quillController = quill.QuillController(
         document: quill.Document.fromJson(content),
         selection: const TextSelection.collapsed(offset: 0),
@@ -81,11 +83,22 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
       );
     } catch (e, s) {
       logger.e('Error initializing QuillController: $e', stackTrace: s);
-      setState(() {
-        _errorMessage = '내용을 불러오는 중 오류가 발생했습니다.';
-      });
-      rethrow;
+      _errorMessage = '내용을 불러오는 중 오류가 발생했습니다.';
     }
+  }
+
+  void _updateNavigationInfo(PostModel post) {
+    final currentBoard = ref.read(communityStateInfoProvider).currentBoard;
+    ref.read(communityStateInfoProvider.notifier).setCurrentPost(post);
+    ref.read(navigationInfoProvider.notifier).settingNavigation(
+          showPortal: true,
+          showTopMenu: true,
+          topRightMenu: TopRightType.postView,
+          showBottomNavigation: false,
+          pageTitle: currentBoard!.isOfficial
+              ? getLocaleTextFromJson(currentBoard.name)
+              : post.title,
+        );
   }
 
   Future<void> _loadAds() async {
@@ -97,12 +110,9 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
         ? await configService.getConfig('ADMOB_IOS_POSTVIEW_BOTTOM')
         : await configService.getConfig('ADMOB_ANDROID_POSTVIEW_BOTTOM');
 
-    if (topAdUnitId != null) {
-      _loadBannerAd('top', topAdUnitId, AdSize.banner);
-    }
-    if (bottomAdUnitId != null) {
+    if (topAdUnitId != null) _loadBannerAd('top', topAdUnitId, AdSize.banner);
+    if (bottomAdUnitId != null)
       _loadBannerAd('bottom', bottomAdUnitId, AdSize.mediumRectangle);
-    }
   }
 
   void _loadBannerAd(String position, String adUnitId, AdSize size) {
@@ -111,9 +121,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
       size: size,
       request: const AdRequest(),
       listener: BannerAdListener(
-        onAdLoaded: (_) {
-          setState(() {});
-        },
+        onAdLoaded: (_) => setState(() {}),
         onAdFailedToLoad: (ad, error) {
           ad.dispose();
           _bannerAds[position] = null;
@@ -122,44 +130,30 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
     )..load();
   }
 
-  void _loadComments() async {
-    if (!mounted) return; // 먼저 체크
-    setState(() {
-      _isLoadingComments = true;
-    });
+  Future<void> _loadComments(String postId) async {
+    if (!mounted) return;
+    setState(() => _isLoadingComments = true);
     try {
-      final loadedComments = await comments(ref, widget.post.postId, 1, 3,
+      final loadedComments = await comments(ref, postId, 1, 3,
           includeDeleted: false, includeReported: false);
-      if (!mounted) return; // 비동기 작업 후 다시 체크
+      if (!mounted) return;
       setState(() {
         _comments = loadedComments;
         _isLoadingComments = false;
       });
     } catch (e, s) {
       logger.e('Error loading comments: $e', stackTrace: s);
-      if (!mounted) return; // 예외 처리 시에도 체크
-      setState(() {
-        _isLoadingComments = false;
-      });
+      if (!mounted) return;
+      setState(() => _isLoadingComments = false);
     }
   }
 
   List<dynamic> _parseContent(dynamic content) {
-    if (content is String) {
-      try {
-        return (jsonDecode(content) as List)
-            .map((item) => item is String ? jsonDecode(item) : item)
-            .toList();
-      } catch (e, s) {
-        logger.e(e, stackTrace: s);
-        rethrow;
-      }
-    } else if (content is List) {
-      return content
-          .map((item) => item is String ? jsonDecode(item) : item)
-          .toList();
-    } else {
-      throw const FormatException('Unexpected content format');
+    try {
+      return (content is String ? jsonDecode(content) : content) as List;
+    } catch (e, s) {
+      logger.e(e, stackTrace: s);
+      rethrow;
     }
   }
 
@@ -174,65 +168,84 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (_shouldShowAds) _buildAdSpace('top', AdSize.banner),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.cw),
-            child: Text(widget.post.title,
-                style:
-                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-          ),
-          Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 8),
-              child: widget.post.isAnonymous
-                  ? Text('잌명',
-                      style: getTextStyle(
-                          AppTypo.caption12B, AppColors.primary500))
-                  : Text(widget.post.userProfiles?.nickname ?? '',
-                      style: getTextStyle(
-                          AppTypo.caption12B, AppColors.primary500))),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    logger.d('PostViewPage.build');
+
+    return FutureBuilder<PostModel>(
+      future: _postFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (snapshot.hasData) {
+          final post = snapshot.data!;
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Text('조회: ${widget.post.viewCount}',
-                        style: getTextStyle(
-                            AppTypo.caption10SB, const Color(0XFF8E8E8E))),
-                    SizedBox(width: 8.cw),
-                    Text('댓글: ${widget.post.replyCount}',
-                        style: getTextStyle(
-                            AppTypo.caption10SB, const Color(0XFF8E8E8E))),
-                    SizedBox(width: 8.cw),
-                    Text(formatDateTimeYYYYMMDDHHM(widget.post.createdAt),
-                        style: getTextStyle(
-                            AppTypo.caption10SB, const Color(0XFF8E8E8E))),
-                  ],
+                if (_shouldShowAds) _buildAdSpace('top', AdSize.banner),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.cw),
+                  child: Text(post.title,
+                      style: const TextStyle(
+                          fontSize: 24, fontWeight: FontWeight.bold)),
                 ),
-                PostPopupMenu(
-                    post: widget.post,
-                    context: context,
-                    openReportModal: _openPostReportModal,
-                    refreshFunction:
-                        ref.read(navigationInfoProvider.notifier).goBack),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 8),
+                  child: post.isAnonymous
+                      ? Text('익명',
+                          style: getTextStyle(
+                              AppTypo.caption12B, AppColors.primary500))
+                      : Text(post.userProfiles?.nickname ?? '',
+                          style: getTextStyle(
+                              AppTypo.caption12B, AppColors.primary500)),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Text('조회: ${post.viewCount}',
+                              style: getTextStyle(AppTypo.caption10SB,
+                                  const Color(0XFF8E8E8E))),
+                          SizedBox(width: 8.cw),
+                          Text('댓글: ${post.replyCount}',
+                              style: getTextStyle(AppTypo.caption10SB,
+                                  const Color(0XFF8E8E8E))),
+                          SizedBox(width: 8.cw),
+                          Text(formatDateTimeYYYYMMDDHHM(post.createdAt),
+                              style: getTextStyle(AppTypo.caption10SB,
+                                  const Color(0XFF8E8E8E))),
+                        ],
+                      ),
+                      PostPopupMenu(
+                        post: post,
+                        openReportModal: _openPostReportModal,
+                        refreshFunction:
+                            ref.read(navigationInfoProvider.notifier).goBack,
+                        context: context,
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(color: AppColors.grey500),
+                Padding(
+                  padding: EdgeInsets.all(16.cw),
+                  child: _buildContent(),
+                ),
+                if (_shouldShowAds)
+                  _buildAdSpace('bottom', AdSize.mediumRectangle),
+                const SizedBox(height: 36),
+                _buildCommentsList(post),
               ],
             ),
-          ),
-          const Divider(color: AppColors.grey500),
-          Padding(
-            padding: EdgeInsets.all(16.cw),
-            child: _buildContent(),
-          ),
-          if (_shouldShowAds) _buildAdSpace('bottom', AdSize.mediumRectangle),
-          const SizedBox(height: 36),
-          _buildCommentsList(),
-        ],
-      ),
+          );
+        } else {
+          return const Center(child: Text('No data available'));
+        }
+      },
     );
   }
 
@@ -274,7 +287,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
     );
   }
 
-  Widget _buildCommentsList() {
+  Widget _buildCommentsList(PostModel post) {
     return Stack(
       alignment: Alignment.topCenter,
       children: [
@@ -298,7 +311,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                             const Text('댓글이 없습니다.'),
                             const SizedBox(height: 16),
                             ElevatedButton(
-                              onPressed: _openCommentsModal,
+                              onPressed: () => _openCommentsModal(post),
                               child: Text('댓글 쓰기',
                                   style: getTextStyle(
                                       AppTypo.body14B, AppColors.grey00)),
@@ -316,13 +329,14 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                                   commentModel: _comments![index],
                                   pagingController: null,
                                   showReplyButton: false,
-                                  openCommentsModal: _openCommentsModal,
+                                  openCommentsModal: () =>
+                                      _openCommentsModal(post),
                                   openReportModal: _openCommentReportModal,
                                 );
                               },
                             ),
                             ElevatedButton(
-                              onPressed: _openCommentsModal,
+                              onPressed: () => _openCommentsModal(post),
                               child: Text('더보기',
                                   style: getTextStyle(
                                       AppTypo.body14B, AppColors.grey00)),
@@ -335,22 +349,23 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
         Positioned(
           top: 0,
           child: Container(
-              width: 120.cw,
-              height: 36,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: AppColors.primary500,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text('Comments',
-                  style: getTextStyle(AppTypo.body14B, AppColors.grey00),
-                  textAlign: TextAlign.center)),
+            width: 120.cw,
+            height: 36,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppColors.primary500,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text('Comments',
+                style: getTextStyle(AppTypo.body14B, AppColors.grey00),
+                textAlign: TextAlign.center),
+          ),
         ),
       ],
     );
   }
 
-  void _openCommentsModal() {
+  void _openCommentsModal(PostModel post) {
     setState(() {
       _isModalOpen = true;
       for (var ad in _bannerAds.values) {
@@ -367,12 +382,13 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
       ),
       constraints: BoxConstraints(
-          maxHeight: ref.watch(globalMediaQueryProvider).size.height -
-              getAppBarHeight(ref)),
+        maxHeight: ref.watch(globalMediaQueryProvider).size.height -
+            getAppBarHeight(ref),
+      ),
       builder: (context) {
         return SafeArea(
           child: CommentList(
-            id: widget.post.postId,
+            id: post.postId,
             '댓글',
             openReportModal: _openCommentReportModal,
           ),
@@ -381,12 +397,16 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
     ).then((_) {
       setState(() {
         _isModalOpen = false;
-        if (_shouldShowAds) {
-          _loadAds();
-        }
+        if (_shouldShowAds) _loadAds();
       });
-      _loadComments(); // Reload comments after modal is closed
+      _refreshPostAndComments();
     });
+  }
+
+  void _refreshPostAndComments() {
+    _loadComments(widget.postId);
+    _postFuture = _loadPost(isIncrementViewCount: false);
+    setState(() {});
   }
 
   void _openCommentReportModal(String title, CommentModel comment) {
@@ -397,21 +417,22 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
       }
       _bannerAds.clear();
     });
-    logger.d('Open report modal');
     showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) {
-          return ReportDialog(
-              title: title, type: ReportType.comment, target: comment);
-        }).then((_) {
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return ReportDialog(
+            title: title, type: ReportType.comment, target: comment);
+      },
+    ).then((_) {
       setState(() {
         _isModalOpen = false;
-        if (_shouldShowAds) {
-          _loadAds();
-        }
+        if (_shouldShowAds) _loadAds();
       });
-      _loadComments(); // Reload comments after modal is closed
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        _loadPost(isIncrementViewCount: false);
+        _loadComments(widget.postId);
+      });
     });
   }
 
@@ -424,19 +445,17 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
         }
         _bannerAds.clear();
       });
-      logger.d('Open report modal');
       showDialog(
-          context: context,
-          barrierDismissible: true,
-          builder: (BuildContext context) {
-            return ReportDialog(
-                title: title, type: ReportType.post, target: post);
-          }).then((_) {
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return ReportDialog(
+              title: title, type: ReportType.post, target: post);
+        },
+      ).then((_) {
         setState(() {
           _isModalOpen = false;
-          if (_shouldShowAds) {
-            _loadAds();
-          }
+          if (_shouldShowAds) _loadAds();
         });
       });
     } catch (e, s) {

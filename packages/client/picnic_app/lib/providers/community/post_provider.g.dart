@@ -530,6 +530,151 @@ class _PostsByQueryProviderElement
   int get limit => (origin as PostsByQueryProvider).limit;
 }
 
+String _$postByIdHash() => r'ca27c97d48a6dc1543210024657d0d7d0e16dab8';
+
+/// See also [postById].
+@ProviderFor(postById)
+const postByIdProvider = PostByIdFamily();
+
+/// See also [postById].
+class PostByIdFamily extends Family<AsyncValue<PostModel?>> {
+  /// See also [postById].
+  const PostByIdFamily();
+
+  /// See also [postById].
+  PostByIdProvider call(
+    String postId, {
+    bool isIncrementViewCount = true,
+  }) {
+    return PostByIdProvider(
+      postId,
+      isIncrementViewCount: isIncrementViewCount,
+    );
+  }
+
+  @override
+  PostByIdProvider getProviderOverride(
+    covariant PostByIdProvider provider,
+  ) {
+    return call(
+      provider.postId,
+      isIncrementViewCount: provider.isIncrementViewCount,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'postByIdProvider';
+}
+
+/// See also [postById].
+class PostByIdProvider extends AutoDisposeFutureProvider<PostModel?> {
+  /// See also [postById].
+  PostByIdProvider(
+    String postId, {
+    bool isIncrementViewCount = true,
+  }) : this._internal(
+          (ref) => postById(
+            ref as PostByIdRef,
+            postId,
+            isIncrementViewCount: isIncrementViewCount,
+          ),
+          from: postByIdProvider,
+          name: r'postByIdProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$postByIdHash,
+          dependencies: PostByIdFamily._dependencies,
+          allTransitiveDependencies: PostByIdFamily._allTransitiveDependencies,
+          postId: postId,
+          isIncrementViewCount: isIncrementViewCount,
+        );
+
+  PostByIdProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.postId,
+    required this.isIncrementViewCount,
+  }) : super.internal();
+
+  final String postId;
+  final bool isIncrementViewCount;
+
+  @override
+  Override overrideWith(
+    FutureOr<PostModel?> Function(PostByIdRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: PostByIdProvider._internal(
+        (ref) => create(ref as PostByIdRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        postId: postId,
+        isIncrementViewCount: isIncrementViewCount,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<PostModel?> createElement() {
+    return _PostByIdProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is PostByIdProvider &&
+        other.postId == postId &&
+        other.isIncrementViewCount == isIncrementViewCount;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, postId.hashCode);
+    hash = _SystemHash.combine(hash, isIncrementViewCount.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin PostByIdRef on AutoDisposeFutureProviderRef<PostModel?> {
+  /// The parameter `postId` of this provider.
+  String get postId;
+
+  /// The parameter `isIncrementViewCount` of this provider.
+  bool get isIncrementViewCount;
+}
+
+class _PostByIdProviderElement
+    extends AutoDisposeFutureProviderElement<PostModel?> with PostByIdRef {
+  _PostByIdProviderElement(super.provider);
+
+  @override
+  String get postId => (origin as PostByIdProvider).postId;
+  @override
+  bool get isIncrementViewCount =>
+      (origin as PostByIdProvider).isIncrementViewCount;
+}
+
 String _$postsByUserHash() => r'c520ccba515b82ec6d15c0cdbe0ac45d2e174ffa';
 
 /// See also [postsByUser].

@@ -10,7 +10,6 @@ part 'comments_provider.g.dart';
 Future<List<CommentModel>> comments(ref, String postId, int page, int limit,
     {bool includeDeleted = true, bool includeReported = true}) async {
   final currentUserId = supabase.auth.currentUser?.id;
-  logger.i('Fetching comments for post: $postId, page: $page, limit: $limit');
   try {
     var query = supabase.from('comments').select('''
       *,
@@ -88,7 +87,6 @@ Future<List<CommentModel>> comments(ref, String postId, int page, int limit,
         rootComments.map((comment) => commentMap[comment.commentId]!).toList();
     result.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-    logger.i('Returned root comments: ${result.length}');
     return result;
   } catch (e, s) {
     logger.e('Error fetching comments:', error: e, stackTrace: s);

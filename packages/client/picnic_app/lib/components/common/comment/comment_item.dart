@@ -6,7 +6,6 @@ import 'package:picnic_app/components/common/comment/comment_actions.dart';
 import 'package:picnic_app/components/common/comment/comment_contents.dart';
 import 'package:picnic_app/components/common/comment/comment_header.dart';
 import 'package:picnic_app/components/common/comment/comment_popup_menu.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
@@ -42,8 +41,6 @@ class _CommentItemState extends ConsumerState<CommentItem>
   @override
   void initState() {
     super.initState();
-
-    logger.i('widget.commentModel: ${widget.commentModel}');
 
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 500),
