@@ -25,38 +25,47 @@ class _RewardDialogState extends State<RewardDialog> {
     return StatefulBuilder(builder: (context, setState) {
       return Dialog(
         insetPadding: EdgeInsets.zero,
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              child: Column(
-                children: [
-                  buildTopSection(),
-                  const SizedBox(height: 67),
-                  buildSection(RewardType.overview),
-                  buildSection(RewardType.location),
-                  buildSection(RewardType.size_guide),
-                  const SizedBox(height: 56),
-                ],
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(0.r),
+        ),
+        child: SizedBox(
+          width: getPlatformScreenSize(context).width,
+          height: getPlatformScreenSize(context).height,
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    buildTopSection(),
+                    const SizedBox(height: 67),
+                    buildSection(RewardType.overview),
+                    buildSection(RewardType.location),
+                    buildSection(RewardType.size_guide),
+                  ],
+                ),
               ),
-            ),
-            Positioned(
-              top: 40.cw,
-              right: 15.cw,
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.of(context).pop();
-                },
-                child: CircleAvatar(
-                  backgroundColor: Colors.white.withOpacity(0.8),
-                  foregroundColor: AppColors.grey500,
-                  child: const Icon(
-                    Icons.close,
-                    size: 24,
+              Positioned(
+                top: 40,
+                right: 15.cw,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: CircleAvatar(
+                    backgroundColor: AppColors.grey300.withOpacity(0.8),
+                    foregroundColor: AppColors.grey500,
+                    child: const Icon(
+                      Icons.close,
+                      size: 24,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
     });
@@ -79,11 +88,9 @@ class _RewardDialogState extends State<RewardDialog> {
             },
             blendMode: BlendMode.dstIn,
             child: PicnicCachedNetworkImage(
-              imageUrl: widget.data.thumbnail ?? '',
-              width: 400,
-              height: 400,
-              fit: BoxFit.fill,
-            ),
+                imageUrl: widget.data.thumbnail ?? '',
+                width: 400,
+                fit: BoxFit.fill),
           ),
         ),
         Positioned(
@@ -111,8 +118,7 @@ class _RewardDialogState extends State<RewardDialog> {
               width: double.infinity,
               margin: EdgeInsets.only(left: 16.cw, right: 16.cw, top: 12),
               padding: EdgeInsets.only(
-                      left: 24.cw, right: 24.cw, top: 53, bottom: 41)
-                  .r,
+                  left: 24.cw, right: 24.cw, top: 53, bottom: 41),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24.r),
                 border: Border.all(color: AppColors.primary500, width: 1.5.r),
