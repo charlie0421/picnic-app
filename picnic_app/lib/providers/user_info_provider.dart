@@ -3,11 +3,11 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:picnic_app/config/config_service.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/auth_service.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:screen_protector/screen_protector.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -77,7 +77,6 @@ class UserInfo extends _$UserInfo {
   }
 
   Future<UserProfilesModel?> getUserProfiles() async {
-    logger.i('Getting user profiles');
     if (!supabase.isLogged) {
       logger.i('User is not logged in');
       return null;

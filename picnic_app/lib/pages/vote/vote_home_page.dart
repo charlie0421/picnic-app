@@ -51,7 +51,6 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
       PagingController<int, VoteModel> controller, String type) {
     controller.addPageRequestListener((pageKey) {
       _fetch(pageKey, 10).then((newItems) {
-        logger.i('newItems: $newItems');
         final typeItems = newItems[type]!;
         final isLastPage =
             typeItems.meta.currentPage == typeItems.meta.totalPages;
@@ -182,17 +181,12 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
     final upcomingMeta = _createMeta(upcomingResponse, page, limit);
     final activeMeta = _createMeta(activeResponse, page, limit);
 
-    logger.i('Upcoming meta: $upcomingMeta');
-    logger.i('Active meta: $activeMeta');
-
     final ret = {
       'upcoming': VoteListModel.fromJson(
           {'items': upcomingResponse.data, 'meta': upcomingMeta}),
       'active': VoteListModel.fromJson(
           {'items': activeResponse.data, 'meta': activeMeta}),
     };
-
-    logger.i('ret: $ret');
 
     return ret;
   }

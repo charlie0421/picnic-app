@@ -1,6 +1,6 @@
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -57,8 +57,6 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
           .select('*, artist(*,artist_group(*)), artist_group(*)')
           .eq('vote_id', voteId)
           .order('vote_total', ascending: false);
-
-      logger.i('Vote item list response: $response');
 
       List<VoteItemModel> voteItemList = List<VoteItemModel>.from(
           response.map((e) => VoteItemModel.fromJson(e)));

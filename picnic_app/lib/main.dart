@@ -10,10 +10,10 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:picnic_app/app.dart';
 import 'package:picnic_app/config/environment.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/firebase_options.dart';
 import 'package:picnic_app/main.reflectable.dart';
 import 'package:picnic_app/util/auth_service.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/logging_observer.dart';
 import 'package:picnic_app/util/token_refresh_manager.dart';
 import 'package:picnic_app/util/ui.dart';
@@ -35,7 +35,6 @@ void main() async {
 
     if (isMobile()) {
       await WebPSupportChecker.instance.initialize();
-      logger.i('WebP support: ${WebPSupportChecker.instance.supportsWebP}');
     }
 
     await Firebase.initializeApp(
