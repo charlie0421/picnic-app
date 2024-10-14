@@ -82,7 +82,7 @@ class _$NavigationCopyWithImpl<$Res, $Val extends Navigation>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? portalType = null,
+    Object? portalType = freezed,
     Object? picBottomNavigationIndex = null,
     Object? voteBottomNavigationIndex = null,
     Object? communityBottomNavigationIndex = null,
@@ -99,7 +99,7 @@ class _$NavigationCopyWithImpl<$Res, $Val extends Navigation>
     Object? signUpNavigationStack = freezed,
   }) {
     return _then(_value.copyWith(
-      portalType: null == portalType
+      portalType: freezed == portalType
           ? _value.portalType
           : portalType // ignore: cast_nullable_to_non_nullable
               as PortalType,
@@ -202,7 +202,7 @@ class __$$NavigationImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? portalType = null,
+    Object? portalType = freezed,
     Object? picBottomNavigationIndex = null,
     Object? voteBottomNavigationIndex = null,
     Object? communityBottomNavigationIndex = null,
@@ -219,7 +219,7 @@ class __$$NavigationImplCopyWithImpl<$Res>
     Object? signUpNavigationStack = freezed,
   }) {
     return _then(_$NavigationImpl(
-      portalType: null == portalType
+      portalType: freezed == portalType
           ? _value.portalType
           : portalType // ignore: cast_nullable_to_non_nullable
               as PortalType,
@@ -356,8 +356,8 @@ class _$NavigationImpl extends _Navigation {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$NavigationImpl &&
-            (identical(other.portalType, portalType) ||
-                other.portalType == portalType) &&
+            const DeepCollectionEquality()
+                .equals(other.portalType, portalType) &&
             (identical(other.picBottomNavigationIndex, picBottomNavigationIndex) ||
                 other.picBottomNavigationIndex == picBottomNavigationIndex) &&
             (identical(other.voteBottomNavigationIndex, voteBottomNavigationIndex) ||
@@ -395,7 +395,7 @@ class _$NavigationImpl extends _Navigation {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      portalType,
+      const DeepCollectionEquality().hash(portalType),
       picBottomNavigationIndex,
       voteBottomNavigationIndex,
       communityBottomNavigationIndex,

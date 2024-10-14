@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/bottom_navigation_menu.dart';
 import 'package:picnic_app/components/common/bottom/common_bottom_navigation_bar.dart';
 import 'package:picnic_app/components/ui/picnic_animated_switcher.dart';
-import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 
 class VoteHomeScreen extends ConsumerStatefulWidget {

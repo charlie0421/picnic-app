@@ -7,11 +7,11 @@ import 'package:picnic_app/components/common/comment/comment_item.dart';
 import 'package:picnic_app/components/common/comment/comment_reply_layer.dart';
 import 'package:picnic_app/components/common/no_item_container.dart';
 import 'package:picnic_app/components/ui/bottom_sheet_header.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/models/pic/article.dart';
 import 'package:picnic_app/providers/comment_list_provider.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class Comment extends ConsumerStatefulWidget {

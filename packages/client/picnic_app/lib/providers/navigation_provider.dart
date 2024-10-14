@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_app/bottom_navigation_menu.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/enums.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/navigation_stack.dart';
 import 'package:picnic_app/pages/mypage/mypage.dart';
@@ -9,6 +10,7 @@ import 'package:picnic_app/screens/community/community_home_screen.dart';
 import 'package:picnic_app/screens/novel/novel_home_screen.dart';
 import 'package:picnic_app/screens/pic/pic_home_screen.dart';
 import 'package:picnic_app/screens/vote/vote_home_screen.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'navigation_provider.g.dart';

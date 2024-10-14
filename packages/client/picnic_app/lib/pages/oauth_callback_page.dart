@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/supabase_options.dart';
 
 class OAuthCallbackPage extends StatefulWidget {

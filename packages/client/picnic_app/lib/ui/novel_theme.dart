@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/ui/common_theme.dart';
 import 'package:picnic_app/ui/style.dart';
 
@@ -20,11 +19,11 @@ ThemeData novelThemeLight = ThemeData.light().copyWith(
     labelSmall: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
   ),
   appBarTheme: const AppBarTheme(
-    backgroundColor: novelMainColor,
+    backgroundColor: AppColors.point500,
     foregroundColor: Colors.white,
   ),
   bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-    backgroundColor: novelMainColor,
+    backgroundColor: AppColors.point500,
     selectedIconTheme: IconThemeData(color: Colors.black),
     unselectedIconTheme: IconThemeData(color: Colors.black54),
     selectedItemColor: Colors.black,

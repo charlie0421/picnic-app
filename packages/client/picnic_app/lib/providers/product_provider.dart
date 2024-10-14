@@ -2,8 +2,8 @@
 import 'dart:io';
 
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'product_provider.g.dart';
@@ -34,8 +34,8 @@ class ServerProducts extends _$ServerProducts {
       }
 
       return products;
-    } catch (e,s) {
-      logger.e(e,stackTrace: s);
+    } catch (e, s) {
+      logger.e(e, stackTrace: s);
       throw Exception('Error fetching products: $e');
     }
   }
@@ -86,8 +86,8 @@ class StoreProducts extends _$StoreProducts {
       }
 
       return response.productDetails;
-    } catch (e,s) {
-      logger.e('Error loading products: $e',stackTrace: s);
+    } catch (e, s) {
+      logger.e('Error loading products: $e', stackTrace: s);
       throw Exception('Error loading products: $e');
     }
   }

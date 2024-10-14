@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/util/logger.dart';
 
 class BannerAdWidget extends ConsumerStatefulWidget {
   final String adUnitId;
   final AdSize adSize;
 
-  const BannerAdWidget({super.key, required this.adUnitId, required this.adSize});
+  const BannerAdWidget(
+      {super.key, required this.adUnitId, required this.adSize});
 
   @override
   ConsumerState<BannerAdWidget> createState() => _BannerAdWidgetState();

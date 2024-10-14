@@ -229,7 +229,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
             const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'runtimeType', 2097155, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
-        r.MethodMirrorImpl(r'portalType', 2097155, -1, -1, -1, -1, null,
+        r.MethodMirrorImpl(r'portalType', 3, -1, -1, -1, -1, null,
             const <int>[], const prefix0.Reflector(), null),
         r.MethodMirrorImpl(r'picBottomNavigationIndex', 2097155, -1, -1, -1, -1,
             null, const <int>[], const prefix0.Reflector(), null),
@@ -275,7 +275,7 @@ final _data = <r.Reflectable, r.ReflectorData>{
       <m.ParameterMirror>[
         r.ParameterMirrorImpl(
             r'portalType',
-            134361094,
+            67121158,
             2,
             const prefix0.Reflector(),
             -1,
