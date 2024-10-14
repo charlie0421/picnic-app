@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/vote/store/common/store_point_info.dart';
 import 'package:picnic_app/components/vote/store/common/usage_policy_dialog.dart';
 import 'package:picnic_app/components/vote/store/purchase/store_list_tile.dart';
 import 'package:picnic_app/config/config_service.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
@@ -14,6 +14,7 @@ import 'package:picnic_app/providers/ad_providers.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:unity_ads_plugin/unity_ads_plugin.dart';
@@ -28,6 +29,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _buttonScaleAnimation;
+  final Map<String, BannerAd?> _bannerAds = {};
 
   @override
   void initState() {
@@ -40,6 +42,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
     WidgetsBinding.instance.addPostFrameCallback((_) => _checkAndLoadAds());
+    _loadBannerAds();
   }
 
   @override
@@ -57,6 +60,30 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
         ref.read(rewardedAdsProvider.notifier).loadAd(i);
       }
     }
+  }
+
+  Future<void> _loadBannerAds() async {
+    final configService = ref.read(configServiceProvider);
+    final adUnitId = isIOS()
+        ? await configService.getConfig('ADMOB_IOS_FREE_CHARGE_STATION')
+        : await configService.getConfig('ADMOB_ANDROID_FREE_CHARGE_STATION');
+
+    _loadBannerAd('free_charge_station', adUnitId!, AdSize.banner);
+  }
+
+  void _loadBannerAd(String position, String adUnitId, AdSize size) {
+    _bannerAds[position] = BannerAd(
+      adUnitId: adUnitId,
+      size: size,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (_) => setState(() {}),
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+          _bannerAds[position] = null;
+        },
+      ),
+    )..load();
   }
 
   @override
@@ -96,17 +123,19 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
                     return const Center(child: Text('Error loading banner'));
                   }
                   return Center(
-                    child: UnityBannerAd(
-                      placementId: snapshot.data as String,
-                      onLoad: (placementId) =>
-                          print('Banner loaded: $placementId'),
-                      onClick: (placementId) =>
-                          print('Banner clicked: $placementId'),
-                      onShown: (placementId) =>
-                          print('Banner shown: $placementId'),
-                      onFailed: (placementId, error, message) => print(
-                          'Banner Ad $placementId failed: $error $message'),
-                    ),
+                    child: _bannerAds['free_charge_station'] != null
+                        ? AdWidget(ad: _bannerAds['free_charge_station']!)
+                        : UnityBannerAd(
+                            placementId: snapshot.data as String,
+                            onLoad: (placementId) =>
+                                print('Banner loaded: $placementId'),
+                            onClick: (placementId) =>
+                                print('Banner clicked: $placementId'),
+                            onShown: (placementId) =>
+                                print('Banner shown: $placementId'),
+                            onFailed: (placementId, error, message) => print(
+                                'Banner Ad $placementId failed: $error $message'),
+                          ),
                   );
                 }),
           ),
