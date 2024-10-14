@@ -8,7 +8,6 @@ import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/common/reward_dialog.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/pages/vote/vote_list_page.dart';
@@ -17,6 +16,7 @@ import 'package:picnic_app/providers/reward_list_provider.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -275,7 +275,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                                     imageUrl: data[index].thumbnail ?? '',
                                     width: 120,
                                     height: 100,
-                                    useScreenUtil: true,
+                                    useScreenUtil: false,
                                     fit: BoxFit.fitWidth),
                               ),
                               Positioned(
