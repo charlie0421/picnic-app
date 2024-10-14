@@ -30,7 +30,7 @@ class LocalImageEmbedBuilder extends EmbedBuilder {
       future: _uploadImage(imageUrl),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
+          return const Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -46,10 +46,10 @@ class LocalImageEmbedBuilder extends EmbedBuilder {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.error, color: Colors.red),
-                SizedBox(height: 10),
-                Text('Upload failed. Tap to retry.'),
-                SizedBox(height: 10),
+                const Icon(Icons.error, color: Colors.red),
+                const SizedBox(height: 10),
+                const Text('Upload failed. Tap to retry.'),
+                const SizedBox(height: 10),
                 Text('Error: ${snapshot.error}'),
               ],
             ),
@@ -75,7 +75,7 @@ class LocalImageEmbedBuilder extends EmbedBuilder {
             },
           );
         } else {
-          return SizedBox.shrink();
+          return const SizedBox.shrink();
         }
       },
     );

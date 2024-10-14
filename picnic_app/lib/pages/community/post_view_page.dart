@@ -111,8 +111,9 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
         : await configService.getConfig('ADMOB_ANDROID_POSTVIEW_BOTTOM');
 
     if (topAdUnitId != null) _loadBannerAd('top', topAdUnitId, AdSize.banner);
-    if (bottomAdUnitId != null)
+    if (bottomAdUnitId != null) {
       _loadBannerAd('bottom', bottomAdUnitId, AdSize.mediumRectangle);
+    }
   }
 
   void _loadBannerAd(String position, String adUnitId, AdSize size) {
@@ -429,7 +430,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
         _isModalOpen = false;
         if (_shouldShowAds) _loadAds();
       });
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         _loadPost(isIncrementViewCount: false);
         _loadComments(widget.postId);
       });
