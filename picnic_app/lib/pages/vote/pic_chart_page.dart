@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/generated/l10n.dart';
@@ -21,7 +20,7 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
   bool _showOverlay = false;
 
   @override
-  initState() {
+  void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
@@ -48,18 +47,18 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
         Image.asset('assets/images/picchart_comming_soon.png',
             fit: BoxFit.fill),
         if (_showOverlay)
-          Positioned(
-            left: 24.cw,
-            right: 24.cw,
-            top: 48.h,
+          Center(
             child: Material(
               color: Colors.transparent,
               child: LargePopupWidget(
                 title: S.of(context).text_comming_soon_pic_chart_title,
                 content: Container(
-                  padding: EdgeInsets.only(
-                      left: 16.cw, right: 16.cw, top: 64.h, bottom: 40.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.cw,
+                    vertical: 80,
+                  ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         S.of(context).text_comming_soon_pic_chart1,
