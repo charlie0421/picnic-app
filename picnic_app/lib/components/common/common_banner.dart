@@ -12,10 +12,10 @@ import 'package:picnic_app/util/ui.dart';
 import 'package:shimmer/shimmer.dart';
 
 class CommonBanner extends ConsumerStatefulWidget {
-  const CommonBanner(this.location, this.height, {super.key});
+  const CommonBanner(this.location, this.aspectRatio, {super.key});
 
   final String location;
-  final double? height;
+  final double aspectRatio;
 
   @override
   ConsumerState<CommonBanner> createState() => _CommonBannerState();
@@ -23,6 +23,36 @@ class CommonBanner extends ConsumerStatefulWidget {
 
 class _CommonBannerState extends ConsumerState<CommonBanner> {
   int _currentIndex = 0;
+
+  Widget _buildBannerItem(dynamic item) {
+    String title = getLocaleTextFromJson(item.title);
+    return Stack(
+      children: [
+        PicnicCachedNetworkImage(
+          imageUrl: getLocaleTextFromJson(item.image),
+          fit: BoxFit.cover,
+        ),
+        if (title.isNotEmpty)
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              alignment: Alignment.center,
+              padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8.cw),
+              color: Colors.black.withOpacity(0.5),
+              child: Text(
+                title,
+                style: getTextStyle(AppTypo.body14R, Colors.white)
+                    .copyWith(overflow: TextOverflow.ellipsis),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final asyncBannerListState =
@@ -33,52 +63,21 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          SizedBox(
-            width: width,
-            height: widget.height ?? width / 2,
-            child: Swiper(
-              itemBuilder: (BuildContext context, int index) {
-                String title = getLocaleTextFromJson(data[index].title);
-                return Stack(
-                  children: [
-                    Container(
-                      alignment: Alignment.topCenter,
-                      width: width,
-                      child: PicnicCachedNetworkImage(
-                          imageUrl: getLocaleTextFromJson(data[index].image),
-                          width: width.toInt(),
-                          height: (width / 2).toInt(),
-                          fit: BoxFit.fitHeight),
-                    ),
-                    if (title.isNotEmpty)
-                      Positioned(
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          alignment: Alignment.center,
-                          padding: EdgeInsets.symmetric(
-                              vertical: 4, horizontal: 8.cw),
-                          color: Colors.black.withOpacity(0.5),
-                          child: Text(
-                            title,
-                            style: getTextStyle(AppTypo.body14R, Colors.white)
-                                .copyWith(overflow: TextOverflow.ellipsis),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                  ],
-                );
-              },
-              itemCount: data.length,
-              onIndexChanged: (index) {
-                setState(() {
-                  _currentIndex = index;
-                });
-              },
-              autoplay: data.length > 1,
-            ),
+          AspectRatio(
+            aspectRatio: widget.aspectRatio,
+            child: data.length == 1
+                ? _buildBannerItem(data[0])
+                : Swiper(
+                    itemBuilder: (BuildContext context, int index) =>
+                        _buildBannerItem(data[index]),
+                    itemCount: data.length,
+                    onIndexChanged: (index) {
+                      setState(() {
+                        _currentIndex = index;
+                      });
+                    },
+                    autoplay: data.length > 1,
+                  ),
           ),
           if (data.length > 1)
             SizedBox(
@@ -95,10 +94,12 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
         highlightColor: AppColors.grey100,
         child: Column(
           children: [
-            Container(
-              width: width,
-              height: width / 2,
-              color: Colors.white,
+            AspectRatio(
+              aspectRatio: widget.aspectRatio,
+              child: Container(
+                width: width,
+                color: Colors.white,
+              ),
             ),
             const SizedBox(height: 20),
             Row(
