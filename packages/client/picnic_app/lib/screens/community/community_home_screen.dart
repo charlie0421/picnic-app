@@ -77,7 +77,7 @@ class _CommunityHomeScreenState extends ConsumerState<CommunityHomeScreen> {
             const PicnicAnimatedSwitcher(),
             if (navigationInfo.showBottomNavigation)
               Positioned(
-                  bottom: 0,
+                  bottom: MediaQuery.of(context).padding.bottom + 20,
                   left: 0,
                   right: 0,
                   child: CommonBottomNavigationBar(
