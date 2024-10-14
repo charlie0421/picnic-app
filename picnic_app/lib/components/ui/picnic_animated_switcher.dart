@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/util/logger.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class PicnicAnimatedSwitcher extends ConsumerStatefulWidget {
   const PicnicAnimatedSwitcher({super.key});
@@ -64,13 +65,12 @@ class _PicnicAnimatedSwitcherState
             );
           },
           child: Container(
-            margin: navigationInfo.showBottomNavigation
+            padding: navigationInfo.showBottomNavigation
                 ? EdgeInsets.only(
-                    bottom: MediaQuery.of(context).padding.bottom + 52)
+                    bottom: MediaQuery.of(context).padding.bottom + 20 + 52)
                 : EdgeInsets.only(
-                    bottom: MediaQuery.of(context).padding.bottom),
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).padding.bottom + 20),
+                    bottom: MediaQuery.of(context).padding.bottom +
+                        (isIOS() ? 0 : 20)),
             child: currentTopWidget ?? Container(),
           ),
         ),

@@ -32,6 +32,7 @@ class _CommonBottomNavigationBarState
           margin: EdgeInsets.only(
             left: 16.cw,
             right: 16.cw,
+            bottom: 0,
           ),
           decoration: const BoxDecoration(
             gradient: LinearGradient(
