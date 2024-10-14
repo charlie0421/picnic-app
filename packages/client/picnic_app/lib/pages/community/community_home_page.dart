@@ -34,7 +34,7 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
         communityStateInfoProvider.select((value) => value.currentArtist));
 
     return ListView(children: [
-      const CommonBanner('community_home', 150),
+      const CommonBanner('community_home', 3144 / 1200),
       const SizedBox(height: 32),
       Container(
         padding: EdgeInsets.symmetric(horizontal: 16.cw),
