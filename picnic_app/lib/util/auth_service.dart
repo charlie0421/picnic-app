@@ -8,7 +8,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:picnic_app/config/environment.dart';
-import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/models/common/social_login_result.dart';
 import 'package:picnic_app/storage/storage.dart';
 import 'package:picnic_app/supabase_options.dart';

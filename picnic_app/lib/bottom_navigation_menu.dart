@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/enums.dart';
 import 'package:picnic_app/pages/community/board_page.dart';
 import 'package:picnic_app/pages/community/community_home_page.dart';
 import 'package:picnic_app/pages/community/community_my_page.dart';

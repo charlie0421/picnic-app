@@ -6,7 +6,7 @@ import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
 import 'package:picnic_app/components/vote/store/purchase/analytics_service.dart';
 import 'package:picnic_app/components/vote/store/purchase/purchase_star_candy_web.dart';
 import 'package:picnic_app/components/vote/store/purchase/store_list_tile.dart';
-import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/product_provider.dart';
 import 'package:picnic_app/ui/style.dart';

@@ -14,7 +14,7 @@ import 'package:picnic_app/components/community/write/embed_builder/link_embed_b
 import 'package:picnic_app/components/community/write/embed_builder/media_embed_builder.dart';
 import 'package:picnic_app/components/community/write/embed_builder/youtube_embed_builder.dart';
 import 'package:picnic_app/config/config_service.dart';
-import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/dialogs/report_dialog.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/models/common/navigation.dart';
@@ -266,7 +266,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
           embedBuilders: [
             LinkEmbedBuilder(),
             YouTubeEmbedBuilder(),
-            NetworkImageEmbedBuilder()
+            NetworkImageEmbedBuilder(),
           ],
         ),
       ),

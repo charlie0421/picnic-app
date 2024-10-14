@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/custom_dropdown_button.dart';
-import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote_pick.dart';
 import 'package:picnic_app/supabase_options.dart';

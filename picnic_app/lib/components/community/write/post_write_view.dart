@@ -9,7 +9,6 @@ import 'package:picnic_app/components/community/write/post_write_bottom_bar.dart
 import 'package:picnic_app/components/community/write/post_write_header.dart';
 import 'package:picnic_app/components/ui/s3_uploader.dart';
 import 'package:picnic_app/config/environment.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
@@ -59,6 +58,7 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
       });
 
       final uploadedUrl = await _s3Uploader.uploadFile(
+        'post/attachments',
         File(file.path!),
         (progress) {
           setState(() {

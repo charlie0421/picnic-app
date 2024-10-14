@@ -5,8 +5,11 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:logger/logger.dart';
 import 'package:path/path.dart' as path;
-import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/config/environment.dart';
+
+final logger = Logger();
 
 class S3Uploader {
   final String accessKey;
@@ -22,12 +25,12 @@ class S3Uploader {
   });
 
   Future<String> uploadFile(
-      File file, Function(double) progressCallback) async {
+      String folder, File file, Function(double) progressCallback) async {
     final fileName = path.basename(file.path);
     final uri = Uri.parse(
-        'https://$bucketName.s3.$region.amazonaws.com/uploads/$fileName');
-    final fileLength = await file.length();
+        'https://$bucketName.s3.$region.amazonaws.com/$folder/$fileName');
 
+    final fileLength = await file.length();
     final now = DateTime.now().toUtc();
     final amzDate = DateFormat("yyyyMMdd'T'HHmmss'Z'").format(now);
     final dateStamp = DateFormat("yyyyMMdd").format(now);
@@ -41,54 +44,43 @@ class S3Uploader {
 
     final canonicalRequest =
         _createCanonicalRequest('PUT', uri.path, headers, 'UNSIGNED-PAYLOAD');
-    print('Canonical Request: $canonicalRequest');
-
     final stringToSign =
         _createStringToSign(dateStamp, region, 's3', canonicalRequest, amzDate);
-    print('String to Sign: $stringToSign');
-
     final signature =
         _calculateSignature(dateStamp, region, 's3', stringToSign);
-    print('Calculated Signature: $signature');
 
     headers['Authorization'] =
         _buildAuthorizationHeader(dateStamp, region, 's3', headers, signature);
-    print('Authorization Header: ${headers['Authorization']}');
 
-    try {
-      final request = http.StreamedRequest('PUT', uri);
-      headers.forEach((key, value) => request.headers[key] = value);
-      request.contentLength = fileLength;
+    final request = http.StreamedRequest('PUT', uri);
+    headers.forEach((key, value) => request.headers[key] = value);
+    request.contentLength = fileLength;
 
-      var bytesSent = 0;
-      final inputStream = file.openRead();
-      final transformedStream = inputStream.transform(
-        StreamTransformer<List<int>, List<int>>.fromHandlers(
-          handleData: (data, sink) {
-            bytesSent += data.length;
-            progressCallback(bytesSent / fileLength);
-            sink.add(data);
-          },
-        ),
-      );
+    final fileStream = file.openRead();
+    var bytesSent = 0;
 
-      unawaited(request.sink
-          .addStream(transformedStream)
-          .then((_) => request.sink.close()));
+    fileStream.listen(
+      (List<int> chunk) {
+        request.sink.add(chunk);
+        bytesSent += chunk.length;
+        progressCallback(bytesSent / fileLength);
+      },
+      onDone: () {
+        request.sink.close();
+      },
+      onError: (error) {
+        throw Exception('Error reading file: $error');
+      },
+    );
 
-      final response = await http.Response.fromStream(await request.send());
+    final response = await http.Response.fromStream(await request.send());
 
-      if (response.statusCode == 200) {
-        print('File uploaded successfully');
-        return 'https://$bucketName.s3.$region.amazonaws.com/uploads/$fileName';
-      } else {
-        print('Error Response: ${response.body}');
-        throw Exception(
-            'Failed to upload file: ${response.statusCode}, ${response.body}');
-      }
-    } catch (e, s) {
-      logger.e('Error uploading file: $e', stackTrace: s);
-      rethrow;
+    if (response.statusCode == 200) {
+      final url = '${Environment.cdnUrl}/$folder/$fileName';
+      return url;
+    } else {
+      throw Exception(
+          'Failed to upload file: ${response.statusCode}, ${response.body}');
     }
   }
 

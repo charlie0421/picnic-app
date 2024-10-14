@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:picnic_app/config/config_service.dart';
-import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';

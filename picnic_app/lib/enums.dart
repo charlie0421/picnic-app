@@ -6,3 +6,5 @@ enum PolicyLanguage {
 
   const PolicyLanguage(this.text);
 }
+
+enum PortalType { vote, pic, community, novel, mypage }

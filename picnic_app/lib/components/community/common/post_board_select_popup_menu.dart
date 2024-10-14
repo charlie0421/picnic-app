@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/models/community/board.dart';
 import 'package:picnic_app/providers/community/boards_provider.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class PostBoardSelectPopupMenu extends ConsumerStatefulWidget {
@@ -31,7 +31,6 @@ class _PostBoardSelectPopupMenuState
   Widget build(BuildContext context) {
     final currentBoard = ref.watch(
         communityStateInfoProvider.select((value) => value.currentBoard));
-    logger.i('currentBoard: $currentBoard');
     final communityStateNotifier =
         ref.read(communityStateInfoProvider.notifier);
 

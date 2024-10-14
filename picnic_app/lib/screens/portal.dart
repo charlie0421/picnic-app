@@ -7,6 +7,7 @@ import 'package:picnic_app/components/common/portal_menu_item.dart';
 import 'package:picnic_app/components/common/top/top_menu.dart';
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/enums.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/screens/mypage_screen.dart';

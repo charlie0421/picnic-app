@@ -1,19 +1,17 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:picnic_app/components/community/write/embed_builder/link_embed_builder.dart';
 import 'package:picnic_app/components/community/write/embed_builder/media_embed_builder.dart';
 import 'package:picnic_app/components/community/write/embed_builder/youtube_embed_builder.dart';
 import 'package:picnic_app/components/community/write/post_write_attachments.dart';
-import 'package:picnic_app/config/environment.dart';
-import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
@@ -48,7 +46,6 @@ class _PostWriteBodyState extends State<PostWriteBody> {
   final ImagePicker _picker = ImagePicker();
   final Map<String, double> _uploadProgress = {};
   late final quill.QuillController _controller;
-  late final S3Uploader _s3Uploader;
 
   @override
   void initState() {
@@ -57,11 +54,6 @@ class _PostWriteBodyState extends State<PostWriteBody> {
     _editorFocusNode.addListener(_handleEditorFocusChange);
     _controller = widget.contentController;
     _controller.addListener(_onTextChanged);
-    _s3Uploader = S3Uploader(
-        accessKey: Environment.awsAccessKey,
-        secretKey: Environment.awsSecretKey,
-        region: Environment.awsRegion,
-        bucketName: Environment.awsBucket);
   }
 
   void _onTextChanged() {
@@ -103,97 +95,52 @@ class _PostWriteBodyState extends State<PostWriteBody> {
   }
 
   Future<void> _handleMediaButtonTap() async {
-    final XFile? media = await _picker.pickMedia();
-    if (media != null) {
-      final file = File(media.path);
-      final isVideo = media.path.toLowerCase().endsWith('.mp4');
-      _insertLocalMediaToEditor(file.path, isVideo);
-      _uploadMediaInBackground(file, isVideo);
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      _insertLocalMediaToEditor(image.path);
     }
   }
 
-  Future<void> _uploadMediaInBackground(File file, bool isVideo) async {
-    logger.d('Uploading media: ${file.path}');
-    try {
-      setState(() {
-        _uploadProgress[file.path] = 0.0;
-      });
-
-      final mediaUrl = await _s3Uploader.uploadFile(
-        file,
-        (progress) {
-          setState(() {
-            _uploadProgress[file.path] = progress;
-          });
-        },
-      );
-
-      _replaceLocalMediaWithNetwork(file.path, mediaUrl, isVideo);
-
-      setState(() {
-        _uploadProgress.remove(file.path);
-      });
-    } catch (e, s) {
-      logger.e('Error uploading media: $e', stackTrace: s);
-      setState(() {
-        _uploadProgress.remove(file.path);
-      });
-      rethrow;
-    }
-  }
-
-  Future<String> _uploadMedia(
-      File file, Function(double) progressCallback) async {
-    // Simulate upload with progress
-    for (var i = 0; i <= 100; i++) {
-      await Future.delayed(const Duration(milliseconds: 50));
-      progressCallback(i / 100);
-    }
-    return 'https://example.com/uploaded_media';
-  }
-
-  void _insertLocalMediaToEditor(String filePath, bool isVideo) {
+  void _insertLocalMediaToEditor(String filePath) {
     final index = widget.contentController.selection.baseOffset;
     final length = widget.contentController.selection.extentOffset - index;
 
-    if (isVideo) {
-      widget.contentController.replaceText(
-        index,
-        length,
-        quill.BlockEmbed('local-video', filePath),
-        null,
-      );
-    } else {
-      widget.contentController.replaceText(
-        index,
-        length,
-        quill.BlockEmbed('local-image', filePath),
-        null,
-      );
-    }
+    widget.contentController.replaceText(
+      index,
+      length,
+      quill.BlockEmbed('local-image', filePath),
+      null,
+    );
 
     widget.contentController.document.insert(index + 1, "\n");
 
-    // 커서를 새 줄로 이동
     widget.contentController.updateSelection(
       TextSelection.collapsed(offset: index + 2),
       ChangeSource.local,
     );
   }
 
-  void _replaceLocalMediaWithNetwork(
-      String localPath, String networkUrl, bool isVideo) {
-    final index =
-        widget.contentController.document.toPlainText().indexOf(localPath);
-    if (index != -1) {
-      widget.contentController.replaceText(
-        index,
-        localPath.length,
-        isVideo
-            ? quill.BlockEmbed.video(networkUrl)
-            : quill.BlockEmbed.image(networkUrl),
-        null,
-      );
+  void _replaceLocalMediaWithNetwork(String localPath, String networkUrl) {
+    final doc = widget.contentController.document;
+    final delta = doc.toDelta();
+    final operations = delta.toList();
+
+    for (int i = 0; i < operations.length; i++) {
+      final Operation operation = operations[i];
+      if (operation.data is Map<String, dynamic>) {
+        final data = operation.data as Map<String, dynamic>;
+        if (data['local-image'] == localPath) {
+          widget.contentController.replaceText(
+            i,
+            1,
+            quill.BlockEmbed('image', networkUrl),
+            null,
+          );
+          logger.d(
+              'Replaced local image with network URL: $networkUrl at index $i');
+          break;
+        }
+      }
     }
   }
 
@@ -444,8 +391,7 @@ class _PostWriteBodyState extends State<PostWriteBody> {
                       DeletableLinkEmbedBuilder(),
                       DeletableYouTubeEmbedBuilder(),
                       LocalImageEmbedBuilder(
-                        isUploading: _uploadProgress.containsKey('local-image'),
-                        uploadProgress: _uploadProgress['local-image'] ?? 0.0,
+                        onUploadComplete: _replaceLocalMediaWithNetwork,
                       ),
                       NetworkImageEmbedBuilder(),
                     ],
@@ -563,7 +509,7 @@ class _PostWriteBodyState extends State<PostWriteBody> {
 
   void _pickFiles() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.any,
+      type: FileType.image,
       allowMultiple: true,
     );
 

@@ -1,49 +1,114 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:picnic_app/components/ui/s3_uploader.dart';
+import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class LocalImageEmbedBuilder extends EmbedBuilder {
-  final bool isUploading;
-  final double uploadProgress;
+  final Function(String localPath, String networkUrl) onUploadComplete;
+  final S3Uploader _s3Uploader;
 
-  LocalImageEmbedBuilder({this.isUploading = false, this.uploadProgress = 0.0});
+  LocalImageEmbedBuilder({required this.onUploadComplete})
+      : _s3Uploader = S3Uploader(
+          accessKey: Environment.awsAccessKey,
+          secretKey: Environment.awsSecretKey,
+          region: Environment.awsRegion,
+          bucketName: Environment.awsBucket,
+        );
 
   @override
   String get key => 'local-image';
 
   @override
   Widget build(BuildContext context, QuillController controller, Embed node,
-      bool readOnly, bool inline, TextStyle? textStyle) {
-    final filePath = node.value.data;
-    final screenWidth = getPlatformScreenSize(context).width;
-    final width = screenWidth / 2;
-    return Stack(
-      children: [
-        SizedBox(
-          width: width,
-          child: Image.file(File(filePath), fit: BoxFit.contain),
-        ),
-        if (isUploading)
-          Positioned.fill(
-            child: Container(
-              color: Colors.black54,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(value: uploadProgress),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Uploading ${(uploadProgress * 100).toStringAsFixed(0)}%',
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                ],
-              ),
+      bool readOnly, bool inline, TextStyle textStyle) {
+    final imageUrl = node.value.data;
+    return FutureBuilder<String>(
+      future: _uploadImage(imageUrl),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 10),
+                Text('Uploading...'),
+              ],
             ),
-          ),
-      ],
+          );
+        } else if (snapshot.hasError) {
+          print('Error in FutureBuilder: ${snapshot.error}');
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error, color: Colors.red),
+                SizedBox(height: 10),
+                Text('Upload failed. Tap to retry.'),
+                SizedBox(height: 10),
+                Text('Error: ${snapshot.error}'),
+              ],
+            ),
+          );
+        } else if (snapshot.hasData) {
+          print('Network URL received: ${snapshot.data}');
+          return Image.network(
+            snapshot.data!,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Center(
+                child: CircularProgressIndicator(
+                  value: loadingProgress.expectedTotalBytes != null
+                      ? loadingProgress.cumulativeBytesLoaded /
+                          loadingProgress.expectedTotalBytes!
+                      : null,
+                ),
+              );
+            },
+            errorBuilder: (context, error, stackTrace) {
+              print('Error loading image: $error');
+              return Text('Error loading image: $error');
+            },
+          );
+        } else {
+          return SizedBox.shrink();
+        }
+      },
     );
+  }
+
+  Future<String> _uploadImage(String localPath) async {
+    try {
+      final file = File(localPath);
+
+      if (!await file.exists()) {
+        throw Exception('File does not exist: $localPath');
+      }
+
+      final streamController = StreamController<double>();
+
+      final mediaUrl = await _s3Uploader.uploadFile(
+        'post/image',
+        file,
+        (progress) {
+          streamController.add(progress);
+          print('Upload progress: ${(progress * 100).toStringAsFixed(2)}%');
+        },
+      );
+
+      streamController.close();
+
+      print('Upload completed. Media URL: $mediaUrl');
+      onUploadComplete(localPath, mediaUrl);
+      return mediaUrl;
+    } catch (e) {
+      print('Error uploading image: $e');
+      rethrow;
+    }
   }
 }
 

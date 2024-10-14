@@ -15,7 +15,7 @@ import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
 import 'package:picnic_app/components/star_candy_info_text.dart';
 import 'package:picnic_app/config/environment.dart';
-import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/pages/mypage/privacy_page.dart';

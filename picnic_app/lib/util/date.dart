@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -45,9 +45,9 @@ String getCurrentTimeZoneIdentifier() {
     tz.Location location = tz.getLocation(systemTimeZone);
 
     return location.name; // 예: 'Europe/London', 'Asia/Seoul' 등
-  } catch (e,s) {
+  } catch (e, s) {
     // 오류 발생 시 시스템 시간대 이름 또는 UTC 반환
-    logger.e(e,stackTrace: s);
+    logger.e(e, stackTrace: s);
     return DateTime.now().timeZoneName;
   }
 }

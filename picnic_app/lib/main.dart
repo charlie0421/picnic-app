@@ -10,7 +10,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:picnic_app/app.dart';
 import 'package:picnic_app/config/environment.dart';
-import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/firebase_options.dart';
 import 'package:picnic_app/main.reflectable.dart';
 import 'package:picnic_app/util/auth_service.dart';

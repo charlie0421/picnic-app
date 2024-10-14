@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/bottom_navigation_menu.dart';
 import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/enums.dart';
+import 'package:picnic_app/extensions/portal_type_extension.dart';
 import 'package:picnic_app/navigation_stack.dart';
 import 'package:picnic_app/pages/mypage/mypage.dart';
 import 'package:picnic_app/pages/signup/login_page.dart';

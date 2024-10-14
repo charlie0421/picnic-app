@@ -13,7 +13,7 @@ import 'package:picnic_app/components/vote/store/purchase/purchase_star_candy.da
 import 'package:picnic_app/components/vote/store/purchase/receipt_verification_service.dart';
 import 'package:picnic_app/components/vote/store/purchase/store_list_tile.dart';
 import 'package:picnic_app/config/config_service.dart';
-import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';

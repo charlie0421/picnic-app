@@ -1,4 +1,4 @@
-import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/providers/mypage/bookmarked_artists_provider.dart';
 import 'package:picnic_app/supabase_options.dart';

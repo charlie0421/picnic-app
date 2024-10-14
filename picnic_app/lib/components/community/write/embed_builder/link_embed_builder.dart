@@ -6,7 +6,7 @@ import 'package:html/dom.dart' as html;
 import 'package:html/parser.dart' show parse;
 import 'package:http/http.dart' as http;
 import 'package:picnic_app/components/community/write/embed_builder/deletable_embed_builder.dart';
-import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
