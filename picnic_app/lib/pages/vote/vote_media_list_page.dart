@@ -4,13 +4,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/error.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/models/vote/video_info.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -112,6 +112,8 @@ class VideoListItem extends StatefulWidget {
 
 class _VideoListItemState extends State<VideoListItem> {
   late final WebViewController _controller;
+  bool _isLoading = true;
+  double _loadingProgress = 0.0;
 
   @override
   void initState() {
@@ -123,10 +125,16 @@ class _VideoListItemState extends State<VideoListItem> {
       ..setNavigationDelegate(
         NavigationDelegate(
           onProgress: (int progress) {
-            // Update loading bar.
+            setState(() {
+              _loadingProgress = progress / 100;
+            });
           },
           onPageStarted: (String url) {},
-          onPageFinished: (String url) {},
+          onPageFinished: (String url) {
+            setState(() {
+              _isLoading = false;
+            });
+          },
           onWebResourceError: (WebResourceError error) {},
           onNavigationRequest: (NavigationRequest request) {
             if (request.url.startsWith('https://www.youtube.com/')) {
@@ -161,7 +169,33 @@ class _VideoListItemState extends State<VideoListItem> {
         children: [
           AspectRatio(
             aspectRatio: 16 / 9,
-            child: WebViewWidget(controller: _controller),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                WebViewWidget(controller: _controller),
+                if (_isLoading)
+                  Container(
+                    color: AppColors.grey200,
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(
+                            value: _loadingProgress,
+                            valueColor: const AlwaysStoppedAnimation<Color>(
+                                AppColors.primary500),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            '${(_loadingProgress * 100).toStringAsFixed(0)}%',
+                            style: const TextStyle(color: AppColors.primary500),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
           const SizedBox(height: 8),
           Row(
