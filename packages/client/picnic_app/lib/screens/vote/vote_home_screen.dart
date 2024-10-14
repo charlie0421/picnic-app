@@ -77,7 +77,7 @@ class _VoteHomeScreenState extends ConsumerState<VoteHomeScreen> {
             const PicnicAnimatedSwitcher(),
             if (showBottomNavigation == true)
               Positioned(
-                bottom: 0,
+                bottom: MediaQuery.of(context).padding.bottom + 20,
                 left: 0,
                 right: 0,
                 child: CommonBottomNavigationBar(

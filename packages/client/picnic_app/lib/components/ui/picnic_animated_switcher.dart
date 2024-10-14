@@ -1,10 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/util/logger.dart';
 
 class PicnicAnimatedSwitcher extends ConsumerStatefulWidget {
   const PicnicAnimatedSwitcher({super.key});
@@ -17,8 +16,6 @@ class _PicnicAnimatedSwitcherState
     extends ConsumerState<PicnicAnimatedSwitcher> {
   bool _showAnimation = false;
   Widget? _previousTopWidget;
-  Uint8List? _gifBytes;
-  Key _animationKey = UniqueKey();
 
   @override
   void initState() {
@@ -26,18 +23,10 @@ class _PicnicAnimatedSwitcherState
     // _loadGifBytes();
   }
 
-  Future<void> _loadGifBytes() async {
-    final ByteData data = await rootBundle.load('assets/splash.gif');
-    setState(() {
-      _gifBytes = data.buffer.asUint8List();
-    });
-  }
-
   void _triggerAnimation() {
     if (mounted) {
       setState(() {
         _showAnimation = true;
-        _animationKey = UniqueKey();
       });
 
       Future.delayed(const Duration(milliseconds: 500), () {
@@ -76,20 +65,15 @@ class _PicnicAnimatedSwitcherState
           },
           child: Container(
             margin: navigationInfo.showBottomNavigation
-                ? const EdgeInsets.only(bottom: 102)
-                : null,
+                ? EdgeInsets.only(
+                    bottom: MediaQuery.of(context).padding.bottom + 52)
+                : EdgeInsets.only(
+                    bottom: MediaQuery.of(context).padding.bottom),
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).padding.bottom + 20),
             child: currentTopWidget ?? Container(),
           ),
         ),
-        if (_showAnimation && _gifBytes != null)
-          Positioned.fill(
-            key: _animationKey,
-            child: Image.memory(
-              _gifBytes!,
-              fit: BoxFit.fill,
-              gaplessPlayback: true,
-            ),
-          ),
       ],
     );
   }
