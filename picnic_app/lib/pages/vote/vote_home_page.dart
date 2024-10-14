@@ -134,35 +134,10 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
             firstPageProgressIndicatorBuilder: (context) => Shimmer.fromColors(
               baseColor: AppColors.grey300,
               highlightColor: AppColors.grey100,
-              child: ListView.separated(
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: 5,
-                  itemBuilder: (context, index) => Container(
-                        height: 120,
-                        padding: EdgeInsets.all(16.r),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 200,
-                              height: 20,
-                              color: Colors.white,
-                            ),
-                            const SizedBox(height: 8),
-                            Container(
-                              width: 100,
-                              height: 16,
-                              color: Colors.white,
-                            ),
-                          ],
-                        ),
-                      ),
-                  separatorBuilder: (BuildContext context, int index) =>
-                      const Divider(
-                        height: 1,
-                        color: AppColors.grey300,
-                      )),
+              child: Container(
+                  height: 400,
+                  color: Colors.white,
+                  margin: const EdgeInsets.all(16)),
             ),
             noItemsFoundIndicatorBuilder: (context) {
               return Container();
