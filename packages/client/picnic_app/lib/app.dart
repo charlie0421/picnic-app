@@ -14,7 +14,6 @@ import 'package:picnic_app/dialogs/update_dialog.dart';
 import 'package:picnic_app/enums.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/pages/oauth_callback_page.dart';
-import 'package:picnic_app/providers/ad_providers.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/global_media_query.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -73,11 +72,6 @@ class _AppState extends ConsumerState<App> {
     });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       ref.read(appSettingProvider.notifier);
-
-      if (!kIsWeb) {
-        ref.read(rewardedAdsProvider.notifier).loadAd(0);
-        ref.read(rewardedAdsProvider.notifier).loadAd(1);
-      }
     });
 
     if (!kIsWeb) {
@@ -101,7 +95,6 @@ class _AppState extends ConsumerState<App> {
       }
 
       if (data.event == AuthChangeEvent.signedIn) {
-        logger.i('User signed in');
         await ref.read(userInfoProvider.notifier).getUserProfiles();
         ref.read(userInfoProvider.notifier).subscribeToUserProfiles();
       } else if (data.event == AuthChangeEvent.signedOut) {
