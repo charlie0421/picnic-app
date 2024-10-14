@@ -29,8 +29,10 @@ class _CommonBottomNavigationBarState
     return userInfoState.when(
       data: (data) {
         return Container(
-          height: 102,
-          padding: EdgeInsets.only(left: 16.cw, right: 16.cw, bottom: 50),
+          margin: EdgeInsets.only(
+            left: 16.cw,
+            right: 16.cw,
+          ),
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
