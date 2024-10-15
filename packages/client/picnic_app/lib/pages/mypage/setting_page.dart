@@ -92,7 +92,6 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                       onTap: (v) {},
                     ),
                   ),
-                  const Divider(color: AppColors.grey200),
                   PicnicListItem(
                     leading: S.of(context).label_setting_event_alarm,
                     title: Container(
@@ -138,8 +137,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                       onTap: (v) {},
                     ),
                   ),
-                  const Divider(color: AppColors.grey200),
-                  const SizedBox(height: 48),
+                  const SizedBox(height: 24),
                   Text(S.of(context).label_setting_language,
                       style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
                   DropdownButtonFormField(
@@ -180,8 +178,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                       ));
                     },
                   ),
-                  const Divider(color: AppColors.grey200),
-                  const SizedBox(height: 48),
+                  const SizedBox(height: 24),
                   Text(S.of(context).label_setting_storage,
                       style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
                   PicnicListItem(
@@ -198,11 +195,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               onOk: () => Navigator.of(context).pop());
                         });
                       }),
-                  const Divider(color: AppColors.grey200),
-                  const SizedBox(height: 48),
+                  const SizedBox(height: 24),
                   Text(S.of(context).label_setting_appinfo,
                       style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
-                  const Divider(color: AppColors.grey200),
                   updateChecker.when(
                       data: (info) {
                         if (info == null) {
