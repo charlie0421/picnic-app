@@ -15,7 +15,6 @@ import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
 import 'package:picnic_app/components/star_candy_info_text.dart';
 import 'package:picnic_app/config/environment.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/pages/mypage/privacy_page.dart';
@@ -25,6 +24,7 @@ import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/auth_service.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:picnic_app/util/util.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
@@ -78,11 +78,6 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             const SizedBox(height: 4),
             buildValidationMsg(context),
             const SizedBox(height: 26),
-            const Divider(
-              color: AppColors.grey300,
-              thickness: 1,
-              height: 24,
-            ),
             if (supabase.isLogged)
               PicnicListItem(
                 leading: S.of(context).label_mypage_picnic_id,
@@ -99,11 +94,6 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                 onTap: () => copyToClipboard(
                     context, supabase.auth.currentUser?.id ?? ''),
               ),
-            const Divider(
-              color: AppColors.grey300,
-              thickness: 1,
-              height: 24,
-            ),
             PicnicListItem(
                 leading: S.of(context).label_mypage_terms_of_use,
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
@@ -112,11 +102,6 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                       .read(navigationInfoProvider.notifier)
                       .setCurrentMyPage(TermsPage());
                 }),
-            const Divider(
-              color: AppColors.grey300,
-              thickness: 1,
-              height: 24,
-            ),
             PicnicListItem(
                 leading: S.of(context).label_mypage_privacy_policy,
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
@@ -125,11 +110,6 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                       .read(navigationInfoProvider.notifier)
                       .setCurrentMyPage(const PrivacyPage());
                 }),
-            const Divider(
-              color: AppColors.grey300,
-              thickness: 1,
-              height: 24,
-            ),
             PicnicListItem(
                 leading: S.of(context).label_mypage_logout,
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
@@ -140,20 +120,10 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                       .setResetStackMyPage();
                   Navigator.of(context).pop();
                 }),
-            const Divider(
-              color: AppColors.grey300,
-              thickness: 1,
-              height: 24,
-            ),
             PicnicListItem(
                 leading: S.of(context).label_mypage_withdrawal,
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () => _showWithdrawalModal()),
-            const Divider(
-              color: AppColors.grey300,
-              thickness: 1,
-              height: 24,
-            ),
           ],
         ),
       ),
