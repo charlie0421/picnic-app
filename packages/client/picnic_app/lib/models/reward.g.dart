@@ -16,7 +16,7 @@ _$RewardModelImpl _$$RewardModelImplFromJson(Map<String, dynamic> json) =>
           .toList(),
       location: json['location'] as Map<String, dynamic>?,
       sizeGuide: json['size_guide'] as Map<String, dynamic>?,
-      size_guide_images: (json['size_guide_images'] as List<dynamic>?)
+      sizeGuideImages: (json['size_guide_images'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
     );
@@ -29,5 +29,5 @@ Map<String, dynamic> _$$RewardModelImplToJson(_$RewardModelImpl instance) =>
       'overview_images': instance.overviewImages,
       'location': instance.location,
       'size_guide': instance.sizeGuide,
-      'size_guide_images': instance.size_guide_images,
+      'size_guide_images': instance.sizeGuideImages,
     };

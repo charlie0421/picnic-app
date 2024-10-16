@@ -9,7 +9,6 @@ import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/components/vote/list/voting_complete.dart';
 import 'package:picnic_app/config/config_service.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
@@ -20,6 +19,7 @@ import 'package:picnic_app/providers/vote_detail_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
 Future showVotingDialog({
@@ -136,9 +136,10 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(120),
             child: PicnicCachedNetworkImage(
-              imageUrl: widget.voteItemModel.artist.id != 0
-                  ? widget.voteItemModel.artist.image
-                  : widget.voteItemModel.artist_group.image,
+              imageUrl: (widget.voteItemModel.artist.id != 0
+                      ? widget.voteItemModel.artist.image
+                      : widget.voteItemModel.artistGroup.image) ??
+                  '',
               width: 100,
               height: 100,
               useScreenUtil: false,
@@ -154,7 +155,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
               Text(
                 getLocaleTextFromJson(widget.voteItemModel.artist.id != 0
                     ? widget.voteItemModel.artist.name
-                    : widget.voteItemModel.artist_group.name),
+                    : widget.voteItemModel.artistGroup.name),
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               ),
               SizedBox(width: 8.cw),

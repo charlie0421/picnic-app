@@ -33,7 +33,7 @@ mixin _$RewardModel {
   @JsonKey(name: 'size_guide')
   Map<String, dynamic>? get sizeGuide => throw _privateConstructorUsedError;
   @JsonKey(name: 'size_guide_images')
-  List<String>? get size_guide_images => throw _privateConstructorUsedError;
+  List<String>? get sizeGuideImages => throw _privateConstructorUsedError;
 
   /// Serializes this RewardModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -58,7 +58,7 @@ abstract class $RewardModelCopyWith<$Res> {
       @JsonKey(name: 'overview_images') List<String>? overviewImages,
       @JsonKey(name: 'location') Map<String, dynamic>? location,
       @JsonKey(name: 'size_guide') Map<String, dynamic>? sizeGuide,
-      @JsonKey(name: 'size_guide_images') List<String>? size_guide_images});
+      @JsonKey(name: 'size_guide_images') List<String>? sizeGuideImages});
 }
 
 /// @nodoc
@@ -82,7 +82,7 @@ class _$RewardModelCopyWithImpl<$Res, $Val extends RewardModel>
     Object? overviewImages = freezed,
     Object? location = freezed,
     Object? sizeGuide = freezed,
-    Object? size_guide_images = freezed,
+    Object? sizeGuideImages = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -109,9 +109,9 @@ class _$RewardModelCopyWithImpl<$Res, $Val extends RewardModel>
           ? _value.sizeGuide
           : sizeGuide // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>?,
-      size_guide_images: freezed == size_guide_images
-          ? _value.size_guide_images
-          : size_guide_images // ignore: cast_nullable_to_non_nullable
+      sizeGuideImages: freezed == sizeGuideImages
+          ? _value.sizeGuideImages
+          : sizeGuideImages // ignore: cast_nullable_to_non_nullable
               as List<String>?,
     ) as $Val);
   }
@@ -132,7 +132,7 @@ abstract class _$$RewardModelImplCopyWith<$Res>
       @JsonKey(name: 'overview_images') List<String>? overviewImages,
       @JsonKey(name: 'location') Map<String, dynamic>? location,
       @JsonKey(name: 'size_guide') Map<String, dynamic>? sizeGuide,
-      @JsonKey(name: 'size_guide_images') List<String>? size_guide_images});
+      @JsonKey(name: 'size_guide_images') List<String>? sizeGuideImages});
 }
 
 /// @nodoc
@@ -154,7 +154,7 @@ class __$$RewardModelImplCopyWithImpl<$Res>
     Object? overviewImages = freezed,
     Object? location = freezed,
     Object? sizeGuide = freezed,
-    Object? size_guide_images = freezed,
+    Object? sizeGuideImages = freezed,
   }) {
     return _then(_$RewardModelImpl(
       id: null == id
@@ -181,9 +181,9 @@ class __$$RewardModelImplCopyWithImpl<$Res>
           ? _value._sizeGuide
           : sizeGuide // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>?,
-      size_guide_images: freezed == size_guide_images
-          ? _value._size_guide_images
-          : size_guide_images // ignore: cast_nullable_to_non_nullable
+      sizeGuideImages: freezed == sizeGuideImages
+          ? _value._sizeGuideImages
+          : sizeGuideImages // ignore: cast_nullable_to_non_nullable
               as List<String>?,
     ));
   }
@@ -199,13 +199,12 @@ class _$RewardModelImpl extends _RewardModel {
       @JsonKey(name: 'overview_images') final List<String>? overviewImages,
       @JsonKey(name: 'location') final Map<String, dynamic>? location,
       @JsonKey(name: 'size_guide') final Map<String, dynamic>? sizeGuide,
-      @JsonKey(name: 'size_guide_images')
-      final List<String>? size_guide_images})
+      @JsonKey(name: 'size_guide_images') final List<String>? sizeGuideImages})
       : _title = title,
         _overviewImages = overviewImages,
         _location = location,
         _sizeGuide = sizeGuide,
-        _size_guide_images = size_guide_images,
+        _sizeGuideImages = sizeGuideImages,
         super._();
 
   factory _$RewardModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -261,21 +260,20 @@ class _$RewardModelImpl extends _RewardModel {
     return EqualUnmodifiableMapView(value);
   }
 
-  final List<String>? _size_guide_images;
+  final List<String>? _sizeGuideImages;
   @override
   @JsonKey(name: 'size_guide_images')
-  List<String>? get size_guide_images {
-    final value = _size_guide_images;
+  List<String>? get sizeGuideImages {
+    final value = _sizeGuideImages;
     if (value == null) return null;
-    if (_size_guide_images is EqualUnmodifiableListView)
-      return _size_guide_images;
+    if (_sizeGuideImages is EqualUnmodifiableListView) return _sizeGuideImages;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(value);
   }
 
   @override
   String toString() {
-    return 'RewardModel(id: $id, title: $title, thumbnail: $thumbnail, overviewImages: $overviewImages, location: $location, sizeGuide: $sizeGuide, size_guide_images: $size_guide_images)';
+    return 'RewardModel(id: $id, title: $title, thumbnail: $thumbnail, overviewImages: $overviewImages, location: $location, sizeGuide: $sizeGuide, sizeGuideImages: $sizeGuideImages)';
   }
 
   @override
@@ -293,7 +291,7 @@ class _$RewardModelImpl extends _RewardModel {
             const DeepCollectionEquality()
                 .equals(other._sizeGuide, _sizeGuide) &&
             const DeepCollectionEquality()
-                .equals(other._size_guide_images, _size_guide_images));
+                .equals(other._sizeGuideImages, _sizeGuideImages));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -306,7 +304,7 @@ class _$RewardModelImpl extends _RewardModel {
       const DeepCollectionEquality().hash(_overviewImages),
       const DeepCollectionEquality().hash(_location),
       const DeepCollectionEquality().hash(_sizeGuide),
-      const DeepCollectionEquality().hash(_size_guide_images));
+      const DeepCollectionEquality().hash(_sizeGuideImages));
 
   /// Create a copy of RewardModel
   /// with the given fields replaced by the non-null parameter values.
@@ -333,7 +331,7 @@ abstract class _RewardModel extends RewardModel {
       @JsonKey(name: 'location') final Map<String, dynamic>? location,
       @JsonKey(name: 'size_guide') final Map<String, dynamic>? sizeGuide,
       @JsonKey(name: 'size_guide_images')
-      final List<String>? size_guide_images}) = _$RewardModelImpl;
+      final List<String>? sizeGuideImages}) = _$RewardModelImpl;
   const _RewardModel._() : super._();
 
   factory _RewardModel.fromJson(Map<String, dynamic> json) =
@@ -359,7 +357,7 @@ abstract class _RewardModel extends RewardModel {
   Map<String, dynamic>? get sizeGuide;
   @override
   @JsonKey(name: 'size_guide_images')
-  List<String>? get size_guide_images;
+  List<String>? get sizeGuideImages;
 
   /// Create a copy of RewardModel
   /// with the given fields replaced by the non-null parameter values.

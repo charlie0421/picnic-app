@@ -23,9 +23,7 @@ class AppSetting extends _$AppSetting {
 
   Future<void> loadSettings() async {
     final loadedSetting = await const Setting().load();
-    logger.d('로드된 설정 (loadSettings): ${loadedSetting.toString()}');
     state = loadedSetting;
-    logger.d('업데이트된 상태 (loadSettings): ${state.toString()}');
   }
 
   setThemeMode(String modeStr) {
@@ -41,10 +39,8 @@ class AppSetting extends _$AppSetting {
   }
 
   void setPostAnonymousMode(bool postAnonymousMode) {
-    logger.d('setPostAnonymousMode 호출: $postAnonymousMode');
     globalStorage.saveData('postAnonymousMode', postAnonymousMode.toString());
     state = state.copyWith(postAnonymousMode: postAnonymousMode);
-    logger.d('업데이트된 상태 (setPostAnonymousMode): ${state.toString()}');
   }
 }
 
