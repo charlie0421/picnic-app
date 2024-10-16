@@ -25,8 +25,8 @@ mixin _$ArtistModel {
   int? get yy => throw _privateConstructorUsedError;
   int? get mm => throw _privateConstructorUsedError;
   int? get dd => throw _privateConstructorUsedError;
-  String get gender => throw _privateConstructorUsedError;
-  String get image => throw _privateConstructorUsedError;
+  String? get gender => throw _privateConstructorUsedError;
+  String? get image => throw _privateConstructorUsedError;
   ArtistGroupModel get artist_group => throw _privateConstructorUsedError;
   bool? get isBookmarked => throw _privateConstructorUsedError;
   int? get originalIndex => throw _privateConstructorUsedError;
@@ -53,8 +53,8 @@ abstract class $ArtistModelCopyWith<$Res> {
       int? yy,
       int? mm,
       int? dd,
-      String gender,
-      String image,
+      String? gender,
+      String? image,
       ArtistGroupModel artist_group,
       bool? isBookmarked,
       int? originalIndex});
@@ -82,8 +82,8 @@ class _$ArtistModelCopyWithImpl<$Res, $Val extends ArtistModel>
     Object? yy = freezed,
     Object? mm = freezed,
     Object? dd = freezed,
-    Object? gender = null,
-    Object? image = null,
+    Object? gender = freezed,
+    Object? image = freezed,
     Object? artist_group = null,
     Object? isBookmarked = freezed,
     Object? originalIndex = freezed,
@@ -109,14 +109,14 @@ class _$ArtistModelCopyWithImpl<$Res, $Val extends ArtistModel>
           ? _value.dd
           : dd // ignore: cast_nullable_to_non_nullable
               as int?,
-      gender: null == gender
+      gender: freezed == gender
           ? _value.gender
           : gender // ignore: cast_nullable_to_non_nullable
-              as String,
-      image: null == image
+              as String?,
+      image: freezed == image
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       artist_group: null == artist_group
           ? _value.artist_group
           : artist_group // ignore: cast_nullable_to_non_nullable
@@ -157,8 +157,8 @@ abstract class _$$ArtistModelImplCopyWith<$Res>
       int? yy,
       int? mm,
       int? dd,
-      String gender,
-      String image,
+      String? gender,
+      String? image,
       ArtistGroupModel artist_group,
       bool? isBookmarked,
       int? originalIndex});
@@ -185,8 +185,8 @@ class __$$ArtistModelImplCopyWithImpl<$Res>
     Object? yy = freezed,
     Object? mm = freezed,
     Object? dd = freezed,
-    Object? gender = null,
-    Object? image = null,
+    Object? gender = freezed,
+    Object? image = freezed,
     Object? artist_group = null,
     Object? isBookmarked = freezed,
     Object? originalIndex = freezed,
@@ -212,14 +212,14 @@ class __$$ArtistModelImplCopyWithImpl<$Res>
           ? _value.dd
           : dd // ignore: cast_nullable_to_non_nullable
               as int?,
-      gender: null == gender
+      gender: freezed == gender
           ? _value.gender
           : gender // ignore: cast_nullable_to_non_nullable
-              as String,
-      image: null == image
+              as String?,
+      image: freezed == image
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       artist_group: null == artist_group
           ? _value.artist_group
           : artist_group // ignore: cast_nullable_to_non_nullable
@@ -273,9 +273,9 @@ class _$ArtistModelImpl extends _ArtistModel {
   @override
   final int? dd;
   @override
-  final String gender;
+  final String? gender;
   @override
-  final String image;
+  final String? image;
   @override
   final ArtistGroupModel artist_group;
   @override
@@ -346,8 +346,8 @@ abstract class _ArtistModel extends ArtistModel {
       required final int? yy,
       required final int? mm,
       required final int? dd,
-      required final String gender,
-      required final String image,
+      required final String? gender,
+      required final String? image,
       required final ArtistGroupModel artist_group,
       required final bool? isBookmarked,
       final int? originalIndex}) = _$ArtistModelImpl;
@@ -367,9 +367,9 @@ abstract class _ArtistModel extends ArtistModel {
   @override
   int? get dd;
   @override
-  String get gender;
+  String? get gender;
   @override
-  String get image;
+  String? get image;
   @override
   ArtistGroupModel get artist_group;
   @override

@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/models/reward.dart';
 import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/models/vote/artist_group.dart';
@@ -8,39 +7,26 @@ part 'vote.freezed.dart';
 part 'vote.g.dart';
 
 @freezed
-class VoteListModel with _$VoteListModel {
-  const VoteListModel._();
-
-  const factory VoteListModel({
-    required List<VoteModel> items,
-    required MetaModel meta,
-  }) = _VoteListModel;
-
-  factory VoteListModel.fromJson(Map<String, dynamic> json) =>
-      _$VoteListModelFromJson(json);
-}
-
-@freezed
 class VoteModel with _$VoteModel {
   const VoteModel._();
 
-  const factory VoteModel({
-    required int id,
-    required Map<String, dynamic> title,
-    required String vote_category,
-    required String main_image,
-    required String wait_image,
-    required String result_image,
-    required String vote_content,
-    required List<VoteItemModel>? vote_item,
-    required DateTime created_at,
-    required DateTime visible_at,
-    required DateTime stop_at,
-    required DateTime start_at,
-    required bool? is_ended,
-    required bool? is_upcoming,
-    required List<RewardModel>? reward,
-  }) = _VoteModel;
+  const factory VoteModel(
+          {@JsonKey(name: 'id') required int id,
+          @JsonKey(name: 'title') required Map<String, dynamic> title,
+          @JsonKey(name: 'vote_category') required String? voteCategory,
+          @JsonKey(name: 'main_image') required String? mainImage,
+          @JsonKey(name: 'wait_image') required String? waitImage,
+          @JsonKey(name: 'result_image') required String? resultImage,
+          @JsonKey(name: 'vote_content') required String? voteContent,
+          @JsonKey(name: 'vote_item') required List<VoteItemModel>? voteItem,
+          @JsonKey(name: 'created_at') required DateTime? createdAt,
+          @JsonKey(name: 'visible_at') required DateTime visibleAt,
+          @JsonKey(name: 'stop_at') required DateTime stopAt,
+          @JsonKey(name: 'start_at') required DateTime startAt,
+          @JsonKey(name: 'is_ended') required bool? isEnded,
+          @JsonKey(name: 'is_upcoming') required bool? isUpcoming,
+          @JsonKey(name: 'reward') required List<RewardModel>? reward}) =
+      _VoteModel;
 
   factory VoteModel.fromJson(Map<String, dynamic> json) =>
       _$VoteModelFromJson(json);
@@ -51,11 +37,12 @@ class VoteItemModel with _$VoteItemModel {
   const VoteItemModel._();
 
   const factory VoteItemModel(
-      {required int id,
-      required int vote_total,
-      required int vote_id,
-      required ArtistModel artist,
-      required ArtistGroupModel artist_group}) = _VoteItemModel;
+      {@JsonKey(name: 'id') required int id,
+      @JsonKey(name: 'vote_total') required int voteTotal,
+      @JsonKey(name: 'vote_id') required int voteId,
+      @JsonKey(name: 'artist') required ArtistModel artist,
+      @JsonKey(name: 'artist_group')
+      required ArtistGroupModel artistGroup}) = _VoteItemModel;
 
   factory VoteItemModel.fromJson(Map<String, dynamic> json) =>
       _$VoteItemModelFromJson(json);

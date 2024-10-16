@@ -5,7 +5,6 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/common/common_search_box.dart';
 import 'package:picnic_app/components/common/no_item_container.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/community/board.dart';
 import 'package:picnic_app/pages/community/post_list_page.dart';
@@ -14,6 +13,7 @@ import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -139,7 +139,7 @@ class _BoardPageState extends ConsumerState<BoardPage> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(16.r),
                 child: PicnicCachedNetworkImage(
-                    imageUrl: artist.image, width: 32, height: 32),
+                    imageUrl: artist.image ?? '', width: 32, height: 32),
               ),
               SizedBox(width: 8.cw),
               Expanded(

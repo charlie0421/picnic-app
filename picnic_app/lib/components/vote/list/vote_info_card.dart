@@ -121,8 +121,8 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
             VoteCardInfoHeader(
               title: getLocaleTextFromJson(vote.title),
               stopAt: widget.status == VoteStatus.upcoming
-                  ? vote.start_at
-                  : vote.stop_at,
+                  ? vote.startAt
+                  : vote.stopAt,
               onRefresh:
                   widget.status == VoteStatus.active ? _handleRefresh : null,
               status: widget.status,

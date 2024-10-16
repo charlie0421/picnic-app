@@ -14,219 +14,41 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
-VoteListModel _$VoteListModelFromJson(Map<String, dynamic> json) {
-  return _VoteListModel.fromJson(json);
-}
-
-/// @nodoc
-mixin _$VoteListModel {
-  List<VoteModel> get items => throw _privateConstructorUsedError;
-  MetaModel get meta => throw _privateConstructorUsedError;
-
-  /// Serializes this VoteListModel to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of VoteListModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $VoteListModelCopyWith<VoteListModel> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class $VoteListModelCopyWith<$Res> {
-  factory $VoteListModelCopyWith(
-          VoteListModel value, $Res Function(VoteListModel) then) =
-      _$VoteListModelCopyWithImpl<$Res, VoteListModel>;
-  @useResult
-  $Res call({List<VoteModel> items, MetaModel meta});
-
-  $MetaModelCopyWith<$Res> get meta;
-}
-
-/// @nodoc
-class _$VoteListModelCopyWithImpl<$Res, $Val extends VoteListModel>
-    implements $VoteListModelCopyWith<$Res> {
-  _$VoteListModelCopyWithImpl(this._value, this._then);
-
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
-
-  /// Create a copy of VoteListModel
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? items = null,
-    Object? meta = null,
-  }) {
-    return _then(_value.copyWith(
-      items: null == items
-          ? _value.items
-          : items // ignore: cast_nullable_to_non_nullable
-              as List<VoteModel>,
-      meta: null == meta
-          ? _value.meta
-          : meta // ignore: cast_nullable_to_non_nullable
-              as MetaModel,
-    ) as $Val);
-  }
-
-  /// Create a copy of VoteListModel
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $MetaModelCopyWith<$Res> get meta {
-    return $MetaModelCopyWith<$Res>(_value.meta, (value) {
-      return _then(_value.copyWith(meta: value) as $Val);
-    });
-  }
-}
-
-/// @nodoc
-abstract class _$$VoteListModelImplCopyWith<$Res>
-    implements $VoteListModelCopyWith<$Res> {
-  factory _$$VoteListModelImplCopyWith(
-          _$VoteListModelImpl value, $Res Function(_$VoteListModelImpl) then) =
-      __$$VoteListModelImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({List<VoteModel> items, MetaModel meta});
-
-  @override
-  $MetaModelCopyWith<$Res> get meta;
-}
-
-/// @nodoc
-class __$$VoteListModelImplCopyWithImpl<$Res>
-    extends _$VoteListModelCopyWithImpl<$Res, _$VoteListModelImpl>
-    implements _$$VoteListModelImplCopyWith<$Res> {
-  __$$VoteListModelImplCopyWithImpl(
-      _$VoteListModelImpl _value, $Res Function(_$VoteListModelImpl) _then)
-      : super(_value, _then);
-
-  /// Create a copy of VoteListModel
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? items = null,
-    Object? meta = null,
-  }) {
-    return _then(_$VoteListModelImpl(
-      items: null == items
-          ? _value._items
-          : items // ignore: cast_nullable_to_non_nullable
-              as List<VoteModel>,
-      meta: null == meta
-          ? _value.meta
-          : meta // ignore: cast_nullable_to_non_nullable
-              as MetaModel,
-    ));
-  }
-}
-
-/// @nodoc
-@JsonSerializable()
-class _$VoteListModelImpl extends _VoteListModel {
-  const _$VoteListModelImpl(
-      {required final List<VoteModel> items, required this.meta})
-      : _items = items,
-        super._();
-
-  factory _$VoteListModelImpl.fromJson(Map<String, dynamic> json) =>
-      _$$VoteListModelImplFromJson(json);
-
-  final List<VoteModel> _items;
-  @override
-  List<VoteModel> get items {
-    if (_items is EqualUnmodifiableListView) return _items;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_items);
-  }
-
-  @override
-  final MetaModel meta;
-
-  @override
-  String toString() {
-    return 'VoteListModel(items: $items, meta: $meta)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$VoteListModelImpl &&
-            const DeepCollectionEquality().equals(other._items, _items) &&
-            (identical(other.meta, meta) || other.meta == meta));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(
-      runtimeType, const DeepCollectionEquality().hash(_items), meta);
-
-  /// Create a copy of VoteListModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$VoteListModelImplCopyWith<_$VoteListModelImpl> get copyWith =>
-      __$$VoteListModelImplCopyWithImpl<_$VoteListModelImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$VoteListModelImplToJson(
-      this,
-    );
-  }
-}
-
-abstract class _VoteListModel extends VoteListModel {
-  const factory _VoteListModel(
-      {required final List<VoteModel> items,
-      required final MetaModel meta}) = _$VoteListModelImpl;
-  const _VoteListModel._() : super._();
-
-  factory _VoteListModel.fromJson(Map<String, dynamic> json) =
-      _$VoteListModelImpl.fromJson;
-
-  @override
-  List<VoteModel> get items;
-  @override
-  MetaModel get meta;
-
-  /// Create a copy of VoteListModel
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$VoteListModelImplCopyWith<_$VoteListModelImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
 VoteModel _$VoteModelFromJson(Map<String, dynamic> json) {
   return _VoteModel.fromJson(json);
 }
 
 /// @nodoc
 mixin _$VoteModel {
+  @JsonKey(name: 'id')
   int get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'title')
   Map<String, dynamic> get title => throw _privateConstructorUsedError;
-  String get vote_category => throw _privateConstructorUsedError;
-  String get main_image => throw _privateConstructorUsedError;
-  String get wait_image => throw _privateConstructorUsedError;
-  String get result_image => throw _privateConstructorUsedError;
-  String get vote_content => throw _privateConstructorUsedError;
-  List<VoteItemModel>? get vote_item => throw _privateConstructorUsedError;
-  DateTime get created_at => throw _privateConstructorUsedError;
-  DateTime get visible_at => throw _privateConstructorUsedError;
-  DateTime get stop_at => throw _privateConstructorUsedError;
-  DateTime get start_at => throw _privateConstructorUsedError;
-  bool? get is_ended => throw _privateConstructorUsedError;
-  bool? get is_upcoming => throw _privateConstructorUsedError;
+  @JsonKey(name: 'vote_category')
+  String? get voteCategory => throw _privateConstructorUsedError;
+  @JsonKey(name: 'main_image')
+  String? get mainImage => throw _privateConstructorUsedError;
+  @JsonKey(name: 'wait_image')
+  String? get waitImage => throw _privateConstructorUsedError;
+  @JsonKey(name: 'result_image')
+  String? get resultImage => throw _privateConstructorUsedError;
+  @JsonKey(name: 'vote_content')
+  String? get voteContent => throw _privateConstructorUsedError;
+  @JsonKey(name: 'vote_item')
+  List<VoteItemModel>? get voteItem => throw _privateConstructorUsedError;
+  @JsonKey(name: 'created_at')
+  DateTime? get createdAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'visible_at')
+  DateTime get visibleAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'stop_at')
+  DateTime get stopAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'start_at')
+  DateTime get startAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'is_ended')
+  bool? get isEnded => throw _privateConstructorUsedError;
+  @JsonKey(name: 'is_upcoming')
+  bool? get isUpcoming => throw _privateConstructorUsedError;
+  @JsonKey(name: 'reward')
   List<RewardModel>? get reward => throw _privateConstructorUsedError;
 
   /// Serializes this VoteModel to a JSON map.
@@ -245,21 +67,21 @@ abstract class $VoteModelCopyWith<$Res> {
       _$VoteModelCopyWithImpl<$Res, VoteModel>;
   @useResult
   $Res call(
-      {int id,
-      Map<String, dynamic> title,
-      String vote_category,
-      String main_image,
-      String wait_image,
-      String result_image,
-      String vote_content,
-      List<VoteItemModel>? vote_item,
-      DateTime created_at,
-      DateTime visible_at,
-      DateTime stop_at,
-      DateTime start_at,
-      bool? is_ended,
-      bool? is_upcoming,
-      List<RewardModel>? reward});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'title') Map<String, dynamic> title,
+      @JsonKey(name: 'vote_category') String? voteCategory,
+      @JsonKey(name: 'main_image') String? mainImage,
+      @JsonKey(name: 'wait_image') String? waitImage,
+      @JsonKey(name: 'result_image') String? resultImage,
+      @JsonKey(name: 'vote_content') String? voteContent,
+      @JsonKey(name: 'vote_item') List<VoteItemModel>? voteItem,
+      @JsonKey(name: 'created_at') DateTime? createdAt,
+      @JsonKey(name: 'visible_at') DateTime visibleAt,
+      @JsonKey(name: 'stop_at') DateTime stopAt,
+      @JsonKey(name: 'start_at') DateTime startAt,
+      @JsonKey(name: 'is_ended') bool? isEnded,
+      @JsonKey(name: 'is_upcoming') bool? isUpcoming,
+      @JsonKey(name: 'reward') List<RewardModel>? reward});
 }
 
 /// @nodoc
@@ -279,18 +101,18 @@ class _$VoteModelCopyWithImpl<$Res, $Val extends VoteModel>
   $Res call({
     Object? id = null,
     Object? title = null,
-    Object? vote_category = null,
-    Object? main_image = null,
-    Object? wait_image = null,
-    Object? result_image = null,
-    Object? vote_content = null,
-    Object? vote_item = freezed,
-    Object? created_at = null,
-    Object? visible_at = null,
-    Object? stop_at = null,
-    Object? start_at = null,
-    Object? is_ended = freezed,
-    Object? is_upcoming = freezed,
+    Object? voteCategory = freezed,
+    Object? mainImage = freezed,
+    Object? waitImage = freezed,
+    Object? resultImage = freezed,
+    Object? voteContent = freezed,
+    Object? voteItem = freezed,
+    Object? createdAt = freezed,
+    Object? visibleAt = null,
+    Object? stopAt = null,
+    Object? startAt = null,
+    Object? isEnded = freezed,
+    Object? isUpcoming = freezed,
     Object? reward = freezed,
   }) {
     return _then(_value.copyWith(
@@ -302,53 +124,53 @@ class _$VoteModelCopyWithImpl<$Res, $Val extends VoteModel>
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>,
-      vote_category: null == vote_category
-          ? _value.vote_category
-          : vote_category // ignore: cast_nullable_to_non_nullable
-              as String,
-      main_image: null == main_image
-          ? _value.main_image
-          : main_image // ignore: cast_nullable_to_non_nullable
-              as String,
-      wait_image: null == wait_image
-          ? _value.wait_image
-          : wait_image // ignore: cast_nullable_to_non_nullable
-              as String,
-      result_image: null == result_image
-          ? _value.result_image
-          : result_image // ignore: cast_nullable_to_non_nullable
-              as String,
-      vote_content: null == vote_content
-          ? _value.vote_content
-          : vote_content // ignore: cast_nullable_to_non_nullable
-              as String,
-      vote_item: freezed == vote_item
-          ? _value.vote_item
-          : vote_item // ignore: cast_nullable_to_non_nullable
+      voteCategory: freezed == voteCategory
+          ? _value.voteCategory
+          : voteCategory // ignore: cast_nullable_to_non_nullable
+              as String?,
+      mainImage: freezed == mainImage
+          ? _value.mainImage
+          : mainImage // ignore: cast_nullable_to_non_nullable
+              as String?,
+      waitImage: freezed == waitImage
+          ? _value.waitImage
+          : waitImage // ignore: cast_nullable_to_non_nullable
+              as String?,
+      resultImage: freezed == resultImage
+          ? _value.resultImage
+          : resultImage // ignore: cast_nullable_to_non_nullable
+              as String?,
+      voteContent: freezed == voteContent
+          ? _value.voteContent
+          : voteContent // ignore: cast_nullable_to_non_nullable
+              as String?,
+      voteItem: freezed == voteItem
+          ? _value.voteItem
+          : voteItem // ignore: cast_nullable_to_non_nullable
               as List<VoteItemModel>?,
-      created_at: null == created_at
-          ? _value.created_at
-          : created_at // ignore: cast_nullable_to_non_nullable
+      createdAt: freezed == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      visibleAt: null == visibleAt
+          ? _value.visibleAt
+          : visibleAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      visible_at: null == visible_at
-          ? _value.visible_at
-          : visible_at // ignore: cast_nullable_to_non_nullable
+      stopAt: null == stopAt
+          ? _value.stopAt
+          : stopAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      stop_at: null == stop_at
-          ? _value.stop_at
-          : stop_at // ignore: cast_nullable_to_non_nullable
+      startAt: null == startAt
+          ? _value.startAt
+          : startAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      start_at: null == start_at
-          ? _value.start_at
-          : start_at // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      is_ended: freezed == is_ended
-          ? _value.is_ended
-          : is_ended // ignore: cast_nullable_to_non_nullable
+      isEnded: freezed == isEnded
+          ? _value.isEnded
+          : isEnded // ignore: cast_nullable_to_non_nullable
               as bool?,
-      is_upcoming: freezed == is_upcoming
-          ? _value.is_upcoming
-          : is_upcoming // ignore: cast_nullable_to_non_nullable
+      isUpcoming: freezed == isUpcoming
+          ? _value.isUpcoming
+          : isUpcoming // ignore: cast_nullable_to_non_nullable
               as bool?,
       reward: freezed == reward
           ? _value.reward
@@ -367,21 +189,21 @@ abstract class _$$VoteModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int id,
-      Map<String, dynamic> title,
-      String vote_category,
-      String main_image,
-      String wait_image,
-      String result_image,
-      String vote_content,
-      List<VoteItemModel>? vote_item,
-      DateTime created_at,
-      DateTime visible_at,
-      DateTime stop_at,
-      DateTime start_at,
-      bool? is_ended,
-      bool? is_upcoming,
-      List<RewardModel>? reward});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'title') Map<String, dynamic> title,
+      @JsonKey(name: 'vote_category') String? voteCategory,
+      @JsonKey(name: 'main_image') String? mainImage,
+      @JsonKey(name: 'wait_image') String? waitImage,
+      @JsonKey(name: 'result_image') String? resultImage,
+      @JsonKey(name: 'vote_content') String? voteContent,
+      @JsonKey(name: 'vote_item') List<VoteItemModel>? voteItem,
+      @JsonKey(name: 'created_at') DateTime? createdAt,
+      @JsonKey(name: 'visible_at') DateTime visibleAt,
+      @JsonKey(name: 'stop_at') DateTime stopAt,
+      @JsonKey(name: 'start_at') DateTime startAt,
+      @JsonKey(name: 'is_ended') bool? isEnded,
+      @JsonKey(name: 'is_upcoming') bool? isUpcoming,
+      @JsonKey(name: 'reward') List<RewardModel>? reward});
 }
 
 /// @nodoc
@@ -399,18 +221,18 @@ class __$$VoteModelImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? title = null,
-    Object? vote_category = null,
-    Object? main_image = null,
-    Object? wait_image = null,
-    Object? result_image = null,
-    Object? vote_content = null,
-    Object? vote_item = freezed,
-    Object? created_at = null,
-    Object? visible_at = null,
-    Object? stop_at = null,
-    Object? start_at = null,
-    Object? is_ended = freezed,
-    Object? is_upcoming = freezed,
+    Object? voteCategory = freezed,
+    Object? mainImage = freezed,
+    Object? waitImage = freezed,
+    Object? resultImage = freezed,
+    Object? voteContent = freezed,
+    Object? voteItem = freezed,
+    Object? createdAt = freezed,
+    Object? visibleAt = null,
+    Object? stopAt = null,
+    Object? startAt = null,
+    Object? isEnded = freezed,
+    Object? isUpcoming = freezed,
     Object? reward = freezed,
   }) {
     return _then(_$VoteModelImpl(
@@ -422,53 +244,53 @@ class __$$VoteModelImplCopyWithImpl<$Res>
           ? _value._title
           : title // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>,
-      vote_category: null == vote_category
-          ? _value.vote_category
-          : vote_category // ignore: cast_nullable_to_non_nullable
-              as String,
-      main_image: null == main_image
-          ? _value.main_image
-          : main_image // ignore: cast_nullable_to_non_nullable
-              as String,
-      wait_image: null == wait_image
-          ? _value.wait_image
-          : wait_image // ignore: cast_nullable_to_non_nullable
-              as String,
-      result_image: null == result_image
-          ? _value.result_image
-          : result_image // ignore: cast_nullable_to_non_nullable
-              as String,
-      vote_content: null == vote_content
-          ? _value.vote_content
-          : vote_content // ignore: cast_nullable_to_non_nullable
-              as String,
-      vote_item: freezed == vote_item
-          ? _value._vote_item
-          : vote_item // ignore: cast_nullable_to_non_nullable
+      voteCategory: freezed == voteCategory
+          ? _value.voteCategory
+          : voteCategory // ignore: cast_nullable_to_non_nullable
+              as String?,
+      mainImage: freezed == mainImage
+          ? _value.mainImage
+          : mainImage // ignore: cast_nullable_to_non_nullable
+              as String?,
+      waitImage: freezed == waitImage
+          ? _value.waitImage
+          : waitImage // ignore: cast_nullable_to_non_nullable
+              as String?,
+      resultImage: freezed == resultImage
+          ? _value.resultImage
+          : resultImage // ignore: cast_nullable_to_non_nullable
+              as String?,
+      voteContent: freezed == voteContent
+          ? _value.voteContent
+          : voteContent // ignore: cast_nullable_to_non_nullable
+              as String?,
+      voteItem: freezed == voteItem
+          ? _value._voteItem
+          : voteItem // ignore: cast_nullable_to_non_nullable
               as List<VoteItemModel>?,
-      created_at: null == created_at
-          ? _value.created_at
-          : created_at // ignore: cast_nullable_to_non_nullable
+      createdAt: freezed == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      visibleAt: null == visibleAt
+          ? _value.visibleAt
+          : visibleAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      visible_at: null == visible_at
-          ? _value.visible_at
-          : visible_at // ignore: cast_nullable_to_non_nullable
+      stopAt: null == stopAt
+          ? _value.stopAt
+          : stopAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      stop_at: null == stop_at
-          ? _value.stop_at
-          : stop_at // ignore: cast_nullable_to_non_nullable
+      startAt: null == startAt
+          ? _value.startAt
+          : startAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      start_at: null == start_at
-          ? _value.start_at
-          : start_at // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      is_ended: freezed == is_ended
-          ? _value.is_ended
-          : is_ended // ignore: cast_nullable_to_non_nullable
+      isEnded: freezed == isEnded
+          ? _value.isEnded
+          : isEnded // ignore: cast_nullable_to_non_nullable
               as bool?,
-      is_upcoming: freezed == is_upcoming
-          ? _value.is_upcoming
-          : is_upcoming // ignore: cast_nullable_to_non_nullable
+      isUpcoming: freezed == isUpcoming
+          ? _value.isUpcoming
+          : isUpcoming // ignore: cast_nullable_to_non_nullable
               as bool?,
       reward: freezed == reward
           ? _value._reward
@@ -482,23 +304,23 @@ class __$$VoteModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$VoteModelImpl extends _VoteModel {
   const _$VoteModelImpl(
-      {required this.id,
-      required final Map<String, dynamic> title,
-      required this.vote_category,
-      required this.main_image,
-      required this.wait_image,
-      required this.result_image,
-      required this.vote_content,
-      required final List<VoteItemModel>? vote_item,
-      required this.created_at,
-      required this.visible_at,
-      required this.stop_at,
-      required this.start_at,
-      required this.is_ended,
-      required this.is_upcoming,
-      required final List<RewardModel>? reward})
+      {@JsonKey(name: 'id') required this.id,
+      @JsonKey(name: 'title') required final Map<String, dynamic> title,
+      @JsonKey(name: 'vote_category') required this.voteCategory,
+      @JsonKey(name: 'main_image') required this.mainImage,
+      @JsonKey(name: 'wait_image') required this.waitImage,
+      @JsonKey(name: 'result_image') required this.resultImage,
+      @JsonKey(name: 'vote_content') required this.voteContent,
+      @JsonKey(name: 'vote_item') required final List<VoteItemModel>? voteItem,
+      @JsonKey(name: 'created_at') required this.createdAt,
+      @JsonKey(name: 'visible_at') required this.visibleAt,
+      @JsonKey(name: 'stop_at') required this.stopAt,
+      @JsonKey(name: 'start_at') required this.startAt,
+      @JsonKey(name: 'is_ended') required this.isEnded,
+      @JsonKey(name: 'is_upcoming') required this.isUpcoming,
+      @JsonKey(name: 'reward') required final List<RewardModel>? reward})
       : _title = title,
-        _vote_item = vote_item,
+        _voteItem = voteItem,
         _reward = reward,
         super._();
 
@@ -506,9 +328,11 @@ class _$VoteModelImpl extends _VoteModel {
       _$$VoteModelImplFromJson(json);
 
   @override
+  @JsonKey(name: 'id')
   final int id;
   final Map<String, dynamic> _title;
   @override
+  @JsonKey(name: 'title')
   Map<String, dynamic> get title {
     if (_title is EqualUnmodifiableMapView) return _title;
     // ignore: implicit_dynamic_type
@@ -516,39 +340,52 @@ class _$VoteModelImpl extends _VoteModel {
   }
 
   @override
-  final String vote_category;
+  @JsonKey(name: 'vote_category')
+  final String? voteCategory;
   @override
-  final String main_image;
+  @JsonKey(name: 'main_image')
+  final String? mainImage;
   @override
-  final String wait_image;
+  @JsonKey(name: 'wait_image')
+  final String? waitImage;
   @override
-  final String result_image;
+  @JsonKey(name: 'result_image')
+  final String? resultImage;
   @override
-  final String vote_content;
-  final List<VoteItemModel>? _vote_item;
+  @JsonKey(name: 'vote_content')
+  final String? voteContent;
+  final List<VoteItemModel>? _voteItem;
   @override
-  List<VoteItemModel>? get vote_item {
-    final value = _vote_item;
+  @JsonKey(name: 'vote_item')
+  List<VoteItemModel>? get voteItem {
+    final value = _voteItem;
     if (value == null) return null;
-    if (_vote_item is EqualUnmodifiableListView) return _vote_item;
+    if (_voteItem is EqualUnmodifiableListView) return _voteItem;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(value);
   }
 
   @override
-  final DateTime created_at;
+  @JsonKey(name: 'created_at')
+  final DateTime? createdAt;
   @override
-  final DateTime visible_at;
+  @JsonKey(name: 'visible_at')
+  final DateTime visibleAt;
   @override
-  final DateTime stop_at;
+  @JsonKey(name: 'stop_at')
+  final DateTime stopAt;
   @override
-  final DateTime start_at;
+  @JsonKey(name: 'start_at')
+  final DateTime startAt;
   @override
-  final bool? is_ended;
+  @JsonKey(name: 'is_ended')
+  final bool? isEnded;
   @override
-  final bool? is_upcoming;
+  @JsonKey(name: 'is_upcoming')
+  final bool? isUpcoming;
   final List<RewardModel>? _reward;
   @override
+  @JsonKey(name: 'reward')
   List<RewardModel>? get reward {
     final value = _reward;
     if (value == null) return null;
@@ -559,7 +396,7 @@ class _$VoteModelImpl extends _VoteModel {
 
   @override
   String toString() {
-    return 'VoteModel(id: $id, title: $title, vote_category: $vote_category, main_image: $main_image, wait_image: $wait_image, result_image: $result_image, vote_content: $vote_content, vote_item: $vote_item, created_at: $created_at, visible_at: $visible_at, stop_at: $stop_at, start_at: $start_at, is_ended: $is_ended, is_upcoming: $is_upcoming, reward: $reward)';
+    return 'VoteModel(id: $id, title: $title, voteCategory: $voteCategory, mainImage: $mainImage, waitImage: $waitImage, resultImage: $resultImage, voteContent: $voteContent, voteItem: $voteItem, createdAt: $createdAt, visibleAt: $visibleAt, stopAt: $stopAt, startAt: $startAt, isEnded: $isEnded, isUpcoming: $isUpcoming, reward: $reward)';
   }
 
   @override
@@ -569,29 +406,26 @@ class _$VoteModelImpl extends _VoteModel {
             other is _$VoteModelImpl &&
             (identical(other.id, id) || other.id == id) &&
             const DeepCollectionEquality().equals(other._title, _title) &&
-            (identical(other.vote_category, vote_category) ||
-                other.vote_category == vote_category) &&
-            (identical(other.main_image, main_image) ||
-                other.main_image == main_image) &&
-            (identical(other.wait_image, wait_image) ||
-                other.wait_image == wait_image) &&
-            (identical(other.result_image, result_image) ||
-                other.result_image == result_image) &&
-            (identical(other.vote_content, vote_content) ||
-                other.vote_content == vote_content) &&
-            const DeepCollectionEquality()
-                .equals(other._vote_item, _vote_item) &&
-            (identical(other.created_at, created_at) ||
-                other.created_at == created_at) &&
-            (identical(other.visible_at, visible_at) ||
-                other.visible_at == visible_at) &&
-            (identical(other.stop_at, stop_at) || other.stop_at == stop_at) &&
-            (identical(other.start_at, start_at) ||
-                other.start_at == start_at) &&
-            (identical(other.is_ended, is_ended) ||
-                other.is_ended == is_ended) &&
-            (identical(other.is_upcoming, is_upcoming) ||
-                other.is_upcoming == is_upcoming) &&
+            (identical(other.voteCategory, voteCategory) ||
+                other.voteCategory == voteCategory) &&
+            (identical(other.mainImage, mainImage) ||
+                other.mainImage == mainImage) &&
+            (identical(other.waitImage, waitImage) ||
+                other.waitImage == waitImage) &&
+            (identical(other.resultImage, resultImage) ||
+                other.resultImage == resultImage) &&
+            (identical(other.voteContent, voteContent) ||
+                other.voteContent == voteContent) &&
+            const DeepCollectionEquality().equals(other._voteItem, _voteItem) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.visibleAt, visibleAt) ||
+                other.visibleAt == visibleAt) &&
+            (identical(other.stopAt, stopAt) || other.stopAt == stopAt) &&
+            (identical(other.startAt, startAt) || other.startAt == startAt) &&
+            (identical(other.isEnded, isEnded) || other.isEnded == isEnded) &&
+            (identical(other.isUpcoming, isUpcoming) ||
+                other.isUpcoming == isUpcoming) &&
             const DeepCollectionEquality().equals(other._reward, _reward));
   }
 
@@ -601,18 +435,18 @@ class _$VoteModelImpl extends _VoteModel {
       runtimeType,
       id,
       const DeepCollectionEquality().hash(_title),
-      vote_category,
-      main_image,
-      wait_image,
-      result_image,
-      vote_content,
-      const DeepCollectionEquality().hash(_vote_item),
-      created_at,
-      visible_at,
-      stop_at,
-      start_at,
-      is_ended,
-      is_upcoming,
+      voteCategory,
+      mainImage,
+      waitImage,
+      resultImage,
+      voteContent,
+      const DeepCollectionEquality().hash(_voteItem),
+      createdAt,
+      visibleAt,
+      stopAt,
+      startAt,
+      isEnded,
+      isUpcoming,
       const DeepCollectionEquality().hash(_reward));
 
   /// Create a copy of VoteModel
@@ -633,20 +467,21 @@ class _$VoteModelImpl extends _VoteModel {
 
 abstract class _VoteModel extends VoteModel {
   const factory _VoteModel(
-      {required final int id,
-      required final Map<String, dynamic> title,
-      required final String vote_category,
-      required final String main_image,
-      required final String wait_image,
-      required final String result_image,
-      required final String vote_content,
-      required final List<VoteItemModel>? vote_item,
-      required final DateTime created_at,
-      required final DateTime visible_at,
-      required final DateTime stop_at,
-      required final DateTime start_at,
-      required final bool? is_ended,
-      required final bool? is_upcoming,
+      {@JsonKey(name: 'id') required final int id,
+      @JsonKey(name: 'title') required final Map<String, dynamic> title,
+      @JsonKey(name: 'vote_category') required final String? voteCategory,
+      @JsonKey(name: 'main_image') required final String? mainImage,
+      @JsonKey(name: 'wait_image') required final String? waitImage,
+      @JsonKey(name: 'result_image') required final String? resultImage,
+      @JsonKey(name: 'vote_content') required final String? voteContent,
+      @JsonKey(name: 'vote_item') required final List<VoteItemModel>? voteItem,
+      @JsonKey(name: 'created_at') required final DateTime? createdAt,
+      @JsonKey(name: 'visible_at') required final DateTime visibleAt,
+      @JsonKey(name: 'stop_at') required final DateTime stopAt,
+      @JsonKey(name: 'start_at') required final DateTime startAt,
+      @JsonKey(name: 'is_ended') required final bool? isEnded,
+      @JsonKey(name: 'is_upcoming') required final bool? isUpcoming,
+      @JsonKey(name: 'reward')
       required final List<RewardModel>? reward}) = _$VoteModelImpl;
   const _VoteModel._() : super._();
 
@@ -654,34 +489,49 @@ abstract class _VoteModel extends VoteModel {
       _$VoteModelImpl.fromJson;
 
   @override
+  @JsonKey(name: 'id')
   int get id;
   @override
+  @JsonKey(name: 'title')
   Map<String, dynamic> get title;
   @override
-  String get vote_category;
+  @JsonKey(name: 'vote_category')
+  String? get voteCategory;
   @override
-  String get main_image;
+  @JsonKey(name: 'main_image')
+  String? get mainImage;
   @override
-  String get wait_image;
+  @JsonKey(name: 'wait_image')
+  String? get waitImage;
   @override
-  String get result_image;
+  @JsonKey(name: 'result_image')
+  String? get resultImage;
   @override
-  String get vote_content;
+  @JsonKey(name: 'vote_content')
+  String? get voteContent;
   @override
-  List<VoteItemModel>? get vote_item;
+  @JsonKey(name: 'vote_item')
+  List<VoteItemModel>? get voteItem;
   @override
-  DateTime get created_at;
+  @JsonKey(name: 'created_at')
+  DateTime? get createdAt;
   @override
-  DateTime get visible_at;
+  @JsonKey(name: 'visible_at')
+  DateTime get visibleAt;
   @override
-  DateTime get stop_at;
+  @JsonKey(name: 'stop_at')
+  DateTime get stopAt;
   @override
-  DateTime get start_at;
+  @JsonKey(name: 'start_at')
+  DateTime get startAt;
   @override
-  bool? get is_ended;
+  @JsonKey(name: 'is_ended')
+  bool? get isEnded;
   @override
-  bool? get is_upcoming;
+  @JsonKey(name: 'is_upcoming')
+  bool? get isUpcoming;
   @override
+  @JsonKey(name: 'reward')
   List<RewardModel>? get reward;
 
   /// Create a copy of VoteModel
@@ -698,11 +548,16 @@ VoteItemModel _$VoteItemModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$VoteItemModel {
+  @JsonKey(name: 'id')
   int get id => throw _privateConstructorUsedError;
-  int get vote_total => throw _privateConstructorUsedError;
-  int get vote_id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'vote_total')
+  int get voteTotal => throw _privateConstructorUsedError;
+  @JsonKey(name: 'vote_id')
+  int get voteId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'artist')
   ArtistModel get artist => throw _privateConstructorUsedError;
-  ArtistGroupModel get artist_group => throw _privateConstructorUsedError;
+  @JsonKey(name: 'artist_group')
+  ArtistGroupModel get artistGroup => throw _privateConstructorUsedError;
 
   /// Serializes this VoteItemModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -721,14 +576,14 @@ abstract class $VoteItemModelCopyWith<$Res> {
       _$VoteItemModelCopyWithImpl<$Res, VoteItemModel>;
   @useResult
   $Res call(
-      {int id,
-      int vote_total,
-      int vote_id,
-      ArtistModel artist,
-      ArtistGroupModel artist_group});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'vote_total') int voteTotal,
+      @JsonKey(name: 'vote_id') int voteId,
+      @JsonKey(name: 'artist') ArtistModel artist,
+      @JsonKey(name: 'artist_group') ArtistGroupModel artistGroup});
 
   $ArtistModelCopyWith<$Res> get artist;
-  $ArtistGroupModelCopyWith<$Res> get artist_group;
+  $ArtistGroupModelCopyWith<$Res> get artistGroup;
 }
 
 /// @nodoc
@@ -747,31 +602,31 @@ class _$VoteItemModelCopyWithImpl<$Res, $Val extends VoteItemModel>
   @override
   $Res call({
     Object? id = null,
-    Object? vote_total = null,
-    Object? vote_id = null,
+    Object? voteTotal = null,
+    Object? voteId = null,
     Object? artist = null,
-    Object? artist_group = null,
+    Object? artistGroup = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      vote_total: null == vote_total
-          ? _value.vote_total
-          : vote_total // ignore: cast_nullable_to_non_nullable
+      voteTotal: null == voteTotal
+          ? _value.voteTotal
+          : voteTotal // ignore: cast_nullable_to_non_nullable
               as int,
-      vote_id: null == vote_id
-          ? _value.vote_id
-          : vote_id // ignore: cast_nullable_to_non_nullable
+      voteId: null == voteId
+          ? _value.voteId
+          : voteId // ignore: cast_nullable_to_non_nullable
               as int,
       artist: null == artist
           ? _value.artist
           : artist // ignore: cast_nullable_to_non_nullable
               as ArtistModel,
-      artist_group: null == artist_group
-          ? _value.artist_group
-          : artist_group // ignore: cast_nullable_to_non_nullable
+      artistGroup: null == artistGroup
+          ? _value.artistGroup
+          : artistGroup // ignore: cast_nullable_to_non_nullable
               as ArtistGroupModel,
     ) as $Val);
   }
@@ -790,9 +645,9 @@ class _$VoteItemModelCopyWithImpl<$Res, $Val extends VoteItemModel>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $ArtistGroupModelCopyWith<$Res> get artist_group {
-    return $ArtistGroupModelCopyWith<$Res>(_value.artist_group, (value) {
-      return _then(_value.copyWith(artist_group: value) as $Val);
+  $ArtistGroupModelCopyWith<$Res> get artistGroup {
+    return $ArtistGroupModelCopyWith<$Res>(_value.artistGroup, (value) {
+      return _then(_value.copyWith(artistGroup: value) as $Val);
     });
   }
 }
@@ -806,16 +661,16 @@ abstract class _$$VoteItemModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int id,
-      int vote_total,
-      int vote_id,
-      ArtistModel artist,
-      ArtistGroupModel artist_group});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'vote_total') int voteTotal,
+      @JsonKey(name: 'vote_id') int voteId,
+      @JsonKey(name: 'artist') ArtistModel artist,
+      @JsonKey(name: 'artist_group') ArtistGroupModel artistGroup});
 
   @override
   $ArtistModelCopyWith<$Res> get artist;
   @override
-  $ArtistGroupModelCopyWith<$Res> get artist_group;
+  $ArtistGroupModelCopyWith<$Res> get artistGroup;
 }
 
 /// @nodoc
@@ -832,31 +687,31 @@ class __$$VoteItemModelImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? vote_total = null,
-    Object? vote_id = null,
+    Object? voteTotal = null,
+    Object? voteId = null,
     Object? artist = null,
-    Object? artist_group = null,
+    Object? artistGroup = null,
   }) {
     return _then(_$VoteItemModelImpl(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      vote_total: null == vote_total
-          ? _value.vote_total
-          : vote_total // ignore: cast_nullable_to_non_nullable
+      voteTotal: null == voteTotal
+          ? _value.voteTotal
+          : voteTotal // ignore: cast_nullable_to_non_nullable
               as int,
-      vote_id: null == vote_id
-          ? _value.vote_id
-          : vote_id // ignore: cast_nullable_to_non_nullable
+      voteId: null == voteId
+          ? _value.voteId
+          : voteId // ignore: cast_nullable_to_non_nullable
               as int,
       artist: null == artist
           ? _value.artist
           : artist // ignore: cast_nullable_to_non_nullable
               as ArtistModel,
-      artist_group: null == artist_group
-          ? _value.artist_group
-          : artist_group // ignore: cast_nullable_to_non_nullable
+      artistGroup: null == artistGroup
+          ? _value.artistGroup
+          : artistGroup // ignore: cast_nullable_to_non_nullable
               as ArtistGroupModel,
     ));
   }
@@ -866,30 +721,35 @@ class __$$VoteItemModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$VoteItemModelImpl extends _VoteItemModel {
   const _$VoteItemModelImpl(
-      {required this.id,
-      required this.vote_total,
-      required this.vote_id,
-      required this.artist,
-      required this.artist_group})
+      {@JsonKey(name: 'id') required this.id,
+      @JsonKey(name: 'vote_total') required this.voteTotal,
+      @JsonKey(name: 'vote_id') required this.voteId,
+      @JsonKey(name: 'artist') required this.artist,
+      @JsonKey(name: 'artist_group') required this.artistGroup})
       : super._();
 
   factory _$VoteItemModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$VoteItemModelImplFromJson(json);
 
   @override
+  @JsonKey(name: 'id')
   final int id;
   @override
-  final int vote_total;
+  @JsonKey(name: 'vote_total')
+  final int voteTotal;
   @override
-  final int vote_id;
+  @JsonKey(name: 'vote_id')
+  final int voteId;
   @override
+  @JsonKey(name: 'artist')
   final ArtistModel artist;
   @override
-  final ArtistGroupModel artist_group;
+  @JsonKey(name: 'artist_group')
+  final ArtistGroupModel artistGroup;
 
   @override
   String toString() {
-    return 'VoteItemModel(id: $id, vote_total: $vote_total, vote_id: $vote_id, artist: $artist, artist_group: $artist_group)';
+    return 'VoteItemModel(id: $id, voteTotal: $voteTotal, voteId: $voteId, artist: $artist, artistGroup: $artistGroup)';
   }
 
   @override
@@ -898,18 +758,18 @@ class _$VoteItemModelImpl extends _VoteItemModel {
         (other.runtimeType == runtimeType &&
             other is _$VoteItemModelImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.vote_total, vote_total) ||
-                other.vote_total == vote_total) &&
-            (identical(other.vote_id, vote_id) || other.vote_id == vote_id) &&
+            (identical(other.voteTotal, voteTotal) ||
+                other.voteTotal == voteTotal) &&
+            (identical(other.voteId, voteId) || other.voteId == voteId) &&
             (identical(other.artist, artist) || other.artist == artist) &&
-            (identical(other.artist_group, artist_group) ||
-                other.artist_group == artist_group));
+            (identical(other.artistGroup, artistGroup) ||
+                other.artistGroup == artistGroup));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, id, vote_total, vote_id, artist, artist_group);
+      Object.hash(runtimeType, id, voteTotal, voteId, artist, artistGroup);
 
   /// Create a copy of VoteItemModel
   /// with the given fields replaced by the non-null parameter values.
@@ -929,26 +789,32 @@ class _$VoteItemModelImpl extends _VoteItemModel {
 
 abstract class _VoteItemModel extends VoteItemModel {
   const factory _VoteItemModel(
-      {required final int id,
-      required final int vote_total,
-      required final int vote_id,
-      required final ArtistModel artist,
-      required final ArtistGroupModel artist_group}) = _$VoteItemModelImpl;
+      {@JsonKey(name: 'id') required final int id,
+      @JsonKey(name: 'vote_total') required final int voteTotal,
+      @JsonKey(name: 'vote_id') required final int voteId,
+      @JsonKey(name: 'artist') required final ArtistModel artist,
+      @JsonKey(name: 'artist_group')
+      required final ArtistGroupModel artistGroup}) = _$VoteItemModelImpl;
   const _VoteItemModel._() : super._();
 
   factory _VoteItemModel.fromJson(Map<String, dynamic> json) =
       _$VoteItemModelImpl.fromJson;
 
   @override
+  @JsonKey(name: 'id')
   int get id;
   @override
-  int get vote_total;
+  @JsonKey(name: 'vote_total')
+  int get voteTotal;
   @override
-  int get vote_id;
+  @JsonKey(name: 'vote_id')
+  int get voteId;
   @override
+  @JsonKey(name: 'artist')
   ArtistModel get artist;
   @override
-  ArtistGroupModel get artist_group;
+  @JsonKey(name: 'artist_group')
+  ArtistGroupModel get artistGroup;
 
   /// Create a copy of VoteItemModel
   /// with the given fields replaced by the non-null parameter values.

@@ -80,7 +80,7 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
       if (state.value != null) {
         final updatedList = state.value!.map<VoteItemModel>((item) {
           if (item != null && item.id == id) {
-            item = item.copyWith(vote_total: voteTotal);
+            item = item.copyWith(voteTotal: voteTotal);
           }
           return item!;
         }).toList();
@@ -89,7 +89,7 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
 
         //sort by total_vote
         state = AsyncValue.data(state.value!.toList()
-          ..sort((a, b) => b!.vote_total.compareTo(a!.vote_total)));
+          ..sort((a, b) => b!.voteTotal.compareTo(a!.voteTotal)));
 
         logger.i('Updated vote item in state: $id with voteTotal: $voteTotal');
       }

@@ -6,7 +6,7 @@ part of 'vote_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$asyncVoteListHash() => r'2b13dc4e3f50a1e5d70ad12874d837b6266c5c43';
+String _$asyncVoteListHash() => r'a2b62a581b86cafea9c9ada48b8acf38dc7dabc6';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -30,7 +30,7 @@ class _SystemHash {
 }
 
 abstract class _$AsyncVoteList
-    extends BuildlessAutoDisposeAsyncNotifier<VoteListModel> {
+    extends BuildlessAutoDisposeAsyncNotifier<List<VoteModel>> {
   late final int page;
   late final int limit;
   late final String sort;
@@ -38,7 +38,7 @@ abstract class _$AsyncVoteList
   late final VoteStatus status;
   late final VoteCategory category;
 
-  FutureOr<VoteListModel> build(
+  FutureOr<List<VoteModel>> build(
     int page,
     int limit,
     String sort,
@@ -53,7 +53,7 @@ abstract class _$AsyncVoteList
 const asyncVoteListProvider = AsyncVoteListFamily();
 
 /// See also [AsyncVoteList].
-class AsyncVoteListFamily extends Family<AsyncValue<VoteListModel>> {
+class AsyncVoteListFamily extends Family<AsyncValue<List<VoteModel>>> {
   /// See also [AsyncVoteList].
   const AsyncVoteListFamily();
 
@@ -106,8 +106,8 @@ class AsyncVoteListFamily extends Family<AsyncValue<VoteListModel>> {
 }
 
 /// See also [AsyncVoteList].
-class AsyncVoteListProvider
-    extends AutoDisposeAsyncNotifierProviderImpl<AsyncVoteList, VoteListModel> {
+class AsyncVoteListProvider extends AutoDisposeAsyncNotifierProviderImpl<
+    AsyncVoteList, List<VoteModel>> {
   /// See also [AsyncVoteList].
   AsyncVoteListProvider(
     int page,
@@ -164,7 +164,7 @@ class AsyncVoteListProvider
   final VoteCategory category;
 
   @override
-  FutureOr<VoteListModel> runNotifierBuild(
+  FutureOr<List<VoteModel>> runNotifierBuild(
     covariant AsyncVoteList notifier,
   ) {
     return notifier.build(
@@ -205,7 +205,7 @@ class AsyncVoteListProvider
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<AsyncVoteList, VoteListModel>
+  AutoDisposeAsyncNotifierProviderElement<AsyncVoteList, List<VoteModel>>
       createElement() {
     return _AsyncVoteListProviderElement(this);
   }
@@ -235,7 +235,7 @@ class AsyncVoteListProvider
   }
 }
 
-mixin AsyncVoteListRef on AutoDisposeAsyncNotifierProviderRef<VoteListModel> {
+mixin AsyncVoteListRef on AutoDisposeAsyncNotifierProviderRef<List<VoteModel>> {
   /// The parameter `page` of this provider.
   int get page;
 
@@ -257,7 +257,7 @@ mixin AsyncVoteListRef on AutoDisposeAsyncNotifierProviderRef<VoteListModel> {
 
 class _AsyncVoteListProviderElement
     extends AutoDisposeAsyncNotifierProviderElement<AsyncVoteList,
-        VoteListModel> with AsyncVoteListRef {
+        List<VoteModel>> with AsyncVoteListRef {
   _AsyncVoteListProviderElement(super.provider);
 
   @override

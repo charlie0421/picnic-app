@@ -144,7 +144,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   .toLowerCase()
                   .contains(query.toLowerCase()) ||
           data[index]!.artist != 0 &&
-              getLocaleTextFromJson(data[index]!.artist_group.name)
+              getLocaleTextFromJson(data[index]!.artistGroup.name)
                   .toLowerCase()
                   .contains(query.toLowerCase());
     }).toList();
@@ -155,8 +155,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     return ref.watch(asyncVoteDetailProvider(voteId: widget.voteId)).when(
           data: (voteModel) {
             if (voteModel == null) return const SizedBox.shrink();
-            isEnded = voteModel.is_ended!;
-            isUpcoming = voteModel.is_upcoming!;
+            isEnded = voteModel.isEnded!;
+            isUpcoming = voteModel.isUpcoming!;
 
             return GestureDetector(
               onTap: () => _focusNode.unfocus(),
@@ -185,7 +185,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         SizedBox(
           width: width,
           child: PicnicCachedNetworkImage(
-            imageUrl: voteModel.main_image,
+            imageUrl: voteModel?.mainImage ?? '',
             width: width.toInt(),
             memCacheWidth: width.toInt(),
           ),
@@ -199,8 +199,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         SizedBox(
           height: 18,
           child: Text(
-            '${DateFormat('yyyy.MM.dd HH:mm').format(voteModel.start_at.toLocal())} ~ '
-            '${DateFormat('yyyy.MM.dd HH:mm').format(voteModel.stop_at.toLocal())} '
+            '${DateFormat('yyyy.MM.dd HH:mm').format(voteModel.startAt.toLocal())} ~ '
+            '${DateFormat('yyyy.MM.dd HH:mm').format(voteModel.startAt.toLocal())} '
             '(${getShortTimeZoneIdentifier()})',
             style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
           ),
@@ -300,14 +300,14 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   }
 
   Widget _buildVoteItem(BuildContext context, VoteItemModel item, int index) {
-    final previousVoteCount = _previousVoteCounts[item.id] ?? item.vote_total;
-    final voteCountDiff = item.vote_total - previousVoteCount;
+    final previousVoteCount = _previousVoteCounts[item.id] ?? item.voteTotal;
+    final voteCountDiff = item.voteTotal - previousVoteCount;
 
     final previousRank = _previousRanks[item.id] ?? index + 1;
     final rankChanged = previousRank != index + 1;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _previousVoteCounts[item.id] = item.vote_total;
+      _previousVoteCounts[item.id] = item.voteTotal;
       _previousRanks[item.id] = index + 1;
     });
 
@@ -379,7 +379,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                               : [
                                   TextSpan(
                                     text: getLocaleTextFromJson(
-                                        item.artist_group.name),
+                                        item.artistGroup.name),
                                     style: getTextStyle(
                                         AppTypo.body14B, AppColors.grey900),
                                   ),
@@ -423,10 +423,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         child: PicnicCachedNetworkImage(
           key: ValueKey(item.artist.id != 0
               ? item.artist.image
-              : item.artist_group.image ?? ''),
-          imageUrl: item.artist.id != 0
-              ? item.artist.image
-              : item.artist_group.image ?? '',
+              : item.artistGroup.image ?? ''),
+          imageUrl: (item.artist.id != 0
+                  ? item.artist.image
+                  : item.artistGroup.image) ??
+              '',
           fit: BoxFit.cover,
           width: 80,
           height: 80,
@@ -451,7 +452,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             borderRadius: BorderRadius.circular(10.r),
           ),
           // 변화가 있을 때 key를 변경하여 새로운 애니메이션 트리거
-          key: ValueKey(hasChanged ? item.vote_total : 'static'),
+          key: ValueKey(hasChanged ? item.voteTotal : 'static'),
         ),
         Container(
           width: double.infinity,
@@ -460,7 +461,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
           alignment: Alignment.centerRight,
           child: hasChanged
               ? AnimatedDigitWidget(
-                  value: item.vote_total,
+                  value: item.voteTotal,
                   enableSeparator: true,
                   duration: const Duration(milliseconds: 500),
                   curve: Curves.easeInOut,
@@ -468,7 +469,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                       getTextStyle(AppTypo.caption10SB, AppColors.grey00),
                 )
               : Text(
-                  NumberFormat('#,###').format(item.vote_total),
+                  NumberFormat('#,###').format(item.voteTotal),
                   style: getTextStyle(AppTypo.caption10SB, AppColors.grey00),
                 ),
         ),

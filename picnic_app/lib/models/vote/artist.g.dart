@@ -13,8 +13,8 @@ _$ArtistModelImpl _$$ArtistModelImplFromJson(Map<String, dynamic> json) =>
       yy: (json['yy'] as num?)?.toInt(),
       mm: (json['mm'] as num?)?.toInt(),
       dd: (json['dd'] as num?)?.toInt(),
-      gender: json['gender'] as String,
-      image: json['image'] as String,
+      gender: json['gender'] as String?,
+      image: json['image'] as String?,
       artist_group: ArtistGroupModel.fromJson(
           json['artist_group'] as Map<String, dynamic>),
       isBookmarked: json['isBookmarked'] as bool?,

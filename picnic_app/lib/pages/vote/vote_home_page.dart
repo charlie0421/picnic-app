@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:logger/logger.dart';
 import 'package:picnic_app/components/common/common_banner.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/common/reward_dialog.dart';
@@ -14,79 +17,73 @@ import 'package:picnic_app/pages/vote/vote_list_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/reward_list_provider.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
-import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+
+final logger = Logger();
 
 class VoteHomePage extends ConsumerStatefulWidget {
   const VoteHomePage({super.key});
-  final showPortal = true;
-  final showBottomNavigation = true;
 
   @override
   ConsumerState<VoteHomePage> createState() => _VoteHomePageState();
 }
 
 class _VoteHomePageState extends ConsumerState<VoteHomePage> {
-  final PagingController<int, VoteModel> _upcomingPagingController =
+  final PagingController<int, VoteModel> _pagingController =
       PagingController(firstPageKey: 1);
-  final PagingController<int, VoteModel> _activePagingController =
-      PagingController(firstPageKey: 1);
+  static const _pageSize = 20;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-          showPortal: true, showTopMenu: true, showBottomNavigation: true);
-    });
-    _initPagingController(_upcomingPagingController, 'upcoming');
-    _initPagingController(_activePagingController, 'active');
+    _pagingController.addPageRequestListener(_fetchPage);
   }
 
-  void _initPagingController(
-      PagingController<int, VoteModel> controller, String type) {
-    controller.addPageRequestListener((pageKey) {
-      _fetch(pageKey, 10).then((newItems) {
-        final typeItems = newItems[type]!;
-        final isLastPage =
-            typeItems.meta.currentPage == typeItems.meta.totalPages;
-        if (isLastPage) {
-          controller.appendLastPage(typeItems.items);
-        } else {
-          final nextPageKey = typeItems.meta.currentPage + 1;
-          controller.appendPage(typeItems.items, nextPageKey);
-        }
-      });
-    });
+  Future<void> _fetchPage(int pageKey) async {
+    try {
+      final newItems = await ref.read(asyncVoteListProvider(
+        pageKey,
+        _pageSize,
+        'vote.id',
+        'DESC',
+        status: VoteStatus.activeAndUpcoming,
+        category: VoteCategory.all,
+      ).future);
+
+      final isLastPage = newItems.length < _pageSize;
+      if (isLastPage) {
+        _pagingController.appendLastPage(newItems);
+      } else {
+        _pagingController.appendPage(newItems, pageKey + 1);
+      }
+    } catch (e, s) {
+      _pagingController.error = e;
+      logger.e(e, stackTrace: s);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return ListView(children: [
-      const CommonBanner('vote_home', 786 / 400),
-      const SizedBox(height: 36),
-      _buildRewardList(context),
-      const SizedBox(height: 36),
-      _buildVoteListTitle(),
-
-      //TODO 구분을 enum 으로 변경
-      _buildVoteSection(context, "Upcoming Votes", _upcomingPagingController),
-      _buildVoteSection(context, "Active Votes", _activePagingController),
-    ]);
+    return ListView(
+      children: [
+        const CommonBanner('vote_home', 786 / 400),
+        const SizedBox(height: 36),
+        _buildRewardList(context),
+        const SizedBox(height: 36),
+        _buildVoteListTitle(),
+        _buildVoteSection(),
+      ],
+    );
   }
 
   Widget _buildVoteListTitle() {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () {
-        ref
-            .read(navigationInfoProvider.notifier)
-            .setCurrentPage(const VoteListPage(), showTopMenu: false);
-      },
+      onTap: () => ref
+          .read(navigationInfoProvider.notifier)
+          .setCurrentPage(const VoteListPage(), showTopMenu: false),
       child: Container(
         padding: const EdgeInsets.only(left: 16),
         alignment: Alignment.centerLeft,
@@ -107,201 +104,129 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
     );
   }
 
-  Widget _buildVoteSection(BuildContext context, String title,
-      PagingController<int, VoteModel> controller) {
+  Widget _buildVoteSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         PagedListView<int, VoteModel>.separated(
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
-          pagingController: controller,
+          pagingController: _pagingController,
           builderDelegate: PagedChildBuilderDelegate<VoteModel>(
-            itemBuilder: (context, item, index) => VoteInfoCard(
-              context: context,
-              vote: item,
-              status: title == "Upcoming Votes"
+            firstPageProgressIndicatorBuilder: (context) =>
+                SizedBox(height: 400, child: buildLoadingOverlay()),
+            itemBuilder: (context, vote, index) {
+              final now = DateTime.now().toUtc();
+              final status = vote.startAt.isAfter(now)
                   ? VoteStatus.upcoming
-                  : VoteStatus.active,
-            ),
-            firstPageErrorIndicatorBuilder: (context) {
-              return ErrorView(context,
-                  error: controller.error.toString(),
-                  retryFunction: () => controller.refresh(),
-                  stackTrace: controller.error.stackTrace);
-            },
-            firstPageProgressIndicatorBuilder: (context) => Shimmer.fromColors(
-              baseColor: AppColors.grey300,
-              highlightColor: AppColors.grey100,
-              child: Container(
-                  height: 400,
-                  color: Colors.white,
-                  margin: const EdgeInsets.all(16)),
-            ),
-            noItemsFoundIndicatorBuilder: (context) {
-              return Container();
+                  : VoteStatus.active;
+              return VoteInfoCard(context: context, vote: vote, status: status);
             },
           ),
-          separatorBuilder: (BuildContext context, int index) => const Divider(
-            height: 1,
-            color: AppColors.grey300,
-          ),
+          separatorBuilder: (context, index) =>
+              const Divider(height: 1, color: AppColors.grey300),
         ),
       ],
     );
   }
 
-  Future<Map<String, VoteListModel>> _fetch(int page, int limit) async {
-    final now = DateTime.now().toUtc();
-
-    final upcomingResponse = await supabase
-        .from('vote')
-        .select('*, vote_item(*, artist(*, artist_group(*)), artist_group(*))')
-        .gt('start_at', now)
-        .order('start_at', ascending: true)
-        .order('order', ascending: true)
-        .range((page - 1) * limit, page * limit - 1)
-        .limit(limit)
-        .count();
-
-    final activeResponse = await supabase
-        .from('vote')
-        .select('*,vote_item(*,artist(*,artist_group(*)),artist_group(*))')
-        .lte('start_at', now)
-        .gt('stop_at', now)
-        .order('stop_at', ascending: true)
-        .order('order', ascending: true)
-        .range((page - 1) * limit, page * limit - 1)
-        .limit(limit)
-        .count();
-
-    logger.i('Upcoming votes: $upcomingResponse');
-    logger.i('Active votes: $activeResponse');
-
-    final upcomingMeta = _createMeta(upcomingResponse, page, limit);
-    final activeMeta = _createMeta(activeResponse, page, limit);
-
-    final ret = {
-      'upcoming': VoteListModel.fromJson(
-          {'items': upcomingResponse.data, 'meta': upcomingMeta}),
-      'active': VoteListModel.fromJson(
-          {'items': activeResponse.data, 'meta': activeMeta}),
-    };
-
-    return ret;
-  }
-
-  Map<String, dynamic> _createMeta(
-      PostgrestResponse response, int page, int limit) {
-    return {
-      'totalItems': response.count,
-      'currentPage': page,
-      'itemCount': response.data.length,
-      'itemsPerPage': limit,
-      'totalPages': response.count ~/ limit + 1,
-    };
-  }
-
   Widget _buildRewardList(BuildContext context) {
     final asyncRewardListState = ref.watch(asyncRewardListProvider);
-    return Column(children: [
-      Container(
-        padding: EdgeInsets.only(left: 16.cw),
-        alignment: Alignment.centerLeft,
-        child: Text(S.of(context).label_vote_reward_list,
-            style: getTextStyle(AppTypo.title18B, AppColors.grey900)),
-      ),
-      const SizedBox(height: 16),
-      asyncRewardListState.when(
-          data: (data) {
-            return Container(
-              alignment: Alignment.centerLeft,
-              padding: EdgeInsets.only(left: 16.cw),
-              height: 100,
-              child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: data.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    String title = data[index].getTitle();
-
-                    return GestureDetector(
-                      onTap: () {
-                        showRewardDialog(context, data[index]);
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 16),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8).r,
-                        ),
-                        child: SizedBox(
-                          width: 120,
-                          height: 100,
-                          child: Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(8).r,
-                                child: PicnicCachedNetworkImage(
-                                    imageUrl: data[index].thumbnail ?? '',
-                                    width: 120,
-                                    height: 100,
-                                    useScreenUtil: false,
-                                    fit: BoxFit.fitWidth),
-                              ),
-                              Positioned(
-                                bottom: 0,
-                                child: Container(
-                                  width: 120,
-                                  height: 30,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.only(
-                                        bottomLeft: const Radius.circular(8).r,
-                                        bottomRight:
-                                            const Radius.circular(8).r),
-                                    color: Colors.black.withOpacity(0.5),
-                                  ),
-                                  alignment: Alignment.center,
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 4, horizontal: 8),
-                                  child: Text(
-                                    title,
-                                    style: getTextStyle(
-                                            AppTypo.body14R, Colors.white)
-                                        .copyWith(
-                                            overflow: TextOverflow.ellipsis),
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
-            );
-          },
-          loading: () => Shimmer.fromColors(
-                baseColor: AppColors.grey300,
-                highlightColor: AppColors.grey100,
-                child: SizedBox(
-                  height: 100,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: 5,
-                    itemBuilder: (BuildContext context, int index) => Container(
+    return Column(
+      children: [
+        Container(
+          padding: EdgeInsets.only(left: 16.cw),
+          alignment: Alignment.centerLeft,
+          child: Text(S.of(context).label_vote_reward_list,
+              style: getTextStyle(AppTypo.title18B, AppColors.grey900)),
+        ),
+        const SizedBox(height: 16),
+        asyncRewardListState.when(
+          data: (data) => Container(
+            alignment: Alignment.centerLeft,
+            padding: EdgeInsets.only(left: 16.cw),
+            height: 100,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: data.length,
+              itemBuilder: (context, index) {
+                final title = data[index].getTitle();
+                return GestureDetector(
+                  onTap: () => showRewardDialog(context, data[index]),
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 16),
+                    decoration:
+                        BoxDecoration(borderRadius: BorderRadius.circular(8).r),
+                    child: SizedBox(
                       width: 120,
                       height: 100,
-                      margin: EdgeInsets.only(
-                          left: 16.cw, right: index == 4 ? 16.cw : 0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8.r),
-                        color: Colors.white,
+                      child: Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8).r,
+                            child: PicnicCachedNetworkImage(
+                              imageUrl: data[index].thumbnail ?? '',
+                              width: 120,
+                              height: 100,
+                              useScreenUtil: false,
+                              fit: BoxFit.fitWidth,
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            child: Container(
+                              width: 120,
+                              height: 30,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                                  bottomLeft: const Radius.circular(8).r,
+                                  bottomRight: const Radius.circular(8).r,
+                                ),
+                                color: Colors.black.withOpacity(0.5),
+                              ),
+                              alignment: Alignment.center,
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 8),
+                              child: Text(
+                                title,
+                                style: getTextStyle(
+                                        AppTypo.body14R, Colors.white)
+                                    .copyWith(overflow: TextOverflow.ellipsis),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
+                );
+              },
+            ),
+          ),
+          loading: () => Shimmer.fromColors(
+            baseColor: AppColors.grey300,
+            highlightColor: AppColors.grey100,
+            child: SizedBox(
+              height: 100,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: 5,
+                itemBuilder: (context, index) => Container(
+                  width: 120,
+                  height: 100,
+                  margin: EdgeInsets.only(
+                      left: 16.cw, right: index == 4 ? 16.cw : 0),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8.r),
+                      color: Colors.white),
                 ),
               ),
+            ),
+          ),
           error: (error, stackTrace) => ErrorView(context,
-              error: error.toString(), stackTrace: stackTrace)),
-    ]);
+              error: error.toString(), stackTrace: stackTrace),
+        ),
+      ],
+    );
   }
 }

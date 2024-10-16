@@ -6,38 +6,26 @@ part of 'vote.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$VoteListModelImpl _$$VoteListModelImplFromJson(Map<String, dynamic> json) =>
-    _$VoteListModelImpl(
-      items: (json['items'] as List<dynamic>)
-          .map((e) => VoteModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      meta: MetaModel.fromJson(json['meta'] as Map<String, dynamic>),
-    );
-
-Map<String, dynamic> _$$VoteListModelImplToJson(_$VoteListModelImpl instance) =>
-    <String, dynamic>{
-      'items': instance.items,
-      'meta': instance.meta,
-    };
-
 _$VoteModelImpl _$$VoteModelImplFromJson(Map<String, dynamic> json) =>
     _$VoteModelImpl(
       id: (json['id'] as num).toInt(),
       title: json['title'] as Map<String, dynamic>,
-      vote_category: json['vote_category'] as String,
-      main_image: json['main_image'] as String,
-      wait_image: json['wait_image'] as String,
-      result_image: json['result_image'] as String,
-      vote_content: json['vote_content'] as String,
-      vote_item: (json['vote_item'] as List<dynamic>?)
+      voteCategory: json['vote_category'] as String?,
+      mainImage: json['main_image'] as String?,
+      waitImage: json['wait_image'] as String?,
+      resultImage: json['result_image'] as String?,
+      voteContent: json['vote_content'] as String?,
+      voteItem: (json['vote_item'] as List<dynamic>?)
           ?.map((e) => VoteItemModel.fromJson(e as Map<String, dynamic>))
           .toList(),
-      created_at: DateTime.parse(json['created_at'] as String),
-      visible_at: DateTime.parse(json['visible_at'] as String),
-      stop_at: DateTime.parse(json['stop_at'] as String),
-      start_at: DateTime.parse(json['start_at'] as String),
-      is_ended: json['is_ended'] as bool?,
-      is_upcoming: json['is_upcoming'] as bool?,
+      createdAt: json['created_at'] == null
+          ? null
+          : DateTime.parse(json['created_at'] as String),
+      visibleAt: DateTime.parse(json['visible_at'] as String),
+      stopAt: DateTime.parse(json['stop_at'] as String),
+      startAt: DateTime.parse(json['start_at'] as String),
+      isEnded: json['is_ended'] as bool?,
+      isUpcoming: json['is_upcoming'] as bool?,
       reward: (json['reward'] as List<dynamic>?)
           ?.map((e) => RewardModel.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -47,36 +35,36 @@ Map<String, dynamic> _$$VoteModelImplToJson(_$VoteModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'title': instance.title,
-      'vote_category': instance.vote_category,
-      'main_image': instance.main_image,
-      'wait_image': instance.wait_image,
-      'result_image': instance.result_image,
-      'vote_content': instance.vote_content,
-      'vote_item': instance.vote_item,
-      'created_at': instance.created_at.toIso8601String(),
-      'visible_at': instance.visible_at.toIso8601String(),
-      'stop_at': instance.stop_at.toIso8601String(),
-      'start_at': instance.start_at.toIso8601String(),
-      'is_ended': instance.is_ended,
-      'is_upcoming': instance.is_upcoming,
+      'vote_category': instance.voteCategory,
+      'main_image': instance.mainImage,
+      'wait_image': instance.waitImage,
+      'result_image': instance.resultImage,
+      'vote_content': instance.voteContent,
+      'vote_item': instance.voteItem,
+      'created_at': instance.createdAt?.toIso8601String(),
+      'visible_at': instance.visibleAt.toIso8601String(),
+      'stop_at': instance.stopAt.toIso8601String(),
+      'start_at': instance.startAt.toIso8601String(),
+      'is_ended': instance.isEnded,
+      'is_upcoming': instance.isUpcoming,
       'reward': instance.reward,
     };
 
 _$VoteItemModelImpl _$$VoteItemModelImplFromJson(Map<String, dynamic> json) =>
     _$VoteItemModelImpl(
       id: (json['id'] as num).toInt(),
-      vote_total: (json['vote_total'] as num).toInt(),
-      vote_id: (json['vote_id'] as num).toInt(),
+      voteTotal: (json['vote_total'] as num).toInt(),
+      voteId: (json['vote_id'] as num).toInt(),
       artist: ArtistModel.fromJson(json['artist'] as Map<String, dynamic>),
-      artist_group: ArtistGroupModel.fromJson(
+      artistGroup: ArtistGroupModel.fromJson(
           json['artist_group'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$$VoteItemModelImplToJson(_$VoteItemModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'vote_total': instance.vote_total,
-      'vote_id': instance.vote_id,
+      'vote_total': instance.voteTotal,
+      'vote_id': instance.voteId,
       'artist': instance.artist,
-      'artist_group': instance.artist_group,
+      'artist_group': instance.artistGroup,
     };

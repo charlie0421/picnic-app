@@ -15,7 +15,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/artist.dart';
@@ -24,6 +23,7 @@ import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
 const Duration _duration = Duration(milliseconds: 1000);
@@ -341,7 +341,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                                   children: widget.voteItemModel.artist.id != 0
                                       ? _artist(widget.voteItemModel.artist)
                                       : _group(
-                                          widget.voteItemModel.artist_group),
+                                          widget.voteItemModel.artistGroup),
                                 ),
                               ),
                             ),
@@ -466,7 +466,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
         child: ClipRRect(
           borderRadius: BorderRadius.circular(60.r),
           child: PicnicCachedNetworkImage(
-            imageUrl: artist.image,
+            imageUrl: artist.image ?? '',
             width: 60,
             height: 60,
           ),

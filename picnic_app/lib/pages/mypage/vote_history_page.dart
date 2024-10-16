@@ -3,12 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/custom_dropdown_button.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote_pick.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/number.dart';
 import 'package:picnic_app/util/ui.dart';
 
@@ -146,7 +146,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
                                       AppTypo.body14M, AppColors.grey900))
                               : TextSpan(
                                   text: getLocaleTextFromJson(
-                                      item.vote_item.artist_group.name),
+                                      item.vote_item.artistGroup.name),
                                   style: getTextStyle(
                                       AppTypo.body14M, AppColors.grey900)),
                         ])),
