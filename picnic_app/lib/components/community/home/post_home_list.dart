@@ -4,7 +4,6 @@ import 'package:picnic_app/components/common/comment/post_popup_menu.dart';
 import 'package:picnic_app/components/community/common/post_list_item.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/pages/community/post_list_page.dart';
-import 'package:picnic_app/pages/community/post_write_page.dart';
 import 'package:picnic_app/providers/community/post_provider.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -38,82 +37,58 @@ class _PostHomeListState extends ConsumerState<PostHomeList> {
     return Column(
       children: [
         postListAsyncValue.when(
-          data: (data) => data == null || data.isEmpty
-              ? Container(
-                  height: 200,
+          data: (data) => Column(
+            children: [
+              if (data == null || data.isEmpty)
+                Container(
+                  height: 160,
                   alignment: Alignment.center,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      const SizedBox(height: 80),
-                      Text('게시글을 작성해 주세요!',
-                          style: getTextStyle(
-                              AppTypo.caption12B, AppColors.grey500)),
-                      const SizedBox(height: 54),
-                      ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            foregroundColor: AppColors.primary500,
-                            backgroundColor: AppColors.grey00,
-                            textStyle: getTextStyle(AppTypo.body14B),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 20.cw, vertical: 10),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              side: const BorderSide(
-                                color: AppColors.primary500,
-                                width: 1,
-                              ),
-                            ),
-                          ),
-                          onPressed: () {
-                            ref
-                                .read(navigationInfoProvider.notifier)
-                                .setCommunityCurrentPage(
-                                  const PostWritePage(),
-                                );
-                          },
-                          child: Text('게시글 작성하기',
-                              style: getTextStyle(
-                                  AppTypo.body14B, AppColors.primary500)))
-                    ],
-                  ))
-              : SizedBox(
-                  child: Column(children: [
+                  child: Text('게시글을 작성해 주세요!',
+                      style:
+                          getTextStyle(AppTypo.caption12B, AppColors.grey500)),
+                )
+              else
+                Column(
+                  children: [
                     const SizedBox(height: 19),
                     ...List.generate(
-                        data.length,
-                        (index) => PostListItem(
-                              post: data[index],
-                              popupMenu: PostPopupMenu(
-                                  post: data[index],
-                                  context: context,
-                                  refreshFunction: ref.refresh),
-                            )),
-                    const SizedBox(height: 30),
-                    ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: AppColors.primary500,
-                          backgroundColor: AppColors.grey00,
-                          textStyle: getTextStyle(AppTypo.body14B),
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            side: const BorderSide(
-                                color: AppColors.primary500, width: 1),
-                          ),
+                      data.length,
+                      (index) => PostListItem(
+                        post: data[index],
+                        popupMenu: PostPopupMenu(
+                          post: data[index],
+                          context: context,
+                          refreshFunction: ref.refresh,
                         ),
-                        onPressed: () {
-                          ref
-                              .read(navigationInfoProvider.notifier)
-                              .setCommunityCurrentPage(PostListPage(
-                                  currentArtist.id,
-                                  getLocaleTextFromJson(currentArtist.name)));
-                        },
-                        child: Text('My Artist 게시판 보기',
-                            style: getTextStyle(
-                                AppTypo.body14B, AppColors.primary500))),
-                  ]),
+                      ),
+                    ),
+                  ],
                 ),
+              const SizedBox(height: 30),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: AppColors.primary500,
+                  backgroundColor: AppColors.grey00,
+                  textStyle: getTextStyle(AppTypo.body14B),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 20.cw, vertical: 10),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side:
+                        const BorderSide(color: AppColors.primary500, width: 1),
+                  ),
+                ),
+                onPressed: () {
+                  ref
+                      .read(navigationInfoProvider.notifier)
+                      .setCommunityCurrentPage(PostListPage(currentArtist.id,
+                          getLocaleTextFromJson(currentArtist.name)));
+                },
+                child: Text('My Artist 게시판 보기',
+                    style: getTextStyle(AppTypo.body14B, AppColors.primary500)),
+              ),
+            ],
+          ),
           error: (err, stack) =>
               ErrorView(context, error: err, stackTrace: stack),
           loading: () => buildLoadingOverlay(),
