@@ -1,10 +1,10 @@
 import 'package:intl/intl.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/models/community/board.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/models/community/post_scrap.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'post_provider.g.dart';
@@ -97,7 +97,19 @@ Future<PostModel?> postById(ref, String postId,
         .isFilter('post_reports', null)
         .single();
 
-    return PostModel.fromJson(response);
+    logger.i('response: $response');
+
+    // Check if post_scraps exists and set isScraped accordingly
+    bool isScraped =
+        response['post_scraps'] != null && response['post_scraps'].isNotEmpty;
+
+    // Create a new map with the updated isScraped value
+    Map<String, dynamic> updatedResponse = {
+      ...response,
+      'is_scraped': isScraped,
+    };
+
+    return PostModel.fromJson(updatedResponse);
   } catch (e, s) {
     logger.e('Error fetching post:', error: e, stackTrace: s);
     return Future.error(e);
