@@ -20,41 +20,41 @@ class _TopRightPostViewState extends ConsumerState<TopRightPostView> {
   Widget build(BuildContext context) {
     final currentPost = ref.watch(communityStateInfoProvider).currentPost!;
     final currentPostNotifier = ref.watch(communityStateInfoProvider.notifier);
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        (currentPost.isScraped ?? false)
-            ? GestureDetector(
-                onTap: () {
-                  unscrapPost(
-                      ref, currentPost.postId, supabase.auth.currentUser!.id);
-                  currentPostNotifier
-                      .setCurrentPost(currentPost.copyWith(isScraped: false));
-                },
-                child: SvgPicture.asset(
-                  'assets/icons/scrap_style=fill.svg',
-                  width: 14,
-                  height: 18,
-                  colorFilter: const ColorFilter.mode(
-                      AppColors.primary500, BlendMode.srcIn),
-                ),
-              )
-            : GestureDetector(
-                onTap: () {
-                  scrapPost(ref, currentPost.postId);
-                  currentPostNotifier
-                      .setCurrentPost(currentPost.copyWith(isScraped: true));
-                },
-                child: SvgPicture.asset(
-                  'assets/icons/scrap_style=fill.svg',
-                  width: 14,
-                  height: 18,
-                  colorFilter: const ColorFilter.mode(
-                      AppColors.grey300, BlendMode.srcIn),
-                ),
+
+    return Container(
+      width: 60,
+      height: 60,
+      alignment: Alignment.centerRight,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(15),
+          onTap: () {
+            (currentPost.isScraped ?? false)
+                ? unscrapPost(
+                    ref, currentPost.postId, supabase.auth.currentUser!.id)
+                : scrapPost(ref, currentPost.postId);
+            currentPostNotifier.setCurrentPost(currentPost.copyWith(
+                isScraped: !(currentPost.isScraped ?? false)));
+          },
+          child: Container(
+            width: 30,
+            height: 30,
+            alignment: Alignment.center,
+            child: SvgPicture.asset(
+              'assets/icons/scrap_style=fill.svg',
+              width: 14,
+              height: 18,
+              colorFilter: ColorFilter.mode(
+                (currentPost.isScraped ?? false)
+                    ? AppColors.primary500
+                    : AppColors.grey300,
+                BlendMode.srcIn,
               ),
-      ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
