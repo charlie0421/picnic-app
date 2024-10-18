@@ -1,11 +1,8 @@
 import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
-import 'package:flutter_quill/flutter_quill.dart';
-import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:picnic_app/components/community/write/embed_builder/link_embed_builder.dart';
@@ -16,14 +13,13 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
 
-import '../../ui/s3_uploader.dart';
-
 class PostWriteBody extends StatefulWidget {
   final TextEditingController titleController;
   final quill.QuillController contentController;
   final List<PlatformFile> attachments;
   final Function(List<PlatformFile>) onAttachmentAdded;
   final Function(int) onAttachmentRemoved;
+  final Function(bool) onValidityChanged;
 
   const PostWriteBody({
     super.key,
@@ -32,6 +28,7 @@ class PostWriteBody extends StatefulWidget {
     required this.attachments,
     required this.onAttachmentAdded,
     required this.onAttachmentRemoved,
+    required this.onValidityChanged,
   });
 
   @override
@@ -43,8 +40,8 @@ class _PostWriteBodyState extends State<PostWriteBody> {
   final FocusNode _editorFocusNode = FocusNode();
   bool _isTitleFocused = false;
   bool _isEditorFocused = false;
+  bool _isTitleValid = false;
   final ImagePicker _picker = ImagePicker();
-  final Map<String, double> _uploadProgress = {};
   late final quill.QuillController _controller;
 
   @override
@@ -52,24 +49,24 @@ class _PostWriteBodyState extends State<PostWriteBody> {
     super.initState();
     _titleFocusNode.addListener(_handleTitleFocusChange);
     _editorFocusNode.addListener(_handleEditorFocusChange);
+    widget.titleController.addListener(_validateTitle);
     _controller = widget.contentController;
     _controller.addListener(_onTextChanged);
-  }
-
-  void _onTextChanged() {
-    setState(() {
-      // This will trigger a rebuild of the toolbar
-    });
   }
 
   @override
   void dispose() {
     _titleFocusNode.removeListener(_handleTitleFocusChange);
     _editorFocusNode.removeListener(_handleEditorFocusChange);
+    widget.titleController.removeListener(_validateTitle);
     _titleFocusNode.dispose();
     _editorFocusNode.dispose();
     _controller.removeListener(_onTextChanged);
     super.dispose();
+  }
+
+  void _onTextChanged() {
+    setState(() {});
   }
 
   void _handleTitleFocusChange() {
@@ -88,8 +85,17 @@ class _PostWriteBodyState extends State<PostWriteBody> {
     }
   }
 
+  void _validateTitle() {
+    final isValid = widget.titleController.text.trim().isNotEmpty;
+    if (isValid != _isTitleValid) {
+      setState(() {
+        _isTitleValid = isValid;
+      });
+      widget.onValidityChanged(_isTitleValid);
+    }
+  }
+
   void _unfocusAll() {
-    logger.d('Unfocusing all');
     _titleFocusNode.unfocus();
     _editorFocusNode.unfocus();
   }
@@ -102,42 +108,40 @@ class _PostWriteBodyState extends State<PostWriteBody> {
   }
 
   void _insertLocalMediaToEditor(String filePath) {
-    final index = widget.contentController.selection.baseOffset;
-    final length = widget.contentController.selection.extentOffset - index;
+    final index = _controller.selection.baseOffset;
+    final length = _controller.selection.extentOffset - index;
 
-    widget.contentController.replaceText(
+    _controller.replaceText(
       index,
       length,
       quill.BlockEmbed('local-image', filePath),
       null,
     );
 
-    widget.contentController.document.insert(index + 1, "\n");
+    _controller.document.insert(index + 1, "\n");
 
-    widget.contentController.updateSelection(
+    _controller.updateSelection(
       TextSelection.collapsed(offset: index + 2),
-      ChangeSource.local,
+      quill.ChangeSource.local,
     );
   }
 
   void _replaceLocalMediaWithNetwork(String localPath, String networkUrl) {
-    final doc = widget.contentController.document;
+    final doc = _controller.document;
     final delta = doc.toDelta();
     final operations = delta.toList();
 
     for (int i = 0; i < operations.length; i++) {
-      final Operation operation = operations[i];
+      final operation = operations[i];
       if (operation.data is Map<String, dynamic>) {
         final data = operation.data as Map<String, dynamic>;
         if (data['local-image'] == localPath) {
-          widget.contentController.replaceText(
+          _controller.replaceText(
             i,
             1,
             quill.BlockEmbed('image', networkUrl),
             null,
           );
-          logger.d(
-              'Replaced local image with network URL: $networkUrl at index $i');
           break;
         }
       }
@@ -176,17 +180,32 @@ class _PostWriteBodyState extends State<PostWriteBody> {
   Widget _buildTitleField() {
     return SizedBox(
       height: 48,
-      child: CupertinoTextField(
+      child: TextField(
         controller: widget.titleController,
         focusNode: _titleFocusNode,
-        placeholder: S.of(context).post_title_placeholder,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: _isTitleFocused ? AppColors.primary500 : Colors.grey,
-            width: _isTitleFocused ? 2.0 : 1.0,
+        decoration: InputDecoration(
+          hintText: S.of(context).post_title_placeholder,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8.0),
+            borderSide: BorderSide(
+              color: _isTitleFocused ? AppColors.primary500 : Colors.grey,
+              width: _isTitleFocused ? 2.0 : 1.0,
+            ),
           ),
-          borderRadius: BorderRadius.circular(8.0),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8.0),
+            borderSide: const BorderSide(
+              color: Colors.grey,
+              width: 1.0,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8.0),
+            borderSide: const BorderSide(
+              color: AppColors.primary500,
+              width: 2.0,
+            ),
+          ),
         ),
         textInputAction: TextInputAction.next,
         onSubmitted: (_) =>
@@ -204,13 +223,13 @@ class _PostWriteBodyState extends State<PostWriteBody> {
         children: [
           _buildHistoryButton(
             'assets/icons/post/post_undo.svg',
-            () => widget.contentController.undo(),
-            widget.contentController.hasUndo,
+            () => _controller.undo(),
+            _controller.hasUndo,
           ),
           _buildHistoryButton(
             'assets/icons/post/post_redo.svg',
-            () => widget.contentController.redo(),
-            widget.contentController.hasRedo,
+            () => _controller.redo(),
+            _controller.hasRedo,
           ),
           const VerticalDivider(
             color: AppColors.grey400,
@@ -314,56 +333,28 @@ class _PostWriteBodyState extends State<PostWriteBody> {
   }
 
   void _toggleSelectionFormat(quill.Attribute<dynamic> attribute) {
-    final selection = _controller.selection;
-    if (selection.isCollapsed) {
-      final currentStyle = _controller.getSelectionStyle();
+    final isActive = _isStyleActive(attribute);
 
-      final isActive = currentStyle.attributes.containsKey(attribute.key) &&
-          currentStyle.attributes[attribute.key]?.value == attribute.value;
-
-      logger.i('isActive, $isActive');
-
-      if (isActive) {
-        _controller.formatSelection(quill.Attribute.clone(attribute, null));
-      } else {
-        _controller.formatSelection(attribute);
-      }
-    } else {
-      // If text is selected, toggle the style for the selected text
-      final isActive = _isStyleActive(attribute);
-      if (isActive) {
-        _controller.formatSelection(quill.Attribute.clone(attribute, null));
-      } else {
-        _controller.formatSelection(attribute);
-      }
-    }
-
+    _controller.formatSelection(
+        isActive ? quill.Attribute.clone(attribute, null) : attribute);
     setState(() {});
-
-    // Log the updated style after toggling
-    logger.i('Updated Style: ${_controller.getSelectionStyle()}');
   }
 
   bool _isStyleActive(quill.Attribute<dynamic> attribute) {
-    if (_controller.selection.isCollapsed) {
-      final currentStyle = _controller.getSelectionStyle();
-      return currentStyle.attributes.containsKey(attribute.key) &&
-          currentStyle.attributes[attribute.key]?.value == attribute.value;
-    } else {
-      final style = _controller.document.collectStyle(
-          _controller.selection.start,
-          _controller.selection.end - _controller.selection.start);
-      return style.attributes.containsKey(attribute.key) &&
-          style.attributes[attribute.key]?.value == attribute.value;
-    }
+    final selection = _controller.selection;
+    final currentStyle = selection.isCollapsed
+        ? _controller.getSelectionStyle()
+        : _controller.document
+            .collectStyle(selection.start, selection.end - selection.start);
+
+    return currentStyle.attributes.containsKey(attribute.key) &&
+        currentStyle.attributes[attribute.key]?.value == attribute.value;
   }
 
   Widget _buildQuillEditor() {
     return LayoutBuilder(builder: (context, constraints) {
       return Container(
-        constraints: const BoxConstraints(
-          minHeight: 400,
-        ),
+        constraints: const BoxConstraints(minHeight: 400),
         child: GestureDetector(
           onTap: () {
             if (!_editorFocusNode.hasFocus) {
@@ -382,7 +373,7 @@ class _PostWriteBodyState extends State<PostWriteBody> {
             child: Column(
               children: [
                 quill.QuillEditor(
-                  controller: widget.contentController,
+                  controller: _controller,
                   scrollController: ScrollController(),
                   focusNode: _editorFocusNode,
                   configurations: quill.QuillEditorConfigurations(
@@ -391,8 +382,7 @@ class _PostWriteBodyState extends State<PostWriteBody> {
                       DeletableLinkEmbedBuilder(),
                       DeletableYouTubeEmbedBuilder(),
                       LocalImageEmbedBuilder(
-                        onUploadComplete: _replaceLocalMediaWithNetwork,
-                      ),
+                          onUploadComplete: _replaceLocalMediaWithNetwork),
                       NetworkImageEmbedBuilder(),
                     ],
                   ),
@@ -430,9 +420,8 @@ class _PostWriteBodyState extends State<PostWriteBody> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop({
-              'url': urlController.text,
-            }),
+            onPressed: () =>
+                Navigator.of(context).pop({'url': urlController.text}),
             child: Text(S.of(context).button_ok,
                 style: const TextStyle(color: AppColors.primary500)),
           ),
@@ -441,37 +430,20 @@ class _PostWriteBodyState extends State<PostWriteBody> {
     );
 
     if (result != null && result['url']!.isNotEmpty) {
-      final linkData = {
-        'name': result['name'],
-        'url': result['url'],
-      };
-      _insertEmbed('link', jsonEncode(linkData));
+      _insertEmbed(
+          'link', jsonEncode({'name': result['name'], 'url': result['url']}));
     }
   }
 
   void _insertEmbed(String type, dynamic data) {
-    final index = widget.contentController.selection.baseOffset;
-    final length = widget.contentController.selection.extentOffset - index;
+    final index = _controller.selection.baseOffset;
+    final length = _controller.selection.extentOffset - index;
 
-    widget.contentController.replaceText(
-      index,
-      length,
-      BlockEmbed(type, data),
-      null,
-    );
-
-    // 임베드 후 새 줄 추가
-    widget.contentController.document.insert(index + 1, "\n");
-
-    // 커서를 새 줄로 이동
-    widget.contentController.updateSelection(
-      TextSelection.collapsed(offset: index + 2),
-      ChangeSource.local,
-    );
-
+    _controller.replaceText(index, length, quill.BlockEmbed(type, data), null);
+    _controller.document.insert(index + 1, "\n");
+    _controller.updateSelection(
+        TextSelection.collapsed(offset: index + 2), quill.ChangeSource.local);
     setState(() {});
-
-    // 에디터에 포커스 주기
     _editorFocusNode.requestFocus();
   }
 
@@ -480,23 +452,20 @@ class _PostWriteBodyState extends State<PostWriteBody> {
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(
-          S.of(context).post_youtube_link,
-        ),
+        title: Text(S.of(context).post_youtube_link),
         content: TextField(
           controller: textController,
           decoration: InputDecoration(
-              hintText: S.of(context).post_insert_link,
-              hintStyle: const TextStyle(color: AppColors.grey500)),
+            hintText: S.of(context).post_insert_link,
+            hintStyle: const TextStyle(color: AppColors.grey500),
+          ),
           onSubmitted: (value) => Navigator.of(context).pop(value),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(textController.text),
-            child: Text(
-              S.of(context).button_ok,
-              style: const TextStyle(color: AppColors.primary500),
-            ),
+            child: Text(S.of(context).button_ok,
+                style: const TextStyle(color: AppColors.primary500)),
           ),
         ],
       ),
@@ -508,10 +477,8 @@ class _PostWriteBodyState extends State<PostWriteBody> {
   }
 
   void _pickFiles() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.any,
-    );
-
+    FilePickerResult? result =
+        await FilePicker.platform.pickFiles(type: FileType.any);
     if (result != null && result.files.isNotEmpty) {
       widget.onAttachmentAdded(result.files);
     }

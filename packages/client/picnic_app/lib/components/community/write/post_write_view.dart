@@ -165,6 +165,7 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
     }
   }
 
+  bool _isTitleValid = false;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -174,7 +175,15 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
           child: Column(
             children: [
               PostWriteHeader(
-                onSave: _savePost,
+                onSave: (isTemporary) {
+                  if (isTemporary) {
+                    // 임시 저장 로직
+                  } else {
+                    // 게시 로직
+                  }
+                },
+                isTitleValid:
+                    _isTitleValid, // _isTitleValid는 부모 위젯에서 관리하는 상태 변수
                 // isSaving: _isSaving,
               ),
               Expanded(
@@ -191,6 +200,11 @@ class _PostWriteViewState extends ConsumerState<PostWriteView> {
                         onAttachmentRemoved: (index) {
                           setState(() {
                             _attachments.removeAt(index);
+                          });
+                        },
+                        onValidityChanged: (isValid) {
+                          setState(() {
+                            _isTitleValid = isValid;
                           });
                         },
                       ),
