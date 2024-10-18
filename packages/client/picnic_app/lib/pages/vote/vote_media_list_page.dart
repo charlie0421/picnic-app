@@ -77,7 +77,7 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
       final response = await supabase
           .from("media")
           .select()
-          .order('created_at', ascending: false)
+          .order('id', ascending: false)
           .range((pageKey - 1) * _pageSize, pageKey * _pageSize - 1);
 
       final newItems = response.map((e) => VideoInfo.fromJson(e)).toList();
