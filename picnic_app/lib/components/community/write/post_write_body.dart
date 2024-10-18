@@ -509,8 +509,7 @@ class _PostWriteBodyState extends State<PostWriteBody> {
 
   void _pickFiles() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      allowMultiple: true,
+      type: FileType.any,
     );
 
     if (result != null && result.files.isNotEmpty) {
