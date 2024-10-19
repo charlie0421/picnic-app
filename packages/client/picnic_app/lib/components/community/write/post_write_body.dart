@@ -65,6 +65,79 @@ class _PostWriteBodyState extends State<PostWriteBody> {
     super.dispose();
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.cw),
+      child: Column(
+        children: [
+          GestureDetector(
+            onTap: _unfocusAll,
+            behavior: HitTestBehavior.translucent,
+            child: Column(
+              children: [
+                _buildTitleField(),
+                const SizedBox(height: 4),
+                _buildQuillToolbar(),
+                const SizedBox(height: 4),
+                _buildQuillEditor(),
+              ],
+            ),
+          ),
+          PostWriteAttachments(
+            attachments: widget.attachments,
+            onAttachmentAdded: widget.onAttachmentAdded,
+            onAttachmentRemoved: widget.onAttachmentRemoved,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuillEditor() {
+    return LayoutBuilder(builder: (context, constraints) {
+      return Container(
+        constraints: const BoxConstraints(minHeight: 400),
+        child: GestureDetector(
+          onTap: () {
+            if (!_editorFocusNode.hasFocus) {
+              FocusScope.of(context).requestFocus(_editorFocusNode);
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: _isEditorFocused ? AppColors.primary500 : Colors.grey,
+                width: _isEditorFocused ? 2.0 : 1.0,
+              ),
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Column(
+              children: [
+                quill.QuillEditor(
+                  controller: _controller,
+                  scrollController: ScrollController(),
+                  focusNode: _editorFocusNode,
+                  configurations: quill.QuillEditorConfigurations(
+                    placeholder: S.of(context).post_content_placeholder,
+                    embedBuilders: [
+                      DeletableLinkEmbedBuilder(),
+                      DeletableYouTubeEmbedBuilder(),
+                      LocalImageEmbedBuilder(
+                          onUploadComplete: _replaceLocalMediaWithNetwork),
+                      NetworkImageEmbedBuilder(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    });
+  }
+
   void _onTextChanged() {
     setState(() {});
   }
@@ -146,35 +219,6 @@ class _PostWriteBodyState extends State<PostWriteBody> {
         }
       }
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.cw),
-      child: Column(
-        children: [
-          GestureDetector(
-            onTap: _unfocusAll,
-            behavior: HitTestBehavior.translucent,
-            child: Column(
-              children: [
-                _buildTitleField(),
-                const SizedBox(height: 4),
-                _buildQuillToolbar(),
-                const SizedBox(height: 4),
-                _buildQuillEditor(),
-              ],
-            ),
-          ),
-          PostWriteAttachments(
-            attachments: widget.attachments,
-            onAttachmentAdded: widget.onAttachmentAdded,
-            onAttachmentRemoved: widget.onAttachmentRemoved,
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _buildTitleField() {
@@ -349,50 +393,6 @@ class _PostWriteBodyState extends State<PostWriteBody> {
 
     return currentStyle.attributes.containsKey(attribute.key) &&
         currentStyle.attributes[attribute.key]?.value == attribute.value;
-  }
-
-  Widget _buildQuillEditor() {
-    return LayoutBuilder(builder: (context, constraints) {
-      return Container(
-        constraints: const BoxConstraints(minHeight: 400),
-        child: GestureDetector(
-          onTap: () {
-            if (!_editorFocusNode.hasFocus) {
-              FocusScope.of(context).requestFocus(_editorFocusNode);
-            }
-          },
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: _isEditorFocused ? AppColors.primary500 : Colors.grey,
-                width: _isEditorFocused ? 2.0 : 1.0,
-              ),
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            child: Column(
-              children: [
-                quill.QuillEditor(
-                  controller: _controller,
-                  scrollController: ScrollController(),
-                  focusNode: _editorFocusNode,
-                  configurations: quill.QuillEditorConfigurations(
-                    placeholder: S.of(context).post_content_placeholder,
-                    embedBuilders: [
-                      DeletableLinkEmbedBuilder(),
-                      DeletableYouTubeEmbedBuilder(),
-                      LocalImageEmbedBuilder(
-                          onUploadComplete: _replaceLocalMediaWithNetwork),
-                      NetworkImageEmbedBuilder(),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    });
   }
 
   void _insertLink() async {
