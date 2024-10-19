@@ -5,11 +5,7 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:logger/logger.dart';
 import 'package:path/path.dart' as path;
-import 'package:picnic_app/config/environment.dart';
-
-final logger = Logger();
 
 class S3Uploader {
   final String accessKey;
@@ -76,7 +72,7 @@ class S3Uploader {
     final response = await http.Response.fromStream(await request.send());
 
     if (response.statusCode == 200) {
-      final url = '${Environment.cdnUrl}/$folder/$fileName';
+      final url = '$folder/$fileName';
       return url;
     } else {
       throw Exception(
