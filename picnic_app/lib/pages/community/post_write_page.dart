@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_app/components/community/write/post_write_view.dart';
+import 'package:picnic_app/components/community/write/post_write.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 
 class PostWritePage extends ConsumerStatefulWidget {
@@ -22,6 +22,6 @@ class _PostWritePageState extends ConsumerState<PostWritePage> {
 
   @override
   Widget build(BuildContext context) {
-    return const PostWriteView();
+    return const PostWrite();
   }
 }

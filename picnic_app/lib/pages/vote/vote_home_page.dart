@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:logger/logger.dart';
 import 'package:picnic_app/components/common/common_banner.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/error.dart';
@@ -18,10 +17,9 @@ import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/reward_list_provider.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:shimmer/shimmer.dart';
-
-final logger = Logger();
 
 class VoteHomePage extends ConsumerStatefulWidget {
   const VoteHomePage({super.key});

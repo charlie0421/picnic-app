@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/ui/s3_uploader.dart';
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/util/ui.dart';
@@ -124,7 +125,10 @@ class NetworkImageEmbedBuilder extends EmbedBuilder {
     final width = screenWidth / 2;
     return SizedBox(
       width: width,
-      child: Image.network(imageUrl, fit: BoxFit.contain),
+      child: PicnicCachedNetworkImage(
+          imageUrl: imageUrl,
+          width: getPlatformScreenSize(context).width.toInt() - 10,
+          fit: BoxFit.contain),
     );
   }
 }

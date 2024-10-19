@@ -14,17 +14,18 @@ import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/util/logger.dart';
 
-class PostWriteView extends ConsumerStatefulWidget {
-  const PostWriteView({
+class PostWrite extends ConsumerStatefulWidget {
+  const PostWrite({
     super.key,
   });
 
   @override
-  ConsumerState<PostWriteView> createState() => _PostWriteViewState();
+  ConsumerState<PostWrite> createState() => _PostWriteViewState();
 }
 
-class _PostWriteViewState extends ConsumerState<PostWriteView> {
+class _PostWriteViewState extends ConsumerState<PostWrite> {
   final TextEditingController _titleController = TextEditingController();
   final quill.QuillController _contentController =
       quill.QuillController.basic();
