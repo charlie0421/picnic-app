@@ -14,7 +14,6 @@ import 'package:picnic_app/components/community/write/embed_builder/link_embed_b
 import 'package:picnic_app/components/community/write/embed_builder/media_embed_builder.dart';
 import 'package:picnic_app/components/community/write/embed_builder/youtube_embed_builder.dart';
 import 'package:picnic_app/config/config_service.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/dialogs/report_dialog.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/models/common/navigation.dart';
@@ -27,6 +26,7 @@ import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class PostViewPage extends ConsumerStatefulWidget {
@@ -169,8 +169,6 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
 
   @override
   Widget build(BuildContext context) {
-    logger.d('PostViewPage.build');
-
     return FutureBuilder<PostModel>(
       future: _postFuture,
       builder: (context, snapshot) {

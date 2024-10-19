@@ -171,71 +171,57 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        body: SafeArea(
-          child: Column(
-            children: [
-              PostWriteHeader(
-                onSave: (isTemporary) {
-                  if (isTemporary) {
-                    // 임시 저장 로직
-                  } else {
-                    // 게시 로직
-                  }
-                },
-                isTitleValid:
-                    _isTitleValid, // _isTitleValid는 부모 위젯에서 관리하는 상태 변수
-                // isSaving: _isSaving,
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      PostWriteBody(
-                        titleController: _titleController,
-                        contentController: _contentController,
-                        attachments: _attachments,
-                        onAttachmentAdded: (files) async {
-                          setState(() => _attachments.addAll(files));
-                        },
-                        onAttachmentRemoved: (index) {
-                          setState(() {
-                            _attachments.removeAt(index);
-                          });
-                        },
-                        onValidityChanged: (isValid) {
-                          setState(() {
-                            _isTitleValid = isValid;
-                          });
-                        },
-                      ),
-                      if (_uploadProgress.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('Uploading attachments:'),
-                              ..._uploadProgress.entries.map(
-                                (entry) => LinearProgressIndicator(
-                                  value: entry.value,
-                                  backgroundColor: Colors.grey[200],
-                                  valueColor:
-                                      const AlwaysStoppedAnimation<Color>(
-                                          Colors.blue),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-              const PostWriteBottomBar(),
-            ],
+      child: Column(
+        children: [
+          PostWriteHeader(
+            onSave: (isTemporary) {
+              if (isTemporary) {
+                _savePost(isTemporary: true);
+              } else {
+                _savePost(isTemporary: false);
+              }
+            },
+            isTitleValid: _isTitleValid, // _isTitleValid는 부모 위젯에서 관리하는 상태 변수
+            // isSaving: _isSaving,
           ),
-        ),
+          PostWriteBody(
+            titleController: _titleController,
+            contentController: _contentController,
+            attachments: _attachments,
+            onAttachmentAdded: (files) async {
+              setState(() => _attachments.addAll(files));
+            },
+            onAttachmentRemoved: (index) {
+              setState(() {
+                _attachments.removeAt(index);
+              });
+            },
+            onValidityChanged: (isValid) {
+              setState(() {
+                _isTitleValid = isValid;
+              });
+            },
+          ),
+          if (_uploadProgress.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Uploading attachments:'),
+                  ..._uploadProgress.entries.map(
+                    (entry) => LinearProgressIndicator(
+                      value: entry.value,
+                      backgroundColor: Colors.grey[200],
+                      valueColor:
+                          const AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          const PostWriteBottomBar(),
+        ],
       ),
     );
   }
