@@ -17,7 +17,8 @@ class PostWriteBottomBar extends ConsumerWidget {
     final appSettingNotifier = ref.read(appSettingProvider.notifier);
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 4),
+      height: 40,
+      padding: EdgeInsets.symmetric(horizontal: 16.cw),
       decoration: const BoxDecoration(
         border: Border(
           top: BorderSide(

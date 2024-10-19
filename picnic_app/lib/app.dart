@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_persistent_keyboard_height/flutter_persistent_keyboard_height.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:overlay_support/overlay_support.dart';
@@ -180,9 +181,10 @@ class _AppState extends ConsumerState<App> {
                 // Apply custom scaling to the entire app
                 return _ScaleAwareBuilder(
                   builder: (context, child) => UpdateDialog(
-                    child: child ?? const SizedBox.shrink(),
+                    child: PersistentKeyboardHeightProvider(
+                        child: child ?? const SizedBox.shrink()),
                   ),
-                  child: child!,
+                  child: PersistentKeyboardHeightProvider(child: child!),
                 );
               },
               home: _buildHomeScreen(),

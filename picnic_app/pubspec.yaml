@@ -93,6 +93,7 @@ dependencies:
   url_strategy: ^0.3.0
   crypto: ^3.0.5
   animated_custom_dropdown: ^3.1.1
+  flutter_persistent_keyboard_height: ^1.0.5
 dev_dependencies:
   flutter_test:
     sdk: flutter

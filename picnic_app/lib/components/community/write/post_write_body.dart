@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:flutter_persistent_keyboard_height/flutter_persistent_keyboard_height.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
@@ -11,6 +13,7 @@ import 'package:picnic_app/components/community/write/embed_builder/youtube_embe
 import 'package:picnic_app/components/community/write/post_write_attachments.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class PostWriteBody extends StatefulWidget {
@@ -69,72 +72,78 @@ class _PostWriteBodyState extends State<PostWriteBody> {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.cw),
-      child: Column(
-        children: [
-          GestureDetector(
-            onTap: _unfocusAll,
-            behavior: HitTestBehavior.translucent,
-            child: Column(
-              children: [
-                _buildTitleField(),
-                const SizedBox(height: 4),
-                _buildQuillToolbar(),
-                const SizedBox(height: 4),
-                _buildQuillEditor(),
-              ],
+      child: GestureDetector(
+        onTap: _unfocusAll,
+        behavior: HitTestBehavior.translucent,
+        child: Column(
+          children: [
+            _buildTitleField(),
+            const SizedBox(height: 4),
+            _buildQuillToolbar(),
+            const SizedBox(height: 4),
+            _buildQuillEditor(),
+            PostWriteAttachments(
+              attachments: widget.attachments,
+              onAttachmentAdded: widget.onAttachmentAdded,
+              onAttachmentRemoved: widget.onAttachmentRemoved,
             ),
-          ),
-          PostWriteAttachments(
-            attachments: widget.attachments,
-            onAttachmentAdded: widget.onAttachmentAdded,
-            onAttachmentRemoved: widget.onAttachmentRemoved,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildQuillEditor() {
-    return LayoutBuilder(builder: (context, constraints) {
-      return Container(
-        constraints: const BoxConstraints(minHeight: 400),
-        child: GestureDetector(
-          onTap: () {
-            if (!_editorFocusNode.hasFocus) {
-              FocusScope.of(context).requestFocus(_editorFocusNode);
-            }
-          },
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: _isEditorFocused ? AppColors.primary500 : Colors.grey,
-                width: _isEditorFocused ? 2.0 : 1.0,
-              ),
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            child: Column(
-              children: [
-                quill.QuillEditor(
-                  controller: _controller,
-                  scrollController: ScrollController(),
-                  focusNode: _editorFocusNode,
-                  configurations: quill.QuillEditorConfigurations(
-                    placeholder: S.of(context).post_content_placeholder,
-                    embedBuilders: [
-                      DeletableLinkEmbedBuilder(),
-                      DeletableYouTubeEmbedBuilder(),
-                      LocalImageEmbedBuilder(
-                          onUploadComplete: _replaceLocalMediaWithNetwork),
-                      NetworkImageEmbedBuilder(),
-                    ],
-                  ),
+    return LayoutBuilder(builder: (context, constraint) {
+      return KeyboardVisibilityBuilder(
+          builder: (context, bool isKeyboardVisible) {
+        final keyboardHeight =
+            PersistentKeyboardHeight.of(context).keyboardHeight;
+        final double containerSize = MediaQuery.of(context).size.height - 420;
+        // final double containerSize = constraint.maxHeight;
+        logger.i('contractHeight: ${containerSize}');
+        logger.i('keyboardHeight: $keyboardHeight');
+
+        final double editorHeight = isKeyboardVisible
+            ? containerSize - keyboardHeight + 40
+            : containerSize;
+        logger.i('editorHeight: $editorHeight');
+        return SizedBox(
+          height: editorHeight,
+          child: GestureDetector(
+            onTap: () {
+              if (!_editorFocusNode.hasFocus) {
+                FocusScope.of(context).requestFocus(_editorFocusNode);
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: _isEditorFocused ? AppColors.primary500 : Colors.grey,
+                  width: _isEditorFocused ? 2.0 : 1.0,
                 ),
-              ],
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: quill.QuillEditor(
+                controller: _controller,
+                scrollController: ScrollController(),
+                focusNode: _editorFocusNode,
+                configurations: quill.QuillEditorConfigurations(
+                  placeholder: S.of(context).post_content_placeholder,
+                  embedBuilders: [
+                    DeletableLinkEmbedBuilder(),
+                    DeletableYouTubeEmbedBuilder(),
+                    LocalImageEmbedBuilder(
+                        onUploadComplete: _replaceLocalMediaWithNetwork),
+                    NetworkImageEmbedBuilder(),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-      );
+        );
+      });
     });
   }
 
