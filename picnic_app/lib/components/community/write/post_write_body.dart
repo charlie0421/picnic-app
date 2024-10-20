@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
-import 'package:flutter_persistent_keyboard_height/flutter_persistent_keyboard_height.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:keyboard_height_plugin/keyboard_height_plugin.dart';
 import 'package:picnic_app/components/community/write/embed_builder/link_embed_builder.dart';
 import 'package:picnic_app/components/community/write/embed_builder/media_embed_builder.dart';
 import 'package:picnic_app/components/community/write/embed_builder/youtube_embed_builder.dart';
@@ -46,6 +46,8 @@ class _PostWriteBodyState extends State<PostWriteBody> {
   bool _isTitleValid = false;
   final ImagePicker _picker = ImagePicker();
   late final quill.QuillController _controller;
+  double _keyboardHeight = 0;
+  final KeyboardHeightPlugin _keyboardHeightPlugin = KeyboardHeightPlugin();
 
   @override
   void initState() {
@@ -55,6 +57,13 @@ class _PostWriteBodyState extends State<PostWriteBody> {
     widget.titleController.addListener(_validateTitle);
     _controller = widget.contentController;
     _controller.addListener(_onTextChanged);
+
+    _keyboardHeightPlugin.onKeyboardHeightChanged((double height) {
+      setState(() {
+        _keyboardHeight = height;
+      });
+    });
+
   }
 
   @override
@@ -97,8 +106,7 @@ class _PostWriteBodyState extends State<PostWriteBody> {
     return LayoutBuilder(builder: (context, constraint) {
       return KeyboardVisibilityBuilder(
           builder: (context, bool isKeyboardVisible) {
-        final keyboardHeight =
-            PersistentKeyboardHeight.of(context).keyboardHeight;
+        final keyboardHeight = _keyboardHeight;
         final double containerSize = MediaQuery.of(context).size.height - 420;
         // final double containerSize = constraint.maxHeight;
         logger.i('contractHeight: ${containerSize}');
