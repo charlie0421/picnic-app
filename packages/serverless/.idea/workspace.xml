@@ -6,10 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="11e4844d-d946-4133-bdfe-177e6d8bead2" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/pages/vote/vote_detail_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/pages/vote/vote_detail_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resize_image_lambda/deploy.sh" beforeDir="false" afterPath="$PROJECT_DIR$/resize_image_lambda/deploy.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resize_image_lambda/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/resize_image_lambda/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resize_image_lambda/myFunction.zip" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,7 +89,7 @@
       <workItem from="1716017174639" duration="11782000" />
       <workItem from="1716368365729" duration="603000" />
       <workItem from="1716527961140" duration="55000" />
-      <workItem from="1729524479250" duration="2558000" />
+      <workItem from="1729524479250" duration="2843000" />
     </task>
     <servers />
   </component>
