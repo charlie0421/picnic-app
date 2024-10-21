@@ -23,6 +23,7 @@ import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
@@ -179,13 +180,14 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
 
   Widget _buildVoteInfo(BuildContext context, VoteModel voteModel) {
     final width = getPlatformScreenSize(context).width;
-
+logger.d('voteModel.mainImage: ${voteModel.mainImage}');
     return Column(
       children: [
+        if (voteModel.mainImage != null && voteModel.mainImage!.isNotEmpty)
         SizedBox(
           width: width,
           child: PicnicCachedNetworkImage(
-            imageUrl: voteModel?.mainImage ?? '',
+            imageUrl: voteModel.mainImage!,
             width: width.toInt(),
             memCacheWidth: width.toInt(),
           ),
