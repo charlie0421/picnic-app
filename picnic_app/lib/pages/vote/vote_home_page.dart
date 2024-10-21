@@ -37,6 +37,14 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   void initState() {
     super.initState();
     _pagingController.addPageRequestListener(_fetchPage);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+          showPortal: true,
+          showTopMenu: true,
+          showBottomNavigation: true);
+    });
+
   }
 
   Future<void> _fetchPage(int pageKey) async {
