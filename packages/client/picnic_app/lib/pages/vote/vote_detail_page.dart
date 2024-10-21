@@ -10,7 +10,7 @@ import 'package:picnic_app/components/common/common_search_box.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
-import 'package:picnic_app/components/vote/list/voting_dialog.dart';
+import 'package:picnic_app/components/vote/voting/voting_dialog.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/dialogs/reward_dialog.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
