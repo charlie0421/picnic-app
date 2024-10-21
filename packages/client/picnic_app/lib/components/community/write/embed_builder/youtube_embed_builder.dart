@@ -8,7 +8,9 @@ import 'package:picnic_app/components/community/write/embed_builder/deletable_em
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/number.dart';
+import 'package:picnic_app/util/ui.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class YouTubeEmbedBuilder extends EmbedBuilder {
   @override
@@ -24,9 +26,9 @@ class YouTubeEmbedBuilder extends EmbedBuilder {
 class DeletableYouTubeEmbedBuilder extends DeletableEmbedBuilder {
   DeletableYouTubeEmbedBuilder()
       : super(
-          embedType: 'youtube',
-          contentBuilder: (context, node) => _YouTubeEmbedContent(node: node),
-        );
+    embedType: 'youtube',
+    contentBuilder: (context, node) => _YouTubeEmbedContent(node: node),
+  );
 }
 
 class _YouTubeEmbedContent extends StatelessWidget {
@@ -49,7 +51,9 @@ class _YouTubeEmbedContent extends StatelessWidget {
       future: _fetchVideoInfo(youtubeUrl),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
+          return SizedBox(
+            height: 200,
+              child: buildLoadingOverlay());
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else if (!snapshot.hasData) {
@@ -61,118 +65,119 @@ class _YouTubeEmbedContent extends StatelessWidget {
         return LayoutBuilder(
           builder: (context, constraints) {
             final maxWidth = constraints.maxWidth * 0.9;
-            return Container(
-              width: maxWidth,
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 1,
-                    blurRadius: 3,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ClipRRect(
-                    borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(12)),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Image.network(
-                          videoInfo.thumbnailUrl,
-                          width: maxWidth,
-                          height: maxWidth * 9 / 16,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              Container(
+            return GestureDetector(
+              onTap: () => _launchYouTubeVideo(videoInfo.id),
+              child: Container(
+                width: maxWidth,
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 1,
+                      blurRadius: 3,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ClipRRect(
+                      borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(12)),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Image.network(
+                            videoInfo.thumbnailUrl,
                             width: maxWidth,
                             height: maxWidth * 9 / 16,
-                            color: Colors.grey[300],
-                            child: const Icon(Icons.error),
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                                  width: maxWidth,
+                                  height: maxWidth * 9 / 16,
+                                  color: Colors.grey[300],
+                                  child: const Icon(Icons.error),
+                                ),
                           ),
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.8),
-                            shape: BoxShape.circle,
-                          ),
-                          padding: const EdgeInsets.all(12),
-                          child: const Icon(
-                            Icons.play_arrow,
-                            color: Colors.white,
-                            size: 40,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          videoInfo.title,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            const CircleAvatar(
-                              backgroundColor: Colors.grey,
-                              radius: 12,
-                              child: Icon(Icons.person,
-                                  size: 16, color: Colors.white),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.8),
+                              shape: BoxShape.circle,
                             ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                videoInfo.channelTitle,
-                                style: TextStyle(
-                                    color: Colors.grey[600], fontSize: 14),
-                                overflow: TextOverflow.ellipsis,
+                            padding: const EdgeInsets.all(12),
+                            child: const Icon(
+                              Icons.play_arrow,
+                              color: Colors.white,
+                              size: 40,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            videoInfo.title,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundImage: NetworkImage(videoInfo.channelThumbnail),
+                                radius: 12,
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Icon(Icons.remove_red_eye,
-                                size: 16, color: Colors.grey[600]),
-                            const SizedBox(width: 4),
-                            Text(
-                              formatViewCountNumberEn(videoInfo.viewCount),
-                              style: TextStyle(
-                                  color: Colors.grey[600], fontSize: 12),
-                            ),
-                            const SizedBox(width: 12),
-                            Icon(Icons.access_time,
-                                size: 16, color: Colors.grey[600]),
-                            const SizedBox(width: 4),
-                            Text(
-                              _formatDate(videoInfo.publishedAt),
-                              style: TextStyle(
-                                  color: Colors.grey[600], fontSize: 12),
-                            ),
-                          ],
-                        ),
-                      ],
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  videoInfo.channelTitle,
+                                  style: TextStyle(
+                                      color: Colors.grey[600], fontSize: 14),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Icon(Icons.remove_red_eye,
+                                  size: 16, color: Colors.grey[600]),
+                              const SizedBox(width: 4),
+                              Text(
+                                formatViewCountNumberEn(videoInfo.viewCount),
+                                style: TextStyle(
+                                    color: Colors.grey[600], fontSize: 12),
+                              ),
+                              const SizedBox(width: 12),
+                              Icon(Icons.access_time,
+                                  size: 16, color: Colors.grey[600]),
+                              const SizedBox(width: 4),
+                              Text(
+                                _formatDate(videoInfo.publishedAt),
+                                style: TextStyle(
+                                    color: Colors.grey[600], fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           },
@@ -188,14 +193,14 @@ class _YouTubeEmbedContent extends StatelessWidget {
         id: 'Invalid ID',
         title: 'Invalid YouTube URL',
         channelTitle: 'Unknown',
+        channelThumbnail: '',
         thumbnailUrl: '',
         viewCount: 0,
         publishedAt: DateTime.now(),
       );
     }
 
-    final apiKey =
-        Environment.youtubeApiKey; // Replace with your actual API key
+    final apiKey = Environment.youtubeApiKey;
     final apiUrl =
         'https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=$videoId&key=$apiKey';
 
@@ -208,10 +213,23 @@ class _YouTubeEmbedContent extends StatelessWidget {
           final video = items.first;
           final snippet = video['snippet'];
           final statistics = video['statistics'];
+
+          // Fetch channel info
+          final channelId = snippet['channelId'];
+          final channelApiUrl =
+              'https://www.googleapis.com/youtube/v3/channels?part=snippet&id=$channelId&key=$apiKey';
+          final channelResponse = await http.get(Uri.parse(channelApiUrl));
+          final channelData = json.decode(channelResponse.body);
+          final channelItems = channelData['items'] as List;
+          final channelThumbnail = channelItems.isNotEmpty
+              ? channelItems.first['snippet']['thumbnails']['default']['url']
+              : '';
+
           return VideoInfo(
             id: videoId,
             title: snippet['title'],
             channelTitle: snippet['channelTitle'],
+            channelThumbnail: channelThumbnail,
             thumbnailUrl: snippet['thumbnails']['high']['url'],
             viewCount: int.parse(statistics['viewCount']),
             publishedAt: DateTime.parse(snippet['publishedAt']),
@@ -227,6 +245,7 @@ class _YouTubeEmbedContent extends StatelessWidget {
       id: videoId,
       title: 'YouTube Video',
       channelTitle: 'Unknown Channel',
+      channelThumbnail: '',
       thumbnailUrl: 'https://img.youtube.com/vi/$videoId/0.jpg',
       viewCount: 0,
       publishedAt: DateTime.now(),
@@ -262,12 +281,22 @@ class _YouTubeEmbedContent extends StatelessWidget {
   static String _formatDate(DateTime date) {
     return DateFormat('MMM d, yyyy').format(date);
   }
+
+  static Future<void> _launchYouTubeVideo(String videoId) async {
+    final url = Uri.parse('https://www.youtube.com/watch?v=$videoId');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
 }
 
 class VideoInfo {
   final String id;
   final String title;
   final String channelTitle;
+  final String channelThumbnail;
   final String thumbnailUrl;
   final int viewCount;
   final DateTime publishedAt;
@@ -276,6 +305,7 @@ class VideoInfo {
     required this.id,
     required this.title,
     required this.channelTitle,
+    required this.channelThumbnail,
     required this.thumbnailUrl,
     required this.viewCount,
     required this.publishedAt,
