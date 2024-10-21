@@ -23,7 +23,6 @@ import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
@@ -424,7 +423,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         child: PicnicCachedNetworkImage(
           key: ValueKey(item.artist.id != 0
               ? item.artist.image
-              : item.artistGroup.image ?? ''),
+              : item.artistGroup.image),
           imageUrl: (item.artist.id != 0
                   ? item.artist.image
                   : item.artistGroup.image) ??
