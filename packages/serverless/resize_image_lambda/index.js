@@ -5,7 +5,7 @@ const path = require("path");
 
 const s3Client = new S3Client({
   region: 'ap-northeast-2',
-  endpoint: 'https://picnic-prod-cdn.s3.ap-northeast-2.amazonaws.com'
+    endpoint: 'https://s3.ap-northeast-2.amazonaws.com'
 });
 
 const CONFIG = {
