@@ -180,7 +180,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
 
   Widget _buildVoteInfo(BuildContext context, VoteModel voteModel) {
     final width = getPlatformScreenSize(context).width;
-logger.d('voteModel.mainImage: ${voteModel.mainImage}');
     return Column(
       children: [
         if (voteModel.mainImage != null && voteModel.mainImage!.isNotEmpty)
