@@ -12,14 +12,14 @@ import 'package:picnic_app/supabase_options.dart';
 class PostPopupMenu extends ConsumerStatefulWidget {
   final BuildContext context;
   final PostModel post;
-  final Function refreshFunction;
+  final Function? refreshFunction;
   final Function? openReportModal;
 
   const PostPopupMenu({
     super.key,
     required this.post,
     required this.context,
-    required this.refreshFunction,
+    this.refreshFunction,
     this.openReportModal,
   });
   // required
@@ -45,8 +45,12 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
           logger.i('widget.openReportModal: ${widget.openReportModal}');
 
           if (widget.openReportModal != null) {
-            widget.openReportModal!(
-                S.of(context).label_title_report, widget.post);
+            await widget.openReportModal!(
+                S
+                    .of(context)
+                    .label_title_report, widget.post).then((value) {
+              if (widget.refreshFunction != null )  widget.refreshFunction!();
+            });
           }
         } else if (result == 'Delete') {
           showSimpleDialog(
@@ -54,7 +58,7 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
             content: '정말로 삭제하시겠습니까?',
             onOk: () async {
               await deletePost(ref, widget.post.postId);
-              widget.refreshFunction();
+              if (widget.refreshFunction != null )  widget.refreshFunction!();
               if (navigatorKey.currentContext != null) {
                 Navigator.of(navigatorKey.currentContext!).pop();
               }
