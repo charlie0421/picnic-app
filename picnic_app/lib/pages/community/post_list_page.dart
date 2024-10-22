@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/community/list/post_list.dart';
+import 'package:picnic_app/dialogs/report_dialog.dart';
 import 'package:picnic_app/models/common/navigation.dart';
+import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/pages/community/board_reqeust.dart';
 import 'package:picnic_app/providers/community/boards_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class PostListPage extends ConsumerStatefulWidget {
@@ -107,6 +110,7 @@ class _PostListPageState extends ConsumerState<PostListPage>
       loading: () => buildLoadingOverlay(),
     );
   }
+
 
   Widget _buildMenuItem(String title, String boardId, int index) {
     return GestureDetector(

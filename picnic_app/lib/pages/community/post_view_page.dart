@@ -221,9 +221,41 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                       ),
                       PostPopupMenu(
                         post: post,
-                        openReportModal: _openPostReportModal,
-                        refreshFunction:
-                            ref.read(navigationInfoProvider.notifier).goBack,
+                        openReportModal: (String title, PostModel post) async {
+                          try {
+                            setState(() {
+                              _isModalOpen = true;
+                              for (var ad in _bannerAds.values) {
+                                ad?.dispose();
+                              }
+                              _bannerAds.clear();
+                            });
+                            await showDialog(
+                              context: context,
+                              barrierDismissible: true,
+                              builder: (BuildContext context) {
+                                return ReportDialog(
+                                    title: title,
+                                    type: ReportType.post,
+                                    target: post);
+                              },
+                            ).then((value) {
+                              logger.i('Report dialog result: $value');
+                              if (value == null) {
+                                setState(() {
+                                  _isModalOpen = false;
+                                  if (_shouldShowAds) _loadAds();
+                                });
+                              } else {
+                                ref
+                                    .read(navigationInfoProvider.notifier)
+                                    .goBack();
+                              }
+                            });
+                          } catch (e, s) {
+                            logger.e('Error: $e, StackTrace: $s');
+                          }
+                        },
                         context: context,
                       ),
                     ],
@@ -433,33 +465,6 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
         _loadComments(widget.postId);
       });
     });
-  }
-
-  void _openPostReportModal(String title, PostModel post) {
-    try {
-      setState(() {
-        _isModalOpen = true;
-        for (var ad in _bannerAds.values) {
-          ad?.dispose();
-        }
-        _bannerAds.clear();
-      });
-      showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) {
-          return ReportDialog(
-              title: title, type: ReportType.post, target: post);
-        },
-      ).then((_) {
-        setState(() {
-          _isModalOpen = false;
-          if (_shouldShowAds) _loadAds();
-        });
-      });
-    } catch (e, s) {
-      logger.e('Error: $e, StackTrace: $s');
-    }
   }
 }
 

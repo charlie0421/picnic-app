@@ -156,7 +156,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
             _reasons[_selectedReason!], _otherReasonController.text);
 
     // Handle report submission
-    Navigator.of(context).pop();
+    Navigator.of(context).pop(true);
   }
 }
 

@@ -3,10 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/common/comment/post_popup_menu.dart';
 import 'package:picnic_app/components/community/common/post_list_item.dart';
 import 'package:picnic_app/components/error.dart';
+import 'package:picnic_app/dialogs/report_dialog.dart';
+import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/pages/community/post_write_page.dart';
 import 'package:picnic_app/providers/community/post_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
 enum PostListType { artist, board }
@@ -73,11 +76,37 @@ class _PostListState extends ConsumerState<PostList> {
                 popupMenu: PostPopupMenu(
                     post: data[index],
                     context: context,
-                    refreshFunction: ref.refresh),
+                    openReportModal: (String title, PostModel post) {
+                      try {
+                        showDialog(
+                          context: context,
+                          barrierDismissible: true,
+                          builder: (BuildContext context) {
+                            return ReportDialog(
+                                title: title, type: ReportType.post, target: post);
+                          },
+                        ).then((value) {
+                          logger.d('ReportDialog result: $value');
+                          if (value != null) {
+                            if (widget.type == PostListType.artist) {
+                              ref.invalidate(postsByArtistProvider(widget.id as int, 10, 1));
+                            } else {
+                              ref.invalidate(postsByBoardProvider(widget.id as String, 10, 1));
+                            }
+
+                          }
+                        });
+                      } catch (e, s) {
+                        logger.e('Error: $e, StackTrace: $s');
+                      }
+                    },
+                ),
               ),
             ),
       error: (err, stack) => ErrorView(context, error: err, stackTrace: stack),
       loading: () => buildLoadingOverlay(),
     );
   }
+
+
 }
