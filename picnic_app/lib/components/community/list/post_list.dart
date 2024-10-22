@@ -76,6 +76,18 @@ class _PostListState extends ConsumerState<PostList> {
                 popupMenu: PostPopupMenu(
                     post: data[index],
                     context: context,
+                    deletePost: () async {
+                      await deletePost(ref, data[index].postId);
+                      try {
+                        if (widget.type == PostListType.artist) {
+                          ref.invalidate(postsByArtistProvider(widget.id as int, 10, 1));
+                        } else {
+                          ref.invalidate(postsByBoardProvider(widget.id as String, 10, 1));
+                        }
+                      } catch (e, s) {
+                        logger.e('Error: $e, StackTrace: $s');
+                      }
+                    },
                     openReportModal: (String title, PostModel post) {
                       try {
                         showDialog(
