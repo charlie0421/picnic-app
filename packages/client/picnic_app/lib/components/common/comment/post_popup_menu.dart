@@ -14,6 +14,7 @@ class PostPopupMenu extends ConsumerStatefulWidget {
   final PostModel post;
   final Function? refreshFunction;
   final Function? openReportModal;
+  final Function? deletePost;
 
   const PostPopupMenu({
     super.key,
@@ -21,6 +22,7 @@ class PostPopupMenu extends ConsumerStatefulWidget {
     required this.context,
     this.refreshFunction,
     this.openReportModal,
+    this.deletePost,
   });
   // required
 
@@ -57,8 +59,7 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
             title: S.of(context).popup_label_delete,
             content: '정말로 삭제하시겠습니까?',
             onOk: () async {
-              await deletePost(ref, widget.post.postId);
-              if (widget.refreshFunction != null )  widget.refreshFunction!();
+              if (widget.deletePost!= null ) widget.deletePost!();
               if (navigatorKey.currentContext != null) {
                 Navigator.of(navigatorKey.currentContext!).pop();
               }

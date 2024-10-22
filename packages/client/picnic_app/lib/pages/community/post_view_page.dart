@@ -221,6 +221,16 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                       ),
                       PostPopupMenu(
                         post: post,
+                        deletePost: () async {
+                          try {
+                            final ref = this.ref;
+                          await deletePost(ref, post.postId);
+                          ref.read(navigationInfoProvider.notifier).goBack();
+                          } catch (e, s) {
+                            logger.e('Error: $e, StackTrace: $s');
+                            rethrow;
+                          }
+                        },
                         openReportModal: (String title, PostModel post) async {
                           try {
                             setState(() {
@@ -362,7 +372,36 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                                   showReplyButton: false,
                                   openCommentsModal: () =>
                                       _openCommentsModal(post),
-                                  openReportModal: _openCommentReportModal,
+                                  openReportModal:
+                                      (String title, CommentModel comment) {
+                                    setState(() {
+                                      _isModalOpen = true;
+                                      for (var ad in _bannerAds.values) {
+                                        ad?.dispose();
+                                      }
+                                      _bannerAds.clear();
+                                    });
+                                    showDialog(
+                                      context: context,
+                                      barrierDismissible: true,
+                                      builder: (BuildContext context) {
+                                        return ReportDialog(
+                                            title: title,
+                                            type: ReportType.comment,
+                                            target: comment);
+                                      },
+                                    ).then((_) {
+                                      setState(() {
+                                        _isModalOpen = false;
+                                        if (_shouldShowAds) _loadAds();
+                                      });
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback((_) {
+                                        _loadPost(isIncrementViewCount: false);
+                                        _loadComments(widget.postId);
+                                      });
+                                    });
+                                  },
                                 );
                               },
                             ),
@@ -421,7 +460,32 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
           child: CommentList(
             id: post.postId,
             '댓글',
-            openReportModal: _openCommentReportModal,
+            openReportModal: (String title, CommentModel comment) {
+              setState(() {
+                _isModalOpen = true;
+                for (var ad in _bannerAds.values) {
+                  ad?.dispose();
+                }
+                _bannerAds.clear();
+              });
+              showDialog(
+                context: context,
+                barrierDismissible: true,
+                builder: (BuildContext context) {
+                  return ReportDialog(
+                      title: title, type: ReportType.comment, target: comment);
+                },
+              ).then((_) {
+                setState(() {
+                  _isModalOpen = false;
+                  if (_shouldShowAds) _loadAds();
+                });
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _loadPost(isIncrementViewCount: false);
+                  _loadComments(widget.postId);
+                });
+              });
+            },
           ),
         );
       },
@@ -438,33 +502,6 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
     _loadComments(widget.postId);
     _postFuture = _loadPost(isIncrementViewCount: false);
     setState(() {});
-  }
-
-  void _openCommentReportModal(String title, CommentModel comment) {
-    setState(() {
-      _isModalOpen = true;
-      for (var ad in _bannerAds.values) {
-        ad?.dispose();
-      }
-      _bannerAds.clear();
-    });
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return ReportDialog(
-            title: title, type: ReportType.comment, target: comment);
-      },
-    ).then((_) {
-      setState(() {
-        _isModalOpen = false;
-        if (_shouldShowAds) _loadAds();
-      });
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _loadPost(isIncrementViewCount: false);
-        _loadComments(widget.postId);
-      });
-    });
   }
 }
 
