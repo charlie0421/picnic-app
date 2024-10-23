@@ -7,6 +7,7 @@ import 'package:picnic_app/util/ui.dart';
 
 class BoardRequest extends ConsumerStatefulWidget {
   const BoardRequest(this.artistId, {super.key});
+
   final int artistId;
 
   @override
@@ -66,7 +67,8 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
 
     if (focusNode != null) {
       Future.delayed(const Duration(milliseconds: 300), () {
-        final RenderObject? renderObject = focusNode?.context?.findRenderObject();
+        final RenderObject? renderObject =
+            focusNode?.context?.findRenderObject();
         if (renderObject != null) {
           _scrollController.position.ensureVisible(
             renderObject,
@@ -98,114 +100,120 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
         _requestMessageFocus.unfocus();
       },
       child: FutureBuilder(
-          future: checkPendingRequest(ref),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              return Center(
-                child: Text('Error: ${snapshot.error}'),
-              );
-            }
-            if (snapshot.data != null) {
-              _nameController.text = snapshot.data!.name['minor'];
-              _descriptionController.text = snapshot.data!.description;
-              _requestMessageController.text =
-                  snapshot.data?.requestMessage ?? '';
-            }
+        future: getPendingRequest(ref),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          }
+          if (snapshot.data != null) {
+            _nameController.text = snapshot.data!.name['minor'];
+            _descriptionController.text = snapshot.data!.description;
+            _requestMessageController.text =
+                snapshot.data?.requestMessage ?? '';
+          }
 
-            return SingleChildScrollView(
-              controller: _scrollController,
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Container(
-                padding: const EdgeInsets.only(
-                  bottom: 300,
-                ),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _buildInfoBanner(),
-                      ..._buildSection(
-                        _nameController,
-                        _nameFocus,
-                        '마이너 게시판 이름',
-                        '게시판 이름을 입력해주세요',
-                        1,
-                            (value) {
-                          if (value == null || value.isEmpty) {
-                            return '게시판 이름을 입력해주세요';
-                          }
-                          return null;
-                        },
-                        _nameValidated,
-                        snapshot.data == null,
-                      ),
-                      ..._buildSection(
-                        _descriptionController,
-                        _descriptionFocus,
-                        '마이너 게시판 설명',
-                        '마이너 게시판 설명을 작성해 주세요.',
-                        3,
-                            (value) {
-                          if (value == null || value.isEmpty) {
-                            return '게시판 설명을 입력해주세요';
-                          }
-                          if (value.length < 5 && value.length < 20) {
-                            return '목적은 5자 이상 20자 이하로 입력해주세요';
-                          }
-                          return null;
-                        },
-                        _purposeValidated,
-                        snapshot.data == null,
-                      ),
-                      ..._buildSection(
-                        _requestMessageController,
-                        _requestMessageFocus,
-                        '* 게시판 오픈 요청 메시지',
-                        '게시판 오픈 요청 메시지를 입력해주세요.',
-                        3,
-                            (value) {
-                          if (value == null || value.isEmpty) {
-                            return '게시판 오픈 요청 메시지를 입력해주세요';
-                          }
-                          if (value.length < 10) {
-                            return '게시판 오픈 요청 메시지는 10자 이상 입력해주세요';
-                          }
-                          return null;
-                        },
-                        _requestMessageValidated,
-                        snapshot.data == null,
-                      ),
-                      const SizedBox(height: 24),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.cw),
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: 48,
-                          child: ElevatedButton(
-                            style: Theme.of(context).elevatedButtonTheme.style?.copyWith(
-                              backgroundColor: WidgetStateProperty.resolveWith(
-                                    (states) => AppColors.grey400,
+          return SingleChildScrollView(
+            controller: _scrollController,
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Container(
+              padding: const EdgeInsets.only(
+                bottom: 300,
+              ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildInfoBanner(),
+                    ..._buildSection(
+                      _nameController,
+                      _nameFocus,
+                      '마이너 게시판 이름',
+                      '게시판 이름을 입력해주세요',
+                      1,
+                      (value) {
+                        if (value == null || value.isEmpty) {
+                          return '게시판 이름을 입력해주세요';
+                        }
+                        return null;
+                      },
+                      _nameValidated,
+                      snapshot.data == null,
+                    ),
+                    ..._buildSection(
+                      _descriptionController,
+                      _descriptionFocus,
+                      '마이너 게시판 설명',
+                      '마이너 게시판 설명을 작성해 주세요.',
+                      3,
+                      (value) {
+                        if (value == null || value.isEmpty) {
+                          return '게시판 설명을 입력해주세요';
+                        }
+                        if (value.length < 5 && value.length < 20) {
+                          return '목적은 5자 이상 20자 이하로 입력해주세요';
+                        }
+                        return null;
+                      },
+                      _purposeValidated,
+                      snapshot.data == null,
+                    ),
+                    ..._buildSection(
+                      _requestMessageController,
+                      _requestMessageFocus,
+                      '* 게시판 오픈 요청 메시지',
+                      '게시판 오픈 요청 메시지를 입력해주세요.',
+                      3,
+                      (value) {
+                        if (value == null || value.isEmpty) {
+                          return '게시판 오픈 요청 메시지를 입력해주세요';
+                        }
+                        if (value.length < 10) {
+                          return '게시판 오픈 요청 메시지는 10자 이상 입력해주세요';
+                        }
+                        return null;
+                      },
+                      _requestMessageValidated,
+                      snapshot.data == null,
+                    ),
+                    const SizedBox(height: 24),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.cw),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton(
+                          style: Theme.of(context)
+                              .elevatedButtonTheme
+                              .style
+                              ?.copyWith(
+                                backgroundColor:
+                                    WidgetStateProperty.resolveWith(
+                                  (states) => AppColors.grey400,
+                                ),
                               ),
-                            ),
-                            onPressed: snapshot.data == null ? _handleSubmit : null,
-                            child: Text(
-                              snapshot.data == null ? '게시판 오픈 요청' : '게시판 오픈 검토중',
-                              style: getTextStyle(AppTypo.body14B, AppColors.grey00),
-                            ),
+                          onPressed:
+                              snapshot.data == null ? _handleSubmit : null,
+                          child: Text(
+                            snapshot.data == null ? '게시판 오픈 요청' : '게시판 오픈 검토중',
+                            style:
+                                getTextStyle(AppTypo.body14B, AppColors.grey00),
                           ),
                         ),
                       ),
-                      SizedBox(height: 32.cw),
-                    ],
-                  ),
+                    ),
+                    SizedBox(height: 32.cw),
+                  ],
                 ),
               ),
-            );
-          },
+            ),
+          );
+        },
       ),
     );
   }
@@ -222,15 +230,15 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
   }
 
   List<Widget> _buildSection(
-      TextEditingController controller,
-      FocusNode focusNode,
-      String title,
-      String hintText,
-      int maxLines,
-      String? Function(String?) validator,
-      bool validated,
-      bool enabled,
-      ) {
+    TextEditingController controller,
+    FocusNode focusNode,
+    String title,
+    String hintText,
+    int maxLines,
+    String? Function(String?) validator,
+    bool validated,
+    bool enabled,
+  ) {
     return [
       Container(
         alignment: Alignment.centerLeft,
@@ -252,7 +260,7 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
             hintText: hintText,
             hintStyle: getTextStyle(AppTypo.body16M, AppColors.grey400),
             contentPadding:
-            EdgeInsets.symmetric(horizontal: 16.cw, vertical: 16.cw),
+                EdgeInsets.symmetric(horizontal: 16.cw, vertical: 16.cw),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(4),
               borderSide: const BorderSide(color: AppColors.grey400),

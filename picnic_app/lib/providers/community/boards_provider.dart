@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/models/community/board.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'boards_provider.g.dart';
@@ -46,6 +46,7 @@ Future<List<BoardModel>?> boardsByArtistName(
           .from('boards')
           .select('*, artist!inner(*, artist_group(*))')
           .neq('artist_id', 0)
+          .eq('status', 'approved')
           .or('name->>ko.ilike.%$query%,name->>en.ilike.%$query%,name->>ja.ilike.%$query%,name->>zh.ilike.%$query%')
           .order('artist(name->>${Intl.getCurrentLocale()})', ascending: true)
           .range(page * limit, (page + 1) * limit - 1);
@@ -61,7 +62,25 @@ Future<List<BoardModel>?> boardsByArtistName(
 }
 
 @riverpod
-Future<BoardModel?> checkPendingRequest(ref) async {
+Future<bool> hasRequestHistory(ref) async {
+  try {
+    final response = await supabase
+        .from('boards')
+        .select()
+        .eq('creator_id', supabase.auth.currentUser!.id)
+        .inFilter('status', ['approved', 'pending']);
+
+    logger.d('response: $response');
+
+    return response.isNotEmpty;
+  } catch (e, s) {
+    logger.e('Error checking board history:', error: e, stackTrace: s);
+    return Future.error(e);
+  }
+}
+
+@riverpod
+Future<BoardModel?> getPendingRequest(ref) async {
   try {
     final response = await supabase
         .from('boards')

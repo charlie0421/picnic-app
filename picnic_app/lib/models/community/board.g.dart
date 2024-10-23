@@ -19,6 +19,8 @@ _$BoardModelImpl _$$BoardModelImplFromJson(Map<String, dynamic> json) =>
           ? null
           : ArtistModel.fromJson(json['artist'] as Map<String, dynamic>),
       requestMessage: json['request_message'] as String?,
+      status: json['status'] as String?,
+      creatorId: json['creator_id'] as String?,
     );
 
 Map<String, dynamic> _$$BoardModelImplToJson(_$BoardModelImpl instance) =>
@@ -32,4 +34,6 @@ Map<String, dynamic> _$$BoardModelImplToJson(_$BoardModelImpl instance) =>
       'updated_at': instance.updatedAt.toIso8601String(),
       'artist': instance.artist,
       'request_message': instance.requestMessage,
+      'status': instance.status,
+      'creator_id': instance.creatorId,
     };
