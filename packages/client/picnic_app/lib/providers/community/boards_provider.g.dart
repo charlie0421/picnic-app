@@ -155,7 +155,7 @@ class _BoardsProviderElement
 }
 
 String _$boardsByArtistNameHash() =>
-    r'd749b99cd0c73db17fac28f41495515c8471e364';
+    r'ad1c2479efdb2c50456dcb927e9dc9cb2a3b6653';
 
 /// See also [boardsByArtistName].
 @ProviderFor(boardsByArtistName)
@@ -318,23 +318,37 @@ class _BoardsByArtistNameProviderElement
   int get limit => (origin as BoardsByArtistNameProvider).limit;
 }
 
-String _$checkPendingRequestHash() =>
-    r'de05998da67fda9a9610d444c0a8febbd9d8cd59';
+String _$hasRequestHistoryHash() => r'f4c19952105803d3cba58bead1b805a3e7fd197f';
 
-/// See also [checkPendingRequest].
-@ProviderFor(checkPendingRequest)
-final checkPendingRequestProvider =
-    AutoDisposeFutureProvider<BoardModel?>.internal(
-  checkPendingRequest,
-  name: r'checkPendingRequestProvider',
+/// See also [hasRequestHistory].
+@ProviderFor(hasRequestHistory)
+final hasRequestHistoryProvider = AutoDisposeFutureProvider<bool>.internal(
+  hasRequestHistory,
+  name: r'hasRequestHistoryProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$checkPendingRequestHash,
+      : _$hasRequestHistoryHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef CheckPendingRequestRef = AutoDisposeFutureProviderRef<BoardModel?>;
+typedef HasRequestHistoryRef = AutoDisposeFutureProviderRef<bool>;
+String _$getPendingRequestHash() => r'156cac37069e223238c55dab944e36aff3e9bb60';
+
+/// See also [getPendingRequest].
+@ProviderFor(getPendingRequest)
+final getPendingRequestProvider =
+    AutoDisposeFutureProvider<BoardModel?>.internal(
+  getPendingRequest,
+  name: r'getPendingRequestProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$getPendingRequestHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef GetPendingRequestRef = AutoDisposeFutureProviderRef<BoardModel?>;
 String _$checkDuplicateBoardHash() =>
     r'baa009ded6747634188df7d5f3710e691ecfc3d3';
 
