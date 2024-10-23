@@ -13,7 +13,7 @@ class CommunityStateInfo extends _$CommunityStateInfo {
     return const CommunityState();
   }
 
-  void setCurrentArtist(ArtistModel artist) {
+  void setCurrentArtist(ArtistModel? artist) {
     state = state.copyWith(
       currentArtist: artist,
     );
@@ -31,7 +31,7 @@ class CommunityStateInfo extends _$CommunityStateInfo {
     );
   }
 
-  void setCurrentBoard(BoardModel board) {
+  void setCurrentBoard(BoardModel? board) {
     state = state.copyWith(
       currentBoard: board,
     );

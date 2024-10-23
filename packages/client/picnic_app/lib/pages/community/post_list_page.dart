@@ -5,6 +5,7 @@ import 'package:picnic_app/components/community/list/post_list.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/pages/community/board_request.dart';
 import 'package:picnic_app/providers/community/boards_provider.dart';
+import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -23,57 +24,79 @@ class PostListPage extends ConsumerStatefulWidget {
 }
 
 class _PostListPageState extends ConsumerState<PostListPage>
-    with SingleTickerProviderStateMixin {
-  late PageController _pageController;
+    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+  late PageController _pageController = PageController();
   int _currentIndex = 0;
+  bool _isInitialized = false;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-          showPortal: true,
-          showTopMenu: true,
-          topRightMenu: TopRightType.board,
-          showBottomNavigation: false,
-          pageTitle: widget.artistName);
-    });
+  }
 
-    _pageController = PageController(
-      initialPage: 0,
-    );
+  void _initializeWithCurrentBoard(List<dynamic> boards) {
+    if (_isInitialized) return;
+
+    final currentBoard = ref.read(communityStateInfoProvider).currentBoard;
+    if (currentBoard != null) {
+      final index =
+          boards.indexWhere((board) => board.boardId == currentBoard.boardId);
+      if (index != -1) {
+        final newIndex = index + 1;
+        setState(() {
+          _currentIndex = newIndex;
+          _isInitialized = true;
+        });
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _pageController.jumpToPage(newIndex);
+          }
+        });
+      }
+    }
+    _isInitialized = true;
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     final boards = ref.watch(boardsProvider(widget.artistId));
+
+    if (!_isInitialized) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(navigationInfoProvider.notifier).settingNavigation(
+            showPortal: true,
+            showTopMenu: true,
+            topRightMenu: TopRightType.board,
+            showBottomNavigation: false,
+            pageTitle: widget.artistName);
+      });
+    }
 
     return boards.when(
         data: (data) {
           if (data != null && data.isNotEmpty) {
-            // 현재 승인된 보드가 있는지 확인
+            if (!_isInitialized) {
+              _initializeWithCurrentBoard(data);
+            }
+
             final bool hasApprovedBoards = data.any((element) =>
                 element.status == 'approved' &&
                 element.creatorId == supabase.auth.currentUser!.id);
 
-            // 현재 보드에 대해 pending 상태인지 확인
             final bool hasPendingBoard = data.any((element) =>
                 element.status == 'pending' &&
                 element.creatorId == supabase.auth.currentUser!.id);
 
-            // 새로운 요청 버튼을 보여줄지 결정
-            // 1. 승인된 보드가 없고
-            // 2. 승인/거절/삭제 이력이 없거나 현재 pending 상태일 때 보여줌
             final bool showRequestButton =
                 !hasApprovedBoards || hasPendingBoard;
 
-            logger.i('showRequestButton: $showRequestButton');
-            logger.i('hasApprovedBoards: $hasApprovedBoards');
-            logger.i('hasPendingBoard: $hasPendingBoard');
-
-            final int totalPages = showRequestButton
-                ? data.length + 2 // +2 for '전체' and request page
-                : data.length + 1; // +1 for '전체' only
+            final int totalPages =
+                showRequestButton ? data.length + 2 : data.length + 1;
 
             return Column(
               children: [
@@ -93,11 +116,11 @@ class _PostListPageState extends ConsumerState<PostListPage>
                     itemCount: totalPages,
                     itemBuilder: (context, index) {
                       if (index == 0) {
-                        return _buildMenuItem('전체', '', index);
+                        return _buildMenuItem('전체', index);
                       } else if (index <= data.length) {
                         final board = data[index - 1];
-                        return _buildMenuItem(getLocaleTextFromJson(board.name),
-                            board.boardId, index);
+                        return _buildMenuItem(
+                            getLocaleTextFromJson(board.name), index);
                       } else if (showRequestButton) {
                         return _buildOpenRequestItem(totalPages - 1);
                       }
@@ -109,9 +132,19 @@ class _PostListPageState extends ConsumerState<PostListPage>
                   child: PageView(
                     controller: _pageController,
                     onPageChanged: (index) {
+                      logger.i('onPageChanged: $index');
                       setState(() {
                         _currentIndex = index;
                       });
+                      if (index != 0 && index <= data.length) {
+                        ref
+                            .read(communityStateInfoProvider.notifier)
+                            .setCurrentBoard(data[index - 1]);
+                      } else {
+                        ref
+                            .read(communityStateInfoProvider.notifier)
+                            .setCurrentBoard(null);
+                      }
                     },
                     children: [
                       PostList(PostListType.artist, widget.artistId),
@@ -137,7 +170,7 @@ class _PostListPageState extends ConsumerState<PostListPage>
         });
   }
 
-  Widget _buildMenuItem(String title, String boardId, int index) {
+  Widget _buildMenuItem(String title, int index) {
     return GestureDetector(
       onTap: () {
         _pageController.jumpToPage(index);

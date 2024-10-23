@@ -21,6 +21,9 @@ _$BoardModelImpl _$$BoardModelImplFromJson(Map<String, dynamic> json) =>
       requestMessage: json['request_message'] as String?,
       status: json['status'] as String?,
       creatorId: json['creator_id'] as String?,
+      features: (json['features'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
     );
 
 Map<String, dynamic> _$$BoardModelImplToJson(_$BoardModelImpl instance) =>
@@ -36,4 +39,5 @@ Map<String, dynamic> _$$BoardModelImplToJson(_$BoardModelImpl instance) =>
       'request_message': instance.requestMessage,
       'status': instance.status,
       'creator_id': instance.creatorId,
+      'features': instance.features,
     };
