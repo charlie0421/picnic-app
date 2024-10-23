@@ -5,6 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="11e4844d-d946-4133-bdfe-177e6d8bead2" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/board_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/board_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/board_reqeust.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/board_reqeust.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/screens/community/community_home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/screens/community/community_home_screen.dart" afterDir="false" />
