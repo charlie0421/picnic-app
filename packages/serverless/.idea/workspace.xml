@@ -4,16 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="11e4844d-d946-4133-bdfe-177e6d8bead2" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/components/community/common/post_board_select_popup_menu.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/components/community/common/post_board_select_popup_menu.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/board_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/board_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/board_reqeust.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/board_reqeust.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/community_my_comment.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/community_my_comment.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/post_list_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/post_list_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/community/boards_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/community/boards_provider.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/community/boards_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/community/boards_provider.g.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="11e4844d-d946-4133-bdfe-177e6d8bead2" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -51,25 +42,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Node.js.index.js.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "develop",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/charlie.hyun/Repositories/picnic/packages/serverless",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "advanced.settings",
-    "show.migrate.to.gradle.popup": "false",
-    "ts.external.directory.path": "/Users/charlie.hyun/Repositories/picnic/packages/serverless/supabase-on-aws/node_modules/typescript/lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Node.js.index.js.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;develop&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/charlie.hyun/Repositories/picnic/packages/serverless&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;advanced.settings&quot;,
+    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/Users/charlie.hyun/Repositories/picnic/packages/serverless/supabase-on-aws/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
