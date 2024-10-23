@@ -63,7 +63,6 @@ class _PostWriteBodyState extends State<PostWriteBody> {
         _keyboardHeight = height;
       });
     });
-
   }
 
   @override
@@ -128,7 +127,9 @@ class _PostWriteBodyState extends State<PostWriteBody> {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: _isEditorFocused ? AppColors.primary500 : Colors.grey,
+                  color: _isEditorFocused
+                      ? AppColors.primary500
+                      : AppColors.grey400,
                   width: _isEditorFocused ? 2.0 : 1.0,
                 ),
                 borderRadius: BorderRadius.circular(8.0),
@@ -242,21 +243,24 @@ class _PostWriteBodyState extends State<PostWriteBody> {
     return SizedBox(
       height: 48,
       child: TextField(
+        textAlignVertical: TextAlignVertical.center,
         controller: widget.titleController,
         focusNode: _titleFocusNode,
         decoration: InputDecoration(
           hintText: S.of(context).post_title_placeholder,
+          hintStyle: const TextStyle(color: AppColors.grey300),
+          // 이 부분을 추가
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8.0),
             borderSide: BorderSide(
-              color: _isTitleFocused ? AppColors.primary500 : Colors.grey,
+              color: _isTitleFocused ? AppColors.primary500 : AppColors.grey400,
               width: _isTitleFocused ? 2.0 : 1.0,
             ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8.0),
             borderSide: const BorderSide(
-              color: Colors.grey,
+              color: AppColors.grey400,
               width: 1.0,
             ),
           ),
