@@ -13,7 +13,6 @@ import 'package:picnic_app/components/community/write/embed_builder/youtube_embe
 import 'package:picnic_app/components/community/write/post_write_attachments.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class PostWriteBody extends StatefulWidget {
@@ -108,13 +107,10 @@ class _PostWriteBodyState extends State<PostWriteBody> {
         final keyboardHeight = _keyboardHeight;
         final double containerSize = MediaQuery.of(context).size.height - 420;
         // final double containerSize = constraint.maxHeight;
-        logger.i('contractHeight: ${containerSize}');
-        logger.i('keyboardHeight: $keyboardHeight');
 
         final double editorHeight = isKeyboardVisible
             ? containerSize - keyboardHeight + 40
             : containerSize;
-        logger.i('editorHeight: $editorHeight');
         return SizedBox(
           height: editorHeight,
           child: GestureDetector(
