@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/community/list/post_list.dart';
 import 'package:picnic_app/models/common/navigation.dart';
-import 'package:picnic_app/pages/community/board_reqeust.dart';
+import 'package:picnic_app/pages/community/board_request.dart';
 import 'package:picnic_app/providers/community/boards_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
