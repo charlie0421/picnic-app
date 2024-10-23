@@ -480,7 +480,7 @@ class _CheckDuplicateBoardProviderElement
   String get title => (origin as CheckDuplicateBoardProvider).title;
 }
 
-String _$createBoardHash() => r'607990e37cc0dbf39d24093491c708c706954951';
+String _$createBoardHash() => r'f196f3fde30b9a6ec8b9acde42bbaaa0ea817bab';
 
 /// See also [createBoard].
 @ProviderFor(createBoard)

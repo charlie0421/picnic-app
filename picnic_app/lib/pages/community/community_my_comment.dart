@@ -85,10 +85,8 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment>
                         Row(
                           children: [
                             Text(
-                              item.post!.board!.isOfficial
-                                  ? getLocaleTextFromJson(
-                                      item.post!.board!.name)
-                                  : item.post!.board?.name['minor'],
+                               getLocaleTextFromJson(
+                                      item.post!.board!.name),
                               style: getTextStyle(
                                   AppTypo.caption12B, AppColors.primary500),
                             ),

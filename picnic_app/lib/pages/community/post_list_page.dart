@@ -96,12 +96,8 @@ class _PostListPageState extends ConsumerState<PostListPage>
                         return _buildMenuItem('전체', '', index);
                       } else if (index <= data.length) {
                         final board = data[index - 1];
-                        return _buildMenuItem(
-                            board.isOfficial
-                                ? getLocaleTextFromJson(board.name)
-                                : board.name['minor'],
-                            board.boardId,
-                            index);
+                        return _buildMenuItem(getLocaleTextFromJson(board.name),
+                            board.boardId, index);
                       } else if (showRequestButton) {
                         return _buildOpenRequestItem(totalPages - 1);
                       }

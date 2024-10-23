@@ -28,7 +28,7 @@ class _BoardPageState extends ConsumerState<BoardPage> {
   final FocusNode focusNode = FocusNode();
   final TextEditingController _textEditingController = TextEditingController();
   final _pagingController =
-  PagingController<int, List<BoardModel>>(firstPageKey: 0);
+      PagingController<int, List<BoardModel>>(firstPageKey: 0);
   final _searchSubject = BehaviorSubject<String>();
 
   @override
@@ -67,7 +67,7 @@ class _BoardPageState extends ConsumerState<BoardPage> {
   Future<void> _fetch(int pageKey) async {
     try {
       final newItems = await boardsByArtistName(
-          ref, _textEditingController.text, pageKey, 10) ??
+              ref, _textEditingController.text, pageKey, 10) ??
           [];
 
       final groupedBoards = _groupBoardsByArtist(newItems);
@@ -162,7 +162,7 @@ class _BoardPageState extends ConsumerState<BoardPage> {
           child: Wrap(
             spacing: 8.cw,
             children:
-            artistBoards.map((board) => _buildBoardChip(board)).toList(),
+                artistBoards.map((board) => _buildBoardChip(board)).toList(),
           ),
         ),
         const SizedBox(height: 8),
@@ -184,9 +184,7 @@ class _BoardPageState extends ConsumerState<BoardPage> {
       },
       child: Chip(
         label: Text(
-          board.isOfficial
-              ? getLocaleTextFromJson(board.name)
-              : board.name['minor'],
+          getLocaleTextFromJson(board.name),
           style: getTextStyle(AppTypo.caption12B,
               board.isOfficial ? AppColors.primary500 : AppColors.grey900),
         ),
