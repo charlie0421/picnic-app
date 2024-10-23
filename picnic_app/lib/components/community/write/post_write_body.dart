@@ -34,7 +34,7 @@ class PostWriteBody extends StatefulWidget {
   });
 
   @override
-  _PostWriteBodyState createState() => _PostWriteBodyState();
+  State<PostWriteBody> createState() => _PostWriteBodyState();
 }
 
 class _PostWriteBodyState extends State<PostWriteBody> {
@@ -80,7 +80,7 @@ class _PostWriteBodyState extends State<PostWriteBody> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.cw),
       child: GestureDetector(
-        onTap: _unfocusAll,
+        onTap: _unFocusAll,
         behavior: HitTestBehavior.translucent,
         child: Column(
           children: [
@@ -182,7 +182,7 @@ class _PostWriteBodyState extends State<PostWriteBody> {
     }
   }
 
-  void _unfocusAll() {
+  void _unFocusAll() {
     _titleFocusNode.unfocus();
     _editorFocusNode.unfocus();
   }
