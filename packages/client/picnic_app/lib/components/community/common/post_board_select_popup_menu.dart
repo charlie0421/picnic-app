@@ -60,9 +60,7 @@ class _PostBoardSelectPopupMenuState
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    selectedBoard.isOfficial
-                        ? getLocaleTextFromJson(selectedBoard.name)
-                        : selectedBoard.name['minor'],
+                        getLocaleTextFromJson(selectedBoard.name),
                     textAlign: TextAlign.center,
                     style: getTextStyle(AppTypo.caption12R, AppColors.grey700),
                   ),
@@ -80,9 +78,8 @@ class _PostBoardSelectPopupMenuState
               return PopupMenuItem<BoardModel>(
                 value: board,
                 child: Text(
-                  board.isOfficial
-                      ? getLocaleTextFromJson(board.name)
-                      : board.name['minor'],
+                   getLocaleTextFromJson(board.name)
+                  ,
                   style: board.boardId == currentBoard?.boardId
                       ? getTextStyle(AppTypo.caption12R, AppColors.grey700)
                       : getTextStyle(AppTypo.caption12B, AppColors.grey400),

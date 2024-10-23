@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/providers/community/boards_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class BoardRequest extends ConsumerStatefulWidget {
@@ -111,7 +112,7 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
             );
           }
           if (snapshot.data != null) {
-            _nameController.text = snapshot.data!.name['minor'];
+            _nameController.text = getLocaleTextFromJson(snapshot.data!.name);
             _descriptionController.text = snapshot.data!.description;
             _requestMessageController.text =
                 snapshot.data?.requestMessage ?? '';

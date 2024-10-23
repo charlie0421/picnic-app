@@ -124,7 +124,10 @@ Future<BoardModel?> createBoard(
       {
         'artist_id': artistId,
         'name': {
-          'minor': title,
+          'ko': title,
+          'en': title,
+          'ja': title,
+          'zh': title,
         },
         'description': description,
         'status': 'pending',
