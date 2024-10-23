@@ -12,8 +12,7 @@ class CommunityHomeScreen extends ConsumerStatefulWidget {
   const CommunityHomeScreen({super.key});
 
   @override
-  ConsumerState<CommunityHomeScreen> createState() =>
-      _CommunityHomeScreenState();
+  ConsumerState<CommunityHomeScreen> createState() => _CommunityHomeScreenState();
 }
 
 class _CommunityHomeScreenState extends ConsumerState<CommunityHomeScreen> {
@@ -51,37 +50,38 @@ class _CommunityHomeScreenState extends ConsumerState<CommunityHomeScreen> {
 
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (
-        didPop,
-        result,
-      ) {
+      onPopInvokedWithResult: (didPop, result,) {
         logger.d('PopScope onPopInvokedWithResult: $didPop, $result');
         _handleRightSwipe();
       },
-      child: GestureDetector(
-        onPanUpdate: (details) {
-          // 수평 방향의 움직임이 수직 방향보다 크고, 오른쪽으로 움직일 때만 처리
-          if (details.delta.dx.abs() > details.delta.dy.abs() &&
-              details.delta.dx > 0) {
-            // 여기서 임계값을 설정하여 작은 움직임은 무시할 수 있습니다.
-            if (details.delta.dx > 20) {
-              // 예: 20픽셀 이상의 움직임만 고려
-              _handleRightSwipe();
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        body: GestureDetector(
+          onPanUpdate: (details) {
+            // 수평 방향의 움직임이 수직 방향보다 크고, 오른쪽으로 움직일 때만 처리
+            if (details.delta.dx.abs() > details.delta.dy.abs() &&
+                details.delta.dx > 0) {
+              // 여기서 임계값을 설정하여 작은 움직임은 무시할 수 있습니다.
+              if (details.delta.dx > 20) {
+                // 예: 20픽셀 이상의 움직임만 고려
+                _handleRightSwipe();
+              }
             }
-          }
-        },
-        child: Stack(
-          children: [
-            const PicnicAnimatedSwitcher(),
-            if (navigationInfo.showBottomNavigation)
-              Positioned(
+          },
+          child: Stack(
+            children: [
+              const PicnicAnimatedSwitcher(),
+              if (navigationInfo.showBottomNavigation)
+                Positioned(
                   bottom: MediaQuery.of(context).padding.bottom + 20,
                   left: 0,
                   right: 0,
                   child: CommonBottomNavigationBar(
                     screenInfo: communityScreenInfo,
-                  )),
-          ],
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
