@@ -18,6 +18,11 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
   late TextEditingController _requestMessageController;
+  final _scrollController = ScrollController();
+
+  final _nameFocus = FocusNode();
+  final _descriptionFocus = FocusNode();
+  final _requestMessageFocus = FocusNode();
 
   bool requested = false;
 
@@ -31,6 +36,45 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
     _nameController = TextEditingController();
     _descriptionController = TextEditingController();
     _requestMessageController = TextEditingController();
+
+    _nameFocus.addListener(() {
+      if (!_nameFocus.hasFocus && !_nameValidated) {
+        setState(() => _nameValidated = true);
+      }
+    });
+    _descriptionFocus.addListener(() {
+      if (!_descriptionFocus.hasFocus && !_purposeValidated) {
+        setState(() => _purposeValidated = true);
+      }
+    });
+    _requestMessageFocus.addListener(() {
+      if (!_requestMessageFocus.hasFocus && !_requestMessageValidated) {
+        setState(() => _requestMessageValidated = true);
+      }
+    });
+
+    _nameFocus.addListener(_handleFocusChange);
+    _descriptionFocus.addListener(_handleFocusChange);
+    _requestMessageFocus.addListener(_handleFocusChange);
+  }
+
+  void _handleFocusChange() {
+    FocusNode? focusNode;
+    if (_nameFocus.hasFocus) focusNode = _nameFocus;
+    if (_descriptionFocus.hasFocus) focusNode = _descriptionFocus;
+    if (_requestMessageFocus.hasFocus) focusNode = _requestMessageFocus;
+
+    if (focusNode != null) {
+      Future.delayed(const Duration(milliseconds: 300), () {
+        final RenderObject? renderObject = focusNode?.context?.findRenderObject();
+        if (renderObject != null) {
+          _scrollController.position.ensureVisible(
+            renderObject,
+            duration: const Duration(milliseconds: 300),
+          );
+        }
+      });
+    }
   }
 
   @override
@@ -38,99 +82,132 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
     _nameController.dispose();
     _descriptionController.dispose();
     _requestMessageController.dispose();
+    _scrollController.dispose();
+    _nameFocus.dispose();
+    _descriptionFocus.dispose();
+    _requestMessageFocus.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: checkPendingRequest(ref),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
-            );
-          }
-          if (snapshot.data != null) {
-            _nameController.text = snapshot.data!.name['minor'];
-            _descriptionController.text = snapshot.data!.description;
-            _requestMessageController.text =
-                snapshot.data?.requestMessage ?? '';
-          }
-          return Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                _buildInfoBanner(),
-                ..._buildSection(
-                  _nameController,
-                  '마이너 게시판 이름',
-                  '게시판 이름을 입력해주세요',
-                  1,
-                  (value) {
-                    if (value == null || value.isEmpty) {
-                      return '게시판 이름을 입력해주세요';
-                    }
-                    return null;
-                  },
-                  _nameValidated,
-                  (val) => setState(() => _nameValidated = true),
-                  snapshot.data == null,
+    return GestureDetector(
+      onTap: () {
+        _nameFocus.unfocus();
+        _descriptionFocus.unfocus();
+        _requestMessageFocus.unfocus();
+      },
+      child: FutureBuilder(
+          future: checkPendingRequest(ref),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(
+                child: Text('Error: ${snapshot.error}'),
+              );
+            }
+            if (snapshot.data != null) {
+              _nameController.text = snapshot.data!.name['minor'];
+              _descriptionController.text = snapshot.data!.description;
+              _requestMessageController.text =
+                  snapshot.data?.requestMessage ?? '';
+            }
+
+            return SingleChildScrollView(
+              controller: _scrollController,
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Container(
+                padding: const EdgeInsets.only(
+                  bottom: 300,
                 ),
-                ..._buildSection(
-                  _descriptionController,
-                  '마이너 게시판 설명',
-                  '마이너 게시판 설명을 작성해 주세요.',
-                  3,
-                  (value) {
-                    if (value == null || value.isEmpty) {
-                      return '게시판 설명을 입력해주세요';
-                    }
-                    if (value.length < 5 && value.length < 20) {
-                      return '목적은 5자 이상 20자 이하로 입력해주세요';
-                    }
-                    return null;
-                  },
-                  _purposeValidated,
-                  (val) => setState(() => _purposeValidated = true),
-                  snapshot.data == null,
-                ),
-                ..._buildSection(
-                  _requestMessageController,
-                  '* 게시판 오픈 요청 메시지',
-                  '게시판 오픈 요청 메시지를 입력해주세요.',
-                  3,
-                  (value) {
-                    if (value == null || value.isEmpty) {
-                      return '게시판 오픈 요청 메시지를 입력해주세요';
-                    }
-                    if (value.length < 10) {
-                      return '게시판 오픈 요청 메시지는 10자 이상 입력해주세요';
-                    }
-                    return null;
-                  },
-                  _requestMessageValidated,
-                  (val) => setState(() => _requestMessageValidated = true),
-                  snapshot.data == null,
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  style: Theme.of(context).elevatedButtonTheme.style?.copyWith(
-                        backgroundColor: WidgetStateProperty.resolveWith(
-                            (states) => AppColors.grey400),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildInfoBanner(),
+                      ..._buildSection(
+                        _nameController,
+                        _nameFocus,
+                        '마이너 게시판 이름',
+                        '게시판 이름을 입력해주세요',
+                        1,
+                            (value) {
+                          if (value == null || value.isEmpty) {
+                            return '게시판 이름을 입력해주세요';
+                          }
+                          return null;
+                        },
+                        _nameValidated,
+                        snapshot.data == null,
                       ),
-                  onPressed: snapshot.data == null ? _handleSubmit : null,
-                  child: Text(
-                      snapshot.data == null ? '게시판 오픈 요청' : '게시판 오픈 검토중',
-                      style: getTextStyle(AppTypo.body14B, AppColors.grey00)),
+                      ..._buildSection(
+                        _descriptionController,
+                        _descriptionFocus,
+                        '마이너 게시판 설명',
+                        '마이너 게시판 설명을 작성해 주세요.',
+                        3,
+                            (value) {
+                          if (value == null || value.isEmpty) {
+                            return '게시판 설명을 입력해주세요';
+                          }
+                          if (value.length < 5 && value.length < 20) {
+                            return '목적은 5자 이상 20자 이하로 입력해주세요';
+                          }
+                          return null;
+                        },
+                        _purposeValidated,
+                        snapshot.data == null,
+                      ),
+                      ..._buildSection(
+                        _requestMessageController,
+                        _requestMessageFocus,
+                        '* 게시판 오픈 요청 메시지',
+                        '게시판 오픈 요청 메시지를 입력해주세요.',
+                        3,
+                            (value) {
+                          if (value == null || value.isEmpty) {
+                            return '게시판 오픈 요청 메시지를 입력해주세요';
+                          }
+                          if (value.length < 10) {
+                            return '게시판 오픈 요청 메시지는 10자 이상 입력해주세요';
+                          }
+                          return null;
+                        },
+                        _requestMessageValidated,
+                        snapshot.data == null,
+                      ),
+                      const SizedBox(height: 24),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.cw),
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 48,
+                          child: ElevatedButton(
+                            style: Theme.of(context).elevatedButtonTheme.style?.copyWith(
+                              backgroundColor: WidgetStateProperty.resolveWith(
+                                    (states) => AppColors.grey400,
+                              ),
+                            ),
+                            onPressed: snapshot.data == null ? _handleSubmit : null,
+                            child: Text(
+                              snapshot.data == null ? '게시판 오픈 요청' : '게시판 오픈 검토중',
+                              style: getTextStyle(AppTypo.body14B, AppColors.grey00),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 32.cw),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-          );
-        });
+              ),
+            );
+          },
+      ),
+    );
   }
 
   Widget _buildInfoBanner() {
@@ -145,15 +222,15 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
   }
 
   List<Widget> _buildSection(
-    TextEditingController controller,
-    String title,
-    String hintText,
-    int maxLines,
-    String? Function(String?) validator,
-    bool validated,
-    void Function(String) onChanged,
-    bool enabled,
-  ) {
+      TextEditingController controller,
+      FocusNode focusNode,
+      String title,
+      String hintText,
+      int maxLines,
+      String? Function(String?) validator,
+      bool validated,
+      bool enabled,
+      ) {
     return [
       Container(
         alignment: Alignment.centerLeft,
@@ -165,6 +242,7 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
       Container(
         padding: EdgeInsets.symmetric(horizontal: 16.cw),
         child: TextFormField(
+          focusNode: focusNode,
           maxLines: maxLines,
           controller: controller,
           enabled: enabled,
@@ -174,7 +252,7 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
             hintText: hintText,
             hintStyle: getTextStyle(AppTypo.body16M, AppColors.grey400),
             contentPadding:
-                EdgeInsets.symmetric(horizontal: 16.cw, vertical: 16.cw),
+            EdgeInsets.symmetric(horizontal: 16.cw, vertical: 16.cw),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(4),
               borderSide: const BorderSide(color: AppColors.grey400),
@@ -196,7 +274,6 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
           autovalidateMode: validated
               ? AutovalidateMode.onUserInteraction
               : AutovalidateMode.disabled,
-          onChanged: onChanged,
         ),
       ),
     ];

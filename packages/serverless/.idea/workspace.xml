@@ -5,7 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="11e4844d-d946-4133-bdfe-177e6d8bead2" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/pages/vote/vote_detail_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/pages/vote/vote_detail_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/board_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/board_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/board_reqeust.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/board_reqeust.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/screens/community/community_home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/screens/community/community_home_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,12 +32,12 @@
     &quot;assignee&quot;: &quot;charlie0421&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/charlie0421/picnic.git",
-    "accountId": "02e3624c-a758-4bc0-9d6c-c132ff5d9cb0"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/charlie0421/picnic.git&quot;,
+    &quot;accountId&quot;: &quot;02e3624c-a758-4bc0-9d6c-c132ff5d9cb0&quot;
   }
-}]]></component>
+}</component>
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="/opt/homebrew/Cellar/php/8.2.4/bin/php" />
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 0
@@ -49,7 +52,7 @@
     "Node.js.index.js.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "production",
+    "git-widget-placeholder": "develop",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/charlie.hyun/Repositories/picnic/packages/serverless",
     "node.js.detected.package.eslint": "true",

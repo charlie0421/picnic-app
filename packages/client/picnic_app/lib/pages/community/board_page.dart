@@ -28,7 +28,7 @@ class _BoardPageState extends ConsumerState<BoardPage> {
   final FocusNode focusNode = FocusNode();
   final TextEditingController _textEditingController = TextEditingController();
   final _pagingController =
-      PagingController<int, List<BoardModel>>(firstPageKey: 0);
+  PagingController<int, List<BoardModel>>(firstPageKey: 0);
   final _searchSubject = BehaviorSubject<String>();
 
   @override
@@ -67,7 +67,7 @@ class _BoardPageState extends ConsumerState<BoardPage> {
   Future<void> _fetch(int pageKey) async {
     try {
       final newItems = await boardsByArtistName(
-              ref, _textEditingController.text, pageKey, 10) ??
+          ref, _textEditingController.text, pageKey, 10) ??
           [];
 
       final groupedBoards = _groupBoardsByArtist(newItems);
@@ -99,31 +99,36 @@ class _BoardPageState extends ConsumerState<BoardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 12),
-          child: CommonSearchBox(
-              focusNode: focusNode,
-              textEditingController: _textEditingController,
-              hintText: S.of(context).text_community_board_search),
-        ),
-        Expanded(
-          child: PagedListView<int, List<BoardModel>>(
-            pagingController: _pagingController,
-            builderDelegate: PagedChildBuilderDelegate<List<BoardModel>>(
-              itemBuilder: (context, List<BoardModel> artistBoards, index) {
-                return _buildArtistBoardGroup(artistBoards);
-              },
-              noItemsFoundIndicatorBuilder: (context) {
-                return const NoItemContainer(
-                  message: '검색결과가 없습니다.',
-                );
-              },
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 12),
+              child: CommonSearchBox(
+                  focusNode: focusNode,
+                  textEditingController: _textEditingController,
+                  hintText: S.of(context).text_community_board_search),
             ),
-          ),
+            Expanded(
+              child: PagedListView<int, List<BoardModel>>(
+                pagingController: _pagingController,
+                builderDelegate: PagedChildBuilderDelegate<List<BoardModel>>(
+                  itemBuilder: (context, List<BoardModel> artistBoards, index) {
+                    return _buildArtistBoardGroup(artistBoards);
+                  },
+                  noItemsFoundIndicatorBuilder: (context) {
+                    return const NoItemContainer(
+                      message: '검색결과가 없습니다.',
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -157,7 +162,7 @@ class _BoardPageState extends ConsumerState<BoardPage> {
           child: Wrap(
             spacing: 8.cw,
             children:
-                artistBoards.map((board) => _buildBoardChip(board)).toList(),
+            artistBoards.map((board) => _buildBoardChip(board)).toList(),
           ),
         ),
         const SizedBox(height: 8),
