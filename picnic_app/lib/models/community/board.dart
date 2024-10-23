@@ -20,6 +20,7 @@ class BoardModel with _$BoardModel {
     @JsonKey(name: 'request_message') required String? requestMessage,
     @JsonKey(name: 'status') required String? status,
     @JsonKey(name: 'creator_id') required String? creatorId,
+    @JsonKey(name: 'features') required List<String>? features,
   }) = _BoardModel;
 
   factory BoardModel.fromJson(Map<String, dynamic> json) =>

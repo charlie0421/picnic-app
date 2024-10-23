@@ -41,6 +41,8 @@ mixin _$BoardModel {
   String? get status => throw _privateConstructorUsedError;
   @JsonKey(name: 'creator_id')
   String? get creatorId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'features')
+  List<String>? get features => throw _privateConstructorUsedError;
 
   /// Serializes this BoardModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -69,7 +71,8 @@ abstract class $BoardModelCopyWith<$Res> {
       ArtistModel? artist,
       @JsonKey(name: 'request_message') String? requestMessage,
       @JsonKey(name: 'status') String? status,
-      @JsonKey(name: 'creator_id') String? creatorId});
+      @JsonKey(name: 'creator_id') String? creatorId,
+      @JsonKey(name: 'features') List<String>? features});
 
   $ArtistModelCopyWith<$Res>? get artist;
 }
@@ -100,6 +103,7 @@ class _$BoardModelCopyWithImpl<$Res, $Val extends BoardModel>
     Object? requestMessage = freezed,
     Object? status = freezed,
     Object? creatorId = freezed,
+    Object? features = freezed,
   }) {
     return _then(_value.copyWith(
       boardId: null == boardId
@@ -146,6 +150,10 @@ class _$BoardModelCopyWithImpl<$Res, $Val extends BoardModel>
           ? _value.creatorId
           : creatorId // ignore: cast_nullable_to_non_nullable
               as String?,
+      features: freezed == features
+          ? _value.features
+          : features // ignore: cast_nullable_to_non_nullable
+              as List<String>?,
     ) as $Val);
   }
 
@@ -183,7 +191,8 @@ abstract class _$$BoardModelImplCopyWith<$Res>
       ArtistModel? artist,
       @JsonKey(name: 'request_message') String? requestMessage,
       @JsonKey(name: 'status') String? status,
-      @JsonKey(name: 'creator_id') String? creatorId});
+      @JsonKey(name: 'creator_id') String? creatorId,
+      @JsonKey(name: 'features') List<String>? features});
 
   @override
   $ArtistModelCopyWith<$Res>? get artist;
@@ -213,6 +222,7 @@ class __$$BoardModelImplCopyWithImpl<$Res>
     Object? requestMessage = freezed,
     Object? status = freezed,
     Object? creatorId = freezed,
+    Object? features = freezed,
   }) {
     return _then(_$BoardModelImpl(
       boardId: null == boardId
@@ -259,6 +269,10 @@ class __$$BoardModelImplCopyWithImpl<$Res>
           ? _value.creatorId
           : creatorId // ignore: cast_nullable_to_non_nullable
               as String?,
+      features: freezed == features
+          ? _value._features
+          : features // ignore: cast_nullable_to_non_nullable
+              as List<String>?,
     ));
   }
 }
@@ -277,8 +291,10 @@ class _$BoardModelImpl extends _BoardModel {
       required this.artist,
       @JsonKey(name: 'request_message') required this.requestMessage,
       @JsonKey(name: 'status') required this.status,
-      @JsonKey(name: 'creator_id') required this.creatorId})
+      @JsonKey(name: 'creator_id') required this.creatorId,
+      @JsonKey(name: 'features') required final List<String>? features})
       : _name = name,
+        _features = features,
         super._();
 
   factory _$BoardModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -322,10 +338,20 @@ class _$BoardModelImpl extends _BoardModel {
   @override
   @JsonKey(name: 'creator_id')
   final String? creatorId;
+  final List<String>? _features;
+  @override
+  @JsonKey(name: 'features')
+  List<String>? get features {
+    final value = _features;
+    if (value == null) return null;
+    if (_features is EqualUnmodifiableListView) return _features;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
 
   @override
   String toString() {
-    return 'BoardModel(boardId: $boardId, artistId: $artistId, name: $name, description: $description, isOfficial: $isOfficial, createdAt: $createdAt, updatedAt: $updatedAt, artist: $artist, requestMessage: $requestMessage, status: $status, creatorId: $creatorId)';
+    return 'BoardModel(boardId: $boardId, artistId: $artistId, name: $name, description: $description, isOfficial: $isOfficial, createdAt: $createdAt, updatedAt: $updatedAt, artist: $artist, requestMessage: $requestMessage, status: $status, creatorId: $creatorId, features: $features)';
   }
 
   @override
@@ -350,7 +376,8 @@ class _$BoardModelImpl extends _BoardModel {
                 other.requestMessage == requestMessage) &&
             (identical(other.status, status) || other.status == status) &&
             (identical(other.creatorId, creatorId) ||
-                other.creatorId == creatorId));
+                other.creatorId == creatorId) &&
+            const DeepCollectionEquality().equals(other._features, _features));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -367,7 +394,8 @@ class _$BoardModelImpl extends _BoardModel {
       artist,
       requestMessage,
       status,
-      creatorId);
+      creatorId,
+      const DeepCollectionEquality().hash(_features));
 
   /// Create a copy of BoardModel
   /// with the given fields replaced by the non-null parameter values.
@@ -397,8 +425,9 @@ abstract class _BoardModel extends BoardModel {
       required final ArtistModel? artist,
       @JsonKey(name: 'request_message') required final String? requestMessage,
       @JsonKey(name: 'status') required final String? status,
-      @JsonKey(name: 'creator_id')
-      required final String? creatorId}) = _$BoardModelImpl;
+      @JsonKey(name: 'creator_id') required final String? creatorId,
+      @JsonKey(name: 'features')
+      required final List<String>? features}) = _$BoardModelImpl;
   const _BoardModel._() : super._();
 
   factory _BoardModel.fromJson(Map<String, dynamic> json) =
@@ -436,6 +465,9 @@ abstract class _BoardModel extends BoardModel {
   @override
   @JsonKey(name: 'creator_id')
   String? get creatorId;
+  @override
+  @JsonKey(name: 'features')
+  List<String>? get features;
 
   /// Create a copy of BoardModel
   /// with the given fields replaced by the non-null parameter values.

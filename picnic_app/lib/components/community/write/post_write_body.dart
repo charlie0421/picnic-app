@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:keyboard_height_plugin/keyboard_height_plugin.dart';
@@ -12,10 +13,13 @@ import 'package:picnic_app/components/community/write/embed_builder/media_embed_
 import 'package:picnic_app/components/community/write/embed_builder/youtube_embed_builder.dart';
 import 'package:picnic_app/components/community/write/post_write_attachments.dart';
 import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/models/community/board.dart';
+import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
-class PostWriteBody extends StatefulWidget {
+class PostWriteBody extends ConsumerStatefulWidget {
   final TextEditingController titleController;
   final quill.QuillController contentController;
   final List<PlatformFile> attachments;
@@ -34,10 +38,10 @@ class PostWriteBody extends StatefulWidget {
   });
 
   @override
-  State<PostWriteBody> createState() => _PostWriteBodyState();
+  ConsumerState<PostWriteBody> createState() => _PostWriteBodyState();
 }
 
-class _PostWriteBodyState extends State<PostWriteBody> {
+class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
   final FocusNode _titleFocusNode = FocusNode();
   final FocusNode _editorFocusNode = FocusNode();
   bool _isTitleFocused = false;
@@ -77,6 +81,8 @@ class _PostWriteBodyState extends State<PostWriteBody> {
 
   @override
   Widget build(BuildContext context) {
+    final currentBoard = ref.watch(communityStateInfoProvider).currentBoard;
+    logger.d('Current board: $currentBoard');
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.cw),
       child: GestureDetector(
@@ -86,7 +92,7 @@ class _PostWriteBodyState extends State<PostWriteBody> {
           children: [
             _buildTitleField(),
             const SizedBox(height: 4),
-            _buildQuillToolbar(),
+            _buildQuillToolbar(currentBoard),
             const SizedBox(height: 4),
             _buildQuillEditor(),
             PostWriteAttachments(
@@ -275,67 +281,90 @@ class _PostWriteBodyState extends State<PostWriteBody> {
     );
   }
 
-  Widget _buildQuillToolbar() {
+  Widget _buildQuillToolbar(BoardModel? currentBoard) {
+    final featuresList = currentBoard?.features;
     return SizedBox(
       height: 40,
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Flex(
+        direction: Axis.horizontal,
         children: [
-          _buildHistoryButton(
-            'assets/icons/post/post_undo.svg',
-            () => _controller.undo(),
-            _controller.hasUndo,
+          Flexible(
+            flex: 2,
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildHistoryButton(
+                  'assets/icons/post/post_undo.svg',
+                  () => _controller.undo(),
+                  _controller.hasUndo,
+                ),
+                _buildHistoryButton(
+                  'assets/icons/post/post_redo.svg',
+                  () => _controller.redo(),
+                  _controller.hasRedo,
+                ),
+                const VerticalDivider(
+                  color: AppColors.grey400,
+                  width: 1,
+                  thickness: 1,
+                  indent: 12,
+                  endIndent: 12,
+                ),
+                _buildFormatButton(
+                  'assets/icons/post/post_bold.svg',
+                  () => _toggleSelectionFormat(quill.Attribute.bold),
+                  _isStyleActive(quill.Attribute.bold),
+                ),
+                _buildFormatButton(
+                  'assets/icons/post/post_italic.svg',
+                  () => _toggleSelectionFormat(quill.Attribute.italic),
+                  _isStyleActive(quill.Attribute.italic),
+                ),
+                _buildFormatButton(
+                  'assets/icons/post/post_underline.svg',
+                  () => _toggleSelectionFormat(quill.Attribute.underline),
+                  _isStyleActive(quill.Attribute.underline),
+                ),
+                const VerticalDivider(
+                  color: AppColors.grey400,
+                  width: 1,
+                  thickness: 1,
+                  indent: 12,
+                  endIndent: 12,
+                ),
+              ],
+            ),
           ),
-          _buildHistoryButton(
-            'assets/icons/post/post_redo.svg',
-            () => _controller.redo(),
-            _controller.hasRedo,
-          ),
-          const VerticalDivider(
-            color: AppColors.grey400,
-            width: 1,
-            thickness: 1,
-            indent: 12,
-            endIndent: 12,
-          ),
-          _buildFormatButton(
-            'assets/icons/post/post_bold.svg',
-            () => _toggleSelectionFormat(quill.Attribute.bold),
-            _isStyleActive(quill.Attribute.bold),
-          ),
-          _buildFormatButton(
-            'assets/icons/post/post_italic.svg',
-            () => _toggleSelectionFormat(quill.Attribute.italic),
-            _isStyleActive(quill.Attribute.italic),
-          ),
-          _buildFormatButton(
-            'assets/icons/post/post_underline.svg',
-            () => _toggleSelectionFormat(quill.Attribute.underline),
-            _isStyleActive(quill.Attribute.underline),
-          ),
-          const VerticalDivider(
-            color: AppColors.grey400,
-            width: 1,
-            thickness: 1,
-            indent: 12,
-            endIndent: 12,
-          ),
-          _buildFeatureButton(
-            'assets/icons/post/post_media.svg',
-            _handleMediaButtonTap,
-          ),
-          _buildFeatureButton(
-            'assets/icons/post/post_link.svg',
-            _insertLink,
-          ),
-          _buildFeatureButton(
-            'assets/icons/post/post_youtube.svg',
-            _insertYouTubeLink,
-          ),
-          _buildFeatureButton(
-            'assets/icons/post/post_attachment.svg',
-            _pickFiles,
+          SizedBox(width: 16.cw),
+          Flexible(
+            flex: 1,
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (featuresList != null && featuresList.contains('image'))
+                  _buildFeatureButton(
+                    'assets/icons/post/post_media.svg',
+                    _handleMediaButtonTap,
+                  ),
+                if (featuresList != null && featuresList.contains('link'))
+                  _buildFeatureButton(
+                    'assets/icons/post/post_link.svg',
+                    _insertLink,
+                  ),
+                if (featuresList != null && featuresList.contains('youtube'))
+                  _buildFeatureButton(
+                    'assets/icons/post/post_youtube.svg',
+                    _insertYouTubeLink,
+                  ),
+                if (featuresList != null && featuresList.contains('attachment'))
+                  _buildFeatureButton(
+                    'assets/icons/post/post_attachment.svg',
+                    _pickFiles,
+                  ),
+              ],
+            ),
           ),
         ],
       ),
