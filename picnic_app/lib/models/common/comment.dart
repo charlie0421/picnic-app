@@ -38,6 +38,7 @@ class CommentModel with _$CommentModel {
     required bool? isReportedByUser,
     required bool? isBlindedByAdmin,
     required PostModel? post,
+    required String? locale,
     @JsonKey(name: 'parent_comment_id') required String? parentCommentId,
     @JsonKey(name: 'created_at') required DateTime createdAt,
     @JsonKey(name: 'updated_at') required DateTime updatedAt,

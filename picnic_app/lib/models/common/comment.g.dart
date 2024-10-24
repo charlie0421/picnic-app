@@ -44,6 +44,7 @@ _$CommentModelImpl _$$CommentModelImplFromJson(Map<String, dynamic> json) =>
       post: json['post'] == null
           ? null
           : PostModel.fromJson(json['post'] as Map<String, dynamic>),
+      locale: json['locale'] as String?,
       parentCommentId: json['parent_comment_id'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
@@ -67,6 +68,7 @@ Map<String, dynamic> _$$CommentModelImplToJson(_$CommentModelImpl instance) =>
       'isReportedByUser': instance.isReportedByUser,
       'isBlindedByAdmin': instance.isBlindedByAdmin,
       'post': instance.post,
+      'locale': instance.locale,
       'parent_comment_id': instance.parentCommentId,
       'created_at': instance.createdAt.toIso8601String(),
       'updated_at': instance.updatedAt.toIso8601String(),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 
 class CommentContents extends StatefulWidget {
   final CommentModel item;
@@ -20,12 +20,19 @@ class _CommentContentsState extends State<CommentContents> {
 
   @override
   Widget build(BuildContext context) {
+    String currentLocale = Localizations.localeOf(context).languageCode;
+    logger.i('currentLocale: $currentLocale');
+    logger.i('item.content: ${widget.item.content}');
+    String content = widget.item.content!.keys.contains(currentLocale)
+        ? widget.item.content![currentLocale]
+        : widget.item.content![widget.item.locale];
+
     return Container(
       alignment: Alignment.topLeft,
       child: LayoutBuilder(
         builder: (context, constraints) {
           final textSpan = TextSpan(
-            text: getLocaleTextFromJson(widget.item.content ?? {}),
+            text: content,
             style: getTextStyle(AppTypo.body14M, AppColors.grey900),
           );
 
@@ -54,19 +61,19 @@ class _CommentContentsState extends State<CommentContents> {
                 Expanded(
                   child: Text(
                     widget.item.isReportedByUser! ||
-                        (widget.item.isBlindedByAdmin ?? false)
+                            (widget.item.isBlindedByAdmin ?? false)
                         ? '(신고된 댓글입니다.)'
                         : widget.item.deletedAt != null
-                        ? '(삭제된 댓글입니다.)'
-                        : getLocaleTextFromJson(widget.item.content ?? {}),
+                            ? '(삭제된 댓글입니다.)'
+                            : content,
                     style: getTextStyle(
                         AppTypo.body14M,
                         widget.item.isReportedByUser! ||
-                            (widget.item.isBlindedByAdmin ?? false)
+                                (widget.item.isBlindedByAdmin ?? false)
                             ? AppColors.point500
                             : widget.item.deletedAt != null
-                            ? AppColors.grey500
-                            : AppColors.grey900),
+                                ? AppColors.grey500
+                                : AppColors.grey900),
                     maxLines: _expanded ? null : 1,
                     overflow: _expanded
                         ? TextOverflow.visible
