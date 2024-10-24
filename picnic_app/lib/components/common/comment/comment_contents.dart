@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/i18n.dart';
 
 class CommentContents extends StatefulWidget {
   final CommentModel item;
@@ -24,7 +25,7 @@ class _CommentContentsState extends State<CommentContents> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final textSpan = TextSpan(
-            text: widget.item.content,
+            text: getLocaleTextFromJson(widget.item.content ?? {}),
             style: getTextStyle(AppTypo.body14M, AppColors.grey900),
           );
 
@@ -53,19 +54,19 @@ class _CommentContentsState extends State<CommentContents> {
                 Expanded(
                   child: Text(
                     widget.item.isReportedByUser! ||
-                            (widget.item.isBlindedByAdmin ?? false)
+                        (widget.item.isBlindedByAdmin ?? false)
                         ? '(신고된 댓글입니다.)'
                         : widget.item.deletedAt != null
-                            ? '(삭제된 댓글입니다.)'
-                            : widget.item.content,
+                        ? '(삭제된 댓글입니다.)'
+                        : getLocaleTextFromJson(widget.item.content ?? {}),
                     style: getTextStyle(
                         AppTypo.body14M,
                         widget.item.isReportedByUser! ||
-                                (widget.item.isBlindedByAdmin ?? false)
+                            (widget.item.isBlindedByAdmin ?? false)
                             ? AppColors.point500
                             : widget.item.deletedAt != null
-                                ? AppColors.grey500
-                                : AppColors.grey900),
+                            ? AppColors.grey500
+                            : AppColors.grey900),
                     maxLines: _expanded ? null : 1,
                     overflow: _expanded
                         ? TextOverflow.visible

@@ -223,7 +223,7 @@ mixin _$CommentModel {
   UserProfilesModel get user => throw _privateConstructorUsedError;
   int get likes => throw _privateConstructorUsedError;
   int get replies => throw _privateConstructorUsedError;
-  String get content => throw _privateConstructorUsedError;
+  Map<String, dynamic>? get content => throw _privateConstructorUsedError;
   bool? get isLiked => throw _privateConstructorUsedError;
   bool? get isReplied => throw _privateConstructorUsedError;
   bool? get isReportedByUser => throw _privateConstructorUsedError;
@@ -262,7 +262,7 @@ abstract class $CommentModelCopyWith<$Res> {
       UserProfilesModel user,
       int likes,
       int replies,
-      String content,
+      Map<String, dynamic>? content,
       bool? isLiked,
       bool? isReplied,
       bool? isReportedByUser,
@@ -300,7 +300,7 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
     Object? user = null,
     Object? likes = null,
     Object? replies = null,
-    Object? content = null,
+    Object? content = freezed,
     Object? isLiked = freezed,
     Object? isReplied = freezed,
     Object? isReportedByUser = freezed,
@@ -340,10 +340,10 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
           ? _value.replies
           : replies // ignore: cast_nullable_to_non_nullable
               as int,
-      content: null == content
+      content: freezed == content
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
-              as String,
+              as Map<String, dynamic>?,
       isLiked: freezed == isLiked
           ? _value.isLiked
           : isLiked // ignore: cast_nullable_to_non_nullable
@@ -438,7 +438,7 @@ abstract class _$$CommentModelImplCopyWith<$Res>
       UserProfilesModel user,
       int likes,
       int replies,
-      String content,
+      Map<String, dynamic>? content,
       bool? isLiked,
       bool? isReplied,
       bool? isReportedByUser,
@@ -477,7 +477,7 @@ class __$$CommentModelImplCopyWithImpl<$Res>
     Object? user = null,
     Object? likes = null,
     Object? replies = null,
-    Object? content = null,
+    Object? content = freezed,
     Object? isLiked = freezed,
     Object? isReplied = freezed,
     Object? isReportedByUser = freezed,
@@ -517,10 +517,10 @@ class __$$CommentModelImplCopyWithImpl<$Res>
           ? _value.replies
           : replies // ignore: cast_nullable_to_non_nullable
               as int,
-      content: null == content
-          ? _value.content
+      content: freezed == content
+          ? _value._content
           : content // ignore: cast_nullable_to_non_nullable
-              as String,
+              as Map<String, dynamic>?,
       isLiked: freezed == isLiked
           ? _value.isLiked
           : isLiked // ignore: cast_nullable_to_non_nullable
@@ -572,7 +572,7 @@ class _$CommentModelImpl extends _CommentModel {
       required this.user,
       required this.likes,
       required this.replies,
-      required this.content,
+      required final Map<String, dynamic>? content,
       required this.isLiked,
       required this.isReplied,
       required this.isReportedByUser,
@@ -583,6 +583,7 @@ class _$CommentModelImpl extends _CommentModel {
       @JsonKey(name: 'updated_at') required this.updatedAt,
       @JsonKey(name: 'deleted_at') this.deletedAt})
       : _children = children,
+        _content = content,
         super._();
 
   factory _$CommentModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -612,8 +613,16 @@ class _$CommentModelImpl extends _CommentModel {
   final int likes;
   @override
   final int replies;
+  final Map<String, dynamic>? _content;
   @override
-  final String content;
+  Map<String, dynamic>? get content {
+    final value = _content;
+    if (value == null) return null;
+    if (_content is EqualUnmodifiableMapView) return _content;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(value);
+  }
+
   @override
   final bool? isLiked;
   @override
@@ -655,7 +664,7 @@ class _$CommentModelImpl extends _CommentModel {
             (identical(other.user, user) || other.user == user) &&
             (identical(other.likes, likes) || other.likes == likes) &&
             (identical(other.replies, replies) || other.replies == replies) &&
-            (identical(other.content, content) || other.content == content) &&
+            const DeepCollectionEquality().equals(other._content, _content) &&
             (identical(other.isLiked, isLiked) || other.isLiked == isLiked) &&
             (identical(other.isReplied, isReplied) ||
                 other.isReplied == isReplied) &&
@@ -685,7 +694,7 @@ class _$CommentModelImpl extends _CommentModel {
       user,
       likes,
       replies,
-      content,
+      const DeepCollectionEquality().hash(_content),
       isLiked,
       isReplied,
       isReportedByUser,
@@ -721,7 +730,7 @@ abstract class _CommentModel extends CommentModel {
           required final UserProfilesModel user,
           required final int likes,
           required final int replies,
-          required final String content,
+          required final Map<String, dynamic>? content,
           required final bool? isLiked,
           required final bool? isReplied,
           required final bool? isReportedByUser,
@@ -755,7 +764,7 @@ abstract class _CommentModel extends CommentModel {
   @override
   int get replies;
   @override
-  String get content;
+  Map<String, dynamic>? get content;
   @override
   bool? get isLiked;
   @override

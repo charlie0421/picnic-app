@@ -150,6 +150,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
         ref,
         widget.id,
         parentItemState?.parentCommentId ?? parentItemState?.commentId,
+        Localizations.localeOf(context).languageCode,
         _textEditingController.text.trim());
     ref.read(parentItemProvider.notifier).setParentItem(null);
 

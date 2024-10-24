@@ -416,7 +416,7 @@ class _CommentsByUserProviderElement
       (origin as CommentsByUserProvider).includeReported;
 }
 
-String _$postCommentHash() => r'fce885b65ecf81406935f48692e70dd565fdb18a';
+String _$postCommentHash() => r'd627391b8ca45ac8bd6c5a4db31aac90d8fd675c';
 
 /// See also [postComment].
 @ProviderFor(postComment)
@@ -431,11 +431,13 @@ class PostCommentFamily extends Family<AsyncValue<void>> {
   PostCommentProvider call(
     String postId,
     String? parentId,
+    String locale,
     String content,
   ) {
     return PostCommentProvider(
       postId,
       parentId,
+      locale,
       content,
     );
   }
@@ -447,6 +449,7 @@ class PostCommentFamily extends Family<AsyncValue<void>> {
     return call(
       provider.postId,
       provider.parentId,
+      provider.locale,
       provider.content,
     );
   }
@@ -472,12 +475,14 @@ class PostCommentProvider extends AutoDisposeFutureProvider<void> {
   PostCommentProvider(
     String postId,
     String? parentId,
+    String locale,
     String content,
   ) : this._internal(
           (ref) => postComment(
             ref as PostCommentRef,
             postId,
             parentId,
+            locale,
             content,
           ),
           from: postCommentProvider,
@@ -491,6 +496,7 @@ class PostCommentProvider extends AutoDisposeFutureProvider<void> {
               PostCommentFamily._allTransitiveDependencies,
           postId: postId,
           parentId: parentId,
+          locale: locale,
           content: content,
         );
 
@@ -503,11 +509,13 @@ class PostCommentProvider extends AutoDisposeFutureProvider<void> {
     required super.from,
     required this.postId,
     required this.parentId,
+    required this.locale,
     required this.content,
   }) : super.internal();
 
   final String postId;
   final String? parentId;
+  final String locale;
   final String content;
 
   @override
@@ -525,6 +533,7 @@ class PostCommentProvider extends AutoDisposeFutureProvider<void> {
         debugGetCreateSourceHash: null,
         postId: postId,
         parentId: parentId,
+        locale: locale,
         content: content,
       ),
     );
@@ -540,6 +549,7 @@ class PostCommentProvider extends AutoDisposeFutureProvider<void> {
     return other is PostCommentProvider &&
         other.postId == postId &&
         other.parentId == parentId &&
+        other.locale == locale &&
         other.content == content;
   }
 
@@ -548,6 +558,7 @@ class PostCommentProvider extends AutoDisposeFutureProvider<void> {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, postId.hashCode);
     hash = _SystemHash.combine(hash, parentId.hashCode);
+    hash = _SystemHash.combine(hash, locale.hashCode);
     hash = _SystemHash.combine(hash, content.hashCode);
 
     return _SystemHash.finish(hash);
@@ -561,6 +572,9 @@ mixin PostCommentRef on AutoDisposeFutureProviderRef<void> {
   /// The parameter `parentId` of this provider.
   String? get parentId;
 
+  /// The parameter `locale` of this provider.
+  String get locale;
+
   /// The parameter `content` of this provider.
   String get content;
 }
@@ -573,6 +587,8 @@ class _PostCommentProviderElement extends AutoDisposeFutureProviderElement<void>
   String get postId => (origin as PostCommentProvider).postId;
   @override
   String? get parentId => (origin as PostCommentProvider).parentId;
+  @override
+  String get locale => (origin as PostCommentProvider).locale;
   @override
   String get content => (origin as PostCommentProvider).content;
 }
@@ -1120,6 +1136,171 @@ class _DeleteCommentProviderElement
 
   @override
   String get commentId => (origin as DeleteCommentProvider).commentId;
+}
+
+String _$updateCommentTranslationHash() =>
+    r'769a7a0fa809a8dc7758205154f50c605c4ea87d';
+
+/// See also [updateCommentTranslation].
+@ProviderFor(updateCommentTranslation)
+const updateCommentTranslationProvider = UpdateCommentTranslationFamily();
+
+/// See also [updateCommentTranslation].
+class UpdateCommentTranslationFamily extends Family<AsyncValue<void>> {
+  /// See also [updateCommentTranslation].
+  const UpdateCommentTranslationFamily();
+
+  /// See also [updateCommentTranslation].
+  UpdateCommentTranslationProvider call(
+    String commentId,
+    String locale,
+    String translatedText,
+  ) {
+    return UpdateCommentTranslationProvider(
+      commentId,
+      locale,
+      translatedText,
+    );
+  }
+
+  @override
+  UpdateCommentTranslationProvider getProviderOverride(
+    covariant UpdateCommentTranslationProvider provider,
+  ) {
+    return call(
+      provider.commentId,
+      provider.locale,
+      provider.translatedText,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'updateCommentTranslationProvider';
+}
+
+/// See also [updateCommentTranslation].
+class UpdateCommentTranslationProvider extends AutoDisposeFutureProvider<void> {
+  /// See also [updateCommentTranslation].
+  UpdateCommentTranslationProvider(
+    String commentId,
+    String locale,
+    String translatedText,
+  ) : this._internal(
+          (ref) => updateCommentTranslation(
+            ref as UpdateCommentTranslationRef,
+            commentId,
+            locale,
+            translatedText,
+          ),
+          from: updateCommentTranslationProvider,
+          name: r'updateCommentTranslationProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$updateCommentTranslationHash,
+          dependencies: UpdateCommentTranslationFamily._dependencies,
+          allTransitiveDependencies:
+              UpdateCommentTranslationFamily._allTransitiveDependencies,
+          commentId: commentId,
+          locale: locale,
+          translatedText: translatedText,
+        );
+
+  UpdateCommentTranslationProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.commentId,
+    required this.locale,
+    required this.translatedText,
+  }) : super.internal();
+
+  final String commentId;
+  final String locale;
+  final String translatedText;
+
+  @override
+  Override overrideWith(
+    FutureOr<void> Function(UpdateCommentTranslationRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: UpdateCommentTranslationProvider._internal(
+        (ref) => create(ref as UpdateCommentTranslationRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        commentId: commentId,
+        locale: locale,
+        translatedText: translatedText,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<void> createElement() {
+    return _UpdateCommentTranslationProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is UpdateCommentTranslationProvider &&
+        other.commentId == commentId &&
+        other.locale == locale &&
+        other.translatedText == translatedText;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, commentId.hashCode);
+    hash = _SystemHash.combine(hash, locale.hashCode);
+    hash = _SystemHash.combine(hash, translatedText.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin UpdateCommentTranslationRef on AutoDisposeFutureProviderRef<void> {
+  /// The parameter `commentId` of this provider.
+  String get commentId;
+
+  /// The parameter `locale` of this provider.
+  String get locale;
+
+  /// The parameter `translatedText` of this provider.
+  String get translatedText;
+}
+
+class _UpdateCommentTranslationProviderElement
+    extends AutoDisposeFutureProviderElement<void>
+    with UpdateCommentTranslationRef {
+  _UpdateCommentTranslationProviderElement(super.provider);
+
+  @override
+  String get commentId =>
+      (origin as UpdateCommentTranslationProvider).commentId;
+  @override
+  String get locale => (origin as UpdateCommentTranslationProvider).locale;
+  @override
+  String get translatedText =>
+      (origin as UpdateCommentTranslationProvider).translatedText;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

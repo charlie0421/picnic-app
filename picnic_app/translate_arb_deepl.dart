@@ -2,14 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:deepl_dart/deepl_dart.dart';
+import 'package:picnic_app/util/deepl_translate_service.dart';
 import 'package:pool/pool.dart';
 import 'package:watcher/watcher.dart';
 
 // Constants
 const String deeplApiKey = 'ef2715c3-89d7-4b1b-a95b-e1fd3b7d734e:fx';
 const String manualTranslationKey = 'manualTranslation';
-final RegExp koreanRegex = RegExp(r'[가-힣]+');
 const bool kDebugMode = !bool.fromEnvironment('dart.vm.product');
 
 void main(List<String> arguments) async {
@@ -23,7 +22,11 @@ void main(List<String> arguments) async {
   final watch = args['watch'] as bool;
 
   try {
-    final translator = Translator(authKey: deeplApiKey);
+    final translationService = DeepLTranslationService(
+      apiKey: deeplApiKey,
+      debugMode: kDebugMode,
+    );
+
     if (kDebugMode) print('Starting translation process...');
     if (kDebugMode) print('API Key: $deeplApiKey');
 
@@ -45,18 +48,19 @@ void main(List<String> arguments) async {
 
     if (retranslateAll) {
       if (kDebugMode) print('Retranslating all languages...');
-      await translateAllLanguages(translator, inputFile, outputFiles);
+      await translateAllLanguages(translationService, inputFile, outputFiles);
     } else {
       if (kDebugMode) print('Marking languages for manual translation...');
       for (final outputFile in outputFiles) {
-        await markForManualTranslation(inputFile, outputFile);
+        await markForManualTranslation(
+            translationService, inputFile, outputFile);
       }
       if (kDebugMode) print('All languages processed for manual translation.');
     }
 
     if (watch) {
       if (kDebugMode) print('Watching for changes...');
-      await watchForChanges(translator, inputFile, outputFiles);
+      await watchForChanges(translationService, inputFile, outputFiles);
     }
   } catch (e, s) {
     if (kDebugMode) print('Error occurred during translation process: $e');
@@ -64,20 +68,21 @@ void main(List<String> arguments) async {
   }
 }
 
-Future<void> translateAllLanguages(
-    Translator translator, String inputFile, List<String> outputFiles) async {
+Future<void> translateAllLanguages(DeepLTranslationService translationService,
+    String inputFile, List<String> outputFiles) async {
   for (final outputFile in outputFiles) {
     final targetLanguage =
         outputFile.split('.').first.split('/').last.split('_')[1].toUpperCase();
     if (kDebugMode) print('Translating to $targetLanguage...');
-    await translateArbFile(translator, inputFile, outputFile, targetLanguage,
+    await translateArbFile(
+        translationService, inputFile, outputFile, targetLanguage,
         retranslateAll: true);
   }
   if (kDebugMode) print('All languages translated.');
 }
 
-Future<void> translateArbFile(Translator translator, String inputFile,
-    String outputFile, String targetLanguage,
+Future<void> translateArbFile(DeepLTranslationService translationService,
+    String inputFile, String outputFile, String targetLanguage,
     {bool retranslateAll = false}) async {
   if (kDebugMode) {
     print(
@@ -109,13 +114,10 @@ Future<void> translateArbFile(Translator translator, String inputFile,
         final isManualTranslation = translatedArbContent.containsKey(metaKey) &&
             translatedArbContent[metaKey]['manualTranslation'] == true;
 
-        if (containsPlaceholders(originalText)) {
-          // 플레이스홀더가 있는 경우
+        if (translationService.containsPlaceholders(originalText)) {
           if (translatedArbContent.containsKey(key)) {
-            // 기존 번역이 있으면 유지
             updatedArbContent[key] = translatedArbContent[key];
           } else {
-            // 기존 번역이 없으면 원본 사용
             updatedArbContent[key] = originalText;
           }
           updatedArbContent[metaKey] = {
@@ -124,7 +126,6 @@ Future<void> translateArbFile(Translator translator, String inputFile,
           };
           if (kDebugMode) print('Preserved text with placeholders: $key');
         } else if (isManualTranslation && !retranslateAll) {
-          // 수동 번역으로 표시된 경우 그대로 유지 (retranslateAll이 false일 때)
           updatedArbContent[key] = translatedArbContent[key];
           updatedArbContent[metaKey] = translatedArbContent[metaKey];
           if (kDebugMode) print('Preserved manually translated text: $key');
@@ -132,12 +133,14 @@ Future<void> translateArbFile(Translator translator, String inputFile,
             !translatedArbContent.containsKey(key) ||
             translatedArbContent[key] == originalText ||
             translatedArbContent[key].isEmpty ||
-            containsKoreanOrEmpty(translatedArbContent[key])) {
+            translationService
+                .containsKoreanOrEmpty(translatedArbContent[key])) {
           translationFutures.add(pool.withResource(() async {
-            final translatedText =
-                await translateText(translator, originalText, targetLanguage);
-            if (!containsKoreanOrEmpty(translatedText) &&
-                isCorrectLanguage(translatedText, targetLanguage)) {
+            final translatedText = await translationService.translateText(
+                originalText, 'ko', targetLanguage);
+            if (!translationService.containsKoreanOrEmpty(translatedText) &&
+                translationService.isCorrectLanguage(
+                    translatedText, targetLanguage)) {
               updatedArbContent[key] = translatedText;
               updatedArbContent[metaKey] = {
                 ...updatedArbContent[metaKey] ?? {},
@@ -156,7 +159,6 @@ Future<void> translateArbFile(Translator translator, String inputFile,
             }
           }));
         } else {
-          // 이미 번역된 텍스트는 그대로 유지
           updatedArbContent[key] = translatedArbContent[key];
           updatedArbContent[metaKey] = translatedArbContent[metaKey];
           if (kDebugMode) print('Kept existing translation for key: $key');
@@ -165,7 +167,6 @@ Future<void> translateArbFile(Translator translator, String inputFile,
     }
 
     await Future.wait(translationFutures);
-
     await saveJsonFile(outputFile, updatedArbContent);
     if (kDebugMode) print('$outputFile translation completed and saved');
   } catch (e) {
@@ -173,8 +174,8 @@ Future<void> translateArbFile(Translator translator, String inputFile,
   }
 }
 
-Future<void> watchForChanges(
-    Translator translator, String inputFile, List<String> outputFiles) async {
+Future<void> watchForChanges(DeepLTranslationService translationService,
+    String inputFile, List<String> outputFiles) async {
   if (kDebugMode) print('Watching for changes...');
   final watcher = FileWatcher(inputFile);
 
@@ -190,7 +191,7 @@ Future<void> watchForChanges(
             .split('_')[1]
             .toUpperCase();
         await translateArbFile(
-            translator, inputFile, outputFile, targetLanguage);
+            translationService, inputFile, outputFile, targetLanguage);
       }
       if (kDebugMode) print('Updates completed');
     }
@@ -283,133 +284,87 @@ Future<void> synchronizeKeys(String inputFile, List<String> outputFiles) async {
   }
 }
 
-Set<String> getChangedKeys(
-    Map<String, dynamic> oldContent, Map<String, dynamic> newContent) {
-  Set<String> changedKeys = {};
-
-  for (var key in newContent.keys) {
-    if (!key.startsWith('@') &&
-        (!oldContent.containsKey(key) || oldContent[key] != newContent[key])) {
-      changedKeys.add(key);
-    }
-  }
-
-  return changedKeys;
-}
-
-Future<void> translateChangedKeys(Translator translator, String inputFile,
-    List<String> outputFiles, Set<String> changedKeys) async {
-  final List<Future<void>> translations = [];
-
-  for (final outputFile in outputFiles) {
-    if (kDebugMode) {
-      print(
-          'Translating changed keys for ${outputFile.split('.').first.split('/').last.split('_')[1].toUpperCase()}...');
-    }
-
-    translations.add(translateArbFilePartial(
-      translator,
-      inputFile,
-      outputFile,
-      outputFile.split('.').first.split('/').last.split('_')[1].toUpperCase(),
-      changedKeys,
-    ));
-  }
-
-  await Future.wait(translations);
-}
-
-Future<void> translateArbFilePartial(
-    Translator translator,
+Future<void> markForManualTranslation(
+    DeepLTranslationService translationService,
     String inputFile,
-    String outputFile,
-    String targetLanguage,
-    Set<String> keysToTranslate) async {
+    String outputFile) async {
   if (kDebugMode) {
-    print(
-        'Starting partial translation for $outputFile (Target language: $targetLanguage)');
+    print('Starting manual translation marking process for $outputFile');
   }
-
-  final pool = Pool(5);
 
   try {
     final originalArbContent = await readJsonFile(inputFile);
-    final translatedArbContent = await readJsonFile(outputFile);
-    final updatedArbContent = Map<String, dynamic>.from(translatedArbContent);
+    final existingTranslations = await readJsonFile(outputFile);
+    final updatedArbContent = Map<String, dynamic>.from(existingTranslations);
+    final keys = List<String>.from(originalArbContent.keys);
 
-    final List<Future<void>> translationFutures = [];
-
-    for (var key in keysToTranslate) {
-      if (!originalArbContent.containsKey(key)) continue;
-
-      final metaKey = '@$key';
-      final isManualTranslation = originalArbContent.containsKey(metaKey) &&
-          originalArbContent[metaKey][manualTranslationKey] == true;
-
-      if (isManualTranslation) {
-        if (kDebugMode) {
-          print(
-              "Manual translation key found in original file: $key, skipping translation.");
+    for (var key in keys) {
+      if (!key.startsWith('@')) {
+        if (!isValidKey(key)) {
+          if (kDebugMode) {
+            print(
+                "Warning: Key '$key' does not match naming rules and will be ignored.");
+          }
+          continue;
         }
-        updatedArbContent[key] = originalArbContent[key];
-        updatedArbContent[metaKey] = originalArbContent[metaKey];
-        continue;
-      }
 
-      if (containsPlaceholders(originalArbContent[key])) {
-        translationFutures.add(pool.withResource(() async {
-          final translatedText = await translateTextWithPlaceholders(
-              translator, originalArbContent[key], targetLanguage);
-          updatedArbContent[key] = translatedText;
+        final metaKey = '@$key';
+        final originalText = originalArbContent[key];
 
-          if (!updatedArbContent.containsKey(metaKey)) {
-            updatedArbContent[metaKey] = {};
+        if (translationService.containsPlaceholders(originalText)) {
+          updatedArbContent[key] = existingTranslations.containsKey(key)
+              ? existingTranslations[key]
+              : originalText;
+          updatedArbContent[metaKey] = {
+            ...existingTranslations[metaKey] ?? {},
+            'manualTranslation': true,
+          };
+          if (kDebugMode) print('Preserved text with placeholders: $key');
+        } else if (!existingTranslations.containsKey(key) ||
+            !existingTranslations.containsKey(metaKey) ||
+            existingTranslations[metaKey]['manualTranslation'] != true) {
+          updatedArbContent[key] = originalText;
+          updatedArbContent[metaKey] = {
+            ...updatedArbContent[metaKey] ?? {},
+            'manualTranslation': true,
+          };
+          if (kDebugMode) {
+            print(
+                'Set to original text and marked for manual translation: $key');
           }
-        }));
-      } else if (containsKorean(originalArbContent[key])) {
-        translationFutures.add(pool.withResource(() async {
-          final translatedText = await translateText(
-              translator, originalArbContent[key], targetLanguage);
-          if (isCorrectLanguage(translatedText, targetLanguage)) {
-            updatedArbContent[key] = translatedText;
-
-            if (!updatedArbContent.containsKey(metaKey)) {
-              updatedArbContent[metaKey] = {};
-            }
-          } else {
-            if (kDebugMode) {
-              print(
-                  'Warning: Incorrect language detected for key: $key. Skipping.');
-            }
-          }
-        }));
-      } else {
-        updatedArbContent[key] = originalArbContent[key];
-        if (kDebugMode) print('Skipping non-Korean text for key: $key');
+        } else {
+          updatedArbContent[key] = existingTranslations[key];
+          updatedArbContent[metaKey] = existingTranslations[metaKey];
+          if (kDebugMode) print('Preserved existing translation: $key');
+        }
       }
     }
 
-    await Future.wait(translationFutures);
+    updatedArbContent.removeWhere((key, value) =>
+        !originalArbContent.containsKey(key) && !key.startsWith('@'));
 
-    // 변경된 내용을 파일에 저장
     await saveJsonFile(outputFile, updatedArbContent);
-
     if (kDebugMode) {
-      print('$outputFile partial translation completed and saved');
+      print('$outputFile manual translation marking completed and saved');
     }
   } catch (e) {
-    if (kDebugMode) print('Error occurred while translating $outputFile: $e');
+    if (kDebugMode) {
+      print(
+          'Error occurred while marking for manual translation in $outputFile: $e');
+    }
   }
 }
 
-Future<void> saveJsonFile(String path, Map<String, dynamic> content) async {
+// saveJsonFile 함수도 수정
+Future<void> saveJsonFile(String path, Map<String, dynamic> content,
+    {DeepLTranslationService? translationService}) async {
   try {
     final file = File(path);
     const encoder = JsonEncoder.withIndent('  ');
     final formattedJson = encoder.convert(content);
 
-    // 저장 전 최종 확인
-    if (path.contains('_en.arb') && containsKoreanOrEmpty(formattedJson)) {
+    if (path.contains('_en.arb') &&
+        translationService?.containsKoreanOrEmpty(formattedJson) == true) {
       if (kDebugMode) {
         print(
             'Warning: Korean text found in English translation file. Please check the content.');
@@ -446,169 +401,121 @@ bool isValidKey(String key) {
   return validKeyPattern.hasMatch(key);
 }
 
-bool containsKorean(String text) {
-  return koreanRegex.hasMatch(text);
-}
+Set<String> getChangedKeys(
+    Map<String, dynamic> oldContent, Map<String, dynamic> newContent) {
+  Set<String> changedKeys = {};
 
-bool containsPlaceholders(String text) {
-  return text.contains(RegExp(r'\{.*?\}'));
-}
-
-Future<void> markForManualTranslation(
-    String inputFile, String outputFile) async {
-  if (kDebugMode) {
-    print('Starting manual translation marking process for $outputFile');
+  for (var key in newContent.keys) {
+    if (!key.startsWith('@') &&
+        (!oldContent.containsKey(key) || oldContent[key] != newContent[key])) {
+      changedKeys.add(key);
+    }
   }
+
+  return changedKeys;
+}
+
+Future<void> translateChangedKeys(DeepLTranslationService translationService,
+    String inputFile, List<String> outputFiles, Set<String> changedKeys) async {
+  final List<Future<void>> translations = [];
+
+  for (final outputFile in outputFiles) {
+    if (kDebugMode) {
+      print(
+          'Translating changed keys for ${outputFile.split('.').first.split('/').last.split('_')[1].toUpperCase()}...');
+    }
+
+    translations.add(translateArbFilePartial(
+      translationService,
+      inputFile,
+      outputFile,
+      outputFile.split('.').first.split('/').last.split('_')[1].toUpperCase(),
+      changedKeys,
+    ));
+  }
+
+  await Future.wait(translations);
+}
+
+Future<void> translateArbFilePartial(
+    DeepLTranslationService translationService,
+    String inputFile,
+    String outputFile,
+    String targetLanguage,
+    Set<String> keysToTranslate) async {
+  if (kDebugMode) {
+    print(
+        'Starting partial translation for $outputFile (Target language: $targetLanguage)');
+  }
+
+  final pool = Pool(5);
 
   try {
     final originalArbContent = await readJsonFile(inputFile);
-    final existingTranslations = await readJsonFile(outputFile);
-    final updatedArbContent = Map<String, dynamic>.from(existingTranslations);
-    final keys = List<String>.from(originalArbContent.keys);
+    final translatedArbContent = await readJsonFile(outputFile);
+    final updatedArbContent = Map<String, dynamic>.from(translatedArbContent);
 
-    for (var key in keys) {
-      if (!key.startsWith('@')) {
-        if (!isValidKey(key)) {
-          if (kDebugMode) {
-            print(
-                "Warning: Key '$key' does not match naming rules and will be ignored.");
-          }
-          continue;
-        }
+    final List<Future<void>> translationFutures = [];
 
-        final metaKey = '@$key';
-        final originalText = originalArbContent[key];
+    for (var key in keysToTranslate) {
+      if (!originalArbContent.containsKey(key)) continue;
 
-        if (containsPlaceholders(originalText)) {
-          // 플레이스홀더가 있는 경우 항상 유지
-          updatedArbContent[key] = existingTranslations.containsKey(key)
-              ? existingTranslations[key]
-              : originalText;
-          updatedArbContent[metaKey] = {
-            ...existingTranslations[metaKey] ?? {},
-            'manualTranslation': true,
-          };
-          if (kDebugMode) print('Preserved text with placeholders: $key');
-        } else if (!existingTranslations.containsKey(key) ||
-            !existingTranslations.containsKey(metaKey) ||
-            existingTranslations[metaKey]['manualTranslation'] != true) {
-          // 기존 번역이 없거나 수동 번역으로 표시되지 않은 경우 원본으로 설정
-          updatedArbContent[key] = originalText;
-          updatedArbContent[metaKey] = {
-            ...updatedArbContent[metaKey] ?? {},
-            'manualTranslation': true,
-          };
-          if (kDebugMode) {
-            print(
-                'Set to original text and marked for manual translation: $key');
-          }
-        } else {
-          // 그 외의 경우 기존 번역 유지
-          updatedArbContent[key] = existingTranslations[key];
-          updatedArbContent[metaKey] = existingTranslations[metaKey];
-          if (kDebugMode) print('Preserved existing translation: $key');
-        }
-      }
-    }
+      final metaKey = '@$key';
+      final isManualTranslation = originalArbContent.containsKey(metaKey) &&
+          originalArbContent[metaKey][manualTranslationKey] == true;
 
-    // 원본에 없는 키 제거
-    updatedArbContent.removeWhere((key, value) =>
-        !originalArbContent.containsKey(key) && !key.startsWith('@'));
-
-    await saveJsonFile(outputFile, updatedArbContent);
-    if (kDebugMode) {
-      print('$outputFile manual translation marking completed and saved');
-    }
-  } catch (e) {
-    if (kDebugMode) {
-      print(
-          'Error occurred while marking for manual translation in $outputFile: $e');
-    }
-  }
-}
-
-bool containsKoreanOrEmpty(String text) {
-  if (text.isEmpty) return true;
-  return koreanRegex.hasMatch(text);
-}
-
-Future<String> translateText(
-    Translator translator, String text, String targetLang) async {
-  if (kDebugMode) print('Translating: "$text" to $targetLang');
-  int attempts = 0;
-  const maxAttempts = 3;
-
-  while (attempts < maxAttempts) {
-    try {
-      final translation =
-          await translator.translateTextSingular(text, targetLang);
-      if (kDebugMode) print('Translated: "$text" -> "${translation.text}"');
-
-      if (!containsKoreanOrEmpty(translation.text)) {
-        await Future.delayed(const Duration(milliseconds: 500));
-        return translation.text;
-      } else {
+      if (isManualTranslation) {
         if (kDebugMode) {
           print(
-              'Warning: Translation still contains Korean or is empty. Retrying...');
+              "Manual translation key found in original file: $key, skipping translation.");
         }
-        attempts++;
-        await Future.delayed(const Duration(seconds: 1));
+        updatedArbContent[key] = originalArbContent[key];
+        updatedArbContent[metaKey] = originalArbContent[metaKey];
+        continue;
       }
-    } catch (e) {
-      if (kDebugMode) print('Error translating text: $e');
-      attempts++;
-      await Future.delayed(const Duration(seconds: 1));
+
+      if (translationService.containsPlaceholders(originalArbContent[key])) {
+        translationFutures.add(pool.withResource(() async {
+          final translatedText =
+              await translationService.translateTextWithPlaceholders(
+                  originalArbContent[key], targetLanguage);
+          updatedArbContent[key] = translatedText;
+
+          if (!updatedArbContent.containsKey(metaKey)) {
+            updatedArbContent[metaKey] = {};
+          }
+        }));
+      } else if (translationService.containsKorean(originalArbContent[key])) {
+        translationFutures.add(pool.withResource(() async {
+          final translatedText = await translationService.translateText(
+              originalArbContent[key], 'ko', targetLanguage);
+          if (translationService.isCorrectLanguage(
+              translatedText, targetLanguage)) {
+            updatedArbContent[key] = translatedText;
+
+            if (!updatedArbContent.containsKey(metaKey)) {
+              updatedArbContent[metaKey] = {};
+            }
+          } else {
+            if (kDebugMode) {
+              print(
+                  'Warning: Incorrect language detected for key: $key. Skipping.');
+            }
+          }
+        }));
+      } else {
+        updatedArbContent[key] = originalArbContent[key];
+        if (kDebugMode) print('Skipping non-Korean text for key: $key');
+      }
     }
-  }
 
-  if (kDebugMode) {
-    print(
-        'Failed to translate after $maxAttempts attempts. Using original text.');
-  }
-  return text; // 여러 번의 시도 후에도 실패하면 원본 텍스트 반환
-}
+    await Future.wait(translationFutures);
+    await saveJsonFile(outputFile, updatedArbContent);
 
-Future<String> translateTextWithPlaceholders(
-    Translator translator, String text, String targetLang) async {
-  final placeholders =
-      RegExp(r'\{[^}]+\}').allMatches(text).map((m) => m.group(0)!).toList();
-  final placeholderMap = Map.fromIterables(
-      placeholders.map((p) => '__PH${placeholders.indexOf(p)}__'),
-      placeholders);
-
-  String tempText = text;
-  placeholderMap.forEach((key, value) {
-    tempText = tempText.replaceAll(value, key);
-  });
-
-  final translatedTempText =
-      await translateText(translator, tempText, targetLang);
-
-  String finalText = translatedTempText;
-  placeholderMap.forEach((key, value) {
-    finalText = finalText.replaceAll(key, value);
-  });
-
-  return finalText;
-}
-
-bool isCorrectLanguage(String text, String targetLanguage) {
-  final languageRegexMap = {
-    'EN': RegExp(r'^[a-zA-Z0-9\s\p{P}]+$', unicode: true),
-    'JA': RegExp(r'[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]+',
-        unicode: true),
-    'ZH': RegExp(r'[\p{Script=Han}]+', unicode: true),
-  };
-
-  final textWithoutPlaceholders = text.replaceAll(RegExp(r'\{[^}]+\}'), '');
-
-  final regex = languageRegexMap[targetLanguage];
-  if (regex == null) {
     if (kDebugMode) {
-      print('Warning: No regex defined for language $targetLanguage');
+      print('$outputFile partial translation completed and saved');
     }
-    return true;
+  } catch (e) {
+    if (kDebugMode) print('Error occurred while translating $outputFile: $e');
   }
-  return regex.hasMatch(textWithoutPlaceholders);
 }
