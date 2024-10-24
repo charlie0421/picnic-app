@@ -28,7 +28,6 @@ class CommentActions extends ConsumerWidget {
     final currentLocale = Localizations.localeOf(context).languageCode;
     final isDifferentLanguage =
         item.content != null && item.content![currentLocale] == null;
-    logger.i('isDifferentLanguage: $isDifferentLanguage');
 
     return InkWell(
       child: SizedBox(
@@ -80,8 +79,8 @@ class CommentActions extends ConsumerWidget {
                     logger.i('currentLocale: $currentLocale');
                     final translatedText =
                         await translationService.translateText(
-                      item.content!.values.first,
-                      item.content!.keys.first,
+                      item.content![item.locale]!,
+                      item.content![item.locale],
                       // Assuming the first value is the original text
                       Localizations.localeOf(context).languageCode,
                     );

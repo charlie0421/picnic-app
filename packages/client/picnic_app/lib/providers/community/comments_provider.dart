@@ -123,6 +123,7 @@ Future<void> postComment(
       'user_id': supabase.auth.currentUser!.id,
       'parent_comment_id': parentId,
       'content': {locale: content},
+      'locale': locale,
     });
   } catch (e, s) {
     logger.e('Error posting comment:', error: e, stackTrace: s);

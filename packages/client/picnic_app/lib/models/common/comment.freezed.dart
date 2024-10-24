@@ -229,6 +229,7 @@ mixin _$CommentModel {
   bool? get isReportedByUser => throw _privateConstructorUsedError;
   bool? get isBlindedByAdmin => throw _privateConstructorUsedError;
   PostModel? get post => throw _privateConstructorUsedError;
+  String? get locale => throw _privateConstructorUsedError;
   @JsonKey(name: 'parent_comment_id')
   String? get parentCommentId => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
@@ -268,6 +269,7 @@ abstract class $CommentModelCopyWith<$Res> {
       bool? isReportedByUser,
       bool? isBlindedByAdmin,
       PostModel? post,
+      String? locale,
       @JsonKey(name: 'parent_comment_id') String? parentCommentId,
       @JsonKey(name: 'created_at') DateTime createdAt,
       @JsonKey(name: 'updated_at') DateTime updatedAt,
@@ -306,6 +308,7 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
     Object? isReportedByUser = freezed,
     Object? isBlindedByAdmin = freezed,
     Object? post = freezed,
+    Object? locale = freezed,
     Object? parentCommentId = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
@@ -364,6 +367,10 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
           ? _value.post
           : post // ignore: cast_nullable_to_non_nullable
               as PostModel?,
+      locale: freezed == locale
+          ? _value.locale
+          : locale // ignore: cast_nullable_to_non_nullable
+              as String?,
       parentCommentId: freezed == parentCommentId
           ? _value.parentCommentId
           : parentCommentId // ignore: cast_nullable_to_non_nullable
@@ -444,6 +451,7 @@ abstract class _$$CommentModelImplCopyWith<$Res>
       bool? isReportedByUser,
       bool? isBlindedByAdmin,
       PostModel? post,
+      String? locale,
       @JsonKey(name: 'parent_comment_id') String? parentCommentId,
       @JsonKey(name: 'created_at') DateTime createdAt,
       @JsonKey(name: 'updated_at') DateTime updatedAt,
@@ -483,6 +491,7 @@ class __$$CommentModelImplCopyWithImpl<$Res>
     Object? isReportedByUser = freezed,
     Object? isBlindedByAdmin = freezed,
     Object? post = freezed,
+    Object? locale = freezed,
     Object? parentCommentId = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
@@ -541,6 +550,10 @@ class __$$CommentModelImplCopyWithImpl<$Res>
           ? _value.post
           : post // ignore: cast_nullable_to_non_nullable
               as PostModel?,
+      locale: freezed == locale
+          ? _value.locale
+          : locale // ignore: cast_nullable_to_non_nullable
+              as String?,
       parentCommentId: freezed == parentCommentId
           ? _value.parentCommentId
           : parentCommentId // ignore: cast_nullable_to_non_nullable
@@ -578,6 +591,7 @@ class _$CommentModelImpl extends _CommentModel {
       required this.isReportedByUser,
       required this.isBlindedByAdmin,
       required this.post,
+      required this.locale,
       @JsonKey(name: 'parent_comment_id') required this.parentCommentId,
       @JsonKey(name: 'created_at') required this.createdAt,
       @JsonKey(name: 'updated_at') required this.updatedAt,
@@ -634,6 +648,8 @@ class _$CommentModelImpl extends _CommentModel {
   @override
   final PostModel? post;
   @override
+  final String? locale;
+  @override
   @JsonKey(name: 'parent_comment_id')
   final String? parentCommentId;
   @override
@@ -648,7 +664,7 @@ class _$CommentModelImpl extends _CommentModel {
 
   @override
   String toString() {
-    return 'CommentModel(commentId: $commentId, userId: $userId, children: $children, myLike: $myLike, user: $user, likes: $likes, replies: $replies, content: $content, isLiked: $isLiked, isReplied: $isReplied, isReportedByUser: $isReportedByUser, isBlindedByAdmin: $isBlindedByAdmin, post: $post, parentCommentId: $parentCommentId, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt)';
+    return 'CommentModel(commentId: $commentId, userId: $userId, children: $children, myLike: $myLike, user: $user, likes: $likes, replies: $replies, content: $content, isLiked: $isLiked, isReplied: $isReplied, isReportedByUser: $isReportedByUser, isBlindedByAdmin: $isBlindedByAdmin, post: $post, locale: $locale, parentCommentId: $parentCommentId, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt)';
   }
 
   @override
@@ -673,6 +689,7 @@ class _$CommentModelImpl extends _CommentModel {
             (identical(other.isBlindedByAdmin, isBlindedByAdmin) ||
                 other.isBlindedByAdmin == isBlindedByAdmin) &&
             (identical(other.post, post) || other.post == post) &&
+            (identical(other.locale, locale) || other.locale == locale) &&
             (identical(other.parentCommentId, parentCommentId) ||
                 other.parentCommentId == parentCommentId) &&
             (identical(other.createdAt, createdAt) ||
@@ -700,6 +717,7 @@ class _$CommentModelImpl extends _CommentModel {
       isReportedByUser,
       isBlindedByAdmin,
       post,
+      locale,
       parentCommentId,
       createdAt,
       updatedAt,
@@ -736,6 +754,7 @@ abstract class _CommentModel extends CommentModel {
           required final bool? isReportedByUser,
           required final bool? isBlindedByAdmin,
           required final PostModel? post,
+          required final String? locale,
           @JsonKey(name: 'parent_comment_id')
           required final String? parentCommentId,
           @JsonKey(name: 'created_at') required final DateTime createdAt,
@@ -775,6 +794,8 @@ abstract class _CommentModel extends CommentModel {
   bool? get isBlindedByAdmin;
   @override
   PostModel? get post;
+  @override
+  String? get locale;
   @override
   @JsonKey(name: 'parent_comment_id')
   String? get parentCommentId;
