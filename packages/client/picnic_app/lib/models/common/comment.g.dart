@@ -36,7 +36,7 @@ _$CommentModelImpl _$$CommentModelImplFromJson(Map<String, dynamic> json) =>
       user: UserProfilesModel.fromJson(json['user'] as Map<String, dynamic>),
       likes: (json['likes'] as num).toInt(),
       replies: (json['replies'] as num).toInt(),
-      content: json['content'] as String,
+      content: json['content'] as Map<String, dynamic>?,
       isLiked: json['isLiked'] as bool?,
       isReplied: json['isReplied'] as bool?,
       isReportedByUser: json['isReportedByUser'] as bool?,

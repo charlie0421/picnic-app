@@ -32,7 +32,7 @@ class CommentModel with _$CommentModel {
     required UserProfilesModel user,
     required int likes,
     required int replies,
-    required String content,
+    required Map<String, dynamic>? content,
     required bool? isLiked,
     required bool? isReplied,
     required bool? isReportedByUser,

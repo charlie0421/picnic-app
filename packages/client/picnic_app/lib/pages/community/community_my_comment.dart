@@ -85,8 +85,7 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment>
                         Row(
                           children: [
                             Text(
-                               getLocaleTextFromJson(
-                                      item.post!.board!.name),
+                              getLocaleTextFromJson(item.post!.board!.name),
                               style: getTextStyle(
                                   AppTypo.caption12B, AppColors.primary500),
                             ),
@@ -152,7 +151,7 @@ class _CommentContentsState extends State<CommentContents> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final textSpan = TextSpan(
-            text: widget.item.content,
+            text: getLocaleTextFromJson(widget.item.content ?? {}),
             style: getTextStyle(AppTypo.body14M, AppColors.grey900),
           );
 
@@ -180,7 +179,7 @@ class _CommentContentsState extends State<CommentContents> {
               children: [
                 Expanded(
                   child: Text(
-                    widget.item.content,
+                    getLocaleTextFromJson(widget.item.content ?? {}),
                     style: getTextStyle(AppTypo.body14M, AppColors.grey900),
                     maxLines: _expanded ? null : 1,
                     overflow: _expanded

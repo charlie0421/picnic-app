@@ -1,7 +1,7 @@
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'comments_provider.g.dart';
@@ -116,13 +116,13 @@ Future<List<CommentModel>> commentsByUser(
 
 @riverpod
 Future<void> postComment(
-    ref, String postId, String? parentId, String content) async {
+    ref, String postId, String? parentId, String locale, String content) async {
   try {
     await supabase.from('comments').insert({
       'post_id': postId,
       'user_id': supabase.auth.currentUser!.id,
       'parent_comment_id': parentId,
-      'content': content,
+      'content': {locale: content},
     });
   } catch (e, s) {
     logger.e('Error posting comment:', error: e, stackTrace: s);
@@ -181,5 +181,31 @@ Future<void> deleteComment(ref, String commentId) async {
   } catch (e, s) {
     logger.e('Error deleting comment:', error: e, stackTrace: s);
     return Future.error(e);
+  }
+}
+
+@riverpod
+Future<void> updateCommentTranslation(
+    ref, String commentId, String locale, String translatedText) async {
+  try {
+    logger.i(
+        'commentId: $commentId, locale: $locale, translatedText: $translatedText');
+    final response = await supabase
+        .from('comments')
+        .select('content')
+        .eq('comment_id', commentId)
+        .single();
+
+    final content = response['content'] as Map<String, dynamic>? ?? {};
+    logger.i('content: $content');
+    content[locale] = translatedText;
+    logger.i('content: $content');
+
+    await supabase.from('comments').update({
+      'content': content,
+    }).eq('comment_id', commentId);
+  } catch (e, s) {
+    logger.e('Error updating comment translation:', error: e, stackTrace: s);
+    throw e;
   }
 }
