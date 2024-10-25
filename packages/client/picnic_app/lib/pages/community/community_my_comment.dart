@@ -25,16 +25,10 @@ class CommunityMyComment extends ConsumerStatefulWidget {
 class _CommunityMyCommentState extends ConsumerState<CommunityMyComment> {
   late final PagingController<int, CommentModel> _pagingController =
       PagingController(firstPageKey: 1);
-  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _initializeNavigation();
-    _initializePagingController();
-  }
-
-  void _initializeNavigation() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
             showPortal: true,
@@ -44,36 +38,9 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment> {
             pageTitle: S.of(context).post_my_written_reply,
           );
     });
-  }
 
-  void _initializePagingController() {
-    _pagingController.addPageRequestListener((pageKey) => _fetchPage(pageKey));
-  }
-
-  Future<void> _fetchPage(int pageKey) async {
-    if (_isLoading) return;
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final userCommentsNotifier = ref.read(
-        userCommentsNotifierProvider(
-          supabase.auth.currentUser!.id,
-          pageKey,
-          10,
-        ).notifier,
-      );
-
-      final newItems = await userCommentsNotifier.build(
-        supabase.auth.currentUser!.id,
-        pageKey,
-        10,
-        includeDeleted: false,
-        includeReported: false,
-      );
-
+    _pagingController.addPageRequestListener((pageKey) async {
+      final newItems = await _fetchPage(pageKey);
       final isLastPage = newItems.length < 10;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -81,15 +48,25 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment> {
         final nextPageKey = pageKey + 1;
         _pagingController.appendPage(newItems, nextPageKey);
       }
-    } catch (e) {
-      _pagingController.error = e;
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
+    });
+  }
+
+  Future<List<CommentModel>> _fetchPage(int pageKey) async {
+    final userCommentsNotifier = ref.read(
+      userCommentsNotifierProvider(
+        supabase.auth.currentUser!.id,
+        pageKey,
+        10,
+      ).notifier,
+    );
+
+    return await userCommentsNotifier.build(
+      supabase.auth.currentUser!.id,
+      pageKey,
+      10,
+      includeDeleted: false,
+      includeReported: false,
+    );
   }
 
   Future<void> _handleRefresh() async {
@@ -266,7 +243,7 @@ class CommentContentsState extends State<CommentContents> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final textSpan = TextSpan(
-            text: getLocaleTextFromJson(widget.item.content ?? {}),
+            text: widget.item.content?[widget.item.locale] ?? {},
             style: getTextStyle(AppTypo.body14M, AppColors.grey900),
           );
 
@@ -287,7 +264,7 @@ class CommentContentsState extends State<CommentContents> {
               children: [
                 Expanded(
                   child: Text(
-                    getLocaleTextFromJson(widget.item.content ?? {}),
+                    widget.item.content?[widget.item.locale] ?? {},
                     style: getTextStyle(AppTypo.body14M, AppColors.grey900),
                     maxLines: _expanded ? null : 1,
                     overflow: _expanded
