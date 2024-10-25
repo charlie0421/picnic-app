@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:picnic_app/config/config_service.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
@@ -12,68 +11,28 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:screen_protector/screen_protector.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'user_info_provider.g.dart';
 
 @riverpod
 class UserInfo extends _$UserInfo {
-  late final ConfigService _configService;
-  bool _isRealtimeEnabled = false;
   StreamSubscription? _configSubscription;
-  RealtimeChannel? _realtimeChannel;
 
   @override
   Future<UserProfilesModel?> build() async {
-    _configService = ref.read(configServiceProvider);
     if (!supabase.isLogged) {
       logger.i('User is not logged in');
       return null;
     }
 
-    await _initializeRealtimeSubscription();
-    _setupConfigListener();
     final profile = await getUserProfiles();
 
     ref.onDispose(() {
       logger.i('Disposing UserInfo provider');
       _configSubscription?.cancel();
-      unsubscribeFromUserProfiles();
     });
 
     return profile;
-  }
-
-  Future<void> _initializeRealtimeSubscription() async {
-    final configValue = await _configService.getConfig('USE_REALTIME_PROFILE');
-    _isRealtimeEnabled = configValue == 'true';
-    _updateRealtimeSubscription();
-  }
-
-  void _setupConfigListener() {
-    logger.i('Setting up config listener for USE_REALTIME_PROFILE');
-    _configSubscription =
-        _configService.streamConfig('USE_REALTIME_PROFILE').listen(
-      (value) {
-        final newIsRealtimeEnabled = value == 'true';
-
-        if (_isRealtimeEnabled != newIsRealtimeEnabled) {
-          _isRealtimeEnabled = newIsRealtimeEnabled;
-          _updateRealtimeSubscription();
-        } else {}
-      },
-      onError: (error) {
-        logger.e('Error in USE_REALTIME_PROFILE config stream', error: error);
-      },
-    );
-  }
-
-  void _updateRealtimeSubscription() {
-    if (_isRealtimeEnabled) {
-      subscribeToUserProfiles();
-    } else {
-      unsubscribeFromUserProfiles();
-    }
   }
 
   Future<UserProfilesModel?> getUserProfiles() async {
@@ -161,74 +120,6 @@ class UserInfo extends _$UserInfo {
     });
     state = AsyncValue.data(state.value!.copyWith(avatarUrl: url));
     logger.i('Avatar URL updated successfully');
-  }
-
-  void subscribeToUserProfiles() {
-    if (!_isRealtimeEnabled) {
-      logger.i('Realtime updates are disabled. Skipping subscription.');
-      return;
-    }
-
-    unsubscribeFromUserProfiles(); // Unsubscribe from existing subscription
-
-    logger.i('Subscribing to user_profiles');
-    _realtimeChannel = supabase
-        .channel('realtime')
-        .onPostgresChanges(
-            event: PostgresChangeEvent.update,
-            schema: 'public',
-            table: 'user_profiles',
-            callback: handleUserInfo)
-        .subscribe((status, _) {
-      logger.i('Realtime subscription status: $status');
-    });
-  }
-
-  void unsubscribeFromUserProfiles() {
-    logger.i('Unsubscribing from user_profiles');
-    _realtimeChannel?.unsubscribe();
-    _realtimeChannel = null;
-  }
-
-  void handleUserInfo(PostgresChangePayload payload) {
-    if (!_isRealtimeEnabled) {
-      logger.i('Received update but realtime is disabled. Ignoring.');
-      return;
-    }
-
-    if (state.value == null) {
-      logger.i('Received update before initial state was set. Ignoring.');
-      return;
-    }
-
-    logger.i('Change received! $payload');
-    int starCandy = payload.newRecord['star_candy'];
-    int starCandyBonus = payload.newRecord['star_candy_bonus'];
-    logger.i('starCandy: $starCandy');
-    logger.i('starCandyBonus: $starCandyBonus');
-
-    final oldState = state;
-
-    logger.i('Old state: ${oldState.value}');
-
-    state = AsyncValue.data(state.value
-        ?.copyWith(starCandy: starCandy, starCandyBonus: starCandyBonus));
-
-    ref.notifyListeners();
-    logger.i('State updated. Old: ${oldState.value}, New: ${state.value}');
-
-    if (oldState != state) {
-      logger.i('State actually changed');
-    } else {
-      logger.i('State did not change');
-    }
-  }
-
-  @override
-  void dispose() {
-    logger.i('Disposing UserInfo provider');
-    _configSubscription?.cancel();
-    unsubscribeFromUserProfiles();
   }
 }
 

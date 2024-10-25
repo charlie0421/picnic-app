@@ -96,10 +96,8 @@ class _AppState extends ConsumerState<App> {
 
       if (data.event == AuthChangeEvent.signedIn) {
         await ref.read(userInfoProvider.notifier).getUserProfiles();
-        ref.read(userInfoProvider.notifier).subscribeToUserProfiles();
       } else if (data.event == AuthChangeEvent.signedOut) {
-        logger.e('User signed out');
-        ref.read(userInfoProvider.notifier).unsubscribeFromUserProfiles();
+        logger.i('User signed out');
       }
     });
   }
@@ -180,7 +178,7 @@ class _AppState extends ConsumerState<App> {
                 // Apply custom scaling to the entire app
                 return _ScaleAwareBuilder(
                   builder: (context, child) => UpdateDialog(
-                        child: child ?? const SizedBox.shrink(),
+                    child: child ?? const SizedBox.shrink(),
                   ),
                   child: child!,
                 );
