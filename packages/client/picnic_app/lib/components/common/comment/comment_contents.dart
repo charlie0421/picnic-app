@@ -64,7 +64,7 @@ class _CommentContentsState extends State<CommentContents> {
                         ? '(신고된 댓글입니다.)'
                         : widget.item.deletedAt != null
                             ? '(삭제된 댓글입니다.)'
-                            : '$content (${isTranslated ? '번역됨' : '원문'})',
+                            : content,
                     style: getTextStyle(
                         AppTypo.body14M,
                         widget.item.isReportedByUser! ||
@@ -79,6 +79,11 @@ class _CommentContentsState extends State<CommentContents> {
                         : TextOverflow.ellipsis,
                   ),
                 ),
+                if (isTranslated)
+                  Text(
+                    '(번역됨)',
+                    style: getTextStyle(AppTypo.caption12B, AppColors.grey500),
+                  ),
                 if (exceedsMaxLines && !_expanded)
                   Text(
                     '더보기',
