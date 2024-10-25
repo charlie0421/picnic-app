@@ -121,7 +121,7 @@ Future<List<PostModel>> postsByUser(
     final response = await supabase
         .from('posts')
         .select(
-            '*, boards!inner(*), user_profiles(*), post_reports!left(post_id), post_scraps!left(post_id)')
+            '*, boards!inner(*), user_profiles!posts_user_id_fkey(*), post_reports!left(post_id), post_scraps!left(post_id)')
         .eq('user_id', userId)
         .isFilter('deleted_at', null)
         .isFilter('post_reports', null)
