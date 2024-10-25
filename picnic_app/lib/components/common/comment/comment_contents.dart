@@ -20,12 +20,13 @@ class _CommentContentsState extends State<CommentContents> {
 
   @override
   Widget build(BuildContext context) {
+    logger.d('CommentContents build');
     String currentLocale = Localizations.localeOf(context).languageCode;
-    logger.i('currentLocale: $currentLocale');
-    logger.i('item.content: ${widget.item.content}');
     String content = widget.item.content!.keys.contains(currentLocale)
         ? widget.item.content![currentLocale]
         : widget.item.content![widget.item.locale];
+    bool isTranslated = widget.item.content!.keys.contains(currentLocale) &&
+        currentLocale != widget.item.locale;
 
     return Container(
       alignment: Alignment.topLeft,
@@ -65,7 +66,7 @@ class _CommentContentsState extends State<CommentContents> {
                         ? '(신고된 댓글입니다.)'
                         : widget.item.deletedAt != null
                             ? '(삭제된 댓글입니다.)'
-                            : content,
+                            : '$content (${isTranslated ? '번역됨' : '원문'})',
                     style: getTextStyle(
                         AppTypo.body14M,
                         widget.item.isReportedByUser! ||

@@ -21,111 +21,219 @@ class CommunityMyComment extends ConsumerStatefulWidget {
   ConsumerState<CommunityMyComment> createState() => _CommunityMyCommentState();
 }
 
-class _CommunityMyCommentState extends ConsumerState<CommunityMyComment>
-    with SingleTickerProviderStateMixin {
+class _CommunityMyCommentState extends ConsumerState<CommunityMyComment> {
   late final PagingController<int, CommentModel> _pagingController =
       PagingController(firstPageKey: 1);
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
+    _initializeNavigation();
+    _initializePagingController();
+  }
+
+  void _initializeNavigation() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
-          showPortal: true,
-          showTopMenu: true,
-          topRightMenu: TopRightType.none,
-          showBottomNavigation: false,
-          pageTitle: '내가 쓴 댓글');
+            showPortal: true,
+            showTopMenu: true,
+            topRightMenu: TopRightType.none,
+            showBottomNavigation: false,
+            pageTitle: '내가 쓴 댓글',
+          );
+    });
+  }
+
+  void _initializePagingController() {
+    _pagingController.addPageRequestListener((pageKey) => _fetchPage(pageKey));
+  }
+
+  Future<void> _fetchPage(int pageKey) async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
     });
 
-    _pagingController.addPageRequestListener((pageKey) async {
-      final newItems = await commentsByUser(
-          ref, supabase.auth.currentUser!.id, pageKey, 10,
-          includeDeleted: false, includeReported: false);
+    try {
+      final userCommentsNotifier = ref.read(
+        userCommentsNotifierProvider(
+          supabase.auth.currentUser!.id,
+          pageKey,
+          10,
+        ).notifier,
+      );
+
+      final newItems = await userCommentsNotifier.build(
+        supabase.auth.currentUser!.id,
+        pageKey,
+        10,
+        includeDeleted: false,
+        includeReported: false,
+      );
+
       final isLastPage = newItems.length < 10;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
       } else {
-        final nextPageKey = pageKey + newItems.length;
+        final nextPageKey = pageKey + 1;
         _pagingController.appendPage(newItems, nextPageKey);
       }
-    });
+    } catch (e) {
+      _pagingController.error = e;
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleRefresh() async {
+    _pagingController.refresh();
+  }
+
+  Future<void> _handleDelete(String commentId) async {
+    try {
+      final commentsNotifier = ref.read(
+        commentsNotifierProvider(commentId, 1, 10).notifier,
+      );
+      await commentsNotifier.deleteComment(commentId);
+      _handleRefresh();
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('댓글 삭제 중 오류가 발생했습니다'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _pagingController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return PagedListView<int, CommentModel>(
+    return RefreshIndicator(
+      onRefresh: _handleRefresh,
+      child: PagedListView<int, CommentModel>(
         pagingController: _pagingController,
         builderDelegate: PagedChildBuilderDelegate<CommentModel>(
-          itemBuilder: (context, item, index) {
-            return Container(
-              height: 71,
-              alignment: Alignment.centerLeft,
-              padding: EdgeInsets.symmetric(
-                horizontal: 16.cw,
-                vertical: 8,
-              ),
-              decoration: const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: AppColors.grey300,
-                    width: 1,
-                  ),
+          itemBuilder: (context, item, index) => CommentListItem(
+            item: item,
+            onDelete: () => _handleDelete(item.commentId),
+            onRefresh: _handleRefresh,
+          ),
+          noItemsFoundIndicatorBuilder: (context) => const NoItemContainer(),
+          firstPageErrorIndicatorBuilder: (context) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('댓글을 불러오는 중 오류가 발생했습니다'),
+                ElevatedButton(
+                  onPressed: _handleRefresh,
+                  child: const Text('다시 시도'),
                 ),
-              ),
-              width: getPlatformScreenSize(context).width,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              getLocaleTextFromJson(item.post!.board!.name),
-                              style: getTextStyle(
-                                  AppTypo.caption12B, AppColors.primary500),
-                            ),
-                            SizedBox(width: 4.cw),
-                            ProfileImageContainer(
-                              avatarUrl: item.user.avatarUrl,
-                              borderRadius: 4,
-                              width: 18,
-                              height: 18,
-                            ),
-                            SizedBox(width: 4.cw),
-                            Text(
-                              item.user.nickname ?? '',
-                              style: getTextStyle(
-                                  AppTypo.caption12B, AppColors.grey900),
-                            ),
-                            SizedBox(width: 4.cw),
-                            Text(formatTimeAgo(context, item.createdAt),
-                                style: getTextStyle(
-                                    AppTypo.caption10SB, AppColors.grey400)),
-                          ],
-                        ),
-                        const SizedBox(height: 5),
-                        CommentContents(item: item),
-                      ],
-                    ),
-                  ),
-                  SizedBox(width: 10.cw),
-                  CommentPopupMenu(
-                    comment: item,
-                    refreshFunction: _pagingController.refresh,
-                  ),
-                ],
-              ),
-            );
-          },
-          noItemsFoundIndicatorBuilder: (context) {
-            return const NoItemContainer();
-          },
-        ));
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CommentListItem extends StatelessWidget {
+  final CommentModel item;
+  final VoidCallback onDelete;
+  final VoidCallback onRefresh;
+
+  const CommentListItem({
+    super.key,
+    required this.item,
+    required this.onDelete,
+    required this.onRefresh,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 71,
+      alignment: Alignment.centerLeft,
+      padding: EdgeInsets.symmetric(
+        horizontal: 16.cw,
+        vertical: 8,
+      ),
+      decoration: const BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: AppColors.grey300,
+            width: 1,
+          ),
+        ),
+      ),
+      width: getPlatformScreenSize(context).width,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildHeader(context),
+                const SizedBox(height: 5),
+                CommentContents(item: item),
+              ],
+            ),
+          ),
+          SizedBox(width: 10.cw),
+          CommentPopupMenu(
+            postId: item.post!.postId,
+            comment: item,
+            onDelete: onDelete,
+            refreshFunction: onRefresh,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Row(
+      children: [
+        Text(
+          getLocaleTextFromJson(item.post!.board!.name),
+          style: getTextStyle(AppTypo.caption12B, AppColors.primary500),
+        ),
+        SizedBox(width: 4.cw),
+        ProfileImageContainer(
+          avatarUrl: item.user.avatarUrl,
+          borderRadius: 4,
+          width: 18,
+          height: 18,
+        ),
+        SizedBox(width: 4.cw),
+        Text(
+          item.user.nickname ?? '',
+          style: getTextStyle(AppTypo.caption12B, AppColors.grey900),
+        ),
+        SizedBox(width: 4.cw),
+        Text(
+          formatTimeAgo(context, item.createdAt),
+          style: getTextStyle(AppTypo.caption10SB, AppColors.grey400),
+        ),
+      ],
+    );
   }
 }
 
@@ -138,11 +246,17 @@ class CommentContents extends StatefulWidget {
   });
 
   @override
-  _CommentContentsState createState() => _CommentContentsState();
+  CommentContentsState createState() => CommentContentsState();
 }
 
-class _CommentContentsState extends State<CommentContents> {
+class CommentContentsState extends State<CommentContents> {
   bool _expanded = false;
+
+  void _toggleExpanded() {
+    setState(() {
+      _expanded = !_expanded;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -161,19 +275,12 @@ class _CommentContentsState extends State<CommentContents> {
             textDirection: TextDirection.ltr,
           );
 
-          textPainter.layout(
-              maxWidth: constraints.maxWidth - 40); // 40은 "더보기" 텍스트의 예상 너비입니다.
+          textPainter.layout(maxWidth: constraints.maxWidth - 40);
 
           final exceedsMaxLines = textPainter.didExceedMaxLines;
 
           return GestureDetector(
-            onTap: () {
-              if (exceedsMaxLines) {
-                setState(() {
-                  _expanded = !_expanded;
-                });
-              }
-            },
+            onTap: exceedsMaxLines ? _toggleExpanded : null,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

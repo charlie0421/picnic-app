@@ -1,4 +1,5 @@
 import 'package:deepl_dart/deepl_dart.dart';
+import 'package:picnic_app/util/logger.dart';
 
 class DeepLTranslationService {
   final Translator _translator;
@@ -46,7 +47,8 @@ class DeepLTranslationService {
         //   attempts++;
         //   await Future.delayed(_retryDelay);
         // }
-      } catch (e) {
+      } catch (e, s) {
+        logger.e('Error translating text: $e', stackTrace: s);
         if (debugMode) print('Error translating text: $e');
         attempts++;
         await Future.delayed(_retryDelay);

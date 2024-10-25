@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:picnic_app/components/article/article_best_comment.dart';
-import 'package:picnic_app/components/article/article_comment_info.dart';
 import 'package:picnic_app/components/article/article_content.dart';
 import 'package:picnic_app/components/article/article_images.dart';
 import 'package:picnic_app/components/article/article_title.dart';
-import 'package:picnic_app/components/common/comment/comment.dart';
 import 'package:picnic_app/components/error.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/models/pic/article.dart';
 import 'package:picnic_app/providers/article_list_provider.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class ArticleList extends ConsumerStatefulWidget {
@@ -112,10 +109,10 @@ class _ArticleListState extends ConsumerState<ArticleList> {
               children: [
                 ArticleImages(article: article),
                 ArticleContent(article: article),
-                ArticleBestComment(
-                    article: article, showComments: _showComments),
-                ArticleCommentInfo(
-                    article: article, showComments: _showComments)
+                // ArticleBestComment(
+                //     article: article, showComments: _showComments),
+                // ArticleCommentInfo(
+                //     article: article, showComments: _showComments)
               ],
             ),
           ),
@@ -124,17 +121,17 @@ class _ArticleListState extends ConsumerState<ArticleList> {
     );
   }
 
-  void _showComments(BuildContext context, ArticleModel articleModel,
-      {String? commentId}) {
-    logger.w('showComments');
-    showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        useSafeArea: true,
-        barrierColor: Colors.transparent,
-        builder: (BuildContext context) {
-          return SafeArea(
-              child: Comment(articleModel: articleModel, commentId: commentId));
-        });
-  }
+// void _showComments(BuildContext context, ArticleModel articleModel,
+//     {String? commentId}) {
+//   logger.w('showComments');
+//   showModalBottomSheet(
+//       context: context,
+//       isScrollControlled: true,
+//       useSafeArea: true,
+//       barrierColor: Colors.transparent,
+//       builder: (BuildContext context) {
+//         return SafeArea(
+//             child: Comment(postModel: articleModel, commentId: commentId));
+//       });
+// }
 }

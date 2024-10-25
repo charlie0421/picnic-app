@@ -63,8 +63,8 @@ class _PostHomeListState extends ConsumerState<PostHomeList> {
                           context: context,
                           deletePost: () async {
                             await deletePost(ref, data[index].postId);
-                                ref.invalidate(
-                                    postsByArtistProvider(currentArtist.id, 3, 1));
+                            ref.invalidate(
+                                postsByArtistProvider(currentArtist.id, 3, 1));
                           },
                           openReportModal: (String title, PostModel post) {
                             try {
@@ -73,20 +73,22 @@ class _PostHomeListState extends ConsumerState<PostHomeList> {
                                 barrierDismissible: true,
                                 builder: (BuildContext context) {
                                   return ReportDialog(
-                                      title: title, type: ReportType.post, target: post);
+                                      postId: post.postId,
+                                      title: title,
+                                      type: ReportType.post,
+                                      target: post);
                                 },
                               ).then((value) {
                                 logger.d('ReportDialog result: $value');
                                 if (value != null) {
-                                  ref.invalidate(postsByArtistProvider(currentArtist.id, 3, 1));
-
+                                  ref.invalidate(postsByArtistProvider(
+                                      currentArtist.id, 3, 1));
                                 }
                               });
                             } catch (e, s) {
                               logger.e('Error: $e, StackTrace: $s');
                             }
-                          }
-                          ,
+                          },
                         ),
                       ),
                     ),
@@ -124,5 +126,4 @@ class _PostHomeListState extends ConsumerState<PostHomeList> {
       ],
     );
   }
-
 }

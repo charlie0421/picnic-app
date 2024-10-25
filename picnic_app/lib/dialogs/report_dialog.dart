@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_app/components/common/comment/comment.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/providers/community/comments_provider.dart';
@@ -11,14 +10,18 @@ import 'package:picnic_app/ui/style.dart';
 enum ReportType { comment, post }
 
 class ReportDialog extends ConsumerStatefulWidget {
-  const ReportDialog(
-      {super.key,
-      required this.title,
-      required this.type,
-      required this.target});
+  const ReportDialog({
+    super.key,
+    required this.title,
+    required this.type,
+    required this.target,
+    required this.postId,
+  });
+
   final ReportType type;
   final String title;
   final Object target;
+  final String postId;
 
   @override
   ConsumerState<ReportDialog> createState() => _ReportDialogState();
@@ -27,7 +30,9 @@ class ReportDialog extends ConsumerStatefulWidget {
 class _ReportDialogState extends ConsumerState<ReportDialog> {
   int? _selectedReason;
   final TextEditingController _otherReasonController = TextEditingController();
+  final FocusNode _otherReasonFocus = FocusNode();
   String? _errorText;
+  bool _isSubmitting = false;
   final int _maxLength = 100;
 
   final List<String> _reasons = [
@@ -39,9 +44,181 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _otherReasonController.addListener(_validateOtherReason);
+    _otherReasonFocus.addListener(_onFocusChange);
+  }
+
+  @override
   void dispose() {
+    _otherReasonController.removeListener(_validateOtherReason);
     _otherReasonController.dispose();
+    _otherReasonFocus.removeListener(_onFocusChange);
+    _otherReasonFocus.dispose();
     super.dispose();
+  }
+
+  void _onFocusChange() {
+    if (_otherReasonFocus.hasFocus) {
+      _validateOtherReason();
+    }
+  }
+
+  void _validateOtherReason() {
+    if (_selectedReason == 4) {
+      final text = _otherReasonController.text.trim();
+      setState(() {
+        if (text.isEmpty) {
+          _errorText = '기타 사유를 입력해주세요.';
+        } else if (text.length > _maxLength) {
+          _errorText = '최대 $_maxLength자까지 입력 가능합니다.';
+        } else {
+          _errorText = null;
+        }
+      });
+    }
+  }
+
+  Widget _buildReasonOptions() {
+    return Column(
+      children: _reasons.asMap().entries.map((entry) {
+        return CustomRadioListTile(
+          title: entry.value,
+          value: entry.key,
+          groupValue: _selectedReason,
+          onChanged: _isSubmitting
+              ? null
+              : (int? newValue) {
+                  setState(() {
+                    _selectedReason = newValue;
+                    if (newValue != 4) {
+                      _otherReasonController.clear();
+                      _errorText = null;
+                    }
+                  });
+                },
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildOtherReasonField() {
+    if (_selectedReason != 4) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: TextFormField(
+        controller: _otherReasonController,
+        focusNode: _otherReasonFocus,
+        enabled: !_isSubmitting,
+        decoration: InputDecoration(
+          hintText: '사유를 작성해주세요.',
+          hintStyle: TextStyle(
+            fontSize: 16.sp,
+            color: AppColors.grey400,
+          ),
+          errorText: _errorText,
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30.0),
+            borderSide: const BorderSide(
+              color: AppColors.primary500,
+              width: 1,
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30.0),
+            borderSide: const BorderSide(
+              color: AppColors.grey300,
+              width: 1,
+            ),
+          ),
+          contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7),
+          counterText: '${_otherReasonController.text.length}/$_maxLength',
+          counterStyle: getTextStyle(AppTypo.caption10SB, AppColors.grey500),
+        ),
+        maxLength: _maxLength,
+        maxLines: 3,
+        minLines: 3,
+        textInputAction: TextInputAction.newline,
+        style: getTextStyle(AppTypo.body16R, AppColors.grey900),
+      ),
+    );
+  }
+
+  Future<void> _submitReport() async {
+    if (_selectedReason == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('신고 사유를 선택해주세요.'),
+          duration: Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    if (_selectedReason == 4 && _otherReasonController.text.trim().isEmpty) {
+      setState(() {
+        _errorText = '기타 사유를 입력해주세요.';
+      });
+      _otherReasonFocus.requestFocus();
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      final reason = _reasons[_selectedReason!];
+      final additionalText = _otherReasonController.text.trim();
+
+      if (widget.type == ReportType.comment) {
+        final commentsNotifier = ref.read(
+          commentsNotifierProvider(widget.postId, 1, 10).notifier,
+        );
+        await commentsNotifier.reportComment(
+          widget.target as CommentModel,
+          reason,
+          additionalText,
+        );
+      } else {
+        await reportPost(
+          ref,
+          widget.target as PostModel,
+          reason,
+          additionalText,
+        );
+      }
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('신고가 접수되었습니다.'),
+          duration: Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+
+      Navigator.of(context).pop(true);
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _isSubmitting = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('신고 처리 중 오류가 발생했습니다.'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   @override
@@ -55,7 +232,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
         padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
               widget.title,
@@ -71,92 +248,37 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
               ),
             ),
             const SizedBox(height: 12),
-            ..._buildReasonOptions(),
-            if (_selectedReason == 4) ...[
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _otherReasonController,
-                decoration: InputDecoration(
-                  hintText: '사유를 작성해주세요.',
-                  hintStyle: TextStyle(
-                    fontSize: 16.sp,
-                    color: AppColors.grey400,
-                  ),
-                  errorText: _errorText,
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                    borderSide: const BorderSide(
-                      color: AppColors.primary500,
-                      width: 1,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                    borderSide: const BorderSide(
-                      color: AppColors.grey300,
-                      width: 1,
-                    ),
-                  ),
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 14.w, vertical: 7),
-                  counterText: '', // Hide default counter
-                ),
-                maxLength: _maxLength,
-                maxLines: 3,
-                minLines: 3,
-                textInputAction: TextInputAction.newline,
-                style: getTextStyle(AppTypo.body16R, AppColors.grey900),
-                onFieldSubmitted: (value) => (),
-              ),
-            ],
+            _buildReasonOptions(),
+            _buildOtherReasonField(),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _submitReport,
-              child: const Text(
-                '신고하기',
+              onPressed: _isSubmitting ? null : _submitReport,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary500,
+                disabledBackgroundColor: AppColors.grey300,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 12),
               ),
+              child: _isSubmitting
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : Text(
+                      '신고하기',
+                      style: getTextStyle(AppTypo.body14M, Colors.white),
+                    ),
             ),
           ],
         ),
       ),
     );
-  }
-
-  List<Widget> _buildReasonOptions() {
-    return _reasons.asMap().entries.map((entry) {
-      return CustomRadioListTile(
-        title: entry.value,
-        value: entry.key,
-        groupValue: _selectedReason,
-        onChanged: (int? newValue) {
-          setState(() {
-            _selectedReason = newValue;
-            if (newValue != 4) {
-              _otherReasonController.clear();
-              _errorText = null;
-            }
-          });
-        },
-      );
-    }).toList();
-  }
-
-  void _submitReport() {
-    if (_selectedReason == 4 && _otherReasonController.text.trim().isEmpty) {
-      setState(() {
-        _errorText = '기타 사유를 입력해주세요.';
-      });
-      return;
-    }
-
-    widget.target is Comment
-        ? reportComment(ref, widget.target as CommentModel,
-            _reasons[_selectedReason!], _otherReasonController.text)
-        : reportPost(ref, widget.target as PostModel,
-            _reasons[_selectedReason!], _otherReasonController.text);
-
-    // Handle report submission
-    Navigator.of(context).pop(true);
   }
 }
 
@@ -164,7 +286,7 @@ class CustomRadioListTile extends StatelessWidget {
   final String title;
   final int value;
   final int? groupValue;
-  final ValueChanged<int?> onChanged;
+  final ValueChanged<int?>? onChanged;
 
   const CustomRadioListTile({
     super.key,
@@ -177,8 +299,10 @@ class CustomRadioListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isSelected = value == groupValue;
+    final isEnabled = onChanged != null;
+
     return InkWell(
-      onTap: () => onChanged(value),
+      onTap: isEnabled ? () => onChanged?.call(value) : null,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 2),
         child: Row(
@@ -191,12 +315,15 @@ class CustomRadioListTile extends StatelessWidget {
                 groupValue: groupValue,
                 onChanged: onChanged,
                 activeColor: AppColors.primary500,
-                fillColor: WidgetStateProperty.resolveWith<Color>(
-                  (Set<WidgetState> states) {
-                    if (states.contains(WidgetState.selected)) {
+                fillColor: MaterialStateProperty.resolveWith<Color>(
+                  (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.selected)) {
                       return AppColors.primary500;
                     }
-                    return AppColors.grey300; // 선택되지 않은 경우의 회색
+                    if (states.contains(MaterialState.disabled)) {
+                      return AppColors.grey300;
+                    }
+                    return AppColors.grey300;
                   },
                 ),
               ),

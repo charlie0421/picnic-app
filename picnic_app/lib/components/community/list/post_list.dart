@@ -16,8 +16,10 @@ enum PostListType { artist, board }
 
 class PostList extends ConsumerStatefulWidget {
   const PostList(this.type, this.id, {super.key});
+
   final Object id;
   final PostListType type;
+
   @override
   ConsumerState<PostList> createState() => _PostListState();
 }
@@ -74,44 +76,50 @@ class _PostListState extends ConsumerState<PostList> {
               itemBuilder: (context, index) => PostListItem(
                 post: data[index],
                 popupMenu: PostPopupMenu(
-                    post: data[index],
-                    context: context,
-                    deletePost: () async {
-                      await deletePost(ref, data[index].postId);
-                      try {
-                        if (widget.type == PostListType.artist) {
-                          ref.invalidate(postsByArtistProvider(widget.id as int, 10, 1));
-                        } else {
-                          ref.invalidate(postsByBoardProvider(widget.id as String, 10, 1));
-                        }
-                      } catch (e, s) {
-                        logger.e('Error: $e, StackTrace: $s');
+                  post: data[index],
+                  context: context,
+                  deletePost: () async {
+                    await deletePost(ref, data[index].postId);
+                    try {
+                      if (widget.type == PostListType.artist) {
+                        ref.invalidate(
+                            postsByArtistProvider(widget.id as int, 10, 1));
+                      } else {
+                        ref.invalidate(
+                            postsByBoardProvider(widget.id as String, 10, 1));
                       }
-                    },
-                    openReportModal: (String title, PostModel post) {
-                      try {
-                        showDialog(
-                          context: context,
-                          barrierDismissible: true,
-                          builder: (BuildContext context) {
-                            return ReportDialog(
-                                title: title, type: ReportType.post, target: post);
-                          },
-                        ).then((value) {
-                          logger.d('ReportDialog result: $value');
-                          if (value != null) {
-                            if (widget.type == PostListType.artist) {
-                              ref.invalidate(postsByArtistProvider(widget.id as int, 10, 1));
-                            } else {
-                              ref.invalidate(postsByBoardProvider(widget.id as String, 10, 1));
-                            }
-
+                    } catch (e, s) {
+                      logger.e('Error: $e, StackTrace: $s');
+                    }
+                  },
+                  openReportModal: (String title, PostModel post) {
+                    try {
+                      showDialog(
+                        context: context,
+                        barrierDismissible: true,
+                        builder: (BuildContext context) {
+                          return ReportDialog(
+                              postId: post.postId,
+                              title: title,
+                              type: ReportType.post,
+                              target: post);
+                        },
+                      ).then((value) {
+                        logger.d('ReportDialog result: $value');
+                        if (value != null) {
+                          if (widget.type == PostListType.artist) {
+                            ref.invalidate(
+                                postsByArtistProvider(widget.id as int, 10, 1));
+                          } else {
+                            ref.invalidate(postsByBoardProvider(
+                                widget.id as String, 10, 1));
                           }
-                        });
-                      } catch (e, s) {
-                        logger.e('Error: $e, StackTrace: $s');
-                      }
-                    },
+                        }
+                      });
+                    } catch (e, s) {
+                      logger.e('Error: $e, StackTrace: $s');
+                    }
+                  },
                 ),
               ),
             ),
@@ -119,6 +127,4 @@ class _PostListState extends ConsumerState<PostList> {
       loading: () => buildLoadingOverlay(),
     );
   }
-
-
 }
