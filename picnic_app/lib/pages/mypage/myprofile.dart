@@ -185,16 +185,17 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             // 사용자 프로필 업데이트
             await ref.read(userInfoProvider.notifier).updateAvatar(imageUrl);
 
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text('성공'), duration: Duration(seconds: 2)));
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text(S.of(context).common_success),
+                duration: Duration(seconds: 2)));
           } else {
             throw Exception('Failed to upload image');
           }
         } catch (e, s) {
           logger.e(e, stackTrace: s);
 
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('실패'),
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(S.of(context).common_fail),
           ));
           rethrow;
         } finally {

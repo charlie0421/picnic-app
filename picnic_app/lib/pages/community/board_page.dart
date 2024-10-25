@@ -119,8 +119,8 @@ class _BoardPageState extends ConsumerState<BoardPage> {
                     return _buildArtistBoardGroup(artistBoards);
                   },
                   noItemsFoundIndicatorBuilder: (context) {
-                    return const NoItemContainer(
-                      message: '검색결과가 없습니다.',
+                    return NoItemContainer(
+                      message: S.of(context).common_text_no_search_result,
                     );
                   },
                 ),

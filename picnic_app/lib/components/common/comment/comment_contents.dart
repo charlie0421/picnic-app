@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/ui/style.dart';
 
@@ -61,9 +62,9 @@ class _CommentContentsState extends State<CommentContents> {
                   child: Text(
                     widget.item.isReportedByUser! ||
                             (widget.item.isBlindedByAdmin ?? false)
-                        ? '(신고된 댓글입니다.)'
+                        ? '(${S.of(context).post_comment_reported_comment})'
                         : widget.item.deletedAt != null
-                            ? '(삭제된 댓글입니다.)'
+                            ? '(${S.of(context).post_comment_deleted_comment})'
                             : content,
                     style: getTextStyle(
                         AppTypo.body14M,
@@ -81,12 +82,12 @@ class _CommentContentsState extends State<CommentContents> {
                 ),
                 if (isTranslated)
                   Text(
-                    '(번역됨)',
+                    '(${S.of(context).post_comment_translated})',
                     style: getTextStyle(AppTypo.caption12B, AppColors.grey500),
                   ),
                 if (exceedsMaxLines && !_expanded)
                   Text(
-                    '더보기',
+                    S.of(context).post_comment_content_more,
                     style: getTextStyle(AppTypo.body14M, AppColors.grey500),
                   ),
               ],

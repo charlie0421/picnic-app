@@ -222,7 +222,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               onTap: () async {
                                 (await canLaunchUrlString(info.url!))
                                     ? launchUrlString(info.url!)
-                                    : throw '앱 스토어를 열 수 없습니다.';
+                                    : throw S
+                                        .of(context)
+                                        .update_cannot_open_appstore;
                               },
                             );
                           case UpdateStatus.updateRecommended:
@@ -243,7 +245,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               onTap: () async {
                                 (await canLaunchUrlString(info.url!))
                                     ? launchUrlString(info.url!)
-                                    : throw '앱 스토어를 열 수 없습니다.';
+                                    : throw S
+                                        .of(context)
+                                        .update_cannot_open_appstore;
                               },
                             );
                           case UpdateStatus.upToDate:

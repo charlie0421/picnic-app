@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/app.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/community/post.dart';
-import 'package:picnic_app/providers/community/post_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/util/logger.dart';
 
 class PostPopupMenu extends ConsumerStatefulWidget {
   final BuildContext context;
@@ -24,6 +23,7 @@ class PostPopupMenu extends ConsumerStatefulWidget {
     this.openReportModal,
     this.deletePost,
   });
+
   // required
 
   @override
@@ -47,19 +47,18 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
           logger.i('widget.openReportModal: ${widget.openReportModal}');
 
           if (widget.openReportModal != null) {
-            await widget.openReportModal!(
-                S
-                    .of(context)
-                    .label_title_report, widget.post).then((value) {
-              if (widget.refreshFunction != null )  widget.refreshFunction!();
+            await widget.openReportModal!
+                    (S.of(context).label_title_report, widget.post)
+                .then((value) {
+              if (widget.refreshFunction != null) widget.refreshFunction!();
             });
           }
         } else if (result == 'Delete') {
           showSimpleDialog(
             title: S.of(context).popup_label_delete,
-            content: '정말로 삭제하시겠습니까?',
+            content: S.of(context).post_comment_delete_confirm,
             onOk: () async {
-              if (widget.deletePost!= null ) widget.deletePost!();
+              if (widget.deletePost != null) widget.deletePost!();
               if (navigatorKey.currentContext != null) {
                 Navigator.of(navigatorKey.currentContext!).pop();
               }

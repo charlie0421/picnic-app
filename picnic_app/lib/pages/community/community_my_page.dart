@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/pages/community/community_my_comment.dart';
 import 'package:picnic_app/pages/community/community_my_scraps.dart';
 import 'package:picnic_app/pages/community/community_my_writen.dart';
@@ -45,7 +46,7 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
                   NoAvatar(width: 60, height: 60, borderRadius: 30),
                   SizedBox(width: 16.cw),
                   Text(
-                    '잌명',
+                    S.of(context).anonymous,
                     style: getTextStyle(AppTypo.title18B, AppColors.grey900),
                   )
                 ])
@@ -78,7 +79,8 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('익명모드', style: getTextStyle(AppTypo.body16M)),
+              Text(S.of(context).anonymous_mode,
+                  style: getTextStyle(AppTypo.body16M)),
               Switch(
                   inactiveTrackColor: AppColors.grey300,
                   inactiveThumbColor: AppColors.grey00,
@@ -89,7 +91,7 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
           ),
           const Divider(color: AppColors.grey200),
           PicnicListItem(
-            leading: '내가 쓴 글',
+            leading: S.of(context).post_my_written_post,
             assetPath: 'assets/icons/arrow_right_style=line.svg',
             onTap: () {
               ref
@@ -98,7 +100,7 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
             },
           ),
           PicnicListItem(
-            leading: '내 스크랩',
+            leading: S.of(context).post_my_written_scrap,
             assetPath: 'assets/icons/arrow_right_style=line.svg',
             onTap: () {
               ref
@@ -107,7 +109,7 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
             },
           ),
           PicnicListItem(
-            leading: '내가 쓴 댓글',
+            leading: S.of(context).post_my_written_reply,
             assetPath: 'assets/icons/arrow_right_style=line.svg',
             onTap: () {
               ref

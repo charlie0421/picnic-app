@@ -1,5 +1,17 @@
 {
   "@@locale": "zh",
+  "ads_available_time": "广告可用性",
+  "@ads_available_time": {
+    "manualTranslation": false
+  },
+  "anonymous": "匿名",
+  "@anonymous": {
+    "manualTranslation": false
+  },
+  "anonymous_mode": "匿名模式",
+  "@anonymous_mode": {
+    "manualTranslation": false
+  },
   "app_name": "野餐",
   "@app_name": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
@@ -55,6 +67,42 @@
   "candy_usage_policy_title": "星糖使用政策",
   "@candy_usage_policy_title": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
+    "manualTranslation": false
+  },
+  "common_all": "全部",
+  "@common_all": {
+    "manualTranslation": false
+  },
+  "common_fail": "失败",
+  "@common_fail": {
+    "manualTranslation": false
+  },
+  "common_retry_label": "再试一次",
+  "@common_retry_label": {
+    "manualTranslation": false
+  },
+  "common_success": "成功",
+  "@common_success": {
+    "manualTranslation": false
+  },
+  "common_text_no_data": "无数据。",
+  "@common_text_no_data": {
+    "manualTranslation": false
+  },
+  "common_text_no_search_result": "未找到搜索结果。",
+  "@common_text_no_search_result": {
+    "manualTranslation": false
+  },
+  "common_text_search_error": "搜索过程中出现错误。",
+  "@common_text_search_error": {
+    "manualTranslation": false
+  },
+  "common_text_search_recent_label": "最近的搜索",
+  "@common_text_search_recent_label": {
+    "manualTranslation": false
+  },
+  "common_text_search_result_label": "搜索结果",
+  "@common_text_search_result_label": {
     "manualTranslation": false
   },
   "dialog_button_cancel": "取消",
@@ -777,10 +825,10 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
   },
-  "nav_home": "홈",
+  "nav_home": "首页",
   "@nav_home": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
   "nav_library": "图书馆",
   "@nav_library": {
@@ -871,12 +919,116 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
   },
+  "popup_label_delete": "删除",
+  "@popup_label_delete": {
+    "manualTranslation": false
+  },
   "post_anonymous": "匿名张贴",
   "@post_anonymous": {
     "manualTranslation": false
   },
+  "post_ask_go_to_temporary_save_list": "想进入草稿列表吗？",
+  "@post_ask_go_to_temporary_save_list": {
+    "manualTranslation": false
+  },
+  "post_board_already_exist": "一个已经存在的董事会。",
+  "@post_board_already_exist": {
+    "manualTranslation": false
+  },
+  "post_board_create_request_complete": "您的开设留言板申请已完成。",
+  "@post_board_create_request_complete": {
+    "manualTranslation": false
+  },
+  "post_board_create_request_condition": "*每个 ID 只能申请一个未成年人板。",
+  "@post_board_create_request_condition": {
+    "manualTranslation": false
+  },
+  "post_board_create_request_label": "申请开设一个板块",
+  "@post_board_create_request_label": {
+    "manualTranslation": false
+  },
+  "post_board_create_request_reviewing": "审查开设留言板的申请",
+  "@post_board_create_request_reviewing": {
+    "manualTranslation": false
+  },
+  "post_board_request_label": "公开申请",
+  "@post_board_request_label": {
+    "manualTranslation": false
+  },
+  "post_cannot_open_youtube": "我打不开 Youtube。",
+  "@post_cannot_open_youtube": {
+    "manualTranslation": false
+  },
+  "post_comment_action_translate": "翻译",
+  "@post_comment_action_translate": {
+    "manualTranslation": false
+  },
+  "post_comment_content_more": "更多信息",
+  "@post_comment_content_more": {
+    "manualTranslation": false
+  },
+  "post_comment_delete_confirm": "您确定要删除评论吗？",
+  "@post_comment_delete_confirm": {
+    "manualTranslation": false
+  },
+  "post_comment_delete_fail": "评论删除失败。",
+  "@post_comment_delete_fail": {
+    "manualTranslation": false
+  },
+  "post_comment_deleted_comment": "此评论已被删除。",
+  "@post_comment_deleted_comment": {
+    "manualTranslation": false
+  },
+  "post_comment_like_processing_fail": "处理失败。",
+  "@post_comment_like_processing_fail": {
+    "manualTranslation": false
+  },
+  "post_comment_loading_fail": "评论加载失败。",
+  "@post_comment_loading_fail": {
+    "manualTranslation": false
+  },
+  "post_comment_register_fail": "评论注册失败。",
+  "@post_comment_register_fail": {
+    "manualTranslation": false
+  },
+  "post_comment_registered_comment": "您的评论已被注册。",
+  "@post_comment_registered_comment": {
+    "manualTranslation": false
+  },
+  "post_comment_reported_comment": "报告评论。",
+  "@post_comment_reported_comment": {
+    "manualTranslation": false
+  },
+  "post_comment_translate_complete": "翻译工作已经完成。",
+  "@post_comment_translate_complete": {
+    "manualTranslation": false
+  },
+  "post_comment_translate_fail": "翻译失败。",
+  "@post_comment_translate_fail": {
+    "manualTranslation": false
+  },
+  "post_comment_translated": "已翻译",
+  "@post_comment_translated": {
+    "manualTranslation": false
+  },
+  "post_comment_write_label": "写评论",
+  "@post_comment_write_label": {
+    "manualTranslation": false
+  },
   "post_content_placeholder": "请输入内容。",
   "@post_content_placeholder": {
+    "manualTranslation": false
+  },
+  "post_delete_scrap_confirm": "您想删除废料吗？",
+  "@post_delete_scrap_confirm": {
+    "manualTranslation": false
+  },
+  "post_delete_scrap_title": "删除废料",
+  "@post_delete_scrap_title": {
+    "manualTranslation": false
+  },
+  "post_go_to_boards": "前往留言板",
+  "@post_go_to_boards": {
     "manualTranslation": false
   },
   "post_header_publish": "出版",
@@ -887,6 +1039,10 @@
   "@post_header_temporary_save": {
     "manualTranslation": false
   },
+  "post_hint_title": "请输入标题。",
+  "@post_hint_title": {
+    "manualTranslation": false
+  },
   "post_hyperlink": "超链接",
   "@post_hyperlink": {
     "manualTranslation": false
@@ -895,12 +1051,100 @@
   "@post_insert_link": {
     "manualTranslation": false
   },
+  "post_loading_post_fail": "帖子加载失败。",
+  "@post_loading_post_fail": {
+    "manualTranslation": false
+  },
+  "post_minor_board_condition": "请输入至少 5 个字符但不超过 20 个字符的描述。",
+  "@post_minor_board_condition": {
+    "manualTranslation": false
+  },
+  "post_minor_board_create_request_message": "* 请求开设留言板的信息。",
+  "@post_minor_board_create_request_message": {
+    "manualTranslation": false
+  },
+  "post_minor_board_create_request_message_condition": "请在请求开设留言板的信息中输入至少 10 个字符。",
+  "@post_minor_board_create_request_message_condition": {
+    "manualTranslation": false
+  },
+  "post_minor_board_create_request_message_input": "请输入请求打开留言板的信息。",
+  "@post_minor_board_create_request_message_input": {
+    "manualTranslation": false
+  },
+  "post_minor_board_description": "小公告栏说明",
+  "@post_minor_board_description": {
+    "manualTranslation": false
+  },
+  "post_minor_board_description_input": "请为您的未成年人板输入描述。",
+  "@post_minor_board_description_input": {
+    "manualTranslation": false
+  },
+  "post_minor_board_name": "小板名称",
+  "@post_minor_board_name": {
+    "manualTranslation": false
+  },
+  "post_minor_board_name_input": "请输入未成年人板的名称。",
+  "@post_minor_board_name_input": {
+    "manualTranslation": false
+  },
+  "post_my_written_post": "我撰写的文章",
+  "@post_my_written_post": {
+    "manualTranslation": false
+  },
+  "post_my_written_reply": "您写的评论",
+  "@post_my_written_reply": {
+    "manualTranslation": false
+  },
+  "post_my_written_scrap": "我的废品",
+  "@post_my_written_scrap": {
+    "manualTranslation": false
+  },
+  "post_no_comment": "无评论。",
+  "@post_no_comment": {
+    "manualTranslation": false
+  },
+  "post_report_reason_1": "不雅帖子",
+  "@post_report_reason_1": {
+    "manualTranslation": false
+  },
+  "post_report_reason_2": "性别歧视和种族主义帖子",
+  "@post_report_reason_2": {
+    "manualTranslation": false
+  },
+  "post_report_reason_3": "包含冒犯性亵渎语言的帖子",
+  "@post_report_reason_3": {
+    "manualTranslation": false
+  },
+  "post_report_reason_4": "广告/促销职位",
+  "@post_report_reason_4": {
+    "manualTranslation": false
+  },
+  "post_report_reason_5": "其他",
+  "@post_report_reason_5": {
+    "manualTranslation": false
+  },
+  "post_temporary_save_complete": "草案完成。",
+  "@post_temporary_save_complete": {
+    "manualTranslation": false
+  },
   "post_title_placeholder": "请输入标题。",
   "@post_title_placeholder": {
     "manualTranslation": false
   },
+  "post_write_board_post": "创建一个职位",
+  "@post_write_board_post": {
+    "manualTranslation": false
+  },
+  "post_write_post_recommend_write": "请写一篇文章。",
+  "@post_write_post_recommend_write": {
+    "manualTranslation": false
+  },
   "post_youtube_link": "YouTube 链接",
   "@post_youtube_link": {
+    "manualTranslation": false
+  },
+  "replies": "评论",
+  "@replies": {
     "manualTranslation": false
   },
   "share_image_fail": "图像共享失败",
@@ -963,6 +1207,10 @@
   },
   "text_community_board_search": "搜索艺术家板",
   "@text_community_board_search": {
+    "manualTranslation": false
+  },
+  "text_community_post_search": "搜索",
+  "@text_community_post_search": {
     "manualTranslation": false
   },
   "text_copied_address": "地址已复制。",
@@ -1047,6 +1295,10 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": true
   },
+  "post_replying_comment": "回复 {nickname}...",
+  "@post_replying_comment": {
+    "manualTranslation": true
+  },
   "text_vote_rank_in_reward": "奖励排名",
   "@text_vote_rank_in_reward": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
@@ -1081,6 +1333,10 @@
   "@update_button": {
     "manualTranslation": false
   },
+  "update_cannot_open_appstore": "我无法打开应用程序商店。",
+  "@update_cannot_open_appstore": {
+    "manualTranslation": false
+  },
   "update_recommend_text": "新版本 ({version}) 已发布。",
   "@update_recommend_text": {
     "manualTranslation": true
@@ -1093,12 +1349,36 @@
   "@update_required_title": {
     "manualTranslation": false
   },
-  "text_community_post_search": "搜索",
-  "@text_community_post_search": {
+  "views": "意见",
+  "@views": {
     "manualTranslation": false
   },
-  "popup_label_delete": "删除",
-  "@popup_label_delete": {
+  "post_report_other_input": "请输入任何其他原因。",
+  "@post_report_other_input": {
+    "manualTranslation": false
+  },
+  "post_report_reason_input": "请选择报告原因。",
+  "@post_report_reason_input": {
+    "manualTranslation": false
+  },
+  "post_report_success": "报告已完成。",
+  "@post_report_success": {
+    "manualTranslation": false
+  },
+  "post_report_fail": "报告失败。",
+  "@post_report_fail": {
+    "manualTranslation": false
+  },
+  "post_report_reason_label": "报告原因",
+  "@post_report_reason_label": {
+    "manualTranslation": false
+  },
+  "post_report_label": "提交报告",
+  "@post_report_label": {
+    "manualTranslation": false
+  },
+  "purchase_web_message": "\\n 请提前复制随机数字 ID： \\n 复制后，点击下面的按钮继续付款。",
+  "@purchase_web_message": {
     "manualTranslation": false
   }
 }

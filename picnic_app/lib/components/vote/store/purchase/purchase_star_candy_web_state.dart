@@ -6,11 +6,11 @@ import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
 import 'package:picnic_app/components/vote/store/purchase/analytics_service.dart';
 import 'package:picnic_app/components/vote/store/purchase/purchase_star_candy_web.dart';
 import 'package:picnic_app/components/vote/store/purchase/store_list_tile.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/product_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -51,8 +51,8 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
                         bottomLeft: Radius.circular(40.r),
                         bottomRight: Radius.circular(40.r))),
                 alignment: Alignment.center,
-                child: const Text(
-                  '앱결제가 불가능한 분들을 위한 결제 창입니다.\n 미리 난수 아이디를 복사해 주세요.\n 복사 후 아래 버튼을 눌러 결제를 진행해 주세요.',
+                child: Text(
+                  S.of(context).purchase_web_message,
                 ),
               ),
               Positioned.fill(
@@ -131,7 +131,7 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
     if (await canLaunchUrlString(url)) {
       await launchUrlString(url);
     } else {
-      throw '앱 스토어를 열 수 없습니다.';
+      throw S.of(context).update_cannot_open_appstore;
     }
   }
 

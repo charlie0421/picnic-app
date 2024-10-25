@@ -7,7 +7,6 @@ import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/common/common_search_box.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/error.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/artist.dart';
@@ -15,6 +14,7 @@ import 'package:picnic_app/providers/mypage/bookmarked_artists_provider.dart';
 import 'package:picnic_app/providers/mypage/vote_artist_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
@@ -150,7 +150,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
         );
       }
     } catch (e, s) {
-      logger.e('북마크 상태 변경 중 오류 발생:', error: e, stackTrace: s);
+      logger.e(e, stackTrace: s);
       rethrow;
     } finally {
       if (mounted) {

@@ -100,7 +100,7 @@ class _CommentActionsState extends ConsumerState<CommentActions> {
       child: Container(
         alignment: Alignment.center,
         child: Text(
-          '번역',
+          S.of(context).post_comment_action_translate,
           style: getTextStyle(AppTypo.caption12B, AppColors.grey500),
         ),
       ),
@@ -143,8 +143,8 @@ class _CommentActionsState extends ConsumerState<CommentActions> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('번역 완료'),
+        SnackBar(
+          content: Text(S.of(context).post_comment_translate_complete),
           duration: Duration(seconds: 1),
           behavior: SnackBarBehavior.floating,
         ),
@@ -156,8 +156,8 @@ class _CommentActionsState extends ConsumerState<CommentActions> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('번역 중 오류가 발생했습니다'),
+        SnackBar(
+          content: Text(S.of(context).post_comment_translate_fail),
           backgroundColor: Colors.red,
           duration: Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,

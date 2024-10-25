@@ -4,6 +4,7 @@ import 'package:picnic_app/components/common/comment/post_popup_menu.dart';
 import 'package:picnic_app/components/community/common/post_list_item.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/dialogs/report_dialog.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/pages/community/post_write_page.dart';
 import 'package:picnic_app/providers/community/post_provider.dart';
@@ -40,7 +41,7 @@ class _PostListState extends ConsumerState<PostList> {
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   const SizedBox(height: 80),
-                  Text('게시글을 작성해 주세요!',
+                  Text(S.of(context).post_write_post_recommend_write,
                       style:
                           getTextStyle(AppTypo.caption12B, AppColors.grey500)),
                   const SizedBox(height: 54),
@@ -66,7 +67,7 @@ class _PostListState extends ConsumerState<PostList> {
                               const PostWritePage(),
                             );
                       },
-                      child: Text('게시글 작성하기',
+                      child: Text(S.of(context).post_write_board_post,
                           style: getTextStyle(
                               AppTypo.body14B, AppColors.primary500)))
                 ],

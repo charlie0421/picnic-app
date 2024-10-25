@@ -1,6 +1,6 @@
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -28,7 +28,7 @@ class AsyncBookmarkedArtists extends _$AsyncBookmarkedArtists {
 
       return bookmarkedArtists;
     } catch (e, s) {
-      logger.e('북마크된 아티스트 가져오기 중 오류 발생:', error: e, stackTrace: s);
+      logger.e(e, stackTrace: s);
       Sentry.captureException(e, stackTrace: s);
       return [];
     }

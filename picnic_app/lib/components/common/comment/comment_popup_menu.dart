@@ -41,7 +41,7 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
     try {
       showSimpleDialog(
         title: S.of(context).popup_label_delete,
-        content: '정말로 삭제하시겠습니까?',
+        content: S.of(context).post_comment_delete_confirm,
         onOk: () async {
           try {
             final commentsNotifier = ref.read(
@@ -61,8 +61,8 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
           } catch (e) {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('댓글 삭제 중 오류가 발생했습니다'),
+                SnackBar(
+                  content: Text(S.of(context).post_comment_delete_fail),
                   backgroundColor: Colors.red,
                 ),
               );

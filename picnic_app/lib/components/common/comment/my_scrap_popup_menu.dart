@@ -19,6 +19,7 @@ class MyScrapPopupMenu extends ConsumerStatefulWidget {
     required this.context,
     required this.refreshFunction,
   });
+
   // required
 
   @override
@@ -40,8 +41,8 @@ class _MyScrapPopupMenuState extends ConsumerState<MyScrapPopupMenu> {
       onSelected: (String result) async {
         if (result == 'Delete') {
           showSimpleDialog(
-            title: '스크랩 삭제',
-            content: '정말로 삭제하시겠습니까?',
+            title: S.of(context).post_delete_scrap_title,
+            content: S.of(context).post_delete_scrap_confirm,
             onOk: () async {
               await unscrapPost(
                   ref, widget.post.postId, supabase.auth.currentUser!.id);

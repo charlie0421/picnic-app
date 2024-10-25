@@ -10,6 +10,7 @@ import 'package:picnic_app/components/community/write/post_write_header.dart';
 import 'package:picnic_app/components/ui/s3_uploader.dart';
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -129,8 +130,8 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
 
       if (isTemporary) {
         showSimpleDialog(
-          title: '임시 저장 완료',
-          content: '임시저장글 목록으로 이동할까요?',
+          title: S.of(context).post_temporary_save_complete,
+          content: S.of(context).post_ask_go_to_temporary_save_list,
           onOk: () {},
           onCancel: () {
             Navigator.of(context).pop();

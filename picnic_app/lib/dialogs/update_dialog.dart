@@ -51,7 +51,8 @@ class _UpdateDialogState extends ConsumerState<UpdateDialog> {
                           decoration: TextDecoration.underline,
                         ),
                       ),
-                      onPressed: () => _launchAppStore(info.url!),
+                      onPressed: () => _launchAppStore(
+                          info.url!, S.of(context).update_cannot_open_appstore),
                     ),
                     SizedBox(width: 8.cw),
                     SmoothCircularCountdown(
@@ -91,11 +92,11 @@ class _UpdateDialogState extends ConsumerState<UpdateDialog> {
     );
   }
 
-  void _launchAppStore(String url) async {
+  void _launchAppStore(String url, message) async {
     if (await canLaunchUrlString(url)) {
       await launchUrlString(url);
     } else {
-      throw '앱 스토어를 열 수 없습니다.';
+      throw message;
     }
   }
 }

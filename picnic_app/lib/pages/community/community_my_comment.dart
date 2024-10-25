@@ -4,6 +4,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
 import 'package:picnic_app/components/common/comment/comment_popup_menu.dart';
 import 'package:picnic_app/components/common/no_item_container.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/providers/community/comments_provider.dart';
@@ -40,7 +41,7 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment> {
             showTopMenu: true,
             topRightMenu: TopRightType.none,
             showBottomNavigation: false,
-            pageTitle: '내가 쓴 댓글',
+            pageTitle: S.of(context).post_my_written_reply,
           );
     });
   }
@@ -106,8 +107,8 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('댓글 삭제 중 오류가 발생했습니다'),
+        SnackBar(
+          content: Text(S.of(context).post_comment_delete_fail),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
         ),
@@ -138,10 +139,10 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('댓글을 불러오는 중 오류가 발생했습니다'),
+                Text(S.of(context).post_comment_loading_fail),
                 ElevatedButton(
                   onPressed: _handleRefresh,
-                  child: const Text('다시 시도'),
+                  child: Text(S.of(context).common_retry_label),
                 ),
               ],
             ),
@@ -296,7 +297,7 @@ class CommentContentsState extends State<CommentContents> {
                 ),
                 if (exceedsMaxLines && !_expanded)
                   Text(
-                    '더보기',
+                    S.of(context).post_comment_content_more,
                     style: getTextStyle(AppTypo.body14M, AppColors.grey500),
                   ),
               ],

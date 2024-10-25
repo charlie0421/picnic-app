@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/providers/comment_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -26,18 +27,10 @@ class CommentReplyLayer extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(
-                    text: '${parentComment.user.nickname ?? ''} ',
-                    style: getTextStyle(AppTypo.caption12B, AppColors.grey00)),
-                TextSpan(
-                    text: '님에게 답글 쓰는 중...',
-                    style: getTextStyle(AppTypo.caption12B, AppColors.grey00)),
-              ],
-            ),
-          ),
+          Text(
+              Intl.message('post_replying_comment',
+                  args: [parentComment.user.nickname ?? '']),
+              style: getTextStyle(AppTypo.caption12B, AppColors.grey00)),
           IconButton(
             onPressed: () {
               ref.read(parentItemProvider.notifier).setParentItem(null);

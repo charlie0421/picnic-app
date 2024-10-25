@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/common/avartar_container.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/pages/community/post_view_page.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
@@ -13,6 +14,7 @@ import 'package:picnic_app/util/ui.dart';
 class PostListItem extends ConsumerStatefulWidget {
   final PostModel post;
   final Widget? popupMenu;
+
   const PostListItem({super.key, required this.post, required this.popupMenu});
 
   @override
@@ -69,7 +71,7 @@ class _PostListItemState extends ConsumerState<PostListItem> {
                           ),
                     SizedBox(width: 4.cw),
                     widget.post.isAnonymous
-                        ? Text('잌명',
+                        ? Text(S.of(context).anonymous,
                             style: getTextStyle(
                                 AppTypo.caption12B, AppColors.grey900))
                         : Text(widget.post.userProfiles?.nickname ?? '',
@@ -87,7 +89,12 @@ class _PostListItemState extends ConsumerState<PostListItem> {
                   TextSpan(
                     children: [
                       TextSpan(
-                        text: '조회',
+                        text: S.of(context).views,
+                        style: getTextStyle(
+                            AppTypo.caption10SB, AppColors.grey600),
+                      ),
+                      TextSpan(
+                        text: ' ',
                         style: getTextStyle(
                             AppTypo.caption10SB, AppColors.grey600),
                       ),
@@ -102,7 +109,12 @@ class _PostListItemState extends ConsumerState<PostListItem> {
                             AppTypo.caption10SB, AppColors.grey600),
                       ),
                       TextSpan(
-                        text: '댓글',
+                        text: S.of(context).replies,
+                        style: getTextStyle(
+                            AppTypo.caption10SB, AppColors.grey600),
+                      ),
+                      TextSpan(
+                        text: ' ',
                         style: getTextStyle(
                             AppTypo.caption10SB, AppColors.grey600),
                       ),

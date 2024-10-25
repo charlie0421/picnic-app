@@ -1,5 +1,17 @@
 {
   "@@locale": "ja",
+  "ads_available_time": "広告視聴可能時間",
+  "@ads_available_time": {
+    "manualTranslation": false
+  },
+  "anonymous": "匿名",
+  "@anonymous": {
+    "manualTranslation": false
+  },
+  "anonymous_mode": "匿名モード",
+  "@anonymous_mode": {
+    "manualTranslation": false
+  },
   "app_name": "ピクニック",
   "@app_name": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
@@ -55,6 +67,42 @@
   "candy_usage_policy_title": "スターキャンディー使用ポリシー",
   "@candy_usage_policy_title": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
+    "manualTranslation": false
+  },
+  "common_all": "全体",
+  "@common_all": {
+    "manualTranslation": false
+  },
+  "common_fail": "失敗",
+  "@common_fail": {
+    "manualTranslation": false
+  },
+  "common_retry_label": "再試行",
+  "@common_retry_label": {
+    "manualTranslation": false
+  },
+  "common_success": "成功",
+  "@common_success": {
+    "manualTranslation": false
+  },
+  "common_text_no_data": "データがありません。",
+  "@common_text_no_data": {
+    "manualTranslation": false
+  },
+  "common_text_no_search_result": "検索結果がありません。",
+  "@common_text_no_search_result": {
+    "manualTranslation": false
+  },
+  "common_text_search_error": "検索中にエラーが発生しました。",
+  "@common_text_search_error": {
+    "manualTranslation": false
+  },
+  "common_text_search_recent_label": "最近の検索ワード",
+  "@common_text_search_recent_label": {
+    "manualTranslation": false
+  },
+  "common_text_search_result_label": "検索結果",
+  "@common_text_search_result_label": {
     "manualTranslation": false
   },
   "dialog_button_cancel": "キャンセル",
@@ -349,10 +397,10 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
   },
-  "label_library_tab_pic": "ピック",
+  "label_library_tab_pic": "PIC",
   "@label_library_tab_pic": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
+    "manualTranslation": true
   },
   "label_loading_ads": "広告読み込み中",
   "@label_loading_ads": {
@@ -777,10 +825,10 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
   },
-  "nav_home": "홈",
+  "nav_home": "ホーム",
   "@nav_home": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
   "nav_library": "ライブラリ",
   "@nav_library": {
@@ -871,12 +919,116 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
   },
+  "popup_label_delete": "削除",
+  "@popup_label_delete": {
+    "manualTranslation": false
+  },
   "post_anonymous": "匿名投稿",
   "@post_anonymous": {
     "manualTranslation": false
   },
+  "post_ask_go_to_temporary_save_list": "一時保存リストに移動しますか？",
+  "@post_ask_go_to_temporary_save_list": {
+    "manualTranslation": false
+  },
+  "post_board_already_exist": "すでに存在する掲示板です。",
+  "@post_board_already_exist": {
+    "manualTranslation": false
+  },
+  "post_board_create_request_complete": "掲示板のオープンリクエストが完了しました。",
+  "@post_board_create_request_complete": {
+    "manualTranslation": false
+  },
+  "post_board_create_request_condition": "*1つのIDにつき1つのマイナー掲示板のみ申請が可能です。",
+  "@post_board_create_request_condition": {
+    "manualTranslation": false
+  },
+  "post_board_create_request_label": "掲示板オープンリクエスト",
+  "@post_board_create_request_label": {
+    "manualTranslation": false
+  },
+  "post_board_create_request_reviewing": "掲示板オープンリクエスト検討中",
+  "@post_board_create_request_reviewing": {
+    "manualTranslation": false
+  },
+  "post_board_request_label": "オープンリクエスト",
+  "@post_board_request_label": {
+    "manualTranslation": false
+  },
+  "post_cannot_open_youtube": "Youtubeを開くことができません。",
+  "@post_cannot_open_youtube": {
+    "manualTranslation": false
+  },
+  "post_comment_action_translate": "翻訳",
+  "@post_comment_action_translate": {
+    "manualTranslation": false
+  },
+  "post_comment_content_more": "もっと見る",
+  "@post_comment_content_more": {
+    "manualTranslation": false
+  },
+  "post_comment_delete_confirm": "コメントを削除しますか？",
+  "@post_comment_delete_confirm": {
+    "manualTranslation": false
+  },
+  "post_comment_delete_fail": "コメントの削除に失敗しました。",
+  "@post_comment_delete_fail": {
+    "manualTranslation": false
+  },
+  "post_comment_deleted_comment": "削除されたコメントです。",
+  "@post_comment_deleted_comment": {
+    "manualTranslation": false
+  },
+  "post_comment_like_processing_fail": "いいね処理に失敗しました。",
+  "@post_comment_like_processing_fail": {
+    "manualTranslation": false
+  },
+  "post_comment_loading_fail": "コメントの読み込みに失敗しました。",
+  "@post_comment_loading_fail": {
+    "manualTranslation": false
+  },
+  "post_comment_register_fail": "コメント登録に失敗しました。",
+  "@post_comment_register_fail": {
+    "manualTranslation": false
+  },
+  "post_comment_registered_comment": "コメントが登録されました。",
+  "@post_comment_registered_comment": {
+    "manualTranslation": false
+  },
+  "post_comment_reported_comment": "報告されたコメントです。",
+  "@post_comment_reported_comment": {
+    "manualTranslation": false
+  },
+  "post_comment_translate_complete": "翻訳が完了しました。",
+  "@post_comment_translate_complete": {
+    "manualTranslation": false
+  },
+  "post_comment_translate_fail": "翻訳に失敗しました。",
+  "@post_comment_translate_fail": {
+    "manualTranslation": false
+  },
+  "post_comment_translated": "翻訳済み",
+  "@post_comment_translated": {
+    "manualTranslation": false
+  },
+  "post_comment_write_label": "コメントを書く",
+  "@post_comment_write_label": {
+    "manualTranslation": false
+  },
   "post_content_placeholder": "内容を入力してください。",
   "@post_content_placeholder": {
+    "manualTranslation": false
+  },
+  "post_delete_scrap_confirm": "スクラップを削除しますか？",
+  "@post_delete_scrap_confirm": {
+    "manualTranslation": false
+  },
+  "post_delete_scrap_title": "スクラップ削除",
+  "@post_delete_scrap_title": {
+    "manualTranslation": false
+  },
+  "post_go_to_boards": "掲示板に移動",
+  "@post_go_to_boards": {
     "manualTranslation": false
   },
   "post_header_publish": "投稿",
@@ -887,6 +1039,10 @@
   "@post_header_temporary_save": {
     "manualTranslation": false
   },
+  "post_hint_title": "タイトルを入力してください。",
+  "@post_hint_title": {
+    "manualTranslation": false
+  },
   "post_hyperlink": "ハイパーリンク",
   "@post_hyperlink": {
     "manualTranslation": false
@@ -895,12 +1051,100 @@
   "@post_insert_link": {
     "manualTranslation": false
   },
+  "post_loading_post_fail": "投稿の読み込みに失敗しました。",
+  "@post_loading_post_fail": {
+    "manualTranslation": false
+  },
+  "post_minor_board_condition": "説明は5文字以上20文字以内で入力してください。",
+  "@post_minor_board_condition": {
+    "manualTranslation": false
+  },
+  "post_minor_board_create_request_message": "* 掲示板オープンリクエストのメッセージ。",
+  "@post_minor_board_create_request_message": {
+    "manualTranslation": false
+  },
+  "post_minor_board_create_request_message_condition": "掲示板オープンリクエストメッセージは10文字以上入力してください。",
+  "@post_minor_board_create_request_message_condition": {
+    "manualTranslation": false
+  },
+  "post_minor_board_create_request_message_input": "掲示板オープンリクエストメッセージを入力してください。",
+  "@post_minor_board_create_request_message_input": {
+    "manualTranslation": false
+  },
+  "post_minor_board_description": "マイナー掲示板の説明",
+  "@post_minor_board_description": {
+    "manualTranslation": false
+  },
+  "post_minor_board_description_input": "マイナー掲示板の説明を入力してください。",
+  "@post_minor_board_description_input": {
+    "manualTranslation": false
+  },
+  "post_minor_board_name": "マイナー掲示板名",
+  "@post_minor_board_name": {
+    "manualTranslation": false
+  },
+  "post_minor_board_name_input": "マイナー掲示板名を入力してください。",
+  "@post_minor_board_name_input": {
+    "manualTranslation": false
+  },
+  "post_my_written_post": "私が書いた記事",
+  "@post_my_written_post": {
+    "manualTranslation": false
+  },
+  "post_my_written_reply": "私が書いたコメント",
+  "@post_my_written_reply": {
+    "manualTranslation": false
+  },
+  "post_my_written_scrap": "私のスクラップ",
+  "@post_my_written_scrap": {
+    "manualTranslation": false
+  },
+  "post_no_comment": "コメントはありません。",
+  "@post_no_comment": {
+    "manualTranslation": false
+  },
+  "post_report_reason_1": "公序良俗に反する投稿",
+  "@post_report_reason_1": {
+    "manualTranslation": false
+  },
+  "post_report_reason_2": "男女、人種差別的な投稿",
+  "@post_report_reason_2": {
+    "manualTranslation": false
+  },
+  "post_report_reason_3": "不愉快な罵詈雑言を含む投稿",
+  "@post_report_reason_3": {
+    "manualTranslation": false
+  },
+  "post_report_reason_4": "広告・宣伝性の投稿",
+  "@post_report_reason_4": {
+    "manualTranslation": false
+  },
+  "post_report_reason_5": "その他",
+  "@post_report_reason_5": {
+    "manualTranslation": false
+  },
+  "post_temporary_save_complete": "一時保存完了。",
+  "@post_temporary_save_complete": {
+    "manualTranslation": false
+  },
   "post_title_placeholder": "タイトルを入力してください。",
   "@post_title_placeholder": {
     "manualTranslation": false
   },
+  "post_write_board_post": "投稿する",
+  "@post_write_board_post": {
+    "manualTranslation": false
+  },
+  "post_write_post_recommend_write": "投稿をお願いします。",
+  "@post_write_post_recommend_write": {
+    "manualTranslation": false
+  },
   "post_youtube_link": "ユーチューブリンク",
   "@post_youtube_link": {
+    "manualTranslation": false
+  },
+  "replies": "コメント",
+  "@replies": {
     "manualTranslation": false
   },
   "share_image_fail": "画像共有に失敗",
@@ -963,6 +1207,10 @@
   },
   "text_community_board_search": "アーティスト掲示板検索",
   "@text_community_board_search": {
+    "manualTranslation": false
+  },
+  "text_community_post_search": "検索",
+  "@text_community_post_search": {
     "manualTranslation": false
   },
   "text_copied_address": "アドレスがコピーされました。",
@@ -1047,6 +1295,10 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": true
   },
+  "post_replying_comment": "{nickname}さんへの返信中...",
+  "@post_replying_comment": {
+    "manualTranslation": true
+  },
   "text_vote_rank_in_reward": "ランクインリワード",
   "@text_vote_rank_in_reward": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
@@ -1081,6 +1333,10 @@
   "@update_button": {
     "manualTranslation": false
   },
+  "update_cannot_open_appstore": "アプリストアを開くことができません。",
+  "@update_cannot_open_appstore": {
+    "manualTranslation": false
+  },
   "update_recommend_text": "新しいバージョン({version})が利用可能です。",
   "@update_recommend_text": {
     "manualTranslation": true
@@ -1093,12 +1349,36 @@
   "@update_required_title": {
     "manualTranslation": false
   },
-  "text_community_post_search": "検索",
-  "@text_community_post_search": {
+  "views": "再生回数",
+  "@views": {
     "manualTranslation": false
   },
-  "popup_label_delete": "削除",
-  "@popup_label_delete": {
+  "post_report_other_input": "その他の理由を入力してください。",
+  "@post_report_other_input": {
+    "manualTranslation": false
+  },
+  "post_report_reason_input": "申告理由を選択してください。",
+  "@post_report_reason_input": {
+    "manualTranslation": false
+  },
+  "post_report_success": "申告が完了しました。",
+  "@post_report_success": {
+    "manualTranslation": false
+  },
+  "post_report_fail": "申告に失敗しました。",
+  "@post_report_fail": {
+    "manualTranslation": false
+  },
+  "post_report_reason_label": "申告理由",
+  "@post_report_reason_label": {
+    "manualTranslation": false
+  },
+  "post_report_label": "報告する",
+  "@post_report_label": {
+    "manualTranslation": false
+  },
+  "purchase_web_message": "アプリ決済ができない方のための決済画面です.\\nあらかじめ乱数IDをコピーしてください.\\nコピーした後、下のボタンを押して決済を行ってください。",
+  "@purchase_web_message": {
     "manualTranslation": false
   }
 }

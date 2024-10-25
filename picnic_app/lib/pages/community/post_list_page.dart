@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/community/list/post_list.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/pages/community/board_request.dart';
 import 'package:picnic_app/providers/community/boards_provider.dart';
@@ -116,7 +117,7 @@ class _PostListPageState extends ConsumerState<PostListPage>
                     itemCount: totalPages,
                     itemBuilder: (context, index) {
                       if (index == 0) {
-                        return _buildMenuItem('전체', index);
+                        return _buildMenuItem(S.of(context).common_all, index);
                       } else if (index <= data.length) {
                         final board = data[index - 1];
                         return _buildMenuItem(
@@ -227,7 +228,7 @@ class _PostListPageState extends ConsumerState<PostListPage>
         child: Row(
           children: [
             Text(
-              '오픈요청',
+              S.of(context).post_board_request_label,
               style: getTextStyle(AppTypo.caption12B, AppColors.grey700),
             ),
             const SizedBox(width: 4),

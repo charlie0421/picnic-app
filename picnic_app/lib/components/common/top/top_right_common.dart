@@ -37,7 +37,7 @@ class _TopRightCommonState extends ConsumerState<TopRightCommon> {
                           ? ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                   duration: Duration(milliseconds: 300),
-                                  content: Text('로그인 되어 있습니다')))
+                                  content: Text('Test')))
                           : showRequireLoginDialog(
                               context: context,
                             );
@@ -76,7 +76,7 @@ class _TopRightCommonState extends ConsumerState<TopRightCommon> {
                       ? ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                               duration: Duration(milliseconds: 200),
-                              content: Text('로그인 되어 있습니다')))
+                              content: Text('Test')))
                       : showRequireLoginDialog(
                           context: context,
                         );

@@ -38,7 +38,8 @@ class ForceUpdateOverlay extends StatelessWidget {
                         const SizedBox(height: 16),
                         ElevatedButton(
                           child: Text(S.of(context).update_button),
-                          onPressed: () => _launchAppStore(url),
+                          onPressed: () => _launchAppStore(
+                              url, S.of(context).update_cannot_open_appstore),
                         ),
                       ],
                     ),
@@ -52,11 +53,11 @@ class ForceUpdateOverlay extends StatelessWidget {
     );
   }
 
-  void _launchAppStore(String url) async {
+  void _launchAppStore(String url, String message) async {
     if (await canLaunchUrlString(url)) {
       await launchUrlString(url);
     } else {
-      throw '앱 스토어를 열 수 없습니다.';
+      throw message;
     }
   }
 }

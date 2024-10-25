@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/providers/community/comments_provider.dart';
@@ -35,17 +36,20 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
   bool _isSubmitting = false;
   final int _maxLength = 100;
 
-  final List<String> _reasons = [
-    '미풍양속에 어긋나는 게시물',
-    '남녀, 인종차별적 게시물',
-    '불쾌한 욕설이 포함된 게시물',
-    '광고/홍보성 게시물',
-    '기타'
-  ];
+  late List<String> _reasons;
 
   @override
   void initState() {
     super.initState();
+
+    final List<String> reasons = [
+      S.of(context).post_report_reason_1,
+      S.of(context).post_report_reason_2,
+      S.of(context).post_report_reason_3,
+      S.of(context).post_report_reason_4,
+      S.of(context).post_report_reason_5,
+    ];
+
     _otherReasonController.addListener(_validateOtherReason);
     _otherReasonFocus.addListener(_onFocusChange);
   }
@@ -70,7 +74,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
       final text = _otherReasonController.text.trim();
       setState(() {
         if (text.isEmpty) {
-          _errorText = '기타 사유를 입력해주세요.';
+          _errorText = S.of(context).post_report_other_input;
         } else if (text.length > _maxLength) {
           _errorText = '최대 $_maxLength자까지 입력 가능합니다.';
         } else {
@@ -113,7 +117,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
         focusNode: _otherReasonFocus,
         enabled: !_isSubmitting,
         decoration: InputDecoration(
-          hintText: '사유를 작성해주세요.',
+          hintText: S.of(context).post_report_other_input,
           hintStyle: TextStyle(
             fontSize: 16.sp,
             color: AppColors.grey400,
@@ -149,8 +153,8 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
   Future<void> _submitReport() async {
     if (_selectedReason == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('신고 사유를 선택해주세요.'),
+        SnackBar(
+          content: Text(S.of(context).post_report_reason_input),
           duration: Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
         ),
@@ -160,7 +164,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
 
     if (_selectedReason == 4 && _otherReasonController.text.trim().isEmpty) {
       setState(() {
-        _errorText = '기타 사유를 입력해주세요.';
+        _errorText = S.of(context).post_report_other_input;
       });
       _otherReasonFocus.requestFocus();
       return;
@@ -195,8 +199,8 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('신고가 접수되었습니다.'),
+        SnackBar(
+          content: Text(S.of(context).post_report_success),
           duration: Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
         ),
@@ -211,8 +215,8 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('신고 처리 중 오류가 발생했습니다.'),
+        SnackBar(
+          content: Text(S.of(context).post_report_fail),
           backgroundColor: Colors.red,
           duration: Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
@@ -243,7 +247,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                '신고사유',
+                S.of(context).post_report_reason_label,
                 style: getTextStyle(AppTypo.caption10SB, AppColors.grey900),
               ),
             ),
@@ -271,7 +275,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
                       ),
                     )
                   : Text(
-                      '신고하기',
+                      S.of(context).post_report_label,
                       style: getTextStyle(AppTypo.body14M, Colors.white),
                     ),
             ),

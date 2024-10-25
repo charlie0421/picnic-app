@@ -23,7 +23,7 @@ class PostWriteActions extends StatelessWidget {
           onTap: () => isTitleValid
               ? onSave(true)
               : showSimpleDialog(
-                  content: '제목을 입력해 주세요.',
+                  content: S.of(context).post_hint_title,
                   onOk: () => Navigator.of(context).pop(),
                 ),
           child: Text(
@@ -48,7 +48,7 @@ class PostWriteActions extends StatelessWidget {
             onPressed: isTitleValid
                 ? () => onSave(false)
                 : () => showSimpleDialog(
-                      content: '제목을 입력해 주세요.',
+                      content: S.of(context).post_hint_title,
                       onOk: () => Navigator.of(context).pop(),
                     ),
             child: Text(S.of(context).post_header_publish),

@@ -50,6 +50,36 @@ class S {
     return Localizations.of<S>(context, S);
   }
 
+  /// `Ad availability`
+  String get ads_available_time {
+    return Intl.message(
+      'Ad availability',
+      name: 'ads_available_time',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Anonymous`
+  String get anonymous {
+    return Intl.message(
+      'Anonymous',
+      name: 'anonymous',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Anonymous Mode`
+  String get anonymous_mode {
+    return Intl.message(
+      'Anonymous Mode',
+      name: 'anonymous_mode',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Picnic`
   String get app_name {
     return Intl.message(
@@ -165,6 +195,96 @@ class S {
     return Intl.message(
       'Stardust Usage Policy',
       name: 'candy_usage_policy_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All`
+  String get common_all {
+    return Intl.message(
+      'All',
+      name: 'common_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Failed`
+  String get common_fail {
+    return Intl.message(
+      'Failed',
+      name: 'common_fail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Try again`
+  String get common_retry_label {
+    return Intl.message(
+      'Try again',
+      name: 'common_retry_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `성공`
+  String get common_success {
+    return Intl.message(
+      '성공',
+      name: 'common_success',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No data is available.`
+  String get common_text_no_data {
+    return Intl.message(
+      'No data is available.',
+      name: 'common_text_no_data',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No search results found.`
+  String get common_text_no_search_result {
+    return Intl.message(
+      'No search results found.',
+      name: 'common_text_no_search_result',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `An error occurred during the search.`
+  String get common_text_search_error {
+    return Intl.message(
+      'An error occurred during the search.',
+      name: 'common_text_search_error',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Recent searches`
+  String get common_text_search_recent_label {
+    return Intl.message(
+      'Recent searches',
+      name: 'common_text_search_recent_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search results`
+  String get common_text_search_result_label {
+    return Intl.message(
+      'Search results',
+      name: 'common_text_search_result_label',
       desc: '',
       args: [],
     );
@@ -1010,10 +1130,10 @@ class S {
     );
   }
 
-  /// `Replying to a reply`
+  /// `Replying`
   String get label_reply {
     return Intl.message(
-      'Replying to a reply',
+      'Replying',
       name: 'label_reply',
       desc: '',
       args: [],
@@ -1630,10 +1750,10 @@ class S {
     );
   }
 
-  /// `Bulletin boards`
+  /// `Boards`
   String get nav_board {
     return Intl.message(
-      'Bulletin boards',
+      'Boards',
       name: 'nav_board',
       desc: '',
       args: [],
@@ -1840,6 +1960,16 @@ class S {
     );
   }
 
+  /// `Delete`
+  String get popup_label_delete {
+    return Intl.message(
+      'Delete',
+      name: 'popup_label_delete',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Anonymous posting`
   String get post_anonymous {
     return Intl.message(
@@ -1850,11 +1980,261 @@ class S {
     );
   }
 
+  /// `Want to go to the Drafts list?`
+  String get post_ask_go_to_temporary_save_list {
+    return Intl.message(
+      'Want to go to the Drafts list?',
+      name: 'post_ask_go_to_temporary_save_list',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `A board that already exists.`
+  String get post_board_already_exist {
+    return Intl.message(
+      'A board that already exists.',
+      name: 'post_board_already_exist',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your request to open a board is complete.`
+  String get post_board_create_request_complete {
+    return Intl.message(
+      'Your request to open a board is complete.',
+      name: 'post_board_create_request_complete',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `*Only one minor board can be applied per ID.`
+  String get post_board_create_request_condition {
+    return Intl.message(
+      '*Only one minor board can be applied per ID.',
+      name: 'post_board_create_request_condition',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Request to open a board`
+  String get post_board_create_request_label {
+    return Intl.message(
+      'Request to open a board',
+      name: 'post_board_create_request_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reviewing a request to open a board`
+  String get post_board_create_request_reviewing {
+    return Intl.message(
+      'Reviewing a request to open a board',
+      name: 'post_board_create_request_reviewing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open requests`
+  String get post_board_request_label {
+    return Intl.message(
+      'Open requests',
+      name: 'post_board_request_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `I can't open Youtube.`
+  String get post_cannot_open_youtube {
+    return Intl.message(
+      'I can\'t open Youtube.',
+      name: 'post_cannot_open_youtube',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translation`
+  String get post_comment_action_translate {
+    return Intl.message(
+      'Translation',
+      name: 'post_comment_action_translate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `More`
+  String get post_comment_content_more {
+    return Intl.message(
+      'More',
+      name: 'post_comment_content_more',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to delete the comment?`
+  String get post_comment_delete_confirm {
+    return Intl.message(
+      'Are you sure you want to delete the comment?',
+      name: 'post_comment_delete_confirm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Comment deletion failed.`
+  String get post_comment_delete_fail {
+    return Intl.message(
+      'Comment deletion failed.',
+      name: 'post_comment_delete_fail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This is a deleted comment.`
+  String get post_comment_deleted_comment {
+    return Intl.message(
+      'This is a deleted comment.',
+      name: 'post_comment_deleted_comment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Failed to process like.`
+  String get post_comment_like_processing_fail {
+    return Intl.message(
+      'Failed to process like.',
+      name: 'post_comment_like_processing_fail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Comment failed to load.`
+  String get post_comment_loading_fail {
+    return Intl.message(
+      'Comment failed to load.',
+      name: 'post_comment_loading_fail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Comment registration failed.`
+  String get post_comment_register_fail {
+    return Intl.message(
+      'Comment registration failed.',
+      name: 'post_comment_register_fail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your comment has been registered.`
+  String get post_comment_registered_comment {
+    return Intl.message(
+      'Your comment has been registered.',
+      name: 'post_comment_registered_comment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This is a reported comment.`
+  String get post_comment_reported_comment {
+    return Intl.message(
+      'This is a reported comment.',
+      name: 'post_comment_reported_comment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The translation is complete.`
+  String get post_comment_translate_complete {
+    return Intl.message(
+      'The translation is complete.',
+      name: 'post_comment_translate_complete',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The translation failed.`
+  String get post_comment_translate_fail {
+    return Intl.message(
+      'The translation failed.',
+      name: 'post_comment_translate_fail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Translated`
+  String get post_comment_translated {
+    return Intl.message(
+      'Translated',
+      name: 'post_comment_translated',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Write a comment`
+  String get post_comment_write_label {
+    return Intl.message(
+      'Write a comment',
+      name: 'post_comment_write_label',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Please enter something.`
   String get post_content_placeholder {
     return Intl.message(
       'Please enter something.',
       name: 'post_content_placeholder',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Do you want to delete the scrap?`
+  String get post_delete_scrap_confirm {
+    return Intl.message(
+      'Do you want to delete the scrap?',
+      name: 'post_delete_scrap_confirm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete a scrap`
+  String get post_delete_scrap_title {
+    return Intl.message(
+      'Delete a scrap',
+      name: 'post_delete_scrap_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Go to the board`
+  String get post_go_to_boards {
+    return Intl.message(
+      'Go to the board',
+      name: 'post_go_to_boards',
       desc: '',
       args: [],
     );
@@ -1880,6 +2260,16 @@ class S {
     );
   }
 
+  /// `Please enter a title.`
+  String get post_hint_title {
+    return Intl.message(
+      'Please enter a title.',
+      name: 'post_hint_title',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Hyperlinks`
   String get post_hyperlink {
     return Intl.message(
@@ -1900,6 +2290,196 @@ class S {
     );
   }
 
+  /// `The post failed to load.`
+  String get post_loading_post_fail {
+    return Intl.message(
+      'The post failed to load.',
+      name: 'post_loading_post_fail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter a description of at least 5 characters and no more than 20 characters.`
+  String get post_minor_board_condition {
+    return Intl.message(
+      'Please enter a description of at least 5 characters and no more than 20 characters.',
+      name: 'post_minor_board_condition',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `* Message requesting to open a board.`
+  String get post_minor_board_create_request_message {
+    return Intl.message(
+      '* Message requesting to open a board.',
+      name: 'post_minor_board_create_request_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please include at least 10 characters in your message requesting to open a board.`
+  String get post_minor_board_create_request_message_condition {
+    return Intl.message(
+      'Please include at least 10 characters in your message requesting to open a board.',
+      name: 'post_minor_board_create_request_message_condition',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter a message requesting to open a board.`
+  String get post_minor_board_create_request_message_input {
+    return Intl.message(
+      'Enter a message requesting to open a board.',
+      name: 'post_minor_board_create_request_message_input',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Minor bulletin board descriptions`
+  String get post_minor_board_description {
+    return Intl.message(
+      'Minor bulletin board descriptions',
+      name: 'post_minor_board_description',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter a description for your minor board.`
+  String get post_minor_board_description_input {
+    return Intl.message(
+      'Please enter a description for your minor board.',
+      name: 'post_minor_board_description_input',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Minor board name`
+  String get post_minor_board_name {
+    return Intl.message(
+      'Minor board name',
+      name: 'post_minor_board_name',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter a name for your minor board.`
+  String get post_minor_board_name_input {
+    return Intl.message(
+      'Please enter a name for your minor board.',
+      name: 'post_minor_board_name_input',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Posts I've written`
+  String get post_my_written_post {
+    return Intl.message(
+      'Posts I\'ve written',
+      name: 'post_my_written_post',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Comments I wrote`
+  String get post_my_written_reply {
+    return Intl.message(
+      'Comments I wrote',
+      name: 'post_my_written_reply',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `My Scraps`
+  String get post_my_written_scrap {
+    return Intl.message(
+      'My Scraps',
+      name: 'post_my_written_scrap',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No comments.`
+  String get post_no_comment {
+    return Intl.message(
+      'No comments.',
+      name: 'post_no_comment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unsavory posts`
+  String get post_report_reason_1 {
+    return Intl.message(
+      'Unsavory posts',
+      name: 'post_report_reason_1',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sexist, racist posts`
+  String get post_report_reason_2 {
+    return Intl.message(
+      'Sexist, racist posts',
+      name: 'post_report_reason_2',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Posts containing offensive profanity`
+  String get post_report_reason_3 {
+    return Intl.message(
+      'Posts containing offensive profanity',
+      name: 'post_report_reason_3',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Advertising/Promotional Posts`
+  String get post_report_reason_4 {
+    return Intl.message(
+      'Advertising/Promotional Posts',
+      name: 'post_report_reason_4',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Other`
+  String get post_report_reason_5 {
+    return Intl.message(
+      'Other',
+      name: 'post_report_reason_5',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Draft complete.`
+  String get post_temporary_save_complete {
+    return Intl.message(
+      'Draft complete.',
+      name: 'post_temporary_save_complete',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Please enter a title.`
   String get post_title_placeholder {
     return Intl.message(
@@ -1910,11 +2490,41 @@ class S {
     );
   }
 
+  /// `Create a post`
+  String get post_write_board_post {
+    return Intl.message(
+      'Create a post',
+      name: 'post_write_board_post',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please create a post.`
+  String get post_write_post_recommend_write {
+    return Intl.message(
+      'Please create a post.',
+      name: 'post_write_post_recommend_write',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `YouTube link`
   String get post_youtube_link {
     return Intl.message(
       'YouTube link',
       name: 'post_youtube_link',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Comments`
+  String get replies {
+    return Intl.message(
+      'Comments',
+      name: 'replies',
       desc: '',
       args: [],
     );
@@ -2045,6 +2655,16 @@ class S {
     return Intl.message(
       'Searching the Artist Board',
       name: 'text_community_board_search',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search`
+  String get text_community_post_search {
+    return Intl.message(
+      'Search',
+      name: 'text_community_post_search',
       desc: '',
       args: [],
     );
@@ -2220,6 +2840,16 @@ class S {
     );
   }
 
+  /// `Replying to {nickname}...`
+  String post_replying_comment(Object nickname) {
+    return Intl.message(
+      'Replying to $nickname...',
+      name: 'post_replying_comment',
+      desc: '',
+      args: [nickname],
+    );
+  }
+
   /// `Rank in Rewards`
   String get text_vote_rank_in_reward {
     return Intl.message(
@@ -2290,6 +2920,16 @@ class S {
     );
   }
 
+  /// `I can't open the app store.`
+  String get update_cannot_open_appstore {
+    return Intl.message(
+      'I can\'t open the app store.',
+      name: 'update_cannot_open_appstore',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `A new version ({version}) is available.`
   String update_recommend_text(Object version) {
     return Intl.message(
@@ -2320,21 +2960,81 @@ class S {
     );
   }
 
-  /// `Search`
-  String get text_community_post_search {
+  /// `Views`
+  String get views {
     return Intl.message(
-      'Search',
-      name: 'text_community_post_search',
+      'Views',
+      name: 'views',
       desc: '',
       args: [],
     );
   }
 
-  /// `Delete`
-  String get popup_label_delete {
+  /// `Please enter any other reason.`
+  String get post_report_other_input {
     return Intl.message(
-      'Delete',
-      name: 'popup_label_delete',
+      'Please enter any other reason.',
+      name: 'post_report_other_input',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please select a reason for your report.`
+  String get post_report_reason_input {
+    return Intl.message(
+      'Please select a reason for your report.',
+      name: 'post_report_reason_input',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The report is complete.`
+  String get post_report_success {
+    return Intl.message(
+      'The report is complete.',
+      name: 'post_report_success',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The report failed.`
+  String get post_report_fail {
+    return Intl.message(
+      'The report failed.',
+      name: 'post_report_fail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reasons for reporting`
+  String get post_report_reason_label {
+    return Intl.message(
+      'Reasons for reporting',
+      name: 'post_report_reason_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Make a report`
+  String get post_report_label {
+    return Intl.message(
+      'Make a report',
+      name: 'post_report_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This is the payment window for those who cannot pay for the app:\n Please copy the random ID in advance:\n After copying, click the button below to proceed with the payment.`
+  String get purchase_web_message {
+    return Intl.message(
+      'This is the payment window for those who cannot pay for the app:\\n Please copy the random ID in advance:\\n After copying, click the button below to proceed with the payment.',
+      name: 'purchase_web_message',
       desc: '',
       args: [],
     );

@@ -15,6 +15,7 @@ import 'package:picnic_app/components/community/write/embed_builder/media_embed_
 import 'package:picnic_app/components/community/write/embed_builder/youtube_embed_builder.dart';
 import 'package:picnic_app/config/config_service.dart';
 import 'package:picnic_app/dialogs/report_dialog.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/post.dart';
@@ -83,7 +84,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
       );
     } catch (e, s) {
       logger.e('Error initializing QuillController: $e', stackTrace: s);
-      _errorMessage = '내용을 불러오는 중 오류가 발생했습니다.';
+      _errorMessage = S.of(context).post_loading_post_fail;
     }
   }
 
@@ -198,7 +199,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 8),
                   child: post.isAnonymous
-                      ? Text('익명',
+                      ? Text(S.of(context).anonymous,
                           style: getTextStyle(
                               AppTypo.caption12B, AppColors.primary500))
                       : Text(post.userProfiles?.nickname ?? '',
@@ -212,11 +213,11 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                     children: [
                       Row(
                         children: [
-                          Text('조회: ${post.viewCount}',
+                          Text('${S.of(context).views}: ${post.viewCount}',
                               style: getTextStyle(AppTypo.caption10SB,
                                   const Color(0XFF8E8E8E))),
                           SizedBox(width: 8.cw),
-                          Text('댓글: ${post.replyCount}',
+                          Text('${S.of(context).replies}: ${post.replyCount}',
                               style: getTextStyle(AppTypo.caption10SB,
                                   const Color(0XFF8E8E8E))),
                           SizedBox(width: 8.cw),
@@ -356,11 +357,12 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                       ? Center(
                           child: Column(
                           children: [
-                            const Text('댓글이 없습니다.'),
+                            Text(S.of(context).post_no_comment),
                             const SizedBox(height: 16),
                             ElevatedButton(
                               onPressed: () => _openCommentsModal(post),
-                              child: Text('댓글 쓰기',
+                              child: Text(
+                                  S.of(context).post_comment_write_label,
                                   style: getTextStyle(
                                       AppTypo.body14B, AppColors.grey00)),
                             ),
@@ -416,7 +418,8 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                             ),
                             ElevatedButton(
                               onPressed: () => _openCommentsModal(post),
-                              child: Text('더보기',
+                              child: Text(
+                                  S.of(context).post_comment_content_more,
                                   style: getTextStyle(
                                       AppTypo.body14B, AppColors.grey00)),
                             ),
@@ -468,7 +471,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
         return SafeArea(
           child: CommentList(
             id: post.postId,
-            '댓글',
+            S.of(context).replies,
             openReportModal: (String title, CommentModel comment) {
               setState(() {
                 _isModalOpen = true;

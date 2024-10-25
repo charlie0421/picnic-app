@@ -26,16 +26,22 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m2(minute) => "${minute}분 전";
 
-  static String m3(num1) => "${num1}개 +${num1}개 보너스";
+  static String m3(nickname) => "${nickname}님에게 답글 쓰는 중...";
 
-  static String m4(rank) => "${rank}위";
+  static String m4(num1) => "${num1}개 +${num1}개 보너스";
 
-  static String m5(version) => "새로운 버전(${version})이 사용 가능합니다.";
+  static String m5(rank) => "${rank}위";
 
-  static String m6(version) => "새로운 버전(${version})으로 업데이트가 필요합니다.";
+  static String m6(version) => "새로운 버전(${version})이 사용 가능합니다.";
+
+  static String m7(version) => "새로운 버전(${version})으로 업데이트가 필요합니다.";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "ads_available_time":
+            MessageLookupByLibrary.simpleMessage("광고 시청 가능 시간"),
+        "anonymous": MessageLookupByLibrary.simpleMessage("익명"),
+        "anonymous_mode": MessageLookupByLibrary.simpleMessage("익명모드"),
         "app_name": MessageLookupByLibrary.simpleMessage("피크닠"),
         "button_cancel": MessageLookupByLibrary.simpleMessage("취소"),
         "button_complete": MessageLookupByLibrary.simpleMessage("완료"),
@@ -54,6 +60,20 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("자세히 보기"),
         "candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("별사탕 사용정책"),
+        "common_all": MessageLookupByLibrary.simpleMessage("전체"),
+        "common_fail": MessageLookupByLibrary.simpleMessage("실패"),
+        "common_retry_label": MessageLookupByLibrary.simpleMessage("다시 시도"),
+        "common_success": MessageLookupByLibrary.simpleMessage("성공"),
+        "common_text_no_data":
+            MessageLookupByLibrary.simpleMessage("데이터가 없습니다."),
+        "common_text_no_search_result":
+            MessageLookupByLibrary.simpleMessage("검색 결과가 없습니다."),
+        "common_text_search_error":
+            MessageLookupByLibrary.simpleMessage("검색 중 오류가 발생했습니다."),
+        "common_text_search_recent_label":
+            MessageLookupByLibrary.simpleMessage("최근 검색어"),
+        "common_text_search_result_label":
+            MessageLookupByLibrary.simpleMessage("검색 결과"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("취소"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("확인"),
         "dialog_content_ads_exhausted": MessageLookupByLibrary.simpleMessage(
@@ -318,16 +338,120 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("투표 모아보기"),
         "popup_label_delete": MessageLookupByLibrary.simpleMessage("삭제"),
         "post_anonymous": MessageLookupByLibrary.simpleMessage("익명 게시"),
+        "post_ask_go_to_temporary_save_list":
+            MessageLookupByLibrary.simpleMessage("임시저장 목록으로 이동하시겠습니까?"),
+        "post_board_already_exist":
+            MessageLookupByLibrary.simpleMessage("이미 존재하는 게시판입니다."),
+        "post_board_create_request_complete":
+            MessageLookupByLibrary.simpleMessage("게시판 오픈 요청이 완료되었습니다."),
+        "post_board_create_request_condition":
+            MessageLookupByLibrary.simpleMessage(
+                "*아이디 당 1개의 마이너 게시판만 신청이 가능합니다."),
+        "post_board_create_request_label":
+            MessageLookupByLibrary.simpleMessage("게시판 오픈 요청"),
+        "post_board_create_request_reviewing":
+            MessageLookupByLibrary.simpleMessage("게시판 오픈 요청 검토중"),
+        "post_board_request_label":
+            MessageLookupByLibrary.simpleMessage("오픈 요청"),
+        "post_cannot_open_youtube":
+            MessageLookupByLibrary.simpleMessage("Youtube를 열 수 없습니다."),
+        "post_comment_action_translate":
+            MessageLookupByLibrary.simpleMessage("번역"),
+        "post_comment_content_more":
+            MessageLookupByLibrary.simpleMessage("더보기"),
+        "post_comment_delete_confirm":
+            MessageLookupByLibrary.simpleMessage("댓글을 삭제하시겠습니까?"),
+        "post_comment_delete_fail":
+            MessageLookupByLibrary.simpleMessage("댓글 삭제에 실패했습니다."),
+        "post_comment_deleted_comment":
+            MessageLookupByLibrary.simpleMessage("삭제된 댓글입니다."),
+        "post_comment_like_processing_fail":
+            MessageLookupByLibrary.simpleMessage("좋아요 처리에 실패했습니다."),
+        "post_comment_loading_fail":
+            MessageLookupByLibrary.simpleMessage("댓글 로딩에 실패했습니다."),
+        "post_comment_register_fail":
+            MessageLookupByLibrary.simpleMessage("댓글 등록에 실패했습니다."),
+        "post_comment_registered_comment":
+            MessageLookupByLibrary.simpleMessage("댓글이 등록되었습니다."),
+        "post_comment_reported_comment":
+            MessageLookupByLibrary.simpleMessage("신고된 댓글입니다."),
+        "post_comment_translate_complete":
+            MessageLookupByLibrary.simpleMessage("번역이 완료되었습니다."),
+        "post_comment_translate_fail":
+            MessageLookupByLibrary.simpleMessage("번역에 실패했습니다."),
+        "post_comment_translated": MessageLookupByLibrary.simpleMessage("번역됨"),
+        "post_comment_write_label":
+            MessageLookupByLibrary.simpleMessage("댓글 쓰기"),
         "post_content_placeholder":
             MessageLookupByLibrary.simpleMessage("내용을 입력해주세요."),
+        "post_delete_scrap_confirm":
+            MessageLookupByLibrary.simpleMessage("스크랩을 삭제하시겠습니까?"),
+        "post_delete_scrap_title":
+            MessageLookupByLibrary.simpleMessage("스크랩 삭제"),
+        "post_go_to_boards": MessageLookupByLibrary.simpleMessage("게시판으로 이동"),
         "post_header_publish": MessageLookupByLibrary.simpleMessage("게시"),
         "post_header_temporary_save":
             MessageLookupByLibrary.simpleMessage("임시저장"),
+        "post_hint_title": MessageLookupByLibrary.simpleMessage("제목을 입력해주세요."),
         "post_hyperlink": MessageLookupByLibrary.simpleMessage("하이퍼링크"),
         "post_insert_link": MessageLookupByLibrary.simpleMessage("링크삽입"),
+        "post_loading_post_fail":
+            MessageLookupByLibrary.simpleMessage("게시글 로딩에 실패했습니다."),
+        "post_minor_board_condition":
+            MessageLookupByLibrary.simpleMessage("설명은 5자 이상 20자 이하로 입력해주세요."),
+        "post_minor_board_create_request_message":
+            MessageLookupByLibrary.simpleMessage("* 게시판 오픈 요청 메시지."),
+        "post_minor_board_create_request_message_condition":
+            MessageLookupByLibrary.simpleMessage(
+                "게시판 오픈 요청 메시지는 10자 이상 입력해주세요."),
+        "post_minor_board_create_request_message_input":
+            MessageLookupByLibrary.simpleMessage("게시판 오픈 요청 메시지를 입력해주세요."),
+        "post_minor_board_description":
+            MessageLookupByLibrary.simpleMessage("마이너 게시판 설명"),
+        "post_minor_board_description_input":
+            MessageLookupByLibrary.simpleMessage("마이너 게시판 설명을 입력해주세요."),
+        "post_minor_board_name":
+            MessageLookupByLibrary.simpleMessage("마이너 게시판 이름"),
+        "post_minor_board_name_input":
+            MessageLookupByLibrary.simpleMessage("마이너 게시판 이름을 입력해주세요."),
+        "post_my_written_post":
+            MessageLookupByLibrary.simpleMessage("내가 쓴 게시글"),
+        "post_my_written_reply":
+            MessageLookupByLibrary.simpleMessage("내가 쓴 댓글"),
+        "post_my_written_scrap": MessageLookupByLibrary.simpleMessage("내 스크랩"),
+        "post_no_comment": MessageLookupByLibrary.simpleMessage("댓글이 없습니다."),
+        "post_replying_comment": m3,
+        "post_report_fail": MessageLookupByLibrary.simpleMessage("신고에 실패했습니다."),
+        "post_report_label": MessageLookupByLibrary.simpleMessage("신고하기"),
+        "post_report_other_input":
+            MessageLookupByLibrary.simpleMessage("기타 사유를 입력해주세요."),
+        "post_report_reason_1":
+            MessageLookupByLibrary.simpleMessage("미풍양속에 어긋나는 게시물"),
+        "post_report_reason_2":
+            MessageLookupByLibrary.simpleMessage("남녀, 인종차별적 게시물"),
+        "post_report_reason_3":
+            MessageLookupByLibrary.simpleMessage("불쾌한 욕설이 포함된 게시물"),
+        "post_report_reason_4":
+            MessageLookupByLibrary.simpleMessage("광고/홍보성 게시물"),
+        "post_report_reason_5": MessageLookupByLibrary.simpleMessage("기타"),
+        "post_report_reason_input":
+            MessageLookupByLibrary.simpleMessage("신고 사유를 선택해주세요."),
+        "post_report_reason_label":
+            MessageLookupByLibrary.simpleMessage("신고 사유"),
+        "post_report_success":
+            MessageLookupByLibrary.simpleMessage("신고가 완료되었습니다."),
+        "post_temporary_save_complete":
+            MessageLookupByLibrary.simpleMessage("임시저장 완료."),
         "post_title_placeholder":
             MessageLookupByLibrary.simpleMessage("제목을 입력해주세요."),
+        "post_write_board_post":
+            MessageLookupByLibrary.simpleMessage("게시글 작성하기"),
+        "post_write_post_recommend_write":
+            MessageLookupByLibrary.simpleMessage("게시글을 작성해주세요."),
         "post_youtube_link": MessageLookupByLibrary.simpleMessage("유튜브 링크"),
+        "purchase_web_message": MessageLookupByLibrary.simpleMessage(
+            "앱결제가 불가능한 분들을 위한 결제 창입니다.\\n 미리 난수 아이디를 복사해 주세요.\\n 복사 후 아래 버튼을 눌러 결제를 진행해 주세요."),
+        "replies": MessageLookupByLibrary.simpleMessage("댓글"),
         "share_image_fail": MessageLookupByLibrary.simpleMessage("이미지 공유 실패"),
         "share_image_success":
             MessageLookupByLibrary.simpleMessage("이미지 공유 성공"),
@@ -375,10 +499,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_purchase_vat_included":
             MessageLookupByLibrary.simpleMessage("*VAT 포함 가격입니다."),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("별사탕"),
-        "text_star_candy_with_bonus": m3,
+        "text_star_candy_with_bonus": m4,
         "text_this_time_vote": MessageLookupByLibrary.simpleMessage("이번 투표"),
         "text_vote_complete": MessageLookupByLibrary.simpleMessage("투표 완료"),
-        "text_vote_rank": m4,
+        "text_vote_rank": m5,
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("랭크 인 리워드"),
         "text_vote_where_is_my_bias":
@@ -390,9 +514,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "toast_max_five_celeb":
             MessageLookupByLibrary.simpleMessage("내 아티스트를 최대 5개까지 추가할 수 있습니다."),
         "update_button": MessageLookupByLibrary.simpleMessage("업데이트"),
-        "update_recommend_text": m5,
-        "update_required_text": m6,
+        "update_cannot_open_appstore":
+            MessageLookupByLibrary.simpleMessage("앱스토어를 열 수 없습니다."),
+        "update_recommend_text": m6,
+        "update_required_text": m7,
         "update_required_title":
-            MessageLookupByLibrary.simpleMessage("업데이트가 필요합니다.")
+            MessageLookupByLibrary.simpleMessage("업데이트가 필요합니다."),
+        "views": MessageLookupByLibrary.simpleMessage("조회수")
       };
 }
