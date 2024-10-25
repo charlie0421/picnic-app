@@ -135,8 +135,14 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
     if (!mounted) return;
     setState(() => _isLoadingComments = true);
     try {
-      final loadedComments = await comments(ref, postId, 1, 3,
-          includeDeleted: false, includeReported: false);
+      final loadedComments =
+          await ref.read(commentsNotifierProvider(postId, 1, 3).notifier).build(
+                postId,
+                1,
+                3,
+                includeDeleted: false,
+                includeReported: false,
+              );
       if (!mounted) return;
       setState(() {
         _comments = loadedComments;
@@ -224,8 +230,8 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                         deletePost: () async {
                           try {
                             final ref = this.ref;
-                          await deletePost(ref, post.postId);
-                          ref.read(navigationInfoProvider.notifier).goBack();
+                            await deletePost(ref, post.postId);
+                            ref.read(navigationInfoProvider.notifier).goBack();
                           } catch (e, s) {
                             logger.e('Error: $e, StackTrace: $s');
                             rethrow;
@@ -245,6 +251,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                               barrierDismissible: true,
                               builder: (BuildContext context) {
                                 return ReportDialog(
+                                    postId: post.postId,
                                     title: title,
                                     type: ReportType.post,
                                     target: post);
@@ -367,6 +374,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                               itemCount: _comments!.length,
                               itemBuilder: (context, index) {
                                 return CommentItem(
+                                  postId: post.postId,
                                   commentModel: _comments![index],
                                   pagingController: null,
                                   showReplyButton: false,
@@ -386,6 +394,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                                       barrierDismissible: true,
                                       builder: (BuildContext context) {
                                         return ReportDialog(
+                                            postId: post.postId,
                                             title: title,
                                             type: ReportType.comment,
                                             target: comment);
@@ -473,7 +482,10 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                 barrierDismissible: true,
                 builder: (BuildContext context) {
                   return ReportDialog(
-                      title: title, type: ReportType.comment, target: comment);
+                      postId: post.postId,
+                      title: title,
+                      type: ReportType.comment,
+                      target: comment);
                 },
               ).then((_) {
                 setState(() {

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/number.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class ReplyButton extends ConsumerStatefulWidget {
@@ -58,7 +59,7 @@ class ReplyButtonState extends ConsumerState<ReplyButton> {
                   BlendMode.srcIn),
             ),
             SizedBox(width: 4.cw),
-            Text('$replies',
+            Text(formatNumberWithComma(replies),
                 style: getTextStyle(AppTypo.body14M, AppColors.grey900))
           ],
         ),

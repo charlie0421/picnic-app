@@ -9,15 +9,19 @@ import 'package:picnic_app/providers/community/comments_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 
 class CommentPopupMenu extends ConsumerStatefulWidget {
+  final String postId;
   final CommentModel comment;
   final Function? refreshFunction;
   final Function? openReportModal;
+  final Function? onDelete;
 
   const CommentPopupMenu({
     super.key,
+    required this.postId,
     required this.comment,
     this.refreshFunction,
     this.openReportModal,
+    this.onDelete,
   });
 
   @override
@@ -25,50 +29,123 @@ class CommentPopupMenu extends ConsumerStatefulWidget {
 }
 
 class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
+  bool _isProcessing = false;
+
+  Future<void> _handleDelete() async {
+    if (_isProcessing) return;
+
+    setState(() {
+      _isProcessing = true;
+    });
+
+    try {
+      showSimpleDialog(
+        title: S.of(context).popup_label_delete,
+        content: '정말로 삭제하시겠습니까?',
+        onOk: () async {
+          try {
+            final commentsNotifier = ref.read(
+              commentsNotifierProvider(widget.postId, 1, 10).notifier,
+            );
+            await commentsNotifier.deleteComment(widget.comment.commentId);
+
+            widget.onDelete?.call();
+
+            if (widget.refreshFunction != null) {
+              widget.refreshFunction!();
+            }
+
+            if (navigatorKey.currentContext != null) {
+              Navigator.of(navigatorKey.currentContext!).pop();
+            }
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('댓글 삭제 중 오류가 발생했습니다'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          }
+        },
+        onCancel: () {
+          Navigator.of(context).pop();
+        },
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleReport() async {
+    if (_isProcessing) return;
+
+    setState(() {
+      _isProcessing = true;
+    });
+
+    try {
+      if (widget.openReportModal != null) {
+        widget.openReportModal!(
+          S.of(context).label_title_report,
+          widget.comment,
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_isProcessing) {
+      return const SizedBox(
+        width: 20,
+        height: 20,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+        ),
+      );
+    }
+
     return PopupMenuButton<String>(
       padding: EdgeInsets.zero,
       child: SvgPicture.asset(
         'assets/icons/more_style=line.svg',
         width: 20,
         height: 20,
-        colorFilter:
-            ColorFilter.mode(Theme.of(context).primaryColor, BlendMode.srcIn),
+        colorFilter: ColorFilter.mode(
+          Theme.of(context).primaryColor,
+          BlendMode.srcIn,
+        ),
       ),
       onSelected: (String result) async {
         if (result == 'Report') {
-          if (widget.openReportModal != null) {
-            widget.openReportModal!(
-                S.of(context).label_title_report, widget.comment);
-          }
+          await _handleReport();
         } else if (result == 'Delete') {
-          showSimpleDialog(
-              title: S.of(context).popup_label_delete,
-              content: '정말로 삭제하시겠습니까?',
-              onOk: () async {
-                await deleteComment(ref, widget.comment.commentId);
-                if (widget.refreshFunction != null) {
-                  widget.refreshFunction!();
-                }
-                if (navigatorKey.currentContext != null) {
-                  Navigator.of(navigatorKey.currentContext!).pop();
-                }
-              },
-              onCancel: () {
-                Navigator.of(context).pop();
-              });
+          await _handleDelete();
         }
       },
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        PopupMenuItem<String>(
+        if (_canDeleteComment())
+          PopupMenuItem<String>(
             value: 'Delete',
-            enabled: _canDeleteComment(),
-            child: Text(S.of(context).popup_label_delete)),
-        PopupMenuItem<String>(
+            child: Text(S.of(context).popup_label_delete),
+          ),
+        if (_canReportComment())
+          PopupMenuItem<String>(
             value: 'Report',
-            enabled: _canReportComment(),
-            child: Text(S.of(context).label_title_report)),
+            child: Text(S.of(context).label_title_report),
+          ),
       ],
     );
   }

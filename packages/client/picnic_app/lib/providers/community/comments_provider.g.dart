@@ -6,7 +6,7 @@ part of 'comments_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$commentsHash() => r'11b4fb495a1fff67d473626c884ba6bb45dbdd77';
+String _$commentsNotifierHash() => r'f369fe383aad66cdf9fda717522be2d13370eb32';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -29,24 +29,41 @@ class _SystemHash {
   }
 }
 
-/// See also [comments].
-@ProviderFor(comments)
-const commentsProvider = CommentsFamily();
+abstract class _$CommentsNotifier
+    extends BuildlessAutoDisposeAsyncNotifier<List<CommentModel>> {
+  late final String postId;
+  late final int page;
+  late final int limit;
+  late final bool includeDeleted;
+  late final bool includeReported;
 
-/// See also [comments].
-class CommentsFamily extends Family<AsyncValue<List<CommentModel>>> {
-  /// See also [comments].
-  const CommentsFamily();
+  FutureOr<List<CommentModel>> build(
+    String postId,
+    int page,
+    int limit, {
+    bool includeDeleted = true,
+    bool includeReported = true,
+  });
+}
 
-  /// See also [comments].
-  CommentsProvider call(
+/// See also [CommentsNotifier].
+@ProviderFor(CommentsNotifier)
+const commentsNotifierProvider = CommentsNotifierFamily();
+
+/// See also [CommentsNotifier].
+class CommentsNotifierFamily extends Family<AsyncValue<List<CommentModel>>> {
+  /// See also [CommentsNotifier].
+  const CommentsNotifierFamily();
+
+  /// See also [CommentsNotifier].
+  CommentsNotifierProvider call(
     String postId,
     int page,
     int limit, {
     bool includeDeleted = true,
     bool includeReported = true,
   }) {
-    return CommentsProvider(
+    return CommentsNotifierProvider(
       postId,
       page,
       limit,
@@ -56,8 +73,8 @@ class CommentsFamily extends Family<AsyncValue<List<CommentModel>>> {
   }
 
   @override
-  CommentsProvider getProviderOverride(
-    covariant CommentsProvider provider,
+  CommentsNotifierProvider getProviderOverride(
+    covariant CommentsNotifierProvider provider,
   ) {
     return call(
       provider.postId,
@@ -80,35 +97,35 @@ class CommentsFamily extends Family<AsyncValue<List<CommentModel>>> {
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'commentsProvider';
+  String? get name => r'commentsNotifierProvider';
 }
 
-/// See also [comments].
-class CommentsProvider extends AutoDisposeFutureProvider<List<CommentModel>> {
-  /// See also [comments].
-  CommentsProvider(
+/// See also [CommentsNotifier].
+class CommentsNotifierProvider extends AutoDisposeAsyncNotifierProviderImpl<
+    CommentsNotifier, List<CommentModel>> {
+  /// See also [CommentsNotifier].
+  CommentsNotifierProvider(
     String postId,
     int page,
     int limit, {
     bool includeDeleted = true,
     bool includeReported = true,
   }) : this._internal(
-          (ref) => comments(
-            ref as CommentsRef,
-            postId,
-            page,
-            limit,
-            includeDeleted: includeDeleted,
-            includeReported: includeReported,
-          ),
-          from: commentsProvider,
-          name: r'commentsProvider',
+          () => CommentsNotifier()
+            ..postId = postId
+            ..page = page
+            ..limit = limit
+            ..includeDeleted = includeDeleted
+            ..includeReported = includeReported,
+          from: commentsNotifierProvider,
+          name: r'commentsNotifierProvider',
           debugGetCreateSourceHash:
               const bool.fromEnvironment('dart.vm.product')
                   ? null
-                  : _$commentsHash,
-          dependencies: CommentsFamily._dependencies,
-          allTransitiveDependencies: CommentsFamily._allTransitiveDependencies,
+                  : _$commentsNotifierHash,
+          dependencies: CommentsNotifierFamily._dependencies,
+          allTransitiveDependencies:
+              CommentsNotifierFamily._allTransitiveDependencies,
           postId: postId,
           page: page,
           limit: limit,
@@ -116,7 +133,7 @@ class CommentsProvider extends AutoDisposeFutureProvider<List<CommentModel>> {
           includeReported: includeReported,
         );
 
-  CommentsProvider._internal(
+  CommentsNotifierProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -137,13 +154,29 @@ class CommentsProvider extends AutoDisposeFutureProvider<List<CommentModel>> {
   final bool includeReported;
 
   @override
-  Override overrideWith(
-    FutureOr<List<CommentModel>> Function(CommentsRef provider) create,
+  FutureOr<List<CommentModel>> runNotifierBuild(
+    covariant CommentsNotifier notifier,
   ) {
+    return notifier.build(
+      postId,
+      page,
+      limit,
+      includeDeleted: includeDeleted,
+      includeReported: includeReported,
+    );
+  }
+
+  @override
+  Override overrideWith(CommentsNotifier Function() create) {
     return ProviderOverride(
       origin: this,
-      override: CommentsProvider._internal(
-        (ref) => create(ref as CommentsRef),
+      override: CommentsNotifierProvider._internal(
+        () => create()
+          ..postId = postId
+          ..page = page
+          ..limit = limit
+          ..includeDeleted = includeDeleted
+          ..includeReported = includeReported,
         from: from,
         name: null,
         dependencies: null,
@@ -159,13 +192,14 @@ class CommentsProvider extends AutoDisposeFutureProvider<List<CommentModel>> {
   }
 
   @override
-  AutoDisposeFutureProviderElement<List<CommentModel>> createElement() {
-    return _CommentsProviderElement(this);
+  AutoDisposeAsyncNotifierProviderElement<CommentsNotifier, List<CommentModel>>
+      createElement() {
+    return _CommentsNotifierProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is CommentsProvider &&
+    return other is CommentsNotifierProvider &&
         other.postId == postId &&
         other.page == page &&
         other.limit == limit &&
@@ -186,7 +220,8 @@ class CommentsProvider extends AutoDisposeFutureProvider<List<CommentModel>> {
   }
 }
 
-mixin CommentsRef on AutoDisposeFutureProviderRef<List<CommentModel>> {
+mixin CommentsNotifierRef
+    on AutoDisposeAsyncNotifierProviderRef<List<CommentModel>> {
   /// The parameter `postId` of this provider.
   String get postId;
 
@@ -203,43 +238,64 @@ mixin CommentsRef on AutoDisposeFutureProviderRef<List<CommentModel>> {
   bool get includeReported;
 }
 
-class _CommentsProviderElement
-    extends AutoDisposeFutureProviderElement<List<CommentModel>>
-    with CommentsRef {
-  _CommentsProviderElement(super.provider);
+class _CommentsNotifierProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<CommentsNotifier,
+        List<CommentModel>> with CommentsNotifierRef {
+  _CommentsNotifierProviderElement(super.provider);
 
   @override
-  String get postId => (origin as CommentsProvider).postId;
+  String get postId => (origin as CommentsNotifierProvider).postId;
   @override
-  int get page => (origin as CommentsProvider).page;
+  int get page => (origin as CommentsNotifierProvider).page;
   @override
-  int get limit => (origin as CommentsProvider).limit;
+  int get limit => (origin as CommentsNotifierProvider).limit;
   @override
-  bool get includeDeleted => (origin as CommentsProvider).includeDeleted;
+  bool get includeDeleted =>
+      (origin as CommentsNotifierProvider).includeDeleted;
   @override
-  bool get includeReported => (origin as CommentsProvider).includeReported;
+  bool get includeReported =>
+      (origin as CommentsNotifierProvider).includeReported;
 }
 
-String _$commentsByUserHash() => r'91590c8d07c665a4115d1aabd2b99761e5baf08a';
+String _$userCommentsNotifierHash() =>
+    r'44a2fda4d93b0c0d1abd9bada7dae943e7516ca4';
 
-/// See also [commentsByUser].
-@ProviderFor(commentsByUser)
-const commentsByUserProvider = CommentsByUserFamily();
+abstract class _$UserCommentsNotifier
+    extends BuildlessAutoDisposeAsyncNotifier<List<CommentModel>> {
+  late final String userId;
+  late final int page;
+  late final int limit;
+  late final bool includeDeleted;
+  late final bool includeReported;
 
-/// See also [commentsByUser].
-class CommentsByUserFamily extends Family<AsyncValue<List<CommentModel>>> {
-  /// See also [commentsByUser].
-  const CommentsByUserFamily();
+  FutureOr<List<CommentModel>> build(
+    String userId,
+    int page,
+    int limit, {
+    bool includeDeleted = true,
+    bool includeReported = true,
+  });
+}
 
-  /// See also [commentsByUser].
-  CommentsByUserProvider call(
+/// See also [UserCommentsNotifier].
+@ProviderFor(UserCommentsNotifier)
+const userCommentsNotifierProvider = UserCommentsNotifierFamily();
+
+/// See also [UserCommentsNotifier].
+class UserCommentsNotifierFamily
+    extends Family<AsyncValue<List<CommentModel>>> {
+  /// See also [UserCommentsNotifier].
+  const UserCommentsNotifierFamily();
+
+  /// See also [UserCommentsNotifier].
+  UserCommentsNotifierProvider call(
     String userId,
     int page,
     int limit, {
     bool includeDeleted = true,
     bool includeReported = true,
   }) {
-    return CommentsByUserProvider(
+    return UserCommentsNotifierProvider(
       userId,
       page,
       limit,
@@ -249,8 +305,8 @@ class CommentsByUserFamily extends Family<AsyncValue<List<CommentModel>>> {
   }
 
   @override
-  CommentsByUserProvider getProviderOverride(
-    covariant CommentsByUserProvider provider,
+  UserCommentsNotifierProvider getProviderOverride(
+    covariant UserCommentsNotifierProvider provider,
   ) {
     return call(
       provider.userId,
@@ -273,37 +329,35 @@ class CommentsByUserFamily extends Family<AsyncValue<List<CommentModel>>> {
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'commentsByUserProvider';
+  String? get name => r'userCommentsNotifierProvider';
 }
 
-/// See also [commentsByUser].
-class CommentsByUserProvider
-    extends AutoDisposeFutureProvider<List<CommentModel>> {
-  /// See also [commentsByUser].
-  CommentsByUserProvider(
+/// See also [UserCommentsNotifier].
+class UserCommentsNotifierProvider extends AutoDisposeAsyncNotifierProviderImpl<
+    UserCommentsNotifier, List<CommentModel>> {
+  /// See also [UserCommentsNotifier].
+  UserCommentsNotifierProvider(
     String userId,
     int page,
     int limit, {
     bool includeDeleted = true,
     bool includeReported = true,
   }) : this._internal(
-          (ref) => commentsByUser(
-            ref as CommentsByUserRef,
-            userId,
-            page,
-            limit,
-            includeDeleted: includeDeleted,
-            includeReported: includeReported,
-          ),
-          from: commentsByUserProvider,
-          name: r'commentsByUserProvider',
+          () => UserCommentsNotifier()
+            ..userId = userId
+            ..page = page
+            ..limit = limit
+            ..includeDeleted = includeDeleted
+            ..includeReported = includeReported,
+          from: userCommentsNotifierProvider,
+          name: r'userCommentsNotifierProvider',
           debugGetCreateSourceHash:
               const bool.fromEnvironment('dart.vm.product')
                   ? null
-                  : _$commentsByUserHash,
-          dependencies: CommentsByUserFamily._dependencies,
+                  : _$userCommentsNotifierHash,
+          dependencies: UserCommentsNotifierFamily._dependencies,
           allTransitiveDependencies:
-              CommentsByUserFamily._allTransitiveDependencies,
+              UserCommentsNotifierFamily._allTransitiveDependencies,
           userId: userId,
           page: page,
           limit: limit,
@@ -311,7 +365,7 @@ class CommentsByUserProvider
           includeReported: includeReported,
         );
 
-  CommentsByUserProvider._internal(
+  UserCommentsNotifierProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -332,13 +386,29 @@ class CommentsByUserProvider
   final bool includeReported;
 
   @override
-  Override overrideWith(
-    FutureOr<List<CommentModel>> Function(CommentsByUserRef provider) create,
+  FutureOr<List<CommentModel>> runNotifierBuild(
+    covariant UserCommentsNotifier notifier,
   ) {
+    return notifier.build(
+      userId,
+      page,
+      limit,
+      includeDeleted: includeDeleted,
+      includeReported: includeReported,
+    );
+  }
+
+  @override
+  Override overrideWith(UserCommentsNotifier Function() create) {
     return ProviderOverride(
       origin: this,
-      override: CommentsByUserProvider._internal(
-        (ref) => create(ref as CommentsByUserRef),
+      override: UserCommentsNotifierProvider._internal(
+        () => create()
+          ..userId = userId
+          ..page = page
+          ..limit = limit
+          ..includeDeleted = includeDeleted
+          ..includeReported = includeReported,
         from: from,
         name: null,
         dependencies: null,
@@ -354,13 +424,14 @@ class CommentsByUserProvider
   }
 
   @override
-  AutoDisposeFutureProviderElement<List<CommentModel>> createElement() {
-    return _CommentsByUserProviderElement(this);
+  AutoDisposeAsyncNotifierProviderElement<UserCommentsNotifier,
+      List<CommentModel>> createElement() {
+    return _UserCommentsNotifierProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is CommentsByUserProvider &&
+    return other is UserCommentsNotifierProvider &&
         other.userId == userId &&
         other.page == page &&
         other.limit == limit &&
@@ -381,7 +452,8 @@ class CommentsByUserProvider
   }
 }
 
-mixin CommentsByUserRef on AutoDisposeFutureProviderRef<List<CommentModel>> {
+mixin UserCommentsNotifierRef
+    on AutoDisposeAsyncNotifierProviderRef<List<CommentModel>> {
   /// The parameter `userId` of this provider.
   String get userId;
 
@@ -398,909 +470,41 @@ mixin CommentsByUserRef on AutoDisposeFutureProviderRef<List<CommentModel>> {
   bool get includeReported;
 }
 
-class _CommentsByUserProviderElement
-    extends AutoDisposeFutureProviderElement<List<CommentModel>>
-    with CommentsByUserRef {
-  _CommentsByUserProviderElement(super.provider);
+class _UserCommentsNotifierProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<UserCommentsNotifier,
+        List<CommentModel>> with UserCommentsNotifierRef {
+  _UserCommentsNotifierProviderElement(super.provider);
 
   @override
-  String get userId => (origin as CommentsByUserProvider).userId;
+  String get userId => (origin as UserCommentsNotifierProvider).userId;
   @override
-  int get page => (origin as CommentsByUserProvider).page;
+  int get page => (origin as UserCommentsNotifierProvider).page;
   @override
-  int get limit => (origin as CommentsByUserProvider).limit;
+  int get limit => (origin as UserCommentsNotifierProvider).limit;
   @override
-  bool get includeDeleted => (origin as CommentsByUserProvider).includeDeleted;
+  bool get includeDeleted =>
+      (origin as UserCommentsNotifierProvider).includeDeleted;
   @override
   bool get includeReported =>
-      (origin as CommentsByUserProvider).includeReported;
+      (origin as UserCommentsNotifierProvider).includeReported;
 }
 
-String _$postCommentHash() => r'd92a2f57096d076c2f957b59bcf2686475d6931f';
-
-/// See also [postComment].
-@ProviderFor(postComment)
-const postCommentProvider = PostCommentFamily();
-
-/// See also [postComment].
-class PostCommentFamily extends Family<AsyncValue<void>> {
-  /// See also [postComment].
-  const PostCommentFamily();
-
-  /// See also [postComment].
-  PostCommentProvider call(
-    String postId,
-    String? parentId,
-    String locale,
-    String content,
-  ) {
-    return PostCommentProvider(
-      postId,
-      parentId,
-      locale,
-      content,
-    );
-  }
-
-  @override
-  PostCommentProvider getProviderOverride(
-    covariant PostCommentProvider provider,
-  ) {
-    return call(
-      provider.postId,
-      provider.parentId,
-      provider.locale,
-      provider.content,
-    );
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'postCommentProvider';
-}
-
-/// See also [postComment].
-class PostCommentProvider extends AutoDisposeFutureProvider<void> {
-  /// See also [postComment].
-  PostCommentProvider(
-    String postId,
-    String? parentId,
-    String locale,
-    String content,
-  ) : this._internal(
-          (ref) => postComment(
-            ref as PostCommentRef,
-            postId,
-            parentId,
-            locale,
-            content,
-          ),
-          from: postCommentProvider,
-          name: r'postCommentProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$postCommentHash,
-          dependencies: PostCommentFamily._dependencies,
-          allTransitiveDependencies:
-              PostCommentFamily._allTransitiveDependencies,
-          postId: postId,
-          parentId: parentId,
-          locale: locale,
-          content: content,
-        );
-
-  PostCommentProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.postId,
-    required this.parentId,
-    required this.locale,
-    required this.content,
-  }) : super.internal();
-
-  final String postId;
-  final String? parentId;
-  final String locale;
-  final String content;
-
-  @override
-  Override overrideWith(
-    FutureOr<void> Function(PostCommentRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: PostCommentProvider._internal(
-        (ref) => create(ref as PostCommentRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        postId: postId,
-        parentId: parentId,
-        locale: locale,
-        content: content,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeFutureProviderElement<void> createElement() {
-    return _PostCommentProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is PostCommentProvider &&
-        other.postId == postId &&
-        other.parentId == parentId &&
-        other.locale == locale &&
-        other.content == content;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, postId.hashCode);
-    hash = _SystemHash.combine(hash, parentId.hashCode);
-    hash = _SystemHash.combine(hash, locale.hashCode);
-    hash = _SystemHash.combine(hash, content.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
-}
-
-mixin PostCommentRef on AutoDisposeFutureProviderRef<void> {
-  /// The parameter `postId` of this provider.
-  String get postId;
-
-  /// The parameter `parentId` of this provider.
-  String? get parentId;
-
-  /// The parameter `locale` of this provider.
-  String get locale;
-
-  /// The parameter `content` of this provider.
-  String get content;
-}
-
-class _PostCommentProviderElement extends AutoDisposeFutureProviderElement<void>
-    with PostCommentRef {
-  _PostCommentProviderElement(super.provider);
-
-  @override
-  String get postId => (origin as PostCommentProvider).postId;
-  @override
-  String? get parentId => (origin as PostCommentProvider).parentId;
-  @override
-  String get locale => (origin as PostCommentProvider).locale;
-  @override
-  String get content => (origin as PostCommentProvider).content;
-}
-
-String _$likeCommentHash() => r'2e9f18c42f87327090014dfd8b02dd497b3f6c52';
-
-/// See also [likeComment].
-@ProviderFor(likeComment)
-const likeCommentProvider = LikeCommentFamily();
-
-/// See also [likeComment].
-class LikeCommentFamily extends Family<AsyncValue<void>> {
-  /// See also [likeComment].
-  const LikeCommentFamily();
-
-  /// See also [likeComment].
-  LikeCommentProvider call(
-    String commentId,
-  ) {
-    return LikeCommentProvider(
-      commentId,
-    );
-  }
-
-  @override
-  LikeCommentProvider getProviderOverride(
-    covariant LikeCommentProvider provider,
-  ) {
-    return call(
-      provider.commentId,
-    );
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'likeCommentProvider';
-}
-
-/// See also [likeComment].
-class LikeCommentProvider extends AutoDisposeFutureProvider<void> {
-  /// See also [likeComment].
-  LikeCommentProvider(
-    String commentId,
-  ) : this._internal(
-          (ref) => likeComment(
-            ref as LikeCommentRef,
-            commentId,
-          ),
-          from: likeCommentProvider,
-          name: r'likeCommentProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$likeCommentHash,
-          dependencies: LikeCommentFamily._dependencies,
-          allTransitiveDependencies:
-              LikeCommentFamily._allTransitiveDependencies,
-          commentId: commentId,
-        );
-
-  LikeCommentProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.commentId,
-  }) : super.internal();
-
-  final String commentId;
-
-  @override
-  Override overrideWith(
-    FutureOr<void> Function(LikeCommentRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: LikeCommentProvider._internal(
-        (ref) => create(ref as LikeCommentRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        commentId: commentId,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeFutureProviderElement<void> createElement() {
-    return _LikeCommentProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is LikeCommentProvider && other.commentId == commentId;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, commentId.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
-}
-
-mixin LikeCommentRef on AutoDisposeFutureProviderRef<void> {
-  /// The parameter `commentId` of this provider.
-  String get commentId;
-}
-
-class _LikeCommentProviderElement extends AutoDisposeFutureProviderElement<void>
-    with LikeCommentRef {
-  _LikeCommentProviderElement(super.provider);
-
-  @override
-  String get commentId => (origin as LikeCommentProvider).commentId;
-}
-
-String _$unlikeCommentHash() => r'0e0407ed65881e8ce4007da831c758bc2d6e617d';
-
-/// See also [unlikeComment].
-@ProviderFor(unlikeComment)
-const unlikeCommentProvider = UnlikeCommentFamily();
-
-/// See also [unlikeComment].
-class UnlikeCommentFamily extends Family<AsyncValue<void>> {
-  /// See also [unlikeComment].
-  const UnlikeCommentFamily();
-
-  /// See also [unlikeComment].
-  UnlikeCommentProvider call(
-    String commentId,
-  ) {
-    return UnlikeCommentProvider(
-      commentId,
-    );
-  }
-
-  @override
-  UnlikeCommentProvider getProviderOverride(
-    covariant UnlikeCommentProvider provider,
-  ) {
-    return call(
-      provider.commentId,
-    );
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'unlikeCommentProvider';
-}
-
-/// See also [unlikeComment].
-class UnlikeCommentProvider extends AutoDisposeFutureProvider<void> {
-  /// See also [unlikeComment].
-  UnlikeCommentProvider(
-    String commentId,
-  ) : this._internal(
-          (ref) => unlikeComment(
-            ref as UnlikeCommentRef,
-            commentId,
-          ),
-          from: unlikeCommentProvider,
-          name: r'unlikeCommentProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$unlikeCommentHash,
-          dependencies: UnlikeCommentFamily._dependencies,
-          allTransitiveDependencies:
-              UnlikeCommentFamily._allTransitiveDependencies,
-          commentId: commentId,
-        );
-
-  UnlikeCommentProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.commentId,
-  }) : super.internal();
-
-  final String commentId;
-
-  @override
-  Override overrideWith(
-    FutureOr<void> Function(UnlikeCommentRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: UnlikeCommentProvider._internal(
-        (ref) => create(ref as UnlikeCommentRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        commentId: commentId,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeFutureProviderElement<void> createElement() {
-    return _UnlikeCommentProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is UnlikeCommentProvider && other.commentId == commentId;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, commentId.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
-}
-
-mixin UnlikeCommentRef on AutoDisposeFutureProviderRef<void> {
-  /// The parameter `commentId` of this provider.
-  String get commentId;
-}
-
-class _UnlikeCommentProviderElement
-    extends AutoDisposeFutureProviderElement<void> with UnlikeCommentRef {
-  _UnlikeCommentProviderElement(super.provider);
-
-  @override
-  String get commentId => (origin as UnlikeCommentProvider).commentId;
-}
-
-String _$reportCommentHash() => r'771073bb93768683788ea34f904a8590ca68292b';
-
-/// See also [reportComment].
-@ProviderFor(reportComment)
-const reportCommentProvider = ReportCommentFamily();
-
-/// See also [reportComment].
-class ReportCommentFamily extends Family<AsyncValue<void>> {
-  /// See also [reportComment].
-  const ReportCommentFamily();
-
-  /// See also [reportComment].
-  ReportCommentProvider call(
-    CommentModel comment,
-    String reason,
-    String text,
-  ) {
-    return ReportCommentProvider(
-      comment,
-      reason,
-      text,
-    );
-  }
-
-  @override
-  ReportCommentProvider getProviderOverride(
-    covariant ReportCommentProvider provider,
-  ) {
-    return call(
-      provider.comment,
-      provider.reason,
-      provider.text,
-    );
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'reportCommentProvider';
-}
-
-/// See also [reportComment].
-class ReportCommentProvider extends AutoDisposeFutureProvider<void> {
-  /// See also [reportComment].
-  ReportCommentProvider(
-    CommentModel comment,
-    String reason,
-    String text,
-  ) : this._internal(
-          (ref) => reportComment(
-            ref as ReportCommentRef,
-            comment,
-            reason,
-            text,
-          ),
-          from: reportCommentProvider,
-          name: r'reportCommentProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$reportCommentHash,
-          dependencies: ReportCommentFamily._dependencies,
-          allTransitiveDependencies:
-              ReportCommentFamily._allTransitiveDependencies,
-          comment: comment,
-          reason: reason,
-          text: text,
-        );
-
-  ReportCommentProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.comment,
-    required this.reason,
-    required this.text,
-  }) : super.internal();
-
-  final CommentModel comment;
-  final String reason;
-  final String text;
-
-  @override
-  Override overrideWith(
-    FutureOr<void> Function(ReportCommentRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: ReportCommentProvider._internal(
-        (ref) => create(ref as ReportCommentRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        comment: comment,
-        reason: reason,
-        text: text,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeFutureProviderElement<void> createElement() {
-    return _ReportCommentProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is ReportCommentProvider &&
-        other.comment == comment &&
-        other.reason == reason &&
-        other.text == text;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, comment.hashCode);
-    hash = _SystemHash.combine(hash, reason.hashCode);
-    hash = _SystemHash.combine(hash, text.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
-}
-
-mixin ReportCommentRef on AutoDisposeFutureProviderRef<void> {
-  /// The parameter `comment` of this provider.
-  CommentModel get comment;
-
-  /// The parameter `reason` of this provider.
-  String get reason;
-
-  /// The parameter `text` of this provider.
-  String get text;
-}
-
-class _ReportCommentProviderElement
-    extends AutoDisposeFutureProviderElement<void> with ReportCommentRef {
-  _ReportCommentProviderElement(super.provider);
-
-  @override
-  CommentModel get comment => (origin as ReportCommentProvider).comment;
-  @override
-  String get reason => (origin as ReportCommentProvider).reason;
-  @override
-  String get text => (origin as ReportCommentProvider).text;
-}
-
-String _$deleteCommentHash() => r'86d9f8fbd1c7d62ac0463f2e93384deea3aa240c';
-
-/// See also [deleteComment].
-@ProviderFor(deleteComment)
-const deleteCommentProvider = DeleteCommentFamily();
-
-/// See also [deleteComment].
-class DeleteCommentFamily extends Family<AsyncValue<void>> {
-  /// See also [deleteComment].
-  const DeleteCommentFamily();
-
-  /// See also [deleteComment].
-  DeleteCommentProvider call(
-    String commentId,
-  ) {
-    return DeleteCommentProvider(
-      commentId,
-    );
-  }
-
-  @override
-  DeleteCommentProvider getProviderOverride(
-    covariant DeleteCommentProvider provider,
-  ) {
-    return call(
-      provider.commentId,
-    );
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'deleteCommentProvider';
-}
-
-/// See also [deleteComment].
-class DeleteCommentProvider extends AutoDisposeFutureProvider<void> {
-  /// See also [deleteComment].
-  DeleteCommentProvider(
-    String commentId,
-  ) : this._internal(
-          (ref) => deleteComment(
-            ref as DeleteCommentRef,
-            commentId,
-          ),
-          from: deleteCommentProvider,
-          name: r'deleteCommentProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$deleteCommentHash,
-          dependencies: DeleteCommentFamily._dependencies,
-          allTransitiveDependencies:
-              DeleteCommentFamily._allTransitiveDependencies,
-          commentId: commentId,
-        );
-
-  DeleteCommentProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.commentId,
-  }) : super.internal();
-
-  final String commentId;
-
-  @override
-  Override overrideWith(
-    FutureOr<void> Function(DeleteCommentRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: DeleteCommentProvider._internal(
-        (ref) => create(ref as DeleteCommentRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        commentId: commentId,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeFutureProviderElement<void> createElement() {
-    return _DeleteCommentProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is DeleteCommentProvider && other.commentId == commentId;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, commentId.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
-}
-
-mixin DeleteCommentRef on AutoDisposeFutureProviderRef<void> {
-  /// The parameter `commentId` of this provider.
-  String get commentId;
-}
-
-class _DeleteCommentProviderElement
-    extends AutoDisposeFutureProviderElement<void> with DeleteCommentRef {
-  _DeleteCommentProviderElement(super.provider);
-
-  @override
-  String get commentId => (origin as DeleteCommentProvider).commentId;
-}
-
-String _$updateCommentTranslationHash() =>
-    r'769a7a0fa809a8dc7758205154f50c605c4ea87d';
-
-/// See also [updateCommentTranslation].
-@ProviderFor(updateCommentTranslation)
-const updateCommentTranslationProvider = UpdateCommentTranslationFamily();
-
-/// See also [updateCommentTranslation].
-class UpdateCommentTranslationFamily extends Family<AsyncValue<void>> {
-  /// See also [updateCommentTranslation].
-  const UpdateCommentTranslationFamily();
-
-  /// See also [updateCommentTranslation].
-  UpdateCommentTranslationProvider call(
-    String commentId,
-    String locale,
-    String translatedText,
-  ) {
-    return UpdateCommentTranslationProvider(
-      commentId,
-      locale,
-      translatedText,
-    );
-  }
-
-  @override
-  UpdateCommentTranslationProvider getProviderOverride(
-    covariant UpdateCommentTranslationProvider provider,
-  ) {
-    return call(
-      provider.commentId,
-      provider.locale,
-      provider.translatedText,
-    );
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'updateCommentTranslationProvider';
-}
-
-/// See also [updateCommentTranslation].
-class UpdateCommentTranslationProvider extends AutoDisposeFutureProvider<void> {
-  /// See also [updateCommentTranslation].
-  UpdateCommentTranslationProvider(
-    String commentId,
-    String locale,
-    String translatedText,
-  ) : this._internal(
-          (ref) => updateCommentTranslation(
-            ref as UpdateCommentTranslationRef,
-            commentId,
-            locale,
-            translatedText,
-          ),
-          from: updateCommentTranslationProvider,
-          name: r'updateCommentTranslationProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$updateCommentTranslationHash,
-          dependencies: UpdateCommentTranslationFamily._dependencies,
-          allTransitiveDependencies:
-              UpdateCommentTranslationFamily._allTransitiveDependencies,
-          commentId: commentId,
-          locale: locale,
-          translatedText: translatedText,
-        );
-
-  UpdateCommentTranslationProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.commentId,
-    required this.locale,
-    required this.translatedText,
-  }) : super.internal();
-
-  final String commentId;
-  final String locale;
-  final String translatedText;
-
-  @override
-  Override overrideWith(
-    FutureOr<void> Function(UpdateCommentTranslationRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: UpdateCommentTranslationProvider._internal(
-        (ref) => create(ref as UpdateCommentTranslationRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        commentId: commentId,
-        locale: locale,
-        translatedText: translatedText,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeFutureProviderElement<void> createElement() {
-    return _UpdateCommentTranslationProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is UpdateCommentTranslationProvider &&
-        other.commentId == commentId &&
-        other.locale == locale &&
-        other.translatedText == translatedText;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, commentId.hashCode);
-    hash = _SystemHash.combine(hash, locale.hashCode);
-    hash = _SystemHash.combine(hash, translatedText.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
-}
-
-mixin UpdateCommentTranslationRef on AutoDisposeFutureProviderRef<void> {
-  /// The parameter `commentId` of this provider.
-  String get commentId;
-
-  /// The parameter `locale` of this provider.
-  String get locale;
-
-  /// The parameter `translatedText` of this provider.
-  String get translatedText;
-}
-
-class _UpdateCommentTranslationProviderElement
-    extends AutoDisposeFutureProviderElement<void>
-    with UpdateCommentTranslationRef {
-  _UpdateCommentTranslationProviderElement(super.provider);
-
-  @override
-  String get commentId =>
-      (origin as UpdateCommentTranslationProvider).commentId;
-  @override
-  String get locale => (origin as UpdateCommentTranslationProvider).locale;
-  @override
-  String get translatedText =>
-      (origin as UpdateCommentTranslationProvider).translatedText;
-}
+String _$commentTranslationNotifierHash() =>
+    r'7d630ef180597a582b5965d8a833f030b5338da1';
+
+/// See also [CommentTranslationNotifier].
+@ProviderFor(CommentTranslationNotifier)
+final commentTranslationNotifierProvider =
+    AutoDisposeAsyncNotifierProvider<CommentTranslationNotifier, void>.internal(
+  CommentTranslationNotifier.new,
+  name: r'commentTranslationNotifierProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$commentTranslationNotifierHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$CommentTranslationNotifier = AutoDisposeAsyncNotifier<void>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
