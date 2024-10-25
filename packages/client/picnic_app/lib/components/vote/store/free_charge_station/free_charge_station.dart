@@ -17,7 +17,6 @@ import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
-import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 
 class FreeChargeStation extends ConsumerStatefulWidget {
   const FreeChargeStation({super.key});
@@ -124,28 +123,13 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
                     return const Center(child: Text('Error loading banner'));
                   }
                   return Center(
-                    child: _bannerAds['free_charge_station'] != null
-                        ? AdWidget(ad: _bannerAds['free_charge_station']!)
-                        : UnityBannerAd(
-                            placementId: snapshot.data as String,
-                            onLoad: (placementId) =>
-                                print('Banner loaded: $placementId'),
-                            onClick: (placementId) =>
-                                print('Banner clicked: $placementId'),
-                            onShown: (placementId) =>
-                                print('Banner shown: $placementId'),
-                            onFailed: (placementId, error, message) => print(
-                                'Banner Ad $placementId failed: $error $message'),
-                          ),
-                  );
+                      child: AdWidget(ad: _bannerAds['free_charge_station']!));
                 }),
           ),
           const SizedBox(height: 18),
           _buildStoreListTileAdmob(0),
           const Divider(height: 32, thickness: 1, color: AppColors.grey200),
           _buildStoreListTileAdmob(1),
-          const Divider(height: 32, thickness: 1, color: AppColors.grey200),
-          _buildStoreListTileUnity(2),
           const Divider(height: 32, thickness: 1, color: AppColors.grey200),
           GestureDetector(
             onTap: () => showUsagePolicyDialog(context, ref),
@@ -217,66 +201,6 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
                       case 1:
                         _showRewardedAdmob(index);
                         break;
-                      case 2:
-                        _showRewaredUnity(index);
-                        break;
-                      default:
-                        break;
-                    }
-                  }
-                },
-          isLoading: isLoading,
-          buttonScale: _buttonScaleAnimation.value,
-        );
-      },
-    );
-  }
-
-  Widget _buildStoreListTileUnity(int index) {
-    final userState = ref.watch(userInfoProvider);
-    bool isLoading = false;
-    return AnimatedBuilder(
-      animation: _animationController,
-      builder: (context, child) {
-        return StoreListTile(
-          index: index,
-          icon: Image.asset(
-            'assets/icons/store/star_100.png',
-            width: 48.cw,
-            height: 48.cw,
-          ),
-          title: Text(
-            S.of(context).label_button_watch_and_charge,
-            style: getTextStyle(AppTypo.body14B, AppColors.grey900)
-                .copyWith(height: 1),
-          ),
-          subtitle: Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(
-                  text: '+${S.of(context).label_bonus} 1',
-                  style: getTextStyle(AppTypo.caption12B, AppColors.point900),
-                ),
-              ],
-            ),
-          ),
-          buttonText: isLoading
-              ? S.of(context).label_loading_ads
-              : S.of(context).label_watch_ads,
-          buttonOnPressed: isLoading
-              ? null
-              : () {
-                  if (userState.value == null) {
-                    showRequireLoginDialog(context: context);
-                  } else {
-                    switch (index) {
-                      case 0:
-                      case 1:
-                        _showRewardedAdmob(index);
-                        break;
-                      case 2:
-                        _showRewaredUnity(index);
-                        break;
                       default:
                         break;
                     }
@@ -339,77 +263,6 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       logger.e(e, stackTrace: s);
       rethrow;
     } finally {}
-  }
-
-  void _showRewaredUnity(int index) async {
-    OverlayLoadingProgress.start(context);
-    final configService = ref.read(configServiceProvider);
-
-    String? placementId = isIOS()
-        ? await configService.getConfig('UNITY_IOS_PLACEMENT1')
-        : await configService.getConfig('UNITY_ANDROID_PLACEMENT1');
-
-    try {
-      placementId = placementId ?? '';
-      UnityAds.load(
-        placementId: placementId,
-        onComplete: (placementId) {
-          logger.i('Load Complete $placementId');
-          UnityAds.showVideoAd(
-            placementId: placementId,
-            serverId: supabase.auth.currentUser?.id,
-            onStart: (placementId) {
-              logger.i('Video Ad $placementId started');
-            },
-            onClick: (placementId) {
-              logger.i('Video Ad $placementId click');
-              OverlayLoadingProgress.stop();
-            },
-            onSkipped: (placementId) {
-              logger.i('Video Ad $placementId skipped');
-              OverlayLoadingProgress.stop();
-            },
-            onComplete: (placementId) async {
-              logger.i('Video Ad $placementId completed');
-              await supabase.functions.invoke(
-                'reward-unity',
-              );
-              ref.read(userInfoProvider.notifier).getUserProfiles();
-              OverlayLoadingProgress.stop();
-              showSimpleDialog(
-                content: S.of(context).text_dialog_star_candy_received,
-                onOk: () {
-                  Navigator.of(context).pop();
-                },
-              );
-            },
-            onFailed: (placementId, error, message) {
-              logger.i('Video Ad $placementId failed: $error $message');
-              OverlayLoadingProgress.stop();
-              showSimpleDialog(
-                content: S.of(context).text_dialog_ad_failed_to_show,
-                onOk: () {
-                  Navigator.of(context).pop();
-                },
-              );
-            },
-          );
-        },
-        onFailed: (placementId, error, message) {
-          logger.i('Load Failed $placementId: $error $message');
-          OverlayLoadingProgress.stop();
-          showSimpleDialog(
-            content: S.of(context).text_dialog_ad_failed_to_show,
-            onOk: () {
-              Navigator.of(context).pop();
-            },
-          );
-        },
-      );
-    } catch (e, s) {
-      logger.e(e, stackTrace: s);
-      rethrow;
-    }
   }
 
   void _animateButton() {
