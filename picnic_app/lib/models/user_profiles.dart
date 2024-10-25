@@ -29,8 +29,8 @@ class UserProfilesModel with _$UserProfilesModel {
     @JsonKey(name: 'is_admin') required bool isAdmin,
     @JsonKey(name: 'star_candy') required int starCandy,
     @JsonKey(name: 'star_candy_bonus') required int starCandyBonus,
-    @JsonKey(includeFromJson: false) RealtimeChannel? realtimeChannel,
   }) = _UserProfilesModel;
+
   factory UserProfilesModel.fromJson(Map<String, dynamic> json) =>
       _$UserProfilesModelFromJson(json);
 }

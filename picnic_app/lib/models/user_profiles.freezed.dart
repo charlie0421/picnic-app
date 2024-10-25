@@ -38,8 +38,6 @@ mixin _$UserProfilesModel {
   int get starCandy => throw _privateConstructorUsedError;
   @JsonKey(name: 'star_candy_bonus')
   int get starCandyBonus => throw _privateConstructorUsedError;
-  @JsonKey(includeFromJson: false)
-  RealtimeChannel? get realtimeChannel => throw _privateConstructorUsedError;
 
   /// Serializes this UserProfilesModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -66,8 +64,7 @@ abstract class $UserProfilesModelCopyWith<$Res> {
       @JsonKey(name: 'user_agreement') UserAgreement? userAgreement,
       @JsonKey(name: 'is_admin') bool isAdmin,
       @JsonKey(name: 'star_candy') int starCandy,
-      @JsonKey(name: 'star_candy_bonus') int starCandyBonus,
-      @JsonKey(includeFromJson: false) RealtimeChannel? realtimeChannel});
+      @JsonKey(name: 'star_candy_bonus') int starCandyBonus});
 
   $UserAgreementCopyWith<$Res>? get userAgreement;
 }
@@ -96,7 +93,6 @@ class _$UserProfilesModelCopyWithImpl<$Res, $Val extends UserProfilesModel>
     Object? isAdmin = null,
     Object? starCandy = null,
     Object? starCandyBonus = null,
-    Object? realtimeChannel = freezed,
   }) {
     return _then(_value.copyWith(
       id: freezed == id
@@ -135,10 +131,6 @@ class _$UserProfilesModelCopyWithImpl<$Res, $Val extends UserProfilesModel>
           ? _value.starCandyBonus
           : starCandyBonus // ignore: cast_nullable_to_non_nullable
               as int,
-      realtimeChannel: freezed == realtimeChannel
-          ? _value.realtimeChannel
-          : realtimeChannel // ignore: cast_nullable_to_non_nullable
-              as RealtimeChannel?,
     ) as $Val);
   }
 
@@ -174,8 +166,7 @@ abstract class _$$UserProfilesModelImplCopyWith<$Res>
       @JsonKey(name: 'user_agreement') UserAgreement? userAgreement,
       @JsonKey(name: 'is_admin') bool isAdmin,
       @JsonKey(name: 'star_candy') int starCandy,
-      @JsonKey(name: 'star_candy_bonus') int starCandyBonus,
-      @JsonKey(includeFromJson: false) RealtimeChannel? realtimeChannel});
+      @JsonKey(name: 'star_candy_bonus') int starCandyBonus});
 
   @override
   $UserAgreementCopyWith<$Res>? get userAgreement;
@@ -203,7 +194,6 @@ class __$$UserProfilesModelImplCopyWithImpl<$Res>
     Object? isAdmin = null,
     Object? starCandy = null,
     Object? starCandyBonus = null,
-    Object? realtimeChannel = freezed,
   }) {
     return _then(_$UserProfilesModelImpl(
       id: freezed == id
@@ -242,10 +232,6 @@ class __$$UserProfilesModelImplCopyWithImpl<$Res>
           ? _value.starCandyBonus
           : starCandyBonus // ignore: cast_nullable_to_non_nullable
               as int,
-      realtimeChannel: freezed == realtimeChannel
-          ? _value.realtimeChannel
-          : realtimeChannel // ignore: cast_nullable_to_non_nullable
-              as RealtimeChannel?,
     ));
   }
 }
@@ -262,8 +248,7 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
       @JsonKey(name: 'user_agreement') this.userAgreement,
       @JsonKey(name: 'is_admin') required this.isAdmin,
       @JsonKey(name: 'star_candy') required this.starCandy,
-      @JsonKey(name: 'star_candy_bonus') required this.starCandyBonus,
-      @JsonKey(includeFromJson: false) this.realtimeChannel})
+      @JsonKey(name: 'star_candy_bonus') required this.starCandyBonus})
       : super._();
 
   factory _$UserProfilesModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -296,13 +281,10 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
   @override
   @JsonKey(name: 'star_candy_bonus')
   final int starCandyBonus;
-  @override
-  @JsonKey(includeFromJson: false)
-  final RealtimeChannel? realtimeChannel;
 
   @override
   String toString() {
-    return 'UserProfilesModel(id: $id, nickname: $nickname, avatarUrl: $avatarUrl, countryCode: $countryCode, deletedAt: $deletedAt, userAgreement: $userAgreement, isAdmin: $isAdmin, starCandy: $starCandy, starCandyBonus: $starCandyBonus, realtimeChannel: $realtimeChannel)';
+    return 'UserProfilesModel(id: $id, nickname: $nickname, avatarUrl: $avatarUrl, countryCode: $countryCode, deletedAt: $deletedAt, userAgreement: $userAgreement, isAdmin: $isAdmin, starCandy: $starCandy, starCandyBonus: $starCandyBonus)';
   }
 
   @override
@@ -325,9 +307,7 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
             (identical(other.starCandy, starCandy) ||
                 other.starCandy == starCandy) &&
             (identical(other.starCandyBonus, starCandyBonus) ||
-                other.starCandyBonus == starCandyBonus) &&
-            (identical(other.realtimeChannel, realtimeChannel) ||
-                other.realtimeChannel == realtimeChannel));
+                other.starCandyBonus == starCandyBonus));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -342,8 +322,7 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
       userAgreement,
       isAdmin,
       starCandy,
-      starCandyBonus,
-      realtimeChannel);
+      starCandyBonus);
 
   /// Create a copy of UserProfilesModel
   /// with the given fields replaced by the non-null parameter values.
@@ -372,9 +351,8 @@ abstract class _UserProfilesModel extends UserProfilesModel {
       @JsonKey(name: 'user_agreement') final UserAgreement? userAgreement,
       @JsonKey(name: 'is_admin') required final bool isAdmin,
       @JsonKey(name: 'star_candy') required final int starCandy,
-      @JsonKey(name: 'star_candy_bonus') required final int starCandyBonus,
-      @JsonKey(includeFromJson: false)
-      final RealtimeChannel? realtimeChannel}) = _$UserProfilesModelImpl;
+      @JsonKey(name: 'star_candy_bonus')
+      required final int starCandyBonus}) = _$UserProfilesModelImpl;
   const _UserProfilesModel._() : super._();
 
   factory _UserProfilesModel.fromJson(Map<String, dynamic> json) =
@@ -407,9 +385,6 @@ abstract class _UserProfilesModel extends UserProfilesModel {
   @override
   @JsonKey(name: 'star_candy_bonus')
   int get starCandyBonus;
-  @override
-  @JsonKey(includeFromJson: false)
-  RealtimeChannel? get realtimeChannel;
 
   /// Create a copy of UserProfilesModel
   /// with the given fields replaced by the non-null parameter values.
