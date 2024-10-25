@@ -530,7 +530,7 @@ class _PostsByQueryProviderElement
   int get limit => (origin as PostsByQueryProvider).limit;
 }
 
-String _$postByIdHash() => r'56aae65157a0e88c5581e65268f44f9f69519e00';
+String _$postByIdHash() => r'a1b574e938bc41b51b65fb9d8d9212b04118037a';
 
 /// See also [postById].
 @ProviderFor(postById)

@@ -60,7 +60,6 @@ class CommentsNotifier extends _$CommentsNotifier {
           user: UserProfilesModel.fromJson(row['user']),
           isReportedByUser: row['comment_reports'].length > 0,
           isLiked: row['user_likes'].length > 0,
-          likes: (row['comment_likes'] as List).first['count'] as int,
         );
       }).toList();
 
@@ -88,7 +87,6 @@ class CommentsNotifier extends _$CommentsNotifier {
           user: UserProfilesModel.fromJson(row['user']),
           isReportedByUser: row['comment_reports'].length > 0,
           isLiked: row['user_likes'].length > 0,
-          likes: (row['comment_likes'] as List).first['count'] as int,
         );
       }).toList();
 

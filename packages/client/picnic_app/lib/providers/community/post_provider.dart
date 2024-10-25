@@ -90,13 +90,12 @@ Future<PostModel?> postById(ref, String postId,
 
     final response = await supabase
         .from('posts')
-        .select('*, board:boards!inner(*), user_profiles!posts_user_id_fkey(*), post_reports!left(post_id), post_scraps!left(post_id)')
+        .select(
+            '*, board:boards!inner(*), user_profiles!posts_user_id_fkey(*), post_reports!left(post_id), post_scraps!left(post_id)')
         .eq('post_id', postId)
         .isFilter('deleted_at', null)
         .isFilter('post_reports', null)
         .single();
-
-    logger.i('response: $response');
 
     // Check if post_scraps exists and set isScraped accordingly
     bool isScraped =

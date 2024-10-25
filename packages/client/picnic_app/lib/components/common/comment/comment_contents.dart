@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util/logger.dart';
 
 class CommentContents extends StatefulWidget {
   final CommentModel item;
@@ -20,7 +19,6 @@ class _CommentContentsState extends State<CommentContents> {
 
   @override
   Widget build(BuildContext context) {
-    logger.d('CommentContents build');
     String currentLocale = Localizations.localeOf(context).languageCode;
     String content = widget.item.content!.keys.contains(currentLocale)
         ? widget.item.content![currentLocale]
