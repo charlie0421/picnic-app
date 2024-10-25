@@ -20,7 +20,6 @@ import 'package:picnic_app/util/ui.dart';
 import 'package:picnic_app/util/webp_support_checker.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:timezone/data/latest.dart' as tz;
-import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 import 'package:url_strategy/url_strategy.dart';
 
 void main() async {
@@ -134,20 +133,6 @@ Future<void> requestAppTrackingTransparency() async {
     await MobileAds.instance.initialize();
   }
   logger.i('AppTrackingTransparency: $trackingStatus');
-  await UnityAds.init(
-    gameId:
-        isIOS() ? Environment.unityAppleGameId : Environment.unityAndroidGameId,
-    onComplete: (placementId, state) {
-      logger.i('UnityAds: $placementId, $state');
-    },
-    onFailed: (error, message) {
-      logger.e('UnityAds: $error, $message');
-    },
-  );
-  UnityAds.setPrivacyConsent(PrivacyConsentType.ageGate, true);
-  UnityAds.setPrivacyConsent(PrivacyConsentType.ccpa, true);
-  UnityAds.setPrivacyConsent(PrivacyConsentType.gdpr, true);
-  UnityAds.setPrivacyConsent(PrivacyConsentType.pipl, true);
 }
 
 Future<void> initializeWidgetsAndDeviceOrientation(
