@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/providers/platform_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AppInfo extends ConsumerWidget {
@@ -19,13 +19,6 @@ class AppInfo extends ConsumerWidget {
         logger.d('user: $user');
         return ListView(
           children: [
-            // SizedBox(
-            //   width: getPlatformScreenSize(context).width / 2,
-            //   height: getPlatformScreenSize(context).width / 2,
-            //   child: PicnicCachedNetworkImage(
-            //     Key: user?.userMetadata?['avatar_url'] ?? '',
-            //   ),
-            // ),
             Card(
               child: ListTile(
                 title: const Text('앱버전'),
@@ -45,17 +38,6 @@ class AppInfo extends ConsumerWidget {
                 subtitle: Text(user?.email ?? '--'),
               ),
             ),
-            // if (supabase.isLogged == true)
-            //   ElevatedButton(
-            //     onPressed: () {
-            //       supabase.auth.signOut();
-            //       ref.read(loginedProvider.notifier).setLogined(false);
-            //       final navigationInfoNotifier =
-            //           ref.read(navigationInfoProvider.notifier);
-            //       navigationInfoNotifier.setCurrentPage(const LoginScreen());
-            //     },
-            //     child: const Text('로그아웃'),
-            //   ),
           ],
         );
       },
