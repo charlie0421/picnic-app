@@ -84,9 +84,9 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
       imgFile.writeAsBytesSync(pngBytes);
 
       final result = await ImageGallerySaverPlus.saveFile(path);
-      logger.d('이미지 저장됨: $path, 결과: $result');
+      logger.d('image saved: $path, result: $result');
     } catch (e, s) {
-      logger.e('이미지 저장 실패: $e', stackTrace: s);
+      logger.e('image saving fail: $e', stackTrace: s);
       rethrow;
     } finally {
       setState(() {
@@ -132,7 +132,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
                 .shareToTwitter(S.of(context).share_twitter, path)
             : await appinioSocialShare.android
                 .shareToTwitter(S.of(context).share_twitter, path);
-        logger.d('이미지 공유 결과: $result');
+        logger.d('image share result: $result');
         if (result == 'ERROR_APP_NOT_AVAILABLE') {
           showSimpleDialog(
             content: S.of(context).share_no_twitter,

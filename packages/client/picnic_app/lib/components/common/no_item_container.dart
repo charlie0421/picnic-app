@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class NoItemContainer extends StatelessWidget {
   const NoItemContainer({super.key, this.message});
+
   final String? message;
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -22,7 +25,7 @@ class NoItemContainer extends StatelessWidget {
           ),
           const SizedBox(height: 30),
           Text(
-            message ?? '데이터가 없습니다.',
+            message ?? S.of(context).common_text_no_data,
             style: getTextStyle(AppTypo.title18SB, AppColors.grey700),
           ),
         ],

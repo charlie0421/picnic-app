@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/community/comments_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/number.dart';
@@ -119,8 +120,8 @@ class LikeButtonState extends ConsumerState<LikeButton>
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('좋아요 처리 중 오류가 발생했습니다.'),
+        SnackBar(
+          content: Text(S.of(context).post_comment_like_processing_fail),
           duration: Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
         ),

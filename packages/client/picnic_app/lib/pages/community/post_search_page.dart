@@ -6,7 +6,6 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/common/comment/post_popup_menu.dart';
 import 'package:picnic_app/components/common/common_search_box.dart';
 import 'package:picnic_app/components/community/common/post_list_item.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/post.dart';
@@ -14,6 +13,7 @@ import 'package:picnic_app/providers/community/post_provider.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -224,12 +224,12 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('검색 중 오류가 발생했습니다.',
+                    Text(S.of(context).common_text_search_error,
                         style:
                             getTextStyle(AppTypo.body16M, AppColors.grey400)),
                     ElevatedButton(
                       onPressed: () => _pagingController.refresh(),
-                      child: const Text('다시 시도'),
+                      child: Text(S.of(context).common_retry_label),
                     ),
                   ],
                 ),
@@ -252,8 +252,8 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
             color: AppColors.primary500, width: 1.cw, style: BorderStyle.solid),
         borderRadius: BorderRadius.all(Radius.circular(16.r)),
       ),
-      child:
-          Text('검색 결과', style: getTextStyle(AppTypo.body14B, AppColors.grey00)),
+      child: Text(S.of(context).common_text_search_result_label,
+          style: getTextStyle(AppTypo.body14B, AppColors.grey00)),
     );
   }
 
@@ -269,7 +269,7 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
             border: Border.all(color: AppColors.primary500, width: 1),
             borderRadius: BorderRadius.all(Radius.circular(20.r)),
           ),
-          child: Text('최근 검색어',
+          child: Text(S.of(context).common_text_search_recent_label,
               style: getTextStyle(AppTypo.body14B, AppColors.primary500)),
         ),
         Padding(

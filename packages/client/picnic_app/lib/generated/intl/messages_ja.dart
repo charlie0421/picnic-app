@@ -26,16 +26,21 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m2(minute) => "${minute}分前";
 
-  static String m3(num1) => "${num1}개 +${num1}개 보너스";
+  static String m3(nickname) => "${nickname}さんへの返信中...";
 
-  static String m4(rank) => "${rank}位";
+  static String m4(num1) => "${num1}개 +${num1}개 보너스";
 
-  static String m5(version) => "新しいバージョン(${version})が利用可能です。";
+  static String m5(rank) => "${rank}位";
 
-  static String m6(version) => "新しいバージョン(${version})へのアップデートが必要です。";
+  static String m6(version) => "新しいバージョン(${version})が利用可能です。";
+
+  static String m7(version) => "新しいバージョン(${version})へのアップデートが必要です。";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "ads_available_time": MessageLookupByLibrary.simpleMessage("広告視聴可能時間"),
+        "anonymous": MessageLookupByLibrary.simpleMessage("匿名"),
+        "anonymous_mode": MessageLookupByLibrary.simpleMessage("匿名モード"),
         "app_name": MessageLookupByLibrary.simpleMessage("ピクニック"),
         "button_cancel": MessageLookupByLibrary.simpleMessage("キャンセル"),
         "button_complete": MessageLookupByLibrary.simpleMessage("完了"),
@@ -54,6 +59,20 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("詳細を見る"),
         "candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("スターキャンディー使用ポリシー"),
+        "common_all": MessageLookupByLibrary.simpleMessage("全体"),
+        "common_fail": MessageLookupByLibrary.simpleMessage("失敗"),
+        "common_retry_label": MessageLookupByLibrary.simpleMessage("再試行"),
+        "common_success": MessageLookupByLibrary.simpleMessage("成功"),
+        "common_text_no_data":
+            MessageLookupByLibrary.simpleMessage("データがありません。"),
+        "common_text_no_search_result":
+            MessageLookupByLibrary.simpleMessage("検索結果がありません。"),
+        "common_text_search_error":
+            MessageLookupByLibrary.simpleMessage("検索中にエラーが発生しました。"),
+        "common_text_search_recent_label":
+            MessageLookupByLibrary.simpleMessage("最近の検索ワード"),
+        "common_text_search_result_label":
+            MessageLookupByLibrary.simpleMessage("検索結果"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("キャンセル"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("確認"),
         "dialog_content_ads_exhausted":
@@ -154,7 +173,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("AIフォト"),
         "label_library_tab_library":
             MessageLookupByLibrary.simpleMessage("ライブラリ"),
-        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("ピック"),
+        "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("PIC"),
         "label_loading_ads": MessageLookupByLibrary.simpleMessage("広告読み込み中"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("アーティストギャラリーへ"),
@@ -293,7 +312,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_ads": MessageLookupByLibrary.simpleMessage("広告"),
         "nav_board": MessageLookupByLibrary.simpleMessage("掲示板"),
         "nav_gallery": MessageLookupByLibrary.simpleMessage("ギャラリー"),
-        "nav_home": MessageLookupByLibrary.simpleMessage("홈"),
+        "nav_home": MessageLookupByLibrary.simpleMessage("ホーム"),
         "nav_library": MessageLookupByLibrary.simpleMessage("ライブラリ"),
         "nav_media": MessageLookupByLibrary.simpleMessage("メディア"),
         "nav_my": MessageLookupByLibrary.simpleMessage("マイ"),
@@ -317,16 +336,120 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("投票集を見る"),
         "popup_label_delete": MessageLookupByLibrary.simpleMessage("削除"),
         "post_anonymous": MessageLookupByLibrary.simpleMessage("匿名投稿"),
+        "post_ask_go_to_temporary_save_list":
+            MessageLookupByLibrary.simpleMessage("一時保存リストに移動しますか？"),
+        "post_board_already_exist":
+            MessageLookupByLibrary.simpleMessage("すでに存在する掲示板です。"),
+        "post_board_create_request_complete":
+            MessageLookupByLibrary.simpleMessage("掲示板のオープンリクエストが完了しました。"),
+        "post_board_create_request_condition":
+            MessageLookupByLibrary.simpleMessage(
+                "*1つのIDにつき1つのマイナー掲示板のみ申請が可能です。"),
+        "post_board_create_request_label":
+            MessageLookupByLibrary.simpleMessage("掲示板オープンリクエスト"),
+        "post_board_create_request_reviewing":
+            MessageLookupByLibrary.simpleMessage("掲示板オープンリクエスト検討中"),
+        "post_board_request_label":
+            MessageLookupByLibrary.simpleMessage("オープンリクエスト"),
+        "post_cannot_open_youtube":
+            MessageLookupByLibrary.simpleMessage("Youtubeを開くことができません。"),
+        "post_comment_action_translate":
+            MessageLookupByLibrary.simpleMessage("翻訳"),
+        "post_comment_content_more":
+            MessageLookupByLibrary.simpleMessage("もっと見る"),
+        "post_comment_delete_confirm":
+            MessageLookupByLibrary.simpleMessage("コメントを削除しますか？"),
+        "post_comment_delete_fail":
+            MessageLookupByLibrary.simpleMessage("コメントの削除に失敗しました。"),
+        "post_comment_deleted_comment":
+            MessageLookupByLibrary.simpleMessage("削除されたコメントです。"),
+        "post_comment_like_processing_fail":
+            MessageLookupByLibrary.simpleMessage("いいね処理に失敗しました。"),
+        "post_comment_loading_fail":
+            MessageLookupByLibrary.simpleMessage("コメントの読み込みに失敗しました。"),
+        "post_comment_register_fail":
+            MessageLookupByLibrary.simpleMessage("コメント登録に失敗しました。"),
+        "post_comment_registered_comment":
+            MessageLookupByLibrary.simpleMessage("コメントが登録されました。"),
+        "post_comment_reported_comment":
+            MessageLookupByLibrary.simpleMessage("報告されたコメントです。"),
+        "post_comment_translate_complete":
+            MessageLookupByLibrary.simpleMessage("翻訳が完了しました。"),
+        "post_comment_translate_fail":
+            MessageLookupByLibrary.simpleMessage("翻訳に失敗しました。"),
+        "post_comment_translated": MessageLookupByLibrary.simpleMessage("翻訳済み"),
+        "post_comment_write_label":
+            MessageLookupByLibrary.simpleMessage("コメントを書く"),
         "post_content_placeholder":
             MessageLookupByLibrary.simpleMessage("内容を入力してください。"),
+        "post_delete_scrap_confirm":
+            MessageLookupByLibrary.simpleMessage("スクラップを削除しますか？"),
+        "post_delete_scrap_title":
+            MessageLookupByLibrary.simpleMessage("スクラップ削除"),
+        "post_go_to_boards": MessageLookupByLibrary.simpleMessage("掲示板に移動"),
         "post_header_publish": MessageLookupByLibrary.simpleMessage("投稿"),
         "post_header_temporary_save":
             MessageLookupByLibrary.simpleMessage("一時保存"),
+        "post_hint_title":
+            MessageLookupByLibrary.simpleMessage("タイトルを入力してください。"),
         "post_hyperlink": MessageLookupByLibrary.simpleMessage("ハイパーリンク"),
         "post_insert_link": MessageLookupByLibrary.simpleMessage("リンク挿入"),
+        "post_loading_post_fail":
+            MessageLookupByLibrary.simpleMessage("投稿の読み込みに失敗しました。"),
+        "post_minor_board_condition":
+            MessageLookupByLibrary.simpleMessage("説明は5文字以上20文字以内で入力してください。"),
+        "post_minor_board_create_request_message":
+            MessageLookupByLibrary.simpleMessage("* 掲示板オープンリクエストのメッセージ。"),
+        "post_minor_board_create_request_message_condition":
+            MessageLookupByLibrary.simpleMessage(
+                "掲示板オープンリクエストメッセージは10文字以上入力してください。"),
+        "post_minor_board_create_request_message_input":
+            MessageLookupByLibrary.simpleMessage("掲示板オープンリクエストメッセージを入力してください。"),
+        "post_minor_board_description":
+            MessageLookupByLibrary.simpleMessage("マイナー掲示板の説明"),
+        "post_minor_board_description_input":
+            MessageLookupByLibrary.simpleMessage("マイナー掲示板の説明を入力してください。"),
+        "post_minor_board_name":
+            MessageLookupByLibrary.simpleMessage("マイナー掲示板名"),
+        "post_minor_board_name_input":
+            MessageLookupByLibrary.simpleMessage("マイナー掲示板名を入力してください。"),
+        "post_my_written_post": MessageLookupByLibrary.simpleMessage("私が書いた記事"),
+        "post_my_written_reply":
+            MessageLookupByLibrary.simpleMessage("私が書いたコメント"),
+        "post_my_written_scrap":
+            MessageLookupByLibrary.simpleMessage("私のスクラップ"),
+        "post_no_comment": MessageLookupByLibrary.simpleMessage("コメントはありません。"),
+        "post_replying_comment": m3,
+        "post_report_fail": MessageLookupByLibrary.simpleMessage("申告に失敗しました。"),
+        "post_report_label": MessageLookupByLibrary.simpleMessage("報告する"),
+        "post_report_other_input":
+            MessageLookupByLibrary.simpleMessage("その他の理由を入力してください。"),
+        "post_report_reason_1":
+            MessageLookupByLibrary.simpleMessage("公序良俗に反する投稿"),
+        "post_report_reason_2":
+            MessageLookupByLibrary.simpleMessage("男女、人種差別的な投稿"),
+        "post_report_reason_3":
+            MessageLookupByLibrary.simpleMessage("不愉快な罵詈雑言を含む投稿"),
+        "post_report_reason_4":
+            MessageLookupByLibrary.simpleMessage("広告・宣伝性の投稿"),
+        "post_report_reason_5": MessageLookupByLibrary.simpleMessage("その他"),
+        "post_report_reason_input":
+            MessageLookupByLibrary.simpleMessage("申告理由を選択してください。"),
+        "post_report_reason_label":
+            MessageLookupByLibrary.simpleMessage("申告理由"),
+        "post_report_success":
+            MessageLookupByLibrary.simpleMessage("申告が完了しました。"),
+        "post_temporary_save_complete":
+            MessageLookupByLibrary.simpleMessage("一時保存完了。"),
         "post_title_placeholder":
             MessageLookupByLibrary.simpleMessage("タイトルを入力してください。"),
+        "post_write_board_post": MessageLookupByLibrary.simpleMessage("投稿する"),
+        "post_write_post_recommend_write":
+            MessageLookupByLibrary.simpleMessage("投稿をお願いします。"),
         "post_youtube_link": MessageLookupByLibrary.simpleMessage("ユーチューブリンク"),
+        "purchase_web_message": MessageLookupByLibrary.simpleMessage(
+            "アプリ決済ができない方のための決済画面です.\\nあらかじめ乱数IDをコピーしてください.\\nコピーした後、下のボタンを押して決済を行ってください。"),
+        "replies": MessageLookupByLibrary.simpleMessage("コメント"),
         "share_image_fail": MessageLookupByLibrary.simpleMessage("画像共有に失敗"),
         "share_image_success": MessageLookupByLibrary.simpleMessage("画像共有成功"),
         "share_no_twitter": MessageLookupByLibrary.simpleMessage("Xアプリがありません。"),
@@ -372,10 +495,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_purchase_vat_included":
             MessageLookupByLibrary.simpleMessage("*価格はVAT込みの価格です。"),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("スターキャンディー"),
-        "text_star_candy_with_bonus": m3,
+        "text_star_candy_with_bonus": m4,
         "text_this_time_vote": MessageLookupByLibrary.simpleMessage("今回の投票"),
         "text_vote_complete": MessageLookupByLibrary.simpleMessage("投票完了"),
-        "text_vote_rank": m4,
+        "text_vote_rank": m5,
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("ランクインリワード"),
         "text_vote_where_is_my_bias":
@@ -387,9 +510,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "toast_max_five_celeb":
             MessageLookupByLibrary.simpleMessage("マイアーティストは最大5人まで追加できます。"),
         "update_button": MessageLookupByLibrary.simpleMessage("最新情報"),
-        "update_recommend_text": m5,
-        "update_required_text": m6,
+        "update_cannot_open_appstore":
+            MessageLookupByLibrary.simpleMessage("アプリストアを開くことができません。"),
+        "update_recommend_text": m6,
+        "update_required_text": m7,
         "update_required_title":
-            MessageLookupByLibrary.simpleMessage("アップデートが必要です。")
+            MessageLookupByLibrary.simpleMessage("アップデートが必要です。"),
+        "views": MessageLookupByLibrary.simpleMessage("再生回数")
       };
 }

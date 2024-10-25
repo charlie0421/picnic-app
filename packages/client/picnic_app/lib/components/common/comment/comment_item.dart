@@ -6,6 +6,7 @@ import 'package:picnic_app/components/common/comment/comment_actions.dart';
 import 'package:picnic_app/components/common/comment/comment_contents.dart';
 import 'package:picnic_app/components/common/comment/comment_header.dart';
 import 'package:picnic_app/components/common/comment/comment_popup_menu.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
@@ -117,8 +118,8 @@ class _CommentItemState extends ConsumerState<CommentItem>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('댓글 삭제 중 오류가 발생했습니다'),
+          SnackBar(
+            content: Text(S.of(context).post_comment_delete_fail),
             backgroundColor: Colors.red,
             duration: Duration(seconds: 2),
           ),

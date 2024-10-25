@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/community/boards_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
@@ -134,12 +135,12 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
                     ..._buildSection(
                       _nameController,
                       _nameFocus,
-                      '마이너 게시판 이름',
-                      '게시판 이름을 입력해주세요',
+                      S.of(context).post_minor_board_name,
+                      S.of(context).post_minor_board_name_input,
                       1,
                       (value) {
                         if (value == null || value.isEmpty) {
-                          return '게시판 이름을 입력해주세요';
+                          return S.of(context).post_minor_board_name_input;
                         }
                         return null;
                       },
@@ -149,15 +150,17 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
                     ..._buildSection(
                       _descriptionController,
                       _descriptionFocus,
-                      '마이너 게시판 설명',
-                      '마이너 게시판 설명을 작성해 주세요.',
+                      S.of(context).post_minor_board_description,
+                      S.of(context).post_minor_board_description_input,
                       3,
                       (value) {
                         if (value == null || value.isEmpty) {
-                          return '게시판 설명을 입력해주세요';
+                          return S
+                              .of(context)
+                              .post_minor_board_description_input;
                         }
                         if (value.length < 5 && value.length < 20) {
-                          return '목적은 5자 이상 20자 이하로 입력해주세요';
+                          return S.of(context).post_minor_board_condition;
                         }
                         return null;
                       },
@@ -167,15 +170,21 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
                     ..._buildSection(
                       _requestMessageController,
                       _requestMessageFocus,
-                      '* 게시판 오픈 요청 메시지',
-                      '게시판 오픈 요청 메시지를 입력해주세요.',
+                      S.of(context).post_minor_board_create_request_message,
+                      S
+                          .of(context)
+                          .post_minor_board_create_request_message_input,
                       3,
                       (value) {
                         if (value == null || value.isEmpty) {
-                          return '게시판 오픈 요청 메시지를 입력해주세요';
+                          return S
+                              .of(context)
+                              .post_minor_board_create_request_message_input;
                         }
                         if (value.length < 10) {
-                          return '게시판 오픈 요청 메시지는 10자 이상 입력해주세요';
+                          return S
+                              .of(context)
+                              .post_minor_board_create_request_message_condition;
                         }
                         return null;
                       },
@@ -201,7 +210,11 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
                           onPressed:
                               snapshot.data == null ? _handleSubmit : null,
                           child: Text(
-                            snapshot.data == null ? '게시판 오픈 요청' : '게시판 오픈 검토중',
+                            snapshot.data == null
+                                ? S.of(context).post_board_create_request_label
+                                : S
+                                    .of(context)
+                                    .post_board_create_request_reviewing,
                             style:
                                 getTextStyle(AppTypo.body14B, AppColors.grey00),
                           ),
@@ -224,7 +237,7 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
       height: 30,
       decoration: const BoxDecoration(color: Color(0xFFF3EFFF)),
       child: Center(
-        child: Text('*아이디 당 1개의 마이너 게시판만 신청이 가능합니다.',
+        child: Text(S.of(context).post_board_create_request_condition,
             style: getTextStyle(AppTypo.caption12M, AppColors.primary500)),
       ),
     );
@@ -293,7 +306,7 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
       checkDuplicateBoard(ref, _nameController.text).then((value) {
         if (value != null) {
           showSimpleDialog(
-            content: '이미 존재하는 게시판입니다.',
+            content: S.of(context).post_board_already_exist,
             onOk: () => Navigator.of(context).pop(),
           );
         } else {
@@ -305,7 +318,7 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
             _requestMessageController.text,
           ).then((value) {
             showSimpleDialog(
-              content: '게시판 오픈 요청이 완료되었습니다.',
+              content: S.of(context).post_board_create_request_complete,
               onOk: () => Navigator.of(context).pop(),
             );
           });

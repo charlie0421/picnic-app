@@ -4,6 +4,7 @@ import 'package:picnic_app/components/common/comment/post_popup_menu.dart';
 import 'package:picnic_app/components/community/common/post_list_item.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/dialogs/report_dialog.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/pages/community/post_list_page.dart';
 import 'package:picnic_app/providers/community/post_provider.dart';
@@ -46,7 +47,7 @@ class _PostHomeListState extends ConsumerState<PostHomeList> {
                 Container(
                   height: 160,
                   alignment: Alignment.center,
-                  child: Text('게시글을 작성해 주세요!',
+                  child: Text(S.of(context).post_write_post_recommend_write,
                       style:
                           getTextStyle(AppTypo.caption12B, AppColors.grey500)),
                 )
@@ -114,7 +115,7 @@ class _PostHomeListState extends ConsumerState<PostHomeList> {
                       .setCommunityCurrentPage(PostListPage(currentArtist.id,
                           getLocaleTextFromJson(currentArtist.name)));
                 },
-                child: Text('My Artist 게시판 보기',
+                child: Text(S.of(context).post_go_to_boards,
                     style: getTextStyle(AppTypo.body14B, AppColors.primary500)),
               ),
             ],

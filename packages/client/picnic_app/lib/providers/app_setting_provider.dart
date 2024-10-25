@@ -61,7 +61,7 @@ class Setting with _$Setting {
         await globalStorage.loadData('postAnonymousMode', 'false');
 
     logger.d(
-        '로드된 설정: themeMode=$themeModeStr, locale=$localeStr, postAnonymousMode=$postAnonymousModeStr');
+        'loaded config: themeMode=$themeModeStr, locale=$localeStr, postAnonymousMode=$postAnonymousModeStr');
     return copyWith(
         themeMode: parseThemeMode(themeModeStr!),
         locale: parseLocale(localeStr!),

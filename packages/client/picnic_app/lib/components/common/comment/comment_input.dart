@@ -182,8 +182,8 @@ class _CommentInputState extends ConsumerState<CommentInput> {
       _focusNode.unfocus();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('댓글이 등록되었습니다.'),
+        SnackBar(
+          content: Text(S.of(context).post_comment_registered_comment),
           duration: Duration(seconds: 1),
           behavior: SnackBarBehavior.floating,
         ),
@@ -192,8 +192,8 @@ class _CommentInputState extends ConsumerState<CommentInput> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('댓글 등록에 실패했습니다.'),
+        SnackBar(
+          content: Text(S.of(context).post_comment_register_fail),
           backgroundColor: Colors.red,
           duration: Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,

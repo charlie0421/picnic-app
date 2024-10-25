@@ -92,7 +92,6 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
               });
             }
           });
-          logger.e('이미지 로딩 중 오류 발생:', error: exception);
         },
         imageBuilder: (context, imageProvider) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -110,7 +109,7 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
         },
       );
     } catch (e, s) {
-      logger.e('이미지 로딩 중 오류 발생:', error: e, stackTrace: s);
+      logger.e(e, stackTrace: s);
       Sentry.captureException(
         e,
         stackTrace: s,

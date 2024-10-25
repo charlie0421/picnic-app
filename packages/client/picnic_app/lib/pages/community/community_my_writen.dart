@@ -4,6 +4,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/common/comment/post_popup_menu.dart';
 import 'package:picnic_app/components/common/no_item_container.dart';
 import 'package:picnic_app/components/community/common/post_list_item.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/providers/community/post_provider.dart';
@@ -31,7 +32,7 @@ class _CommunityMyWritenState extends ConsumerState<CommunityMyWriten>
           showTopMenu: true,
           topRightMenu: TopRightType.none,
           showBottomNavigation: false,
-          pageTitle: '내가 쓴 글');
+          pageTitle: S.of(context).post_my_written_post);
     });
 
     _pagingController.addPageRequestListener((pageKey) async {

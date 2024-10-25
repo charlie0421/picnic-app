@@ -21,6 +21,7 @@ import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 
 class FreeChargeStation extends ConsumerStatefulWidget {
   const FreeChargeStation({super.key});
+
   @override
   ConsumerState<FreeChargeStation> createState() => _FreeChargeStationState();
 }
@@ -322,7 +323,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
             ),
             const SizedBox(height: 8),
             Text(
-              '다음 광고 시청 가능시간',
+              S.of(context).ads_available_time,
               style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
               textAlign: TextAlign.center,
             ),

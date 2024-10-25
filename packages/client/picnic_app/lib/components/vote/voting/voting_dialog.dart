@@ -323,7 +323,8 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
               focusNode: _focusNode,
               controller: _textEditingController,
               keyboardType: TextInputType.number,
-              textAlign: TextAlign.left, // 왼쪽 정렬
+              textAlign: TextAlign.left,
+              // 왼쪽 정렬
               decoration: InputDecoration(
                 hintText: S.of(context).label_input_input,
                 hintStyle: getTextStyle(AppTypo.body16R, AppColors.grey300),
@@ -497,7 +498,6 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
       _showVotingCompleteDialog(response.data);
 
-      logger.i('투표 완료: ${response.data}');
       logger.i(response.status);
     } catch (e, s) {
       logger.e(e, stackTrace: s);

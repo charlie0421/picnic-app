@@ -26,16 +26,21 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m2(minute) => "${minute}分钟前";
 
-  static String m3(num1) => "${num1}개 +${num1}개 보너스";
+  static String m3(nickname) => "回复 ${nickname}...";
 
-  static String m4(rank) => "第${rank}名";
+  static String m4(num1) => "${num1}개 +${num1}개 보너스";
 
-  static String m5(version) => "新版本 (${version}) 已发布。";
+  static String m5(rank) => "第${rank}名";
 
-  static String m6(version) => "您需要更新到新版本 ({版本})。";
+  static String m6(version) => "新版本 (${version}) 已发布。";
+
+  static String m7(version) => "您需要更新到新版本 ({版本})。";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "ads_available_time": MessageLookupByLibrary.simpleMessage("广告可用性"),
+        "anonymous": MessageLookupByLibrary.simpleMessage("匿名"),
+        "anonymous_mode": MessageLookupByLibrary.simpleMessage("匿名模式"),
         "app_name": MessageLookupByLibrary.simpleMessage("野餐"),
         "button_cancel": MessageLookupByLibrary.simpleMessage("取消"),
         "button_complete": MessageLookupByLibrary.simpleMessage("完成"),
@@ -54,6 +59,19 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("了解更多"),
         "candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("星糖使用政策"),
+        "common_all": MessageLookupByLibrary.simpleMessage("全部"),
+        "common_fail": MessageLookupByLibrary.simpleMessage("失败"),
+        "common_retry_label": MessageLookupByLibrary.simpleMessage("再试一次"),
+        "common_success": MessageLookupByLibrary.simpleMessage("成功"),
+        "common_text_no_data": MessageLookupByLibrary.simpleMessage("无数据。"),
+        "common_text_no_search_result":
+            MessageLookupByLibrary.simpleMessage("未找到搜索结果。"),
+        "common_text_search_error":
+            MessageLookupByLibrary.simpleMessage("搜索过程中出现错误。"),
+        "common_text_search_recent_label":
+            MessageLookupByLibrary.simpleMessage("最近的搜索"),
+        "common_text_search_result_label":
+            MessageLookupByLibrary.simpleMessage("搜索结果"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("取消"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("确认"),
         "dialog_content_ads_exhausted":
@@ -273,7 +291,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_ads": MessageLookupByLibrary.simpleMessage("广告"),
         "nav_board": MessageLookupByLibrary.simpleMessage("公告栏"),
         "nav_gallery": MessageLookupByLibrary.simpleMessage("画廊"),
-        "nav_home": MessageLookupByLibrary.simpleMessage("홈"),
+        "nav_home": MessageLookupByLibrary.simpleMessage("首页"),
         "nav_library": MessageLookupByLibrary.simpleMessage("图书馆"),
         "nav_media": MessageLookupByLibrary.simpleMessage("媒体"),
         "nav_my": MessageLookupByLibrary.simpleMessage("我的"),
@@ -296,16 +314,109 @@ class MessageLookup extends MessageLookupByLibrary {
         "page_title_vote_gather": MessageLookupByLibrary.simpleMessage("收集选票"),
         "popup_label_delete": MessageLookupByLibrary.simpleMessage("删除"),
         "post_anonymous": MessageLookupByLibrary.simpleMessage("匿名张贴"),
+        "post_ask_go_to_temporary_save_list":
+            MessageLookupByLibrary.simpleMessage("想进入草稿列表吗？"),
+        "post_board_already_exist":
+            MessageLookupByLibrary.simpleMessage("一个已经存在的董事会。"),
+        "post_board_create_request_complete":
+            MessageLookupByLibrary.simpleMessage("您的开设留言板申请已完成。"),
+        "post_board_create_request_condition":
+            MessageLookupByLibrary.simpleMessage("*每个 ID 只能申请一个未成年人板。"),
+        "post_board_create_request_label":
+            MessageLookupByLibrary.simpleMessage("申请开设一个板块"),
+        "post_board_create_request_reviewing":
+            MessageLookupByLibrary.simpleMessage("审查开设留言板的申请"),
+        "post_board_request_label":
+            MessageLookupByLibrary.simpleMessage("公开申请"),
+        "post_cannot_open_youtube":
+            MessageLookupByLibrary.simpleMessage("我打不开 Youtube。"),
+        "post_comment_action_translate":
+            MessageLookupByLibrary.simpleMessage("翻译"),
+        "post_comment_content_more":
+            MessageLookupByLibrary.simpleMessage("更多信息"),
+        "post_comment_delete_confirm":
+            MessageLookupByLibrary.simpleMessage("您确定要删除评论吗？"),
+        "post_comment_delete_fail":
+            MessageLookupByLibrary.simpleMessage("评论删除失败。"),
+        "post_comment_deleted_comment":
+            MessageLookupByLibrary.simpleMessage("此评论已被删除。"),
+        "post_comment_like_processing_fail":
+            MessageLookupByLibrary.simpleMessage("处理失败。"),
+        "post_comment_loading_fail":
+            MessageLookupByLibrary.simpleMessage("评论加载失败。"),
+        "post_comment_register_fail":
+            MessageLookupByLibrary.simpleMessage("评论注册失败。"),
+        "post_comment_registered_comment":
+            MessageLookupByLibrary.simpleMessage("您的评论已被注册。"),
+        "post_comment_reported_comment":
+            MessageLookupByLibrary.simpleMessage("报告评论。"),
+        "post_comment_translate_complete":
+            MessageLookupByLibrary.simpleMessage("翻译工作已经完成。"),
+        "post_comment_translate_fail":
+            MessageLookupByLibrary.simpleMessage("翻译失败。"),
+        "post_comment_translated": MessageLookupByLibrary.simpleMessage("已翻译"),
+        "post_comment_write_label": MessageLookupByLibrary.simpleMessage("写评论"),
         "post_content_placeholder":
             MessageLookupByLibrary.simpleMessage("请输入内容。"),
+        "post_delete_scrap_confirm":
+            MessageLookupByLibrary.simpleMessage("您想删除废料吗？"),
+        "post_delete_scrap_title": MessageLookupByLibrary.simpleMessage("删除废料"),
+        "post_go_to_boards": MessageLookupByLibrary.simpleMessage("前往留言板"),
         "post_header_publish": MessageLookupByLibrary.simpleMessage("出版"),
         "post_header_temporary_save":
             MessageLookupByLibrary.simpleMessage("草稿"),
+        "post_hint_title": MessageLookupByLibrary.simpleMessage("请输入标题。"),
         "post_hyperlink": MessageLookupByLibrary.simpleMessage("超链接"),
         "post_insert_link": MessageLookupByLibrary.simpleMessage("插入链接"),
+        "post_loading_post_fail":
+            MessageLookupByLibrary.simpleMessage("帖子加载失败。"),
+        "post_minor_board_condition":
+            MessageLookupByLibrary.simpleMessage("请输入至少 5 个字符但不超过 20 个字符的描述。"),
+        "post_minor_board_create_request_message":
+            MessageLookupByLibrary.simpleMessage("* 请求开设留言板的信息。"),
+        "post_minor_board_create_request_message_condition":
+            MessageLookupByLibrary.simpleMessage("请在请求开设留言板的信息中输入至少 10 个字符。"),
+        "post_minor_board_create_request_message_input":
+            MessageLookupByLibrary.simpleMessage("请输入请求打开留言板的信息。"),
+        "post_minor_board_description":
+            MessageLookupByLibrary.simpleMessage("小公告栏说明"),
+        "post_minor_board_description_input":
+            MessageLookupByLibrary.simpleMessage("请为您的未成年人板输入描述。"),
+        "post_minor_board_name": MessageLookupByLibrary.simpleMessage("小板名称"),
+        "post_minor_board_name_input":
+            MessageLookupByLibrary.simpleMessage("请输入未成年人板的名称。"),
+        "post_my_written_post": MessageLookupByLibrary.simpleMessage("我撰写的文章"),
+        "post_my_written_reply": MessageLookupByLibrary.simpleMessage("您写的评论"),
+        "post_my_written_scrap": MessageLookupByLibrary.simpleMessage("我的废品"),
+        "post_no_comment": MessageLookupByLibrary.simpleMessage("无评论。"),
+        "post_replying_comment": m3,
+        "post_report_fail": MessageLookupByLibrary.simpleMessage("报告失败。"),
+        "post_report_label": MessageLookupByLibrary.simpleMessage("提交报告"),
+        "post_report_other_input":
+            MessageLookupByLibrary.simpleMessage("请输入任何其他原因。"),
+        "post_report_reason_1": MessageLookupByLibrary.simpleMessage("不雅帖子"),
+        "post_report_reason_2":
+            MessageLookupByLibrary.simpleMessage("性别歧视和种族主义帖子"),
+        "post_report_reason_3":
+            MessageLookupByLibrary.simpleMessage("包含冒犯性亵渎语言的帖子"),
+        "post_report_reason_4": MessageLookupByLibrary.simpleMessage("广告/促销职位"),
+        "post_report_reason_5": MessageLookupByLibrary.simpleMessage("其他"),
+        "post_report_reason_input":
+            MessageLookupByLibrary.simpleMessage("请选择报告原因。"),
+        "post_report_reason_label":
+            MessageLookupByLibrary.simpleMessage("报告原因"),
+        "post_report_success": MessageLookupByLibrary.simpleMessage("报告已完成。"),
+        "post_temporary_save_complete":
+            MessageLookupByLibrary.simpleMessage("草案完成。"),
         "post_title_placeholder":
             MessageLookupByLibrary.simpleMessage("请输入标题。"),
+        "post_write_board_post": MessageLookupByLibrary.simpleMessage("创建一个职位"),
+        "post_write_post_recommend_write":
+            MessageLookupByLibrary.simpleMessage("请写一篇文章。"),
         "post_youtube_link": MessageLookupByLibrary.simpleMessage("YouTube 链接"),
+        "purchase_web_message": MessageLookupByLibrary.simpleMessage(
+            "\\n 请提前复制随机数字 ID： \\n 复制后，点击下面的按钮继续付款。"),
+        "replies": MessageLookupByLibrary.simpleMessage("评论"),
         "share_image_fail": MessageLookupByLibrary.simpleMessage("图像共享失败"),
         "share_image_success": MessageLookupByLibrary.simpleMessage("成功共享图像"),
         "share_no_twitter": MessageLookupByLibrary.simpleMessage("X 应用程序丢失。"),
@@ -348,10 +459,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_purchase_vat_included":
             MessageLookupByLibrary.simpleMessage("*价格包含增值税。"),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("星形糖果"),
-        "text_star_candy_with_bonus": m3,
+        "text_star_candy_with_bonus": m4,
         "text_this_time_vote": MessageLookupByLibrary.simpleMessage("这次投票"),
         "text_vote_complete": MessageLookupByLibrary.simpleMessage("投票结束"),
-        "text_vote_rank": m4,
+        "text_vote_rank": m5,
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("奖励排名"),
         "text_vote_where_is_my_bias":
@@ -363,8 +474,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "toast_max_five_celeb":
             MessageLookupByLibrary.simpleMessage("您最多可以添加五位自己的艺术家。"),
         "update_button": MessageLookupByLibrary.simpleMessage("更新"),
-        "update_recommend_text": m5,
-        "update_required_text": m6,
-        "update_required_title": MessageLookupByLibrary.simpleMessage("需要更新。")
+        "update_cannot_open_appstore":
+            MessageLookupByLibrary.simpleMessage("我无法打开应用程序商店。"),
+        "update_recommend_text": m6,
+        "update_required_text": m7,
+        "update_required_title": MessageLookupByLibrary.simpleMessage("需要更新。"),
+        "views": MessageLookupByLibrary.simpleMessage("意见")
       };
 }

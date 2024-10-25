@@ -26,17 +26,24 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m2(minute) => "${minute} minutes ago";
 
-  static String m3(num1) => "${num1}개 +${num1}개 보너스";
+  static String m3(nickname) => "Replying to ${nickname}...";
 
-  static String m4(rank) => "Rank ${rank}";
+  static String m4(num1) => "${num1}개 +${num1}개 보너스";
 
-  static String m5(version) => "A new version (${version}) is available.";
+  static String m5(rank) => "Rank ${rank}";
 
-  static String m6(version) =>
+  static String m6(version) => "A new version (${version}) is available.";
+
+  static String m7(version) =>
       "You need to update to a new version (${version}).";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "ads_available_time":
+            MessageLookupByLibrary.simpleMessage("Ad availability"),
+        "anonymous": MessageLookupByLibrary.simpleMessage("Anonymous"),
+        "anonymous_mode":
+            MessageLookupByLibrary.simpleMessage("Anonymous Mode"),
         "app_name": MessageLookupByLibrary.simpleMessage("Picnic"),
         "button_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "button_complete": MessageLookupByLibrary.simpleMessage("Done"),
@@ -55,6 +62,20 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Learn more"),
         "candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("Stardust Usage Policy"),
+        "common_all": MessageLookupByLibrary.simpleMessage("All"),
+        "common_fail": MessageLookupByLibrary.simpleMessage("Failed"),
+        "common_retry_label": MessageLookupByLibrary.simpleMessage("Try again"),
+        "common_success": MessageLookupByLibrary.simpleMessage("성공"),
+        "common_text_no_data":
+            MessageLookupByLibrary.simpleMessage("No data is available."),
+        "common_text_no_search_result":
+            MessageLookupByLibrary.simpleMessage("No search results found."),
+        "common_text_search_error": MessageLookupByLibrary.simpleMessage(
+            "An error occurred during the search."),
+        "common_text_search_recent_label":
+            MessageLookupByLibrary.simpleMessage("Recent searches"),
+        "common_text_search_result_label":
+            MessageLookupByLibrary.simpleMessage("Search results"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
         "dialog_content_ads_exhausted": MessageLookupByLibrary.simpleMessage(
@@ -207,8 +228,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Compositing an image..."),
         "label_read_more_comment":
             MessageLookupByLibrary.simpleMessage("More comments"),
-        "label_reply":
-            MessageLookupByLibrary.simpleMessage("Replying to a reply"),
+        "label_reply": MessageLookupByLibrary.simpleMessage("Replying"),
         "label_retry": MessageLookupByLibrary.simpleMessage("Retrying"),
         "label_screen_title_agreement":
             MessageLookupByLibrary.simpleMessage("Accept the terms"),
@@ -319,7 +339,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "mypage_subscription":
             MessageLookupByLibrary.simpleMessage("Subscription information"),
         "nav_ads": MessageLookupByLibrary.simpleMessage("Ads"),
-        "nav_board": MessageLookupByLibrary.simpleMessage("Bulletin boards"),
+        "nav_board": MessageLookupByLibrary.simpleMessage("Boards"),
         "nav_gallery": MessageLookupByLibrary.simpleMessage("Gallery"),
         "nav_home": MessageLookupByLibrary.simpleMessage("홈"),
         "nav_library": MessageLookupByLibrary.simpleMessage("Libraries"),
@@ -351,19 +371,135 @@ class MessageLookup extends MessageLookupByLibrary {
         "popup_label_delete": MessageLookupByLibrary.simpleMessage("Delete"),
         "post_anonymous":
             MessageLookupByLibrary.simpleMessage("Anonymous posting"),
+        "post_ask_go_to_temporary_save_list":
+            MessageLookupByLibrary.simpleMessage(
+                "Want to go to the Drafts list?"),
+        "post_board_already_exist": MessageLookupByLibrary.simpleMessage(
+            "A board that already exists."),
+        "post_board_create_request_complete":
+            MessageLookupByLibrary.simpleMessage(
+                "Your request to open a board is complete."),
+        "post_board_create_request_condition":
+            MessageLookupByLibrary.simpleMessage(
+                "*Only one minor board can be applied per ID."),
+        "post_board_create_request_label":
+            MessageLookupByLibrary.simpleMessage("Request to open a board"),
+        "post_board_create_request_reviewing":
+            MessageLookupByLibrary.simpleMessage(
+                "Reviewing a request to open a board"),
+        "post_board_request_label":
+            MessageLookupByLibrary.simpleMessage("Open requests"),
+        "post_cannot_open_youtube":
+            MessageLookupByLibrary.simpleMessage("I can\'t open Youtube."),
+        "post_comment_action_translate":
+            MessageLookupByLibrary.simpleMessage("Translation"),
+        "post_comment_content_more":
+            MessageLookupByLibrary.simpleMessage("More"),
+        "post_comment_delete_confirm": MessageLookupByLibrary.simpleMessage(
+            "Are you sure you want to delete the comment?"),
+        "post_comment_delete_fail":
+            MessageLookupByLibrary.simpleMessage("Comment deletion failed."),
+        "post_comment_deleted_comment":
+            MessageLookupByLibrary.simpleMessage("This is a deleted comment."),
+        "post_comment_like_processing_fail":
+            MessageLookupByLibrary.simpleMessage("Failed to process like."),
+        "post_comment_loading_fail":
+            MessageLookupByLibrary.simpleMessage("Comment failed to load."),
+        "post_comment_register_fail": MessageLookupByLibrary.simpleMessage(
+            "Comment registration failed."),
+        "post_comment_registered_comment": MessageLookupByLibrary.simpleMessage(
+            "Your comment has been registered."),
+        "post_comment_reported_comment":
+            MessageLookupByLibrary.simpleMessage("This is a reported comment."),
+        "post_comment_translate_complete": MessageLookupByLibrary.simpleMessage(
+            "The translation is complete."),
+        "post_comment_translate_fail":
+            MessageLookupByLibrary.simpleMessage("The translation failed."),
+        "post_comment_translated":
+            MessageLookupByLibrary.simpleMessage("Translated"),
+        "post_comment_write_label":
+            MessageLookupByLibrary.simpleMessage("Write a comment"),
         "post_content_placeholder":
             MessageLookupByLibrary.simpleMessage("Please enter something."),
+        "post_delete_scrap_confirm": MessageLookupByLibrary.simpleMessage(
+            "Do you want to delete the scrap?"),
+        "post_delete_scrap_title":
+            MessageLookupByLibrary.simpleMessage("Delete a scrap"),
+        "post_go_to_boards":
+            MessageLookupByLibrary.simpleMessage("Go to the board"),
         "post_header_publish":
             MessageLookupByLibrary.simpleMessage("Publishing"),
         "post_header_temporary_save":
             MessageLookupByLibrary.simpleMessage("Drafts"),
+        "post_hint_title":
+            MessageLookupByLibrary.simpleMessage("Please enter a title."),
         "post_hyperlink": MessageLookupByLibrary.simpleMessage("Hyperlinks"),
         "post_insert_link":
             MessageLookupByLibrary.simpleMessage("Inserting links"),
+        "post_loading_post_fail":
+            MessageLookupByLibrary.simpleMessage("The post failed to load."),
+        "post_minor_board_condition": MessageLookupByLibrary.simpleMessage(
+            "Please enter a description of at least 5 characters and no more than 20 characters."),
+        "post_minor_board_create_request_message":
+            MessageLookupByLibrary.simpleMessage(
+                "* Message requesting to open a board."),
+        "post_minor_board_create_request_message_condition":
+            MessageLookupByLibrary.simpleMessage(
+                "Please include at least 10 characters in your message requesting to open a board."),
+        "post_minor_board_create_request_message_input":
+            MessageLookupByLibrary.simpleMessage(
+                "Enter a message requesting to open a board."),
+        "post_minor_board_description": MessageLookupByLibrary.simpleMessage(
+            "Minor bulletin board descriptions"),
+        "post_minor_board_description_input":
+            MessageLookupByLibrary.simpleMessage(
+                "Please enter a description for your minor board."),
+        "post_minor_board_name":
+            MessageLookupByLibrary.simpleMessage("Minor board name"),
+        "post_minor_board_name_input": MessageLookupByLibrary.simpleMessage(
+            "Please enter a name for your minor board."),
+        "post_my_written_post":
+            MessageLookupByLibrary.simpleMessage("Posts I\'ve written"),
+        "post_my_written_reply":
+            MessageLookupByLibrary.simpleMessage("Comments I wrote"),
+        "post_my_written_scrap":
+            MessageLookupByLibrary.simpleMessage("My Scraps"),
+        "post_no_comment": MessageLookupByLibrary.simpleMessage("No comments."),
+        "post_replying_comment": m3,
+        "post_report_fail":
+            MessageLookupByLibrary.simpleMessage("The report failed."),
+        "post_report_label":
+            MessageLookupByLibrary.simpleMessage("Make a report"),
+        "post_report_other_input": MessageLookupByLibrary.simpleMessage(
+            "Please enter any other reason."),
+        "post_report_reason_1":
+            MessageLookupByLibrary.simpleMessage("Unsavory posts"),
+        "post_report_reason_2":
+            MessageLookupByLibrary.simpleMessage("Sexist, racist posts"),
+        "post_report_reason_3": MessageLookupByLibrary.simpleMessage(
+            "Posts containing offensive profanity"),
+        "post_report_reason_4": MessageLookupByLibrary.simpleMessage(
+            "Advertising/Promotional Posts"),
+        "post_report_reason_5": MessageLookupByLibrary.simpleMessage("Other"),
+        "post_report_reason_input": MessageLookupByLibrary.simpleMessage(
+            "Please select a reason for your report."),
+        "post_report_reason_label":
+            MessageLookupByLibrary.simpleMessage("Reasons for reporting"),
+        "post_report_success":
+            MessageLookupByLibrary.simpleMessage("The report is complete."),
+        "post_temporary_save_complete":
+            MessageLookupByLibrary.simpleMessage("Draft complete."),
         "post_title_placeholder":
             MessageLookupByLibrary.simpleMessage("Please enter a title."),
+        "post_write_board_post":
+            MessageLookupByLibrary.simpleMessage("Create a post"),
+        "post_write_post_recommend_write":
+            MessageLookupByLibrary.simpleMessage("Please create a post."),
         "post_youtube_link":
             MessageLookupByLibrary.simpleMessage("YouTube link"),
+        "purchase_web_message": MessageLookupByLibrary.simpleMessage(
+            "This is the payment window for those who cannot pay for the app:\\n Please copy the random ID in advance:\\n After copying, click the button below to proceed with the payment."),
+        "replies": MessageLookupByLibrary.simpleMessage("Comments"),
         "share_image_fail":
             MessageLookupByLibrary.simpleMessage("Image sharing failed"),
         "share_image_success":
@@ -416,12 +552,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_purchase_vat_included":
             MessageLookupByLibrary.simpleMessage("*Price includes VAT."),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("Star Candy"),
-        "text_star_candy_with_bonus": m3,
+        "text_star_candy_with_bonus": m4,
         "text_this_time_vote":
             MessageLookupByLibrary.simpleMessage("This Vote"),
         "text_vote_complete":
             MessageLookupByLibrary.simpleMessage("Voting complete"),
-        "text_vote_rank": m4,
+        "text_vote_rank": m5,
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("Rank in Rewards"),
         "text_vote_where_is_my_bias":
@@ -434,9 +570,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "toast_max_five_celeb": MessageLookupByLibrary.simpleMessage(
             "You can add up to five of your own artists."),
         "update_button": MessageLookupByLibrary.simpleMessage("Update"),
-        "update_recommend_text": m5,
-        "update_required_text": m6,
+        "update_cannot_open_appstore": MessageLookupByLibrary.simpleMessage(
+            "I can\'t open the app store."),
+        "update_recommend_text": m6,
+        "update_required_text": m7,
         "update_required_title":
-            MessageLookupByLibrary.simpleMessage("An update is required.")
+            MessageLookupByLibrary.simpleMessage("An update is required."),
+        "views": MessageLookupByLibrary.simpleMessage("Views")
       };
 }

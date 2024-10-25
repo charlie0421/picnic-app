@@ -8,10 +8,10 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:picnic_app/config/environment.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/models/common/social_login_result.dart';
 import 'package:picnic_app/storage/storage.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/network.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -20,6 +20,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract class SocialLogin {
   Future<SocialLoginResult> login();
+
   Future<void> logout();
 }
 
@@ -198,8 +199,8 @@ class AuthService {
     try {
       final socialLogin = _loginProviders[provider];
       if (socialLogin == null) {
-        logger.w('지원되지 않는 프로바이더: $provider');
-        throw Exception('지원되지 않는 프로바이더: $provider');
+        logger.w('not support provider: $provider');
+        throw Exception('not support provider: $provider');
       }
 
       final result = await socialLogin.login();
