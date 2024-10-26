@@ -41,7 +41,7 @@ class _CommentActionsState extends ConsumerState<CommentActions> {
       postId: widget.postId,
       commentId: widget.item.commentId,
       initialLikes: widget.item.likes,
-      isLiked: widget.item.isLiked ?? false,
+      isLiked: widget.item.isLikedByMe ?? false,
       onLike: widget.onLike,
     );
   }
@@ -54,7 +54,7 @@ class _CommentActionsState extends ConsumerState<CommentActions> {
       child: ReplyButton(
         comment: widget.item,
         initialReplies: widget.item.replies,
-        isReplied: widget.item.isReplied ?? false,
+        isReplied: widget.item.isRepliedByMe ?? false,
         openCommentsModal: widget.openCommentsModal,
       ),
     );

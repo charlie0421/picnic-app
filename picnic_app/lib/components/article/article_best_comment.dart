@@ -30,7 +30,7 @@ class _ArticleBestCommentState extends State<ArticleBestComment> {
                   children: [
                     TextSpan(
                       text: widget.article.most_liked_comment != null
-                          ? widget.article.most_liked_comment!.user.nickname
+                          ? widget.article.most_liked_comment!.user?.nickname
                           : '',
                       style: getTextStyle(
                         AppTypo.body14B,

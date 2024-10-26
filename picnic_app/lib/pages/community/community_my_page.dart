@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_app/components/common/avartar_container.dart';
+import 'package:picnic_app/components/common/avatar_container.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/pages/community/community_my_comment.dart';

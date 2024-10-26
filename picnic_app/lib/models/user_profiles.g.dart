@@ -20,9 +20,9 @@ _$UserProfilesModelImpl _$$UserProfilesModelImplFromJson(
           ? null
           : UserAgreement.fromJson(
               json['user_agreement'] as Map<String, dynamic>),
-      isAdmin: json['is_admin'] as bool,
-      starCandy: (json['star_candy'] as num).toInt(),
-      starCandyBonus: (json['star_candy_bonus'] as num).toInt(),
+      isAdmin: json['is_admin'] as bool?,
+      starCandy: (json['star_candy'] as num?)?.toInt(),
+      starCandyBonus: (json['star_candy_bonus'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$$UserProfilesModelImplToJson(

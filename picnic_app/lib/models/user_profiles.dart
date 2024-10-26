@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'user_profiles.freezed.dart';
 part 'user_profiles.g.dart';
@@ -26,9 +25,9 @@ class UserProfilesModel with _$UserProfilesModel {
     @JsonKey(name: 'country_code') String? countryCode,
     @JsonKey(name: 'deleted_at') DateTime? deletedAt,
     @JsonKey(name: 'user_agreement') UserAgreement? userAgreement,
-    @JsonKey(name: 'is_admin') required bool isAdmin,
-    @JsonKey(name: 'star_candy') required int starCandy,
-    @JsonKey(name: 'star_candy_bonus') required int starCandyBonus,
+    @JsonKey(name: 'is_admin') required bool? isAdmin,
+    @JsonKey(name: 'star_candy') required int? starCandy,
+    @JsonKey(name: 'star_candy_bonus') required int? starCandyBonus,
   }) = _UserProfilesModel;
 
   factory UserProfilesModel.fromJson(Map<String, dynamic> json) =>

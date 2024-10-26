@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:picnic_app/components/common/avartar_container.dart';
+import 'package:picnic_app/components/common/avatar_container.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
 import 'package:picnic_app/components/star_candy_info_text.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
@@ -62,13 +62,13 @@ class _MyPageState extends ConsumerState<MyPage> {
                               alignment: MainAxisAlignment.start))
                       : const SizedBox(height: 16),
                   // 공지사항
-                  if (data != null && data.isAdmin)
+                  if (data != null && (data.isAdmin ?? false))
                     PicnicListItem(
                         leading: S.of(context).label_mypage_notice,
                         assetPath: 'assets/icons/arrow_right_style=line.svg',
                         onTap: () {}),
                   // 충전내역
-                  if (data != null && data.isAdmin)
+                  if (data != null && (data.isAdmin ?? false))
                     PicnicListItem(
                         leading: S.of(context).label_mypage_charge_history,
                         assetPath: 'assets/icons/arrow_right_style=line.svg',

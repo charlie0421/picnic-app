@@ -45,6 +45,7 @@ class UserInfo extends _$UserInfo {
       final response = await supabase
           .from('user_profiles')
           .select('*, user_agreement(*)')
+          .eq('id', supabase.auth.currentUser!.id)
           .maybeSingle();
 
       logger.i('User profiles response: $response');

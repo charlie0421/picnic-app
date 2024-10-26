@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:picnic_app/components/common/avartar_container.dart';
+import 'package:picnic_app/components/common/avatar_container.dart';
 import 'package:picnic_app/components/common/comment/comment_popup_menu.dart';
 import 'package:picnic_app/components/common/no_item_container.dart';
 import 'package:picnic_app/generated/l10n.dart';
@@ -195,14 +195,14 @@ class CommentListItem extends StatelessWidget {
         ),
         SizedBox(width: 4.cw),
         ProfileImageContainer(
-          avatarUrl: item.user.avatarUrl,
+          avatarUrl: item.user?.avatarUrl,
           borderRadius: 4,
           width: 18,
           height: 18,
         ),
         SizedBox(width: 4.cw),
         Text(
-          item.user.nickname ?? '',
+          item.user?.nickname ?? '',
           style: getTextStyle(AppTypo.caption12B, AppColors.grey900),
         ),
         SizedBox(width: 4.cw),

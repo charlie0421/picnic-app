@@ -1,5 +1,4 @@
 import 'package:picnic_app/models/common/comment.dart';
-import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -33,14 +32,18 @@ class CommentsNotifier extends _$CommentsNotifier {
     bool includeReported = true,
   }) async {
     final currentUserId = supabase.auth.currentUser?.id;
+    logger.i('Fetching comments for post $postId');
+    logger.i('Current user ID: $currentUserId');
+    if (currentUserId == null) {
+      return [];
+    }
     try {
       var query = supabase.from('comments').select('''
-        *,
-        comment_likes:comment_likes(count),
-        user:user_profiles(*),
+        comment_id,parent_comment_id,likes,replies,content,created_at,updated_at,deleted_at,
+        user_profiles(nickname,avatar_url,created_at,updated_at,deleted_at),
         comment_reports!left(comment_id),
-        user_likes:comment_likes!left(comment_id),
-        post:posts(*)
+        comment_likes!left(comment_id),
+        post:posts(post_id,board_id,title,created_at,updated_at,deleted_at)
       ''').eq('post_id', postId);
 
       if (!includeDeleted) query = query.isFilter('deleted_at', null);
@@ -48,18 +51,17 @@ class CommentsNotifier extends _$CommentsNotifier {
 
       final rootResponse = await query
           .isFilter('parent_comment_id', null)
-          .eq('comment_reports.user_id', currentUserId!)
-          .eq('user_likes.user_id', currentUserId)
-          .isFilter('user_likes.deleted_at', null)
+          .eq('comment_reports.user_id', currentUserId)
+          .eq('comment_likes.user_id', currentUserId)
+          .isFilter('comment_likes.deleted_at', null)
           .order('created_at', ascending: false)
           .range((page - 1) * limit, page * limit - 1);
 
       final rootComments = rootResponse.map((row) {
         final comment = CommentModel.fromJson(row);
         return comment.copyWith(
-          user: UserProfilesModel.fromJson(row['user']),
-          isReportedByUser: row['comment_reports'].length > 0,
-          isLiked: row['user_likes'].length > 0,
+          isReportedByMe: row['comment_reports'].length > 0,
+          isLikedByMe: row['comment_likes'].length > 0,
         );
       }).toList();
 
@@ -68,25 +70,24 @@ class CommentsNotifier extends _$CommentsNotifier {
       final childResponse = await supabase
           .from('comments')
           .select('''
-            *,
-            comment_likes:comment_likes(count),
-            user:user_profiles(*),
-            comment_reports!left(comment_id),
-            user_likes:comment_likes!left(comment_id)
+        comment_id,parent_comment_id,likes,replies,content,created_at,updated_at,deleted_at,
+        user_profiles(nickname,avatar_url,created_at,updated_at,deleted_at),
+        comment_reports!left(comment_id),
+        comment_likes!left(comment_id),
+        post:posts(post_id,board_id,title,created_at,updated_at,deleted_at)
           ''')
           .eq('post_id', postId)
           .inFilter('parent_comment_id', rootCommentIds)
           .eq('comment_reports.user_id', currentUserId)
-          .eq('user_likes.user_id', currentUserId)
-          .isFilter('user_likes.deleted_at', null)
+          .eq('comment_likes.user_id', currentUserId)
+          .isFilter('comment_likes.deleted_at', null)
           .order('created_at', ascending: true);
 
       final childComments = childResponse.map((row) {
         final comment = CommentModel.fromJson(row);
         return comment.copyWith(
-          user: UserProfilesModel.fromJson(row['user']),
-          isReportedByUser: row['comment_reports'].length > 0,
-          isLiked: row['user_likes'].length > 0,
+          isReportedByMe: row['comment_reports'].length > 0,
+          isLikedByMe: row['comment_likes'].length > 0,
         );
       }).toList();
 
@@ -193,7 +194,7 @@ class CommentsNotifier extends _$CommentsNotifier {
     return comments.map((comment) {
       if (comment.commentId == commentId) {
         return comment.copyWith(
-          isLiked: isLiked,
+          isLikedByMe: isLiked,
           likes: isLiked ? comment.likes + 1 : comment.likes - 1,
         );
       }
@@ -223,7 +224,7 @@ class CommentsNotifier extends _$CommentsNotifier {
       if (state.value != null) {
         final updatedComments = state.value!.map((c) {
           if (c.commentId == comment.commentId) {
-            return c.copyWith(isReportedByUser: true);
+            return c.copyWith(isReportedByMe: true);
           }
           return c;
         }).toList();
@@ -231,7 +232,7 @@ class CommentsNotifier extends _$CommentsNotifier {
       }
     } catch (e, s) {
       logger.e('Error reporting comment:', error: e, stackTrace: s);
-      throw e;
+      rethrow;
     }
   }
 
@@ -249,7 +250,7 @@ class CommentsNotifier extends _$CommentsNotifier {
       }
     } catch (e, s) {
       logger.e('Error deleting comment:', error: e, stackTrace: s);
-      throw e;
+      rethrow;
     }
   }
 }

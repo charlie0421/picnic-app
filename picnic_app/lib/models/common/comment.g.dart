@@ -33,14 +33,17 @@ _$CommentModelImpl _$$CommentModelImplFromJson(Map<String, dynamic> json) =>
           ? null
           : UserCommentLikeModel.fromJson(
               json['myLike'] as Map<String, dynamic>),
-      user: UserProfilesModel.fromJson(json['user'] as Map<String, dynamic>),
+      user: json['user_profiles'] == null
+          ? null
+          : UserProfilesModel.fromJson(
+              json['user_profiles'] as Map<String, dynamic>),
       likes: (json['likes'] as num).toInt(),
       replies: (json['replies'] as num).toInt(),
       content: json['content'] as Map<String, dynamic>?,
-      isLiked: json['isLiked'] as bool?,
-      isReplied: json['isReplied'] as bool?,
-      isReportedByUser: json['isReportedByUser'] as bool?,
+      isLikedByMe: json['isLikedByMe'] as bool?,
+      isReportedByMe: json['isReportedByMe'] as bool?,
       isBlindedByAdmin: json['isBlindedByAdmin'] as bool?,
+      isRepliedByMe: json['isRepliedByMe'] as bool?,
       post: json['post'] == null
           ? null
           : PostModel.fromJson(json['post'] as Map<String, dynamic>),
@@ -59,14 +62,14 @@ Map<String, dynamic> _$$CommentModelImplToJson(_$CommentModelImpl instance) =>
       'user_id': instance.userId,
       'children': instance.children,
       'myLike': instance.myLike,
-      'user': instance.user,
+      'user_profiles': instance.user,
       'likes': instance.likes,
       'replies': instance.replies,
       'content': instance.content,
-      'isLiked': instance.isLiked,
-      'isReplied': instance.isReplied,
-      'isReportedByUser': instance.isReportedByUser,
+      'isLikedByMe': instance.isLikedByMe,
+      'isReportedByMe': instance.isReportedByMe,
       'isBlindedByAdmin': instance.isBlindedByAdmin,
+      'isRepliedByMe': instance.isRepliedByMe,
       'post': instance.post,
       'locale': instance.locale,
       'parent_comment_id': instance.parentCommentId,

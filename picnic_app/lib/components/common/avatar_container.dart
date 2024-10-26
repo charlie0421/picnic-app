@@ -4,10 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util/ui.dart';
 
 class ProfileImageContainer extends StatelessWidget {
-  ProfileImageContainer({
+  const ProfileImageContainer({
     super.key,
     required this.avatarUrl,
     required this.borderRadius,
@@ -15,10 +14,10 @@ class ProfileImageContainer extends StatelessWidget {
     required this.height,
   });
 
-  final avatarUrl;
-  double? borderRadius = 8.r;
-  double? width = 24.cw;
-  double? height = 24.cw;
+  final String? avatarUrl;
+  final double? borderRadius;
+  final double? width;
+  final double? height;
 
   @override
   Widget build(BuildContext context) {
@@ -29,8 +28,8 @@ class ProfileImageContainer extends StatelessWidget {
       child: ClipRRect(
           borderRadius: BorderRadius.circular(borderRadius!),
           child: avatarUrl != null &&
-                  (avatarUrl.contains('http://') ||
-                      avatarUrl.contains('https://'))
+                  (avatarUrl!.contains('http://') ||
+                      avatarUrl!.contains('https://'))
               ? CachedNetworkImage(
                   imageUrl: avatarUrl ?? '',
                   width: width,
@@ -82,15 +81,15 @@ class DefaultAvatar extends StatelessWidget {
 }
 
 class NoAvatar extends StatelessWidget {
-  NoAvatar(
+  const NoAvatar(
       {super.key,
       required this.width,
       required this.height,
       required this.borderRadius});
 
-  double? borderRadius = 8.r;
-  double? width = 24.cw;
-  double? height = 24.cw;
+  final double? borderRadius;
+  final double? width;
+  final double? height;
 
   @override
   Widget build(BuildContext context) {
@@ -100,6 +99,7 @@ class NoAvatar extends StatelessWidget {
         'assets/icons/header/no_avatar.png',
         width: width,
         height: height,
+        fit: BoxFit.cover,
       ),
     );
   }

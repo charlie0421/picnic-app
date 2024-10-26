@@ -220,14 +220,15 @@ mixin _$CommentModel {
   String? get userId => throw _privateConstructorUsedError;
   List<CommentModel>? get children => throw _privateConstructorUsedError;
   UserCommentLikeModel? get myLike => throw _privateConstructorUsedError;
-  UserProfilesModel get user => throw _privateConstructorUsedError;
+  @JsonKey(name: 'user_profiles')
+  UserProfilesModel? get user => throw _privateConstructorUsedError;
   int get likes => throw _privateConstructorUsedError;
   int get replies => throw _privateConstructorUsedError;
   Map<String, dynamic>? get content => throw _privateConstructorUsedError;
-  bool? get isLiked => throw _privateConstructorUsedError;
-  bool? get isReplied => throw _privateConstructorUsedError;
-  bool? get isReportedByUser => throw _privateConstructorUsedError;
+  bool? get isLikedByMe => throw _privateConstructorUsedError;
+  bool? get isReportedByMe => throw _privateConstructorUsedError;
   bool? get isBlindedByAdmin => throw _privateConstructorUsedError;
+  bool? get isRepliedByMe => throw _privateConstructorUsedError;
   PostModel? get post => throw _privateConstructorUsedError;
   String? get locale => throw _privateConstructorUsedError;
   @JsonKey(name: 'parent_comment_id')
@@ -260,14 +261,14 @@ abstract class $CommentModelCopyWith<$Res> {
       @JsonKey(name: 'user_id') String? userId,
       List<CommentModel>? children,
       UserCommentLikeModel? myLike,
-      UserProfilesModel user,
+      @JsonKey(name: 'user_profiles') UserProfilesModel? user,
       int likes,
       int replies,
       Map<String, dynamic>? content,
-      bool? isLiked,
-      bool? isReplied,
-      bool? isReportedByUser,
+      bool? isLikedByMe,
+      bool? isReportedByMe,
       bool? isBlindedByAdmin,
+      bool? isRepliedByMe,
       PostModel? post,
       String? locale,
       @JsonKey(name: 'parent_comment_id') String? parentCommentId,
@@ -276,7 +277,7 @@ abstract class $CommentModelCopyWith<$Res> {
       @JsonKey(name: 'deleted_at') DateTime? deletedAt});
 
   $UserCommentLikeModelCopyWith<$Res>? get myLike;
-  $UserProfilesModelCopyWith<$Res> get user;
+  $UserProfilesModelCopyWith<$Res>? get user;
   $PostModelCopyWith<$Res>? get post;
 }
 
@@ -299,14 +300,14 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
     Object? userId = freezed,
     Object? children = freezed,
     Object? myLike = freezed,
-    Object? user = null,
+    Object? user = freezed,
     Object? likes = null,
     Object? replies = null,
     Object? content = freezed,
-    Object? isLiked = freezed,
-    Object? isReplied = freezed,
-    Object? isReportedByUser = freezed,
+    Object? isLikedByMe = freezed,
+    Object? isReportedByMe = freezed,
     Object? isBlindedByAdmin = freezed,
+    Object? isRepliedByMe = freezed,
     Object? post = freezed,
     Object? locale = freezed,
     Object? parentCommentId = freezed,
@@ -331,10 +332,10 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
           ? _value.myLike
           : myLike // ignore: cast_nullable_to_non_nullable
               as UserCommentLikeModel?,
-      user: null == user
+      user: freezed == user
           ? _value.user
           : user // ignore: cast_nullable_to_non_nullable
-              as UserProfilesModel,
+              as UserProfilesModel?,
       likes: null == likes
           ? _value.likes
           : likes // ignore: cast_nullable_to_non_nullable
@@ -347,21 +348,21 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>?,
-      isLiked: freezed == isLiked
-          ? _value.isLiked
-          : isLiked // ignore: cast_nullable_to_non_nullable
+      isLikedByMe: freezed == isLikedByMe
+          ? _value.isLikedByMe
+          : isLikedByMe // ignore: cast_nullable_to_non_nullable
               as bool?,
-      isReplied: freezed == isReplied
-          ? _value.isReplied
-          : isReplied // ignore: cast_nullable_to_non_nullable
-              as bool?,
-      isReportedByUser: freezed == isReportedByUser
-          ? _value.isReportedByUser
-          : isReportedByUser // ignore: cast_nullable_to_non_nullable
+      isReportedByMe: freezed == isReportedByMe
+          ? _value.isReportedByMe
+          : isReportedByMe // ignore: cast_nullable_to_non_nullable
               as bool?,
       isBlindedByAdmin: freezed == isBlindedByAdmin
           ? _value.isBlindedByAdmin
           : isBlindedByAdmin // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      isRepliedByMe: freezed == isRepliedByMe
+          ? _value.isRepliedByMe
+          : isRepliedByMe // ignore: cast_nullable_to_non_nullable
               as bool?,
       post: freezed == post
           ? _value.post
@@ -408,8 +409,12 @@ class _$CommentModelCopyWithImpl<$Res, $Val extends CommentModel>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $UserProfilesModelCopyWith<$Res> get user {
-    return $UserProfilesModelCopyWith<$Res>(_value.user, (value) {
+  $UserProfilesModelCopyWith<$Res>? get user {
+    if (_value.user == null) {
+      return null;
+    }
+
+    return $UserProfilesModelCopyWith<$Res>(_value.user!, (value) {
       return _then(_value.copyWith(user: value) as $Val);
     });
   }
@@ -442,14 +447,14 @@ abstract class _$$CommentModelImplCopyWith<$Res>
       @JsonKey(name: 'user_id') String? userId,
       List<CommentModel>? children,
       UserCommentLikeModel? myLike,
-      UserProfilesModel user,
+      @JsonKey(name: 'user_profiles') UserProfilesModel? user,
       int likes,
       int replies,
       Map<String, dynamic>? content,
-      bool? isLiked,
-      bool? isReplied,
-      bool? isReportedByUser,
+      bool? isLikedByMe,
+      bool? isReportedByMe,
       bool? isBlindedByAdmin,
+      bool? isRepliedByMe,
       PostModel? post,
       String? locale,
       @JsonKey(name: 'parent_comment_id') String? parentCommentId,
@@ -460,7 +465,7 @@ abstract class _$$CommentModelImplCopyWith<$Res>
   @override
   $UserCommentLikeModelCopyWith<$Res>? get myLike;
   @override
-  $UserProfilesModelCopyWith<$Res> get user;
+  $UserProfilesModelCopyWith<$Res>? get user;
   @override
   $PostModelCopyWith<$Res>? get post;
 }
@@ -482,14 +487,14 @@ class __$$CommentModelImplCopyWithImpl<$Res>
     Object? userId = freezed,
     Object? children = freezed,
     Object? myLike = freezed,
-    Object? user = null,
+    Object? user = freezed,
     Object? likes = null,
     Object? replies = null,
     Object? content = freezed,
-    Object? isLiked = freezed,
-    Object? isReplied = freezed,
-    Object? isReportedByUser = freezed,
+    Object? isLikedByMe = freezed,
+    Object? isReportedByMe = freezed,
     Object? isBlindedByAdmin = freezed,
+    Object? isRepliedByMe = freezed,
     Object? post = freezed,
     Object? locale = freezed,
     Object? parentCommentId = freezed,
@@ -514,10 +519,10 @@ class __$$CommentModelImplCopyWithImpl<$Res>
           ? _value.myLike
           : myLike // ignore: cast_nullable_to_non_nullable
               as UserCommentLikeModel?,
-      user: null == user
+      user: freezed == user
           ? _value.user
           : user // ignore: cast_nullable_to_non_nullable
-              as UserProfilesModel,
+              as UserProfilesModel?,
       likes: null == likes
           ? _value.likes
           : likes // ignore: cast_nullable_to_non_nullable
@@ -530,21 +535,21 @@ class __$$CommentModelImplCopyWithImpl<$Res>
           ? _value._content
           : content // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>?,
-      isLiked: freezed == isLiked
-          ? _value.isLiked
-          : isLiked // ignore: cast_nullable_to_non_nullable
+      isLikedByMe: freezed == isLikedByMe
+          ? _value.isLikedByMe
+          : isLikedByMe // ignore: cast_nullable_to_non_nullable
               as bool?,
-      isReplied: freezed == isReplied
-          ? _value.isReplied
-          : isReplied // ignore: cast_nullable_to_non_nullable
-              as bool?,
-      isReportedByUser: freezed == isReportedByUser
-          ? _value.isReportedByUser
-          : isReportedByUser // ignore: cast_nullable_to_non_nullable
+      isReportedByMe: freezed == isReportedByMe
+          ? _value.isReportedByMe
+          : isReportedByMe // ignore: cast_nullable_to_non_nullable
               as bool?,
       isBlindedByAdmin: freezed == isBlindedByAdmin
           ? _value.isBlindedByAdmin
           : isBlindedByAdmin // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      isRepliedByMe: freezed == isRepliedByMe
+          ? _value.isRepliedByMe
+          : isRepliedByMe // ignore: cast_nullable_to_non_nullable
               as bool?,
       post: freezed == post
           ? _value.post
@@ -582,14 +587,14 @@ class _$CommentModelImpl extends _CommentModel {
       @JsonKey(name: 'user_id') this.userId,
       required final List<CommentModel>? children,
       required this.myLike,
-      required this.user,
+      @JsonKey(name: 'user_profiles') required this.user,
       required this.likes,
       required this.replies,
       required final Map<String, dynamic>? content,
-      required this.isLiked,
-      required this.isReplied,
-      required this.isReportedByUser,
+      required this.isLikedByMe,
+      required this.isReportedByMe,
       required this.isBlindedByAdmin,
+      required this.isRepliedByMe,
       required this.post,
       required this.locale,
       @JsonKey(name: 'parent_comment_id') required this.parentCommentId,
@@ -622,7 +627,8 @@ class _$CommentModelImpl extends _CommentModel {
   @override
   final UserCommentLikeModel? myLike;
   @override
-  final UserProfilesModel user;
+  @JsonKey(name: 'user_profiles')
+  final UserProfilesModel? user;
   @override
   final int likes;
   @override
@@ -638,13 +644,13 @@ class _$CommentModelImpl extends _CommentModel {
   }
 
   @override
-  final bool? isLiked;
+  final bool? isLikedByMe;
   @override
-  final bool? isReplied;
-  @override
-  final bool? isReportedByUser;
+  final bool? isReportedByMe;
   @override
   final bool? isBlindedByAdmin;
+  @override
+  final bool? isRepliedByMe;
   @override
   final PostModel? post;
   @override
@@ -664,7 +670,7 @@ class _$CommentModelImpl extends _CommentModel {
 
   @override
   String toString() {
-    return 'CommentModel(commentId: $commentId, userId: $userId, children: $children, myLike: $myLike, user: $user, likes: $likes, replies: $replies, content: $content, isLiked: $isLiked, isReplied: $isReplied, isReportedByUser: $isReportedByUser, isBlindedByAdmin: $isBlindedByAdmin, post: $post, locale: $locale, parentCommentId: $parentCommentId, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt)';
+    return 'CommentModel(commentId: $commentId, userId: $userId, children: $children, myLike: $myLike, user: $user, likes: $likes, replies: $replies, content: $content, isLikedByMe: $isLikedByMe, isReportedByMe: $isReportedByMe, isBlindedByAdmin: $isBlindedByAdmin, isRepliedByMe: $isRepliedByMe, post: $post, locale: $locale, parentCommentId: $parentCommentId, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt)';
   }
 
   @override
@@ -681,13 +687,14 @@ class _$CommentModelImpl extends _CommentModel {
             (identical(other.likes, likes) || other.likes == likes) &&
             (identical(other.replies, replies) || other.replies == replies) &&
             const DeepCollectionEquality().equals(other._content, _content) &&
-            (identical(other.isLiked, isLiked) || other.isLiked == isLiked) &&
-            (identical(other.isReplied, isReplied) ||
-                other.isReplied == isReplied) &&
-            (identical(other.isReportedByUser, isReportedByUser) ||
-                other.isReportedByUser == isReportedByUser) &&
+            (identical(other.isLikedByMe, isLikedByMe) ||
+                other.isLikedByMe == isLikedByMe) &&
+            (identical(other.isReportedByMe, isReportedByMe) ||
+                other.isReportedByMe == isReportedByMe) &&
             (identical(other.isBlindedByAdmin, isBlindedByAdmin) ||
                 other.isBlindedByAdmin == isBlindedByAdmin) &&
+            (identical(other.isRepliedByMe, isRepliedByMe) ||
+                other.isRepliedByMe == isRepliedByMe) &&
             (identical(other.post, post) || other.post == post) &&
             (identical(other.locale, locale) || other.locale == locale) &&
             (identical(other.parentCommentId, parentCommentId) ||
@@ -712,10 +719,10 @@ class _$CommentModelImpl extends _CommentModel {
       likes,
       replies,
       const DeepCollectionEquality().hash(_content),
-      isLiked,
-      isReplied,
-      isReportedByUser,
+      isLikedByMe,
+      isReportedByMe,
       isBlindedByAdmin,
+      isRepliedByMe,
       post,
       locale,
       parentCommentId,
@@ -741,26 +748,26 @@ class _$CommentModelImpl extends _CommentModel {
 
 abstract class _CommentModel extends CommentModel {
   const factory _CommentModel(
-          {@JsonKey(name: 'comment_id') required final String commentId,
-          @JsonKey(name: 'user_id') final String? userId,
-          required final List<CommentModel>? children,
-          required final UserCommentLikeModel? myLike,
-          required final UserProfilesModel user,
-          required final int likes,
-          required final int replies,
-          required final Map<String, dynamic>? content,
-          required final bool? isLiked,
-          required final bool? isReplied,
-          required final bool? isReportedByUser,
-          required final bool? isBlindedByAdmin,
-          required final PostModel? post,
-          required final String? locale,
-          @JsonKey(name: 'parent_comment_id')
-          required final String? parentCommentId,
-          @JsonKey(name: 'created_at') required final DateTime createdAt,
-          @JsonKey(name: 'updated_at') required final DateTime updatedAt,
-          @JsonKey(name: 'deleted_at') final DateTime? deletedAt}) =
-      _$CommentModelImpl;
+      {@JsonKey(name: 'comment_id') required final String commentId,
+      @JsonKey(name: 'user_id') final String? userId,
+      required final List<CommentModel>? children,
+      required final UserCommentLikeModel? myLike,
+      @JsonKey(name: 'user_profiles') required final UserProfilesModel? user,
+      required final int likes,
+      required final int replies,
+      required final Map<String, dynamic>? content,
+      required final bool? isLikedByMe,
+      required final bool? isReportedByMe,
+      required final bool? isBlindedByAdmin,
+      required final bool? isRepliedByMe,
+      required final PostModel? post,
+      required final String? locale,
+      @JsonKey(name: 'parent_comment_id')
+      required final String? parentCommentId,
+      @JsonKey(name: 'created_at') required final DateTime createdAt,
+      @JsonKey(name: 'updated_at') required final DateTime updatedAt,
+      @JsonKey(name: 'deleted_at')
+      final DateTime? deletedAt}) = _$CommentModelImpl;
   const _CommentModel._() : super._();
 
   factory _CommentModel.fromJson(Map<String, dynamic> json) =
@@ -777,7 +784,8 @@ abstract class _CommentModel extends CommentModel {
   @override
   UserCommentLikeModel? get myLike;
   @override
-  UserProfilesModel get user;
+  @JsonKey(name: 'user_profiles')
+  UserProfilesModel? get user;
   @override
   int get likes;
   @override
@@ -785,13 +793,13 @@ abstract class _CommentModel extends CommentModel {
   @override
   Map<String, dynamic>? get content;
   @override
-  bool? get isLiked;
+  bool? get isLikedByMe;
   @override
-  bool? get isReplied;
-  @override
-  bool? get isReportedByUser;
+  bool? get isReportedByMe;
   @override
   bool? get isBlindedByAdmin;
+  @override
+  bool? get isRepliedByMe;
   @override
   PostModel? get post;
   @override
