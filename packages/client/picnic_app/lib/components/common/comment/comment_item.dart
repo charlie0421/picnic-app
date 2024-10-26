@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:picnic_app/components/common/avartar_container.dart';
+import 'package:picnic_app/components/common/avatar_container.dart';
 import 'package:picnic_app/components/common/comment/comment_actions.dart';
 import 'package:picnic_app/components/common/comment/comment_contents.dart';
 import 'package:picnic_app/components/common/comment/comment_header.dart';
@@ -121,7 +121,7 @@ class _CommentItemState extends ConsumerState<CommentItem>
           SnackBar(
             content: Text(S.of(context).post_comment_delete_fail),
             backgroundColor: Colors.red,
-            duration: Duration(seconds: 2),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -129,8 +129,6 @@ class _CommentItemState extends ConsumerState<CommentItem>
       if (mounted) {
         setState(() {
           _isProcessing = false;
-          // _isDeleting은 여기서 false로 설정하지 않습니다.
-          // 삭제된 상태를 유지하기 위함입니다.
         });
       }
     }
@@ -152,7 +150,7 @@ class _CommentItemState extends ConsumerState<CommentItem>
         ),
       ),
       child: ProfileImageContainer(
-        avatarUrl: widget.commentModel.user.avatarUrl,
+        avatarUrl: widget.commentModel.user?.avatarUrl,
         borderRadius: 16,
         width: 32,
         height: 32,

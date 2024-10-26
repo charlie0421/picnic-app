@@ -60,7 +60,7 @@ class _CommentContentsState extends State<CommentContents> {
               children: [
                 Expanded(
                   child: Text(
-                    widget.item.isReportedByUser! ||
+                    widget.item.isReportedByMe! ||
                             (widget.item.isBlindedByAdmin ?? false)
                         ? '(${S.of(context).post_comment_reported_comment})'
                         : widget.item.deletedAt != null
@@ -68,7 +68,7 @@ class _CommentContentsState extends State<CommentContents> {
                             : content,
                     style: getTextStyle(
                         AppTypo.body14M,
-                        widget.item.isReportedByUser! ||
+                        widget.item.isReportedByMe! ||
                                 (widget.item.isBlindedByAdmin ?? false)
                             ? AppColors.point500
                             : widget.item.deletedAt != null

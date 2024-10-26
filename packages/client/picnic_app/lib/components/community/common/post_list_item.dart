@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_app/components/common/avartar_container.dart';
+import 'package:picnic_app/components/common/avatar_container.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/pages/community/post_view_page.dart';
@@ -57,7 +57,7 @@ class _PostListItemState extends ConsumerState<PostListItem> {
                         style: getTextStyle(
                             AppTypo.caption12B, AppColors.primary500)),
                     SizedBox(width: 4.cw),
-                    widget.post.isAnonymous
+                    widget.post.isAnonymous ?? false
                         ? NoAvatar(
                             width: 18,
                             height: 18,
@@ -70,7 +70,7 @@ class _PostListItemState extends ConsumerState<PostListItem> {
                             height: 18,
                           ),
                     SizedBox(width: 4.cw),
-                    widget.post.isAnonymous
+                    widget.post.isAnonymous ?? false
                         ? Text(S.of(context).anonymous,
                             style: getTextStyle(
                                 AppTypo.caption12B, AppColors.grey900))
@@ -83,7 +83,7 @@ class _PostListItemState extends ConsumerState<PostListItem> {
                             AppTypo.caption10SB, AppColors.grey400)),
                   ],
                 ),
-                Text(widget.post.title,
+                Text(widget.post.title ?? '',
                     style: getTextStyle(AppTypo.body14M, AppColors.grey900)),
                 Text.rich(
                   TextSpan(

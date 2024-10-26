@@ -675,7 +675,7 @@ class _PostByIdProviderElement
       (origin as PostByIdProvider).isIncrementViewCount;
 }
 
-String _$postsByUserHash() => r'c520ccba515b82ec6d15c0cdbe0ac45d2e174ffa';
+String _$postsByUserHash() => r'342df7ebe4107674082a106a1bf523c0a50856c0';
 
 /// See also [postsByUser].
 @ProviderFor(postsByUser)

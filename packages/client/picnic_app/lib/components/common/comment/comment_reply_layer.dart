@@ -29,7 +29,7 @@ class CommentReplyLayer extends ConsumerWidget {
         children: [
           Text(
               Intl.message('post_replying_comment',
-                  args: [parentComment.user.nickname ?? '']),
+                  args: [parentComment.user?.nickname ?? '']),
               style: getTextStyle(AppTypo.caption12B, AppColors.grey00)),
           IconButton(
             onPressed: () {

@@ -33,11 +33,11 @@ mixin _$UserProfilesModel {
   @JsonKey(name: 'user_agreement')
   UserAgreement? get userAgreement => throw _privateConstructorUsedError;
   @JsonKey(name: 'is_admin')
-  bool get isAdmin => throw _privateConstructorUsedError;
+  bool? get isAdmin => throw _privateConstructorUsedError;
   @JsonKey(name: 'star_candy')
-  int get starCandy => throw _privateConstructorUsedError;
+  int? get starCandy => throw _privateConstructorUsedError;
   @JsonKey(name: 'star_candy_bonus')
-  int get starCandyBonus => throw _privateConstructorUsedError;
+  int? get starCandyBonus => throw _privateConstructorUsedError;
 
   /// Serializes this UserProfilesModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -62,9 +62,9 @@ abstract class $UserProfilesModelCopyWith<$Res> {
       @JsonKey(name: 'country_code') String? countryCode,
       @JsonKey(name: 'deleted_at') DateTime? deletedAt,
       @JsonKey(name: 'user_agreement') UserAgreement? userAgreement,
-      @JsonKey(name: 'is_admin') bool isAdmin,
-      @JsonKey(name: 'star_candy') int starCandy,
-      @JsonKey(name: 'star_candy_bonus') int starCandyBonus});
+      @JsonKey(name: 'is_admin') bool? isAdmin,
+      @JsonKey(name: 'star_candy') int? starCandy,
+      @JsonKey(name: 'star_candy_bonus') int? starCandyBonus});
 
   $UserAgreementCopyWith<$Res>? get userAgreement;
 }
@@ -90,9 +90,9 @@ class _$UserProfilesModelCopyWithImpl<$Res, $Val extends UserProfilesModel>
     Object? countryCode = freezed,
     Object? deletedAt = freezed,
     Object? userAgreement = freezed,
-    Object? isAdmin = null,
-    Object? starCandy = null,
-    Object? starCandyBonus = null,
+    Object? isAdmin = freezed,
+    Object? starCandy = freezed,
+    Object? starCandyBonus = freezed,
   }) {
     return _then(_value.copyWith(
       id: freezed == id
@@ -119,18 +119,18 @@ class _$UserProfilesModelCopyWithImpl<$Res, $Val extends UserProfilesModel>
           ? _value.userAgreement
           : userAgreement // ignore: cast_nullable_to_non_nullable
               as UserAgreement?,
-      isAdmin: null == isAdmin
+      isAdmin: freezed == isAdmin
           ? _value.isAdmin
           : isAdmin // ignore: cast_nullable_to_non_nullable
-              as bool,
-      starCandy: null == starCandy
+              as bool?,
+      starCandy: freezed == starCandy
           ? _value.starCandy
           : starCandy // ignore: cast_nullable_to_non_nullable
-              as int,
-      starCandyBonus: null == starCandyBonus
+              as int?,
+      starCandyBonus: freezed == starCandyBonus
           ? _value.starCandyBonus
           : starCandyBonus // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
     ) as $Val);
   }
 
@@ -164,9 +164,9 @@ abstract class _$$UserProfilesModelImplCopyWith<$Res>
       @JsonKey(name: 'country_code') String? countryCode,
       @JsonKey(name: 'deleted_at') DateTime? deletedAt,
       @JsonKey(name: 'user_agreement') UserAgreement? userAgreement,
-      @JsonKey(name: 'is_admin') bool isAdmin,
-      @JsonKey(name: 'star_candy') int starCandy,
-      @JsonKey(name: 'star_candy_bonus') int starCandyBonus});
+      @JsonKey(name: 'is_admin') bool? isAdmin,
+      @JsonKey(name: 'star_candy') int? starCandy,
+      @JsonKey(name: 'star_candy_bonus') int? starCandyBonus});
 
   @override
   $UserAgreementCopyWith<$Res>? get userAgreement;
@@ -191,9 +191,9 @@ class __$$UserProfilesModelImplCopyWithImpl<$Res>
     Object? countryCode = freezed,
     Object? deletedAt = freezed,
     Object? userAgreement = freezed,
-    Object? isAdmin = null,
-    Object? starCandy = null,
-    Object? starCandyBonus = null,
+    Object? isAdmin = freezed,
+    Object? starCandy = freezed,
+    Object? starCandyBonus = freezed,
   }) {
     return _then(_$UserProfilesModelImpl(
       id: freezed == id
@@ -220,18 +220,18 @@ class __$$UserProfilesModelImplCopyWithImpl<$Res>
           ? _value.userAgreement
           : userAgreement // ignore: cast_nullable_to_non_nullable
               as UserAgreement?,
-      isAdmin: null == isAdmin
+      isAdmin: freezed == isAdmin
           ? _value.isAdmin
           : isAdmin // ignore: cast_nullable_to_non_nullable
-              as bool,
-      starCandy: null == starCandy
+              as bool?,
+      starCandy: freezed == starCandy
           ? _value.starCandy
           : starCandy // ignore: cast_nullable_to_non_nullable
-              as int,
-      starCandyBonus: null == starCandyBonus
+              as int?,
+      starCandyBonus: freezed == starCandyBonus
           ? _value.starCandyBonus
           : starCandyBonus // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
     ));
   }
 }
@@ -274,13 +274,13 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
   final UserAgreement? userAgreement;
   @override
   @JsonKey(name: 'is_admin')
-  final bool isAdmin;
+  final bool? isAdmin;
   @override
   @JsonKey(name: 'star_candy')
-  final int starCandy;
+  final int? starCandy;
   @override
   @JsonKey(name: 'star_candy_bonus')
-  final int starCandyBonus;
+  final int? starCandyBonus;
 
   @override
   String toString() {
@@ -349,10 +349,10 @@ abstract class _UserProfilesModel extends UserProfilesModel {
       @JsonKey(name: 'country_code') final String? countryCode,
       @JsonKey(name: 'deleted_at') final DateTime? deletedAt,
       @JsonKey(name: 'user_agreement') final UserAgreement? userAgreement,
-      @JsonKey(name: 'is_admin') required final bool isAdmin,
-      @JsonKey(name: 'star_candy') required final int starCandy,
+      @JsonKey(name: 'is_admin') required final bool? isAdmin,
+      @JsonKey(name: 'star_candy') required final int? starCandy,
       @JsonKey(name: 'star_candy_bonus')
-      required final int starCandyBonus}) = _$UserProfilesModelImpl;
+      required final int? starCandyBonus}) = _$UserProfilesModelImpl;
   const _UserProfilesModel._() : super._();
 
   factory _UserProfilesModel.fromJson(Map<String, dynamic> json) =
@@ -378,13 +378,13 @@ abstract class _UserProfilesModel extends UserProfilesModel {
   UserAgreement? get userAgreement;
   @override
   @JsonKey(name: 'is_admin')
-  bool get isAdmin;
+  bool? get isAdmin;
   @override
   @JsonKey(name: 'star_candy')
-  int get starCandy;
+  int? get starCandy;
   @override
   @JsonKey(name: 'star_candy_bonus')
-  int get starCandyBonus;
+  int? get starCandyBonus;
 
   /// Create a copy of UserProfilesModel
   /// with the given fields replaced by the non-null parameter values.

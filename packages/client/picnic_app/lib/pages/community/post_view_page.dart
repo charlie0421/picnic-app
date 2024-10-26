@@ -192,13 +192,13 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                 if (_shouldShowAds) _buildAdSpace('top', AdSize.banner),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.cw),
-                  child: Text(post.title,
+                  child: Text(post.title ?? '',
                       style: const TextStyle(
                           fontSize: 24, fontWeight: FontWeight.bold)),
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 8),
-                  child: post.isAnonymous
+                  child: post.isAnonymous ?? false
                       ? Text(S.of(context).anonymous,
                           style: getTextStyle(
                               AppTypo.caption12B, AppColors.primary500))

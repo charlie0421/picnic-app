@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_app/components/common/avartar_container.dart';
+import 'package:picnic_app/components/common/avatar_container.dart';
 import 'package:picnic_app/components/common/portal_menu_item.dart';
 import 'package:picnic_app/components/common/top/top_menu.dart';
 import 'package:picnic_app/config/environment.dart';
@@ -103,7 +103,7 @@ class _PortalState extends ConsumerState<Portal> {
                     if (supabase.isLogged)
                       userInfoState.when(
                         data: (userInfo) {
-                          if (userInfo != null && userInfo.isAdmin) {
+                          if (userInfo != null && (userInfo.isAdmin ?? false)) {
                             return const Row(children: [
                               PortalMenuItem(portalType: PortalType.pic),
                               PortalMenuItem(portalType: PortalType.community),

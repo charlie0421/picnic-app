@@ -161,7 +161,8 @@ class _CommentListState extends ConsumerState<CommentList> {
                                   openCommentsModal: widget.openCommentsModal,
                                   openReportModal: widget.openReportModal,
                                   onLike: () => _handleLikeComment(
-                                      item.commentId, item.isLiked ?? false),
+                                      item.commentId,
+                                      item.isLikedByMe ?? false),
                                   onReport: (String reason, String text) =>
                                       _handleReportComment(item, reason, text),
                                   onDelete: () =>
@@ -186,7 +187,7 @@ class _CommentListState extends ConsumerState<CommentList> {
                                               widget.openCommentsModal,
                                           onLike: () => _handleLikeComment(
                                             childItem.commentId,
-                                            childItem.isLiked ?? false,
+                                            childItem.isLikedByMe ?? false,
                                           ),
                                           onReport: (reason, text) =>
                                               _handleReportComment(

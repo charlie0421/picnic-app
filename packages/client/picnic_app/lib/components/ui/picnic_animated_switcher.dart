@@ -88,8 +88,6 @@ class DrawerAnimatedSwitcher extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final navigationInfo = ref.watch(navigationInfoProvider);
 
-    logger.i('drawerNavigationStack: ${navigationInfo.drawerNavigationStack}');
-
     return AnimatedSwitcher(
         duration: const Duration(milliseconds: 500),
         transitionBuilder: (Widget child, Animation<double> animation) {
