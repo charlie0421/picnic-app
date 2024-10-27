@@ -49,6 +49,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
           .from('vote_pick')
           .select(
               '*, vote(*), vote_item(*, artist(*, artist_group(*)),artist_group(*))')
+          .eq('user_id', supabase.auth.currentUser!.id)
           .order(
             sort,
             ascending: order == 'ASC',
@@ -138,17 +139,21 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
                               text: getLocaleTextFromJson(item.vote.title),
                               style: getTextStyle(
                                   AppTypo.body14M, AppColors.grey900)),
+                          TextSpan(
+                              text: ' ',
+                              style: getTextStyle(
+                                  AppTypo.body14M, AppColors.grey900)),
                           item.vote_item.artist.id != 0
                               ? TextSpan(
                                   text:
                                       '${getLocaleTextFromJson(item.vote_item.artist.name)}_${getLocaleTextFromJson(item.vote_item.artist.artist_group.name)}',
                                   style: getTextStyle(
-                                      AppTypo.body14M, AppColors.grey900))
+                                      AppTypo.caption12R, AppColors.grey900))
                               : TextSpan(
                                   text: getLocaleTextFromJson(
                                       item.vote_item.artistGroup.name),
                                   style: getTextStyle(
-                                      AppTypo.body14M, AppColors.grey900)),
+                                      AppTypo.caption12R, AppColors.grey900)),
                         ])),
                       ],
                     ),
