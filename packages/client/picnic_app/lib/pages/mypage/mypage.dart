@@ -88,6 +88,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                           .setCurrentMyPage(const SettingPage())),
                   // 나의 아티스트
                   _buildMyStar('VOTE'),
+                  const Divider(color: AppColors.grey200),
                   // 투표내역
                   PicnicListItem(
                       leading: S.of(context).label_mypage_vote_history,
