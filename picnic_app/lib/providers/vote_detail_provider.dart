@@ -18,11 +18,9 @@ class AsyncVoteDetail extends _$AsyncVoteDetail {
       final response = await supabase
           .from('vote')
           .select(
-              '*, vote_item(*, artist(*, artist_group(*)), artist_group(*)), reward(*)')
+              'id, main_image, title, start_at, stop_at, visible_at, vote_item(*, artist(*, artist_group(*)), artist_group(*)), reward(*)')
           .eq('id', voteId)
           .single();
-
-      // logger.i('Vote detail response: $response');
 
       final now = DateTime.now().toUtc();
 
@@ -54,7 +52,8 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
     try {
       final response = await supabase
           .from('vote_item')
-          .select('*, artist(*,artist_group(*)), artist_group(*)')
+          .select(
+              'id, vote_id, vote_total, artist(*,artist_group(*)), artist_group(*)')
           .eq('vote_id', voteId)
           .order('vote_total', ascending: false);
 
