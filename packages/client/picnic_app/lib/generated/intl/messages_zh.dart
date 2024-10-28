@@ -163,6 +163,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("图书馆"),
         "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("PIC"),
         "label_loading_ads": MessageLookupByLibrary.simpleMessage("加载广告"),
+        "label_loading_ads_fail":
+            MessageLookupByLibrary.simpleMessage("广告无法加载"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("前往艺术家画廊"),
         "label_mypage_charge_history":

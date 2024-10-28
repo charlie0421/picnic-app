@@ -29,7 +29,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _buttonScaleAnimation;
-  final Map<String, BannerAd?> _bannerAds = {};
+  BannerAd? _bannerAd;
 
   @override
   void initState() {
@@ -41,49 +41,52 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     _buttonScaleAnimation = Tween<double>(begin: .5, end: 2.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkAndLoadAds());
-    _loadBannerAds();
+
+    // 배너 광고 미리 로딩
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadBannerAd());
   }
 
   @override
   void dispose() {
     _animationController.dispose();
+    _bannerAd?.dispose();
     super.dispose();
   }
 
-  void _checkAndLoadAds() {
-    final adsState = ref.read(rewardedAdsProvider);
-    for (int i = 0; i < adsState.ads.length; i++) {
-      if (adsState.ads[i].ad == null &&
-          !adsState.ads[i].isLoading &&
-          !adsState.ads[i].isShowing) {
-        ref.read(rewardedAdsProvider.notifier).loadAd(i);
-      }
+  Future<void> _loadBannerAd() async {
+    try {
+      final configService = ref.read(configServiceProvider);
+      final adUnitId = isIOS()
+          ? await configService.getConfig('ADMOB_IOS_FREE_CHARGE_STATION')
+          : await configService.getConfig('ADMOB_ANDROID_FREE_CHARGE_STATION');
+
+      if (adUnitId == null) throw Exception('Ad unit ID is null');
+
+      late final BannerAd bannerAd;
+      bannerAd = BannerAd(
+        adUnitId: adUnitId,
+        size: AdSize.banner,
+        request: const AdRequest(),
+        listener: BannerAdListener(
+          onAdLoaded: (_) {
+            if (mounted) {
+              setState(() => _bannerAd = bannerAd);
+            }
+          },
+          onAdFailedToLoad: (ad, error) {
+            logger.e('Banner ad failed to load: $error');
+            ad.dispose();
+            if (mounted) {
+              setState(() => _bannerAd = null);
+            }
+          },
+        ),
+      );
+
+      await bannerAd.load();
+    } catch (e, s) {
+      logger.e('Error loading banner ad', error: e, stackTrace: s);
     }
-  }
-
-  Future<void> _loadBannerAds() async {
-    final configService = ref.read(configServiceProvider);
-    final adUnitId = isIOS()
-        ? await configService.getConfig('ADMOB_IOS_FREE_CHARGE_STATION')
-        : await configService.getConfig('ADMOB_ANDROID_FREE_CHARGE_STATION');
-
-    _loadBannerAd('free_charge_station', adUnitId!, AdSize.banner);
-  }
-
-  void _loadBannerAd(String position, String adUnitId, AdSize size) {
-    _bannerAds[position] = BannerAd(
-      adUnitId: adUnitId,
-      size: size,
-      request: const AdRequest(),
-      listener: BannerAdListener(
-        onAdLoaded: (_) => setState(() {}),
-        onAdFailedToLoad: (ad, error) {
-          ad.dispose();
-          _bannerAds[position] = null;
-        },
-      ),
-    )..load();
   }
 
   @override
@@ -114,17 +117,14 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
           SizedBox(
             height: 50,
             child: FutureBuilder(
-                future: placementId,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (snapshot.hasError) {
-                    return const Center(child: Text('Error loading banner'));
-                  }
-                  return Center(
-                      child: AdWidget(ad: _bannerAds['free_charge_station']!));
-                }),
+              future: placementId,
+              builder: (context, snapshot) {
+                if (_bannerAd == null) {
+                  return buildLoadingOverlay();
+                }
+                return Center(child: AdWidget(ad: _bannerAd!));
+              },
+            ),
           ),
           const SizedBox(height: 18),
           _buildStoreListTileAdmob(0),
@@ -156,11 +156,10 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
   }
 
   Widget _buildStoreListTileAdmob(int index) {
-    final adState = ref.watch(rewardedAdsProvider);
     final userState = ref.watch(userInfoProvider);
+    final adState = ref.watch(rewardedAdsProvider);
     final adInfo = adState.ads[index];
-    bool isLoading = adInfo.isLoading;
-    // logger.i('index: $index, isLoading: $isLoading');
+    final isLoading = adInfo.isLoading;
 
     return AnimatedBuilder(
       animation: _animationController,
@@ -192,18 +191,25 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
               : S.of(context).label_watch_ads,
           buttonOnPressed: isLoading
               ? null
-              : () {
+              : () async {
                   if (userState.value == null) {
                     showRequireLoginDialog(context: context);
-                  } else {
-                    switch (index) {
-                      case 0:
-                      case 1:
-                        _showRewardedAdmob(index);
-                        break;
-                      default:
-                        break;
-                    }
+                    return;
+                  }
+                  final loadingFailMessage =
+                      S.of(context).label_loading_ads_fail;
+
+                  try {
+                    await _showRewardedAdmob(index);
+                  } catch (e, s) {
+                    logger.e('Error showing rewarded ad',
+                        error: e, stackTrace: s);
+                    showSimpleDialog(
+                      contentWidget: Text(
+                        loadingFailMessage,
+                        style: getTextStyle(AppTypo.body14M, AppColors.grey900),
+                      ),
+                    );
                   }
                 },
           isLoading: isLoading,
@@ -213,56 +219,55 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     );
   }
 
-  void _showRewardedAdmob(int index) async {
+  Future<void> _showRewardedAdmob(int index) async {
     try {
-      // logger.i("Calling showAd for index $index");
-
       OverlayLoadingProgress.start(context);
 
-      final response =
-          await supabase.functions.invoke('check-ads-count', body: {});
+      final response = await supabase.functions.invoke('check-ads-count');
+
+      if (!mounted) return;
       OverlayLoadingProgress.stop();
 
-      logger.i(
-          'allowed: ${response.data['allowed']}\n message: ${response.data['message']}\n nextAvailableTime: ${response.data['nextAvailableTime']}\n hourlyCount: ${response.data['hourlyCount']}\n dailyCount: ${response.data['dailyCount']}\n hourlyLimit: ${response.data['hourlyLimit']}\n dailyLimit: ${response.data['dailyLimit']}');
-      if (response.data['allowed'] == true) {
-        final adProvider = ref.read(rewardedAdsProvider.notifier);
-
-        logger.i("Calling showAd for index $index");
-        await adProvider.loadAd(index, showWhenLoaded: true, context: context);
-
-        _animateButton();
-      } else {
+      final allowed = response.data['allowed'] as bool?;
+      if (allowed != true) {
         final nextAvailableTime =
-            DateTime.parse(response.data['nextAvailableTime']).toLocal();
-        DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+            DateTime.parse(response.data['nextAvailableTime'] ?? '').toLocal();
+        final formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
 
+        if (!mounted) return;
         showSimpleDialog(
-            contentWidget: Column(
-          children: [
-            Text(
-              S.of(context).label_ads_exceeded,
-              style: getTextStyle(AppTypo.body16B, AppColors.grey900),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              S.of(context).ads_available_time,
-              style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
-              textAlign: TextAlign.center,
-            ),
-            Text(
-              formatter.format(nextAvailableTime).toString(),
-              style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ));
+          contentWidget: Column(
+            children: [
+              Text(
+                S.of(context).label_ads_exceeded,
+                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                S.of(context).ads_available_time,
+                style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                formatter.format(nextAvailableTime),
+                style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        );
+        return;
       }
+
+      // 리워드 광고는 클릭 시에 로딩
+      final adProvider = ref.read(rewardedAdsProvider.notifier);
+      await adProvider.loadAd(index, showWhenLoaded: true, context: context);
+      _animateButton();
     } catch (e, s) {
-      logger.e(e, stackTrace: s);
+      logger.e('Error in _showRewardedAdmob', error: e, stackTrace: s);
       rethrow;
-    } finally {}
+    }
   }
 
   void _animateButton() {

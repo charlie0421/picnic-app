@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:picnic_app/config/config_service.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -46,8 +46,6 @@ class RewardedAds extends _$RewardedAds {
 
   void _initializeAdUnitIds() async {
     final configService = ref.read(configServiceProvider);
-    logger.i(configService);
-    logger.i(configService.getConfig('ADMOB_IOS_AD1').toString());
     _adUnitIds = Platform.isAndroid
         ? [
             (await configService.getConfig('ADMOB_ANDROID_AD1')).toString(),
@@ -133,7 +131,6 @@ class RewardedAds extends _$RewardedAds {
 
     _updateAdState(index, isLoading: true, ad: null);
 
-    logger.i('_adUnitIds: $_adUnitIds');
     try {
       await RewardedAd.load(
         adUnitId: _adUnitIds[index],
@@ -158,8 +155,6 @@ class RewardedAds extends _$RewardedAds {
 
   Future<AdResult> _showAd(RewardedAd ad, int index) async {
     final resultCompleter = Completer<AdResult>();
-
-    logger.i('showAd: $index, adId: ${ad.adUnitId}');
 
     _updateAdState(index, isShowing: true);
 

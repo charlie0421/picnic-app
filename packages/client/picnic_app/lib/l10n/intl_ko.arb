@@ -298,6 +298,9 @@
     "@label_loading_ads": {
         "translationTimestamp": "2024-07-21T11:18:53.669108"
     },
+    "label_loading_ads_fail": "광고 로딩 실패",
+    "@label_loading_ads_fail": {
+    },
     "label_moveto_celeb_gallery": "아티스트 갤러리로 이동",
     "@label_moveto_celeb_gallery": {
         "translationTimestamp": "2024-07-21T11:18:53.669108"
