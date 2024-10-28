@@ -100,13 +100,13 @@ class _PortalState extends ConsumerState<Portal> {
                     if (Environment.currentEnvironment != 'prod')
                       Text(Environment.currentEnvironment),
                     const PortalMenuItem(portalType: PortalType.vote),
+                    const PortalMenuItem(portalType: PortalType.community),
                     if (supabase.isLogged)
                       userInfoState.when(
                         data: (userInfo) {
                           if (userInfo != null && (userInfo.isAdmin ?? false)) {
                             return const Row(children: [
                               PortalMenuItem(portalType: PortalType.pic),
-                              PortalMenuItem(portalType: PortalType.community),
                               PortalMenuItem(portalType: PortalType.novel),
                             ]);
                           } else {
