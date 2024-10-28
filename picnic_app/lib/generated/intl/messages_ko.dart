@@ -176,6 +176,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("라이브러리"),
         "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("PIC"),
         "label_loading_ads": MessageLookupByLibrary.simpleMessage("광고 로딩중"),
+        "label_loading_ads_fail":
+            MessageLookupByLibrary.simpleMessage("광고 로딩 실패"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("아티스트 갤러리로 이동"),
         "label_mypage_charge_history":

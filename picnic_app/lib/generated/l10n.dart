@@ -1130,10 +1130,10 @@ class S {
     );
   }
 
-  /// `Replying`
+  /// `Replying to a reply`
   String get label_reply {
     return Intl.message(
-      'Replying',
+      'Replying to a reply',
       name: 'label_reply',
       desc: '',
       args: [],
@@ -1750,10 +1750,10 @@ class S {
     );
   }
 
-  /// `Boards`
+  /// `Bulletin boards`
   String get nav_board {
     return Intl.message(
-      'Boards',
+      'Bulletin boards',
       name: 'nav_board',
       desc: '',
       args: [],
@@ -1770,10 +1770,10 @@ class S {
     );
   }
 
-  /// `Home`
+  /// `홈`
   String get nav_home {
     return Intl.message(
-      'Home',
+      '홈',
       name: 'nav_home',
       desc: '',
       args: [],
@@ -3035,6 +3035,16 @@ class S {
     return Intl.message(
       'This is the payment window for those who cannot pay for the app:\\n Please copy the random ID in advance:\\n After copying, click the button below to proceed with the payment.',
       name: 'purchase_web_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ads fail to load`
+  String get label_loading_ads_fail {
+    return Intl.message(
+      'Ads fail to load',
+      name: 'label_loading_ads_fail',
       desc: '',
       args: [],
     );

@@ -175,6 +175,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("ライブラリ"),
         "label_library_tab_pic": MessageLookupByLibrary.simpleMessage("PIC"),
         "label_loading_ads": MessageLookupByLibrary.simpleMessage("広告読み込み中"),
+        "label_loading_ads_fail":
+            MessageLookupByLibrary.simpleMessage("広告の読み込みに失敗"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("アーティストギャラリーへ"),
         "label_mypage_charge_history":

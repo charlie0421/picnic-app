@@ -1380,5 +1380,9 @@
   "purchase_web_message": "\\n 请提前复制随机数字 ID： \\n 复制后，点击下面的按钮继续付款。",
   "@purchase_web_message": {
     "manualTranslation": false
+  },
+  "label_loading_ads_fail": "广告无法加载",
+  "@label_loading_ads_fail": {
+    "manualTranslation": false
   }
 }

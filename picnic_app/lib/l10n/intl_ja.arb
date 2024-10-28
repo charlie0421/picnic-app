@@ -1380,5 +1380,9 @@
   "purchase_web_message": "アプリ決済ができない方のための決済画面です.\\nあらかじめ乱数IDをコピーしてください.\\nコピーした後、下のボタンを押して決済を行ってください。",
   "@purchase_web_message": {
     "manualTranslation": false
+  },
+  "label_loading_ads_fail": "広告の読み込みに失敗",
+  "@label_loading_ads_fail": {
+    "manualTranslation": false
   }
 }
