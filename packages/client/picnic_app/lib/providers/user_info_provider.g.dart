@@ -50,7 +50,7 @@ final expireBonusProvider =
 
 typedef ExpireBonusRef
     = AutoDisposeFutureProviderRef<List<Map<String, dynamic>?>?>;
-String _$userInfoHash() => r'ac34c4370fd63a38f3e81d8d0778b0237a5b08a3';
+String _$userInfoHash() => r'269e15d99f8a8d6e7f5177cd5288207597d0a27a';
 
 /// See also [UserInfo].
 @ProviderFor(UserInfo)

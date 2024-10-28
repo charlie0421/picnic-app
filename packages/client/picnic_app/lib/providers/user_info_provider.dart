@@ -44,7 +44,8 @@ class UserInfo extends _$UserInfo {
     try {
       final response = await supabase
           .from('user_profiles')
-          .select('*, user_agreement(*)')
+          .select(
+              'id,avatar_url,star_candy,nickname,email,star_candy_bonus,is_admin, user_agreement(id,terms,privacy)')
           .eq('id', supabase.auth.currentUser!.id)
           .maybeSingle();
 
@@ -175,24 +176,6 @@ Future<List<Map<String, dynamic>?>?> expireBonus(ExpireBonusRef ref) async {
     } else {
       throw Exception('Unexpected response format');
     }
-
-    // final now = DateTime.now();
-    // final startOfMonth = DateTime(now.year, now.month, 1);
-    // final startOfNextMonth = DateTime(now.year, now.month + 1, 1);
-    //
-    // final response = await supabase
-    //     .from('star_candy_bonus_history')
-    //     .select('remain_amount')
-    //     .gte('created_at', startOfMonth.toUtc())
-    //     .lt('created_at', startOfNextMonth.toIso8601String());
-    // final List<dynamic> data = response;
-    // int sum = data.fold(
-    //     0,
-    //     (sum, item) =>
-    //         sum + (int.tryParse(item['remain_amount'].toString()) ?? 0));
-    //
-    // logger.i('Expire bonus calculated: $sum');
-    // return sum;
   } catch (e, s) {
     logger.e('Error calculating expire bonus', error: e, stackTrace: s);
     Sentry.captureException(e, stackTrace: s);
