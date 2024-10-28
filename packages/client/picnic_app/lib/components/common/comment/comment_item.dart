@@ -1,14 +1,20 @@
+// comment_item.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/avatar_container.dart';
 import 'package:picnic_app/components/common/comment/comment_actions.dart';
 import 'package:picnic_app/components/common/comment/comment_contents.dart';
 import 'package:picnic_app/components/common/comment/comment_header.dart';
 import 'package:picnic_app/components/common/comment/comment_popup_menu.dart';
+import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/comment.dart';
+import 'package:picnic_app/providers/community/comments_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/deepl_translate_service.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class CommentItem extends ConsumerStatefulWidget {
@@ -50,10 +56,14 @@ class _CommentItemState extends ConsumerState<CommentItem>
   Color _backgroundColor = Colors.white;
   bool _isDeleting = false;
   bool _isProcessing = false;
+  late bool _isTranslated = false;
+  bool _isTranslating = false;
+  bool _showOriginal = false;
 
   @override
   void initState() {
     super.initState();
+    _initializeTranslationState();
 
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 500),
@@ -69,6 +79,23 @@ class _CommentItemState extends ConsumerState<CommentItem>
 
     _setupAnimationListener();
     _handleInitialHighlight();
+  }
+
+  void _initializeTranslationState() {
+    final currentLocale = Intl.getCurrentLocale().split('_').first;
+    final hasTranslation =
+        widget.commentModel.content?.containsKey(currentLocale) ?? false;
+    final isDifferentLanguage =
+        currentLocale != (widget.commentModel.locale ?? 'ko');
+
+    _isTranslated = hasTranslation && isDifferentLanguage;
+    _showOriginal = false;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _initializeTranslationState();
   }
 
   void _setupAnimationListener() {
@@ -94,6 +121,12 @@ class _CommentItemState extends ConsumerState<CommentItem>
         });
       });
     }
+  }
+
+  void _toggleOriginal() {
+    setState(() {
+      _showOriginal = !_showOriginal;
+    });
   }
 
   Future<void> _handleDelete() async {
@@ -134,10 +167,60 @@ class _CommentItemState extends ConsumerState<CommentItem>
     }
   }
 
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
+  Future<void> _handleTranslation(String currentLocale) async {
+    if (_isTranslating) return;
+
+    setState(() {
+      _isTranslating = true;
+    });
+
+    try {
+      final translationService = DeepLTranslationService(
+        apiKey: Environment.deepLApiKey,
+      );
+
+      logger.i('widget.commentModel.content: ${widget.commentModel.content}');
+      logger.i('widget.commentModel.locale: ${widget.commentModel.locale}');
+      final translatedText = await translationService.translateText(
+        widget.commentModel.content![widget.commentModel.locale]!,
+        widget.commentModel.locale!,
+        currentLocale,
+      );
+
+      if (!mounted) return;
+
+      final translationNotifier = ref.read(
+        commentTranslationNotifierProvider.notifier,
+      );
+
+      await translationNotifier.updateTranslation(
+        widget.commentModel.commentId,
+        currentLocale,
+        translatedText,
+      );
+
+      setState(() {
+        _isTranslated = !_isTranslated;
+      });
+    } catch (e, s) {
+      logger.e('Translation error:', error: e, stackTrace: s);
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(S.of(context).post_comment_translate_fail),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isTranslating = false;
+        });
+      }
+    }
   }
 
   Widget _buildProfileImage() {
@@ -165,7 +248,11 @@ class _CommentItemState extends ConsumerState<CommentItem>
         children: [
           CommentHeader(item: widget.commentModel),
           const SizedBox(height: 4),
-          CommentContents(item: widget.commentModel),
+          CommentContents(
+            item: widget.commentModel,
+            isTranslated: _isTranslated,
+            showOriginal: _showOriginal,
+          ),
           const SizedBox(height: 4),
           CommentActions(
             item: widget.commentModel,
@@ -174,6 +261,11 @@ class _CommentItemState extends ConsumerState<CommentItem>
             openCommentsModal: widget.openCommentsModal,
             onLike: widget.onLike,
             onReply: widget.onReply,
+            isTranslating: _isTranslating,
+            isTranslated: _isTranslated,
+            showOriginal: _showOriginal,
+            onTranslate: (currentLocale) => _handleTranslation(currentLocale),
+            onToggleOriginal: _toggleOriginal,
           ),
         ],
       ),
@@ -182,6 +274,7 @@ class _CommentItemState extends ConsumerState<CommentItem>
 
   @override
   Widget build(BuildContext context) {
+    logger.i('CommentItem build');
     if (_isDeleting) {
       return const SizedBox.shrink();
     }
@@ -239,5 +332,11 @@ class _CommentItemState extends ConsumerState<CommentItem>
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 }

@@ -1130,10 +1130,10 @@ class S {
     );
   }
 
-  /// `Replying to a reply`
+  /// `Reply`
   String get label_reply {
     return Intl.message(
-      'Replying to a reply',
+      'Reply',
       name: 'label_reply',
       desc: '',
       args: [],
@@ -3045,6 +3045,26 @@ class S {
     return Intl.message(
       'Ads fail to load',
       name: 'label_loading_ads_fail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `View translations`
+  String get post_comment_action_show_translation {
+    return Intl.message(
+      'View translations',
+      name: 'post_comment_action_show_translation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `View original`
+  String get post_comment_action_show_original {
+    return Intl.message(
+      'View original',
+      name: 'post_comment_action_show_original',
       desc: '',
       args: [],
     );

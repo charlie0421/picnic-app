@@ -1384,5 +1384,13 @@
   "label_loading_ads_fail": "广告无法加载",
   "@label_loading_ads_fail": {
     "manualTranslation": false
+  },
+  "post_comment_action_show_translation": "查看翻译",
+  "@post_comment_action_show_translation": {
+    "manualTranslation": false
+  },
+  "post_comment_action_show_original": "查看原文",
+  "@post_comment_action_show_original": {
+    "manualTranslation": false
   }
 }

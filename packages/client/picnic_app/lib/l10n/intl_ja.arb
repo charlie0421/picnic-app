@@ -1384,5 +1384,13 @@
   "label_loading_ads_fail": "広告の読み込みに失敗",
   "@label_loading_ads_fail": {
     "manualTranslation": false
+  },
+  "post_comment_action_show_translation": "翻訳を見る",
+  "@post_comment_action_show_translation": {
+    "manualTranslation": false
+  },
+  "post_comment_action_show_original": "原文を見る",
+  "@post_comment_action_show_original": {
+    "manualTranslation": false
   }
 }
