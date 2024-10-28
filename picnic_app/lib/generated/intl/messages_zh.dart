@@ -332,6 +332,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("公开申请"),
         "post_cannot_open_youtube":
             MessageLookupByLibrary.simpleMessage("我打不开 Youtube。"),
+        "post_comment_action_show_original":
+            MessageLookupByLibrary.simpleMessage("查看原文"),
+        "post_comment_action_show_translation":
+            MessageLookupByLibrary.simpleMessage("查看翻译"),
         "post_comment_action_translate":
             MessageLookupByLibrary.simpleMessage("翻译"),
         "post_comment_content_more":

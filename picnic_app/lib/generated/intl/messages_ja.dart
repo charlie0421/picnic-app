@@ -355,6 +355,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("オープンリクエスト"),
         "post_cannot_open_youtube":
             MessageLookupByLibrary.simpleMessage("Youtubeを開くことができません。"),
+        "post_comment_action_show_original":
+            MessageLookupByLibrary.simpleMessage("原文を見る"),
+        "post_comment_action_show_translation":
+            MessageLookupByLibrary.simpleMessage("翻訳を見る"),
         "post_comment_action_translate":
             MessageLookupByLibrary.simpleMessage("翻訳"),
         "post_comment_content_more":

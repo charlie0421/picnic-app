@@ -32,14 +32,12 @@ class CommentsNotifier extends _$CommentsNotifier {
     bool includeReported = true,
   }) async {
     final currentUserId = supabase.auth.currentUser?.id;
-    logger.i('Fetching comments for post $postId');
-    logger.i('Current user ID: $currentUserId');
     if (currentUserId == null) {
       return [];
     }
     try {
       var query = supabase.from('comments').select('''
-        comment_id,parent_comment_id,likes,replies,content,created_at,updated_at,deleted_at,
+        comment_id,parent_comment_id,likes,replies,content,locale,created_at,updated_at,deleted_at,
         user_profiles(nickname,avatar_url,created_at,updated_at,deleted_at),
         comment_reports!left(comment_id),
         comment_likes!left(comment_id),
@@ -70,7 +68,7 @@ class CommentsNotifier extends _$CommentsNotifier {
       final childResponse = await supabase
           .from('comments')
           .select('''
-        comment_id,parent_comment_id,likes,replies,content,created_at,updated_at,deleted_at,
+        comment_id,parent_comment_id,likes,replies,content,locale,created_at,updated_at,deleted_at,
         user_profiles(nickname,avatar_url,created_at,updated_at,deleted_at),
         comment_reports!left(comment_id),
         comment_likes!left(comment_id),

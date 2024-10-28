@@ -58,7 +58,7 @@ class _PostListItemState extends ConsumerState<PostListItem> {
                             AppTypo.caption12B, AppColors.primary500)),
                     SizedBox(width: 4.cw),
                     widget.post.isAnonymous ?? false
-                        ? NoAvatar(
+                        ? const NoAvatar(
                             width: 18,
                             height: 18,
                             borderRadius: 4,

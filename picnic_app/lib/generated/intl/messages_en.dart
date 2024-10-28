@@ -230,8 +230,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Compositing an image..."),
         "label_read_more_comment":
             MessageLookupByLibrary.simpleMessage("More comments"),
-        "label_reply":
-            MessageLookupByLibrary.simpleMessage("Replying to a reply"),
+        "label_reply": MessageLookupByLibrary.simpleMessage("Reply"),
         "label_retry": MessageLookupByLibrary.simpleMessage("Retrying"),
         "label_screen_title_agreement":
             MessageLookupByLibrary.simpleMessage("Accept the terms"),
@@ -394,6 +393,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Open requests"),
         "post_cannot_open_youtube":
             MessageLookupByLibrary.simpleMessage("I can\'t open Youtube."),
+        "post_comment_action_show_original":
+            MessageLookupByLibrary.simpleMessage("View original"),
+        "post_comment_action_show_translation":
+            MessageLookupByLibrary.simpleMessage("View translations"),
         "post_comment_action_translate":
             MessageLookupByLibrary.simpleMessage("Translation"),
         "post_comment_content_more":

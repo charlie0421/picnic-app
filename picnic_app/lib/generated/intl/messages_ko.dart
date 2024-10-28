@@ -357,6 +357,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("오픈 요청"),
         "post_cannot_open_youtube":
             MessageLookupByLibrary.simpleMessage("Youtube를 열 수 없습니다."),
+        "post_comment_action_show_original":
+            MessageLookupByLibrary.simpleMessage("원문 보기"),
+        "post_comment_action_show_translation":
+            MessageLookupByLibrary.simpleMessage("번역 보기"),
         "post_comment_action_translate":
             MessageLookupByLibrary.simpleMessage("번역"),
         "post_comment_content_more":
