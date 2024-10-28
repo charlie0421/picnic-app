@@ -1770,10 +1770,10 @@ class S {
     );
   }
 
-  /// `홈`
+  /// `Home`
   String get nav_home {
     return Intl.message(
-      '홈',
+      'Home',
       name: 'nav_home',
       desc: '',
       args: [],

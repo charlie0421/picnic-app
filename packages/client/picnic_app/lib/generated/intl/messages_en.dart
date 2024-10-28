@@ -343,7 +343,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_ads": MessageLookupByLibrary.simpleMessage("Ads"),
         "nav_board": MessageLookupByLibrary.simpleMessage("Boards"),
         "nav_gallery": MessageLookupByLibrary.simpleMessage("Gallery"),
-        "nav_home": MessageLookupByLibrary.simpleMessage("홈"),
+        "nav_home": MessageLookupByLibrary.simpleMessage("Home"),
         "nav_library": MessageLookupByLibrary.simpleMessage("Libraries"),
         "nav_media": MessageLookupByLibrary.simpleMessage("Media"),
         "nav_my": MessageLookupByLibrary.simpleMessage("My"),
