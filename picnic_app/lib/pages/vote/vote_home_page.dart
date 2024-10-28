@@ -17,6 +17,7 @@ import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/reward_list_provider.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:shimmer/shimmer.dart';
@@ -40,11 +41,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
-          showPortal: true,
-          showTopMenu: true,
-          showBottomNavigation: true);
+          showPortal: true, showTopMenu: true, showBottomNavigation: true);
     });
-
   }
 
   Future<void> _fetchPage(int pageKey) async {
@@ -156,7 +154,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
               scrollDirection: Axis.horizontal,
               itemCount: data.length,
               itemBuilder: (context, index) {
-                final title = data[index].getTitle();
+                final title = getLocaleTextFromJson(data[index].title!);
                 return GestureDetector(
                   onTap: () => showRewardDialog(context, data[index]),
                   child: Container(
