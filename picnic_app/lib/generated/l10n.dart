@@ -1750,10 +1750,10 @@ class S {
     );
   }
 
-  /// `Bulletin boards`
+  /// `Boards`
   String get nav_board {
     return Intl.message(
-      'Bulletin boards',
+      'Boards',
       name: 'nav_board',
       desc: '',
       args: [],
