@@ -341,7 +341,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "mypage_subscription":
             MessageLookupByLibrary.simpleMessage("Subscription information"),
         "nav_ads": MessageLookupByLibrary.simpleMessage("Ads"),
-        "nav_board": MessageLookupByLibrary.simpleMessage("Bulletin boards"),
+        "nav_board": MessageLookupByLibrary.simpleMessage("Boards"),
         "nav_gallery": MessageLookupByLibrary.simpleMessage("Gallery"),
         "nav_home": MessageLookupByLibrary.simpleMessage("홈"),
         "nav_library": MessageLookupByLibrary.simpleMessage("Libraries"),

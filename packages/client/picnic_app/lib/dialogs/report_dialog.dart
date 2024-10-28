@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/models/community/post.dart';
@@ -42,12 +43,12 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
   void initState() {
     super.initState();
 
-    final List<String> reasons = [
-      S.of(context).post_report_reason_1,
-      S.of(context).post_report_reason_2,
-      S.of(context).post_report_reason_3,
-      S.of(context).post_report_reason_4,
-      S.of(context).post_report_reason_5,
+    _reasons = [
+      Intl.message('post_report_reason_1'),
+      Intl.message('post_report_reason_2'),
+      Intl.message('post_report_reason_3'),
+      Intl.message('post_report_reason_4'),
+      Intl.message('post_report_reason_5'),
     ];
 
     _otherReasonController.addListener(_validateOtherReason);
