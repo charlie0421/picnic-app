@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:intl/intl.dart';
 
 part 'reward.freezed.dart';
 part 'reward.g.dart';
@@ -17,17 +16,6 @@ class RewardModel with _$RewardModel {
           @JsonKey(name: 'size_guide') Map<String, dynamic>? sizeGuide,
           @JsonKey(name: 'size_guide_images') List<String>? sizeGuideImages}) =
       _RewardModel;
-  String getTitle() {
-    if (Intl.getCurrentLocale() == 'ko') {
-      return title!['ko'];
-    } else if (Intl.getCurrentLocale() == 'en') {
-      return title!['en'];
-    } else if (Intl.getCurrentLocale() == 'ja') {
-      return title!['ja'];
-    } else {
-      return title!['zh'];
-    }
-  }
 
   factory RewardModel.fromJson(Map<String, dynamic> json) =>
       _$RewardModelFromJson(json);

@@ -182,14 +182,14 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     return Column(
       children: [
         if (voteModel.mainImage != null && voteModel.mainImage!.isNotEmpty)
-        SizedBox(
-          width: width,
-          child: PicnicCachedNetworkImage(
-            imageUrl: voteModel.mainImage!,
-            width: width.toInt(),
-            memCacheWidth: width.toInt(),
+          SizedBox(
+            width: width,
+            child: PicnicCachedNetworkImage(
+              imageUrl: voteModel.mainImage!,
+              width: width.toInt(),
+              memCacheWidth: width.toInt(),
+            ),
           ),
-        ),
         const SizedBox(height: 36),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 57.cw),
@@ -218,7 +218,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                       behavior: HitTestBehavior.opaque,
                       onTap: () => showRewardDialog(context, rewardModel),
                       child: Text(
-                        rewardModel.getTitle(),
+                        getLocaleTextFromJson(rewardModel.title!),
                         style:
                             getTextStyle(AppTypo.caption12R, AppColors.grey900)
                                 .copyWith(decoration: TextDecoration.underline),
@@ -421,9 +421,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(39),
         child: PicnicCachedNetworkImage(
-          key: ValueKey(item.artist.id != 0
-              ? item.artist.image
-              : item.artistGroup.image),
+          key: ValueKey(
+              item.artist.id != 0 ? item.artist.image : item.artistGroup.image),
           imageUrl: (item.artist.id != 0
                   ? item.artist.image
                   : item.artistGroup.image) ??
