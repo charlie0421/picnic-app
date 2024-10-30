@@ -99,7 +99,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
           showTopMenu: true,
           topRightMenu: TopRightType.postView,
           showBottomNavigation: false,
-          pageTitle: currentBoard!.isOfficial
+          pageTitle: (currentBoard!.isOfficial ?? false)
               ? getLocaleTextFromJson(currentBoard.name)
               : post.title,
         );
@@ -224,7 +224,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                               style: getTextStyle(AppTypo.caption10SB,
                                   const Color(0XFF8E8E8E))),
                           SizedBox(width: 8.cw),
-                          Text(formatDateTimeYYYYMMDDHHM(post.createdAt),
+                          Text(formatDateTimeYYYYMMDDHHM(post.createdAt!),
                               style: getTextStyle(AppTypo.caption10SB,
                                   const Color(0XFF8E8E8E))),
                         ],

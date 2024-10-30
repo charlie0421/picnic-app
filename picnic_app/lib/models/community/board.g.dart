@@ -12,9 +12,13 @@ _$BoardModelImpl _$$BoardModelImplFromJson(Map<String, dynamic> json) =>
       artistId: (json['artist_id'] as num).toInt(),
       name: json['name'] as Map<String, dynamic>,
       description: const DescriptionConverter().fromJson(json['description']),
-      isOfficial: json['is_official'] as bool,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      isOfficial: json['is_official'] as bool?,
+      createdAt: json['created_at'] == null
+          ? null
+          : DateTime.parse(json['created_at'] as String),
+      updatedAt: json['updated_at'] == null
+          ? null
+          : DateTime.parse(json['updated_at'] as String),
       artist: json['artist'] == null
           ? null
           : ArtistModel.fromJson(json['artist'] as Map<String, dynamic>),
@@ -33,8 +37,8 @@ Map<String, dynamic> _$$BoardModelImplToJson(_$BoardModelImpl instance) =>
       'name': instance.name,
       'description': const DescriptionConverter().toJson(instance.description),
       'is_official': instance.isOfficial,
-      'created_at': instance.createdAt.toIso8601String(),
-      'updated_at': instance.updatedAt.toIso8601String(),
+      'created_at': instance.createdAt?.toIso8601String(),
+      'updated_at': instance.updatedAt?.toIso8601String(),
       'artist': instance.artist,
       'request_message': instance.requestMessage,
       'status': instance.status,

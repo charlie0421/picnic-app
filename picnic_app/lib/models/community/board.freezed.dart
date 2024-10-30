@@ -29,11 +29,11 @@ mixin _$BoardModel {
   @DescriptionConverter()
   dynamic get description => throw _privateConstructorUsedError;
   @JsonKey(name: 'is_official')
-  bool get isOfficial => throw _privateConstructorUsedError;
+  bool? get isOfficial => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
-  DateTime get createdAt => throw _privateConstructorUsedError;
+  DateTime? get createdAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'updated_at')
-  DateTime get updatedAt => throw _privateConstructorUsedError;
+  DateTime? get updatedAt => throw _privateConstructorUsedError;
   ArtistModel? get artist => throw _privateConstructorUsedError;
   @JsonKey(name: 'request_message')
   String? get requestMessage => throw _privateConstructorUsedError;
@@ -65,9 +65,9 @@ abstract class $BoardModelCopyWith<$Res> {
       @JsonKey(name: 'artist_id') int artistId,
       @JsonKey(name: 'name') Map<String, dynamic> name,
       @DescriptionConverter() dynamic description,
-      @JsonKey(name: 'is_official') bool isOfficial,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt,
+      @JsonKey(name: 'is_official') bool? isOfficial,
+      @JsonKey(name: 'created_at') DateTime? createdAt,
+      @JsonKey(name: 'updated_at') DateTime? updatedAt,
       ArtistModel? artist,
       @JsonKey(name: 'request_message') String? requestMessage,
       @JsonKey(name: 'status') String? status,
@@ -96,9 +96,9 @@ class _$BoardModelCopyWithImpl<$Res, $Val extends BoardModel>
     Object? artistId = null,
     Object? name = null,
     Object? description = freezed,
-    Object? isOfficial = null,
-    Object? createdAt = null,
-    Object? updatedAt = null,
+    Object? isOfficial = freezed,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
     Object? artist = freezed,
     Object? requestMessage = freezed,
     Object? status = freezed,
@@ -122,18 +122,18 @@ class _$BoardModelCopyWithImpl<$Res, $Val extends BoardModel>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as dynamic,
-      isOfficial: null == isOfficial
+      isOfficial: freezed == isOfficial
           ? _value.isOfficial
           : isOfficial // ignore: cast_nullable_to_non_nullable
-              as bool,
-      createdAt: null == createdAt
+              as bool?,
+      createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updatedAt: null == updatedAt
+              as DateTime?,
+      updatedAt: freezed == updatedAt
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
       artist: freezed == artist
           ? _value.artist
           : artist // ignore: cast_nullable_to_non_nullable
@@ -185,9 +185,9 @@ abstract class _$$BoardModelImplCopyWith<$Res>
       @JsonKey(name: 'artist_id') int artistId,
       @JsonKey(name: 'name') Map<String, dynamic> name,
       @DescriptionConverter() dynamic description,
-      @JsonKey(name: 'is_official') bool isOfficial,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt,
+      @JsonKey(name: 'is_official') bool? isOfficial,
+      @JsonKey(name: 'created_at') DateTime? createdAt,
+      @JsonKey(name: 'updated_at') DateTime? updatedAt,
       ArtistModel? artist,
       @JsonKey(name: 'request_message') String? requestMessage,
       @JsonKey(name: 'status') String? status,
@@ -215,9 +215,9 @@ class __$$BoardModelImplCopyWithImpl<$Res>
     Object? artistId = null,
     Object? name = null,
     Object? description = freezed,
-    Object? isOfficial = null,
-    Object? createdAt = null,
-    Object? updatedAt = null,
+    Object? isOfficial = freezed,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
     Object? artist = freezed,
     Object? requestMessage = freezed,
     Object? status = freezed,
@@ -241,18 +241,18 @@ class __$$BoardModelImplCopyWithImpl<$Res>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as dynamic,
-      isOfficial: null == isOfficial
+      isOfficial: freezed == isOfficial
           ? _value.isOfficial
           : isOfficial // ignore: cast_nullable_to_non_nullable
-              as bool,
-      createdAt: null == createdAt
+              as bool?,
+      createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updatedAt: null == updatedAt
+              as DateTime?,
+      updatedAt: freezed == updatedAt
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
       artist: freezed == artist
           ? _value.artist
           : artist // ignore: cast_nullable_to_non_nullable
@@ -320,13 +320,13 @@ class _$BoardModelImpl extends _BoardModel {
   final dynamic description;
   @override
   @JsonKey(name: 'is_official')
-  final bool isOfficial;
+  final bool? isOfficial;
   @override
   @JsonKey(name: 'created_at')
-  final DateTime createdAt;
+  final DateTime? createdAt;
   @override
   @JsonKey(name: 'updated_at')
-  final DateTime updatedAt;
+  final DateTime? updatedAt;
   @override
   final ArtistModel? artist;
   @override
@@ -419,9 +419,9 @@ abstract class _BoardModel extends BoardModel {
       @JsonKey(name: 'artist_id') required final int artistId,
       @JsonKey(name: 'name') required final Map<String, dynamic> name,
       @DescriptionConverter() required final dynamic description,
-      @JsonKey(name: 'is_official') required final bool isOfficial,
-      @JsonKey(name: 'created_at') required final DateTime createdAt,
-      @JsonKey(name: 'updated_at') required final DateTime updatedAt,
+      @JsonKey(name: 'is_official') required final bool? isOfficial,
+      @JsonKey(name: 'created_at') required final DateTime? createdAt,
+      @JsonKey(name: 'updated_at') required final DateTime? updatedAt,
       required final ArtistModel? artist,
       @JsonKey(name: 'request_message') required final String? requestMessage,
       @JsonKey(name: 'status') required final String? status,
@@ -447,13 +447,13 @@ abstract class _BoardModel extends BoardModel {
   dynamic get description;
   @override
   @JsonKey(name: 'is_official')
-  bool get isOfficial;
+  bool? get isOfficial;
   @override
   @JsonKey(name: 'created_at')
-  DateTime get createdAt;
+  DateTime? get createdAt;
   @override
   @JsonKey(name: 'updated_at')
-  DateTime get updatedAt;
+  DateTime? get updatedAt;
   @override
   ArtistModel? get artist;
   @override

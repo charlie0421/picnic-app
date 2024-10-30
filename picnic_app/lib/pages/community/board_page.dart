@@ -185,8 +185,11 @@ class _BoardPageState extends ConsumerState<BoardPage> {
       child: Chip(
         label: Text(
           getLocaleTextFromJson(board.name),
-          style: getTextStyle(AppTypo.caption12B,
-              board.isOfficial ? AppColors.primary500 : AppColors.grey900),
+          style: getTextStyle(
+              AppTypo.caption12B,
+              (board.isOfficial ?? false)
+                  ? AppColors.primary500
+                  : AppColors.grey900),
         ),
         side: const BorderSide(color: AppColors.grey300, width: 1),
         backgroundColor: AppColors.grey00,

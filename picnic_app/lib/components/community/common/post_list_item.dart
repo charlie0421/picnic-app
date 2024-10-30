@@ -9,13 +9,14 @@ import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class PostListItem extends ConsumerStatefulWidget {
   final PostModel post;
   final Widget? popupMenu;
 
-  const PostListItem({super.key, required this.post, required this.popupMenu});
+  PostListItem({super.key, required this.post, required this.popupMenu});
 
   @override
   ConsumerState<PostListItem> createState() => _PostListItemState();
@@ -24,6 +25,7 @@ class PostListItem extends ConsumerStatefulWidget {
 class _PostListItemState extends ConsumerState<PostListItem> {
   @override
   Widget build(BuildContext context) {
+    logger.i('widget.post: ${widget.post.toJson()}');
     return GestureDetector(
       onTap: () {
         ref
@@ -78,7 +80,7 @@ class _PostListItemState extends ConsumerState<PostListItem> {
                             style: getTextStyle(
                                 AppTypo.caption12B, AppColors.grey900)),
                     SizedBox(width: 4.cw),
-                    Text(formatTimeAgo(context, widget.post.createdAt),
+                    Text(formatTimeAgo(context, widget.post.createdAt!),
                         style: getTextStyle(
                             AppTypo.caption10SB, AppColors.grey400)),
                   ],
