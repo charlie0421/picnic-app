@@ -4,11 +4,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/bottom_navigation_menu.dart';
+import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
+import 'package:supabase_extensions/supabase_extensions.dart';
 
 class CommonBottomNavigationBar extends ConsumerStatefulWidget {
   final ScreenInfo screenInfo;
@@ -70,6 +73,7 @@ class _CommonBottomNavigationBarState
                         title: e.title,
                         assetPath: e.assetPath,
                         index: e.index,
+                        needLogin: e.needLogin,
                       ))
                   .toList(),
             ),
@@ -90,12 +94,14 @@ class MenuItem extends ConsumerWidget {
   final String title;
   final String assetPath;
   final int index;
+  bool? needLogin;
 
-  const MenuItem({
+  MenuItem({
     super.key,
     required this.title,
     required this.assetPath,
     required this.index,
+    this.needLogin,
   });
 
   @override
@@ -109,7 +115,13 @@ class MenuItem extends ConsumerWidget {
     return SizedBox(
       height: 52,
       child: InkWell(
-        onTap: () => navigationNotifier.setBottomNavigationIndex(this.index),
+        onTap: () {
+          if ((needLogin ?? false) && !supabase.isLogged) {
+            showRequireLoginDialog(context: context);
+            return;
+          }
+          navigationNotifier.setBottomNavigationIndex(this.index);
+        },
         child: Column(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.center,

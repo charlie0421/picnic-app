@@ -62,9 +62,7 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
     _controller.addListener(_onTextChanged);
 
     _keyboardHeightPlugin.onKeyboardHeightChanged((double height) {
-      setState(() {
-        _keyboardHeight = height;
-      });
+      _keyboardHeight = height;
     });
   }
 

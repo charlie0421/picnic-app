@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/community/comments_provider.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/number.dart';
 import 'package:picnic_app/util/ui.dart';
+import 'package:supabase_extensions/supabase_extensions.dart';
 
 class LikeButton extends ConsumerStatefulWidget {
   final String postId;
@@ -82,6 +85,11 @@ class LikeButtonState extends ConsumerState<LikeButton>
   }
 
   Future<void> _toggleLike() async {
+    if (!supabase.isLogged) {
+      showRequireLoginDialog(context: context);
+      return;
+    }
+
     if (_isLoading) return;
 
     setState(() {

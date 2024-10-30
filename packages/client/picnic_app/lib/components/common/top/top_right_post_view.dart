@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/providers/community/post_provider.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:supabase_extensions/supabase_extensions.dart';
 
 class TopRightPostView extends ConsumerStatefulWidget {
   const TopRightPostView({
@@ -30,6 +32,10 @@ class _TopRightPostViewState extends ConsumerState<TopRightPostView> {
         child: InkWell(
           borderRadius: BorderRadius.circular(15),
           onTap: () {
+            if (!supabase.isLogged) {
+              showRequireLoginDialog(context: context);
+              return;
+            }
             (currentPost.isScraped ?? false)
                 ? unscrapPost(
                     ref, currentPost.postId, supabase.auth.currentUser!.id)

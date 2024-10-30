@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/community/list/post_list.dart';
+import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/pages/community/board_request.dart';
@@ -13,6 +14,7 @@ import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
+import 'package:supabase_extensions/supabase_extensions.dart';
 
 class PostListPage extends ConsumerStatefulWidget {
   const PostListPage(this.artistId, this.artistName, {super.key});
@@ -26,17 +28,12 @@ class PostListPage extends ConsumerStatefulWidget {
 
 class _PostListPageState extends ConsumerState<PostListPage>
     with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
-  late PageController _pageController = PageController();
+  late final PageController _pageController = PageController();
   int _currentIndex = 0;
   bool _isInitialized = false;
 
   @override
   bool get wantKeepAlive => true;
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   void _initializeWithCurrentBoard(List<dynamic> boards) {
     if (_isInitialized) return;
@@ -53,7 +50,9 @@ class _PostListPageState extends ConsumerState<PostListPage>
         });
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
-            _pageController.jumpToPage(newIndex);
+            if (_pageController.hasClients) {
+              _pageController.jumpToPage(newIndex);
+            }
           }
         });
       }
@@ -85,12 +84,16 @@ class _PostListPageState extends ConsumerState<PostListPage>
               _initializeWithCurrentBoard(data);
             }
 
+            logger.i('data: $data');
+
             final bool hasApprovedBoards = data.any((element) =>
                 element.status == 'approved' &&
+                supabase.auth.currentUser != null &&
                 element.creatorId == supabase.auth.currentUser!.id);
 
             final bool hasPendingBoard = data.any((element) =>
                 element.status == 'pending' &&
+                supabase.auth.currentUser != null &&
                 element.creatorId == supabase.auth.currentUser!.id);
 
             final bool showRequestButton =
@@ -207,6 +210,10 @@ class _PostListPageState extends ConsumerState<PostListPage>
   Widget _buildOpenRequestItem(int index) {
     return GestureDetector(
       onTap: () {
+        if (!supabase.isLogged) {
+          showRequireLoginDialog(context: context);
+          return;
+        }
         _pageController.jumpToPage(index);
         setState(() {
           _currentIndex = index;
