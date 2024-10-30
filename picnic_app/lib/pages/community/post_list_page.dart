@@ -84,8 +84,6 @@ class _PostListPageState extends ConsumerState<PostListPage>
               _initializeWithCurrentBoard(data);
             }
 
-            logger.i('data: $data');
-
             final bool hasApprovedBoards = data.any((element) =>
                 element.status == 'approved' &&
                 supabase.auth.currentUser != null &&
