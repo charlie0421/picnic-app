@@ -258,7 +258,7 @@ class _CommentsNotifierProviderElement
 }
 
 String _$userCommentsNotifierHash() =>
-    r'44a2fda4d93b0c0d1abd9bada7dae943e7516ca4';
+    r'a1f0974c30c89db84dcfffba0f1d8bed85e89768';
 
 abstract class _$UserCommentsNotifier
     extends BuildlessAutoDisposeAsyncNotifier<List<CommentModel>> {
