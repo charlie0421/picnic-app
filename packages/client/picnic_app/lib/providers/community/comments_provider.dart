@@ -274,7 +274,9 @@ class UserCommentsNotifier extends _$UserCommentsNotifier {
     try {
       final response = await supabase
           .from('comments')
-          .select('*, post:posts(*, board:boards(*)), user:user_profiles(*)')
+          .select('''
+          *, post:posts(*, boards!inner(board_id,name, artist_id, description)), user:user_profiles!comments_user_id_fkey(id,nickname,avatar_url,created_at,updated_at,deleted_at)
+          ''')
           .eq('user_id', userId)
           .isFilter('deleted_at', null)
           .order('created_at', ascending: false)
