@@ -95,17 +95,19 @@ Future<PostModel?> postById(ref, String postId,
         .eq('post_id', postId)
         .isFilter('deleted_at', null)
         .isFilter('post_reports', null)
-        .single();
+        .maybeSingle();
 
     // Check if post_scraps exists and set isScraped accordingly
     bool isScraped =
-        response['post_scraps'] != null && response['post_scraps'].isNotEmpty;
+        response!['post_scraps'] != null && response['post_scraps'].isNotEmpty;
 
     // Create a new map with the updated isScraped value
     Map<String, dynamic> updatedResponse = {
       ...response,
       'is_scraped': isScraped,
     };
+
+    logger.i('postById: $updatedResponse');
 
     return PostModel.fromJson(updatedResponse);
   } catch (e, s) {

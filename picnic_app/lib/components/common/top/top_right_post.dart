@@ -27,68 +27,64 @@ class _TopRightPostState extends ConsumerState<TopRightPost> {
         ref.watch(userInfoProvider.select((value) => value.value?.isAdmin));
     final navigationInfoNotifier = ref.read(navigationInfoProvider.notifier);
 
-    return isAdmin != null && isAdmin == true
-        ? Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Stack(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      if (supabase.isLogged) {
-                        navigationInfoNotifier
-                            .setCurrentPage(const PostWritePage());
-                      } else {
-                        showRequireLoginDialog(
-                          context: context,
-                        );
-                      }
-                    },
-                    child: Container(
-                      alignment: Alignment.centerLeft,
-                      width: 40.cw,
-                      height: 36,
-                      child: SvgPicture.asset(
-                        'assets/icons/pencil_style=fill.svg',
-                        width: 24.cw,
-                        height: 24,
-                        colorFilter: const ColorFilter.mode(
-                            AppColors.primary500, BlendMode.srcIn),
-                      ),
-                    ),
-                  ),
-                ],
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Stack(
+          children: [
+            GestureDetector(
+              onTap: () {
+                if (supabase.isLogged) {
+                  navigationInfoNotifier.setCurrentPage(const PostWritePage());
+                } else {
+                  showRequireLoginDialog(
+                    context: context,
+                  );
+                }
+              },
+              child: Container(
+                alignment: Alignment.centerLeft,
+                width: 40.cw,
+                height: 36,
+                child: SvgPicture.asset(
+                  'assets/icons/pencil_style=fill.svg',
+                  width: 24.cw,
+                  height: 24,
+                  colorFilter: const ColorFilter.mode(
+                      AppColors.primary500, BlendMode.srcIn),
+                ),
               ),
-              GestureDetector(
-                onTap: () {
-                  if (supabase.isLogged) {
-                    navigationInfoNotifier
-                        .setCurrentPage(const PostSearchPage());
-                  } else {
-                    showRequireLoginDialog(
-                      context: context,
-                    );
-                  }
-                },
-                child: Stack(
-                  children: [
-                    SizedBox(
-                      width: 24.cw,
-                      height: 24,
-                      child: SvgPicture.asset(
-                        'assets/icons/search_style=line.svg',
-                        width: 24.cw,
-                        height: 24,
-                        colorFilter: const ColorFilter.mode(
-                            AppColors.grey900, BlendMode.srcIn),
-                      ),
-                    ),
-                  ],
+            ),
+          ],
+        ),
+        GestureDetector(
+          onTap: () {
+            if (supabase.isLogged) {
+              navigationInfoNotifier.setCurrentPage(const PostSearchPage());
+            } else {
+              showRequireLoginDialog(
+                context: context,
+              );
+            }
+          },
+          child: Stack(
+            children: [
+              SizedBox(
+                width: 24.cw,
+                height: 24,
+                child: SvgPicture.asset(
+                  'assets/icons/search_style=line.svg',
+                  width: 24.cw,
+                  height: 24,
+                  colorFilter: const ColorFilter.mode(
+                      AppColors.grey900, BlendMode.srcIn),
                 ),
               ),
             ],
-          )
-        : const SizedBox();
+          ),
+        ),
+      ],
+    );
   }
 }

@@ -42,24 +42,28 @@ List<BottomNavigationItem> votePages = [
     assetPath: 'assets/icons/bottom/vote.svg',
     index: 0,
     pageWidget: VoteHomePage(),
+    needLogin: false,
   ),
   const BottomNavigationItem(
     title: 'nav_picchart',
     assetPath: 'assets/icons/bottom/pic_chart.svg',
     index: 1,
     pageWidget: PicChartPage(),
+    needLogin: false,
   ),
   const BottomNavigationItem(
     title: 'nav_media',
     assetPath: 'assets/icons/bottom/media.svg',
     index: 2,
     pageWidget: VoteMediaListPage(),
+    needLogin: false,
   ),
   const BottomNavigationItem(
     title: 'nav_store',
     assetPath: 'assets/icons/bottom/store.svg',
     index: 3,
     pageWidget: StorePage(),
+    needLogin: false,
   ),
 ];
 
@@ -69,24 +73,28 @@ List<BottomNavigationItem> picPages = [
     assetPath: 'assets/icons/bottom/home.svg',
     index: 0,
     pageWidget: PicHomePage(),
+    needLogin: false,
   ),
   const BottomNavigationItem(
     title: 'nav_gallery',
     assetPath: 'assets/icons/bottom/gallery.svg',
     index: 1,
     pageWidget: GalleryPage(),
+    needLogin: false,
   ),
   BottomNavigationItem(
     title: 'nav_subscription',
     assetPath: 'assets/icons/bottom/subscription.svg',
     index: 2,
     pageWidget: Container(),
+    needLogin: false,
   ),
   const BottomNavigationItem(
     title: 'nav_library',
     assetPath: 'assets/icons/bottom/library.svg',
     index: 3,
     pageWidget: LibraryPage(),
+    needLogin: false,
   ),
 ];
 
@@ -96,18 +104,21 @@ List<BottomNavigationItem> communityPages = [
     assetPath: 'assets/icons/bottom/media.svg',
     index: 0,
     pageWidget: CommunityHomePage(),
+    needLogin: false,
   ),
   const BottomNavigationItem(
     title: 'nav_board',
     assetPath: 'assets/icons/bottom/board.svg',
     index: 1,
     pageWidget: BoardPage(),
+    needLogin: false,
   ),
   const BottomNavigationItem(
     title: 'nav_my',
     assetPath: 'assets/icons/bottom/my.svg',
     index: 2,
     pageWidget: CommunityMyPage(),
+    needLogin: true,
   ),
 ];
 
@@ -117,6 +128,7 @@ List<BottomNavigationItem> novelPages = [
     assetPath: 'assets/icons/bottom/media.svg',
     index: 0,
     pageWidget: Container(),
+    needLogin: false,
   ),
 ];
 
@@ -125,13 +137,14 @@ class BottomNavigationItem {
   final String assetPath;
   final int index;
   final Widget pageWidget;
+  final bool needLogin;
 
-  const BottomNavigationItem({
-    required this.title,
-    required this.assetPath,
-    required this.index,
-    required this.pageWidget,
-  });
+  const BottomNavigationItem(
+      {required this.title,
+      required this.assetPath,
+      required this.index,
+      required this.pageWidget,
+      required this.needLogin});
 }
 
 class ScreenInfo {
@@ -139,5 +152,9 @@ class ScreenInfo {
   Color color;
   List<BottomNavigationItem> pages;
 
-  ScreenInfo({required this.type, required this.color, required this.pages});
+  ScreenInfo({
+    required this.type,
+    required this.color,
+    required this.pages,
+  });
 }

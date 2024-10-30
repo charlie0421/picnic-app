@@ -15,6 +15,7 @@ import 'package:picnic_app/components/community/write/embed_builder/media_embed_
 import 'package:picnic_app/components/community/write/embed_builder/youtube_embed_builder.dart';
 import 'package:picnic_app/config/config_service.dart';
 import 'package:picnic_app/dialogs/report_dialog.dart';
+import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/models/common/navigation.dart';
@@ -24,11 +25,13 @@ import 'package:picnic_app/providers/community/post_provider.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/global_media_query.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
+import 'package:supabase_extensions/supabase_extensions.dart';
 
 class PostViewPage extends ConsumerStatefulWidget {
   const PostViewPage(this.postId, {super.key});
@@ -448,6 +451,10 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
   }
 
   void _openCommentsModal(PostModel post) {
+    if (!supabase.isLogged) {
+      showRequireLoginDialog(context: context);
+      return;
+    }
     setState(() {
       _isModalOpen = true;
       for (var ad in _bannerAds.values) {

@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/app.dart';
+import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/providers/community/comments_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:supabase_extensions/supabase_extensions.dart';
 
 class CommentPopupMenu extends ConsumerStatefulWidget {
   final String postId;
@@ -117,36 +119,50 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
       );
     }
 
-    return PopupMenuButton<String>(
-      padding: EdgeInsets.zero,
-      child: SvgPicture.asset(
-        'assets/icons/more_style=line.svg',
-        width: 20,
-        height: 20,
-        colorFilter: ColorFilter.mode(
-          Theme.of(context).primaryColor,
-          BlendMode.srcIn,
-        ),
-      ),
-      onSelected: (String result) async {
-        if (result == 'Report') {
-          await _handleReport();
-        } else if (result == 'Delete') {
-          await _handleDelete();
+    return GestureDetector(
+      onTap: () {
+        if (!supabase.isLogged) {
+          showRequireLoginDialog(context: context);
+          return;
         }
       },
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        if (_canDeleteComment())
-          PopupMenuItem<String>(
-            value: 'Delete',
-            child: Text(S.of(context).popup_label_delete),
+      child: PopupMenuButton<String>(
+        padding: EdgeInsets.zero,
+        enabled: supabase.isLogged,
+        onOpened: () {
+          if (!supabase.isLogged) {
+            showRequireLoginDialog(context: context);
+          }
+        },
+        onSelected: (String result) async {
+          if (result == 'Report') {
+            await _handleReport();
+          } else if (result == 'Delete') {
+            await _handleDelete();
+          }
+        },
+        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+          if (_canDeleteComment())
+            PopupMenuItem<String>(
+              value: 'Delete',
+              child: Text(S.of(context).popup_label_delete),
+            ),
+          if (_canReportComment())
+            PopupMenuItem<String>(
+              value: 'Report',
+              child: Text(S.of(context).label_title_report),
+            ),
+        ],
+        child: SvgPicture.asset(
+          'assets/icons/more_style=line.svg',
+          width: 20,
+          height: 20,
+          colorFilter: ColorFilter.mode(
+            Theme.of(context).primaryColor,
+            BlendMode.srcIn,
           ),
-        if (_canReportComment())
-          PopupMenuItem<String>(
-            value: 'Report',
-            child: Text(S.of(context).label_title_report),
-          ),
-      ],
+        ),
+      ),
     );
   }
 

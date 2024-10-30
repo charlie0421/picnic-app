@@ -2,6 +2,7 @@ import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:supabase_extensions/supabase_extensions.dart';
 
 part 'comments_provider.g.dart';
 
@@ -32,9 +33,7 @@ class CommentsNotifier extends _$CommentsNotifier {
     bool includeReported = true,
   }) async {
     final currentUserId = supabase.auth.currentUser?.id;
-    if (currentUserId == null) {
-      return [];
-    }
+
     try {
       var query = supabase.from('comments').select('''
         comment_id,parent_comment_id,likes,replies,content,locale,created_at,updated_at,deleted_at,
@@ -47,10 +46,13 @@ class CommentsNotifier extends _$CommentsNotifier {
       if (!includeDeleted) query = query.isFilter('deleted_at', null);
       if (!includeReported) query = query.isFilter('comment_reports', null);
 
+      if (supabase.isLogged && currentUserId != null) {
+        query = query.eq('comment_likes.user_id', currentUserId);
+        query = query.eq('comment_reports.user_id', currentUserId);
+      }
+
       final rootResponse = await query
           .isFilter('parent_comment_id', null)
-          .eq('comment_reports.user_id', currentUserId)
-          .eq('comment_likes.user_id', currentUserId)
           .isFilter('comment_likes.deleted_at', null)
           .order('created_at', ascending: false)
           .range((page - 1) * limit, page * limit - 1);
@@ -63,23 +65,28 @@ class CommentsNotifier extends _$CommentsNotifier {
         );
       }).toList();
 
+      logger.i('rootComments: $rootComments');
+
       final rootCommentIds = rootComments.map((c) => c.commentId).toList();
 
-      final childResponse = await supabase
-          .from('comments')
-          .select('''
+      var childQuery = supabase.from('comments').select('''
         comment_id,parent_comment_id,likes,replies,content,locale,created_at,updated_at,deleted_at,
         user_profiles(nickname,avatar_url,created_at,updated_at,deleted_at),
         comment_reports!left(comment_id),
         comment_likes!left(comment_id),
         post:posts(post_id,board_id,title,created_at,updated_at,deleted_at)
-          ''')
-          .eq('post_id', postId)
-          .inFilter('parent_comment_id', rootCommentIds)
-          .eq('comment_reports.user_id', currentUserId)
-          .eq('comment_likes.user_id', currentUserId)
+          ''').eq('post_id', postId);
+
+      if (supabase.isLogged && currentUserId != null) {
+        childQuery = childQuery.eq('comment_likes.user_id', currentUserId);
+        childQuery = childQuery.eq('comment_reports.user_id', currentUserId);
+      }
+
+      final childResponse = await query
+          .isFilter('parent_comment_id', null)
           .isFilter('comment_likes.deleted_at', null)
-          .order('created_at', ascending: true);
+          .order('created_at', ascending: false)
+          .range((page - 1) * limit, page * limit - 1);
 
       final childComments = childResponse.map((row) {
         final comment = CommentModel.fromJson(row);
