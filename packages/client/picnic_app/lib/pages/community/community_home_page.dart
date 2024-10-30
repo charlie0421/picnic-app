@@ -38,7 +38,7 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
   }
 
   void _updateLoginState() {
-    setState(() {});
+    ref.refresh(asyncBookmarkedArtistsProvider);
   }
 
   @override
