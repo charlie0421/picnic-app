@@ -15,8 +15,13 @@ Future<List<PostModel>?> postsByArtist(
   try {
     final response = await supabase
         .from('posts')
-        .select(
-            '*, board:boards!inner(*), user_profiles!posts_user_id_fkey(*), post_reports!left(post_id), post_scraps!left(post_id)')
+        .select('''
+            post_id, title,created_at,view_count,reply_count, user_id,board_id,
+            boards!inner(board_id,name, artist_id, description),
+            user_profiles!posts_user_id_fkey(id,nickname,avatar_url,created_at,updated_at,deleted_at),
+            post_reports!left(post_id),
+            post_scraps!left(post_id)
+            ''')
         .eq('boards.artist_id', artistId)
         .isFilter('post_reports', null)
         .isFilter('deleted_at', null)
@@ -36,9 +41,14 @@ Future<List<PostModel>?> postsByBoard(
   try {
     final response = await supabase
         .from('posts')
-        .select(
-            '*, board:boards!inner(*), user_profiles!posts_user_id_fkey(*), post_reports!left(post_id), post_scraps!left(post_id)')
-        .eq('boards.board_id', boardId)
+        .select('''
+            post_id, title,created_at,view_count,reply_count, user_id,board_id,
+            boards!inner(board_id,name, artist_id, description),
+            user_profiles!posts_user_id_fkey(id,nickname,avatar_url,created_at,updated_at,deleted_at),
+            post_reports!left(post_id),
+            post_scraps!left(post_id)
+        ''')
+        .eq('board_id', boardId)
         .isFilter('deleted_at', null)
         .isFilter('post_reports', null)
         .order('created_at', ascending: false)
@@ -61,8 +71,13 @@ Future<List<PostModel>?> postsByQuery(
 
     final response = await supabase
         .from('posts')
-        .select(
-            '*, board:boards!inner(*), user_profiles!posts_user_id_fkey(*), post_reports!left(post_id), post_scraps!left(post_id)')
+        .select('''
+            post_id, title,created_at,view_count,reply_count, user_id,board_id,
+            boards!inner(board_id,name, artist_id, description),
+            user_profiles!posts_user_id_fkey(id,nickname,avatar_url,created_at,updated_at,deleted_at),
+            post_reports!left(post_id),
+            post_scraps!left(post_id)
+         ''')
         .isFilter('deleted_at', null)
         .isFilter('post_reports', null)
         .or('title.ilike.%$query%')
@@ -91,7 +106,7 @@ Future<PostModel?> postById(ref, String postId,
     final response = await supabase
         .from('posts')
         .select(
-            '*, board:boards!inner(*), user_profiles!posts_user_id_fkey(*), post_reports!left(post_id), post_scraps!left(post_id)')
+            '*, board:boards!inner(*), user_profiles!posts_user_id_fkey(nickname,avatar_url,created_at,updated_at,deleted_at), post_reports!left(post_id), post_scraps!left(post_id)')
         .eq('post_id', postId)
         .isFilter('deleted_at', null)
         .isFilter('post_reports', null)

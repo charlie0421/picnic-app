@@ -134,7 +134,6 @@ class _PostListPageState extends ConsumerState<PostListPage>
                   child: PageView(
                     controller: _pageController,
                     onPageChanged: (index) {
-                      logger.i('onPageChanged: $index');
                       setState(() {
                         _currentIndex = index;
                       });

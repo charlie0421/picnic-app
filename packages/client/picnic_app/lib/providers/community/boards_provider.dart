@@ -11,7 +11,8 @@ Future<List<BoardModel>?> boards(ref, int artistId) async {
   try {
     final response = await supabase
         .from('boards')
-        .select('*, artist(*, artist_group(*))')
+        .select(
+            'name, board_id, artist_id, description, is_official, artist(*, artist_group(*))')
         .eq('artist_id', artistId)
         .eq('status', 'approved')
         .order('is_official', ascending: false)
@@ -32,7 +33,8 @@ Future<List<BoardModel>?> boardsByArtistName(
     if (query.isEmpty) {
       final response = await supabase
           .from('boards')
-          .select('*, artist!inner(*, artist_group(*))')
+          .select(
+              'name, board_id, artist_id, description, is_official, artist!inner(*, artist_group(*))')
           .neq('artist_id', 0)
           .eq('status', 'approved')
           .order('artist(name->>${Intl.getCurrentLocale()})', ascending: true)
@@ -62,29 +64,11 @@ Future<List<BoardModel>?> boardsByArtistName(
 }
 
 @riverpod
-Future<bool> hasRequestHistory(ref) async {
-  try {
-    final response = await supabase
-        .from('boards')
-        .select()
-        .eq('creator_id', supabase.auth.currentUser!.id)
-        .inFilter('status', ['approved', 'pending']);
-
-    logger.d('response: $response');
-
-    return response.isNotEmpty;
-  } catch (e, s) {
-    logger.e('Error checking board history:', error: e, stackTrace: s);
-    return Future.error(e);
-  }
-}
-
-@riverpod
 Future<BoardModel?> getPendingRequest(ref) async {
   try {
     final response = await supabase
         .from('boards')
-        .select()
+        .select('name, board_id, artist_id, description, is_official')
         .eq('creator_id', supabase.auth.currentUser!.id)
         .eq('status', 'pending')
         .maybeSingle();

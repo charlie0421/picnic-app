@@ -6,7 +6,7 @@ part of 'boards_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$boardsHash() => r'b959fcc1cc1e26f737a9a5a306f7282229d2a15d';
+String _$boardsHash() => r'aa879d329041a46879d2c010445683aea86ceb60';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -155,7 +155,7 @@ class _BoardsProviderElement
 }
 
 String _$boardsByArtistNameHash() =>
-    r'ad1c2479efdb2c50456dcb927e9dc9cb2a3b6653';
+    r'dcb11350fcc04efb36f1542b9d124b954ef9695e';
 
 /// See also [boardsByArtistName].
 @ProviderFor(boardsByArtistName)
@@ -318,22 +318,7 @@ class _BoardsByArtistNameProviderElement
   int get limit => (origin as BoardsByArtistNameProvider).limit;
 }
 
-String _$hasRequestHistoryHash() => r'f4c19952105803d3cba58bead1b805a3e7fd197f';
-
-/// See also [hasRequestHistory].
-@ProviderFor(hasRequestHistory)
-final hasRequestHistoryProvider = AutoDisposeFutureProvider<bool>.internal(
-  hasRequestHistory,
-  name: r'hasRequestHistoryProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$hasRequestHistoryHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-typedef HasRequestHistoryRef = AutoDisposeFutureProviderRef<bool>;
-String _$getPendingRequestHash() => r'156cac37069e223238c55dab944e36aff3e9bb60';
+String _$getPendingRequestHash() => r'a3c247cfb4291a8b330d96fac768d6e58374a1b7';
 
 /// See also [getPendingRequest].
 @ProviderFor(getPendingRequest)

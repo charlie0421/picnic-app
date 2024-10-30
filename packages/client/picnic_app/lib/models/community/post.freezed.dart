@@ -38,16 +38,16 @@ mixin _$PostModel {
   int? get replyCount => throw _privateConstructorUsedError;
   @JsonKey(name: 'is_hidden')
   bool? get isHidden => throw _privateConstructorUsedError;
-  @JsonKey(name: 'board')
+  @JsonKey(name: 'boards')
   BoardModel? get board => throw _privateConstructorUsedError;
   @JsonKey(name: 'is_anonymous')
   bool? get isAnonymous => throw _privateConstructorUsedError;
   @JsonKey(name: 'is_scraped')
   bool? get isScraped => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
-  DateTime get createdAt => throw _privateConstructorUsedError;
+  DateTime? get createdAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'updated_at')
-  DateTime get updatedAt => throw _privateConstructorUsedError;
+  DateTime? get updatedAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'deleted_at')
   DateTime? get deletedAt => throw _privateConstructorUsedError;
 
@@ -76,11 +76,11 @@ abstract class $PostModelCopyWith<$Res> {
       @JsonKey(name: 'view_count') int? viewCount,
       @JsonKey(name: 'reply_count') int? replyCount,
       @JsonKey(name: 'is_hidden') bool? isHidden,
-      @JsonKey(name: 'board') BoardModel? board,
+      @JsonKey(name: 'boards') BoardModel? board,
       @JsonKey(name: 'is_anonymous') bool? isAnonymous,
       @JsonKey(name: 'is_scraped') bool? isScraped,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt,
+      @JsonKey(name: 'created_at') DateTime? createdAt,
+      @JsonKey(name: 'updated_at') DateTime? updatedAt,
       @JsonKey(name: 'deleted_at') DateTime? deletedAt});
 
   $UserProfilesModelCopyWith<$Res>? get userProfiles;
@@ -114,8 +114,8 @@ class _$PostModelCopyWithImpl<$Res, $Val extends PostModel>
     Object? board = freezed,
     Object? isAnonymous = freezed,
     Object? isScraped = freezed,
-    Object? createdAt = null,
-    Object? updatedAt = null,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
     Object? deletedAt = freezed,
   }) {
     return _then(_value.copyWith(
@@ -167,14 +167,14 @@ class _$PostModelCopyWithImpl<$Res, $Val extends PostModel>
           ? _value.isScraped
           : isScraped // ignore: cast_nullable_to_non_nullable
               as bool?,
-      createdAt: null == createdAt
+      createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updatedAt: null == updatedAt
+              as DateTime?,
+      updatedAt: freezed == updatedAt
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
       deletedAt: freezed == deletedAt
           ? _value.deletedAt
           : deletedAt // ignore: cast_nullable_to_non_nullable
@@ -229,11 +229,11 @@ abstract class _$$PostModelImplCopyWith<$Res>
       @JsonKey(name: 'view_count') int? viewCount,
       @JsonKey(name: 'reply_count') int? replyCount,
       @JsonKey(name: 'is_hidden') bool? isHidden,
-      @JsonKey(name: 'board') BoardModel? board,
+      @JsonKey(name: 'boards') BoardModel? board,
       @JsonKey(name: 'is_anonymous') bool? isAnonymous,
       @JsonKey(name: 'is_scraped') bool? isScraped,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt,
+      @JsonKey(name: 'created_at') DateTime? createdAt,
+      @JsonKey(name: 'updated_at') DateTime? updatedAt,
       @JsonKey(name: 'deleted_at') DateTime? deletedAt});
 
   @override
@@ -267,8 +267,8 @@ class __$$PostModelImplCopyWithImpl<$Res>
     Object? board = freezed,
     Object? isAnonymous = freezed,
     Object? isScraped = freezed,
-    Object? createdAt = null,
-    Object? updatedAt = null,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
     Object? deletedAt = freezed,
   }) {
     return _then(_$PostModelImpl(
@@ -320,14 +320,14 @@ class __$$PostModelImplCopyWithImpl<$Res>
           ? _value.isScraped
           : isScraped // ignore: cast_nullable_to_non_nullable
               as bool?,
-      createdAt: null == createdAt
+      createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updatedAt: null == updatedAt
+              as DateTime?,
+      updatedAt: freezed == updatedAt
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
       deletedAt: freezed == deletedAt
           ? _value.deletedAt
           : deletedAt // ignore: cast_nullable_to_non_nullable
@@ -349,7 +349,7 @@ class _$PostModelImpl extends _PostModel {
       @JsonKey(name: 'view_count') required this.viewCount,
       @JsonKey(name: 'reply_count') required this.replyCount,
       @JsonKey(name: 'is_hidden') required this.isHidden,
-      @JsonKey(name: 'board') required this.board,
+      @JsonKey(name: 'boards') required this.board,
       @JsonKey(name: 'is_anonymous') required this.isAnonymous,
       @JsonKey(name: 'is_scraped') required this.isScraped,
       @JsonKey(name: 'created_at') required this.createdAt,
@@ -397,7 +397,7 @@ class _$PostModelImpl extends _PostModel {
   @JsonKey(name: 'is_hidden')
   final bool? isHidden;
   @override
-  @JsonKey(name: 'board')
+  @JsonKey(name: 'boards')
   final BoardModel? board;
   @override
   @JsonKey(name: 'is_anonymous')
@@ -407,10 +407,10 @@ class _$PostModelImpl extends _PostModel {
   final bool? isScraped;
   @override
   @JsonKey(name: 'created_at')
-  final DateTime createdAt;
+  final DateTime? createdAt;
   @override
   @JsonKey(name: 'updated_at')
-  final DateTime updatedAt;
+  final DateTime? updatedAt;
   @override
   @JsonKey(name: 'deleted_at')
   final DateTime? deletedAt;
@@ -499,11 +499,11 @@ abstract class _PostModel extends PostModel {
           @JsonKey(name: 'view_count') required final int? viewCount,
           @JsonKey(name: 'reply_count') required final int? replyCount,
           @JsonKey(name: 'is_hidden') required final bool? isHidden,
-          @JsonKey(name: 'board') required final BoardModel? board,
+          @JsonKey(name: 'boards') required final BoardModel? board,
           @JsonKey(name: 'is_anonymous') required final bool? isAnonymous,
           @JsonKey(name: 'is_scraped') required final bool? isScraped,
-          @JsonKey(name: 'created_at') required final DateTime createdAt,
-          @JsonKey(name: 'updated_at') required final DateTime updatedAt,
+          @JsonKey(name: 'created_at') required final DateTime? createdAt,
+          @JsonKey(name: 'updated_at') required final DateTime? updatedAt,
           @JsonKey(name: 'deleted_at') final DateTime? deletedAt}) =
       _$PostModelImpl;
   const _PostModel._() : super._();
@@ -539,7 +539,7 @@ abstract class _PostModel extends PostModel {
   @JsonKey(name: 'is_hidden')
   bool? get isHidden;
   @override
-  @JsonKey(name: 'board')
+  @JsonKey(name: 'boards')
   BoardModel? get board;
   @override
   @JsonKey(name: 'is_anonymous')
@@ -549,10 +549,10 @@ abstract class _PostModel extends PostModel {
   bool? get isScraped;
   @override
   @JsonKey(name: 'created_at')
-  DateTime get createdAt;
+  DateTime? get createdAt;
   @override
   @JsonKey(name: 'updated_at')
-  DateTime get updatedAt;
+  DateTime? get updatedAt;
   @override
   @JsonKey(name: 'deleted_at')
   DateTime? get deletedAt;

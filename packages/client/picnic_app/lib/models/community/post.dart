@@ -19,11 +19,11 @@ class PostModel with _$PostModel {
     @JsonKey(name: 'view_count') required int? viewCount,
     @JsonKey(name: 'reply_count') required int? replyCount,
     @JsonKey(name: 'is_hidden') required bool? isHidden,
-    @JsonKey(name: 'board') required BoardModel? board,
+    @JsonKey(name: 'boards') required BoardModel? board,
     @JsonKey(name: 'is_anonymous') required bool? isAnonymous,
     @JsonKey(name: 'is_scraped') required bool? isScraped,
-    @JsonKey(name: 'created_at') required DateTime createdAt,
-    @JsonKey(name: 'updated_at') required DateTime updatedAt,
+    @JsonKey(name: 'created_at') required DateTime? createdAt,
+    @JsonKey(name: 'updated_at') required DateTime? updatedAt,
     @JsonKey(name: 'deleted_at') DateTime? deletedAt,
   }) = _PostModel;
 

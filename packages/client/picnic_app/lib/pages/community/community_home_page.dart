@@ -60,7 +60,9 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
           ? Container(
               child: bookmarkedArtists.when(
                 data: (artists) {
-                  if (currentArtist?.id == null && artists.isNotEmpty) {
+                  if ((currentArtist?.id == null ||
+                          !artists.contains(currentArtist)) &&
+                      artists.isNotEmpty) {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       ref
                           .read(communityStateInfoProvider.notifier)

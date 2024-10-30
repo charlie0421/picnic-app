@@ -20,13 +20,17 @@ _$PostModelImpl _$$PostModelImplFromJson(Map<String, dynamic> json) =>
       viewCount: (json['view_count'] as num?)?.toInt(),
       replyCount: (json['reply_count'] as num?)?.toInt(),
       isHidden: json['is_hidden'] as bool?,
-      board: json['board'] == null
+      board: json['boards'] == null
           ? null
-          : BoardModel.fromJson(json['board'] as Map<String, dynamic>),
+          : BoardModel.fromJson(json['boards'] as Map<String, dynamic>),
       isAnonymous: json['is_anonymous'] as bool?,
       isScraped: json['is_scraped'] as bool?,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: json['created_at'] == null
+          ? null
+          : DateTime.parse(json['created_at'] as String),
+      updatedAt: json['updated_at'] == null
+          ? null
+          : DateTime.parse(json['updated_at'] as String),
       deletedAt: json['deleted_at'] == null
           ? null
           : DateTime.parse(json['deleted_at'] as String),
@@ -43,10 +47,10 @@ Map<String, dynamic> _$$PostModelImplToJson(_$PostModelImpl instance) =>
       'view_count': instance.viewCount,
       'reply_count': instance.replyCount,
       'is_hidden': instance.isHidden,
-      'board': instance.board,
+      'boards': instance.board,
       'is_anonymous': instance.isAnonymous,
       'is_scraped': instance.isScraped,
-      'created_at': instance.createdAt.toIso8601String(),
-      'updated_at': instance.updatedAt.toIso8601String(),
+      'created_at': instance.createdAt?.toIso8601String(),
+      'updated_at': instance.updatedAt?.toIso8601String(),
       'deleted_at': instance.deletedAt?.toIso8601String(),
     };
