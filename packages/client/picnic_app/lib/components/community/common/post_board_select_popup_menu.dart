@@ -45,6 +45,12 @@ class _PostBoardSelectPopupMenuState
             orElse: () => boards.first,
           );
 
+          WidgetsBinding.instance!.addPostFrameCallback((_) {
+            ref
+                .read(communityStateInfoProvider.notifier)
+                .setCurrentBoard(selectedBoard);
+          });
+
           return PopupMenuButton<BoardModel>(
             padding: EdgeInsets.zero,
             child: Container(
@@ -60,7 +66,7 @@ class _PostBoardSelectPopupMenuState
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                        getLocaleTextFromJson(selectedBoard.name),
+                    getLocaleTextFromJson(selectedBoard.name),
                     textAlign: TextAlign.center,
                     style: getTextStyle(AppTypo.caption12R, AppColors.grey700),
                   ),
@@ -78,8 +84,7 @@ class _PostBoardSelectPopupMenuState
               return PopupMenuItem<BoardModel>(
                 value: board,
                 child: Text(
-                   getLocaleTextFromJson(board.name)
-                  ,
+                  getLocaleTextFromJson(board.name),
                   style: board.boardId == currentBoard?.boardId
                       ? getTextStyle(AppTypo.caption12R, AppColors.grey700)
                       : getTextStyle(AppTypo.caption12B, AppColors.grey400),
