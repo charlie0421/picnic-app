@@ -5,7 +5,6 @@ import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/pages/community/post_search_page.dart';
 import 'package:picnic_app/pages/community/post_write_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
-import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
@@ -23,8 +22,6 @@ class TopRightPost extends ConsumerStatefulWidget {
 class _TopRightPostState extends ConsumerState<TopRightPost> {
   @override
   Widget build(BuildContext context) {
-    final isAdmin =
-        ref.watch(userInfoProvider.select((value) => value.value?.isAdmin));
     final navigationInfoNotifier = ref.read(navigationInfoProvider.notifier);
 
     return Row(

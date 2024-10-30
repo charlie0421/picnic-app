@@ -101,9 +101,6 @@ class LikeButtonState extends ConsumerState<LikeButton>
         commentsNotifierProvider(widget.postId, 1, 10).notifier,
       );
 
-      final previousLikes = likes;
-      final previousIsLiked = isLiked;
-
       // Optimistic update
       setState(() {
         likes += isLiked ? -1 : 1;

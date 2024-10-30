@@ -85,6 +85,7 @@ class CommentsNotifier extends _$CommentsNotifier {
       final childResponse = await query
           .isFilter('parent_comment_id', null)
           .isFilter('comment_likes.deleted_at', null)
+          .inFilter('parent_comment_id', rootCommentIds)
           .order('created_at', ascending: false)
           .range((page - 1) * limit, page * limit - 1);
 
