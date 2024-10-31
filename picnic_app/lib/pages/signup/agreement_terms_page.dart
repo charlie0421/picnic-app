@@ -4,7 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/error.dart';
-import 'package:picnic_app/pages/signup/agreement_privacy.dart';
+import 'package:picnic_app/models/policy.dart';
+import 'package:picnic_app/pages/signup/agreement_privacy_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/policy_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
@@ -35,14 +36,14 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
     ref.watch(userInfoProvider);
 
     return asyncPolicyState.when(
-        data: (data) => _buildTerms(data),
+        data: (PolicyModel data) => _buildTerms(data),
         error: (error, stackTrace) =>
             ErrorView(context, error: error, stackTrace: stackTrace),
         loading: () => buildLoadingOverlay());
   }
 
   _buildTerms(
-    data,
+    PolicyModel data,
   ) {
     ref.watch(navigationInfoProvider);
     final navigationInfoNotifier = ref.read(navigationInfoProvider.notifier);
@@ -68,7 +69,8 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
                     'assets/icons/arrow_left_style=line.svg',
                     width: 24.cw,
                     height: 24,
-                    color: AppColors.grey900,
+                    colorFilter: const ColorFilter.mode(
+                        AppColors.grey900, BlendMode.srcIn),
                   ),
                 ),
               ),
@@ -81,11 +83,11 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
         Expanded(
           child: Container(
             color: AppColors.grey100,
-            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
             child: Markdown(
                 data: Intl.getCurrentLocale() == 'ko'
-                    ? data.terms_ko.content
-                    : data.terms_en.content),
+                    ? data.termsKo.content
+                    : data.termsEn.content),
           ),
         ),
         SizedBox(
@@ -98,8 +100,7 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
                   onPressed: () => navigationInfoNotifier
                       .setCurrentSignUpPage(const AgreementPrivacyPage()),
                   child: Text(Intl.message('label_button_agreement'),
-                      style:
-                          getTextStyle(AppTypo.body16B, AppColors.primary500))),
+                      style: getTextStyle(AppTypo.body16B, AppColors.grey00))),
             ],
           ),
         )

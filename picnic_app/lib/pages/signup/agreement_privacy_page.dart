@@ -5,13 +5,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/error.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
+import 'package:picnic_app/models/policy.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/policy_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -46,7 +47,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
         loading: () => buildLoadingOverlay());
   }
 
-  _buildPrivacy(data) {
+  _buildPrivacy(PolicyModel data) {
     ref.watch(navigationInfoProvider);
     final navigationInfoNotifier = ref.read(navigationInfoProvider.notifier);
 
@@ -88,11 +89,11 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
         Expanded(
           child: Container(
             color: AppColors.grey100,
-            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
             child: Markdown(
                 data: Intl.getCurrentLocale() == 'ko'
-                    ? data.privacy_ko.content
-                    : data.privacy_en.content),
+                    ? data.privacyKo.content
+                    : data.privacyEn.content),
           ),
         ),
         SizedBox(
@@ -132,11 +133,6 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                                 navigationInfoNotifier.setResetStackSignUp();
                                 Navigator.pop(context);
                                 Navigator.pop(context);
-                                // Navigator.pop(context, true);
-                                // Navigator.pushNamedAndRemoveUntil(context,
-                                //     HomeScreen.routeName, (route) => false);
-                                //
-                                // asyncMyProfileNotifier.fetch();
                               });
                         });
                       } else {
@@ -170,7 +166,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                     }
                   },
                   child: Text(Intl.message('label_button_agreement'),
-                      style: getTextStyle(AppTypo.body16B, AppColors.grey900))),
+                      style: getTextStyle(AppTypo.body16B, AppColors.grey00))),
             ],
           ),
         )

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/error.dart';
-import 'package:picnic_app/models/policy.dart';
+import 'package:picnic_app/enums.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/policy_provider.dart';
 import 'package:picnic_app/util/ui.dart';

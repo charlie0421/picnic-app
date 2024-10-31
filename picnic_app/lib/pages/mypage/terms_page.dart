@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/error.dart';
-import 'package:picnic_app/models/policy.dart';
+import 'package:picnic_app/enums.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
+import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/policy_provider.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class TermsPage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_terms_of_use';
 
-  TermsPage({super.key, this.language});
-  String? language;
+  const TermsPage({super.key, this.language});
+
+  final String? language;
 
   @override
   ConsumerState<TermsPage> createState() => _TermsPageState();
@@ -20,9 +22,14 @@ class TermsPage extends ConsumerStatefulWidget {
 class _TermsPageState extends ConsumerState<TermsPage>
     with SingleTickerProviderStateMixin {
   PolicyLanguage? language;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+          showPortal: false, showTopMenu: true, showBottomNavigation: false);
+    });
   }
 
   @override
