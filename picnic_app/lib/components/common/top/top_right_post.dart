@@ -35,9 +35,7 @@ class _TopRightPostState extends ConsumerState<TopRightPost> {
                 if (supabase.isLogged) {
                   navigationInfoNotifier.setCurrentPage(const PostWritePage());
                 } else {
-                  showRequireLoginDialog(
-                    context: context,
-                  );
+                  showRequireLoginDialog();
                 }
               },
               child: Container(
@@ -60,9 +58,7 @@ class _TopRightPostState extends ConsumerState<TopRightPost> {
             if (supabase.isLogged) {
               navigationInfoNotifier.setCurrentPage(const PostSearchPage());
             } else {
-              showRequireLoginDialog(
-                context: context,
-              );
+              showRequireLoginDialog();
             }
           },
           child: Stack(

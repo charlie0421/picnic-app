@@ -512,7 +512,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   .value!,
               voteItemModel: item,
             )
-          : showRequireLoginDialog(context: context);
+          : showRequireLoginDialog();
     }
   }
 

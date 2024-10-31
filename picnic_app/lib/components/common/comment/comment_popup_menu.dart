@@ -122,7 +122,7 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
     return GestureDetector(
       onTap: () {
         if (!supabase.isLogged) {
-          showRequireLoginDialog(context: context);
+          showRequireLoginDialog();
           return;
         }
       },
@@ -131,7 +131,7 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
         enabled: supabase.isLogged,
         onOpened: () {
           if (!supabase.isLogged) {
-            showRequireLoginDialog(context: context);
+            showRequireLoginDialog();
           }
         },
         onSelected: (String result) async {

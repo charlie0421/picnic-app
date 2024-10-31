@@ -117,7 +117,7 @@ class MenuItem extends ConsumerWidget {
       child: InkWell(
         onTap: () {
           if ((needLogin ?? false) && !supabase.isLogged) {
-            showRequireLoginDialog(context: context);
+            showRequireLoginDialog();
             return;
           }
           navigationNotifier.setBottomNavigationIndex(this.index);

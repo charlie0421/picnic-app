@@ -208,7 +208,7 @@ class _PostListPageState extends ConsumerState<PostListPage>
     return GestureDetector(
       onTap: () {
         if (!supabase.isLogged) {
-          showRequireLoginDialog(context: context);
+          showRequireLoginDialog();
           return;
         }
         _pageController.jumpToPage(index);

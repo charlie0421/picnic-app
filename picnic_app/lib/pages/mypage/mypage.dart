@@ -97,7 +97,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                           ? ref
                               .read(navigationInfoProvider.notifier)
                               .setCurrentMyPage(const VoteHistoryPage())
-                          : showRequireLoginDialog(context: context)),
+                          : showRequireLoginDialog()),
                   // _buildMyStar('PIC'),
                   // const Divider(color: AppColors.Grey200),
                   // ListItem(
@@ -204,7 +204,7 @@ class _MyPageState extends ConsumerState<MyPage> {
       behavior: HitTestBehavior.opaque,
       onTap: () {
         if (!supabase.isLogged) {
-          showRequireLoginDialog(context: context);
+          showRequireLoginDialog();
         } else {
           ref
               .read(navigationInfoProvider.notifier)
