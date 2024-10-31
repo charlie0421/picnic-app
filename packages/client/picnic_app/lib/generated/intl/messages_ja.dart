@@ -195,7 +195,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("アイデンティティ"),
         "label_mypage_privacy_policy":
             MessageLookupByLibrary.simpleMessage("個人情報保護方針"),
-        "label_mypage_setting": MessageLookupByLibrary.simpleMessage("設定"),
+        "label_mypage_setting":
+            MessageLookupByLibrary.simpleMessage("Settings"),
         "label_mypage_should_login":
             MessageLookupByLibrary.simpleMessage("ログインしてください"),
         "label_mypage_terms_of_use":
