@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:load_switch/load_switch.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
@@ -191,7 +192,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                           OverlayLoadingProgress.stop();
                           showSimpleDialog(
                               content:
-                                  S.of(context).message_setting_remove_cache,
+                                  Intl.message('message_setting_remove_cache'),
                               onOk: () => Navigator.of(context).pop());
                         });
                       }),
@@ -208,7 +209,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                             return PicnicListItem(
                               leading:
                                   '${S.of(context).label_setting_current_version} ${info.currentVersion}',
-                              title: Align(
+                              title: Container(
+                                margin: EdgeInsets.only(right: 8.cw),
                                 alignment: Alignment.centerRight,
                                 child: Text(
                                   '${S.of(context).label_setting_recent_version} (${info.latestVersion})',
@@ -222,16 +224,16 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               onTap: () async {
                                 (await canLaunchUrlString(info.url!))
                                     ? launchUrlString(info.url!)
-                                    : throw S
-                                        .of(context)
-                                        .update_cannot_open_appstore;
+                                    : throw Intl.message(
+                                        'update_cannot_open_appstore');
                               },
                             );
                           case UpdateStatus.updateRecommended:
                             return PicnicListItem(
                               leading:
                                   '${S.of(context).label_setting_current_version} ${info.currentVersion}',
-                              title: Align(
+                              title: Container(
+                                margin: EdgeInsets.only(right: 8.cw),
                                 alignment: Alignment.centerRight,
                                 child: Text(
                                   '${S.of(context).label_setting_recent_version} (${info.latestVersion})',
@@ -245,16 +247,16 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               onTap: () async {
                                 (await canLaunchUrlString(info.url!))
                                     ? launchUrlString(info.url!)
-                                    : throw S
-                                        .of(context)
-                                        .update_cannot_open_appstore;
+                                    : throw Intl.message(
+                                        'update_cannot_open_appstore');
                               },
                             );
                           case UpdateStatus.upToDate:
                             return PicnicListItem(
                               leading:
                                   '${S.of(context).label_setting_current_version} ${info.currentVersion}',
-                              title: Align(
+                              title: Container(
+                                margin: EdgeInsets.only(right: 8.cw),
                                 alignment: Alignment.centerRight,
                                 child: Text(
                                   S
