@@ -3,29 +3,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'policy.freezed.dart';
 part 'policy.g.dart';
 
-enum PolicyType {
-  privacy,
-  terms,
-  withdraw,
-}
-
-enum PolicyLanguage {
-  en,
-  ko,
-}
-//
-//
-// @freezed
-// class PolicyItemModel with _$PolicyItemModel {
-//   factory PolicyItemModel({
-//     required String content,
-//     required String version,
-//   }) = _PolicyItemModel;
-//
-//   factory PolicyItemModel.fromJson(Map<String, dynamic> json) =>
-//       _$PolicyItemModelFromJson(json);
-// }
-
 @freezed
 class PolicyModel with _$PolicyModel {
   const factory PolicyModel({
