@@ -33,7 +33,7 @@ class _TopRightPostViewState extends ConsumerState<TopRightPostView> {
           borderRadius: BorderRadius.circular(15),
           onTap: () {
             if (!supabase.isLogged) {
-              showRequireLoginDialog(context: context);
+              showRequireLoginDialog();
               return;
             }
             (currentPost.isScraped ?? false)

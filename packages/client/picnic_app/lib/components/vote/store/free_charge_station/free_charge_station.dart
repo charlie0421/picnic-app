@@ -193,7 +193,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
               ? null
               : () async {
                   if (userState.value == null) {
-                    showRequireLoginDialog(context: context);
+                    showRequireLoginDialog();
                     return;
                   }
                   final loadingFailMessage =

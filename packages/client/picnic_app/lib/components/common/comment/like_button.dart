@@ -86,7 +86,7 @@ class LikeButtonState extends ConsumerState<LikeButton>
 
   Future<void> _toggleLike() async {
     if (!supabase.isLogged) {
-      showRequireLoginDialog(context: context);
+      showRequireLoginDialog();
       return;
     }
 

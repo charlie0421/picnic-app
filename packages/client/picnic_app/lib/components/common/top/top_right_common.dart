@@ -38,9 +38,7 @@ class _TopRightCommonState extends ConsumerState<TopRightCommon> {
                               const SnackBar(
                                   duration: Duration(milliseconds: 300),
                                   content: Text('Test')))
-                          : showRequireLoginDialog(
-                              context: context,
-                            );
+                          : showRequireLoginDialog();
                     },
                     child: Container(
                       alignment: Alignment.centerLeft,
@@ -77,9 +75,7 @@ class _TopRightCommonState extends ConsumerState<TopRightCommon> {
                           const SnackBar(
                               duration: Duration(milliseconds: 200),
                               content: Text('Test')))
-                      : showRequireLoginDialog(
-                          context: context,
-                        );
+                      : showRequireLoginDialog();
                 },
                 child: Stack(
                   children: [

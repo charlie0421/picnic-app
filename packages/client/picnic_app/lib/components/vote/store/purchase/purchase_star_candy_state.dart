@@ -13,7 +13,6 @@ import 'package:picnic_app/components/vote/store/purchase/purchase_star_candy.da
 import 'package:picnic_app/components/vote/store/purchase/receipt_verification_service.dart';
 import 'package:picnic_app/components/vote/store/purchase/store_list_tile.dart';
 import 'package:picnic_app/config/config_service.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
@@ -22,6 +21,7 @@ import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
@@ -150,7 +150,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
         barrierDismissible: false, color: AppColors.primary500);
 
     if (!supabase.isLogged) {
-      showRequireLoginDialog(context: context);
+      showRequireLoginDialog();
     }
     try {
       final productDetails = storeProducts.firstWhere(

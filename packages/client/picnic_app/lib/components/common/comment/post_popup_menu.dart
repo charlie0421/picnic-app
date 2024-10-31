@@ -38,7 +38,7 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
     return GestureDetector(
       onTap: () {
         if (!supabase.isLogged) {
-          showRequireLoginDialog(context: context);
+          showRequireLoginDialog();
         }
       },
       child: PopupMenuButton<String>(
