@@ -200,7 +200,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
           height: 18,
           child: Text(
             '${DateFormat('yyyy.MM.dd HH:mm').format(voteModel.startAt.toLocal())} ~ '
-            '${DateFormat('yyyy.MM.dd HH:mm').format(voteModel.startAt.toLocal())} '
+            '${DateFormat('yyyy.MM.dd HH:mm').format(voteModel.stopAt.toLocal())} '
             '(${getShortTimeZoneIdentifier()})',
             style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
           ),
