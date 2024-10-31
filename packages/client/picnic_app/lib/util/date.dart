@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/generated/l10n.dart';
-import 'package:timezone/timezone.dart' as tz;
+import 'package:picnic_app/util/logger.dart';
 
 String formatTimeAgo(BuildContext context, DateTime timestamp) {
   final now = DateTime.now().toUtc();
@@ -40,11 +39,7 @@ String formatDateTimeYYYYMMDDHHM(DateTime dateTime) {
 
 String getCurrentTimeZoneIdentifier() {
   try {
-    String systemTimeZone = DateTime.now().timeZoneName;
-
-    tz.Location location = tz.getLocation(systemTimeZone);
-
-    return location.name; // 예: 'Europe/London', 'Asia/Seoul' 등
+    return DateTime.now().timeZoneName;
   } catch (e, s) {
     // 오류 발생 시 시스템 시간대 이름 또는 UTC 반환
     logger.e(e, stackTrace: s);
