@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/common/avatar_container.dart';
@@ -22,6 +24,8 @@ class CommunityHomePage extends ConsumerStatefulWidget {
 }
 
 class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
+  StreamSubscription? _authSubscription;
+
   @override
   void initState() {
     super.initState();
@@ -32,13 +36,25 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
     });
 
     // Supabase 인증 상태 변경 감지
-    supabase.auth.onAuthStateChange.listen((event) {
-      _updateLoginState();
+    _authSubscription = supabase.auth.onAuthStateChange.listen((event) {
+      if (mounted) {
+        // 위젯이 아직 마운트된 상태인지 확인
+        _updateLoginState();
+      }
     });
   }
 
+  @override
+  void dispose() {
+    _authSubscription?.cancel();
+    super.dispose();
+  }
+
   void _updateLoginState() {
-    ref.refresh(asyncBookmarkedArtistsProvider);
+    if (mounted) {
+      // ref 사용 전에 위젯이 마운트된 상태인지 확인
+      ref.refresh(asyncBookmarkedArtistsProvider);
+    }
   }
 
   @override
