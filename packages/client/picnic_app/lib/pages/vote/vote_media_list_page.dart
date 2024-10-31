@@ -127,7 +127,7 @@ class _VideoListItemState extends State<VideoListItem> {
         NavigationDelegate(
           onProgress: (int progress) {
             setState(() {
-              _loadingProgress = progress / 100;
+              _loadingProgress = progress == 0 ? 0 : progress / 100;
             });
           },
           onPageStarted: (String url) {},
