@@ -4,14 +4,17 @@ import 'package:picnic_app/components/common/comment/post_popup_menu.dart';
 import 'package:picnic_app/components/community/common/post_list_item.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/dialogs/report_dialog.dart';
+import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/pages/community/post_write_page.dart';
 import 'package:picnic_app/providers/community/post_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
+import 'package:supabase_extensions/supabase_extensions.dart';
 
 enum PostListType { artist, board }
 
@@ -62,6 +65,10 @@ class _PostListState extends ConsumerState<PostList> {
                           ),
                         ),
                         onPressed: () {
+                          if (!supabase.isLogged) {
+                            showRequireLoginDialog();
+                            return;
+                          }
                           ref
                               .read(navigationInfoProvider.notifier)
                               .setCurrentPage(
