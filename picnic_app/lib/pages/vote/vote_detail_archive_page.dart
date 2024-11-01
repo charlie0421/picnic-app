@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:animated_digit/animated_digit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animation_progress_bar/flutter_animation_progress_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -12,12 +13,12 @@ import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
 import 'package:picnic_app/components/vote/voting/voting_dialog.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
-import 'package:picnic_app/dialogs/reward_dialog.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';
+import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -30,16 +31,17 @@ import 'package:supabase_extensions/supabase_extensions.dart';
 
 final searchQueryProvider = StateProvider<String>((ref) => '');
 
-class VoteDetailPage extends ConsumerStatefulWidget {
+class VoteDetailArchivePage extends ConsumerStatefulWidget {
   final int voteId;
 
-  const VoteDetailPage({super.key, required this.voteId});
+  const VoteDetailArchivePage({super.key, required this.voteId});
 
   @override
-  ConsumerState<VoteDetailPage> createState() => _VoteDetailPageState();
+  ConsumerState<VoteDetailArchivePage> createState() =>
+      _VoteDetailArchivePageState();
 }
 
-class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
+class _VoteDetailArchivePageState extends ConsumerState<VoteDetailArchivePage> {
   late ScrollController _scrollController;
 
   late TextEditingController _textEditingController;
@@ -47,6 +49,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   bool _hasFocus = false;
   bool isEnded = false;
   bool isUpcoming = false;
+  bool isArchive = false;
   final _searchSubject = BehaviorSubject<String>();
   Timer? _updateTimer;
   final Map<int, int> _previousVoteCounts = {};
@@ -131,25 +134,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     );
   }
 
-  List<int> _getFilteredIndices(List<dynamic> args) {
-    final List<VoteItemModel?> data = args[0];
-    final String query = args[1];
-    if (query.isEmpty) {
-      return List<int>.generate(data.length, (index) => index);
-    }
-
-    return List<int>.generate(data.length, (index) => index).where((index) {
-      return data[index]!.artist != 0 &&
-              getLocaleTextFromJson(data[index]!.artist.name)
-                  .toLowerCase()
-                  .contains(query.toLowerCase()) ||
-          data[index]!.artist != 0 &&
-              getLocaleTextFromJson(data[index]!.artistGroup.name)
-                  .toLowerCase()
-                  .contains(query.toLowerCase());
-    }).toList();
-  }
-
   @override
   Widget build(BuildContext context) {
     return ref.watch(asyncVoteDetailProvider(voteId: widget.voteId)).when(
@@ -157,6 +141,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             if (voteModel == null) return const SizedBox.shrink();
             isEnded = voteModel.isEnded!;
             isUpcoming = voteModel.isUpcoming!;
+            isArchive = voteModel.voteCategory == VoteCategory.archive.name;
 
             return GestureDetector(
               onTap: () => _focusNode.unfocus(),
@@ -166,7 +151,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   SliverToBoxAdapter(
                     child: _buildVoteInfo(context, voteModel),
                   ),
-                  _buildVoteItemList(context),
+                  SliverToBoxAdapter(child: _buildArchiveItem(context)),
+                  SliverToBoxAdapter(child: _buildLevelItem()),
                 ],
               ),
             );
@@ -206,96 +192,131 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
           ),
         ),
         const SizedBox(height: 36),
-        Text(
-          S.of(context).text_vote_rank_in_reward,
-          style: getTextStyle(AppTypo.body14B, AppColors.primary500),
-        ),
-        const SizedBox(height: 4),
-        if (voteModel.reward != null)
-          Column(
-            children: voteModel.reward!
-                .map((rewardModel) => GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => showRewardDialog(context, rewardModel),
-                      child: Text(
-                        getLocaleTextFromJson(rewardModel.title!),
-                        style:
-                            getTextStyle(AppTypo.caption12R, AppColors.grey900)
-                                .copyWith(decoration: TextDecoration.underline),
-                      ),
-                    ))
-                .toList(),
-          ),
-        const SizedBox(height: 36),
       ],
     );
   }
 
-  Widget _buildVoteItemList(BuildContext context) {
-    final searchQuery = ref.watch(searchQueryProvider);
-    return Consumer(
-      builder: (context, ref, _) {
-        return ref.watch(asyncVoteItemListProvider(voteId: widget.voteId)).when(
-              data: (data) {
-                final filteredIndices =
-                    _getFilteredIndices([data, searchQuery]);
-                return SliverToBoxAdapter(
-                  child: Stack(
+  Widget _buildArchiveItem(BuildContext context) {
+    return ref.watch(asyncVoteItemListProvider(voteId: widget.voteId)).when(
+          data: (data) {
+            return _buildVoteItem(context, data[0]!, 0);
+          },
+          loading: () => _buildLoadingShimmer(),
+          error: (error, stackTrace) => ErrorView(context,
+              error: error.toString(), stackTrace: stackTrace),
+        );
+  }
+
+  Widget _buildLevelItem() {
+    return Container(
+      margin: EdgeInsets.only(top: 20, left: 16.cw, right: 16.cw),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: AppColors.primary500, width: 1.5.r),
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: List.generate(
+                  21,
+                  (index) => Row(
                     children: [
-                      Container(
-                        width: double.infinity,
-                        margin:
-                            EdgeInsets.only(top: 24, left: 16.cw, right: 16.cw),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              color: AppColors.primary500, width: 1.r),
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(70.r),
-                            topRight: Radius.circular(70.r),
-                            bottomLeft: Radius.circular(40.r),
-                            bottomRight: Radius.circular(40.r),
+                      if (250000 * index % 1000000 == 0 && index != 0)
+                        SizedBox(
+                          height: 50,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              SizedBox(
+                                width: 100,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      '리워드${index}',
+                                      style: getTextStyle(AppTypo.caption12B,
+                                          AppColors.primary500),
+                                    ),
+                                    Text(
+                                      '사이니지이름이름',
+                                      style: getTextStyle(AppTypo.caption12B,
+                                              AppColors.primary500)
+                                          .copyWith(
+                                              decoration:
+                                                  TextDecoration.underline,
+                                              decorationColor:
+                                                  AppColors.primary500),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                width: 10.cw,
+                              ),
+                              const SizedBox(
+                                width: 50,
+                                child: CircleAvatar(
+                                  backgroundColor: AppColors.grey300,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                                  top: 56, left: 16.cw, right: 16.cw)
-                              .r,
-                          child: filteredIndices.isEmpty &&
-                                  searchQuery.isNotEmpty
-                              ? SizedBox(
-                                  height: 200,
-                                  child: Center(
-                                    child: Text(
-                                        S.of(context).text_no_search_result),
-                                  ),
-                                )
-                              : ListView.separated(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: filteredIndices.length,
-                                  separatorBuilder: (context, index) =>
-                                      const SizedBox(height: 36),
-                                  itemBuilder: (context, index) {
-                                    final itemIndex = filteredIndices[index];
-                                    final item = data[itemIndex]!;
-                                    return _buildVoteItem(
-                                        context, item, itemIndex);
-                                  },
-                                ),
+                      Container(
+                        width: 80,
+                        height: 50,
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          formatNumberWithComma((250000 * index).toString()),
+                          style: getTextStyle(
+                              AppTypo.caption12B, AppColors.primary500),
+                          textAlign: TextAlign.right,
                         ),
                       ),
-                      _buildSearchBox(),
+                      SizedBox(
+                        width: 10.cw,
+                      ),
+                      Container(
+                        width: 20.cw,
+                        height: 2,
+                        color: AppColors.grey700,
+                      ),
                     ],
                   ),
-                );
-              },
-              loading: () => SliverToBoxAdapter(child: _buildLoadingShimmer()),
-              error: (error, stackTrace) => SliverToBoxAdapter(
-                child: ErrorView(context,
-                    error: error.toString(), stackTrace: stackTrace),
+                ),
               ),
-            );
-      },
+            ),
+            SizedBox(
+              width: 8.cw,
+            ),
+            Container(
+              width: 20,
+              height: 50 * 21 + 20,
+              padding: const EdgeInsets.symmetric(vertical: 25),
+              alignment: Alignment.topCenter,
+              child: FAProgressBar(
+                currentValue: 2500000,
+                maxValue: 5000000,
+                animatedDuration: const Duration(milliseconds: 200),
+                direction: Axis.vertical,
+                borderRadius: BorderRadiusGeometry.lerp(
+                    BorderRadius.circular(10), BorderRadius.circular(10), 1),
+                verticalDirection: VerticalDirection.down,
+                backgroundColor: AppColors.grey300,
+                progressColor: AppColors.primary500,
+                progressGradient: commonGradientVertical,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -312,91 +333,71 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     });
 
     return AnimatedContainer(
+      padding: EdgeInsets.symmetric(horizontal: 34.cw),
       duration: const Duration(milliseconds: 500),
       curve: Curves.easeInOut,
-      decoration: BoxDecoration(
-        color: rankChanged
-            ? AppColors.primary500.withOpacity(0.3)
-            : Colors.transparent,
-        borderRadius: BorderRadius.circular(8.r),
-      ),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => _handleVoteItemTap(context, item),
         child: SizedBox(
-          height: 45,
           child: Row(
             children: [
-              SizedBox(
-                width: 39,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    if (index < 3)
-                      SvgPicture.asset(
-                        key:
-                            ValueKey('assets/icons/vote/crown${index + 1}.svg'),
-                        'assets/icons/vote/crown${index + 1}.svg',
-                      ),
-                    Text(
-                      Intl.message('text_vote_rank', args: [index + 1])
-                          .toString(),
-                      style:
-                          getTextStyle(AppTypo.caption12B, AppColors.point900),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
               SizedBox(width: 8.cw),
               _buildArtistImage(item, index),
               SizedBox(width: 8.cw),
               Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    RichText(
-                      overflow: TextOverflow.ellipsis,
-                      text: TextSpan(
-                          children: item.artist.id != 0
-                              ? [
-                                  TextSpan(
-                                    text:
-                                        getLocaleTextFromJson(item.artist.name),
-                                    style: getTextStyle(
-                                        AppTypo.body14B, AppColors.grey900),
-                                  ),
-                                  const TextSpan(text: ' '),
-                                  TextSpan(
-                                    text: getLocaleTextFromJson(
-                                        item.artist.artist_group.name),
-                                    style: getTextStyle(
-                                        AppTypo.caption10SB, AppColors.grey600),
-                                  ),
-                                ]
-                              : [
-                                  TextSpan(
-                                    text: getLocaleTextFromJson(
-                                        item.artistGroup.name),
-                                    style: getTextStyle(
-                                        AppTypo.body14B, AppColors.grey900),
-                                  ),
-                                ]),
-                    ),
-                    _buildVoteCountContainer(item, voteCountDiff),
-                  ],
+                child: Container(
+                  height: 80,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RichText(
+                        overflow: TextOverflow.ellipsis,
+                        text: TextSpan(
+                            children: item.artist.id != 0
+                                ? [
+                                    TextSpan(
+                                      text: getLocaleTextFromJson(
+                                          item.artist.name),
+                                      style: getTextStyle(
+                                          AppTypo.body14B, AppColors.grey900),
+                                    ),
+                                    const TextSpan(text: ' '),
+                                    TextSpan(
+                                      text: getLocaleTextFromJson(
+                                          item.artist.artist_group.name),
+                                      style: getTextStyle(AppTypo.caption10SB,
+                                          AppColors.grey600),
+                                    ),
+                                  ]
+                                : [
+                                    TextSpan(
+                                      text: getLocaleTextFromJson(
+                                          item.artistGroup.name),
+                                      style: getTextStyle(
+                                          AppTypo.body14B, AppColors.grey900),
+                                    ),
+                                  ]),
+                      ),
+                      const SizedBox(height: 8),
+                      _buildVoteCountContainer(item, voteCountDiff),
+                    ],
+                  ),
                 ),
               ),
               SizedBox(width: 16.cw),
               if (!isEnded)
-                SizedBox(
-                  width: 24.cw,
-                  height: 24,
+                Container(
+                  alignment: Alignment.bottomCenter,
+                  height: 80,
+                  padding: const EdgeInsets.only(bottom: 17),
                   child: SvgPicture.asset(
                     key: const ValueKey('assets/icons/star_candy_icon.svg'),
                     'assets/icons/star_candy_icon.svg',
+                    width: 24,
+                    height: 24,
                   ),
                 ),
             ],
@@ -409,15 +410,12 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   Widget _buildArtistImage(VoteItemModel item, int index) {
     return Container(
       decoration: BoxDecoration(
-        gradient: index < 3
-            ? [goldGradient, silverGradient, bronzeGradient][index]
-            : null,
-        color: index >= 3 ? AppColors.grey200 : null,
-        borderRadius: BorderRadius.circular(22.5),
+        gradient: goldGradient,
+        borderRadius: BorderRadius.circular(40),
       ),
-      padding: const EdgeInsets.all(3),
-      width: 45,
-      height: 45,
+      padding: const EdgeInsets.all(5),
+      width: 80,
+      height: 80,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(39),
         child: PicnicCachedNetworkImage(
@@ -584,7 +582,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             Center(
               child: Container(
                 width: 280.cw,
-                height: 48,
+                height: 50,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(24.r),
                   color: Colors.white,

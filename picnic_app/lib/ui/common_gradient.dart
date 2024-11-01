@@ -6,6 +6,11 @@ const Gradient commonGradient = LinearGradient(
     end: Alignment.centerRight,
     colors: [AppColors.mint500, AppColors.primary500]);
 
+const Gradient commonGradientVertical = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [AppColors.mint500, AppColors.primary500]);
+
 const Gradient commonGradientReverse = LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,

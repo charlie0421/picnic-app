@@ -3,17 +3,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'user_profiles.freezed.dart';
 part 'user_profiles.g.dart';
 
-//
-// @freezed
-// class UserProfilesListModel with _$UserProfilesListModel {
-//   const UserProfilesListModel._();
-//
-//   const factory UserProfilesListModel({
-//     required List<UserProfilesModel> items,
-//     required MetaModel meta,
-//   }) = _UserProfilesListModel;
-// }
-
 @freezed
 class UserProfilesModel with _$UserProfilesModel {
   const UserProfilesModel._();

@@ -48,7 +48,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
       final response = await supabase
           .from('vote_pick')
           .select(
-              '*, vote(*), vote_item(*, artist(*, artist_group(*)),artist_group(*))')
+              'id,amount,created_at, vote(id,title), vote_item(id,vote_id, artist(id,name, artist_group(id,name)),artist_group(id,name))')
           .eq('user_id', supabase.auth.currentUser!.id)
           .order(
             sort,
@@ -118,7 +118,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
                           children: [
                             Text(
                               DateFormat('yyyy.MM.dd HH:mm:ss')
-                                  .format(item.created_at),
+                                  .format(item.createdAt!),
                               style: getTextStyle(
                                   AppTypo.caption12R, AppColors.grey900),
                             ),
@@ -143,15 +143,15 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
                               text: ' ',
                               style: getTextStyle(
                                   AppTypo.body14M, AppColors.grey900)),
-                          item.vote_item.artist.id != 0
+                          item.voteItem.artist.id != 0
                               ? TextSpan(
                                   text:
-                                      '${getLocaleTextFromJson(item.vote_item.artist.name)}_${getLocaleTextFromJson(item.vote_item.artist.artist_group.name)}',
+                                      '${getLocaleTextFromJson(item.voteItem.artist.name)}_${getLocaleTextFromJson(item.voteItem.artist.artist_group.name)}',
                                   style: getTextStyle(
                                       AppTypo.caption12R, AppColors.grey900))
                               : TextSpan(
                                   text: getLocaleTextFromJson(
-                                      item.vote_item.artistGroup.name),
+                                      item.voteItem.artistGroup.name),
                                   style: getTextStyle(
                                       AppTypo.caption12R, AppColors.grey900)),
                         ])),

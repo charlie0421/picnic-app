@@ -26,19 +26,23 @@ _$VotePickModelImpl _$$VotePickModelImplFromJson(Map<String, dynamic> json) =>
     _$VotePickModelImpl(
       id: (json['id'] as num).toInt(),
       vote: VoteModel.fromJson(json['vote'] as Map<String, dynamic>),
-      vote_item:
+      voteItem:
           VoteItemModel.fromJson(json['vote_item'] as Map<String, dynamic>),
-      amount: (json['amount'] as num).toInt(),
-      created_at: DateTime.parse(json['created_at'] as String),
-      updated_at: DateTime.parse(json['updated_at'] as String),
+      amount: (json['amount'] as num?)?.toInt(),
+      createdAt: json['created_at'] == null
+          ? null
+          : DateTime.parse(json['created_at'] as String),
+      updatedAt: json['updated_at'] == null
+          ? null
+          : DateTime.parse(json['updated_at'] as String),
     );
 
 Map<String, dynamic> _$$VotePickModelImplToJson(_$VotePickModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'vote': instance.vote,
-      'vote_item': instance.vote_item,
+      'vote_item': instance.voteItem,
       'amount': instance.amount,
-      'created_at': instance.created_at.toIso8601String(),
-      'updated_at': instance.updated_at.toIso8601String(),
+      'created_at': instance.createdAt?.toIso8601String(),
+      'updated_at': instance.updatedAt?.toIso8601String(),
     };

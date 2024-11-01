@@ -22,7 +22,7 @@ ArtistGroupModel _$ArtistGroupModelFromJson(Map<String, dynamic> json) {
 mixin _$ArtistGroupModel {
   int get id => throw _privateConstructorUsedError;
   Map<String, dynamic> get name => throw _privateConstructorUsedError;
-  String get image => throw _privateConstructorUsedError;
+  String? get image => throw _privateConstructorUsedError;
 
   /// Serializes this ArtistGroupModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -40,7 +40,7 @@ abstract class $ArtistGroupModelCopyWith<$Res> {
           ArtistGroupModel value, $Res Function(ArtistGroupModel) then) =
       _$ArtistGroupModelCopyWithImpl<$Res, ArtistGroupModel>;
   @useResult
-  $Res call({int id, Map<String, dynamic> name, String image});
+  $Res call({int id, Map<String, dynamic> name, String? image});
 }
 
 /// @nodoc
@@ -60,7 +60,7 @@ class _$ArtistGroupModelCopyWithImpl<$Res, $Val extends ArtistGroupModel>
   $Res call({
     Object? id = null,
     Object? name = null,
-    Object? image = null,
+    Object? image = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -71,10 +71,10 @@ class _$ArtistGroupModelCopyWithImpl<$Res, $Val extends ArtistGroupModel>
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>,
-      image: null == image
+      image: freezed == image
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
     ) as $Val);
   }
 }
@@ -87,7 +87,7 @@ abstract class _$$ArtistGroupModelImplCopyWith<$Res>
       __$$ArtistGroupModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int id, Map<String, dynamic> name, String image});
+  $Res call({int id, Map<String, dynamic> name, String? image});
 }
 
 /// @nodoc
@@ -105,7 +105,7 @@ class __$$ArtistGroupModelImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? name = null,
-    Object? image = null,
+    Object? image = freezed,
   }) {
     return _then(_$ArtistGroupModelImpl(
       id: null == id
@@ -116,10 +116,10 @@ class __$$ArtistGroupModelImplCopyWithImpl<$Res>
           ? _value._name
           : name // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>,
-      image: null == image
+      image: freezed == image
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
     ));
   }
 }
@@ -148,7 +148,7 @@ class _$ArtistGroupModelImpl extends _ArtistGroupModel {
   }
 
   @override
-  final String image;
+  final String? image;
 
   @override
   String toString() {
@@ -191,7 +191,7 @@ abstract class _ArtistGroupModel extends ArtistGroupModel {
   const factory _ArtistGroupModel(
       {required final int id,
       required final Map<String, dynamic> name,
-      required final String image}) = _$ArtistGroupModelImpl;
+      required final String? image}) = _$ArtistGroupModelImpl;
   const _ArtistGroupModel._() : super._();
 
   factory _ArtistGroupModel.fromJson(Map<String, dynamic> json) =
@@ -202,7 +202,7 @@ abstract class _ArtistGroupModel extends ArtistGroupModel {
   @override
   Map<String, dynamic> get name;
   @override
-  String get image;
+  String? get image;
 
   /// Create a copy of ArtistGroupModel
   /// with the given fields replaced by the non-null parameter values.

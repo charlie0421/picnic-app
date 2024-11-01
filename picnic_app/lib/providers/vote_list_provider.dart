@@ -1,4 +1,5 @@
 import 'package:picnic_app/models/vote/vote.dart';
+import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -8,7 +9,7 @@ part 'vote_list_provider.g.dart';
 
 enum VoteStatus { all, active, end, upcoming, activeAndUpcoming }
 
-enum VoteCategory { all, birthday }
+enum VoteCategory { all, birthday, comeback, archive }
 
 @riverpod
 class AsyncVoteList extends _$AsyncVoteList {
@@ -20,6 +21,9 @@ class AsyncVoteList extends _$AsyncVoteList {
 
   Future<List<VoteModel>> fetch(int page, int limit, String sort, String order,
       {required String category, required VoteStatus status}) async {
+    final isAdmin =
+        ref.read(userInfoProvider.select((value) => value.value?.isAdmin));
+
     try {
       PostgrestList response;
 // status가 'all'이 아닌 경우에만 start_at과 end_at 필드를 기준으로 필터링합니다.
@@ -41,19 +45,28 @@ class AsyncVoteList extends _$AsyncVoteList {
             .lt('stop_at', 'now()')
             .order(sort, ascending: order == 'ASC');
       } else if (status == VoteStatus.upcoming) {
-        response = await supabase
-            .from('vote')
-            .select(
-                'id,title,start_at,stop_at, visible_at,vote_item(*, artist(id,name,image, artist_group(id,name,image)), artist_group(id,name,image))')
-            .lt('visible_at', 'now()')
-            .gt('start_at', 'now()')
-            .order(sort, ascending: order == 'ASC');
+        if (isAdmin == null || isAdmin == false) {
+          response = await supabase
+              .from('vote')
+              .select(
+                  'id,title,start_at,stop_at, visible_at,vote_item(*, artist(id,name,image, artist_group(id,name,image)), artist_group(id,name,image))')
+              .lt('visible_at', 'now()')
+              .gt('start_at', 'now()')
+              .order(sort, ascending: order == 'ASC');
+        } else {
+          response = await supabase
+              .from('vote')
+              .select(
+                  'id,title,start_at,stop_at, visible_at,vote_item(*, artist(id,name,image, artist_group(id,name,image)), artist_group(id,name,image))')
+              .order(sort, ascending: order == 'ASC');
+        }
       } else if (status == VoteStatus.activeAndUpcoming) {
         // status가 'all'인 경우, 필터링 없이 모든 데이터를 가져옵니다.
         response = await supabase
             .from('vote')
             .select(
                 'id,title,start_at,stop_at, visible_at,vote_item(*, artist(id,name,image, artist_group(id,name,image)), artist_group(id,name,image))')
+            .lt('visible_at', 'now()')
             .gt('stop_at', 'now()');
       } else {
         response = await supabase.from('vote').select(

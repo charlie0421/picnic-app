@@ -214,12 +214,18 @@ VotePickModel _$VotePickModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$VotePickModel {
+  @JsonKey(name: 'id')
   int get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'vote')
   VoteModel get vote => throw _privateConstructorUsedError;
-  VoteItemModel get vote_item => throw _privateConstructorUsedError;
-  int get amount => throw _privateConstructorUsedError;
-  DateTime get created_at => throw _privateConstructorUsedError;
-  DateTime get updated_at => throw _privateConstructorUsedError;
+  @JsonKey(name: 'vote_item')
+  VoteItemModel get voteItem => throw _privateConstructorUsedError;
+  @JsonKey(name: 'amount')
+  int? get amount => throw _privateConstructorUsedError;
+  @JsonKey(name: 'created_at')
+  DateTime? get createdAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'updated_at')
+  DateTime? get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this VotePickModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -238,15 +244,15 @@ abstract class $VotePickModelCopyWith<$Res> {
       _$VotePickModelCopyWithImpl<$Res, VotePickModel>;
   @useResult
   $Res call(
-      {int id,
-      VoteModel vote,
-      VoteItemModel vote_item,
-      int amount,
-      DateTime created_at,
-      DateTime updated_at});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'vote') VoteModel vote,
+      @JsonKey(name: 'vote_item') VoteItemModel voteItem,
+      @JsonKey(name: 'amount') int? amount,
+      @JsonKey(name: 'created_at') DateTime? createdAt,
+      @JsonKey(name: 'updated_at') DateTime? updatedAt});
 
   $VoteModelCopyWith<$Res> get vote;
-  $VoteItemModelCopyWith<$Res> get vote_item;
+  $VoteItemModelCopyWith<$Res> get voteItem;
 }
 
 /// @nodoc
@@ -266,10 +272,10 @@ class _$VotePickModelCopyWithImpl<$Res, $Val extends VotePickModel>
   $Res call({
     Object? id = null,
     Object? vote = null,
-    Object? vote_item = null,
-    Object? amount = null,
-    Object? created_at = null,
-    Object? updated_at = null,
+    Object? voteItem = null,
+    Object? amount = freezed,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -280,22 +286,22 @@ class _$VotePickModelCopyWithImpl<$Res, $Val extends VotePickModel>
           ? _value.vote
           : vote // ignore: cast_nullable_to_non_nullable
               as VoteModel,
-      vote_item: null == vote_item
-          ? _value.vote_item
-          : vote_item // ignore: cast_nullable_to_non_nullable
+      voteItem: null == voteItem
+          ? _value.voteItem
+          : voteItem // ignore: cast_nullable_to_non_nullable
               as VoteItemModel,
-      amount: null == amount
+      amount: freezed == amount
           ? _value.amount
           : amount // ignore: cast_nullable_to_non_nullable
-              as int,
-      created_at: null == created_at
-          ? _value.created_at
-          : created_at // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updated_at: null == updated_at
-          ? _value.updated_at
-          : updated_at // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as int?,
+      createdAt: freezed == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ) as $Val);
   }
 
@@ -313,9 +319,9 @@ class _$VotePickModelCopyWithImpl<$Res, $Val extends VotePickModel>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $VoteItemModelCopyWith<$Res> get vote_item {
-    return $VoteItemModelCopyWith<$Res>(_value.vote_item, (value) {
-      return _then(_value.copyWith(vote_item: value) as $Val);
+  $VoteItemModelCopyWith<$Res> get voteItem {
+    return $VoteItemModelCopyWith<$Res>(_value.voteItem, (value) {
+      return _then(_value.copyWith(voteItem: value) as $Val);
     });
   }
 }
@@ -329,17 +335,17 @@ abstract class _$$VotePickModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int id,
-      VoteModel vote,
-      VoteItemModel vote_item,
-      int amount,
-      DateTime created_at,
-      DateTime updated_at});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'vote') VoteModel vote,
+      @JsonKey(name: 'vote_item') VoteItemModel voteItem,
+      @JsonKey(name: 'amount') int? amount,
+      @JsonKey(name: 'created_at') DateTime? createdAt,
+      @JsonKey(name: 'updated_at') DateTime? updatedAt});
 
   @override
   $VoteModelCopyWith<$Res> get vote;
   @override
-  $VoteItemModelCopyWith<$Res> get vote_item;
+  $VoteItemModelCopyWith<$Res> get voteItem;
 }
 
 /// @nodoc
@@ -357,10 +363,10 @@ class __$$VotePickModelImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? vote = null,
-    Object? vote_item = null,
-    Object? amount = null,
-    Object? created_at = null,
-    Object? updated_at = null,
+    Object? voteItem = null,
+    Object? amount = freezed,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
   }) {
     return _then(_$VotePickModelImpl(
       id: null == id
@@ -371,22 +377,22 @@ class __$$VotePickModelImplCopyWithImpl<$Res>
           ? _value.vote
           : vote // ignore: cast_nullable_to_non_nullable
               as VoteModel,
-      vote_item: null == vote_item
-          ? _value.vote_item
-          : vote_item // ignore: cast_nullable_to_non_nullable
+      voteItem: null == voteItem
+          ? _value.voteItem
+          : voteItem // ignore: cast_nullable_to_non_nullable
               as VoteItemModel,
-      amount: null == amount
+      amount: freezed == amount
           ? _value.amount
           : amount // ignore: cast_nullable_to_non_nullable
-              as int,
-      created_at: null == created_at
-          ? _value.created_at
-          : created_at // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updated_at: null == updated_at
-          ? _value.updated_at
-          : updated_at // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as int?,
+      createdAt: freezed == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ));
   }
 }
@@ -395,33 +401,39 @@ class __$$VotePickModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$VotePickModelImpl extends _VotePickModel {
   const _$VotePickModelImpl(
-      {required this.id,
-      required this.vote,
-      required this.vote_item,
-      required this.amount,
-      required this.created_at,
-      required this.updated_at})
+      {@JsonKey(name: 'id') required this.id,
+      @JsonKey(name: 'vote') required this.vote,
+      @JsonKey(name: 'vote_item') required this.voteItem,
+      @JsonKey(name: 'amount') required this.amount,
+      @JsonKey(name: 'created_at') required this.createdAt,
+      @JsonKey(name: 'updated_at') required this.updatedAt})
       : super._();
 
   factory _$VotePickModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$VotePickModelImplFromJson(json);
 
   @override
+  @JsonKey(name: 'id')
   final int id;
   @override
+  @JsonKey(name: 'vote')
   final VoteModel vote;
   @override
-  final VoteItemModel vote_item;
+  @JsonKey(name: 'vote_item')
+  final VoteItemModel voteItem;
   @override
-  final int amount;
+  @JsonKey(name: 'amount')
+  final int? amount;
   @override
-  final DateTime created_at;
+  @JsonKey(name: 'created_at')
+  final DateTime? createdAt;
   @override
-  final DateTime updated_at;
+  @JsonKey(name: 'updated_at')
+  final DateTime? updatedAt;
 
   @override
   String toString() {
-    return 'VotePickModel(id: $id, vote: $vote, vote_item: $vote_item, amount: $amount, created_at: $created_at, updated_at: $updated_at)';
+    return 'VotePickModel(id: $id, vote: $vote, voteItem: $voteItem, amount: $amount, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -431,19 +443,19 @@ class _$VotePickModelImpl extends _VotePickModel {
             other is _$VotePickModelImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.vote, vote) || other.vote == vote) &&
-            (identical(other.vote_item, vote_item) ||
-                other.vote_item == vote_item) &&
+            (identical(other.voteItem, voteItem) ||
+                other.voteItem == voteItem) &&
             (identical(other.amount, amount) || other.amount == amount) &&
-            (identical(other.created_at, created_at) ||
-                other.created_at == created_at) &&
-            (identical(other.updated_at, updated_at) ||
-                other.updated_at == updated_at));
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType, id, vote, vote_item, amount, created_at, updated_at);
+      runtimeType, id, vote, voteItem, amount, createdAt, updatedAt);
 
   /// Create a copy of VotePickModel
   /// with the given fields replaced by the non-null parameter values.
@@ -463,29 +475,36 @@ class _$VotePickModelImpl extends _VotePickModel {
 
 abstract class _VotePickModel extends VotePickModel {
   const factory _VotePickModel(
-      {required final int id,
-      required final VoteModel vote,
-      required final VoteItemModel vote_item,
-      required final int amount,
-      required final DateTime created_at,
-      required final DateTime updated_at}) = _$VotePickModelImpl;
+          {@JsonKey(name: 'id') required final int id,
+          @JsonKey(name: 'vote') required final VoteModel vote,
+          @JsonKey(name: 'vote_item') required final VoteItemModel voteItem,
+          @JsonKey(name: 'amount') required final int? amount,
+          @JsonKey(name: 'created_at') required final DateTime? createdAt,
+          @JsonKey(name: 'updated_at') required final DateTime? updatedAt}) =
+      _$VotePickModelImpl;
   const _VotePickModel._() : super._();
 
   factory _VotePickModel.fromJson(Map<String, dynamic> json) =
       _$VotePickModelImpl.fromJson;
 
   @override
+  @JsonKey(name: 'id')
   int get id;
   @override
+  @JsonKey(name: 'vote')
   VoteModel get vote;
   @override
-  VoteItemModel get vote_item;
+  @JsonKey(name: 'vote_item')
+  VoteItemModel get voteItem;
   @override
-  int get amount;
+  @JsonKey(name: 'amount')
+  int? get amount;
   @override
-  DateTime get created_at;
+  @JsonKey(name: 'created_at')
+  DateTime? get createdAt;
   @override
-  DateTime get updated_at;
+  @JsonKey(name: 'updated_at')
+  DateTime? get updatedAt;
 
   /// Create a copy of VotePickModel
   /// with the given fields replaced by the non-null parameter values.

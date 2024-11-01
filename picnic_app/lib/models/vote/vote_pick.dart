@@ -23,12 +23,12 @@ class VotePickModel with _$VotePickModel {
   const VotePickModel._();
 
   const factory VotePickModel({
-    required int id,
-    required VoteModel vote,
-    required VoteItemModel vote_item,
-    required int amount,
-    required DateTime created_at,
-    required DateTime updated_at,
+    @JsonKey(name: 'id') required int id,
+    @JsonKey(name: 'vote') required VoteModel vote,
+    @JsonKey(name: 'vote_item') required VoteItemModel voteItem,
+    @JsonKey(name: 'amount') required int? amount,
+    @JsonKey(name: 'created_at') required DateTime? createdAt,
+    @JsonKey(name: 'updated_at') required DateTime? updatedAt,
   }) = _VotePickModel;
 
   factory VotePickModel.fromJson(Map<String, dynamic> json) =>
