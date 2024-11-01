@@ -9,7 +9,7 @@ part 'vote_list_provider.g.dart';
 
 enum VoteStatus { all, active, end, upcoming, activeAndUpcoming }
 
-enum VoteCategory { all, birthday, comeback, archive }
+enum VoteCategory { all, birthday, comeback, achieve }
 
 @riverpod
 class AsyncVoteList extends _$AsyncVoteList {

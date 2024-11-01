@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/vote/list/vote_header.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_vertical.dart';
 import 'package:picnic_app/models/vote/vote.dart';
-import 'package:picnic_app/pages/vote/vote_detail_archive_page.dart';
+import 'package:picnic_app/pages/vote/vote_detail_achieve_page.dart';
 import 'package:picnic_app/pages/vote/vote_detail_page.dart';
 import 'package:picnic_app/providers/global_media_query.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -112,8 +112,8 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
         final navigationInfoNotifier =
             ref.read(navigationInfoProvider.notifier);
         navigationInfoNotifier.setCurrentPage(
-            vote.voteCategory == VoteCategory.archive.name
-                ? VoteDetailArchivePage(voteId: widget.vote.id)
+            vote.voteCategory == VoteCategory.achieve.name
+                ? VoteDetailAchievePage(voteId: widget.vote.id)
                 : VoteDetailPage(voteId: widget.vote.id));
       },
       child: Container(

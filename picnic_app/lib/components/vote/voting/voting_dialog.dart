@@ -20,6 +20,7 @@ import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
+import 'package:picnic_app/util/number.dart';
 import 'package:picnic_app/util/ui.dart';
 
 Future showVotingDialog({
@@ -265,7 +266,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           _hasValue = _checkAll;
           if (_checkAll) {
             _textEditingController.text =
-                formatNumberWithComma(_getMyStarCandy().toString());
+                formatNumberWithComma(_getMyStarCandy());
           } else {
             _textEditingController.clear();
           }
@@ -525,14 +526,4 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       onOk: () => Navigator.of(context).pop(),
     );
   }
-}
-
-String formatNumberWithComma(String number) {
-  if (number.isEmpty) return '';
-  final parts = number.split('.');
-  parts[0] = parts[0].replaceAllMapped(
-    RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-    (Match m) => '${m[1]},',
-  );
-  return parts.join('.');
 }
