@@ -6,7 +6,7 @@ part of 'vote_detail_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$asyncVoteDetailHash() => r'56ceb5fa802ebd89b5c73f86b672abcb5fd1e891';
+String _$fetchVoteAchieveHash() => r'617224221821d7c6e00dcd94a885fa4f8ca60564';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -28,6 +28,136 @@ class _SystemHash {
     return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
   }
 }
+
+/// See also [fetchVoteAchieve].
+@ProviderFor(fetchVoteAchieve)
+const fetchVoteAchieveProvider = FetchVoteAchieveFamily();
+
+/// See also [fetchVoteAchieve].
+class FetchVoteAchieveFamily extends Family<AsyncValue<List<VoteAchieve>?>> {
+  /// See also [fetchVoteAchieve].
+  const FetchVoteAchieveFamily();
+
+  /// See also [fetchVoteAchieve].
+  FetchVoteAchieveProvider call({
+    required int voteId,
+  }) {
+    return FetchVoteAchieveProvider(
+      voteId: voteId,
+    );
+  }
+
+  @override
+  FetchVoteAchieveProvider getProviderOverride(
+    covariant FetchVoteAchieveProvider provider,
+  ) {
+    return call(
+      voteId: provider.voteId,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'fetchVoteAchieveProvider';
+}
+
+/// See also [fetchVoteAchieve].
+class FetchVoteAchieveProvider
+    extends AutoDisposeFutureProvider<List<VoteAchieve>?> {
+  /// See also [fetchVoteAchieve].
+  FetchVoteAchieveProvider({
+    required int voteId,
+  }) : this._internal(
+          (ref) => fetchVoteAchieve(
+            ref as FetchVoteAchieveRef,
+            voteId: voteId,
+          ),
+          from: fetchVoteAchieveProvider,
+          name: r'fetchVoteAchieveProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$fetchVoteAchieveHash,
+          dependencies: FetchVoteAchieveFamily._dependencies,
+          allTransitiveDependencies:
+              FetchVoteAchieveFamily._allTransitiveDependencies,
+          voteId: voteId,
+        );
+
+  FetchVoteAchieveProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.voteId,
+  }) : super.internal();
+
+  final int voteId;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<VoteAchieve>?> Function(FetchVoteAchieveRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: FetchVoteAchieveProvider._internal(
+        (ref) => create(ref as FetchVoteAchieveRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        voteId: voteId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<List<VoteAchieve>?> createElement() {
+    return _FetchVoteAchieveProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is FetchVoteAchieveProvider && other.voteId == voteId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, voteId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin FetchVoteAchieveRef on AutoDisposeFutureProviderRef<List<VoteAchieve>?> {
+  /// The parameter `voteId` of this provider.
+  int get voteId;
+}
+
+class _FetchVoteAchieveProviderElement
+    extends AutoDisposeFutureProviderElement<List<VoteAchieve>?>
+    with FetchVoteAchieveRef {
+  _FetchVoteAchieveProviderElement(super.provider);
+
+  @override
+  int get voteId => (origin as FetchVoteAchieveProvider).voteId;
+}
+
+String _$asyncVoteDetailHash() => r'56ceb5fa802ebd89b5c73f86b672abcb5fd1e891';
 
 abstract class _$AsyncVoteDetail
     extends BuildlessAutoDisposeAsyncNotifier<VoteModel?> {

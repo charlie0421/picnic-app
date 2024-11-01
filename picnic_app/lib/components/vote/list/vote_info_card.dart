@@ -12,7 +12,6 @@ import 'package:picnic_app/providers/vote_detail_provider.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class VoteInfoCard extends ConsumerStatefulWidget {
@@ -112,7 +111,6 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
       onTap: () {
         final navigationInfoNotifier =
             ref.read(navigationInfoProvider.notifier);
-        logger.i('widget.vote.voteCategory: ${widget.vote.voteCategory}');
         navigationInfoNotifier.setCurrentPage(
             vote.voteCategory == VoteCategory.archive.name
                 ? VoteDetailArchivePage(voteId: widget.vote.id)
