@@ -39,11 +39,11 @@ mixin _$VoteModel {
   @JsonKey(name: 'created_at')
   DateTime? get createdAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'visible_at')
-  DateTime get visibleAt => throw _privateConstructorUsedError;
+  DateTime? get visibleAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'stop_at')
-  DateTime get stopAt => throw _privateConstructorUsedError;
+  DateTime? get stopAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'start_at')
-  DateTime get startAt => throw _privateConstructorUsedError;
+  DateTime? get startAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'is_ended')
   bool? get isEnded => throw _privateConstructorUsedError;
   @JsonKey(name: 'is_upcoming')
@@ -76,9 +76,9 @@ abstract class $VoteModelCopyWith<$Res> {
       @JsonKey(name: 'vote_content') String? voteContent,
       @JsonKey(name: 'vote_item') List<VoteItemModel>? voteItem,
       @JsonKey(name: 'created_at') DateTime? createdAt,
-      @JsonKey(name: 'visible_at') DateTime visibleAt,
-      @JsonKey(name: 'stop_at') DateTime stopAt,
-      @JsonKey(name: 'start_at') DateTime startAt,
+      @JsonKey(name: 'visible_at') DateTime? visibleAt,
+      @JsonKey(name: 'stop_at') DateTime? stopAt,
+      @JsonKey(name: 'start_at') DateTime? startAt,
       @JsonKey(name: 'is_ended') bool? isEnded,
       @JsonKey(name: 'is_upcoming') bool? isUpcoming,
       @JsonKey(name: 'reward') List<RewardModel>? reward});
@@ -108,9 +108,9 @@ class _$VoteModelCopyWithImpl<$Res, $Val extends VoteModel>
     Object? voteContent = freezed,
     Object? voteItem = freezed,
     Object? createdAt = freezed,
-    Object? visibleAt = null,
-    Object? stopAt = null,
-    Object? startAt = null,
+    Object? visibleAt = freezed,
+    Object? stopAt = freezed,
+    Object? startAt = freezed,
     Object? isEnded = freezed,
     Object? isUpcoming = freezed,
     Object? reward = freezed,
@@ -152,18 +152,18 @@ class _$VoteModelCopyWithImpl<$Res, $Val extends VoteModel>
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      visibleAt: null == visibleAt
+      visibleAt: freezed == visibleAt
           ? _value.visibleAt
           : visibleAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      stopAt: null == stopAt
+              as DateTime?,
+      stopAt: freezed == stopAt
           ? _value.stopAt
           : stopAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      startAt: null == startAt
+              as DateTime?,
+      startAt: freezed == startAt
           ? _value.startAt
           : startAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
       isEnded: freezed == isEnded
           ? _value.isEnded
           : isEnded // ignore: cast_nullable_to_non_nullable
@@ -198,9 +198,9 @@ abstract class _$$VoteModelImplCopyWith<$Res>
       @JsonKey(name: 'vote_content') String? voteContent,
       @JsonKey(name: 'vote_item') List<VoteItemModel>? voteItem,
       @JsonKey(name: 'created_at') DateTime? createdAt,
-      @JsonKey(name: 'visible_at') DateTime visibleAt,
-      @JsonKey(name: 'stop_at') DateTime stopAt,
-      @JsonKey(name: 'start_at') DateTime startAt,
+      @JsonKey(name: 'visible_at') DateTime? visibleAt,
+      @JsonKey(name: 'stop_at') DateTime? stopAt,
+      @JsonKey(name: 'start_at') DateTime? startAt,
       @JsonKey(name: 'is_ended') bool? isEnded,
       @JsonKey(name: 'is_upcoming') bool? isUpcoming,
       @JsonKey(name: 'reward') List<RewardModel>? reward});
@@ -228,9 +228,9 @@ class __$$VoteModelImplCopyWithImpl<$Res>
     Object? voteContent = freezed,
     Object? voteItem = freezed,
     Object? createdAt = freezed,
-    Object? visibleAt = null,
-    Object? stopAt = null,
-    Object? startAt = null,
+    Object? visibleAt = freezed,
+    Object? stopAt = freezed,
+    Object? startAt = freezed,
     Object? isEnded = freezed,
     Object? isUpcoming = freezed,
     Object? reward = freezed,
@@ -272,18 +272,18 @@ class __$$VoteModelImplCopyWithImpl<$Res>
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      visibleAt: null == visibleAt
+      visibleAt: freezed == visibleAt
           ? _value.visibleAt
           : visibleAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      stopAt: null == stopAt
+              as DateTime?,
+      stopAt: freezed == stopAt
           ? _value.stopAt
           : stopAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      startAt: null == startAt
+              as DateTime?,
+      startAt: freezed == startAt
           ? _value.startAt
           : startAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
       isEnded: freezed == isEnded
           ? _value.isEnded
           : isEnded // ignore: cast_nullable_to_non_nullable
@@ -370,13 +370,13 @@ class _$VoteModelImpl extends _VoteModel {
   final DateTime? createdAt;
   @override
   @JsonKey(name: 'visible_at')
-  final DateTime visibleAt;
+  final DateTime? visibleAt;
   @override
   @JsonKey(name: 'stop_at')
-  final DateTime stopAt;
+  final DateTime? stopAt;
   @override
   @JsonKey(name: 'start_at')
-  final DateTime startAt;
+  final DateTime? startAt;
   @override
   @JsonKey(name: 'is_ended')
   final bool? isEnded;
@@ -476,9 +476,9 @@ abstract class _VoteModel extends VoteModel {
       @JsonKey(name: 'vote_content') required final String? voteContent,
       @JsonKey(name: 'vote_item') required final List<VoteItemModel>? voteItem,
       @JsonKey(name: 'created_at') required final DateTime? createdAt,
-      @JsonKey(name: 'visible_at') required final DateTime visibleAt,
-      @JsonKey(name: 'stop_at') required final DateTime stopAt,
-      @JsonKey(name: 'start_at') required final DateTime startAt,
+      @JsonKey(name: 'visible_at') required final DateTime? visibleAt,
+      @JsonKey(name: 'stop_at') required final DateTime? stopAt,
+      @JsonKey(name: 'start_at') required final DateTime? startAt,
       @JsonKey(name: 'is_ended') required final bool? isEnded,
       @JsonKey(name: 'is_upcoming') required final bool? isUpcoming,
       @JsonKey(name: 'reward')
@@ -517,13 +517,13 @@ abstract class _VoteModel extends VoteModel {
   DateTime? get createdAt;
   @override
   @JsonKey(name: 'visible_at')
-  DateTime get visibleAt;
+  DateTime? get visibleAt;
   @override
   @JsonKey(name: 'stop_at')
-  DateTime get stopAt;
+  DateTime? get stopAt;
   @override
   @JsonKey(name: 'start_at')
-  DateTime get startAt;
+  DateTime? get startAt;
   @override
   @JsonKey(name: 'is_ended')
   bool? get isEnded;
@@ -551,7 +551,7 @@ mixin _$VoteItemModel {
   @JsonKey(name: 'id')
   int get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'vote_total')
-  int get voteTotal => throw _privateConstructorUsedError;
+  int? get voteTotal => throw _privateConstructorUsedError;
   @JsonKey(name: 'vote_id')
   int get voteId => throw _privateConstructorUsedError;
   @JsonKey(name: 'artist')
@@ -577,7 +577,7 @@ abstract class $VoteItemModelCopyWith<$Res> {
   @useResult
   $Res call(
       {@JsonKey(name: 'id') int id,
-      @JsonKey(name: 'vote_total') int voteTotal,
+      @JsonKey(name: 'vote_total') int? voteTotal,
       @JsonKey(name: 'vote_id') int voteId,
       @JsonKey(name: 'artist') ArtistModel artist,
       @JsonKey(name: 'artist_group') ArtistGroupModel artistGroup});
@@ -602,7 +602,7 @@ class _$VoteItemModelCopyWithImpl<$Res, $Val extends VoteItemModel>
   @override
   $Res call({
     Object? id = null,
-    Object? voteTotal = null,
+    Object? voteTotal = freezed,
     Object? voteId = null,
     Object? artist = null,
     Object? artistGroup = null,
@@ -612,10 +612,10 @@ class _$VoteItemModelCopyWithImpl<$Res, $Val extends VoteItemModel>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      voteTotal: null == voteTotal
+      voteTotal: freezed == voteTotal
           ? _value.voteTotal
           : voteTotal // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       voteId: null == voteId
           ? _value.voteId
           : voteId // ignore: cast_nullable_to_non_nullable
@@ -662,7 +662,7 @@ abstract class _$$VoteItemModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {@JsonKey(name: 'id') int id,
-      @JsonKey(name: 'vote_total') int voteTotal,
+      @JsonKey(name: 'vote_total') int? voteTotal,
       @JsonKey(name: 'vote_id') int voteId,
       @JsonKey(name: 'artist') ArtistModel artist,
       @JsonKey(name: 'artist_group') ArtistGroupModel artistGroup});
@@ -687,7 +687,7 @@ class __$$VoteItemModelImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? voteTotal = null,
+    Object? voteTotal = freezed,
     Object? voteId = null,
     Object? artist = null,
     Object? artistGroup = null,
@@ -697,10 +697,10 @@ class __$$VoteItemModelImplCopyWithImpl<$Res>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      voteTotal: null == voteTotal
+      voteTotal: freezed == voteTotal
           ? _value.voteTotal
           : voteTotal // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       voteId: null == voteId
           ? _value.voteId
           : voteId // ignore: cast_nullable_to_non_nullable
@@ -736,7 +736,7 @@ class _$VoteItemModelImpl extends _VoteItemModel {
   final int id;
   @override
   @JsonKey(name: 'vote_total')
-  final int voteTotal;
+  final int? voteTotal;
   @override
   @JsonKey(name: 'vote_id')
   final int voteId;
@@ -790,7 +790,7 @@ class _$VoteItemModelImpl extends _VoteItemModel {
 abstract class _VoteItemModel extends VoteItemModel {
   const factory _VoteItemModel(
       {@JsonKey(name: 'id') required final int id,
-      @JsonKey(name: 'vote_total') required final int voteTotal,
+      @JsonKey(name: 'vote_total') required final int? voteTotal,
       @JsonKey(name: 'vote_id') required final int voteId,
       @JsonKey(name: 'artist') required final ArtistModel artist,
       @JsonKey(name: 'artist_group')
@@ -805,7 +805,7 @@ abstract class _VoteItemModel extends VoteItemModel {
   int get id;
   @override
   @JsonKey(name: 'vote_total')
-  int get voteTotal;
+  int? get voteTotal;
   @override
   @JsonKey(name: 'vote_id')
   int get voteId;

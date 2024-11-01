@@ -505,7 +505,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog>
         child: ClipRRect(
           borderRadius: BorderRadius.circular(60.r),
           child: PicnicCachedNetworkImage(
-            imageUrl: group.image,
+            imageUrl: group.image!,
             width: 60,
             height: 60,
           ),

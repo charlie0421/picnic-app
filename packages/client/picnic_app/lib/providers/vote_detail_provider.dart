@@ -18,7 +18,7 @@ class AsyncVoteDetail extends _$AsyncVoteDetail {
       final response = await supabase
           .from('vote')
           .select(
-              'id, main_image, title, start_at, stop_at, visible_at, vote_item(*, artist(*, artist_group(*)), artist_group(*)), reward(*)')
+              'id, main_image, title, start_at, stop_at, visible_at, vote_category, vote_item(*, artist(*, artist_group(*)), artist_group(*)), reward(*)')
           .eq('id', voteId)
           .single();
 
@@ -88,7 +88,7 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
 
         //sort by total_vote
         state = AsyncValue.data(state.value!.toList()
-          ..sort((a, b) => b!.voteTotal.compareTo(a!.voteTotal)));
+          ..sort((a, b) => b!.voteTotal!.compareTo(a!.voteTotal!)));
 
         logger.i('Updated vote item in state: $id with voteTotal: $voteTotal');
       }

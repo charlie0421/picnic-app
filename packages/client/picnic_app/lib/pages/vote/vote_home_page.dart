@@ -121,7 +121,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                 SizedBox(height: 400, child: buildLoadingOverlay()),
             itemBuilder: (context, vote, index) {
               final now = DateTime.now().toUtc();
-              final status = vote.startAt.isAfter(now)
+              final status = vote.startAt!.isAfter(now)
                   ? VoteStatus.upcoming
                   : VoteStatus.active;
               return VoteInfoCard(context: context, vote: vote, status: status);

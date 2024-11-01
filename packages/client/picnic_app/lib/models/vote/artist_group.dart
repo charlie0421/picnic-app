@@ -10,7 +10,7 @@ class ArtistGroupModel with _$ArtistGroupModel {
   const factory ArtistGroupModel(
       {required int id,
       required Map<String, dynamic> name,
-      required String image}) = _ArtistGroupModel;
+      required String? image}) = _ArtistGroupModel;
 
   factory ArtistGroupModel.fromJson(Map<String, dynamic> json) =>
       _$ArtistGroupModelFromJson(json);

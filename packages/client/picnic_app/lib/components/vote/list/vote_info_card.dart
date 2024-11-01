@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/vote/list/vote_header.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_vertical.dart';
 import 'package:picnic_app/models/vote/vote.dart';
+import 'package:picnic_app/pages/vote/vote_detail_archive_page.dart';
 import 'package:picnic_app/pages/vote/vote_detail_page.dart';
 import 'package:picnic_app/providers/global_media_query.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -11,6 +12,7 @@ import 'package:picnic_app/providers/vote_detail_provider.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class VoteInfoCard extends ConsumerStatefulWidget {
@@ -110,8 +112,11 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
       onTap: () {
         final navigationInfoNotifier =
             ref.read(navigationInfoProvider.notifier);
-        navigationInfoNotifier
-            .setCurrentPage(VoteDetailPage(voteId: widget.vote.id));
+        logger.i('widget.vote.voteCategory: ${widget.vote.voteCategory}');
+        navigationInfoNotifier.setCurrentPage(
+            vote.voteCategory == VoteCategory.archive.name
+                ? VoteDetailArchivePage(voteId: widget.vote.id)
+                : VoteDetailPage(voteId: widget.vote.id));
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.cw),
@@ -121,8 +126,8 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
             VoteCardInfoHeader(
               title: getLocaleTextFromJson(vote.title),
               stopAt: widget.status == VoteStatus.upcoming
-                  ? vote.startAt
-                  : vote.stopAt,
+                  ? vote.startAt!
+                  : vote.stopAt!,
               onRefresh:
                   widget.status == VoteStatus.active ? _handleRefresh : null,
               status: widget.status,

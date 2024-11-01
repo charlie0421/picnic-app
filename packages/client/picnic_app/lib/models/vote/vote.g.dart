@@ -21,9 +21,15 @@ _$VoteModelImpl _$$VoteModelImplFromJson(Map<String, dynamic> json) =>
       createdAt: json['created_at'] == null
           ? null
           : DateTime.parse(json['created_at'] as String),
-      visibleAt: DateTime.parse(json['visible_at'] as String),
-      stopAt: DateTime.parse(json['stop_at'] as String),
-      startAt: DateTime.parse(json['start_at'] as String),
+      visibleAt: json['visible_at'] == null
+          ? null
+          : DateTime.parse(json['visible_at'] as String),
+      stopAt: json['stop_at'] == null
+          ? null
+          : DateTime.parse(json['stop_at'] as String),
+      startAt: json['start_at'] == null
+          ? null
+          : DateTime.parse(json['start_at'] as String),
       isEnded: json['is_ended'] as bool?,
       isUpcoming: json['is_upcoming'] as bool?,
       reward: (json['reward'] as List<dynamic>?)
@@ -42,9 +48,9 @@ Map<String, dynamic> _$$VoteModelImplToJson(_$VoteModelImpl instance) =>
       'vote_content': instance.voteContent,
       'vote_item': instance.voteItem,
       'created_at': instance.createdAt?.toIso8601String(),
-      'visible_at': instance.visibleAt.toIso8601String(),
-      'stop_at': instance.stopAt.toIso8601String(),
-      'start_at': instance.startAt.toIso8601String(),
+      'visible_at': instance.visibleAt?.toIso8601String(),
+      'stop_at': instance.stopAt?.toIso8601String(),
+      'start_at': instance.startAt?.toIso8601String(),
       'is_ended': instance.isEnded,
       'is_upcoming': instance.isUpcoming,
       'reward': instance.reward,
@@ -53,7 +59,7 @@ Map<String, dynamic> _$$VoteModelImplToJson(_$VoteModelImpl instance) =>
 _$VoteItemModelImpl _$$VoteItemModelImplFromJson(Map<String, dynamic> json) =>
     _$VoteItemModelImpl(
       id: (json['id'] as num).toInt(),
-      voteTotal: (json['vote_total'] as num).toInt(),
+      voteTotal: (json['vote_total'] as num?)?.toInt(),
       voteId: (json['vote_id'] as num).toInt(),
       artist: ArtistModel.fromJson(json['artist'] as Map<String, dynamic>),
       artistGroup: ArtistGroupModel.fromJson(

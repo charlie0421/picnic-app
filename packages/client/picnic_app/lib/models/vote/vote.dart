@@ -20,9 +20,9 @@ class VoteModel with _$VoteModel {
           @JsonKey(name: 'vote_content') required String? voteContent,
           @JsonKey(name: 'vote_item') required List<VoteItemModel>? voteItem,
           @JsonKey(name: 'created_at') required DateTime? createdAt,
-          @JsonKey(name: 'visible_at') required DateTime visibleAt,
-          @JsonKey(name: 'stop_at') required DateTime stopAt,
-          @JsonKey(name: 'start_at') required DateTime startAt,
+          @JsonKey(name: 'visible_at') required DateTime? visibleAt,
+          @JsonKey(name: 'stop_at') required DateTime? stopAt,
+          @JsonKey(name: 'start_at') required DateTime? startAt,
           @JsonKey(name: 'is_ended') required bool? isEnded,
           @JsonKey(name: 'is_upcoming') required bool? isUpcoming,
           @JsonKey(name: 'reward') required List<RewardModel>? reward}) =
@@ -38,7 +38,7 @@ class VoteItemModel with _$VoteItemModel {
 
   const factory VoteItemModel(
       {@JsonKey(name: 'id') required int id,
-      @JsonKey(name: 'vote_total') required int voteTotal,
+      @JsonKey(name: 'vote_total') required int? voteTotal,
       @JsonKey(name: 'vote_id') required int voteId,
       @JsonKey(name: 'artist') required ArtistModel artist,
       @JsonKey(name: 'artist_group')

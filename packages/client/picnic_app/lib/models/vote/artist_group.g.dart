@@ -11,7 +11,7 @@ _$ArtistGroupModelImpl _$$ArtistGroupModelImplFromJson(
     _$ArtistGroupModelImpl(
       id: (json['id'] as num).toInt(),
       name: json['name'] as Map<String, dynamic>,
-      image: json['image'] as String,
+      image: json['image'] as String?,
     );
 
 Map<String, dynamic> _$$ArtistGroupModelImplToJson(
