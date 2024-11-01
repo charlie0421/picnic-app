@@ -98,3 +98,23 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
     }
   }
 }
+
+@riverpod
+Future<List<VoteAchieve>?> fetchVoteAchieve(ref, {required int voteId}) async {
+  try {
+    final response = await supabase
+        .from('vote_achieve')
+        .select('id, vote_id, reward_id, order, amount, reward(*), vote(*)')
+        .eq('vote_id', voteId);
+
+    return response.map<VoteAchieve>((e) => VoteAchieve.fromJson(e)).toList();
+  } catch (e, s) {
+    logger.e(s, stackTrace: s);
+    Sentry.captureException(
+      e,
+      stackTrace: s,
+    );
+
+    return null;
+  }
+}

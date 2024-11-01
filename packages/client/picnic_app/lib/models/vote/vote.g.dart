@@ -74,3 +74,25 @@ Map<String, dynamic> _$$VoteItemModelImplToJson(_$VoteItemModelImpl instance) =>
       'artist': instance.artist,
       'artist_group': instance.artistGroup,
     };
+
+_$VoteAchieveImpl _$$VoteAchieveImplFromJson(Map<String, dynamic> json) =>
+    _$VoteAchieveImpl(
+      id: (json['id'] as num).toInt(),
+      voteId: (json['vote_id'] as num).toInt(),
+      rewardId: (json['reward_id'] as num).toInt(),
+      order: (json['order'] as num).toInt(),
+      amount: (json['amount'] as num).toInt(),
+      reward: RewardModel.fromJson(json['reward'] as Map<String, dynamic>),
+      vote: VoteModel.fromJson(json['vote'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$$VoteAchieveImplToJson(_$VoteAchieveImpl instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'vote_id': instance.voteId,
+      'reward_id': instance.rewardId,
+      'order': instance.order,
+      'amount': instance.amount,
+      'reward': instance.reward,
+      'vote': instance.vote,
+    };

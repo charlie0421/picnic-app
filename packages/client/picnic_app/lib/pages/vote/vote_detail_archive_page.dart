@@ -152,7 +152,7 @@ class _VoteDetailArchivePageState extends ConsumerState<VoteDetailArchivePage> {
                     child: _buildVoteInfo(context, voteModel),
                   ),
                   SliverToBoxAdapter(child: _buildArchiveItem(context)),
-                  SliverToBoxAdapter(child: _buildLevelItem()),
+                  SliverToBoxAdapter(child: _buildLevelItem())
                 ],
               ),
             );
@@ -208,116 +208,142 @@ class _VoteDetailArchivePageState extends ConsumerState<VoteDetailArchivePage> {
   }
 
   Widget _buildLevelItem() {
-    return Container(
-      margin: EdgeInsets.only(top: 20, left: 16.cw, right: 16.cw),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: AppColors.primary500, width: 1.5.r),
-      ),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: List.generate(
-                  21,
-                  (index) => Row(
-                    children: [
-                      if (250000 * index % 1000000 == 0 && index != 0)
-                        SizedBox(
-                          height: 50,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              SizedBox(
-                                width: 100,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      '리워드${index}',
+    return ref.watch(asyncVoteItemListProvider(voteId: widget.voteId)).when(
+        data: (data) {
+          return Container(
+            margin: EdgeInsets.only(top: 20, left: 16.cw, right: 16.cw),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(color: AppColors.primary500, width: 1.5.r),
+            ),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FutureBuilder(
+                      future: fetchVoteAchieve(ref, voteId: widget.voteId),
+                      builder: (context, snapshot) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: List.generate(
+                              21,
+                              (index) => Row(
+                                children: [
+                                  if (250000 * index % 1000000 == 0 &&
+                                      index != 0)
+                                    SizedBox(
+                                      height: 50,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          SizedBox(
+                                            width: 140,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              children: [
+                                                Text(
+                                                  '리워드${index}',
+                                                  style: getTextStyle(
+                                                      AppTypo.caption12B,
+                                                      AppColors.primary500),
+                                                ),
+                                                Text(
+                                                  getLocaleTextFromJson(snapshot
+                                                      .data![0].reward.title!),
+                                                  style: getTextStyle(
+                                                          AppTypo.caption12B,
+                                                          AppColors.primary500)
+                                                      .copyWith(
+                                                          decoration:
+                                                              TextDecoration
+                                                                  .underline,
+                                                          decorationColor:
+                                                              AppColors
+                                                                  .primary500),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 10.cw,
+                                          ),
+                                          SizedBox(
+                                            width: 50,
+                                            child: PicnicCachedNetworkImage(
+                                              imageUrl: snapshot
+                                                  .data![0].reward.thumbnail!,
+                                              width: 50,
+                                              height: 50,
+                                              memCacheWidth: 50,
+                                              memCacheHeight: 50,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  Container(
+                                    width: 80,
+                                    height: 50,
+                                    alignment: Alignment.centerRight,
+                                    child: Text(
+                                      formatNumberWithComma(
+                                          (250000 * index).toString()),
                                       style: getTextStyle(AppTypo.caption12B,
                                           AppColors.primary500),
+                                      textAlign: TextAlign.right,
                                     ),
-                                    Text(
-                                      '사이니지이름이름',
-                                      style: getTextStyle(AppTypo.caption12B,
-                                              AppColors.primary500)
-                                          .copyWith(
-                                              decoration:
-                                                  TextDecoration.underline,
-                                              decorationColor:
-                                                  AppColors.primary500),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                  SizedBox(
+                                    width: 10.cw,
+                                  ),
+                                  Container(
+                                    width: 20.cw,
+                                    height: 2,
+                                    color: AppColors.grey700,
+                                  ),
+                                ],
                               ),
-                              SizedBox(
-                                width: 10.cw,
-                              ),
-                              const SizedBox(
-                                width: 50,
-                                child: CircleAvatar(
-                                  backgroundColor: AppColors.grey300,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
-                        ),
-                      Container(
-                        width: 80,
-                        height: 50,
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          formatNumberWithComma((250000 * index).toString()),
-                          style: getTextStyle(
-                              AppTypo.caption12B, AppColors.primary500),
-                          textAlign: TextAlign.right,
-                        ),
-                      ),
-                      SizedBox(
-                        width: 10.cw,
-                      ),
-                      Container(
-                        width: 20.cw,
-                        height: 2,
-                        color: AppColors.grey700,
-                      ),
-                    ],
+                        );
+                      }),
+                  SizedBox(
+                    width: 8.cw,
                   ),
-                ),
+                  Container(
+                    width: 20,
+                    height: 50 * 21 + 20,
+                    padding: const EdgeInsets.symmetric(vertical: 25),
+                    alignment: Alignment.topCenter,
+                    child: FAProgressBar(
+                      currentValue: data[0]!.voteTotal!.toDouble(),
+                      maxValue: 5000000,
+                      animatedDuration: const Duration(milliseconds: 200),
+                      direction: Axis.vertical,
+                      borderRadius: BorderRadiusGeometry.lerp(
+                          BorderRadius.circular(10),
+                          BorderRadius.circular(10),
+                          1),
+                      verticalDirection: VerticalDirection.down,
+                      backgroundColor: AppColors.grey300,
+                      progressColor: AppColors.primary500,
+                      progressGradient: commonGradientVertical,
+                    ),
+                  ),
+                ],
               ),
             ),
-            SizedBox(
-              width: 8.cw,
-            ),
-            Container(
-              width: 20,
-              height: 50 * 21 + 20,
-              padding: const EdgeInsets.symmetric(vertical: 25),
-              alignment: Alignment.topCenter,
-              child: FAProgressBar(
-                currentValue: 2500000,
-                maxValue: 5000000,
-                animatedDuration: const Duration(milliseconds: 200),
-                direction: Axis.vertical,
-                borderRadius: BorderRadiusGeometry.lerp(
-                    BorderRadius.circular(10), BorderRadius.circular(10), 1),
-                verticalDirection: VerticalDirection.down,
-                backgroundColor: AppColors.grey300,
-                progressColor: AppColors.primary500,
-                progressGradient: commonGradientVertical,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+          );
+        },
+        loading: () => _buildLoadingShimmer(),
+        error: (error, stackTrace) => ErrorView(context,
+            error: error.toString(), stackTrace: stackTrace));
   }
 
   Widget _buildVoteItem(BuildContext context, VoteItemModel item, int index) {

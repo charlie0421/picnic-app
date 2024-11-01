@@ -823,3 +823,330 @@ abstract class _VoteItemModel extends VoteItemModel {
   _$$VoteItemModelImplCopyWith<_$VoteItemModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
+
+VoteAchieve _$VoteAchieveFromJson(Map<String, dynamic> json) {
+  return _VoteAchieve.fromJson(json);
+}
+
+/// @nodoc
+mixin _$VoteAchieve {
+  @JsonKey(name: 'id')
+  int get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'vote_id')
+  int get voteId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'reward_id')
+  int get rewardId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'order')
+  int get order => throw _privateConstructorUsedError;
+  @JsonKey(name: 'amount')
+  int get amount => throw _privateConstructorUsedError;
+  @JsonKey(name: 'reward')
+  RewardModel get reward => throw _privateConstructorUsedError;
+  @JsonKey(name: 'vote')
+  VoteModel get vote => throw _privateConstructorUsedError;
+
+  /// Serializes this VoteAchieve to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of VoteAchieve
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $VoteAchieveCopyWith<VoteAchieve> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $VoteAchieveCopyWith<$Res> {
+  factory $VoteAchieveCopyWith(
+          VoteAchieve value, $Res Function(VoteAchieve) then) =
+      _$VoteAchieveCopyWithImpl<$Res, VoteAchieve>;
+  @useResult
+  $Res call(
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'vote_id') int voteId,
+      @JsonKey(name: 'reward_id') int rewardId,
+      @JsonKey(name: 'order') int order,
+      @JsonKey(name: 'amount') int amount,
+      @JsonKey(name: 'reward') RewardModel reward,
+      @JsonKey(name: 'vote') VoteModel vote});
+
+  $RewardModelCopyWith<$Res> get reward;
+  $VoteModelCopyWith<$Res> get vote;
+}
+
+/// @nodoc
+class _$VoteAchieveCopyWithImpl<$Res, $Val extends VoteAchieve>
+    implements $VoteAchieveCopyWith<$Res> {
+  _$VoteAchieveCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of VoteAchieve
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? voteId = null,
+    Object? rewardId = null,
+    Object? order = null,
+    Object? amount = null,
+    Object? reward = null,
+    Object? vote = null,
+  }) {
+    return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int,
+      voteId: null == voteId
+          ? _value.voteId
+          : voteId // ignore: cast_nullable_to_non_nullable
+              as int,
+      rewardId: null == rewardId
+          ? _value.rewardId
+          : rewardId // ignore: cast_nullable_to_non_nullable
+              as int,
+      order: null == order
+          ? _value.order
+          : order // ignore: cast_nullable_to_non_nullable
+              as int,
+      amount: null == amount
+          ? _value.amount
+          : amount // ignore: cast_nullable_to_non_nullable
+              as int,
+      reward: null == reward
+          ? _value.reward
+          : reward // ignore: cast_nullable_to_non_nullable
+              as RewardModel,
+      vote: null == vote
+          ? _value.vote
+          : vote // ignore: cast_nullable_to_non_nullable
+              as VoteModel,
+    ) as $Val);
+  }
+
+  /// Create a copy of VoteAchieve
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $RewardModelCopyWith<$Res> get reward {
+    return $RewardModelCopyWith<$Res>(_value.reward, (value) {
+      return _then(_value.copyWith(reward: value) as $Val);
+    });
+  }
+
+  /// Create a copy of VoteAchieve
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $VoteModelCopyWith<$Res> get vote {
+    return $VoteModelCopyWith<$Res>(_value.vote, (value) {
+      return _then(_value.copyWith(vote: value) as $Val);
+    });
+  }
+}
+
+/// @nodoc
+abstract class _$$VoteAchieveImplCopyWith<$Res>
+    implements $VoteAchieveCopyWith<$Res> {
+  factory _$$VoteAchieveImplCopyWith(
+          _$VoteAchieveImpl value, $Res Function(_$VoteAchieveImpl) then) =
+      __$$VoteAchieveImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'vote_id') int voteId,
+      @JsonKey(name: 'reward_id') int rewardId,
+      @JsonKey(name: 'order') int order,
+      @JsonKey(name: 'amount') int amount,
+      @JsonKey(name: 'reward') RewardModel reward,
+      @JsonKey(name: 'vote') VoteModel vote});
+
+  @override
+  $RewardModelCopyWith<$Res> get reward;
+  @override
+  $VoteModelCopyWith<$Res> get vote;
+}
+
+/// @nodoc
+class __$$VoteAchieveImplCopyWithImpl<$Res>
+    extends _$VoteAchieveCopyWithImpl<$Res, _$VoteAchieveImpl>
+    implements _$$VoteAchieveImplCopyWith<$Res> {
+  __$$VoteAchieveImplCopyWithImpl(
+      _$VoteAchieveImpl _value, $Res Function(_$VoteAchieveImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of VoteAchieve
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? voteId = null,
+    Object? rewardId = null,
+    Object? order = null,
+    Object? amount = null,
+    Object? reward = null,
+    Object? vote = null,
+  }) {
+    return _then(_$VoteAchieveImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int,
+      voteId: null == voteId
+          ? _value.voteId
+          : voteId // ignore: cast_nullable_to_non_nullable
+              as int,
+      rewardId: null == rewardId
+          ? _value.rewardId
+          : rewardId // ignore: cast_nullable_to_non_nullable
+              as int,
+      order: null == order
+          ? _value.order
+          : order // ignore: cast_nullable_to_non_nullable
+              as int,
+      amount: null == amount
+          ? _value.amount
+          : amount // ignore: cast_nullable_to_non_nullable
+              as int,
+      reward: null == reward
+          ? _value.reward
+          : reward // ignore: cast_nullable_to_non_nullable
+              as RewardModel,
+      vote: null == vote
+          ? _value.vote
+          : vote // ignore: cast_nullable_to_non_nullable
+              as VoteModel,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$VoteAchieveImpl extends _VoteAchieve {
+  const _$VoteAchieveImpl(
+      {@JsonKey(name: 'id') required this.id,
+      @JsonKey(name: 'vote_id') required this.voteId,
+      @JsonKey(name: 'reward_id') required this.rewardId,
+      @JsonKey(name: 'order') required this.order,
+      @JsonKey(name: 'amount') required this.amount,
+      @JsonKey(name: 'reward') required this.reward,
+      @JsonKey(name: 'vote') required this.vote})
+      : super._();
+
+  factory _$VoteAchieveImpl.fromJson(Map<String, dynamic> json) =>
+      _$$VoteAchieveImplFromJson(json);
+
+  @override
+  @JsonKey(name: 'id')
+  final int id;
+  @override
+  @JsonKey(name: 'vote_id')
+  final int voteId;
+  @override
+  @JsonKey(name: 'reward_id')
+  final int rewardId;
+  @override
+  @JsonKey(name: 'order')
+  final int order;
+  @override
+  @JsonKey(name: 'amount')
+  final int amount;
+  @override
+  @JsonKey(name: 'reward')
+  final RewardModel reward;
+  @override
+  @JsonKey(name: 'vote')
+  final VoteModel vote;
+
+  @override
+  String toString() {
+    return 'VoteAchieve(id: $id, voteId: $voteId, rewardId: $rewardId, order: $order, amount: $amount, reward: $reward, vote: $vote)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$VoteAchieveImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.voteId, voteId) || other.voteId == voteId) &&
+            (identical(other.rewardId, rewardId) ||
+                other.rewardId == rewardId) &&
+            (identical(other.order, order) || other.order == order) &&
+            (identical(other.amount, amount) || other.amount == amount) &&
+            (identical(other.reward, reward) || other.reward == reward) &&
+            (identical(other.vote, vote) || other.vote == vote));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType, id, voteId, rewardId, order, amount, reward, vote);
+
+  /// Create a copy of VoteAchieve
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$VoteAchieveImplCopyWith<_$VoteAchieveImpl> get copyWith =>
+      __$$VoteAchieveImplCopyWithImpl<_$VoteAchieveImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$VoteAchieveImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _VoteAchieve extends VoteAchieve {
+  const factory _VoteAchieve(
+          {@JsonKey(name: 'id') required final int id,
+          @JsonKey(name: 'vote_id') required final int voteId,
+          @JsonKey(name: 'reward_id') required final int rewardId,
+          @JsonKey(name: 'order') required final int order,
+          @JsonKey(name: 'amount') required final int amount,
+          @JsonKey(name: 'reward') required final RewardModel reward,
+          @JsonKey(name: 'vote') required final VoteModel vote}) =
+      _$VoteAchieveImpl;
+  const _VoteAchieve._() : super._();
+
+  factory _VoteAchieve.fromJson(Map<String, dynamic> json) =
+      _$VoteAchieveImpl.fromJson;
+
+  @override
+  @JsonKey(name: 'id')
+  int get id;
+  @override
+  @JsonKey(name: 'vote_id')
+  int get voteId;
+  @override
+  @JsonKey(name: 'reward_id')
+  int get rewardId;
+  @override
+  @JsonKey(name: 'order')
+  int get order;
+  @override
+  @JsonKey(name: 'amount')
+  int get amount;
+  @override
+  @JsonKey(name: 'reward')
+  RewardModel get reward;
+  @override
+  @JsonKey(name: 'vote')
+  VoteModel get vote;
+
+  /// Create a copy of VoteAchieve
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$VoteAchieveImplCopyWith<_$VoteAchieveImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}

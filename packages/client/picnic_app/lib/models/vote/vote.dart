@@ -60,3 +60,20 @@ class ArtistModelWithHighlight {
     required this.highlightedGroupName,
   });
 }
+
+@freezed
+class VoteAchieve with _$VoteAchieve {
+  const VoteAchieve._();
+
+  const factory VoteAchieve(
+      {@JsonKey(name: 'id') required int id,
+      @JsonKey(name: 'vote_id') required int voteId,
+      @JsonKey(name: 'reward_id') required int rewardId,
+      @JsonKey(name: 'order') required int order,
+      @JsonKey(name: 'amount') required int amount,
+      @JsonKey(name: 'reward') required RewardModel reward,
+      @JsonKey(name: 'vote') required VoteModel vote}) = _VoteAchieve;
+
+  factory VoteAchieve.fromJson(Map<String, dynamic> json) =>
+      _$VoteAchieveFromJson(json);
+}
