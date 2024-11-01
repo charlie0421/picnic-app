@@ -32,6 +32,8 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
 
   @override
   void initState() {
+    super.initState();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
           showPortal: true, showTopMenu: true, showBottomNavigation: true);
@@ -39,7 +41,6 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
     _pagingController.addPageRequestListener((pageKey) {
       _fetchPage(pageKey);
     });
-    super.initState();
   }
 
   @override
