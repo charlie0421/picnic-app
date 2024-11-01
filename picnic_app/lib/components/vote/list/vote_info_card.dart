@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/vote/list/vote_header.dart';
+import 'package:picnic_app/components/vote/list/vote_info_card_achieve.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_vertical.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/pages/vote/vote_detail_achieve_page.dart';
@@ -105,7 +106,6 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   Widget _buildCard(BuildContext context, VoteModel? vote,
       AsyncValue<List<VoteItemModel?>> asyncVoteItemList) {
     if (vote == null) return const SizedBox.shrink();
-
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
@@ -132,7 +132,12 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
             ),
             if (widget.status == VoteStatus.active ||
                 widget.status == VoteStatus.end)
-              _buildVoteItemList(asyncVoteItemList),
+              if (vote.voteCategory != VoteCategory.achieve.name)
+                _buildVoteItemList(asyncVoteItemList),
+            if (widget.status == VoteStatus.active ||
+                widget.status == VoteStatus.end)
+              if (vote.voteCategory == VoteCategory.achieve.name)
+                _buildAchieveVoteItemList(asyncVoteItemList),
           ],
         ),
       ),
@@ -178,6 +183,56 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
         ),
       ),
       loading: () => const CircularProgressIndicator(),
+      error: (error, stack) => Text('Error: $error'),
+    );
+  }
+
+  Widget _buildAchieveVoteItemList(
+      AsyncValue<List<VoteItemModel?>> asyncVoteItemList) {
+    return asyncVoteItemList.when(
+      data: (voteItems) => Container(
+        width: ref.watch(globalMediaQueryProvider).size.width,
+        height: 260,
+        padding: const EdgeInsets.only(left: 36, right: 36, top: 16),
+        margin: const EdgeInsets.only(top: 24),
+        clipBehavior: Clip.hardEdge,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(40).r,
+          border: Border.all(
+            color: AppColors.primary500,
+            width: 1.5.cw,
+          ),
+        ),
+        child: FutureBuilder(
+          future: fetchVoteAchieve(ref, voteId: widget.vote.id),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              }
+              if (snapshot.hasData) {
+                final voteAchieves = snapshot.data as List<VoteAchieve>;
+                return SlideTransition(
+                  position: _offsetAnimation,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: snapshot.data!
+                        .map<VoteCardColumnAchieve>((voteAchieve) {
+                      return VoteCardColumnAchieve(
+                          rank: voteAchieve,
+                          voteItem: voteItems[0]!,
+                          opacityAnimation: _opacityAnimation);
+                    }).toList(),
+                  ),
+                );
+              }
+            }
+            return const SizedBox.shrink();
+          },
+        ),
+      ),
+      loading: () => const SizedBox.shrink(),
       error: (error, stack) => Text('Error: $error'),
     );
   }

@@ -29,21 +29,37 @@ class AsyncVoteList extends _$AsyncVoteList {
 // status가 'all'이 아닌 경우에만 start_at과 end_at 필드를 기준으로 필터링합니다.
       if (status == VoteStatus.active) {
         // status가 'active'인 경우, start_at은 현재 시간보다 이전이고 end_at은 현재 시간보다 이후여야 합니다.
-        response = await supabase
-            .from('vote')
-            .select(
-                'id,title,start_at,stop_at, visible_at,vote_item(*, artist(id,name,image, artist_group(id,name,image)), artist_group(id,name,image))')
-            .lt('start_at', 'now()')
-            .gt('stop_at', 'now()')
-            .order(sort, ascending: order == 'ASC');
+        if (isAdmin == null || isAdmin == false) {
+          response = await supabase
+              .from('vote')
+              .select(
+                  'id,title,start_at,stop_at, visible_at,vote_item(*, artist(id,name,image, artist_group(id,name,image)), artist_group(id,name,image))')
+              .lt('start_at', 'now()')
+              .gt('stop_at', 'now()')
+              .order(sort, ascending: order == 'ASC');
+        } else {
+          response = await supabase
+              .from('vote')
+              .select(
+                  'id,title,start_at,stop_at, visible_at,vote_item(*, artist(id,name,image, artist_group(id,name,image)), artist_group(id,name,image))')
+              .order(sort, ascending: order == 'ASC');
+        }
       } else if (status == VoteStatus.end) {
         // status가 'end'인 경우, stop_at은 현재 시간보다 이전이어야 합니다.
-        response = await supabase
-            .from('vote')
-            .select(
-                'id,title,start_at,stop_at, visible_at,vote_item(*, artist(id,name,image, artist_group(id,name,image)), artist_group(id,name,image))')
-            .lt('stop_at', 'now()')
-            .order(sort, ascending: order == 'ASC');
+        if (isAdmin == null || isAdmin == false) {
+          response = await supabase
+              .from('vote')
+              .select(
+                  'id,title,start_at,stop_at, visible_at,vote_item(*, artist(id,name,image, artist_group(id,name,image)), artist_group(id,name,image))')
+              .lt('stop_at', 'now()')
+              .order(sort, ascending: order == 'ASC');
+        } else {
+          response = await supabase
+              .from('vote')
+              .select(
+                  'id,title,start_at,stop_at, visible_at,vote_item(*, artist(id,name,image, artist_group(id,name,image)), artist_group(id,name,image))')
+              .order(sort, ascending: order == 'ASC');
+        }
       } else if (status == VoteStatus.upcoming) {
         if (isAdmin == null || isAdmin == false) {
           response = await supabase
@@ -62,12 +78,20 @@ class AsyncVoteList extends _$AsyncVoteList {
         }
       } else if (status == VoteStatus.activeAndUpcoming) {
         // status가 'all'인 경우, 필터링 없이 모든 데이터를 가져옵니다.
-        response = await supabase
-            .from('vote')
-            .select(
-                'id,title,start_at,stop_at, visible_at,vote_item(*, artist(id,name,image, artist_group(id,name,image)), artist_group(id,name,image))')
-            .lt('visible_at', 'now()')
-            .gt('stop_at', 'now()');
+        if (isAdmin == null || isAdmin == false) {
+          response = await supabase
+              .from('vote')
+              .select(
+                  'id,title,start_at,stop_at, visible_at,vote_item(*, artist(id,name,image, artist_group(id,name,image)), artist_group(id,name,image))')
+              .lt('visible_at', 'now()')
+              .gt('stop_at', 'now()');
+        } else {
+          response = await supabase
+              .from('vote')
+              .select(
+                  'id,title,start_at,stop_at, visible_at,vote_item(*, artist(id,name,image, artist_group(id,name,image)), artist_group(id,name,image))')
+              .order(sort, ascending: order == 'ASC');
+        }
       } else {
         response = await supabase.from('vote').select(
             'id,title,start_at,stop_at, visible_at,vote_item(*, artist(id,name,image, artist_group(id,name,image)), artist_group(id,name,image))');
