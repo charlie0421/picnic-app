@@ -67,9 +67,11 @@ class _AppState extends ConsumerState<App> {
           .updateMediaQueryData(MediaQuery.of(context));
     });
 
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      ref.read(updateCheckerProvider.notifier).checkForUpdate();
-    });
+    if (!kIsWeb) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        ref.read(updateCheckerProvider.notifier).checkForUpdate();
+      });
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       ref.read(appSettingProvider.notifier);
     });
