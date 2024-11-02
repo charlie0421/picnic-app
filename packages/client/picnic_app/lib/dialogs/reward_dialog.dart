@@ -94,7 +94,6 @@ class _RewardDialogState extends State<RewardDialog> {
       children: [
         SizedBox(
           width: getPlatformScreenSize(context).width,
-          height: getPlatformScreenSize(context).width,
           child: ShaderMask(
             shaderCallback: (rect) => const LinearGradient(
               begin: Alignment.topCenter,
@@ -217,12 +216,12 @@ class _RewardDialogState extends State<RewardDialog> {
               borderRadius: BorderRadius.circular(24.r),
               child: Container(
                 alignment: Alignment.topCenter,
-                width: 300,
-                height: 300,
+                width: MediaQuery.of(context).size.width - 100,
+                height: MediaQuery.of(context).size.width - 100,
                 child: PicnicCachedNetworkImage(
                   imageUrl: image,
-                  width: 400,
-                  height: 400,
+                  width: (MediaQuery.of(context).size.width - 100).toInt(),
+                  height: (MediaQuery.of(context).size.width - 100).toInt(),
                   fit: BoxFit.cover,
                 ),
               ),
