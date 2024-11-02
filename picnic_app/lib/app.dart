@@ -2,6 +2,7 @@ import 'dart:developer' as developer;
 
 import 'package:another_flutter_splash_screen/another_flutter_splash_screen.dart';
 import 'package:app_links/app_links.dart';
+import 'package:card_swiper/card_swiper.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,10 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:overlay_support/overlay_support.dart';
+import 'package:picnic_app/components/web/web_download_section.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import 'package:picnic_app/dialogs/update_dialog.dart';
 import 'package:picnic_app/enums.dart';
 import 'package:picnic_app/generated/l10n.dart';
@@ -171,13 +176,10 @@ class _AppState extends ConsumerState<App> {
                     settings: settings,
                   );
                 }
-
-                // 정의되지 않은 라우트에 대한 처리
                 return MaterialPageRoute(builder: (_) => const Portal());
               },
               navigatorObservers: [observer],
               builder: (context, child) {
-                // Apply custom scaling to the entire app
                 return _ScaleAwareBuilder(
                   builder: (context, child) => UpdateDialog(
                     child: child ?? const SizedBox.shrink(),
@@ -189,11 +191,19 @@ class _AppState extends ConsumerState<App> {
             );
 
             if (kIsWeb) {
-              return Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 600),
-                  child: app,
-                ),
+              return Row(
+                textDirection: TextDirection.ltr, // 추가된 부분
+                children: [
+                  const WebDownloadSection(),
+                  Expanded(
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 600),
+                        child: app,
+                      ),
+                    ),
+                  ),
+                ],
               );
             } else {
               return app;
@@ -274,16 +284,13 @@ class _ScaleAwareBuilder extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (kIsWeb) {
-      // For web, use a custom scaling factor
       return MediaQuery(
         data: ref.watch(globalMediaQueryProvider).copyWith(
               size: const Size(600, 800),
-              // textScaleFactor: 600 / 393, // Adjust text scale for web
             ),
         child: builder(context, child),
       );
     } else {
-      // For mobile, use the original MediaQuery
       return builder(context, child);
     }
   }
