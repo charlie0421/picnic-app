@@ -142,9 +142,9 @@ class _BoardPageState extends ConsumerState<BoardPage> {
           child: Row(
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(16.r),
+                borderRadius: BorderRadius.circular(32.r),
                 child: PicnicCachedNetworkImage(
-                    imageUrl: artist.image ?? '', width: 32, height: 32),
+                    imageUrl: artist.image ?? '', width: 32),
               ),
               SizedBox(width: 8.cw),
               Expanded(
