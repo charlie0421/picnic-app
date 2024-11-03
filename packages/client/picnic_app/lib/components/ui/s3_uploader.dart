@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
-
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
+import 'package:universal_io/io.dart';
 import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
+import 'package:mime/mime.dart';
 
 class S3Uploader {
   final String accessKey;
@@ -21,18 +23,44 @@ class S3Uploader {
   });
 
   Future<String> uploadFile(
-      String folder, File file, Function(double) progressCallback) async {
-    final fileName = path.basename(file.path);
+      String folder, dynamic file, Function(double) progressCallback) async {
+    late String fileName;
+    late int fileLength;
+    late Stream<List<int>> fileStream;
+    late String contentType;
+
+    if (kIsWeb) {
+      if (file is Uint8List) {
+        // 웹 환경에서 파일 처리
+        fileName = DateTime.now().millisecondsSinceEpoch.toString();
+        fileLength = file.length;
+        fileStream = Stream.fromIterable([file]);
+        contentType = lookupMimeType(fileName) ?? 'application/octet-stream';
+      } else {
+        throw Exception('Web environment requires Uint8List file format');
+      }
+    } else {
+      if (file is File) {
+        // 모바일/데스크톱 환경에서 파일 처리
+        fileName = path.basename(file.path);
+        fileLength = await file.length();
+        fileStream = file.openRead();
+        contentType = lookupMimeType(file.path) ?? 'application/octet-stream';
+      } else {
+        throw Exception('Native environment requires File object');
+      }
+    }
+
     final uri = Uri.parse(
         'https://$bucketName.s3.$region.amazonaws.com/$folder/$fileName');
 
-    final fileLength = await file.length();
     final now = DateTime.now().toUtc();
     final amzDate = DateFormat("yyyyMMdd'T'HHmmss'Z'").format(now);
     final dateStamp = DateFormat("yyyyMMdd").format(now);
 
     final headers = <String, String>{
-      'Content-Type': 'application/octet-stream',
+      'Content-Type': contentType,
+      'Content-Length': fileLength.toString(),
       'host': uri.host,
       'x-amz-date': amzDate,
       'x-amz-content-sha256': 'UNSIGNED-PAYLOAD',
@@ -52,9 +80,9 @@ class S3Uploader {
     headers.forEach((key, value) => request.headers[key] = value);
     request.contentLength = fileLength;
 
-    final fileStream = file.openRead();
     var bytesSent = 0;
 
+    // 파일 스트림 처리
     fileStream.listen(
       (List<int> chunk) {
         request.sink.add(chunk);

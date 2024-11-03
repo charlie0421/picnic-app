@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/ui/s3_uploader.dart';
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/util/ui.dart';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
+import 'package:universal_io/io.dart';
+import 'package:http/http.dart' as http;
 
 class LocalImageEmbedBuilder extends EmbedBuilder {
   final Function(String localPath, String networkUrl) onUploadComplete;
@@ -82,30 +85,48 @@ class LocalImageEmbedBuilder extends EmbedBuilder {
     );
   }
 
-  Future<String> _uploadImage(String localPath) async {
+  Future<String> _uploadImage(String source) async {
     try {
-      final file = File(localPath);
+      if (kIsWeb) {
+        // 웹 환경에서는 URL로부터 이미지 데이터를 가져옵니다
+        final response = await http.get(Uri.parse(source));
+        if (response.statusCode != 200) {
+          throw Exception('Failed to fetch image data');
+        }
 
-      if (!await file.exists()) {
-        throw Exception('File does not exist: $localPath');
+        final Uint8List bytes = response.bodyBytes;
+        final mediaUrl = await _s3Uploader.uploadFile(
+          'post/image',
+          bytes,
+          (progress) {
+            print('Upload progress: ${(progress * 100).toStringAsFixed(2)}%');
+          },
+        );
+
+        onUploadComplete(source, mediaUrl);
+        return mediaUrl;
+      } else {
+        // 모바일/데스크톱용 파일 처리 로직
+        final file = File(source);
+        if (!await file.exists()) {
+          throw Exception('File does not exist: $source');
+        }
+
+        final streamController = StreamController<double>();
+
+        final mediaUrl = await _s3Uploader.uploadFile(
+          'post/image',
+          file,
+          (progress) {
+            streamController.add(progress);
+            print('Upload progress: ${(progress * 100).toStringAsFixed(2)}%');
+          },
+        );
+
+        streamController.close();
+        onUploadComplete(source, mediaUrl);
+        return mediaUrl;
       }
-
-      final streamController = StreamController<double>();
-
-      final mediaUrl = await _s3Uploader.uploadFile(
-        'post/image',
-        file,
-        (progress) {
-          streamController.add(progress);
-          print('Upload progress: ${(progress * 100).toStringAsFixed(2)}%');
-        },
-      );
-
-      streamController.close();
-
-      print('Upload completed. Media URL: $mediaUrl');
-      onUploadComplete(localPath, mediaUrl);
-      return mediaUrl;
     } catch (e) {
       print('Error uploading image: $e');
       rethrow;
