@@ -88,8 +88,8 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                     style: getTextStyle(AppTypo.body14B, AppColors.grey900),
                   ),
                 ),
-                tailing: Icon(Icons.copy,
-                    color: AppColors.primary500, size: AppTypo.title18B.size),
+                tailing:
+                    Icon(Icons.copy, color: AppColors.primary500, size: 16.cw),
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () => copyToClipboard(
                     context, supabase.auth.currentUser?.id ?? ''),
