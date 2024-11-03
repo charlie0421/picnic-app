@@ -196,7 +196,8 @@ class _AppState extends ConsumerState<App> {
                 children: [
                   const WebDownloadSection(),
                   Expanded(
-                    child: Center(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 600),
                         child: app,
