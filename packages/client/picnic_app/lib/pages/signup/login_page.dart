@@ -396,8 +396,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                 OverlayLoadingProgress.stop();
                 logger.e('Error signing in with Google: $e', stackTrace: s);
                 showSimpleDialog(
-                    title: S.of(context).error_title,
-                    content: S.of(context).error_message_login_failed,
+                    title: Intl.message('error_title'),
+                    content: Intl.message('error_message_login_failed'),
                     onOk: () {
                       Navigator.of(context).pop();
                     });
