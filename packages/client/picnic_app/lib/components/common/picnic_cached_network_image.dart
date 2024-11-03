@@ -37,7 +37,7 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
   bool _loading = true;
 
   double _getResolutionMultiplier(BuildContext context) {
-    if (UniversalPlatform.isWeb) return 1.0;
+    if (UniversalPlatform.isWeb) return 2.0;
     if (UniversalPlatform.isAndroid) return 1.5;
     if (isIPad(context)) return 4.0;
     return 2.0;
