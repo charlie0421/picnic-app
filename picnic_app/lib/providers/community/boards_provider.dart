@@ -12,7 +12,7 @@ Future<List<BoardModel>?> boards(ref, int artistId) async {
     final response = await supabase
         .from('boards')
         .select(
-            'name, board_id, artist_id, description, is_official, artist(*, artist_group(*))')
+            'name, board_id, artist_id, description, is_official, features, artist(*, artist_group(*))')
         .eq('artist_id', artistId)
         .eq('status', 'approved')
         .order('is_official', ascending: false)
@@ -34,7 +34,7 @@ Future<List<BoardModel>?> boardsByArtistName(
       final response = await supabase
           .from('boards')
           .select(
-              'name, board_id, artist_id, description, is_official, artist!inner(*, artist_group(*))')
+              'name, board_id, artist_id, description, is_official, features, artist!inner(*, artist_group(*))')
           .neq('artist_id', 0)
           .eq('status', 'approved')
           .order('artist(name->>${Intl.getCurrentLocale()})', ascending: true)
@@ -46,7 +46,8 @@ Future<List<BoardModel>?> boardsByArtistName(
     } else {
       final response = await supabase
           .from('boards')
-          .select('*, artist!inner(*, artist_group(*))')
+          .select(
+              'name, board_id, artist_id, description, is_official, features,, artist!inner(*, artist_group(*))')
           .neq('artist_id', 0)
           .eq('status', 'approved')
           .or('name->>ko.ilike.%$query%,name->>en.ilike.%$query%,name->>ja.ilike.%$query%,name->>zh.ilike.%$query%')
