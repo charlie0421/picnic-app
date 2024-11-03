@@ -1,5 +1,6 @@
 import 'dart:convert';
-
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
@@ -50,7 +51,7 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
   final ImagePicker _picker = ImagePicker();
   late final quill.QuillController _controller;
   double _keyboardHeight = 0;
-  final KeyboardHeightPlugin _keyboardHeightPlugin = KeyboardHeightPlugin();
+  KeyboardHeightPlugin? _keyboardHeightPlugin;
 
   @override
   void initState() {
@@ -61,9 +62,15 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
     _controller = widget.contentController;
     _controller.addListener(_onTextChanged);
 
-    _keyboardHeightPlugin.onKeyboardHeightChanged((double height) {
-      _keyboardHeight = height;
-    });
+    // Only initialize KeyboardHeightPlugin for mobile platforms
+    if (!kIsWeb) {
+      _keyboardHeightPlugin = KeyboardHeightPlugin();
+      _keyboardHeightPlugin?.onKeyboardHeightChanged((double height) {
+        setState(() {
+          _keyboardHeight = height;
+        });
+      });
+    }
   }
 
   @override
@@ -108,13 +115,13 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
     return LayoutBuilder(builder: (context, constraint) {
       return KeyboardVisibilityBuilder(
           builder: (context, bool isKeyboardVisible) {
-        final keyboardHeight = _keyboardHeight;
         final double containerSize = MediaQuery.of(context).size.height - 420;
-        // final double containerSize = constraint.maxHeight;
 
-        final double editorHeight = isKeyboardVisible
-            ? containerSize - keyboardHeight + 40
+        // Adjust editor height based on platform and keyboard visibility
+        final double editorHeight = !kIsWeb && isKeyboardVisible
+            ? containerSize - _keyboardHeight + 40
             : containerSize;
+
         return SizedBox(
           height: editorHeight,
           child: GestureDetector(
@@ -156,89 +163,6 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
     });
   }
 
-  void _onTextChanged() {
-    setState(() {});
-  }
-
-  void _handleTitleFocusChange() {
-    if (_isTitleFocused != _titleFocusNode.hasFocus) {
-      setState(() {
-        _isTitleFocused = _titleFocusNode.hasFocus;
-      });
-    }
-  }
-
-  void _handleEditorFocusChange() {
-    if (_isEditorFocused != _editorFocusNode.hasFocus) {
-      setState(() {
-        _isEditorFocused = _editorFocusNode.hasFocus;
-      });
-    }
-  }
-
-  void _validateTitle() {
-    final isValid = widget.titleController.text.trim().isNotEmpty;
-    if (isValid != _isTitleValid) {
-      setState(() {
-        _isTitleValid = isValid;
-      });
-      widget.onValidityChanged(_isTitleValid);
-    }
-  }
-
-  void _unFocusAll() {
-    _titleFocusNode.unfocus();
-    _editorFocusNode.unfocus();
-  }
-
-  Future<void> _handleMediaButtonTap() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      _insertLocalMediaToEditor(image.path);
-    }
-  }
-
-  void _insertLocalMediaToEditor(String filePath) {
-    final index = _controller.selection.baseOffset;
-    final length = _controller.selection.extentOffset - index;
-
-    _controller.replaceText(
-      index,
-      length,
-      quill.BlockEmbed('local-image', filePath),
-      null,
-    );
-
-    _controller.document.insert(index + 1, "\n");
-
-    _controller.updateSelection(
-      TextSelection.collapsed(offset: index + 2),
-      quill.ChangeSource.local,
-    );
-  }
-
-  void _replaceLocalMediaWithNetwork(String localPath, String networkUrl) {
-    final doc = _controller.document;
-    final delta = doc.toDelta();
-    final operations = delta.toList();
-
-    for (int i = 0; i < operations.length; i++) {
-      final operation = operations[i];
-      if (operation.data is Map<String, dynamic>) {
-        final data = operation.data as Map<String, dynamic>;
-        if (data['local-image'] == localPath) {
-          _controller.replaceText(
-            i,
-            1,
-            quill.BlockEmbed('image', networkUrl),
-            null,
-          );
-          break;
-        }
-      }
-    }
-  }
-
   Widget _buildTitleField() {
     return SizedBox(
       height: 48,
@@ -249,7 +173,6 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
         decoration: InputDecoration(
           hintText: S.of(context).post_title_placeholder,
           hintStyle: const TextStyle(color: AppColors.grey300),
-          // 이 부분을 추가
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8.0),
             borderSide: BorderSide(
@@ -416,6 +339,41 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
     );
   }
 
+  void _onTextChanged() {
+    setState(() {});
+  }
+
+  void _handleTitleFocusChange() {
+    if (_isTitleFocused != _titleFocusNode.hasFocus) {
+      setState(() {
+        _isTitleFocused = _titleFocusNode.hasFocus;
+      });
+    }
+  }
+
+  void _handleEditorFocusChange() {
+    if (_isEditorFocused != _editorFocusNode.hasFocus) {
+      setState(() {
+        _isEditorFocused = _editorFocusNode.hasFocus;
+      });
+    }
+  }
+
+  void _validateTitle() {
+    final isValid = widget.titleController.text.trim().isNotEmpty;
+    if (isValid != _isTitleValid) {
+      setState(() {
+        _isTitleValid = isValid;
+      });
+      widget.onValidityChanged(_isTitleValid);
+    }
+  }
+
+  void _unFocusAll() {
+    _titleFocusNode.unfocus();
+    _editorFocusNode.unfocus();
+  }
+
   Color _getIconColor(bool isActive) {
     return isActive ? AppColors.grey900 : AppColors.grey500;
   }
@@ -437,6 +395,54 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
 
     return currentStyle.attributes.containsKey(attribute.key) &&
         currentStyle.attributes[attribute.key]?.value == attribute.value;
+  }
+
+  Future<void> _handleMediaButtonTap() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      _insertLocalMediaToEditor(image.path);
+    }
+  }
+
+  void _insertLocalMediaToEditor(String filePath) {
+    final index = _controller.selection.baseOffset;
+    final length = _controller.selection.extentOffset - index;
+
+    _controller.replaceText(
+      index,
+      length,
+      quill.BlockEmbed('local-image', filePath),
+      null,
+    );
+
+    _controller.document.insert(index + 1, "\n");
+
+    _controller.updateSelection(
+      TextSelection.collapsed(offset: index + 2),
+      quill.ChangeSource.local,
+    );
+  }
+
+  void _replaceLocalMediaWithNetwork(String localPath, String networkUrl) {
+    final doc = _controller.document;
+    final delta = doc.toDelta();
+    final operations = delta.toList();
+
+    for (int i = 0; i < operations.length; i++) {
+      final operation = operations[i];
+      if (operation.data is Map<String, dynamic>) {
+        final data = operation.data as Map<String, dynamic>;
+        if (data['local-image'] == localPath) {
+          _controller.replaceText(
+            i,
+            1,
+            quill.BlockEmbed('image', networkUrl),
+            null,
+          );
+          break;
+        }
+      }
+    }
   }
 
   void _insertLink() async {

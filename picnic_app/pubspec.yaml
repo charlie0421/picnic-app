@@ -95,6 +95,7 @@ dependencies:
     keyboard_height_plugin: ^0.1.5
     flutter_animation_progress_bar: ^2.3.1
     qr_flutter: ^4.1.0
+    universal_io: ^2.2.2
 dev_dependencies:
     flutter_test:
         sdk: flutter
