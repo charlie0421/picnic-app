@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
+import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:picnic_app/components/pic/bottom_bar_widget.dart';
@@ -477,8 +478,8 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
         );
 
         final snackBarContent = result['isSuccess']
-            ? Text(S.of(context).message_pic_pic_save_success)
-            : Text(S.of(context).message_pic_pic_save_fail);
+            ? Text(Intl.message('message_pic_pic_save_success'))
+            : Text(Intl.message('message_pic_pic_save_fail'));
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: snackBarContent));
       }
