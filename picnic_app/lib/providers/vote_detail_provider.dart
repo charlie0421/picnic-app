@@ -105,7 +105,8 @@ Future<List<VoteAchieve>?> fetchVoteAchieve(ref, {required int voteId}) async {
     final response = await supabase
         .from('vote_achieve')
         .select('id, vote_id, reward_id, order, amount, reward(*), vote(*)')
-        .eq('vote_id', voteId);
+        .eq('vote_id', voteId)
+        .order('order', ascending: true);
 
     return response.map<VoteAchieve>((e) => VoteAchieve.fromJson(e)).toList();
   } catch (e, s) {

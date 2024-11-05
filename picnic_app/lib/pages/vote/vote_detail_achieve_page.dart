@@ -39,14 +39,12 @@ class VoteDetailAchievePage extends ConsumerStatefulWidget {
 
 class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
   late ScrollController _scrollController;
-  late TextEditingController _textEditingController;
   Timer? _updateTimer;
 
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
-    _textEditingController = TextEditingController();
     _setupUpdateTimer();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -59,17 +57,47 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
   }
 
   void _setupUpdateTimer() {
-    _updateTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+    _updateTimer = Timer.periodic(const Duration(minutes: 1), (_) {
       if (mounted) {
         ref.refresh(asyncVoteItemListProvider(voteId: widget.voteId));
       }
     });
   }
 
+  List<int> _generateMilestonesFromAchievements(
+      List<VoteAchieve> achievements) {
+    List<int> milestones = [0]; // Always start with 0
+    milestones.addAll(achievements.map((achieve) => achieve.amount));
+    return milestones;
+  }
+
+  List<int> _generateLevels(List<int> mainMilestones) {
+    List<int> allLevels = [];
+    allLevels.add(0);
+
+    for (int i = 1; i < mainMilestones.length; i++) {
+      final start = mainMilestones[i - 1];
+      final end = mainMilestones[i];
+      final stepSize = (end - start) ~/ 5;
+
+      if (start != 0) {
+        for (int j = 1; j <= 4; j++) {
+          allLevels.add(start + (stepSize * j));
+        }
+      } else {
+        for (int j = 1; j <= 4; j++) {
+          allLevels.add(stepSize * j);
+        }
+      }
+      allLevels.add(end);
+    }
+
+    return allLevels;
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
-    _textEditingController.dispose();
     _updateTimer?.cancel();
     super.dispose();
   }
@@ -160,36 +188,50 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            FutureBuilder(
+            FutureBuilder<List<VoteAchieve>?>(
                 future: fetchVoteAchieve(ref, voteId: widget.voteId),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
                     return Container();
                   }
+
+                  final achievements = snapshot.data!;
+                  final mainMilestones =
+                      _generateMilestonesFromAchievements(achievements);
+                  final levels = _generateLevels(mainMilestones);
                   var rewardIndex = 0;
+
                   return Container(
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: List.generate(
-                        21,
+                        levels.length,
                         (index) {
-                          final isAchieved = data.voteTotal! >= 250000 * index;
+                          final currentLevel = levels[index];
+                          final isAchieved = data.voteTotal! >= currentLevel;
+                          final isMainMilestone =
+                              mainMilestones.contains(currentLevel);
+
                           return Row(
                             children: [
-                              if (250000 * index % 1000000 == 0 && index != 0)
+                              if (isMainMilestone && currentLevel > 0)
                                 _buildRewardInfo(
-                                    snapshot.data, rewardIndex++, isAchieved),
+                                    achievements, rewardIndex++, isAchieved)
+                              else
+                                const SizedBox(width: 180),
                               SizedBox(width: 10.w),
                               Container(
                                 width: 80,
                                 height: 50,
                                 alignment: Alignment.centerRight,
                                 child: Text(
-                                  formatNumberWithComma(
-                                      (250000 * index).toString()),
+                                  currentLevel == 0
+                                      ? '0'
+                                      : formatNumberWithComma(
+                                          currentLevel.toString()),
                                   style: getTextStyle(
-                                      250000 * index % 1000000 == 0
+                                      isMainMilestone
                                           ? AppTypo.caption12B
                                           : AppTypo.caption12R,
                                       isAchieved
@@ -214,27 +256,82 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                   );
                 }),
             SizedBox(width: 8.w),
-            Container(
-              width: 20,
-              height: 50 * 21 + 20,
-              padding: const EdgeInsets.symmetric(vertical: 25),
-              alignment: Alignment.topCenter,
-              child: FAProgressBar(
-                currentValue: data.voteTotal!.toDouble(),
-                maxValue: 5000000,
-                animatedDuration: const Duration(milliseconds: 200),
-                direction: Axis.vertical,
-                borderRadius: BorderRadius.circular(10),
-                verticalDirection: VerticalDirection.down,
-                backgroundColor: AppColors.grey300,
-                progressColor: AppColors.primary500,
-                progressGradient: commonGradientVertical,
-              ),
-            ),
+            FutureBuilder<List<VoteAchieve>?>(
+                future: fetchVoteAchieve(ref, voteId: widget.voteId),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return Container();
+                  }
+
+                  final achievements = snapshot.data!;
+                  final mainMilestones =
+                      _generateMilestonesFromAchievements(achievements);
+
+                  return Container(
+                    width: 20,
+                    height: 50 * _calculateTotalSteps(mainMilestones) + 20,
+                    padding: const EdgeInsets.symmetric(vertical: 30),
+                    alignment: Alignment.topCenter,
+                    child: LayoutBuilder(builder: (context, constraints) {
+                      final allLevels = _generateLevels(mainMilestones);
+                      double exactProgress = 0.0;
+
+                      if (data.voteTotal! >= allLevels.last) {
+                        exactProgress = 100.0;
+                      } else if (data.voteTotal! == 0) {
+                        exactProgress = 0.0;
+                      } else {
+                        int currentStepIndex = 0;
+                        for (int i = 0; i < allLevels.length - 1; i++) {
+                          if (data.voteTotal! >= allLevels[i] &&
+                              data.voteTotal! < allLevels[i + 1]) {
+                            currentStepIndex = i;
+                            break;
+                          }
+                        }
+
+                        final currentLevel = allLevels[currentStepIndex];
+                        final nextLevel = allLevels[currentStepIndex + 1];
+                        final totalSteps = allLevels.length - 1;
+                        final stepProgress =
+                            currentStepIndex.toDouble() / totalSteps;
+                        final levelDiff = nextLevel - currentLevel;
+                        final currentDiff = data.voteTotal! - currentLevel;
+                        final segmentProgress =
+                            levelDiff != 0 ? currentDiff / levelDiff : 0.0;
+                        final stepSize = 1.0 / totalSteps;
+
+                        exactProgress =
+                            ((stepProgress + (segmentProgress * stepSize)) *
+                                100.0);
+                      }
+
+                      return FAProgressBar(
+                        key: ValueKey(data.voteTotal),
+                        currentValue: exactProgress.clamp(0.0, 100.0),
+                        maxValue: 100,
+                        animatedDuration: const Duration(milliseconds: 300),
+                        direction: Axis.vertical,
+                        verticalDirection: VerticalDirection.down,
+                        borderRadius: BorderRadius.circular(10),
+                        backgroundColor: AppColors.grey300,
+                        progressColor: AppColors.primary500,
+                        progressGradient: commonGradientVertical,
+                        displayText: null,
+                        displayTextStyle:
+                            const TextStyle(color: Colors.transparent),
+                      );
+                    }),
+                  );
+                }),
           ],
         ),
       ),
     );
+  }
+
+  int _calculateTotalSteps(List<int> mainMilestones) {
+    return _generateLevels(mainMilestones).length;
   }
 
   Widget _buildVoteItem(BuildContext context, VoteItemModel item, int index) {
@@ -245,71 +342,69 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => _handleVoteItemTap(context, item),
-        child: SizedBox(
-          child: Row(
-            children: [
-              SizedBox(width: 8.w),
-              _buildArtistImage(item),
-              SizedBox(width: 8.w),
-              Expanded(
-                child: Container(
-                  height: 80,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      RichText(
-                        overflow: TextOverflow.ellipsis,
-                        text: TextSpan(
-                            children: item.artist.id != 0
-                                ? [
-                                    TextSpan(
-                                      text: getLocaleTextFromJson(
-                                          item.artist.name),
-                                      style: getTextStyle(
-                                          AppTypo.body14B, AppColors.grey900),
-                                    ),
-                                    const TextSpan(text: ' '),
-                                    TextSpan(
-                                      text: getLocaleTextFromJson(
-                                          item.artist.artist_group.name),
-                                      style: getTextStyle(AppTypo.caption10SB,
-                                          AppColors.grey600),
-                                    ),
-                                  ]
-                                : [
-                                    TextSpan(
-                                      text: getLocaleTextFromJson(
-                                          item.artistGroup.name),
-                                      style: getTextStyle(
-                                          AppTypo.body14B, AppColors.grey900),
-                                    ),
-                                  ]),
-                      ),
-                      const SizedBox(height: 8),
-                      _buildVoteCountContainer(item, item.voteTotal!),
-                    ],
-                  ),
+        child: Row(
+          children: [
+            SizedBox(width: 8.w),
+            _buildArtistImage(item),
+            SizedBox(width: 8.w),
+            Expanded(
+              child: Container(
+                height: 80,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    RichText(
+                      overflow: TextOverflow.ellipsis,
+                      text: TextSpan(
+                          children: item.artist.id != 0
+                              ? [
+                                  TextSpan(
+                                    text:
+                                        getLocaleTextFromJson(item.artist.name),
+                                    style: getTextStyle(
+                                        AppTypo.body14B, AppColors.grey900),
+                                  ),
+                                  const TextSpan(text: ' '),
+                                  TextSpan(
+                                    text: getLocaleTextFromJson(
+                                        item.artist.artist_group.name),
+                                    style: getTextStyle(
+                                        AppTypo.caption10SB, AppColors.grey600),
+                                  ),
+                                ]
+                              : [
+                                  TextSpan(
+                                    text: getLocaleTextFromJson(
+                                        item.artistGroup.name),
+                                    style: getTextStyle(
+                                        AppTypo.body14B, AppColors.grey900),
+                                  ),
+                                ]),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildVoteCountContainer(item, item.voteTotal!),
+                  ],
                 ),
               ),
-              SizedBox(width: 16.w),
-              if (!ref
-                  .read(asyncVoteDetailProvider(voteId: widget.voteId))
-                  .value!
-                  .isEnded!)
-                Container(
-                  alignment: Alignment.bottomCenter,
-                  height: 80,
-                  padding: const EdgeInsets.only(bottom: 17),
-                  child: SvgPicture.asset(
-                    'assets/icons/star_candy_icon.svg',
-                    width: 24,
-                    height: 24,
-                  ),
+            ),
+            SizedBox(width: 16.w),
+            if (!ref
+                .read(asyncVoteDetailProvider(voteId: widget.voteId))
+                .value!
+                .isEnded!)
+              Container(
+                alignment: Alignment.bottomCenter,
+                height: 80,
+                padding: const EdgeInsets.only(bottom: 17),
+                child: SvgPicture.asset(
+                  'assets/icons/star_candy_icon.svg',
+                  width: 24,
+                  height: 24,
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       ),
     );
