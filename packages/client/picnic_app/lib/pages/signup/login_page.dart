@@ -280,7 +280,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
       } else if (userProfile.deletedAt != null) {
         // 탈퇴한 사용자
         showSimpleDialog(
-            content: S.of(context).error_message_withdrawal,
+            content: Intl.message('error_message_withdrawal'),
             onOk: () {
               Navigator.of(context).pop();
             });

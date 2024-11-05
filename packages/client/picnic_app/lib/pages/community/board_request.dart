@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/community/boards_provider.dart';
@@ -306,7 +307,7 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
       checkDuplicateBoard(ref, _nameController.text).then((value) {
         if (value != null) {
           showSimpleDialog(
-            content: S.of(context).post_board_already_exist,
+            content: Intl.message('post_board_already_exist'),
             onOk: () => Navigator.of(context).pop(),
           );
         } else {
