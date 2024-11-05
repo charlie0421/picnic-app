@@ -35,7 +35,7 @@ class PostWriteAttachments extends StatelessWidget {
               ),
               SizedBox(width: 8.cw),
               Text(
-                file.name ?? '',
+                file.name,
                 style: getTextStyle(
                   AppTypo.caption12R,
                   AppColors.grey800,
