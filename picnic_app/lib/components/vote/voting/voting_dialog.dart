@@ -390,7 +390,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         _validateVote();
       },
       child: SvgPicture.asset(
-        'assets/icons/cancle_style=fill.svg',
+        'assets/icons/cancel_style=fill.svg',
         colorFilter: ColorFilter.mode(
           _hasValue ? AppColors.grey700 : AppColors.grey200,
           BlendMode.srcIn,

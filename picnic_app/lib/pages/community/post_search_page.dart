@@ -69,7 +69,6 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
   }
 
   void _executeSearch(String query) {
-    logger.i('Executing search with query: $query');
     setState(() {
       _currentSearchQuery = query.isNotEmpty ? query : '';
     });
@@ -78,7 +77,6 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
   }
 
   Future<void> _fetch(int pageKey) async {
-    logger.i('Fetching data for page: $pageKey, query: $_currentSearchQuery');
     if (_currentSearchQuery.isEmpty) return;
 
     final currentArtist = ref.watch(
@@ -93,8 +91,6 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
             10,
           ) ??
           [];
-
-      logger.i('Fetched ${newItems.length} items');
 
       final isLastPage = newItems.length < 10;
       if (isLastPage) {
@@ -299,7 +295,7 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
         ),
         backgroundColor: AppColors.grey00,
         deleteIcon: SvgPicture.asset(
-          'assets/icons/cancle_style=line.svg',
+          'assets/icons/cancel_style=line.svg',
           width: 16,
           height: 16,
           colorFilter:
