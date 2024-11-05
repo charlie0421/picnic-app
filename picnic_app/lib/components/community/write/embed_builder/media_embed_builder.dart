@@ -6,7 +6,6 @@ import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/ui/s3_uploader.dart';
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/util/ui.dart';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:universal_io/io.dart';
 import 'package:http/http.dart' as http;

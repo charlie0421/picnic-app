@@ -16,7 +16,7 @@ class PostListItem extends ConsumerStatefulWidget {
   final PostModel post;
   final Widget? popupMenu;
 
-  PostListItem({super.key, required this.post, required this.popupMenu});
+  const PostListItem({super.key, required this.post, required this.popupMenu});
 
   @override
   ConsumerState<PostListItem> createState() => _PostListItemState();

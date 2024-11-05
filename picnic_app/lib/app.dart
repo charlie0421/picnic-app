@@ -2,7 +2,6 @@ import 'dart:developer' as developer;
 
 import 'package:another_flutter_splash_screen/another_flutter_splash_screen.dart';
 import 'package:app_links/app_links.dart';
-import 'package:card_swiper/card_swiper.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -12,8 +11,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:picnic_app/components/web/web_download_section.dart';
-import 'package:qr_flutter/qr_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'package:picnic_app/dialogs/update_dialog.dart';
 import 'package:picnic_app/enums.dart';

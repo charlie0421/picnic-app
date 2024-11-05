@@ -43,7 +43,7 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
           const SizedBox(height: 24),
           postAnonymousMode
               ? Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                  NoAvatar(width: 60, height: 60, borderRadius: 30),
+                  const NoAvatar(width: 60, height: 60, borderRadius: 30),
                   SizedBox(width: 16.cw),
                   Text(
                     S.of(context).anonymous,

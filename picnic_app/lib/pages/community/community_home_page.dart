@@ -168,7 +168,7 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => LoginPage()),
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
                 ).then((_) {
                   _updateLoginState();
                 });

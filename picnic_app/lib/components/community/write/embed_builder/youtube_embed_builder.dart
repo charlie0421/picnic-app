@@ -1,15 +1,12 @@
 // lib/components/youtube_embed.dart
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_app/components/community/write/embed_builder/deletable_embed_builder.dart';
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/services/youtube_service.dart';
 import 'package:picnic_app/util/number.dart';
 import 'package:picnic_app/util/ui.dart';
-import 'package:universal_platform/universal_platform.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class YouTubeEmbedBuilder extends EmbedBuilder {
@@ -83,7 +80,7 @@ class _YouTubeEmbedContent extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final maxWidth = constraints.maxWidth;
-        final aspectRatio = 16 / 9;
+        const aspectRatio = 16 / 9;
         final thumbnailHeight = maxWidth / aspectRatio;
 
         return Container(
@@ -130,9 +127,9 @@ class _YouTubeEmbedContent extends StatelessWidget {
                                 width: maxWidth,
                                 height: thumbnailHeight,
                                 color: Colors.grey[300],
-                                child: Column(
+                                child: const Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
+                                  children: [
                                     Icon(Icons.error_outline),
                                     SizedBox(height: 8),
                                     Text('Thumbnail not available'),

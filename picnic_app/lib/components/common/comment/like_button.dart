@@ -127,7 +127,7 @@ class LikeButtonState extends ConsumerState<LikeButton>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(S.of(context).post_comment_like_processing_fail),
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
         ),
       );

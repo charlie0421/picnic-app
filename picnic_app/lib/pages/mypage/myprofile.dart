@@ -100,7 +100,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                 onTap: () {
                   ref
                       .read(navigationInfoProvider.notifier)
-                      .setCurrentMyPage(TermsPage());
+                      .setCurrentMyPage(const TermsPage());
                 }),
             PicnicListItem(
                 leading: S.of(context).label_mypage_privacy_policy,
@@ -187,7 +187,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
 
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 content: Text(S.of(context).common_success),
-                duration: Duration(seconds: 2)));
+                duration: const Duration(seconds: 2)));
           } else {
             throw Exception('Failed to upload image');
           }

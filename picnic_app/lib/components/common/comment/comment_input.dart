@@ -184,7 +184,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(S.of(context).post_comment_registered_comment),
-          duration: Duration(seconds: 1),
+          duration: const Duration(seconds: 1),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -195,7 +195,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
         SnackBar(
           content: Text(S.of(context).post_comment_register_fail),
           backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
         ),
       );

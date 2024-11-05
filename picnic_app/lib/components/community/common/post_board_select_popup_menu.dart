@@ -45,7 +45,7 @@ class _PostBoardSelectPopupMenuState
             orElse: () => boards.first,
           );
 
-          WidgetsBinding.instance!.addPostFrameCallback((_) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
             ref
                 .read(communityStateInfoProvider.notifier)
                 .setCurrentBoard(selectedBoard);
