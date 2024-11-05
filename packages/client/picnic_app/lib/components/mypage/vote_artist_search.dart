@@ -5,6 +5,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/common/common_search_box.dart';
+import 'package:picnic_app/components/common/no_item_container.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
@@ -197,7 +198,8 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
                             SizedBox(
                                 height: 200, child: _buildShimmerLoading()),
                         noItemsFoundIndicatorBuilder: (context) =>
-                            Center(child: Text(S.of(context).text_no_artist)),
+                            NoItemContainer(
+                                message: S.of(context).text_no_artist),
                       ),
                     ),
                   ),

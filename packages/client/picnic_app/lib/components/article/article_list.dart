@@ -4,6 +4,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/article/article_content.dart';
 import 'package:picnic_app/components/article/article_images.dart';
 import 'package:picnic_app/components/article/article_title.dart';
+import 'package:picnic_app/components/common/no_item_container.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/models/pic/article.dart';
 import 'package:picnic_app/providers/article_list_provider.dart';
@@ -64,10 +65,7 @@ class _ArticleListState extends ConsumerState<ArticleList> {
             firstPageProgressIndicatorBuilder: (context) {
               return buildLoadingOverlay();
             },
-            noItemsFoundIndicatorBuilder: (context) {
-              return ErrorView(context,
-                  error: 'No Items Found', stackTrace: null);
-            },
+            noItemsFoundIndicatorBuilder: (context) => const NoItemContainer(),
             itemBuilder: (context, item, index) =>
                 _buildArticle(context, ref, item)),
       ),

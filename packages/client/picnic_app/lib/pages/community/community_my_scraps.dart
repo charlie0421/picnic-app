@@ -65,9 +65,7 @@ class _CommunityMyScrapsState extends ConsumerState<CommunityMyScraps>
                   }),
             );
           },
-          noItemsFoundIndicatorBuilder: (context) {
-            return const NoItemContainer();
-          },
+          noItemsFoundIndicatorBuilder: (context) => const NoItemContainer(),
         ));
   }
 }

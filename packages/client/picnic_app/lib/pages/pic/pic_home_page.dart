@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/celeb_list_item.dart';
+import 'package:picnic_app/components/common/no_item_container.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/no_bookmark_celeb.dart';
@@ -249,10 +250,8 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                         firstPageProgressIndicatorBuilder: (context) {
                           return buildLoadingOverlay();
                         },
-                        noItemsFoundIndicatorBuilder: (context) {
-                          return ErrorView(context,
-                              error: 'No Items Found', stackTrace: null);
-                        },
+                        noItemsFoundIndicatorBuilder: (context) =>
+                            const NoItemContainer(),
                         itemBuilder: (context, item, index) => PicVoteInfoCard(
                               context: context,
                               vote: item,

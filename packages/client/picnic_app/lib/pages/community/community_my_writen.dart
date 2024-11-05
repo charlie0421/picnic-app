@@ -62,9 +62,7 @@ class _CommunityMyWritenState extends ConsumerState<CommunityMyWriten>
                   refreshFunction: () => _pagingController.refresh()),
             );
           },
-          noItemsFoundIndicatorBuilder: (context) {
-            return const NoItemContainer();
-          },
+          noItemsFoundIndicatorBuilder: (context) => const NoItemContainer(),
         ));
   }
 }
