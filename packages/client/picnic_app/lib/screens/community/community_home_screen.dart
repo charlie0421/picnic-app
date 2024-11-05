@@ -12,11 +12,11 @@ class CommunityHomeScreen extends ConsumerStatefulWidget {
   const CommunityHomeScreen({super.key});
 
   @override
-  ConsumerState<CommunityHomeScreen> createState() => _CommunityHomeScreenState();
+  ConsumerState<CommunityHomeScreen> createState() =>
+      _CommunityHomeScreenState();
 }
 
 class _CommunityHomeScreenState extends ConsumerState<CommunityHomeScreen> {
-  final double _cumulativeDx = 0;
   bool _isSwipeEnabled = true;
   Timer? _swipeTimer;
 
@@ -50,7 +50,10 @@ class _CommunityHomeScreenState extends ConsumerState<CommunityHomeScreen> {
 
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (didPop, result,) {
+      onPopInvokedWithResult: (
+        didPop,
+        result,
+      ) {
         logger.d('PopScope onPopInvokedWithResult: $didPop, $result');
         _handleRightSwipe();
       },
