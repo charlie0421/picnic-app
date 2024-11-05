@@ -1,7 +1,6 @@
 // lib/components/link_embed.dart
 import 'dart:convert';
 import 'dart:math';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:picnic_app/components/community/write/embed_builder/deletable_embed_builder.dart';

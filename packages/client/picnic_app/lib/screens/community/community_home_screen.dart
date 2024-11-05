@@ -16,7 +16,7 @@ class CommunityHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _CommunityHomeScreenState extends ConsumerState<CommunityHomeScreen> {
-  double _cumulativeDx = 0;
+  final double _cumulativeDx = 0;
   bool _isSwipeEnabled = true;
   Timer? _swipeTimer;
 

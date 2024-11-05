@@ -156,7 +156,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(S.of(context).post_report_reason_input),
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -202,7 +202,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(S.of(context).post_report_success),
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -219,7 +219,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
         SnackBar(
           content: Text(S.of(context).post_report_fail),
           backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -320,12 +320,12 @@ class CustomRadioListTile extends StatelessWidget {
                 groupValue: groupValue,
                 onChanged: onChanged,
                 activeColor: AppColors.primary500,
-                fillColor: MaterialStateProperty.resolveWith<Color>(
-                  (Set<MaterialState> states) {
-                    if (states.contains(MaterialState.selected)) {
+                fillColor: WidgetStateProperty.resolveWith<Color>(
+                  (Set<WidgetState> states) {
+                    if (states.contains(WidgetState.selected)) {
                       return AppColors.primary500;
                     }
-                    if (states.contains(MaterialState.disabled)) {
+                    if (states.contains(WidgetState.disabled)) {
                       return AppColors.grey300;
                     }
                     return AppColors.grey300;
