@@ -74,7 +74,7 @@ class CommonSearchBox extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.only(left: 8.cw, right: 16.cw),
               child: SvgPicture.asset(
-                'assets/icons/cancle_style=fill.svg',
+                'assets/icons/cancel_style=fill.svg',
                 width: 20,
                 height: 20,
                 colorFilter: ColorFilter.mode(
