@@ -45,7 +45,7 @@ class PostWriteAttachments extends StatelessWidget {
               GestureDetector(
                 onTap: () => onAttachmentRemoved(index),
                 child: SvgPicture.asset(
-                  'assets/icons/cancle_style=line.svg',
+                  'assets/icons/cancel_style=line.svg',
                   width: 20,
                   height: 20,
                 ),

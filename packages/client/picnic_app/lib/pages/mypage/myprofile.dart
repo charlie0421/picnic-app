@@ -419,7 +419,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                           },
                           child: _textEditingController.text.isEmpty
                               ? SvgPicture.asset(
-                                  'assets/icons/cancle_style=fill.svg',
+                                  'assets/icons/cancel_style=fill.svg',
                                   colorFilter: const ColorFilter.mode(
                                     AppColors.grey300,
                                     BlendMode.srcIn,
@@ -437,7 +437,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                     });
                                   },
                                   child: SvgPicture.asset(
-                                    'assets/icons/cancle_style=fill.svg',
+                                    'assets/icons/cancel_style=fill.svg',
                                     colorFilter: const ColorFilter.mode(
                                       AppColors.grey700,
                                       BlendMode.srcIn,

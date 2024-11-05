@@ -73,7 +73,7 @@ class _RewardDialogState extends State<RewardDialog> {
               child: GestureDetector(
                 onTap: () => Navigator.of(context).pop(),
                 child: SvgPicture.asset(
-                  'assets/icons/cancle_style=fill.svg',
+                  'assets/icons/cancel_style=fill.svg',
                   width: 48,
                   height: 48,
                   colorFilter: ColorFilter.mode(

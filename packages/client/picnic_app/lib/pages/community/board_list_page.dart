@@ -17,14 +17,14 @@ import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:rxdart/rxdart.dart';
 
-class BoardPage extends ConsumerStatefulWidget {
-  const BoardPage({super.key});
+class BoardListPage extends ConsumerStatefulWidget {
+  const BoardListPage({super.key});
 
   @override
-  ConsumerState<BoardPage> createState() => _BoardPageState();
+  ConsumerState<BoardListPage> createState() => _BoardPageState();
 }
 
-class _BoardPageState extends ConsumerState<BoardPage> {
+class _BoardPageState extends ConsumerState<BoardListPage> {
   final FocusNode focusNode = FocusNode();
   final TextEditingController _textEditingController = TextEditingController();
   final _pagingController =
@@ -34,11 +34,6 @@ class _BoardPageState extends ConsumerState<BoardPage> {
   @override
   void initState() {
     super.initState();
-    focusNode.addListener(() {
-      if (!focusNode.hasFocus) {
-        _textEditingController.clear();
-      }
-    });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
@@ -61,6 +56,7 @@ class _BoardPageState extends ConsumerState<BoardPage> {
   }
 
   void _onSearchQueryChange() {
+    logger.d('Search query changed: ${_textEditingController.text}');
     _searchSubject.add(_textEditingController.text);
   }
 

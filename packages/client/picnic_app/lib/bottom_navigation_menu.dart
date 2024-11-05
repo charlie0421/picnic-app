@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/enums.dart';
-import 'package:picnic_app/pages/community/board_page.dart';
+import 'package:picnic_app/pages/community/board_list_page.dart';
 import 'package:picnic_app/pages/community/community_home_page.dart';
 import 'package:picnic_app/pages/community/community_my_page.dart';
 import 'package:picnic_app/pages/pic/gallery_page.dart';
@@ -110,7 +110,7 @@ List<BottomNavigationItem> communityPages = [
     title: 'nav_board',
     assetPath: 'assets/icons/bottom/board.svg',
     index: 1,
-    pageWidget: BoardPage(),
+    pageWidget: BoardListPage(),
     needLogin: false,
   ),
   const BottomNavigationItem(

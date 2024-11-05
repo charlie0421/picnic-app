@@ -62,7 +62,7 @@ class CommonSearchBox extends StatelessWidget {
               ),
               style: getTextStyle(AppTypo.body16R, AppColors.grey900),
               onSubmitted: onSubmitted,
-              textInputAction: TextInputAction.search,
+              textInputAction: TextInputAction.done,
             ),
           ),
           GestureDetector(

@@ -81,7 +81,7 @@ class LargePopupWidget extends StatelessWidget {
                                     AppTypo.body14B, AppColors.grey00)),
                             SizedBox(width: 4.cw),
                             SvgPicture.asset(
-                              'assets/icons/cancle_style=line.svg',
+                              'assets/icons/cancel_style=line.svg',
                               width: 24.cw,
                               height: 24,
                               colorFilter: const ColorFilter.mode(
