@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:animated_digit/animated_digit.dart';
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animation_progress_bar/flutter_animation_progress_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,12 +43,20 @@ class VoteDetailAchievePage extends ConsumerStatefulWidget {
 class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
   late ScrollController _scrollController;
   Timer? _updateTimer;
+  bool _isDisposed = false;
+  int? _lastAchievedAmount;
+  late ConfettiController _confettiController;
+  List<VoteAchieve>? _achievements;
+  OverlayEntry? _overlayEntry;
+  List<int> _achievedMilestones = [];
 
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
-    _setupUpdateTimer();
+    _confettiController =
+        ConfettiController(duration: const Duration(seconds: 2));
+    _setupTimer();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
@@ -57,50 +67,293 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
     });
   }
 
-  void _setupUpdateTimer() {
-    _updateTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) {
-        ref.refresh(asyncVoteItemListProvider(voteId: widget.voteId));
+  void _setupTimer() {
+    _updateTimer?.cancel();
+    _updateTimer = Timer.periodic(const Duration(seconds: 1), (_) async {
+      if (!_isDisposed && mounted) {
+        logger.d('Refreshing vote item list at ${DateTime.now()}');
+
+        // 데이터 갱신
+        await ref.refresh(asyncVoteItemListProvider(voteId: widget.voteId));
+
+        // 현재 투표 데이터 가져오기
+        final voteItemData =
+            ref.read(asyncVoteItemListProvider(voteId: widget.voteId)).value;
+        if (voteItemData == null || voteItemData.isEmpty) return;
+
+        // achievements 데이터 가져오기 (캐시된 데이터가 없는 경우에만)
+        _achievements ??= await fetchVoteAchieve(ref, voteId: widget.voteId);
+        if (_achievements == null || _achievements!.isEmpty) return;
+
+        // 마일스톤 체크
+        final currentVotes = voteItemData[0]!.voteTotal!;
+        _checkMilestoneAchievement(currentVotes, _achievements!);
       }
     });
   }
 
-  List<int> _generateMilestonesFromAchievements(
-      List<VoteAchieve> achievements) {
-    List<int> milestones = [0]; // Always start with 0
-    milestones.addAll(achievements.map((achieve) => achieve.amount));
-    return milestones;
-  }
+  void _checkMilestoneAchievement(
+      int currentVotes, List<VoteAchieve> achievements) {
+    // 투표 수에 따라 오름차순 정렬
+    final sortedAchievements = List<VoteAchieve>.from(achievements)
+      ..sort((a, b) => a.amount.compareTo(b.amount));
 
-  List<int> _generateLevels(List<int> mainMilestones) {
-    List<int> allLevels = [];
-    allLevels.add(0);
+    // 현재 달성한 모든 마일스톤 찾기
+    List<VoteAchieve> newlyAchieved = [];
+    List<VoteAchieve> allAchieved = [];
 
-    for (int i = 1; i < mainMilestones.length; i++) {
-      final start = mainMilestones[i - 1];
-      final end = mainMilestones[i];
-      final stepSize = (end - start) ~/ 5;
-
-      if (start != 0) {
-        for (int j = 1; j <= 4; j++) {
-          allLevels.add(start + (stepSize * j));
-        }
-      } else {
-        for (int j = 1; j <= 4; j++) {
-          allLevels.add(stepSize * j);
+    for (var achievement in sortedAchievements) {
+      if (currentVotes >= achievement.amount) {
+        allAchieved.add(achievement);
+        if (!_achievedMilestones.contains(achievement.amount)) {
+          newlyAchieved.add(achievement);
+          _achievedMilestones.add(achievement.amount);
         }
       }
-      allLevels.add(end);
     }
 
-    return allLevels;
+    // 새로 달성한 마일스톤이 있을 때만 애니메이션 표시
+    if (newlyAchieved.isNotEmpty) {
+      // 항상 모든 달성한 마일스톤을 표시
+      _showMilestoneAnimation(allAchieved);
+    }
   }
 
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    _updateTimer?.cancel();
-    super.dispose();
+  // _showMilestoneAnimation 메서드는 이전과 동일
+  void _showMilestoneAnimation(List<VoteAchieve> achievements) {
+    if (!mounted || _isDisposed) return;
+
+    _confettiController.play();
+
+    OverlayState? overlayState = Overlay.of(context);
+    if (overlayState == null) return;
+
+    _overlayEntry?.remove();
+
+    Timer? autoCloseTimer;
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) => Material(
+        color: Colors.black.withOpacity(0.7),
+        child: Stack(
+          children: [
+            // Confetti effects
+            Positioned.fill(
+              child: ConfettiWidget(
+                confettiController: _confettiController,
+                blastDirection: pi / 2,
+                maxBlastForce: 8,
+                minBlastForce: 4,
+                emissionFrequency: 0.08,
+                numberOfParticles: 80,
+                gravity: 0.15,
+                shouldLoop: false,
+                colors: const [
+                  Colors.amber,
+                  Colors.amberAccent,
+                  Colors.yellow,
+                  Colors.green,
+                  Colors.blue,
+                  Colors.pink,
+                  Colors.orange,
+                  Colors.purple,
+                  Colors.red,
+                ],
+                createParticlePath: (size) {
+                  final path = Path();
+                  if (Random().nextBool()) {
+                    path.addOval(
+                        Rect.fromCircle(center: Offset.zero, radius: 6.0));
+                  } else {
+                    final star = Path();
+                    for (var i = 0; i < 5; i++) {
+                      final angle = -pi / 2 + (i * 4 * pi / 5);
+                      final point = Offset(cos(angle) * 6, sin(angle) * 6);
+                      if (i == 0) {
+                        star.moveTo(point.dx, point.dy);
+                      } else {
+                        star.lineTo(point.dx, point.dy);
+                      }
+                    }
+                    path.addPath(star, Offset.zero);
+                  }
+                  return path;
+                },
+              ),
+            ),
+            // Achievement popup
+            Center(
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.0, end: 1.0),
+                duration: const Duration(milliseconds: 700),
+                curve: Curves.elasticOut,
+                onEnd: () {
+                  autoCloseTimer = Timer(const Duration(seconds: 3), () {
+                    if (_overlayEntry?.mounted ?? false) {
+                      _overlayEntry?.remove();
+                      _overlayEntry = null;
+                    }
+                  });
+                },
+                builder: (context, value, child) {
+                  return Transform.scale(
+                    scale: value,
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        gradient: commonGradient,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary500.withOpacity(0.4),
+                            blurRadius: 15,
+                            spreadRadius: 3,
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              '🎉 지금까지 ${achievements.length}개 목표 달성! 🎉',
+                              style: getTextStyle(
+                                  AppTypo.title18B, AppColors.grey00),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          // 달성한 마일스톤들을 지그재그 형태로 표시
+                          Wrap(
+                            spacing: 16,
+                            runSpacing: 16,
+                            alignment: WrapAlignment.center,
+                            children: achievements.asMap().entries.map((entry) {
+                              final index = entry.key;
+                              final achievement = entry.value;
+                              final isNewlyAchieved = !_achievedMilestones
+                                  .contains(achievement.amount);
+                              final isEven = index.isEven;
+
+                              return TweenAnimationBuilder<double>(
+                                tween: Tween(begin: 0.0, end: 1.0),
+                                duration: const Duration(milliseconds: 500),
+                                curve: Curves.easeOutBack,
+                                builder: (context, scale, child) {
+                                  return Transform.scale(
+                                    scale: scale,
+                                    child: Container(
+                                      width: 150,
+                                      margin: EdgeInsets.only(
+                                        top: isEven ? 0 : 20,
+                                        bottom: isEven ? 20 : 0,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(
+                                          color: isNewlyAchieved
+                                              ? AppColors.primary500
+                                              : AppColors.grey00
+                                                  .withOpacity(0.3),
+                                          width: isNewlyAchieved ? 2 : 1,
+                                        ),
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          if (achievement.reward.thumbnail !=
+                                              null)
+                                            Container(
+                                              width: 80,
+                                              height: 80,
+                                              margin: const EdgeInsets.only(
+                                                top: 16,
+                                                bottom: 12,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  color: AppColors.grey00,
+                                                  width: 2,
+                                                ),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: AppColors.grey00
+                                                        .withOpacity(0.2),
+                                                    blurRadius: 4,
+                                                    spreadRadius: 1,
+                                                  ),
+                                                ],
+                                              ),
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(40),
+                                                child: PicnicCachedNetworkImage(
+                                                  imageUrl: achievement
+                                                      .reward.thumbnail!,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                            ),
+                                          Text(
+                                            formatNumberWithComma(
+                                                achievement.amount.toString()),
+                                            style: getTextStyle(
+                                              AppTypo.body16B,
+                                              AppColors.grey00,
+                                            ),
+                                          ),
+                                          if (achievement.reward.title != null)
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                horizontal: 12,
+                                                vertical: 8,
+                                              ),
+                                              child: Text(
+                                                getLocaleTextFromJson(
+                                                    achievement.reward.title!),
+                                                style: getTextStyle(
+                                                  AppTypo.caption12R,
+                                                  AppColors.grey00,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    autoCloseTimer?.cancel();
+    overlayState.insert(_overlayEntry!);
   }
 
   @override
@@ -110,11 +363,10 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
           if (data.isEmpty) return const SizedBox.shrink();
           return Column(
             children: [
-              _buildVoteInfo(), // 고정될 상단 부분
+              _buildVoteInfo(),
               _buildAchieveItem(data[0]!),
               Expanded(
                 child: SingleChildScrollView(
-                  // 스크롤될 하단 부분
                   controller: _scrollController,
                   child: Column(
                     children: [_buildLevelItem(data[0]!)],
@@ -192,13 +444,22 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
             FutureBuilder<List<VoteAchieve>?>(
                 future: fetchVoteAchieve(ref, voteId: widget.voteId),
                 builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return Container();
                   }
 
                   final achievements = snapshot.data!;
+                  _achievements = achievements; // 캐시를 위해 저장
+
                   final mainMilestones =
                       _generateMilestonesFromAchievements(achievements);
+
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted && !_isDisposed) {
+                      _checkMilestoneAchievement(data.voteTotal!, achievements);
+                    }
+                  });
+
                   final levels = _generateLevels(mainMilestones);
                   var rewardIndex = 0;
 
@@ -329,10 +590,6 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
         ),
       ),
     );
-  }
-
-  int _calculateTotalSteps(List<int> mainMilestones) {
-    return _generateLevels(mainMilestones).length;
   }
 
   Widget _buildVoteItem(BuildContext context, VoteItemModel item, int index) {
@@ -515,6 +772,125 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
     }
   }
 
+  Widget _buildRewardInfo(achievements, int rewardIndex, bool isAchieved) {
+    return GestureDetector(
+      onTap: () {
+        showRewardDialog(context, achievements[rewardIndex].reward);
+      },
+      child: SizedBox(
+        height: 50,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            SizedBox(
+              width: 120,
+              height: 50,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '리워드${rewardIndex + 1}',
+                    style: getTextStyle(AppTypo.caption12B,
+                        isAchieved ? AppColors.primary500 : AppColors.grey400),
+                  ),
+                  Text(
+                    getLocaleTextFromJson(
+                        achievements[rewardIndex].reward.title!),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: getTextStyle(
+                            AppTypo.caption12B,
+                            isAchieved
+                                ? AppColors.primary500
+                                : AppColors.grey400)
+                        .copyWith(
+                            decoration: TextDecoration.underline,
+                            decorationColor: isAchieved
+                                ? AppColors.primary500
+                                : AppColors.grey400),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: 10.w),
+            Stack(
+              children: [
+                Container(
+                  alignment: Alignment.centerRight,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(25),
+                    border: Border.all(
+                      color:
+                          isAchieved ? AppColors.primary500 : AppColors.grey400,
+                      width: 1.5,
+                    ),
+                  ),
+                  width: 50,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(25),
+                    child: PicnicCachedNetworkImage(
+                      imageUrl: achievements[rewardIndex].reward.thumbnail!,
+                      width: 50,
+                      height: 50,
+                      memCacheWidth: 50,
+                      memCacheHeight: 50,
+                    ),
+                  ),
+                ),
+                Container(
+                  alignment: Alignment.center,
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(25),
+                    color:
+                        isAchieved ? null : AppColors.grey400.withOpacity(0.5),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<int> _generateMilestonesFromAchievements(
+      List<VoteAchieve> achievements) {
+    List<int> milestones = [0];
+    milestones.addAll(achievements.map((achieve) => achieve.amount));
+    return milestones;
+  }
+
+  List<int> _generateLevels(List<int> mainMilestones) {
+    List<int> allLevels = [];
+    allLevels.add(0);
+
+    for (int i = 1; i < mainMilestones.length; i++) {
+      final start = mainMilestones[i - 1];
+      final end = mainMilestones[i];
+      final stepSize = (end - start) ~/ 5;
+
+      if (start != 0) {
+        for (int j = 1; j <= 4; j++) {
+          allLevels.add(start + (stepSize * j));
+        }
+      } else {
+        for (int j = 1; j <= 4; j++) {
+          allLevels.add(stepSize * j);
+        }
+      }
+      allLevels.add(end);
+    }
+
+    return allLevels;
+  }
+
+  int _calculateTotalSteps(List<int> mainMilestones) {
+    return _generateLevels(mainMilestones).length;
+  }
+
   Widget _buildLoadingShimmer() {
     return Shimmer.fromColors(
       baseColor: Colors.grey[300]!,
@@ -592,86 +968,13 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
     );
   }
 
-  _buildRewardInfo(data, int rewardIndex, bool isAchieved) {
-    return GestureDetector(
-      onTap: () {
-        showRewardDialog(context, data![rewardIndex].reward);
-      },
-      child: SizedBox(
-        height: 50,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            SizedBox(
-              width: 120,
-              height: 50,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    '리워드${rewardIndex + 1}',
-                    style: getTextStyle(AppTypo.caption12B,
-                        isAchieved ? AppColors.primary500 : AppColors.grey400),
-                  ),
-                  Text(
-                    getLocaleTextFromJson(data![rewardIndex].reward.title!),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: getTextStyle(
-                            AppTypo.caption12B,
-                            isAchieved
-                                ? AppColors.primary500
-                                : AppColors.grey400)
-                        .copyWith(
-                            decoration: TextDecoration.underline,
-                            decorationColor: isAchieved
-                                ? AppColors.primary500
-                                : AppColors.grey400),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(width: 10.w),
-            Stack(
-              children: [
-                Container(
-                  alignment: Alignment.centerRight,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(25),
-                    border: Border.all(
-                      color:
-                          isAchieved ? AppColors.primary500 : AppColors.grey400,
-                      width: 1.5,
-                    ),
-                  ),
-                  width: 50,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(25),
-                    child: PicnicCachedNetworkImage(
-                      imageUrl: data![rewardIndex].reward.thumbnail!,
-                      width: 50,
-                      height: 50,
-                      memCacheWidth: 50,
-                      memCacheHeight: 50,
-                    ),
-                  ),
-                ),
-                Container(
-                  alignment: Alignment.center,
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(25),
-                    color:
-                        isAchieved ? null : AppColors.grey400.withOpacity(0.5),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+  @override
+  void dispose() {
+    _overlayEntry?.remove();
+    _isDisposed = true;
+    _updateTimer?.cancel();
+    _scrollController.dispose();
+    _confettiController.dispose();
+    super.dispose();
   }
 }
