@@ -23,6 +23,7 @@ import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/number.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
@@ -57,7 +58,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
   }
 
   void _setupUpdateTimer() {
-    _updateTimer = Timer.periodic(const Duration(minutes: 1), (_) {
+    _updateTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) {
         ref.refresh(asyncVoteItemListProvider(voteId: widget.voteId));
       }
