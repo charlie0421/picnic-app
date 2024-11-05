@@ -114,11 +114,8 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
                   itemBuilder: (context, List<BoardModel> artistBoards, index) {
                     return _buildArtistBoardGroup(artistBoards);
                   },
-                  noItemsFoundIndicatorBuilder: (context) {
-                    return NoItemContainer(
-                      message: S.of(context).common_text_no_search_result,
-                    );
-                  },
+                  noItemsFoundIndicatorBuilder: (context) => NoItemContainer(
+                      message: S.of(context).common_text_no_search_result),
                 ),
               ),
             ),
