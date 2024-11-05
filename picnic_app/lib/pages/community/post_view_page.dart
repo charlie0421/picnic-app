@@ -55,6 +55,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
   @override
   void initState() {
     super.initState();
+
     _postFuture = _loadPost();
     if (_shouldShowAds) _loadAds();
   }
@@ -95,14 +96,11 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
     final currentBoard = ref.read(communityStateInfoProvider).currentBoard;
     ref.read(communityStateInfoProvider.notifier).setCurrentPost(post);
     ref.read(navigationInfoProvider.notifier).settingNavigation(
-          showPortal: true,
-          showTopMenu: true,
-          topRightMenu: TopRightType.postView,
-          showBottomNavigation: false,
-          pageTitle: (currentBoard!.isOfficial ?? false)
-              ? getLocaleTextFromJson(currentBoard.name)
-              : post.title,
-        );
+        showPortal: true,
+        showTopMenu: true,
+        topRightMenu: TopRightType.postView,
+        showBottomNavigation: false,
+        pageTitle: getLocaleTextFromJson(currentBoard!.name));
   }
 
   Future<void> _loadAds() async {
