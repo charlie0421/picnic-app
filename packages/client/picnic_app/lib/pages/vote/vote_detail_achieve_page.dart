@@ -79,17 +79,20 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
     return ref.watch(asyncVoteItemListProvider(voteId: widget.voteId)).when(
         data: (data) {
           if (data.isEmpty) return const SizedBox.shrink();
-          return GestureDetector(
-            child: CustomScrollView(
-              controller: _scrollController,
-              slivers: [
-                SliverToBoxAdapter(
-                  child: _buildVoteInfo(),
+          return Column(
+            children: [
+              _buildVoteInfo(), // 고정될 상단 부분
+              _buildAchieveItem(data[0]!),
+              Expanded(
+                child: SingleChildScrollView(
+                  // 스크롤될 하단 부분
+                  controller: _scrollController,
+                  child: Column(
+                    children: [_buildLevelItem(data[0]!)],
+                  ),
                 ),
-                SliverToBoxAdapter(child: _buildAchieveItem(data[0]!)),
-                SliverToBoxAdapter(child: _buildLevelItem(data[0]!))
-              ],
-            ),
+              ),
+            ],
           );
         },
         loading: () => _buildLoadingShimmer(),
