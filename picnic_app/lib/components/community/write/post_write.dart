@@ -247,7 +247,7 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
                   ],
                 ),
               ),
-            const PostWriteBottomBar(),
+            // const PostWriteBottomBar(),
           ],
         ),
       ),
