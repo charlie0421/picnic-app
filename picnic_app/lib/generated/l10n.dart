@@ -1130,10 +1130,10 @@ class S {
     );
   }
 
-  /// `Reply`
+  /// `Replying to a reply`
   String get label_reply {
     return Intl.message(
-      'Reply',
+      'Replying to a reply',
       name: 'label_reply',
       desc: '',
       args: [],
@@ -1750,10 +1750,10 @@ class S {
     );
   }
 
-  /// `Boards`
+  /// `Bulletin boards`
   String get nav_board {
     return Intl.message(
-      'Boards',
+      'Bulletin boards',
       name: 'nav_board',
       desc: '',
       args: [],
@@ -1770,10 +1770,10 @@ class S {
     );
   }
 
-  /// `Home`
+  /// `홈`
   String get nav_home {
     return Intl.message(
-      'Home',
+      '홈',
       name: 'nav_home',
       desc: '',
       args: [],
@@ -3060,11 +3060,31 @@ class S {
     );
   }
 
-  /// `View original`
+  /// `View full text`
   String get post_comment_action_show_original {
     return Intl.message(
-      'View original',
+      'View full text',
       name: 'post_comment_action_show_original',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `🚫 Caution 🚫`
+  String get dialog_caution {
+    return Intl.message(
+      '🚫 Caution 🚫',
+      name: 'dialog_caution',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Contains inappropriate content`
+  String get post_flagged {
+    return Intl.message(
+      'Contains inappropriate content',
+      name: 'post_flagged',
       desc: '',
       args: [],
     );

@@ -3,11 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:intl/intl.dart';
+import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/providers/comment_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/logger.dart';
+import 'package:picnic_app/util/openai.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class CommentInput extends ConsumerStatefulWidget {
@@ -163,8 +167,23 @@ class _CommentInputState extends ConsumerState<CommentInput> {
     });
 
     try {
-      final parentItemState = ref.read(parentItemProvider);
+      OverlayLoadingProgress.start(context);
 
+      final checkResult = await checkContent(_textEditingController.text);
+      final isFlagged = checkResult['flagged'] as bool? ?? false;
+      final categories =
+          checkResult['categories'] as Map<String, dynamic>? ?? {};
+
+      if (isFlagged) {
+        OverlayLoadingProgress.stop();
+        showSimpleDialog(
+          title: Intl.message('dialog_caution'),
+          content: Intl.message('post_flagged'),
+        );
+        return;
+      }
+
+      final parentItemState = ref.read(parentItemProvider);
       widget.onPostComment?.call(
         widget.id,
         parentItemState?.parentCommentId ?? parentItemState?.commentId,
@@ -202,6 +221,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
 
       logger.e('Error: $e', stackTrace: s);
     } finally {
+      OverlayLoadingProgress.stop();
       if (mounted) {
         setState(() {
           _isLoading = false;

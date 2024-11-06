@@ -75,6 +75,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("検索結果"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("キャンセル"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("確認"),
+        "dialog_caution": MessageLookupByLibrary.simpleMessage("🚫 警告 🚫"),
         "dialog_content_ads_exhausted":
             MessageLookupByLibrary.simpleMessage("広告がなくなりました。次回、もう一度お試しください。"),
         "dialog_content_ads_loading":
@@ -195,8 +196,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("アイデンティティ"),
         "label_mypage_privacy_policy":
             MessageLookupByLibrary.simpleMessage("個人情報保護方針"),
-        "label_mypage_setting":
-            MessageLookupByLibrary.simpleMessage("Settings"),
+        "label_mypage_setting": MessageLookupByLibrary.simpleMessage("設定"),
         "label_mypage_should_login":
             MessageLookupByLibrary.simpleMessage("ログインしてください"),
         "label_mypage_terms_of_use":
@@ -393,6 +393,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("スクラップを削除しますか？"),
         "post_delete_scrap_title":
             MessageLookupByLibrary.simpleMessage("スクラップ削除"),
+        "post_flagged": MessageLookupByLibrary.simpleMessage("不適切な内容が含まれています"),
         "post_go_to_boards": MessageLookupByLibrary.simpleMessage("掲示板に移動"),
         "post_header_publish": MessageLookupByLibrary.simpleMessage("投稿"),
         "post_header_temporary_save":

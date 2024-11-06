@@ -25,7 +25,6 @@ class PostListItem extends ConsumerStatefulWidget {
 class _PostListItemState extends ConsumerState<PostListItem> {
   @override
   Widget build(BuildContext context) {
-    logger.i('widget.post: ${widget.post.toJson()}');
     return GestureDetector(
       onTap: () {
         ref

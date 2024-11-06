@@ -78,6 +78,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Search results"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
+        "dialog_caution": MessageLookupByLibrary.simpleMessage("🚫 Caution 🚫"),
         "dialog_content_ads_exhausted": MessageLookupByLibrary.simpleMessage(
             "All ads have been exhausted. Please try again next time."),
         "dialog_content_ads_loading":
@@ -230,7 +231,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Compositing an image..."),
         "label_read_more_comment":
             MessageLookupByLibrary.simpleMessage("More comments"),
-        "label_reply": MessageLookupByLibrary.simpleMessage("Reply"),
+        "label_reply":
+            MessageLookupByLibrary.simpleMessage("Replying to a reply"),
         "label_retry": MessageLookupByLibrary.simpleMessage("Retrying"),
         "label_screen_title_agreement":
             MessageLookupByLibrary.simpleMessage("Accept the terms"),
@@ -341,9 +343,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "mypage_subscription":
             MessageLookupByLibrary.simpleMessage("Subscription information"),
         "nav_ads": MessageLookupByLibrary.simpleMessage("Ads"),
-        "nav_board": MessageLookupByLibrary.simpleMessage("Boards"),
+        "nav_board": MessageLookupByLibrary.simpleMessage("Bulletin boards"),
         "nav_gallery": MessageLookupByLibrary.simpleMessage("Gallery"),
-        "nav_home": MessageLookupByLibrary.simpleMessage("Home"),
+        "nav_home": MessageLookupByLibrary.simpleMessage("홈"),
         "nav_library": MessageLookupByLibrary.simpleMessage("Libraries"),
         "nav_media": MessageLookupByLibrary.simpleMessage("Media"),
         "nav_my": MessageLookupByLibrary.simpleMessage("My"),
@@ -394,7 +396,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "post_cannot_open_youtube":
             MessageLookupByLibrary.simpleMessage("I can\'t open Youtube."),
         "post_comment_action_show_original":
-            MessageLookupByLibrary.simpleMessage("View original"),
+            MessageLookupByLibrary.simpleMessage("View full text"),
         "post_comment_action_show_translation":
             MessageLookupByLibrary.simpleMessage("View translations"),
         "post_comment_action_translate":
@@ -431,6 +433,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "Do you want to delete the scrap?"),
         "post_delete_scrap_title":
             MessageLookupByLibrary.simpleMessage("Delete a scrap"),
+        "post_flagged": MessageLookupByLibrary.simpleMessage(
+            "Contains inappropriate content"),
         "post_go_to_boards":
             MessageLookupByLibrary.simpleMessage("Go to the board"),
         "post_header_publish":
