@@ -454,9 +454,9 @@
         "translationTimestamp": "2024-07-21T11:18:53.669108",
         "manualTranslation": false
     },
-    "label_mypage_setting": "Settings",
+    "label_mypage_setting": "设置",
     "@label_mypage_setting": {
-        "manualTranslation": true
+        "manualTranslation": false
     },
     "label_mypage_should_login": "请登录",
     "@label_mypage_should_login": {
@@ -1390,6 +1390,14 @@
     },
     "post_comment_action_show_original": "查看原文",
     "@post_comment_action_show_original": {
+        "manualTranslation": false
+    },
+    "dialog_caution": "\uD83D\uDEAB 警告 🚫",
+    "@dialog_caution": {
+        "manualTranslation": true
+    },
+    "post_flagged": "包含不当内容",
+    "@post_flagged": {
         "manualTranslation": false
     }
 }

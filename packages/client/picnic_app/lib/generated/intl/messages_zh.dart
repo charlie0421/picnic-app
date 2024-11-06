@@ -74,6 +74,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("搜索结果"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("取消"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("确认"),
+        "dialog_caution": MessageLookupByLibrary.simpleMessage("🚫 警告 🚫"),
         "dialog_content_ads_exhausted":
             MessageLookupByLibrary.simpleMessage("所有广告已用尽。请稍后再试。"),
         "dialog_content_ads_loading":
@@ -181,8 +182,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_mypage_picnic_id": MessageLookupByLibrary.simpleMessage("同上。"),
         "label_mypage_privacy_policy":
             MessageLookupByLibrary.simpleMessage("隐私政策"),
-        "label_mypage_setting":
-            MessageLookupByLibrary.simpleMessage("Settings"),
+        "label_mypage_setting": MessageLookupByLibrary.simpleMessage("设置"),
         "label_mypage_should_login":
             MessageLookupByLibrary.simpleMessage("请登录"),
         "label_mypage_terms_of_use":
@@ -368,6 +368,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "post_delete_scrap_confirm":
             MessageLookupByLibrary.simpleMessage("您想删除废料吗？"),
         "post_delete_scrap_title": MessageLookupByLibrary.simpleMessage("删除废料"),
+        "post_flagged": MessageLookupByLibrary.simpleMessage("包含不当内容"),
         "post_go_to_boards": MessageLookupByLibrary.simpleMessage("前往留言板"),
         "post_header_publish": MessageLookupByLibrary.simpleMessage("出版"),
         "post_header_temporary_save":

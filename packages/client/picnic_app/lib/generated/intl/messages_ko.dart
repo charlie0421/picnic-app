@@ -76,6 +76,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("검색 결과"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("취소"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("확인"),
+        "dialog_caution": MessageLookupByLibrary.simpleMessage("🚫 경고 🚫"),
         "dialog_content_ads_exhausted": MessageLookupByLibrary.simpleMessage(
             "광고가 모두 소진되었습니다. 다음에 다시 시도해주세요."),
         "dialog_content_ads_loading":
@@ -394,6 +395,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("스크랩을 삭제하시겠습니까?"),
         "post_delete_scrap_title":
             MessageLookupByLibrary.simpleMessage("스크랩 삭제"),
+        "post_flagged":
+            MessageLookupByLibrary.simpleMessage("부적절한 내용이 포함되어 있습니다"),
         "post_go_to_boards": MessageLookupByLibrary.simpleMessage("게시판으로 이동"),
         "post_header_publish": MessageLookupByLibrary.simpleMessage("게시"),
         "post_header_temporary_save":

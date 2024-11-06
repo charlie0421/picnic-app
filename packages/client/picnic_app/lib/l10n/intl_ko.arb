@@ -516,6 +516,11 @@
     "@label_vote_reward_list": {
         "translationTimestamp": "2024-07-21T11:18:53.669108"
     },
+    "post_flagged": "부적절한 내용이 포함되어 있습니다",
+    "@post_flagged": {},
+    "dialog_caution": "\uD83D\uDEAB 경고 \uD83D\uDEAB",
+    "@dialog_caution": {
+    },
     "label_vote_screen_title": "투표",
     "@label_vote_screen_title": {
         "translationTimestamp": "2024-07-21T11:18:53.669108"

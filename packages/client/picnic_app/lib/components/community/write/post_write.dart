@@ -4,6 +4,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/community/write/post_write_body.dart';
 import 'package:picnic_app/components/community/write/post_write_bottom_bar.dart';
 import 'package:picnic_app/components/community/write/post_write_header.dart';
@@ -16,6 +18,7 @@ import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/logger.dart';
+import 'package:picnic_app/util/openai.dart';
 
 class PostWrite extends ConsumerStatefulWidget {
   const PostWrite({
@@ -81,6 +84,29 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
   }
 
   Future<void> _savePost({bool isTemporary = false}) async {
+    OverlayLoadingProgress.start(context);
+    logger.i('_titleController.text: ${_titleController.text}');
+    logger.i(
+        '_titleController.text: ${_contentController.document.toPlainText()}');
+
+    final title = _titleController.text;
+    final content = _contentController.document.toPlainText();
+
+    final checkResult = await checkContent('$title\n$content');
+
+    // null safety 처리 추가
+    final isFlagged = checkResult['flagged'] as bool? ?? false;
+    final categories = checkResult['categories'] as Map<String, dynamic>? ?? {};
+
+    if (isFlagged) {
+      OverlayLoadingProgress.stop();
+      showSimpleDialog(
+        title: Intl.message('dialog_caution'),
+        content: Intl.message('post_flagged'),
+      );
+      return;
+    }
+
     final postAnonymousMode = ref
         .watch(appSettingProvider.select((value) => value.postAnonymousMode));
 
@@ -103,8 +129,6 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
         'is_temporary': isTemporary,
       };
 
-      logger.d('Post data: $postData');
-
       final postResponse =
           await supabase.from('posts').insert(postData).select();
       postId = postResponse[0]['post_id'];
@@ -122,8 +146,6 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
           'file_size': file.size,
         });
       }
-
-      logger.d('Attachment data: $attachmentData');
 
       // Insert all attachments
       await supabase.from('post_attachments').insert(attachmentData);
@@ -161,6 +183,8 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
       );
       rethrow;
     } finally {
+      OverlayLoadingProgress.stop();
+
       setState(() {
         _isSaving = false;
       });

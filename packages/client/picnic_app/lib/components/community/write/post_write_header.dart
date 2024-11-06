@@ -37,7 +37,6 @@ class _PostWriteHeaderState extends ConsumerState<PostWriteHeader> {
 
   @override
   Widget build(BuildContext context) {
-    logger.d('PostWriteHeader build');
     return Container(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
       child: Row(

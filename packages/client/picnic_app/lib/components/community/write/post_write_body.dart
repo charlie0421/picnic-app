@@ -86,7 +86,6 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
   @override
   Widget build(BuildContext context) {
     final currentBoard = ref.watch(communityStateInfoProvider).currentBoard;
-    logger.d('Current board: $currentBoard');
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.cw),
       child: GestureDetector(
