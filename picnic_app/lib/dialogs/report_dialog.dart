@@ -36,6 +36,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
   String? _errorText;
   bool _isSubmitting = false;
   final int _maxLength = 100;
+  bool _blockUser = false; // 사용자 차단 여부 상태 추가
 
   late List<String> _reasons;
 
@@ -151,6 +152,44 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
     );
   }
 
+  Widget _buildBlockUserCheckbox() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 24,
+            height: 24,
+            child: Checkbox(
+              value: _blockUser,
+              onChanged: _isSubmitting
+                  ? null
+                  : (bool? value) {
+                      setState(() {
+                        _blockUser = value ?? false;
+                      });
+                    },
+              activeColor: AppColors.primary500,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              S.of(context).block_user_label, // "해당 사용자 차단하기" 등의 번역 텍스트
+              style: getTextStyle(
+                AppTypo.caption12R,
+                _blockUser ? AppColors.grey900 : AppColors.grey600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _submitReport() async {
     if (_selectedReason == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -187,6 +226,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
           widget.target as CommentModel,
           reason,
           additionalText,
+          blockUser: _blockUser, // 차단 여부 전달
         );
       } else {
         await reportPost(
@@ -194,6 +234,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
           widget.target as PostModel,
           reason,
           additionalText,
+          blockUser: _blockUser, // 차단 여부 전달
         );
       }
 
@@ -255,6 +296,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
             const SizedBox(height: 12),
             _buildReasonOptions(),
             _buildOtherReasonField(),
+            _buildBlockUserCheckbox(), // 체크박스 추가
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _isSubmitting ? null : _submitReport,

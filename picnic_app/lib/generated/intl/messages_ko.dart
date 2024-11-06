@@ -43,6 +43,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "anonymous": MessageLookupByLibrary.simpleMessage("익명"),
         "anonymous_mode": MessageLookupByLibrary.simpleMessage("익명모드"),
         "app_name": MessageLookupByLibrary.simpleMessage("피크닠"),
+        "block_user_label": MessageLookupByLibrary.simpleMessage("사용자 차단"),
         "button_cancel": MessageLookupByLibrary.simpleMessage("취소"),
         "button_complete": MessageLookupByLibrary.simpleMessage("완료"),
         "button_login": MessageLookupByLibrary.simpleMessage("로그인"),

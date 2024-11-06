@@ -3089,6 +3089,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Blocking users`
+  String get block_user_label {
+    return Intl.message(
+      'Blocking users',
+      name: 'block_user_label',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

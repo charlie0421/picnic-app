@@ -42,6 +42,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "anonymous": MessageLookupByLibrary.simpleMessage("匿名"),
         "anonymous_mode": MessageLookupByLibrary.simpleMessage("匿名模式"),
         "app_name": MessageLookupByLibrary.simpleMessage("野餐"),
+        "block_user_label": MessageLookupByLibrary.simpleMessage("阻止用户"),
         "button_cancel": MessageLookupByLibrary.simpleMessage("取消"),
         "button_complete": MessageLookupByLibrary.simpleMessage("完成"),
         "button_login": MessageLookupByLibrary.simpleMessage("登录"),

@@ -15,14 +15,22 @@ class CommentsNotifier extends _$CommentsNotifier {
     int limit, {
     bool includeDeleted = true,
     bool includeReported = true,
-  }) {
-    return _fetchComments(
+  }) async {
+    // 차단된 사용자 목록 조회
+    final blockedUserIds = await getBlockedUserIds();
+
+    // 댓글 조회 시 차단된 사용자의 댓글 제외
+    final comments = await _fetchComments(
       postId,
       page,
       limit,
       includeDeleted: includeDeleted,
       includeReported: includeReported,
     );
+
+    return comments.where((comment) {
+      return !blockedUserIds.contains(comment.userId);
+    }).toList();
   }
 
   Future<List<CommentModel>> _fetchComments(
@@ -217,16 +225,30 @@ class CommentsNotifier extends _$CommentsNotifier {
   Future<void> reportComment(
     CommentModel comment,
     String reason,
-    String text,
-  ) async {
+    String text, {
+    bool blockUser = false,
+  }) async {
     try {
+      final userId = supabase.auth.currentUser!.id;
+      final fullReason = reason + (text.isNotEmpty ? ' - $text' : '');
+
+      // 1. 댓글 신고
       await supabase.from('comment_reports').upsert({
         'comment_id': comment.commentId,
-        'user_id': supabase.auth.currentUser!.id,
-        'reason': reason + (text.isNotEmpty ? ' - $text' : ''),
+        'user_id': userId,
+        'reason': fullReason,
       });
 
-      // Update local state to reflect the report
+      // 2. 사용자 차단 (옵션)
+      if (blockUser) {
+        await supabase.from('user_blocks').upsert({
+          'user_id': userId,
+          'blocked_user_id': comment.userId,
+          'created_at': DateTime.now().toIso8601String(),
+        });
+      }
+
+      // 로컬 상태 업데이트
       if (state.value != null) {
         final updatedComments = state.value!.map((c) {
           if (c.commentId == comment.commentId) {
@@ -234,10 +256,60 @@ class CommentsNotifier extends _$CommentsNotifier {
           }
           return c;
         }).toList();
-        state = AsyncValue.data(updatedComments);
+
+        // 사용자 차단 시 해당 사용자의 모든 댓글을 숨김 처리
+        if (blockUser) {
+          final filteredComments = updatedComments.where((c) {
+            return c.userId != comment.userId;
+          }).toList();
+          state = AsyncValue.data(filteredComments);
+        } else {
+          state = AsyncValue.data(updatedComments);
+        }
       }
     } catch (e, s) {
       logger.e('Error reporting comment:', error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+// 차단된 사용자 목록을 조회하는 메서드 추가
+  Future<List<String>> getBlockedUserIds() async {
+    try {
+      final response = await supabase
+          .from('user_blocks')
+          .select('blocked_user_id')
+          .eq('user_id', supabase.auth.currentUser!.id)
+          .isFilter('deleted_at', null);
+
+      return response
+          .map<String>((row) => row['blocked_user_id'] as String)
+          .toList();
+    } catch (e, s) {
+      logger.e('Error fetching blocked users:', error: e, stackTrace: s);
+      return [];
+    }
+  }
+
+// 차단 해제하는 메서드 추가
+  Future<void> unblockUser(String blockedUserId) async {
+    try {
+      await supabase
+          .from('user_blocks')
+          .update({'deleted_at': DateTime.now().toIso8601String()})
+          .eq('user_id', supabase.auth.currentUser!.id)
+          .eq('blocked_user_id', blockedUserId);
+
+      // 차단 해제 후 댓글 목록 새로고침
+      if (state.value != null) {
+        state = await AsyncValue.guard(() => _fetchComments(
+              state.value!.first.post!.postId,
+              state.value!.length ~/ 10 + 1,
+              10,
+            ));
+      }
+    } catch (e, s) {
+      logger.e('Error unblocking user:', error: e, stackTrace: s);
       rethrow;
     }
   }
