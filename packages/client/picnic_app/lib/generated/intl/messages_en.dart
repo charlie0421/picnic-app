@@ -45,6 +45,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "anonymous_mode":
             MessageLookupByLibrary.simpleMessage("Anonymous Mode"),
         "app_name": MessageLookupByLibrary.simpleMessage("Picnic"),
+        "block_user_label":
+            MessageLookupByLibrary.simpleMessage("Blocking users"),
         "button_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "button_complete": MessageLookupByLibrary.simpleMessage("Done"),
         "button_login": MessageLookupByLibrary.simpleMessage("Sign in"),

@@ -1400,5 +1400,9 @@
   "post_flagged": "Contains inappropriate content",
   "@post_flagged": {
     "manualTranslation": false
+  },
+  "block_user_label": "Blocking users",
+  "@block_user_label": {
+    "manualTranslation": false
   }
 }
