@@ -180,8 +180,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_hint_comment":
             MessageLookupByLibrary.simpleMessage("Leave a comment."),
         "label_input_input": MessageLookupByLibrary.simpleMessage("Input"),
-        "label_last_provider":
-            MessageLookupByLibrary.simpleMessage("Recent logins"),
+        "label_last_provider": MessageLookupByLibrary.simpleMessage("Recent"),
         "label_library_save":
             MessageLookupByLibrary.simpleMessage("Save the library"),
         "label_library_tab_ai_photo":

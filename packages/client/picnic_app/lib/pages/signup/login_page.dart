@@ -319,7 +319,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
       children: [
         Container(
           height: 44,
-          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 100),
+          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 60),
           child: SignInWithAppleButton(
             onPressed: () async {
               try {

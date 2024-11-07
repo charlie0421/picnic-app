@@ -169,7 +169,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_hint_comment":
             MessageLookupByLibrary.simpleMessage("コメントを残してください。"),
         "label_input_input": MessageLookupByLibrary.simpleMessage("入力"),
-        "label_last_provider": MessageLookupByLibrary.simpleMessage("最近のログイン"),
+        "label_last_provider": MessageLookupByLibrary.simpleMessage("最近"),
         "label_library_save": MessageLookupByLibrary.simpleMessage("ライブラリ保存"),
         "label_library_tab_ai_photo":
             MessageLookupByLibrary.simpleMessage("AIフォト"),

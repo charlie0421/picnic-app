@@ -157,7 +157,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("聊天"),
         "label_hint_comment": MessageLookupByLibrary.simpleMessage("发表评论。"),
         "label_input_input": MessageLookupByLibrary.simpleMessage("输入"),
-        "label_last_provider": MessageLookupByLibrary.simpleMessage("最近登录"),
+        "label_last_provider": MessageLookupByLibrary.simpleMessage("最近"),
         "label_library_save": MessageLookupByLibrary.simpleMessage("保存图书馆"),
         "label_library_tab_ai_photo":
             MessageLookupByLibrary.simpleMessage("人工智能照片"),
