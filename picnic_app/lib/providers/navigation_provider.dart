@@ -195,7 +195,7 @@ class NavigationInfo extends _$NavigationInfo {
         showBottomNavigation: true);
   }
 
-  setCurrentSignUpPage(Widget page) {
+  void setCurrentSignUpPage(Widget page) {
     final navigationStack = state.signUpNavigationStack;
 
     if (navigationStack?.peek() == page) {
