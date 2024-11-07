@@ -32,8 +32,8 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
   @override
   Widget build(BuildContext context) {
     final userInfoState = ref.watch(userInfoProvider);
-    // final postAnonymousMode = ref
-    //     .watch(appSettingProvider.select((value) => value.postAnonymousMode));
+    final postAnonymousMode = ref
+        .watch(appSettingProvider.select((value) => value.postAnonymousMode));
     final appSettingNotifier = ref.read(appSettingProvider.notifier);
 
     return Container(
@@ -41,42 +41,41 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
       child: Column(
         children: [
           const SizedBox(height: 24),
-          // postAnonymousMode
-          //     ? Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-          //         const NoAvatar(width: 60, height: 60, borderRadius: 30),
-          //         SizedBox(width: 16.cw),
-          //         Text(
-          //           S.of(context).anonymous,
-          //           style: getTextStyle(AppTypo.title18B, AppColors.grey900),
-          //         )
-          //       ])
-          //     :
-          userInfoState.when(
-            data: (data) {
-              if (data == null) {
-                return const SizedBox();
-              }
-              return Row(
-                children: [
-                  ProfileImageContainer(
-                    avatarUrl: data.avatarUrl,
-                    borderRadius: 30,
-                    width: 60,
-                    height: 60,
-                  ),
-                  const SizedBox(width: 16),
+          postAnonymousMode
+              ? Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                  const NoAvatar(width: 60, height: 60, borderRadius: 30),
+                  SizedBox(width: 16.cw),
                   Text(
-                    data.nickname ?? '',
+                    S.of(context).anonymous,
                     style: getTextStyle(AppTypo.title18B, AppColors.grey900),
                   )
-                ],
-              );
-            },
-            loading: () => const CircularProgressIndicator(),
-            error: (error, stack) => Text('error: $error'),
-          ),
+                ])
+              : userInfoState.when(
+                  data: (data) {
+                    if (data == null) {
+                      return const SizedBox();
+                    }
+                    return Row(
+                      children: [
+                        ProfileImageContainer(
+                          avatarUrl: data.avatarUrl,
+                          borderRadius: 30,
+                          width: 60,
+                          height: 60,
+                        ),
+                        const SizedBox(width: 16),
+                        Text(
+                          data.nickname ?? '',
+                          style:
+                              getTextStyle(AppTypo.title18B, AppColors.grey900),
+                        )
+                      ],
+                    );
+                  },
+                  loading: () => const CircularProgressIndicator(),
+                  error: (error, stack) => Text('error: $error'),
+                ),
           const SizedBox(height: 24),
-          /*
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -90,7 +89,6 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
                       appSettingNotifier.setPostAnonymousMode(value)),
             ],
           ),
-           */
           const Divider(color: AppColors.grey200),
           PicnicListItem(
             leading: S.of(context).post_my_written_post,
