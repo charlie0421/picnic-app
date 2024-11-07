@@ -22,6 +22,7 @@ import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/auth_service.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -316,38 +317,41 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
 
     return Stack(
       children: [
-        InkWell(
-          onTap: () async {
-            OverlayLoadingProgress.start(context,
-                color: AppColors.primary500, barrierDismissible: false);
-            final user =
-                await _authService.signInWithProvider(OAuthProvider.apple);
-            OverlayLoadingProgress.stop();
+        Container(
+          height: 44,
+          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 100),
+          child: SignInWithAppleButton(
+            onPressed: () async {
+              try {
+                OverlayLoadingProgress.start(context,
+                    color: AppColors.primary500, barrierDismissible: false);
+                final user =
+                    await _authService.signInWithProvider(OAuthProvider.apple);
+                OverlayLoadingProgress.stop();
 
-            if (user != null) {
-              _handleSuccessfulLogin(context);
-            }
-          },
-          child: SizedBox(
-            height: 50,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Image.asset('assets/icons/login/apple.png',
-                    width: 20.cw, height: 20),
-                SizedBox(width: 8.cw),
-                Text('Apple',
-                    style: getTextStyle(AppTypo.body14M, AppColors.grey800)),
-              ],
-            ),
+                if (user != null) {
+                  _handleSuccessfulLogin(context);
+                }
+              } catch (e, s) {
+                OverlayLoadingProgress.stop();
+                logger.e('Error signing in with Apple: $e', stackTrace: s);
+                showSimpleDialog(
+                    title: Intl.message('error_title'),
+                    content: Intl.message('error_message_login_failed'),
+                    onOk: () {
+                      Navigator.of(context).pop();
+                    });
+                rethrow;
+              }
+            },
+            style: SignInWithAppleButtonStyle.black,
           ),
         ),
         if (lastProvider == 'apple')
           Positioned(
             top: 0,
             bottom: 0,
-            left: 30.cw,
+            left: 20.cw,
             child: Bubble(
               color: AppColors.primary500.withOpacity(.9),
               alignment: Alignment.center,
@@ -423,7 +427,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
             Positioned(
               top: 0,
               bottom: 0,
-              left: 30.cw,
+              left: 20.cw,
               child: Bubble(
                 color: AppColors.primary500.withOpacity(.9),
                 alignment: Alignment.center,
@@ -491,7 +495,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
           Positioned(
             top: 0,
             bottom: 0,
-            left: 30.cw,
+            left: 20.cw,
             child: Bubble(
               color: AppColors.primary500.withOpacity(.9),
               alignment: Alignment.center,
