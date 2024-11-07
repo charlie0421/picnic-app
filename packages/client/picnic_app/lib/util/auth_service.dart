@@ -45,12 +45,7 @@ class GoogleLogin implements SocialLogin {
       );
     } catch (e, s) {
       logger.e('Google login error: $e', stackTrace: s);
-      Sentry.captureException(
-        e,
-        stackTrace: s,
-      );
-
-      return const SocialLoginResult();
+      rethrow;
     }
   }
 
@@ -95,7 +90,7 @@ class AppleLogin implements SocialLogin {
       );
     } catch (e, s) {
       logger.e('Apple login error: $e', stackTrace: s);
-      return const SocialLoginResult();
+      rethrow;
     }
   }
 
@@ -159,11 +154,7 @@ class KakaoLogin implements SocialLogin {
       }
     } catch (e, s) {
       logger.e('login error: $e', stackTrace: s);
-      Sentry.captureException(
-        e,
-        stackTrace: s,
-      );
-      return const SocialLoginResult();
+      rethrow;
     }
   }
 

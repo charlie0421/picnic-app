@@ -7,6 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:picnic_app/app.dart';
 import 'package:picnic_app/components/common/custom_pagination.dart';
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/constants.dart';
@@ -255,54 +256,48 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
     );
   }
 
-  void _handleSuccessfulLogin(BuildContext context) async {
+  void _handleSuccessfulLogin() async {
     try {
       OverlayLoadingProgress.start(context,
           color: AppColors.primary500, barrierDismissible: false);
 
-      // 현재 사용자 정보 가져오기
       final user = supabase.auth.currentUser;
       if (user == null) {
         throw Exception('Failed to get current user');
       }
 
-      // 사용자 프로필 정보 가져오기
       final userProfile =
           await ref.read(userInfoProvider.notifier).getUserProfiles();
 
       OverlayLoadingProgress.stop();
 
       if (userProfile == null) {
-        // 사용자 프로필이 없는 경우 (새 사용자)
         ref
             .read(navigationInfoProvider.notifier)
             .setCurrentSignUpPage(const AgreementTermsPage());
-        Navigator.of(context).pop();
+        Navigator.of(navigatorKey.currentContext!).pop();
       } else if (userProfile.deletedAt != null) {
-        // 탈퇴한 사용자
         showSimpleDialog(
             content: Intl.message('error_message_withdrawal'),
             onOk: () {
               Navigator.of(context).pop();
             });
       } else if (userProfile.userAgreement == null) {
-        // 약관 동의가 필요한 경우
         ref
             .read(navigationInfoProvider.notifier)
             .setCurrentSignUpPage(const AgreementTermsPage());
-        Navigator.of(context).pop();
+        Navigator.of(navigatorKey.currentContext!).pop();
       } else {
-        // 정상적인 로그인 완료
         ref.read(navigationInfoProvider.notifier).setResetStackMyPage();
-        Navigator.of(context).pop();
-        Navigator.of(context).pop();
+        Navigator.of(navigatorKey.currentContext!).pop();
+        Navigator.of(navigatorKey.currentContext!).pop();
       }
     } catch (e, s) {
       OverlayLoadingProgress.stop();
-      logger.e('Error handling successful login: $e', stackTrace: s);
+      logger.e(e, stackTrace: s);
       showSimpleDialog(
-          title: S.of(context).error_title,
-          content: S.of(context).error_message_login_failed,
+          title: Intl.message('error_title'),
+          content: Intl.message('error_message_login_failed'),
           onOk: () {
             Navigator.of(context).pop();
           });
@@ -330,7 +325,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                 OverlayLoadingProgress.stop();
 
                 if (user != null) {
-                  _handleSuccessfulLogin(context);
+                  _handleSuccessfulLogin();
                 }
               } catch (e, s) {
                 OverlayLoadingProgress.stop();
@@ -381,7 +376,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                     color: AppColors.primary500, barrierDismissible: false);
 
                 if (kIsWeb) {
-                  final result = await supabase.auth.signInWithOAuth(
+                  await supabase.auth.signInWithOAuth(
                     OAuthProvider.google,
                     redirectTo: '${Environment.webDomain}/auth/callback',
                     scopes: 'email profile',
@@ -391,7 +386,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                       .signInWithProvider(OAuthProvider.google);
                   OverlayLoadingProgress.stop();
                   if (user != null) {
-                    _handleSuccessfulLogin(context);
+                    _handleSuccessfulLogin();
                   } else {
                     throw Exception('Failed to sign in with Google');
                   }
@@ -457,7 +452,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               OverlayLoadingProgress.start(context,
                   color: AppColors.primary500, barrierDismissible: false);
               if (kIsWeb) {
-                final result = await supabase.auth.signInWithOAuth(
+                await supabase.auth.signInWithOAuth(
                   OAuthProvider.kakao,
                   redirectTo: '${Environment.webDomain}/auth/callback',
                   scopes: 'account_email profile_image profile_nickname',
@@ -467,7 +462,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                     await _authService.signInWithProvider(OAuthProvider.kakao);
                 OverlayLoadingProgress.stop();
                 if (user != null) {
-                  _handleSuccessfulLogin(context);
+                  _handleSuccessfulLogin();
                 }
               }
             } catch (e, s) {
