@@ -850,10 +850,10 @@ class S {
     );
   }
 
-  /// `Recent logins`
+  /// `Recent`
   String get label_last_provider {
     return Intl.message(
-      'Recent logins',
+      'Recent',
       name: 'label_last_provider',
       desc: '',
       args: [],
