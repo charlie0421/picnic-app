@@ -87,7 +87,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                           .read(navigationInfoProvider.notifier)
                           .setCurrentMyPage(const SettingPage())),
                   // 나의 아티스트
-                  _buildMyStar('VOTE'),
+                  _buildMyArtist('VOTE'),
                   const Divider(color: AppColors.grey200),
                   // 투표내역
                   PicnicListItem(
@@ -197,14 +197,14 @@ class _MyPageState extends ConsumerState<MyPage> {
     );
   }
 
-  Widget _buildMyStar(String categoryText) {
+  Widget _buildMyArtist(String categoryText) {
     final bookmarkedArtists = ref.watch(asyncBookmarkedArtistsProvider);
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
         if (!supabase.isLogged) {
-          showRequireLoginDialog();
+          Navigator.of(context).pushNamed(SignUpScreen.routeName);
         } else {
           ref
               .read(navigationInfoProvider.notifier)
