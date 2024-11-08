@@ -8,7 +8,7 @@ import 'package:picnic_app/components/community/home/post_home_list.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/pages/signup/login_page.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
-import 'package:picnic_app/providers/mypage/bookmarked_artists_provider.dart';
+import 'package:picnic_app/providers/my_page/bookmarked_artists_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';

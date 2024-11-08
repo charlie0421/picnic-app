@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_app/pages/mypage/privacy_page.dart';
+import 'package:picnic_app/pages/my_page/privacy_page.dart';
 
 class PrivacyScreen extends StatelessWidget {
   static const String routeName = '/privacy';
