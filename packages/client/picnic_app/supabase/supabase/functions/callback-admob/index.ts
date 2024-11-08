@@ -1,7 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import * as postgres from 'https://deno.land/x/postgres@v0.17.0/mod.ts';
-import { config } from "https://deno.land/x/dotenv/mod.ts";
-config();
+
 const databaseUrl = Deno.env.get('SUPABASE_DB_URL');
 const pool = new postgres.Pool(databaseUrl, 3, true);
 const secretKey = "c0bb7b4bcedf4db314aa7d0bbba4d4a784877bae45d89439ed83549798ccc923";
