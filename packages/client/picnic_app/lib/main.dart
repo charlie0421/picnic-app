@@ -69,10 +69,12 @@ void main() async {
       (options) {
         options.dsn =
             kIsWeb ? Environment.sentryWebDsn : Environment.sentryAppDsn;
-        options.tracesSampleRate = 1.0;
-        options.profilesSampleRate = 1.0;
-        options.experimental.replay.sessionSampleRate = 1.0;
-        options.experimental.replay.onErrorSampleRate = 1.0;
+        options.tracesSampleRate = Environment.sentryTraceSampleRate;
+        options.profilesSampleRate = Environment.sentryProfileSampleRate;
+        options.experimental.replay.sessionSampleRate =
+            Environment.sentrySessionSampleRate;
+        options.experimental.replay.onErrorSampleRate =
+            Environment.sentryErrorSampleRate;
         options.beforeSend = (event, hint) {
           if (!Environment.enableSentry || kDebugMode) {
             event.exceptions?.forEach((element) {

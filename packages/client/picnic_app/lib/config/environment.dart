@@ -68,4 +68,16 @@ class Environment {
   static String get webDomain => _config['WEB_DOMAIN'] as String;
 
   static String get deepLApiKey => _config['DEEPL_API_KEY'] as String;
+
+  static double get sentryTraceSampleRate =>
+      _config['SENTRY_TRACE_SAMPLE_RATE'] as double;
+
+  static double get sentryProfileSampleRate =>
+      _config['SENTRY_PROFILE_SAMPLE_RATE'] as double;
+
+  static double get sentrySessionSampleRate =>
+      _config['SENTRY_SESSION_SAMPLE_RATE'] as double;
+
+  static double get sentryErrorSampleRate =>
+      _config['SENTRY_ERROR_SAMPLE_RATE'] as double;
 }
