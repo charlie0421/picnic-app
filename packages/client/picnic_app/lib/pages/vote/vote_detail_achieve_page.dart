@@ -25,7 +25,6 @@ import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/number.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
@@ -44,7 +43,6 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
   late ScrollController _scrollController;
   Timer? _updateTimer;
   bool _isDisposed = false;
-  int? _lastAchievedAmount;
   late ConfettiController _confettiController;
   List<VoteAchieve>? _achievements;
   OverlayEntry? _overlayEntry;
@@ -71,21 +69,15 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
     _updateTimer?.cancel();
     _updateTimer = Timer.periodic(const Duration(seconds: 1), (_) async {
       if (!_isDisposed && mounted) {
-        logger.d('Refreshing vote item list at ${DateTime.now()}');
+        ref.refresh(asyncVoteItemListProvider(voteId: widget.voteId));
 
-        // 데이터 갱신
-        await ref.refresh(asyncVoteItemListProvider(voteId: widget.voteId));
-
-        // 현재 투표 데이터 가져오기
         final voteItemData =
             ref.read(asyncVoteItemListProvider(voteId: widget.voteId)).value;
         if (voteItemData == null || voteItemData.isEmpty) return;
 
-        // achievements 데이터 가져오기 (캐시된 데이터가 없는 경우에만)
         _achievements ??= await fetchVoteAchieve(ref, voteId: widget.voteId);
         if (_achievements == null || _achievements!.isEmpty) return;
 
-        // 마일스톤 체크
         final currentVotes = voteItemData[0]!.voteTotal!;
         _checkMilestoneAchievement(currentVotes, _achievements!);
       }
@@ -94,11 +86,9 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
 
   void _checkMilestoneAchievement(
       int currentVotes, List<VoteAchieve> achievements) {
-    // 투표 수에 따라 오름차순 정렬
     final sortedAchievements = List<VoteAchieve>.from(achievements)
       ..sort((a, b) => a.amount.compareTo(b.amount));
 
-    // 현재 달성한 모든 마일스톤 찾기
     List<VoteAchieve> newlyAchieved = [];
     List<VoteAchieve> allAchieved = [];
 
@@ -112,21 +102,17 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
       }
     }
 
-    // 새로 달성한 마일스톤이 있을 때만 애니메이션 표시
     if (newlyAchieved.isNotEmpty) {
-      // 항상 모든 달성한 마일스톤을 표시
       _showMilestoneAnimation(allAchieved);
     }
   }
 
-  // _showMilestoneAnimation 메서드는 이전과 동일
   void _showMilestoneAnimation(List<VoteAchieve> achievements) {
     if (!mounted || _isDisposed) return;
 
     _confettiController.play();
 
     OverlayState? overlayState = Overlay.of(context);
-    if (overlayState == null) return;
 
     _overlayEntry?.remove();
 
@@ -231,7 +217,6 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                             ),
                           ),
                           const SizedBox(height: 24),
-                          // 달성한 마일스톤들을 지그재그 형태로 표시
                           Wrap(
                             spacing: 16,
                             runSpacing: 16,
