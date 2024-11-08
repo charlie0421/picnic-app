@@ -6,10 +6,24 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 final customHttpClient = RetryHttpClient(http.Client());
 
-final supabase = SupabaseClient(
-    Environment.supabaseUrl, Environment.supabaseAnonKey,
-    authOptions: AuthClientOptions(
-        authFlowType: AuthFlowType.pkce, pkceAsyncStorage: PlatformStorage()));
+// Supabase 초기화를 위한 함수
+Future<void> initializeSupabase() async {
+  await Supabase.initialize(
+    url: Environment.supabaseUrl,
+    anonKey: Environment.supabaseAnonKey,
+    authOptions: FlutterAuthClientOptions(
+      authFlowType: AuthFlowType.pkce,
+      pkceAsyncStorage: PlatformStorage(),
+    ),
+    httpClient: customHttpClient,
+  );
+}
+
+// 클라이언트 인스턴스 가져오기
+final supabase = Supabase.instance.client;
 
 final supabaseStorage = SupabaseClient(
-    Environment.supabaseStorageUrl, Environment.supabaseStorageAnonKey);
+  Environment.supabaseStorageUrl,
+  Environment.supabaseStorageAnonKey,
+  httpClient: customHttpClient,
+);

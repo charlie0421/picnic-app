@@ -12,6 +12,7 @@ import 'package:picnic_app/app.dart';
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/firebase_options.dart';
 import 'package:picnic_app/main.reflectable.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/auth_service.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/logging_observer.dart';
@@ -32,6 +33,7 @@ void main() async {
         String.fromEnvironment('ENVIRONMENT', defaultValue: 'prod');
     await Environment.initConfig(environment);
 
+    await initializeSupabase();
     if (isMobile()) {
       await WebPSupportChecker.instance.initialize();
     }

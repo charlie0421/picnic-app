@@ -74,8 +74,6 @@ Future<BoardModel?> getPendingRequest(ref) async {
         .eq('status', 'pending')
         .maybeSingle();
 
-    logger.d('response: $response');
-
     return response == null ? null : BoardModel.fromJson(response);
   } catch (e, s) {
     logger.e('Error checking pending request:', error: e, stackTrace: s);
@@ -92,8 +90,6 @@ Future<BoardModel?> checkDuplicateBoard(ref, String title) async {
         .or('name->>ko.eq.$title,name->>en.eq.$title,name->>ja.eq.$title,name->>zh.eq.$title')
         .maybeSingle();
 
-    logger.d('response: $response');
-
     return response == null ? null : BoardModel.fromJson(response);
   } catch (e, s) {
     logger.e('Error checking duplicate board:', error: e, stackTrace: s);
@@ -102,30 +98,30 @@ Future<BoardModel?> checkDuplicateBoard(ref, String title) async {
 }
 
 @riverpod
-Future<BoardModel?> createBoard(
-    ref, int artistId, String title, String description, requestMessage) async {
+Future<void> createBoard(ref, int artistId, String title, String description,
+    String requestMessage) async {
   try {
-    final response = await supabase.from('boards').insert([
-      {
-        'artist_id': artistId,
-        'name': {
-          'ko': title,
-          'en': title,
-          'ja': title,
-          'zh': title,
-        },
-        'description': description,
-        'status': 'pending',
-        'request_message': requestMessage,
-        'creator_id': supabase.auth.currentUser!.id,
-      }
-    ]).maybeSingle();
+    final user = supabase.auth.currentUser;
+    if (user == null) throw Exception('User not authenticated');
 
-    logger.d('response: $response');
-
-    return response == null ? null : BoardModel.fromJson(response);
+    await supabase.from('boards').upsert({
+      'artist_id': artistId,
+      'name': {
+        'ko': title,
+        'en': title,
+        'ja': title,
+        'zh': title,
+      },
+      'description': description,
+      'status': 'pending',
+      'request_message': requestMessage,
+      'creator_id': user.id,
+      'is_official': false,
+      'order': 0,
+      'features': [],
+    });
   } catch (e, s) {
     logger.e('Error creating board:', error: e, stackTrace: s);
-    return Future.error(e);
+    rethrow;
   }
 }
