@@ -6,6 +6,7 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/community/boards_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class BoardRequest extends ConsumerStatefulWidget {
@@ -28,11 +29,12 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
   final _descriptionFocus = FocusNode();
   final _requestMessageFocus = FocusNode();
 
-  bool requested = false;
-
-  bool _nameValidated = false;
-  bool _purposeValidated = false;
-  bool _requestMessageValidated = false;
+  bool _isNameValid = false;
+  bool _isDescriptionValid = false;
+  bool _isRequestMessageValid = false;
+  bool _isLoading = true;
+  dynamic _pendingRequest;
+  String? _error;
 
   @override
   void initState() {
@@ -41,43 +43,50 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
     _descriptionController = TextEditingController();
     _requestMessageController = TextEditingController();
 
-    _nameFocus.addListener(() {
-      if (!_nameFocus.hasFocus && !_nameValidated) {
-        setState(() => _nameValidated = true);
-      }
-    });
-    _descriptionFocus.addListener(() {
-      if (!_descriptionFocus.hasFocus && !_purposeValidated) {
-        setState(() => _purposeValidated = true);
-      }
-    });
-    _requestMessageFocus.addListener(() {
-      if (!_requestMessageFocus.hasFocus && !_requestMessageValidated) {
-        setState(() => _requestMessageValidated = true);
-      }
-    });
-
-    _nameFocus.addListener(_handleFocusChange);
-    _descriptionFocus.addListener(_handleFocusChange);
-    _requestMessageFocus.addListener(_handleFocusChange);
+    _setupControllers();
+    _loadInitialData();
   }
 
-  void _handleFocusChange() {
-    FocusNode? focusNode;
-    if (_nameFocus.hasFocus) focusNode = _nameFocus;
-    if (_descriptionFocus.hasFocus) focusNode = _descriptionFocus;
-    if (_requestMessageFocus.hasFocus) focusNode = _requestMessageFocus;
+  void _setupControllers() {
+    _nameController.addListener(() {
+      final isValid = _validateName(_nameController.text) == null;
+      if (isValid != _isNameValid) {
+        setState(() => _isNameValid = isValid);
+      }
+    });
 
-    if (focusNode != null) {
-      Future.delayed(const Duration(milliseconds: 300), () {
-        final RenderObject? renderObject =
-            focusNode?.context?.findRenderObject();
-        if (renderObject != null) {
-          _scrollController.position.ensureVisible(
-            renderObject,
-            duration: const Duration(milliseconds: 300),
-          );
+    _descriptionController.addListener(() {
+      final isValid = _validateDescription(_descriptionController.text) == null;
+      if (isValid != _isDescriptionValid) {
+        setState(() => _isDescriptionValid = isValid);
+      }
+    });
+
+    _requestMessageController.addListener(() {
+      final isValid =
+          _validateRequestMessage(_requestMessageController.text) == null;
+      if (isValid != _isRequestMessageValid) {
+        setState(() => _isRequestMessageValid = isValid);
+      }
+    });
+  }
+
+  Future<void> _loadInitialData() async {
+    try {
+      final request = await getPendingRequest(ref);
+      setState(() {
+        _pendingRequest = request;
+        _isLoading = false;
+        if (request != null) {
+          _nameController.text = getLocaleTextFromJson(request.name);
+          _descriptionController.text = request.description;
+          _requestMessageController.text = request.requestMessage ?? '';
         }
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
       });
     }
   }
@@ -96,141 +105,122 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_error != null) {
+      return Center(child: Text('Error: $_error'));
+    }
+
+    final bool isButtonEnabled = _isNameValid &&
+        _isDescriptionValid &&
+        _isRequestMessageValid &&
+        _pendingRequest == null;
+
     return GestureDetector(
       onTap: () {
-        _nameFocus.unfocus();
-        _descriptionFocus.unfocus();
-        _requestMessageFocus.unfocus();
+        FocusScope.of(context).unfocus();
       },
-      child: FutureBuilder(
-        future: getPendingRequest(ref),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
-            );
-          }
-          if (snapshot.data != null) {
-            _nameController.text = getLocaleTextFromJson(snapshot.data!.name);
-            _descriptionController.text = snapshot.data!.description;
-            _requestMessageController.text =
-                snapshot.data?.requestMessage ?? '';
-          }
-
-          return SingleChildScrollView(
-            controller: _scrollController,
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Container(
-              padding: const EdgeInsets.only(
-                bottom: 300,
-              ),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _buildInfoBanner(),
-                    ..._buildSection(
-                      _nameController,
-                      _nameFocus,
-                      S.of(context).post_minor_board_name,
-                      S.of(context).post_minor_board_name_input,
-                      1,
-                      (value) {
-                        if (value == null || value.isEmpty) {
-                          return S.of(context).post_minor_board_name_input;
-                        }
-                        return null;
-                      },
-                      _nameValidated,
-                      snapshot.data == null,
-                    ),
-                    ..._buildSection(
-                      _descriptionController,
-                      _descriptionFocus,
-                      S.of(context).post_minor_board_description,
-                      S.of(context).post_minor_board_description_input,
-                      3,
-                      (value) {
-                        if (value == null || value.isEmpty) {
-                          return S
-                              .of(context)
-                              .post_minor_board_description_input;
-                        }
-                        if (value.length < 5 && value.length < 20) {
-                          return S.of(context).post_minor_board_condition;
-                        }
-                        return null;
-                      },
-                      _purposeValidated,
-                      snapshot.data == null,
-                    ),
-                    ..._buildSection(
-                      _requestMessageController,
-                      _requestMessageFocus,
-                      S.of(context).post_minor_board_create_request_message,
-                      S
-                          .of(context)
-                          .post_minor_board_create_request_message_input,
-                      3,
-                      (value) {
-                        if (value == null || value.isEmpty) {
-                          return S
-                              .of(context)
-                              .post_minor_board_create_request_message_input;
-                        }
-                        if (value.length < 10) {
-                          return S
-                              .of(context)
-                              .post_minor_board_create_request_message_condition;
-                        }
-                        return null;
-                      },
-                      _requestMessageValidated,
-                      snapshot.data == null,
-                    ),
-                    const SizedBox(height: 24),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.cw),
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: ElevatedButton(
-                          style: Theme.of(context)
-                              .elevatedButtonTheme
-                              .style
-                              ?.copyWith(
-                                backgroundColor:
-                                    WidgetStateProperty.resolveWith(
-                                  (states) => AppColors.grey400,
-                                ),
-                              ),
-                          onPressed:
-                              snapshot.data == null ? _handleSubmit : null,
-                          child: Text(
-                            snapshot.data == null
-                                ? S.of(context).post_board_create_request_label
-                                : S
-                                    .of(context)
-                                    .post_board_create_request_reviewing,
-                            style:
-                                getTextStyle(AppTypo.body14B, AppColors.grey00),
+      child: SingleChildScrollView(
+        controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Container(
+          padding: const EdgeInsets.only(bottom: 300),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildInfoBanner(),
+                ..._buildSection(
+                  _nameController,
+                  _nameFocus,
+                  S.of(context).post_minor_board_name,
+                  S.of(context).post_minor_board_name_input,
+                  1,
+                  _validateName,
+                  _pendingRequest == null,
+                ),
+                ..._buildSection(
+                  _descriptionController,
+                  _descriptionFocus,
+                  S.of(context).post_minor_board_description,
+                  S.of(context).post_minor_board_description_input,
+                  3,
+                  _validateDescription,
+                  _pendingRequest == null,
+                ),
+                ..._buildSection(
+                  _requestMessageController,
+                  _requestMessageFocus,
+                  S.of(context).post_minor_board_create_request_message,
+                  S.of(context).post_minor_board_create_request_message_input,
+                  3,
+                  _validateRequestMessage,
+                  _pendingRequest == null,
+                ),
+                const SizedBox(height: 24),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.cw),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      style: Theme.of(context)
+                          .elevatedButtonTheme
+                          .style
+                          ?.copyWith(
+                            backgroundColor: WidgetStateProperty.resolveWith(
+                              (states) => isButtonEnabled
+                                  ? AppColors.primary500
+                                  : AppColors.grey400,
+                            ),
                           ),
-                        ),
+                      onPressed: isButtonEnabled ? _handleSubmit : null,
+                      child: Text(
+                        _pendingRequest == null
+                            ? S.of(context).post_board_create_request_label
+                            : S.of(context).post_board_create_request_reviewing,
+                        style: getTextStyle(AppTypo.body14B, AppColors.grey00),
                       ),
                     ),
-                    SizedBox(height: 32.cw),
-                  ],
+                  ),
                 ),
-              ),
+                SizedBox(height: 32.cw),
+              ],
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
+  }
+
+  String? _validateName(String? value) {
+    if (value == null || value.isEmpty) {
+      return S.of(context).post_minor_board_name_input;
+    }
+    return null;
+  }
+
+  String? _validateDescription(String? value) {
+    if (value == null || value.isEmpty) {
+      return S.of(context).post_minor_board_description_input;
+    }
+    if (value.length < 5 || value.length > 20) {
+      return S.of(context).post_minor_board_condition;
+    }
+    return null;
+  }
+
+  String? _validateRequestMessage(String? value) {
+    if (value == null || value.isEmpty) {
+      return S.of(context).post_minor_board_create_request_message_input;
+    }
+    if (value.length < 10) {
+      return S.of(context).post_minor_board_create_request_message_condition;
+    }
+    return null;
   }
 
   Widget _buildInfoBanner() {
@@ -238,8 +228,10 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
       height: 30,
       decoration: const BoxDecoration(color: Color(0xFFF3EFFF)),
       child: Center(
-        child: Text(S.of(context).post_board_create_request_condition,
-            style: getTextStyle(AppTypo.caption12M, AppColors.primary500)),
+        child: Text(
+          S.of(context).post_board_create_request_condition,
+          style: getTextStyle(AppTypo.caption12M, AppColors.primary500),
+        ),
       ),
     );
   }
@@ -251,15 +243,16 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
     String hintText,
     int maxLines,
     String? Function(String?) validator,
-    bool validated,
     bool enabled,
   ) {
     return [
       Container(
         alignment: Alignment.centerLeft,
         padding: EdgeInsets.only(left: 16.cw, top: 24),
-        child: Text(title,
-            style: getTextStyle(AppTypo.body14B, AppColors.grey900)),
+        child: Text(
+          title,
+          style: getTextStyle(AppTypo.body14B, AppColors.grey900),
+        ),
       ),
       const SizedBox(height: 7),
       Container(
@@ -294,37 +287,43 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
             ),
           ),
           validator: validator,
-          autovalidateMode: validated
-              ? AutovalidateMode.onUserInteraction
-              : AutovalidateMode.disabled,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
         ),
       ),
     ];
   }
 
-  void _handleSubmit() {
+  Future<void> _handleSubmit() async {
     if (_formKey.currentState!.validate()) {
-      checkDuplicateBoard(ref, _nameController.text).then((value) {
-        if (value != null) {
+      try {
+        final duplicate = await checkDuplicateBoard(ref, _nameController.text);
+        if (duplicate != null) {
           showSimpleDialog(
             content: Intl.message('post_board_already_exist'),
             onOk: () => Navigator.of(context).pop(),
           );
-        } else {
-          createBoard(
-            ref,
-            widget.artistId,
-            _nameController.text,
-            _descriptionController.text,
-            _requestMessageController.text,
-          ).then((value) {
-            showSimpleDialog(
-              content: S.of(context).post_board_create_request_complete,
-              onOk: () => Navigator.of(context).pop(),
-            );
-          });
+          return;
         }
-      });
+
+        await createBoard(
+          ref,
+          widget.artistId,
+          _nameController.text,
+          _descriptionController.text,
+          _requestMessageController.text,
+        );
+
+        showSimpleDialog(
+          content: Intl.message('post_board_create_request_complete'),
+          onOk: () => Navigator.of(context).pop(),
+        );
+      } catch (e, s) {
+        showSimpleDialog(
+          content: 'Error creating board',
+          onOk: () => Navigator.of(context).pop(),
+        );
+        rethrow;
+      }
     }
   }
 }
