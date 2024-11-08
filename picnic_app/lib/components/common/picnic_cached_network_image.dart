@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/util/logger.dart';
@@ -16,6 +17,7 @@ class PicnicCachedNetworkImage extends StatefulWidget {
   final bool useScreenUtil;
   final int? memCacheWidth;
   final int? memCacheHeight;
+  final int? duration;
 
   const PicnicCachedNetworkImage({
     super.key,
@@ -26,6 +28,7 @@ class PicnicCachedNetworkImage extends StatefulWidget {
     this.useScreenUtil = true,
     this.memCacheWidth,
     this.memCacheHeight,
+    this.duration,
   });
 
   @override
@@ -35,6 +38,17 @@ class PicnicCachedNetworkImage extends StatefulWidget {
 
 class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
   bool _loading = true;
+
+  bool get isGif => widget.imageUrl.toLowerCase().endsWith('.gif');
+
+  @override
+  void initState() {
+    super.initState();
+    if (isGif) {
+      PaintingBinding.instance.imageCache.clear();
+      PaintingBinding.instance.imageCache.clearLiveImages();
+    }
+  }
 
   double _getResolutionMultiplier(BuildContext context) {
     if (UniversalPlatform.isWeb) return 2.0;
@@ -47,7 +61,6 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
       BuildContext context, double resolutionMultiplier) {
     return [
       _getTransformedUrl(widget.imageUrl, resolutionMultiplier * .2, 20),
-      // _getTransformedUrl(imageUrl, resolutionMultiplier * .8, 50),
       _getTransformedUrl(widget.imageUrl, resolutionMultiplier, 80),
     ];
   }
@@ -55,44 +68,41 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
   String _getTransformedUrl(
       String key, double resolutionMultiplier, int quality) {
     Uri uri = Uri.parse('${Environment.cdnUrl}/$key');
-    // logger.i('uri: $uri');
+
     Map<String, String> queryParameters = {
       if (widget.width != null)
         'w': ((widget.width!).toInt() * resolutionMultiplier).toString(),
       if (widget.height != null)
         'h': ((widget.height!).toInt() * resolutionMultiplier).toString(),
       'q': quality.toString(),
-      'f': WebPSupportChecker.instance.supportsWebP ? 'webp' : 'png',
     };
 
-    // logger.i(
-    //     'uri.replace(queryParameters: queryParameters).toString(): ${uri.replace(queryParameters: queryParameters).toString()}');
+    if (!isGif) {
+      queryParameters['f'] =
+          WebPSupportChecker.instance.supportsWebP ? 'webp' : 'png';
+    }
+
     return uri.replace(queryParameters: queryParameters).toString();
   }
 
-  Widget _buildFirstTypeCachedNetworkImage(
-      String url, double? width, double? height) {
+  Widget _buildCachedNetworkImage(
+      String url, double? width, double? height, int index) {
     try {
       return CachedNetworkImage(
-        key: ValueKey(url),
+        key: ValueKey(
+            '${url}_$index${isGif ? '_${DateTime.now().millisecondsSinceEpoch}' : ''}'),
         imageUrl: url,
         width: width,
         height: height,
         fit: widget.fit,
         memCacheWidth: widget.memCacheWidth,
         memCacheHeight: widget.memCacheHeight,
-        errorWidget: (context, url, error) => const SizedBox.shrink(),
-        errorListener: (
-          exception,
-        ) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) {
-              setState(() {
-                _loading = false;
-              });
-            }
-          });
+        errorWidget: (context, url, error) {
+          logger.e('Image loading error: $error for url: $url');
+          return const SizedBox.shrink();
         },
+        progressIndicatorBuilder: (context, url, downloadProgress) =>
+            buildLoadingOverlay(),
         imageBuilder: (context, imageProvider) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
@@ -101,19 +111,21 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
               });
             }
           });
+
           return Image(
-              image: imageProvider,
-              fit: widget.fit,
-              width: width,
-              height: height);
+            key: ValueKey(
+                'image_${url}_$index${isGif ? '_${DateTime.now().millisecondsSinceEpoch}' : ''}'),
+            image: imageProvider,
+            fit: widget.fit,
+            width: width,
+            height: height,
+            gaplessPlayback: false,
+          );
         },
       );
     } catch (e, s) {
       logger.e(e, stackTrace: s);
-      Sentry.captureException(
-        e,
-        stackTrace: s,
-      );
+      Sentry.captureException(e, stackTrace: s);
       return const SizedBox.shrink();
     }
   }
@@ -136,8 +148,12 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
         alignment: Alignment.center,
         children: [
           if (_loading) buildLoadingOverlay(),
-          ...urls.map((url) =>
-              _buildFirstTypeCachedNetworkImage(url, imageWidth, imageHeight)),
+          ...urls.asMap().entries.map((entry) => _buildCachedNetworkImage(
+                entry.value,
+                imageWidth,
+                imageHeight,
+                entry.key,
+              )),
         ],
       ),
     );
