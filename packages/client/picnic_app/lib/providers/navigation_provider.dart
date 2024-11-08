@@ -4,7 +4,7 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/enums.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/navigation_stack.dart';
-import 'package:picnic_app/pages/mypage/mypage.dart';
+import 'package:picnic_app/pages/my_page/my_page.dart';
 import 'package:picnic_app/pages/signup/login_page.dart';
 import 'package:picnic_app/screens/community/community_home_screen.dart';
 import 'package:picnic_app/screens/novel/novel_home_screen.dart';

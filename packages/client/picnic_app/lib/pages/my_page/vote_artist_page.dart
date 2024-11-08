@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_app/components/mypage/vote_artist_search.dart';
+import 'package:picnic_app/components/my_page/vote_artist_search.dart';
 
 class VoteArtistPage extends StatelessWidget {
   final String pageName = 'label_tab_my_artist';
@@ -8,10 +8,6 @@ class VoteArtistPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _buildPage();
-  }
-
-  Widget _buildPage() {
-    return const VoteArtistSearch();
+    return const VoteMyArtistList();
   }
 }

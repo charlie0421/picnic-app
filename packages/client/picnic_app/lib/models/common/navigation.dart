@@ -5,7 +5,7 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/enums.dart';
 import 'package:picnic_app/extensions/portal_type_extension.dart';
 import 'package:picnic_app/navigation_stack.dart';
-import 'package:picnic_app/pages/mypage/mypage.dart';
+import 'package:picnic_app/pages/my_page/my_page.dart';
 import 'package:picnic_app/pages/signup/login_page.dart';
 import 'package:picnic_app/pages/vote/vote_home_page.dart';
 import 'package:picnic_app/reflector.dart';

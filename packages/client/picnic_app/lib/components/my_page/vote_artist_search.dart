@@ -11,8 +11,10 @@ import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/artist.dart';
-import 'package:picnic_app/providers/mypage/bookmarked_artists_provider.dart';
-import 'package:picnic_app/providers/mypage/vote_artist_list_provider.dart';
+import 'package:picnic_app/pages/community/community_home_page.dart';
+import 'package:picnic_app/providers/my_page/bookmarked_artists_provider.dart';
+import 'package:picnic_app/providers/my_page/vote_artist_list_provider.dart';
+import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
@@ -20,14 +22,14 @@ import 'package:picnic_app/util/ui.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
-class VoteArtistSearch extends ConsumerStatefulWidget {
-  const VoteArtistSearch({super.key});
+class VoteMyArtistList extends ConsumerStatefulWidget {
+  const VoteMyArtistList({super.key});
 
   @override
   ConsumerState createState() => _VoteMyArtistState();
 }
 
-class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
+class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
   final _pagingController = PagingController<int, ArtistModel>(firstPageKey: 0);
   final _searchSubject = BehaviorSubject<String>();
   final _textEditingController = TextEditingController();
@@ -62,13 +64,19 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
           .toList();
       final isLastPage = filteredItems.length < 20;
       if (isLastPage) {
-        _pagingController.appendLastPage(filteredItems);
+        if (mounted) {
+          _pagingController.appendLastPage(filteredItems);
+        }
       } else {
-        _pagingController.appendPage(filteredItems, pageKey + 1);
+        if (mounted) {
+          _pagingController.appendPage(filteredItems, pageKey + 1);
+        }
       }
     } catch (e, s) {
       logger.e(e, stackTrace: s);
-      _pagingController.error = e;
+      if (mounted) {
+        _pagingController.error = e;
+      }
       rethrow;
     }
   }
@@ -133,7 +141,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
               .read(asyncVoteArtistListProvider.notifier)
               .bookmarkArtist(artistId: artistId);
 
-      if (!mounted) return; // 비동기 작업 후 위젯이 여전히 마운트되어 있는지 다시 확인
+      if (!mounted) return;
 
       if (success) {
         if (isBookmarked) {
@@ -144,18 +152,19 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
         }
         ref.refresh(asyncBookmarkedArtistsProvider);
       } else {
-        showSimpleDialog(
-          content: isBookmarked
-              ? S.of(context).text_bookmark_failed
-              : S.of(context).text_bookmark_over_5,
-        );
+        if (mounted) {
+          showSimpleDialog(
+            content: isBookmarked
+                ? S.of(context).text_bookmark_failed
+                : S.of(context).text_bookmark_over_5,
+          );
+        }
       }
     } catch (e, s) {
       logger.e(e, stackTrace: s);
       rethrow;
     } finally {
       if (mounted) {
-        // 로딩 progress를 멈추기 전에 위젯이 여전히 마운트되어 있는지 확인
         OverlayLoadingProgress.stop();
       }
     }
@@ -275,56 +284,67 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistSearch> {
   }
 
   Widget _buildArtistItem(ArtistModel item) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.cw),
-      child: Column(
-        children: [
-          ListTile(
-            leading: ClipRRect(
-              borderRadius: BorderRadius.circular(48),
-              child: PicnicCachedNetworkImage(
-                width: 48,
-                height: 48,
-                imageUrl: 'artist/${item.id}/image.png',
-              ),
-            ),
-            title: RichText(
-              text: TextSpan(
-                children: [
-                  ..._buildHighlightedTextSpans(
-                    getLocaleTextFromJson(item.name),
-                    _textEditingController.text,
-                    AppTypo.body16B,
-                    AppColors.grey900,
-                  ),
-                  const TextSpan(text: ' '),
-                  ..._buildHighlightedTextSpans(
-                    getLocaleTextFromJson(item.artist_group.name),
-                    _textEditingController.text,
-                    AppTypo.caption12M,
-                    AppColors.grey600,
-                  ),
-                ],
-              ),
-            ),
-            trailing: GestureDetector(
-              onTap: () =>
-                  _updateBookmarkStatus(item.id, item.isBookmarked ?? false),
-              child: SvgPicture.asset(
-                'assets/icons/bookmark_style=fill.svg',
-                colorFilter: ColorFilter.mode(
-                  item.isBookmarked == true
-                      ? AppColors.primary500
-                      : AppColors.grey300,
-                  BlendMode.srcIn,
+    return GestureDetector(
+      onTap: () {
+        if (item.isBookmarked == true) {
+          ref.read(navigationInfoProvider.notifier).setResetStackMyPage();
+          ref
+              .read(navigationInfoProvider.notifier)
+              .setCurrentPage(const CommunityHomePage());
+          Navigator.of(context).pop();
+        }
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.cw),
+        child: Column(
+          children: [
+            ListTile(
+              leading: ClipRRect(
+                borderRadius: BorderRadius.circular(48),
+                child: PicnicCachedNetworkImage(
+                  width: 48,
+                  height: 48,
+                  imageUrl: 'artist/${item.id}/image.png',
                 ),
-                width: 20,
-                height: 20,
+              ),
+              title: RichText(
+                text: TextSpan(
+                  children: [
+                    ..._buildHighlightedTextSpans(
+                      getLocaleTextFromJson(item.name),
+                      _textEditingController.text,
+                      AppTypo.body16B,
+                      AppColors.grey900,
+                    ),
+                    const TextSpan(text: ' '),
+                    ..._buildHighlightedTextSpans(
+                      getLocaleTextFromJson(item.artist_group.name),
+                      _textEditingController.text,
+                      AppTypo.caption12M,
+                      AppColors.grey600,
+                    ),
+                  ],
+                ),
+              ),
+              trailing: GestureDetector(
+                onTap: () =>
+                    _updateBookmarkStatus(item.id, item.isBookmarked ?? false),
+                child: SvgPicture.asset(
+                  'assets/icons/bookmark_style=fill.svg',
+                  colorFilter: ColorFilter.mode(
+                    item.isBookmarked == true
+                        ? AppColors.primary500
+                        : AppColors.grey300,
+                    BlendMode.srcIn,
+                  ),
+                  width: 20,
+                  height: 20,
+                ),
               ),
             ),
-          ),
-          const Divider(height: 32, color: AppColors.grey200),
-        ],
+            const Divider(height: 32, color: AppColors.grey200),
+          ],
+        ),
       ),
     );
   }
