@@ -6,7 +6,7 @@ part of 'vote_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$asyncVoteListHash() => r'446741819ba632bd488ade1d087dab21ff836b2a';
+String _$asyncVoteListHash() => r'1f5e095ba8d44b58c4f9ba333157be7fa17c540e';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -235,6 +235,8 @@ class AsyncVoteListProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin AsyncVoteListRef on AutoDisposeAsyncNotifierProviderRef<List<VoteModel>> {
   /// The parameter `page` of this provider.
   int get page;
@@ -417,6 +419,8 @@ class CommentCountProvider
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin CommentCountRef on AutoDisposeAsyncNotifierProviderRef<int> {
   /// The parameter `articleId` of this provider.
   int get articleId;
@@ -431,4 +435,4 @@ class _CommentCountProviderElement
   int get articleId => (origin as CommentCountProvider).articleId;
 }
 // ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

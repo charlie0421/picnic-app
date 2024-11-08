@@ -6,7 +6,7 @@ part of 'banner_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$asyncBannerListHash() => r'a434744368e3cd79d6bd430dbe5be74b6a0eea36';
+String _$asyncBannerListHash() => r'1920dc54f9980ffafc131e4720a3b186be6d9962';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -157,6 +157,8 @@ class AsyncBannerListProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin AsyncBannerListRef
     on AutoDisposeAsyncNotifierProviderRef<List<BannerModel>> {
   /// The parameter `location` of this provider.
@@ -172,4 +174,4 @@ class _AsyncBannerListProviderElement
   String get location => (origin as AsyncBannerListProvider).location;
 }
 // ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

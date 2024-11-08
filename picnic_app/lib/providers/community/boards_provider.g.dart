@@ -6,7 +6,7 @@ part of 'boards_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$boardsHash() => r'aa879d329041a46879d2c010445683aea86ceb60';
+String _$boardsHash() => r'5243067de828cb888bd0231aa945aad3822a45c9';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -141,6 +141,8 @@ class BoardsProvider extends AutoDisposeFutureProvider<List<BoardModel>?> {
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin BoardsRef on AutoDisposeFutureProviderRef<List<BoardModel>?> {
   /// The parameter `artistId` of this provider.
   int get artistId;
@@ -155,7 +157,7 @@ class _BoardsProviderElement
 }
 
 String _$boardsByArtistNameHash() =>
-    r'dcb11350fcc04efb36f1542b9d124b954ef9695e';
+    r'd2b6b6fcd06c28d765eea99e18c4da4324218bca';
 
 /// See also [boardsByArtistName].
 @ProviderFor(boardsByArtistName)
@@ -294,6 +296,8 @@ class BoardsByArtistNameProvider
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin BoardsByArtistNameRef on AutoDisposeFutureProviderRef<List<BoardModel>?> {
   /// The parameter `query` of this provider.
   String get query;
@@ -318,7 +322,7 @@ class _BoardsByArtistNameProviderElement
   int get limit => (origin as BoardsByArtistNameProvider).limit;
 }
 
-String _$getPendingRequestHash() => r'a3c247cfb4291a8b330d96fac768d6e58374a1b7';
+String _$getPendingRequestHash() => r'c4c574897d92b9d5b18a06fe8ae8eef529ca7fcf';
 
 /// See also [getPendingRequest].
 @ProviderFor(getPendingRequest)
@@ -333,9 +337,11 @@ final getPendingRequestProvider =
   allTransitiveDependencies: null,
 );
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 typedef GetPendingRequestRef = AutoDisposeFutureProviderRef<BoardModel?>;
 String _$checkDuplicateBoardHash() =>
-    r'baa009ded6747634188df7d5f3710e691ecfc3d3';
+    r'c4c03081291a9b761818590d75047c86a593f5fb';
 
 /// See also [checkDuplicateBoard].
 @ProviderFor(checkDuplicateBoard)
@@ -451,6 +457,8 @@ class CheckDuplicateBoardProvider
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin CheckDuplicateBoardRef on AutoDisposeFutureProviderRef<BoardModel?> {
   /// The parameter `title` of this provider.
   String get title;
@@ -465,14 +473,14 @@ class _CheckDuplicateBoardProviderElement
   String get title => (origin as CheckDuplicateBoardProvider).title;
 }
 
-String _$createBoardHash() => r'f196f3fde30b9a6ec8b9acde42bbaaa0ea817bab';
+String _$createBoardHash() => r'd62e6006e5ef125680a5a3ec71416e2e3822a0a3';
 
 /// See also [createBoard].
 @ProviderFor(createBoard)
 const createBoardProvider = CreateBoardFamily();
 
 /// See also [createBoard].
-class CreateBoardFamily extends Family<AsyncValue<BoardModel?>> {
+class CreateBoardFamily extends Family<AsyncValue<void>> {
   /// See also [createBoard].
   const CreateBoardFamily();
 
@@ -481,7 +489,7 @@ class CreateBoardFamily extends Family<AsyncValue<BoardModel?>> {
     int artistId,
     String title,
     String description,
-    dynamic requestMessage,
+    String requestMessage,
   ) {
     return CreateBoardProvider(
       artistId,
@@ -519,13 +527,13 @@ class CreateBoardFamily extends Family<AsyncValue<BoardModel?>> {
 }
 
 /// See also [createBoard].
-class CreateBoardProvider extends AutoDisposeFutureProvider<BoardModel?> {
+class CreateBoardProvider extends AutoDisposeFutureProvider<void> {
   /// See also [createBoard].
   CreateBoardProvider(
     int artistId,
     String title,
     String description,
-    dynamic requestMessage,
+    String requestMessage,
   ) : this._internal(
           (ref) => createBoard(
             ref as CreateBoardRef,
@@ -565,11 +573,11 @@ class CreateBoardProvider extends AutoDisposeFutureProvider<BoardModel?> {
   final int artistId;
   final String title;
   final String description;
-  final dynamic requestMessage;
+  final String requestMessage;
 
   @override
   Override overrideWith(
-    FutureOr<BoardModel?> Function(CreateBoardRef provider) create,
+    FutureOr<void> Function(CreateBoardRef provider) create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -589,7 +597,7 @@ class CreateBoardProvider extends AutoDisposeFutureProvider<BoardModel?> {
   }
 
   @override
-  AutoDisposeFutureProviderElement<BoardModel?> createElement() {
+  AutoDisposeFutureProviderElement<void> createElement() {
     return _CreateBoardProviderElement(this);
   }
 
@@ -614,7 +622,9 @@ class CreateBoardProvider extends AutoDisposeFutureProvider<BoardModel?> {
   }
 }
 
-mixin CreateBoardRef on AutoDisposeFutureProviderRef<BoardModel?> {
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin CreateBoardRef on AutoDisposeFutureProviderRef<void> {
   /// The parameter `artistId` of this provider.
   int get artistId;
 
@@ -625,11 +635,11 @@ mixin CreateBoardRef on AutoDisposeFutureProviderRef<BoardModel?> {
   String get description;
 
   /// The parameter `requestMessage` of this provider.
-  dynamic get requestMessage;
+  String get requestMessage;
 }
 
-class _CreateBoardProviderElement
-    extends AutoDisposeFutureProviderElement<BoardModel?> with CreateBoardRef {
+class _CreateBoardProviderElement extends AutoDisposeFutureProviderElement<void>
+    with CreateBoardRef {
   _CreateBoardProviderElement(super.provider);
 
   @override
@@ -639,7 +649,7 @@ class _CreateBoardProviderElement
   @override
   String get description => (origin as CreateBoardProvider).description;
   @override
-  dynamic get requestMessage => (origin as CreateBoardProvider).requestMessage;
+  String get requestMessage => (origin as CreateBoardProvider).requestMessage;
 }
 // ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

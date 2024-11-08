@@ -6,7 +6,7 @@ part of 'navigation_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$navigationInfoHash() => r'd63802b3105711422f3b8e055f82fa9150c2909e';
+String _$navigationInfoHash() => r'edbdfcb413a61a3fc2718ffc68621a91d1465b41';
 
 /// See also [NavigationInfo].
 @ProviderFor(NavigationInfo)
@@ -23,4 +23,4 @@ final navigationInfoProvider =
 
 typedef _$NavigationInfo = Notifier<Navigation>;
 // ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
