@@ -1,13 +1,17 @@
+import 'dart:async';
+
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/common/custom_pagination.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/error.dart';
+import 'package:picnic_app/models/common/banner.dart';
 import 'package:picnic_app/providers/banner_list_provider.dart';
 import 'package:picnic_app/providers/global_media_query.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -23,14 +27,51 @@ class CommonBanner extends ConsumerStatefulWidget {
 
 class _CommonBannerState extends ConsumerState<CommonBanner> {
   int _currentIndex = 0;
+  SwiperController? _swiperController;
+  Timer? _autoplayTimer;
 
-  Widget _buildBannerItem(dynamic item) {
+  @override
+  void initState() {
+    super.initState();
+    _swiperController = SwiperController();
+  }
+
+  @override
+  void dispose() {
+    _autoplayTimer?.cancel();
+    _swiperController?.dispose();
+    super.dispose();
+  }
+
+  void _startAutoplay(List<BannerModel> banners) {
+    _autoplayTimer?.cancel();
+    if (banners.length > 1) {
+      _autoplayTimer = Timer(
+        Duration(milliseconds: banners[_currentIndex].duration),
+        () {
+          if (mounted) {
+            final nextIndex = (_currentIndex + 1) % banners.length;
+            _swiperController?.move(nextIndex);
+          }
+        },
+      );
+    }
+  }
+
+  Widget _buildBannerItem(BannerModel item) {
     String title = getLocaleTextFromJson(item.title);
+    String imageUrl = getLocaleTextFromJson(item.image);
+    bool isGif = imageUrl.toLowerCase().endsWith('.gif');
+
     return Stack(
+      alignment: Alignment.center,
       children: [
+        // key를 추가하여 위젯을 강제로 리빌드
         PicnicCachedNetworkImage(
-          imageUrl: getLocaleTextFromJson(item.image),
+          key: ValueKey('${item.id}_${_currentIndex}'),
+          imageUrl: imageUrl,
           fit: BoxFit.cover,
+          duration: isGif ? item.duration : null,
         ),
         if (title.isNotEmpty)
           Positioned(
@@ -58,37 +99,52 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
     final asyncBannerListState =
         ref.watch(asyncBannerListProvider(location: widget.location));
     final width = ref.watch(globalMediaQueryProvider).size.width;
+
     return asyncBannerListState.when(
-      data: (data) => Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          AspectRatio(
-            aspectRatio: widget.aspectRatio,
-            child: data.length == 1
-                ? _buildBannerItem(data[0])
-                : Swiper(
-                    itemBuilder: (BuildContext context, int index) =>
-                        _buildBannerItem(data[index]),
-                    itemCount: data.length,
-                    onIndexChanged: (index) {
-                      setState(() {
-                        _currentIndex = index;
-                      });
-                    },
-                    autoplay: data.length > 1,
-                  ),
-          ),
-          if (data.length > 1)
-            SizedBox(
-              height: 20,
-              child: CustomPagination(
-                itemCount: data.length,
-                activeIndex: _currentIndex,
-              ),
+      data: (List<BannerModel> data) {
+        if (data.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        // 데이터가 로드되면 자동재생 시작
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _startAutoplay(data);
+        });
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            AspectRatio(
+              aspectRatio: widget.aspectRatio,
+              child: data.length == 1
+                  ? _buildBannerItem(data[0])
+                  : Swiper(
+                      controller: _swiperController,
+                      itemBuilder: (BuildContext context, int index) =>
+                          _buildBannerItem(data[index]),
+                      itemCount: data.length,
+                      onIndexChanged: (index) {
+                        setState(() {
+                          _currentIndex = index;
+                        });
+                        _startAutoplay(data);
+                      },
+                      autoplay: false,
+                      duration: 300,
+                    ),
             ),
-        ],
-      ),
+            if (data.length > 1)
+              SizedBox(
+                height: 20,
+                child: CustomPagination(
+                  itemCount: data.length,
+                  activeIndex: _currentIndex,
+                ),
+              ),
+          ],
+        );
+      },
       loading: () => Shimmer.fromColors(
         baseColor: AppColors.grey300,
         highlightColor: AppColors.grey100,

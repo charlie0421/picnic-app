@@ -4,7 +4,51 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="11e4844d-d946-4133-bdfe-177e6d8bead2" name="Changes" comment="" />
+    <list default="true" id="11e4844d-d946-4133-bdfe-177e6d8bead2" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/components/common/common_banner.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/components/common/common_banner.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/components/common/picnic_cached_network_image.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/components/common/picnic_cached_network_image.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/config/config_service.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/config/config_service.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/models/common/banner.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/models/common/banner.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/models/common/banner.freezed.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/models/common/banner.freezed.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/models/common/banner.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/models/common/banner.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/board_request.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/board_request.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/ad_providers.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/ad_providers.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/app_setting_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/app_setting_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/article_image_list_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/article_image_list_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/article_list_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/article_list_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/banner_list_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/banner_list_provider.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/banner_list_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/banner_list_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/celeb_list_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/celeb_list_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/celeb_search_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/celeb_search_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/comment_list_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/comment_list_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/community/boards_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/community/boards_provider.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/community/boards_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/community/boards_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/community/comments_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/community/comments_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/community/post_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/community/post_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/community_navigation_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/community_navigation_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/gallery_list_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/gallery_list_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/global_media_query.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/global_media_query.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/library_list_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/library_list_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/my_page/bookmarked_artists_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/my_page/bookmarked_artists_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/my_page/vote_artist_list_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/my_page/vote_artist_list_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/navigation_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/navigation_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/platform_info_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/platform_info_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/policy_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/policy_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/product_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/product_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/purchase_product_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/purchase_product_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/reward_list_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/reward_list_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/screen_protector_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/screen_protector_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/user_info_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/user_info_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/vote_detail_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/vote_detail_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/vote_list_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/vote_list_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/vote_pick_list_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/vote_pick_list_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/supabase_options.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/supabase_options.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/util/update_checker.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/util/update_checker.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/callback-admob/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/callback-admob/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resize_image_lambda/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/resize_image_lambda/index.js" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -88,6 +132,8 @@
       <workItem from="1716368365729" duration="603000" />
       <workItem from="1716527961140" duration="55000" />
       <workItem from="1729524479250" duration="2843000" />
+      <workItem from="1731070466983" duration="664000" />
+      <workItem from="1731071460080" duration="1127000" />
     </task>
     <servers />
   </component>

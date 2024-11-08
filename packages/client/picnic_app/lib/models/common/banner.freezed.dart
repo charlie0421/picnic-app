@@ -28,6 +28,8 @@ mixin _$BannerModel {
   String get thumbnail => throw _privateConstructorUsedError;
   @JsonKey(name: 'image')
   Map<String, dynamic> get image => throw _privateConstructorUsedError;
+  @JsonKey(name: 'duration', defaultValue: 3000)
+  int get duration => throw _privateConstructorUsedError;
 
   /// Serializes this BannerModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -49,7 +51,8 @@ abstract class $BannerModelCopyWith<$Res> {
       {@JsonKey(name: 'id') int id,
       @JsonKey(name: 'title') Map<String, dynamic> title,
       @JsonKey(name: 'thumbnail') String thumbnail,
-      @JsonKey(name: 'image') Map<String, dynamic> image});
+      @JsonKey(name: 'image') Map<String, dynamic> image,
+      @JsonKey(name: 'duration', defaultValue: 3000) int duration});
 }
 
 /// @nodoc
@@ -71,6 +74,7 @@ class _$BannerModelCopyWithImpl<$Res, $Val extends BannerModel>
     Object? title = null,
     Object? thumbnail = null,
     Object? image = null,
+    Object? duration = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -89,6 +93,10 @@ class _$BannerModelCopyWithImpl<$Res, $Val extends BannerModel>
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>,
+      duration: null == duration
+          ? _value.duration
+          : duration // ignore: cast_nullable_to_non_nullable
+              as int,
     ) as $Val);
   }
 }
@@ -105,7 +113,8 @@ abstract class _$$BannerModelImplCopyWith<$Res>
       {@JsonKey(name: 'id') int id,
       @JsonKey(name: 'title') Map<String, dynamic> title,
       @JsonKey(name: 'thumbnail') String thumbnail,
-      @JsonKey(name: 'image') Map<String, dynamic> image});
+      @JsonKey(name: 'image') Map<String, dynamic> image,
+      @JsonKey(name: 'duration', defaultValue: 3000) int duration});
 }
 
 /// @nodoc
@@ -125,6 +134,7 @@ class __$$BannerModelImplCopyWithImpl<$Res>
     Object? title = null,
     Object? thumbnail = null,
     Object? image = null,
+    Object? duration = null,
   }) {
     return _then(_$BannerModelImpl(
       id: null == id
@@ -143,6 +153,10 @@ class __$$BannerModelImplCopyWithImpl<$Res>
           ? _value._image
           : image // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>,
+      duration: null == duration
+          ? _value.duration
+          : duration // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }
@@ -154,7 +168,8 @@ class _$BannerModelImpl extends _BannerModel {
       {@JsonKey(name: 'id') required this.id,
       @JsonKey(name: 'title') required final Map<String, dynamic> title,
       @JsonKey(name: 'thumbnail') required this.thumbnail,
-      @JsonKey(name: 'image') required final Map<String, dynamic> image})
+      @JsonKey(name: 'image') required final Map<String, dynamic> image,
+      @JsonKey(name: 'duration', defaultValue: 3000) required this.duration})
       : _title = title,
         _image = image,
         super._();
@@ -187,8 +202,12 @@ class _$BannerModelImpl extends _BannerModel {
   }
 
   @override
+  @JsonKey(name: 'duration', defaultValue: 3000)
+  final int duration;
+
+  @override
   String toString() {
-    return 'BannerModel(id: $id, title: $title, thumbnail: $thumbnail, image: $image)';
+    return 'BannerModel(id: $id, title: $title, thumbnail: $thumbnail, image: $image, duration: $duration)';
   }
 
   @override
@@ -200,7 +219,9 @@ class _$BannerModelImpl extends _BannerModel {
             const DeepCollectionEquality().equals(other._title, _title) &&
             (identical(other.thumbnail, thumbnail) ||
                 other.thumbnail == thumbnail) &&
-            const DeepCollectionEquality().equals(other._image, _image));
+            const DeepCollectionEquality().equals(other._image, _image) &&
+            (identical(other.duration, duration) ||
+                other.duration == duration));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -210,7 +231,8 @@ class _$BannerModelImpl extends _BannerModel {
       id,
       const DeepCollectionEquality().hash(_title),
       thumbnail,
-      const DeepCollectionEquality().hash(_image));
+      const DeepCollectionEquality().hash(_image),
+      duration);
 
   /// Create a copy of BannerModel
   /// with the given fields replaced by the non-null parameter values.
@@ -230,11 +252,12 @@ class _$BannerModelImpl extends _BannerModel {
 
 abstract class _BannerModel extends BannerModel {
   const factory _BannerModel(
-          {@JsonKey(name: 'id') required final int id,
-          @JsonKey(name: 'title') required final Map<String, dynamic> title,
-          @JsonKey(name: 'thumbnail') required final String thumbnail,
-          @JsonKey(name: 'image') required final Map<String, dynamic> image}) =
-      _$BannerModelImpl;
+      {@JsonKey(name: 'id') required final int id,
+      @JsonKey(name: 'title') required final Map<String, dynamic> title,
+      @JsonKey(name: 'thumbnail') required final String thumbnail,
+      @JsonKey(name: 'image') required final Map<String, dynamic> image,
+      @JsonKey(name: 'duration', defaultValue: 3000)
+      required final int duration}) = _$BannerModelImpl;
   const _BannerModel._() : super._();
 
   factory _BannerModel.fromJson(Map<String, dynamic> json) =
@@ -252,6 +275,9 @@ abstract class _BannerModel extends BannerModel {
   @override
   @JsonKey(name: 'image')
   Map<String, dynamic> get image;
+  @override
+  @JsonKey(name: 'duration', defaultValue: 3000)
+  int get duration;
 
   /// Create a copy of BannerModel
   /// with the given fields replaced by the non-null parameter values.
