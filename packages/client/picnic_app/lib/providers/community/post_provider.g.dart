@@ -6,7 +6,7 @@ part of 'post_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$postsByArtistHash() => r'fba957eff5ecb269264fc719152df0518bdd12c6';
+String _$postsByArtistHash() => r'db9f947f35ad77b82513272683a3230de8f271c5';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -166,6 +166,8 @@ class PostsByArtistProvider
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin PostsByArtistRef on AutoDisposeFutureProviderRef<List<PostModel>?> {
   /// The parameter `artistId` of this provider.
   int get artistId;
@@ -190,7 +192,7 @@ class _PostsByArtistProviderElement
   int get page => (origin as PostsByArtistProvider).page;
 }
 
-String _$postsByBoardHash() => r'b227dcd17fb33f69fa4599d27a7029426d877c78';
+String _$postsByBoardHash() => r'51ed36a313a45e883dd7352b03aaa5c246352a4f';
 
 /// See also [postsByBoard].
 @ProviderFor(postsByBoard)
@@ -328,6 +330,8 @@ class PostsByBoardProvider extends AutoDisposeFutureProvider<List<PostModel>?> {
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin PostsByBoardRef on AutoDisposeFutureProviderRef<List<PostModel>?> {
   /// The parameter `boardId` of this provider.
   String get boardId;
@@ -352,7 +356,7 @@ class _PostsByBoardProviderElement
   int get page => (origin as PostsByBoardProvider).page;
 }
 
-String _$postsByQueryHash() => r'f16a1266a532b6ea6f86374a62866e8ed9dc2b38';
+String _$postsByQueryHash() => r'2fbf0253087b4e3afff0720e256e64baab1141be';
 
 /// See also [postsByQuery].
 @ProviderFor(postsByQuery)
@@ -501,6 +505,8 @@ class PostsByQueryProvider extends AutoDisposeFutureProvider<List<PostModel>?> {
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin PostsByQueryRef on AutoDisposeFutureProviderRef<List<PostModel>?> {
   /// The parameter `artistId` of this provider.
   int get artistId;
@@ -530,7 +536,7 @@ class _PostsByQueryProviderElement
   int get limit => (origin as PostsByQueryProvider).limit;
 }
 
-String _$postByIdHash() => r'bc61e3666212c7e9bc2b826afa4c8b133692b303';
+String _$postByIdHash() => r'3c8df580ec86ae68621d6754d1c8983efb1fdbe0';
 
 /// See also [postById].
 @ProviderFor(postById)
@@ -656,6 +662,8 @@ class PostByIdProvider extends AutoDisposeFutureProvider<PostModel?> {
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin PostByIdRef on AutoDisposeFutureProviderRef<PostModel?> {
   /// The parameter `postId` of this provider.
   String get postId;
@@ -675,7 +683,7 @@ class _PostByIdProviderElement
       (origin as PostByIdProvider).isIncrementViewCount;
 }
 
-String _$postsByUserHash() => r'342df7ebe4107674082a106a1bf523c0a50856c0';
+String _$postsByUserHash() => r'4bc94bb145ba4bcee1d781b76255029e3f99f67f';
 
 /// See also [postsByUser].
 @ProviderFor(postsByUser)
@@ -813,6 +821,8 @@ class PostsByUserProvider extends AutoDisposeFutureProvider<List<PostModel>> {
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin PostsByUserRef on AutoDisposeFutureProviderRef<List<PostModel>> {
   /// The parameter `userId` of this provider.
   String get userId;
@@ -838,7 +848,7 @@ class _PostsByUserProviderElement
 }
 
 String _$postsScrapedByUserHash() =>
-    r'50d95b89ccf10368e0128fba30a81f61c812d794';
+    r'ddabf21c71c0d8e8d2ac1d27ee4a30ddbd1c9b2e';
 
 /// See also [postsScrapedByUser].
 @ProviderFor(postsScrapedByUser)
@@ -979,6 +989,8 @@ class PostsScrapedByUserProvider
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin PostsScrapedByUserRef
     on AutoDisposeFutureProviderRef<List<PostScrapModel>> {
   /// The parameter `userId` of this provider.
@@ -1004,7 +1016,7 @@ class _PostsScrapedByUserProviderElement
   int get page => (origin as PostsScrapedByUserProvider).page;
 }
 
-String _$reportPostHash() => r'10ef6d4b45308144017aa0d5c0ca626d1e53d509';
+String _$reportPostHash() => r'0a8f3188a618917e44fa2edc45dbb7aa9f347699';
 
 /// See also [reportPost].
 @ProviderFor(reportPost)
@@ -1019,12 +1031,14 @@ class ReportPostFamily extends Family<AsyncValue<void>> {
   ReportPostProvider call(
     PostModel post,
     String reason,
-    String text,
-  ) {
+    String text, {
+    bool blockUser = false,
+  }) {
     return ReportPostProvider(
       post,
       reason,
       text,
+      blockUser: blockUser,
     );
   }
 
@@ -1036,6 +1050,7 @@ class ReportPostFamily extends Family<AsyncValue<void>> {
       provider.post,
       provider.reason,
       provider.text,
+      blockUser: provider.blockUser,
     );
   }
 
@@ -1060,13 +1075,15 @@ class ReportPostProvider extends AutoDisposeFutureProvider<void> {
   ReportPostProvider(
     PostModel post,
     String reason,
-    String text,
-  ) : this._internal(
+    String text, {
+    bool blockUser = false,
+  }) : this._internal(
           (ref) => reportPost(
             ref as ReportPostRef,
             post,
             reason,
             text,
+            blockUser: blockUser,
           ),
           from: reportPostProvider,
           name: r'reportPostProvider',
@@ -1080,6 +1097,7 @@ class ReportPostProvider extends AutoDisposeFutureProvider<void> {
           post: post,
           reason: reason,
           text: text,
+          blockUser: blockUser,
         );
 
   ReportPostProvider._internal(
@@ -1092,11 +1110,13 @@ class ReportPostProvider extends AutoDisposeFutureProvider<void> {
     required this.post,
     required this.reason,
     required this.text,
+    required this.blockUser,
   }) : super.internal();
 
   final PostModel post;
   final String reason;
   final String text;
+  final bool blockUser;
 
   @override
   Override overrideWith(
@@ -1114,6 +1134,7 @@ class ReportPostProvider extends AutoDisposeFutureProvider<void> {
         post: post,
         reason: reason,
         text: text,
+        blockUser: blockUser,
       ),
     );
   }
@@ -1128,7 +1149,8 @@ class ReportPostProvider extends AutoDisposeFutureProvider<void> {
     return other is ReportPostProvider &&
         other.post == post &&
         other.reason == reason &&
-        other.text == text;
+        other.text == text &&
+        other.blockUser == blockUser;
   }
 
   @override
@@ -1137,11 +1159,14 @@ class ReportPostProvider extends AutoDisposeFutureProvider<void> {
     hash = _SystemHash.combine(hash, post.hashCode);
     hash = _SystemHash.combine(hash, reason.hashCode);
     hash = _SystemHash.combine(hash, text.hashCode);
+    hash = _SystemHash.combine(hash, blockUser.hashCode);
 
     return _SystemHash.finish(hash);
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin ReportPostRef on AutoDisposeFutureProviderRef<void> {
   /// The parameter `post` of this provider.
   PostModel get post;
@@ -1151,6 +1176,9 @@ mixin ReportPostRef on AutoDisposeFutureProviderRef<void> {
 
   /// The parameter `text` of this provider.
   String get text;
+
+  /// The parameter `blockUser` of this provider.
+  bool get blockUser;
 }
 
 class _ReportPostProviderElement extends AutoDisposeFutureProviderElement<void>
@@ -1163,9 +1191,11 @@ class _ReportPostProviderElement extends AutoDisposeFutureProviderElement<void>
   String get reason => (origin as ReportPostProvider).reason;
   @override
   String get text => (origin as ReportPostProvider).text;
+  @override
+  bool get blockUser => (origin as ReportPostProvider).blockUser;
 }
 
-String _$deletePostHash() => r'62a474082029ab5eba95a307b487e6de1dad818c';
+String _$deletePostHash() => r'14edd1b452c2311c8e788e36bcd75d3fd51a91b7';
 
 /// See also [deletePost].
 @ProviderFor(deletePost)
@@ -1280,6 +1310,8 @@ class DeletePostProvider extends AutoDisposeFutureProvider<void> {
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin DeletePostRef on AutoDisposeFutureProviderRef<void> {
   /// The parameter `postId` of this provider.
   String get postId;
@@ -1293,7 +1325,7 @@ class _DeletePostProviderElement extends AutoDisposeFutureProviderElement<void>
   String get postId => (origin as DeletePostProvider).postId;
 }
 
-String _$scrapPostHash() => r'd762939a544aed6d02c1a27628200c9ede024b60';
+String _$scrapPostHash() => r'92ea67c79075d4dac5997c6706a61137a1a95af5';
 
 /// See also [scrapPost].
 @ProviderFor(scrapPost)
@@ -1407,6 +1439,8 @@ class ScrapPostProvider extends AutoDisposeFutureProvider<void> {
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin ScrapPostRef on AutoDisposeFutureProviderRef<void> {
   /// The parameter `postId` of this provider.
   String get postId;
@@ -1420,7 +1454,7 @@ class _ScrapPostProviderElement extends AutoDisposeFutureProviderElement<void>
   String get postId => (origin as ScrapPostProvider).postId;
 }
 
-String _$unscrapPostHash() => r'3adf9ecbd5b1bfafa73f056dd6ad34335796d15b';
+String _$unscrapPostHash() => r'a5f031214c35bf97124f41695a0a9a6787472b71';
 
 /// See also [unscrapPost].
 @ProviderFor(unscrapPost)
@@ -1547,6 +1581,8 @@ class UnscrapPostProvider extends AutoDisposeFutureProvider<void> {
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin UnscrapPostRef on AutoDisposeFutureProviderRef<void> {
   /// The parameter `postId` of this provider.
   String get postId;
@@ -1565,4 +1601,4 @@ class _UnscrapPostProviderElement extends AutoDisposeFutureProviderElement<void>
   String get userId => (origin as UnscrapPostProvider).userId;
 }
 // ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

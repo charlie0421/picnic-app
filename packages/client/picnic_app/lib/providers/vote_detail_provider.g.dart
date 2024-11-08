@@ -6,7 +6,7 @@ part of 'vote_detail_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$fetchVoteAchieveHash() => r'617224221821d7c6e00dcd94a885fa4f8ca60564';
+String _$fetchVoteAchieveHash() => r'd0378f9f5df39f5b8471c41903aa83b9a114cff7';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -143,6 +143,8 @@ class FetchVoteAchieveProvider
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin FetchVoteAchieveRef on AutoDisposeFutureProviderRef<List<VoteAchieve>?> {
   /// The parameter `voteId` of this provider.
   int get voteId;
@@ -287,6 +289,8 @@ class AsyncVoteDetailProvider
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin AsyncVoteDetailRef on AutoDisposeAsyncNotifierProviderRef<VoteModel?> {
   /// The parameter `voteId` of this provider.
   int get voteId;
@@ -431,6 +435,8 @@ class AsyncVoteItemListProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin AsyncVoteItemListRef
     on AutoDisposeAsyncNotifierProviderRef<List<VoteItemModel?>> {
   /// The parameter `voteId` of this provider.
@@ -446,4 +452,4 @@ class _AsyncVoteItemListProviderElement
   int get voteId => (origin as AsyncVoteItemListProvider).voteId;
 }
 // ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

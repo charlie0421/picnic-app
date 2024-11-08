@@ -188,6 +188,8 @@ class FetchArticleListProvider
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin FetchArticleListRef on AutoDisposeFutureProviderRef<List<ArticleModel>?> {
   /// The parameter `page` of this provider.
   int get page;
@@ -365,6 +367,8 @@ class CommentCountProvider
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin CommentCountRef on AutoDisposeAsyncNotifierProviderRef<int> {
   /// The parameter `articleId` of this provider.
   int get articleId;
@@ -379,4 +383,4 @@ class _CommentCountProviderElement
   int get articleId => (origin as CommentCountProvider).articleId;
 }
 // ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

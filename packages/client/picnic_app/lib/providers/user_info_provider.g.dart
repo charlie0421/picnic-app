@@ -19,6 +19,8 @@ final setAgreementProvider = AutoDisposeFutureProvider<bool>.internal(
   allTransitiveDependencies: null,
 );
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 typedef SetAgreementRef = AutoDisposeFutureProviderRef<bool>;
 String _$agreementHash() => r'26a35964df24d6a274cd694cdababfc29ca7954d';
 
@@ -33,6 +35,8 @@ final agreementProvider = AutoDisposeFutureProvider<bool>.internal(
   allTransitiveDependencies: null,
 );
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 typedef AgreementRef = AutoDisposeFutureProviderRef<bool>;
 String _$expireBonusHash() => r'82bc57f8cd8c126e2c6ea34bcc534accc2e67c56';
 
@@ -48,6 +52,8 @@ final expireBonusProvider =
   allTransitiveDependencies: null,
 );
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 typedef ExpireBonusRef
     = AutoDisposeFutureProviderRef<List<Map<String, dynamic>?>?>;
 String _$userInfoHash() => r'269e15d99f8a8d6e7f5177cd5288207597d0a27a';
@@ -66,4 +72,4 @@ final userInfoProvider =
 
 typedef _$UserInfo = AutoDisposeAsyncNotifier<UserProfilesModel?>;
 // ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
