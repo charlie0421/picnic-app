@@ -58,57 +58,94 @@ const fetchOriginalImage = async (key) => {
     }
 };
 
-const isAnimatedGif = async (imageBuffer) => {
-    try {
-        const metadata = await sharp(imageBuffer).metadata();
-        // GIF이고 페이지(프레임)가 1개 이상인 경우 애니메이션 GIF로 판단
-        return metadata.format === 'gif' && metadata.pages > 1;
-    } catch (error) {
-        logger.error("Error checking if image is animated GIF:", error);
-        return false;
-    }
-};
-
-const processImage = async (originalImage, { width, height, format, quality }) => {
-    const imageBuffer = await originalImage.Body.transformToByteArray();
+// imageBuffer를 직접 받도록 수정
+const processImage = async (imageBuffer, { width, height, format, quality }) => {
     const metadata = await sharp(imageBuffer).metadata();
     let processedImage;
     let outputFormat = format || metadata.format;
 
-    // 애니메이션 GIF 체크
-    const isAnimated = await isAnimatedGif(imageBuffer);
+    processedImage = sharp(imageBuffer);
+    if (width || height) {
+        processedImage = processedImage.resize(width, height, {
+            fit: "inside",
+            withoutEnlargement: true
+        });
+    }
 
-    if (isAnimated) {
-        logger.log('Animated GIF detected, preserving original format');
-        // 애니메이션 GIF는 원본 포맷 유지 (webp 변환 건너뛰기)
-        processedImage = sharp(imageBuffer, { animated: true });
-        outputFormat = 'gif';
-
-        if (width || height) {
-            processedImage = processedImage.resize(width, height, {
-                fit: "inside",
-                withoutEnlargement: true
-            });
-        }
+    if (CONFIG.SUPPORTED_FORMATS.includes(outputFormat)) {
+        processedImage = processedImage[outputFormat]({ quality });
     } else {
-        // 일반 이미지 처리 (정적 GIF 포함)
-        processedImage = sharp(imageBuffer);
-        if (width || height) {
-            processedImage = processedImage.resize(width, height, {
-                fit: "inside",
-                withoutEnlargement: true
-            });
-        }
-
-        if (CONFIG.SUPPORTED_FORMATS.includes(outputFormat)) {
-            processedImage = processedImage[outputFormat]({ quality });
-        } else {
-            processedImage = processedImage.toFormat(metadata.format);
-            outputFormat = metadata.format;
-        }
+        processedImage = processedImage.toFormat(metadata.format);
+        outputFormat = metadata.format;
     }
 
     return { processedImage, outputFormat };
+};
+
+// GIF 애니메이션 체크 함수는 동일
+const isAnimatedGif = (buffer) => {
+    if (buffer.length < 3 || buffer.toString('ascii', 0, 3) !== 'GIF') {
+        return false;
+    }
+
+    let pos = 13;
+    let frames = 0;
+
+    try {
+        const packedField = buffer[10];
+        const globalColorTableSize = packedField & 0x07;
+        if (packedField & 0x80) {
+            pos += 3 * Math.pow(2, globalColorTableSize + 1);
+        }
+
+        while (pos < buffer.length) {
+            const blockType = buffer[pos];
+
+            if (blockType === 0x2C) {
+                frames++;
+
+                const localPackedField = buffer[pos + 9];
+                if (localPackedField & 0x80) {
+                    const localColorTableSize = localPackedField & 0x07;
+                    pos += 3 * Math.pow(2, localColorTableSize + 1);
+                }
+
+                pos += 11;
+                pos++;
+
+                while (pos < buffer.length) {
+                    const subBlockSize = buffer[pos];
+                    if (subBlockSize === 0) break;
+                    pos += subBlockSize + 1;
+                }
+            }
+            else if (blockType === 0x21 && buffer[pos + 1] === 0xF9) {
+                pos += 8;
+            }
+            else if (blockType === 0x21 && buffer[pos + 1] === 0xFF) {
+                pos += 19;
+            }
+            else if (blockType === 0x21 && buffer[pos + 1] === 0xFE) {
+                pos += 2;
+                while (pos < buffer.length) {
+                    const subBlockSize = buffer[pos];
+                    if (subBlockSize === 0) break;
+                    pos += subBlockSize + 1;
+                }
+                pos++;
+            }
+            else if (blockType === 0x3B) {
+                break;
+            }
+
+            pos++;
+        }
+
+        return frames > 1;
+    } catch (error) {
+        logger.error("Error analyzing GIF structure:", error);
+        return false;
+    }
 };
 
 const uploadProcessedImage = async (processedImage, key, outputFormat) => {
@@ -123,7 +160,15 @@ const uploadProcessedImage = async (processedImage, key, outputFormat) => {
 
 const generateTransformedKey = (originalKey, { width, height, format, quality }) => {
     const parsedPath = path.parse(originalKey);
-    return `cache/${parsedPath.dir}/${parsedPath.name}_w${width || 'auto'}_h${height || 'auto'}_f${format}_q${quality}.${format}`;
+    const extension = format || parsedPath.ext.slice(1);
+
+    // 애니메이션 GIF인 경우 원본 키 경로에 cache 접두사만 추가
+    if (extension === 'gif') {
+        return `cache/${originalKey}`;
+    }
+
+    // 일반 이미지의 경우 기존 변환 키 생성 로직 사용
+    return `cache/${parsedPath.dir}/${parsedPath.name}_w${width || 'auto'}_h${height || 'auto'}_f${extension}_q${quality}.${extension}`;
 };
 
 exports.handler = async (event) => {
@@ -145,8 +190,27 @@ exports.handler = async (event) => {
 
     try {
         const originalImage = await fetchOriginalImage(originalKey);
-        const { processedImage, outputFormat } = await processImage(originalImage, params);
-        const transformedKey = generateTransformedKey(originalKey, { ...params, format: outputFormat });
+        // Stream을 한 번만 변환
+        const imageBuffer = await originalImage.Body.transformToByteArray();
+
+        // GIF 파일인지 먼저 확인
+        const isGif = imageBuffer.toString('ascii', 0, 3) === 'GIF';
+
+        if (isGif) {
+            // 애니메이션 GIF인지 확인
+            const isAnimated = isAnimatedGif(imageBuffer);
+            if (isAnimated) {
+                logger.log('Animated GIF detected, returning original image', { key: originalKey });
+                return response;
+            }
+        }
+
+        // 일반 이미지나 정적 GIF 처리
+        const { processedImage, outputFormat } = await processImage(imageBuffer, params);
+        const transformedKey = generateTransformedKey(originalKey, {
+            ...params,
+            format: outputFormat
+        });
 
         await uploadProcessedImage(processedImage, transformedKey, outputFormat);
 
@@ -166,7 +230,6 @@ exports.handler = async (event) => {
             return response;
         }
 
-        // Fallback to original image for other errors
         logger.log('Error occurred, falling back to original image');
         return response;
     }
