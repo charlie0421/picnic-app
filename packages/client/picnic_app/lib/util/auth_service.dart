@@ -224,6 +224,8 @@ class AuthService {
       Session session, Supabase.OAuthProvider provider, String idToken) async {
     await _storage.write(
         key: 'supabase_access_token', value: session.accessToken);
+    await _storage.write(
+        key: 'supabase_refresh_token', value: session.refreshToken);
     await _storage.write(key: 'last_provider', value: provider.name);
     await _storage.write(
         key: '${provider.name.toLowerCase()}_id_token', value: idToken);
@@ -238,14 +240,16 @@ class AuthService {
         return false;
       }
 
-      return await _recoverOAuthSession(Supabase.OAuthProvider.values
-          .firstWhere((e) => e.name == lastProvider));
+      if (await NetworkCheck.isOnline()) {
+        return await _recoverOAuthSession(Supabase.OAuthProvider.values
+            .firstWhere((e) => e.name == lastProvider));
+      } else {
+        logger.w('Cannot recover session due to offline status');
+        return false;
+      }
     } catch (e, s) {
       logger.e('Error during session recovery: $e', stackTrace: s);
-      Sentry.captureException(
-        e,
-        stackTrace: s,
-      );
+      Sentry.captureException(e, stackTrace: s);
       return false;
     }
   }
@@ -313,8 +317,14 @@ class AuthService {
       if (await NetworkCheck.isOnline()) {
         try {
           final response = await supabase.auth.refreshSession();
-          logger.i(
-              'Token refreshed successfully: ${response.session?.accessToken}');
+          if (response.session != null) {
+            await _storeSession(response.session!,
+                Supabase.OAuthProvider.google, response.session!.accessToken);
+            logger.i(
+                'Token refreshed successfully: ${response.session?.accessToken}');
+          } else {
+            logger.e('Token refresh failed: No session returned');
+          }
         } catch (e, s) {
           logger.e('Token refresh failed: $e', stackTrace: s);
           rethrow; // 에러 처리 (예: 사용자에게 재로그인 요청)
