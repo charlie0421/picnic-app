@@ -5,10 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="11e4844d-d946-4133-bdfe-177e6d8bead2" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/board_request.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/board_request.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/community/boards_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/community/boards_provider.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/supabase_options.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/supabase_options.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -95,6 +93,7 @@
       <workItem from="1729524479250" duration="2843000" />
       <workItem from="1731070466983" duration="664000" />
       <workItem from="1731071460080" duration="1644000" />
+      <workItem from="1731137537317" duration="643000" />
     </task>
     <servers />
   </component>
