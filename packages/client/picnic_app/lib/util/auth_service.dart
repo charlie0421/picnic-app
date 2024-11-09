@@ -32,6 +32,9 @@ class GoogleLogin implements SocialLogin {
   Future<SocialLoginResult> login() async {
     try {
       final googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        throw Exception('CANCELED');
+      }
       final googleAuth = await googleUser!.authentication;
 
       return SocialLoginResult(
@@ -90,6 +93,9 @@ class AppleLogin implements SocialLogin {
       );
     } catch (e, s) {
       logger.e('Apple login error: $e', stackTrace: s);
+      if (e is SignInWithAppleAuthorizationException) {
+        throw Exception('CANCELED');
+      }
       rethrow;
     }
   }
@@ -106,15 +112,12 @@ class KakaoLogin implements SocialLogin {
       return await loginMethod();
     } catch (e, s) {
       logger.e('Login failed $e', stackTrace: s);
-      Sentry.captureException(
-        e,
-        stackTrace: s,
-      );
       if (e is PlatformException && e.code == 'CANCELED') {
-        return null;
+        throw Exception('CANCELED');
+      } else {
+        rethrow;
       }
     }
-    return null;
   }
 
   @override

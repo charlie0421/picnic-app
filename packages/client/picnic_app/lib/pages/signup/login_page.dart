@@ -2,6 +2,7 @@ import 'package:bubble/bubble.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -330,13 +331,17 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               } catch (e, s) {
                 OverlayLoadingProgress.stop();
                 logger.e('Error signing in with Apple: $e', stackTrace: s);
-                showSimpleDialog(
-                    title: Intl.message('error_title'),
-                    content: Intl.message('error_message_login_failed'),
-                    onOk: () {
-                      Navigator.of(context).pop();
-                    });
-                rethrow;
+                if (e.toString() == 'Exception: CANCELED') {
+                } else {
+                  showSimpleDialog(
+                      type: DialogType.error,
+                      title: Intl.message('error_title'),
+                      content: Intl.message('error_message_login_failed'),
+                      onOk: () {
+                        Navigator.of(context).pop();
+                      });
+                  rethrow;
+                }
               }
             },
             style: SignInWithAppleButtonStyle.black,
@@ -394,13 +399,17 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               } catch (e, s) {
                 OverlayLoadingProgress.stop();
                 logger.e('Error signing in with Google: $e', stackTrace: s);
-                showSimpleDialog(
-                    title: Intl.message('error_title'),
-                    content: Intl.message('error_message_login_failed'),
-                    onOk: () {
-                      Navigator.of(context).pop();
-                    });
-                rethrow;
+                if (e.toString() == 'Exception: CANCELED') {
+                } else {
+                  showSimpleDialog(
+                      type: DialogType.error,
+                      title: Intl.message('error_title'),
+                      content: Intl.message('error_message_login_failed'),
+                      onOk: () {
+                        Navigator.of(context).pop();
+                      });
+                  rethrow;
+                }
               }
             },
             child: SizedBox(
@@ -468,7 +477,17 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
             } catch (e, s) {
               OverlayLoadingProgress.stop();
               logger.e('Error signing in with Kakao: $e', stackTrace: s);
-              rethrow;
+              if (e.toString() == 'Exception: CANCELED') {
+              } else {
+                showSimpleDialog(
+                    type: DialogType.error,
+                    title: Intl.message('error_title'),
+                    content: Intl.message('error_message_login_failed'),
+                    onOk: () {
+                      Navigator.of(context).pop();
+                    });
+                rethrow;
+              }
             }
           },
           child: SizedBox(
