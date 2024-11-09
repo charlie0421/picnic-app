@@ -5,8 +5,17 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
 
-Widget buildDialogButton(BuildContext context, String buttonText,
-    Color textColor, Function() onPressed) {
+class DialogType {
+  static const normal = 'normal';
+  static const error = 'error';
+}
+
+Widget buildDialogButton(
+  BuildContext context,
+  String buttonText,
+  Color textColor,
+  Function() onPressed,
+) {
   return Expanded(
     flex: 1,
     child: SizedBox(
@@ -28,6 +37,7 @@ void showSimpleDialog({
   Widget? contentWidget,
   Function()? onOk,
   Function()? onCancel,
+  String type = DialogType.normal,
 }) {
   final context = navigatorKey.currentContext;
   if (context == null) {
@@ -35,66 +45,117 @@ void showSimpleDialog({
     return;
   }
 
-  showDialog(
+  // 에러 타입일 때 사용할 색상
+  final backgroundColor =
+      type == DialogType.error ? AppColors.grey00 : Colors.white;
+  final titleColor =
+      type == DialogType.error ? AppColors.point900 : AppColors.grey900;
+  final contentColor = type == DialogType.error
+      ? AppColors.point900.withOpacity(0.8)
+      : AppColors.grey700;
+
+  showGeneralDialog(
     context: context,
     barrierDismissible: true,
-    builder: (BuildContext context) {
-      return Dialog(
-        alignment: Alignment.center,
-        child: Container(
-          width: getPlatformScreenSize(context).width,
-          constraints: BoxConstraints(
-            minWidth: 151.cw,
-          ),
-          padding: EdgeInsets.only(
-            top: 28,
-            bottom: 20,
-            left: 20.cw,
-            right: 20.cw,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (title != null)
-                Text(
-                  title,
-                  style: getTextStyle(AppTypo.title18B, AppColors.grey900),
-                ),
-              if (titleWidget != null) titleWidget,
-              if (content != null) ...[
-                const SizedBox(
-                  height: 12,
-                ),
-                Text(
-                  content,
-                  style: getTextStyle(AppTypo.body14R, AppColors.grey700),
-                  textAlign: TextAlign.center,
-                )
-              ],
-              if (contentWidget != null) ...[
-                const SizedBox(
-                  height: 12,
-                ),
-                contentWidget
-              ],
-              const SizedBox(
-                height: 28,
+    barrierLabel: '',
+    transitionDuration: const Duration(milliseconds: 300),
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return Container();
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      // 애니메이션 설정
+      final curvedAnimation = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeInOut,
+      );
+
+      return ScaleTransition(
+        scale: Tween<double>(begin: 0.5, end: 1.0).animate(curvedAnimation),
+        child: FadeTransition(
+          opacity: Tween<double>(begin: 0.0, end: 1.0).animate(curvedAnimation),
+          child: Dialog(
+            alignment: Alignment.center,
+            child: Container(
+              width: getPlatformScreenSize(context).width,
+              constraints: BoxConstraints(
+                minWidth: 151.cw,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              padding: EdgeInsets.only(
+                top: 28,
+                bottom: 20,
+                left: 20.cw,
+                right: 20.cw,
+              ),
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: type == DialogType.error
+                    ? [
+                        BoxShadow(
+                          color: AppColors.point500.withOpacity(0.2),
+                          blurRadius: 10,
+                          spreadRadius: 2,
+                        )
+                      ]
+                    : null,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (onCancel != null)
-                    buildDialogButton(
-                        context,
-                        S.of(context).dialog_button_cancel,
-                        AppColors.grey700,
-                        onCancel),
-                  if (onOk != null)
-                    buildDialogButton(context, S.of(context).dialog_button_ok,
-                        AppColors.primary500, onOk),
+                  if (type == DialogType.error) ...[
+                    Icon(
+                      Icons.error_outline,
+                      color: AppColors.point500,
+                      size: 40,
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                  if (title != null)
+                    Text(
+                      title,
+                      style: getTextStyle(AppTypo.title18B, titleColor),
+                      textAlign: TextAlign.center,
+                    ),
+                  if (titleWidget != null) titleWidget,
+                  if (content != null) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      content,
+                      style: getTextStyle(AppTypo.body14R, contentColor),
+                      textAlign: TextAlign.center,
+                    )
+                  ],
+                  if (contentWidget != null) ...[
+                    const SizedBox(height: 12),
+                    contentWidget
+                  ],
+                  const SizedBox(height: 28),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (onCancel != null)
+                        buildDialogButton(
+                          context,
+                          S.of(context).dialog_button_cancel,
+                          type == DialogType.error
+                              ? AppColors.point500.withOpacity(0.7)
+                              : AppColors.grey700,
+                          onCancel,
+                        ),
+                      if (onOk != null)
+                        buildDialogButton(
+                          context,
+                          S.of(context).dialog_button_ok,
+                          type == DialogType.error
+                              ? AppColors.point500
+                              : AppColors.primary500,
+                          onOk,
+                        ),
+                    ],
+                  ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
       );
