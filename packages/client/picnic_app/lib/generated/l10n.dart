@@ -3289,6 +3289,16 @@ class S {
       args: [],
     );
   }
+
+  /// `An error occurred while loading the page.`
+  String get error_loading_page {
+    return Intl.message(
+      'An error occurred while loading the page.',
+      name: 'error_loading_page',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

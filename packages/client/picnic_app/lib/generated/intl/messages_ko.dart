@@ -126,6 +126,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("유효하지 않은 데이터입니다."),
         "error_loading_more_comments":
             MessageLookupByLibrary.simpleMessage("댓글을 불러오는 중 오류가 발생했습니다."),
+        "error_loading_page":
+            MessageLookupByLibrary.simpleMessage("페이지 로딩 중 오류가 발생했습니다."),
         "error_message_login_failed":
             MessageLookupByLibrary.simpleMessage("로그인 중 오류가 발생했습니다."),
         "error_message_no_user":

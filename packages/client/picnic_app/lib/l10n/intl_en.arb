@@ -1480,5 +1480,9 @@
   "comments": "Comments",
   "@comments": {
     "manualTranslation": false
+  },
+  "error_loading_page": "An error occurred while loading the page.",
+  "@error_loading_page": {
+    "manualTranslation": false
   }
 }

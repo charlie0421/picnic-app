@@ -1479,5 +1479,9 @@
   "comments": "评论",
   "@comments": {
     "manualTranslation": false
+  },
+  "error_loading_page": "加载页面时出现错误。",
+  "@error_loading_page": {
+    "manualTranslation": false
   }
 }

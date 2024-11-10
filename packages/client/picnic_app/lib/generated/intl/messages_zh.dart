@@ -120,6 +120,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "error_invalid_data": MessageLookupByLibrary.simpleMessage("数据无效。"),
         "error_loading_more_comments":
             MessageLookupByLibrary.simpleMessage("加载评论时出现错误。"),
+        "error_loading_page":
+            MessageLookupByLibrary.simpleMessage("加载页面时出现错误。"),
         "error_message_login_failed":
             MessageLookupByLibrary.simpleMessage("登录时发生错误。"),
         "error_message_no_user":
