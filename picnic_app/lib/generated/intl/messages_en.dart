@@ -129,10 +129,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "error_title": MessageLookupByLibrary.simpleMessage("Errors"),
         "exception_auth_message_apple_invalid_response":
             MessageLookupByLibrary.simpleMessage(
-                "We received an invalid response from Apple\'s servers, please try again."),
+                "We received an invalid response from Apple\'s servers. \nplease try again."),
         "exception_auth_message_apple_sign_in_failed":
             MessageLookupByLibrary.simpleMessage(
-                "Apple sign-in failed, please try again."),
+                "Apple sign-in failed, \nplease try again."),
         "exception_auth_message_common_cancel":
             MessageLookupByLibrary.simpleMessage(
                 "Your login has been canceled."),
@@ -144,16 +144,16 @@ class MessageLookup extends MessageLookupByLibrary {
                 "Check your network connection."),
         "exception_auth_message_common_unknown":
             MessageLookupByLibrary.simpleMessage(
-                "An unknown error occurred during login, please try again in a moment."),
+                "An unknown error occurred during login.\n please try again in a moment."),
         "exception_auth_message_common_unsupported_provider":
             MessageLookupByLibrary.simpleMessage(
                 "This login method is not supported"),
         "exception_auth_message_google_google_play_service":
             MessageLookupByLibrary.simpleMessage(
-                "A Google Play Services error has occurred. Please update Google Play Services or restart your device."),
+                "A Google Play Services error has occurred. \nPlease update Google Play Services or restart your device."),
         "exception_auth_message_kakao_not_supported":
             MessageLookupByLibrary.simpleMessage(
-                "I can\'t sign in with the KakaoTalk app, try signing in with your Kakao account."),
+                "I can\'t sign in with the KakaoTalk app. \ntry signing in with your Kakao account."),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("Album name"),
         "hint_nickname_input":
             MessageLookupByLibrary.simpleMessage("Please enter a nickname."),

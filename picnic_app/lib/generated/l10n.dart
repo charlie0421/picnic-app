@@ -3120,10 +3120,10 @@ class S {
     );
   }
 
-  /// `An unknown error occurred during login, please try again in a moment.`
+  /// `An unknown error occurred during login.\n please try again in a moment.`
   String get exception_auth_message_common_unknown {
     return Intl.message(
-      'An unknown error occurred during login, please try again in a moment.',
+      'An unknown error occurred during login.\n please try again in a moment.',
       name: 'exception_auth_message_common_unknown',
       desc: '',
       args: [],
@@ -3150,40 +3150,40 @@ class S {
     );
   }
 
-  /// `A Google Play Services error has occurred. Please update Google Play Services or restart your device.`
+  /// `A Google Play Services error has occurred. \nPlease update Google Play Services or restart your device.`
   String get exception_auth_message_google_google_play_service {
     return Intl.message(
-      'A Google Play Services error has occurred. Please update Google Play Services or restart your device.',
+      'A Google Play Services error has occurred. \nPlease update Google Play Services or restart your device.',
       name: 'exception_auth_message_google_google_play_service',
       desc: '',
       args: [],
     );
   }
 
-  /// `Apple sign-in failed, please try again.`
+  /// `Apple sign-in failed, \nplease try again.`
   String get exception_auth_message_apple_sign_in_failed {
     return Intl.message(
-      'Apple sign-in failed, please try again.',
+      'Apple sign-in failed, \nplease try again.',
       name: 'exception_auth_message_apple_sign_in_failed',
       desc: '',
       args: [],
     );
   }
 
-  /// `I can't sign in with the KakaoTalk app, try signing in with your Kakao account.`
+  /// `I can't sign in with the KakaoTalk app. \ntry signing in with your Kakao account.`
   String get exception_auth_message_kakao_not_supported {
     return Intl.message(
-      'I can\'t sign in with the KakaoTalk app, try signing in with your Kakao account.',
+      'I can\'t sign in with the KakaoTalk app. \ntry signing in with your Kakao account.',
       name: 'exception_auth_message_kakao_not_supported',
       desc: '',
       args: [],
     );
   }
 
-  /// `We received an invalid response from Apple's servers, please try again.`
+  /// `We received an invalid response from Apple's servers. \nplease try again.`
   String get exception_auth_message_apple_invalid_response {
     return Intl.message(
-      'We received an invalid response from Apple\'s servers, please try again.',
+      'We received an invalid response from Apple\'s servers. \nplease try again.',
       name: 'exception_auth_message_apple_invalid_response',
       desc: '',
       args: [],
