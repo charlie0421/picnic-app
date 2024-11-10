@@ -50,9 +50,8 @@ void showSimpleDialog({
       type == DialogType.error ? AppColors.grey00 : Colors.white;
   final titleColor =
       type == DialogType.error ? AppColors.point900 : AppColors.grey900;
-  final contentColor = type == DialogType.error
-      ? AppColors.point900.withOpacity(0.8)
-      : AppColors.grey700;
+  final contentColor =
+      type == DialogType.error ? AppColors.point900 : AppColors.grey700;
 
   showGeneralDialog(
     context: context,
@@ -92,7 +91,7 @@ void showSimpleDialog({
                 boxShadow: type == DialogType.error
                     ? [
                         BoxShadow(
-                          color: AppColors.point500.withOpacity(0.2),
+                          color: AppColors.grey300,
                           blurRadius: 10,
                           spreadRadius: 2,
                         )
@@ -105,7 +104,7 @@ void showSimpleDialog({
                   if (type == DialogType.error) ...[
                     Icon(
                       Icons.error_outline,
-                      color: AppColors.point500,
+                      color: AppColors.point900,
                       size: 40,
                     ),
                     const SizedBox(height: 12),
@@ -138,7 +137,7 @@ void showSimpleDialog({
                           context,
                           S.of(context).dialog_button_cancel,
                           type == DialogType.error
-                              ? AppColors.point500.withOpacity(0.7)
+                              ? AppColors.point900
                               : AppColors.grey700,
                           onCancel,
                         ),
@@ -147,7 +146,7 @@ void showSimpleDialog({
                           context,
                           S.of(context).dialog_button_ok,
                           type == DialogType.error
-                              ? AppColors.point500
+                              ? AppColors.point900
                               : AppColors.primary500,
                           onOk,
                         ),
