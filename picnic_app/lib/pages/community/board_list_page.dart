@@ -30,15 +30,19 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
   final _pagingController =
       PagingController<int, List<BoardModel>>(firstPageKey: 0);
   final _searchSubject = BehaviorSubject<String>();
+  late final BoardsByArtistNameNotifier _boardsNotifier;
 
   @override
   void initState() {
     super.initState();
+    _boardsNotifier =
+        ref.read(boardsByArtistNameNotifierProvider('', 0, 10).notifier);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
           showPortal: true, showTopMenu: false, showBottomNavigation: true);
     });
+
     _pagingController.addPageRequestListener(_fetch);
     _textEditingController.addListener(_onSearchQueryChange);
     _searchSubject
@@ -62,33 +66,33 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
 
   Future<void> _fetch(int pageKey) async {
     try {
-      final newItems = await boardsByArtistName(
-              ref, _textEditingController.text, pageKey, 10) ??
-          [];
+      final newItems = await ref.read(boardsByArtistNameNotifierProvider(
+              _textEditingController.text, pageKey, 10)
+          .future);
 
-      final groupedBoards = _groupBoardsByArtist(newItems);
+      final groupedBoards = _groupBoardsByArtist(newItems ?? []);
 
-      final isLastPage = newItems.length < 10;
+      final isLastPage = (newItems?.length ?? 0) < 10;
       if (isLastPage) {
         _pagingController.appendLastPage(groupedBoards);
       } else {
         _pagingController.appendPage(groupedBoards, pageKey + 1);
       }
     } catch (e, s) {
-      logger.e(e, stackTrace: s);
+      logger.e('Error fetching boards', error: e, stackTrace: s);
       _pagingController.error = e;
-      rethrow;
     }
   }
 
   List<List<BoardModel>> _groupBoardsByArtist(List<BoardModel> boards) {
+    if (boards.isEmpty) return [];
+
     final map = <String, List<BoardModel>>{};
     for (var board in boards) {
+      if (board.artist == null) continue;
       final artistId = board.artist!.id;
-      if (!map.containsKey(artistId.toString())) {
-        map[artistId.toString()] = [];
-      }
-      map[artistId.toString()]!.add(board);
+      final key = artistId.toString();
+      map.putIfAbsent(key, () => []).add(board);
     }
     return map.values.toList();
   }
@@ -103,19 +107,38 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 12),
               child: CommonSearchBox(
-                  focusNode: focusNode,
-                  textEditingController: _textEditingController,
-                  hintText: S.of(context).text_community_board_search),
+                focusNode: focusNode,
+                textEditingController: _textEditingController,
+                hintText: S.of(context).text_community_board_search,
+              ),
             ),
             Expanded(
-              child: PagedListView<int, List<BoardModel>>(
-                pagingController: _pagingController,
-                builderDelegate: PagedChildBuilderDelegate<List<BoardModel>>(
-                  itemBuilder: (context, List<BoardModel> artistBoards, index) {
-                    return _buildArtistBoardGroup(artistBoards);
-                  },
-                  noItemsFoundIndicatorBuilder: (context) => NoItemContainer(
-                      message: S.of(context).common_text_no_search_result),
+              child: RefreshIndicator(
+                onRefresh: () => Future.sync(() => _pagingController.refresh()),
+                child: PagedListView<int, List<BoardModel>>(
+                  pagingController: _pagingController,
+                  builderDelegate: PagedChildBuilderDelegate<List<BoardModel>>(
+                    itemBuilder:
+                        (context, List<BoardModel> artistBoards, index) {
+                      return _buildArtistBoardGroup(artistBoards);
+                    },
+                    noItemsFoundIndicatorBuilder: (context) => NoItemContainer(
+                      message: S.of(context).common_text_no_search_result,
+                    ),
+                    firstPageErrorIndicatorBuilder: (context) => Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(S.of(context).message_error_occurred),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () => _pagingController.refresh(),
+                            child: Text(S.of(context).label_retry),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -126,7 +149,11 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
   }
 
   Widget _buildArtistBoardGroup(List<BoardModel> artistBoards) {
-    final artist = artistBoards.first.artist!;
+    if (artistBoards.isEmpty) return const SizedBox.shrink();
+
+    final artist = artistBoards.first.artist;
+    if (artist == null) return const SizedBox.shrink();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -137,7 +164,9 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(32.r),
                 child: PicnicCachedNetworkImage(
-                    imageUrl: artist.image ?? '', width: 32),
+                  imageUrl: artist.image ?? '',
+                  width: 32,
+                ),
               ),
               SizedBox(width: 8.cw),
               Expanded(
@@ -167,6 +196,8 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
   Widget _buildBoardChip(BoardModel board) {
     return GestureDetector(
       onTap: () {
+        if (board.artist == null) return;
+
         ref.read(communityStateInfoProvider.notifier).setCurrentBoard(board);
         ref
             .read(communityStateInfoProvider.notifier)

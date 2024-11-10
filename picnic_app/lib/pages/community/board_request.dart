@@ -35,6 +35,7 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
   bool _isLoading = true;
   dynamic _pendingRequest;
   String? _error;
+  late BoardRequestNotifier _boardRequestNotifier;
 
   @override
   void initState() {
@@ -42,9 +43,34 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
     _nameController = TextEditingController();
     _descriptionController = TextEditingController();
     _requestMessageController = TextEditingController();
+    _boardRequestNotifier = ref.read(boardRequestNotifierProvider.notifier);
 
     _setupControllers();
     _loadInitialData();
+  }
+
+  Future<void> _loadInitialData() async {
+    try {
+      final request = await _boardRequestNotifier.build();
+      if (!mounted) return;
+
+      setState(() {
+        _pendingRequest = request;
+        _isLoading = false;
+        if (request != null) {
+          _nameController.text = getLocaleTextFromJson(request.name);
+          _descriptionController.text = request.description;
+          _requestMessageController.text = request.requestMessage ?? '';
+        }
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
   }
 
   void _setupControllers() {
@@ -71,26 +97,6 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
     });
   }
 
-  Future<void> _loadInitialData() async {
-    try {
-      final request = await getPendingRequest(ref);
-      setState(() {
-        _pendingRequest = request;
-        _isLoading = false;
-        if (request != null) {
-          _nameController.text = getLocaleTextFromJson(request.name);
-          _descriptionController.text = request.description;
-          _requestMessageController.text = request.requestMessage ?? '';
-        }
-      });
-    } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _isLoading = false;
-      });
-    }
-  }
-
   @override
   void dispose() {
     _nameController.dispose();
@@ -105,95 +111,148 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    // Provider 상태 구독
+    final boardRequestState = ref.watch(boardRequestNotifierProvider);
 
-    if (_error != null) {
-      return Center(child: Text('Error: $_error'));
-    }
+    return boardRequestState.when(
+      data: (pendingRequest) {
+        if (_isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-    final bool isButtonEnabled = _isNameValid &&
-        _isDescriptionValid &&
-        _isRequestMessageValid &&
-        _pendingRequest == null;
+        if (_error != null) {
+          return Center(child: Text('Error: $_error'));
+        }
 
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
-      child: SingleChildScrollView(
-        controller: _scrollController,
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Container(
-          padding: const EdgeInsets.only(bottom: 300),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildInfoBanner(),
-                ..._buildSection(
-                  _nameController,
-                  _nameFocus,
-                  S.of(context).post_minor_board_name,
-                  S.of(context).post_minor_board_name_input,
-                  1,
-                  _validateName,
-                  _pendingRequest == null,
-                ),
-                ..._buildSection(
-                  _descriptionController,
-                  _descriptionFocus,
-                  S.of(context).post_minor_board_description,
-                  S.of(context).post_minor_board_description_input,
-                  3,
-                  _validateDescription,
-                  _pendingRequest == null,
-                ),
-                ..._buildSection(
-                  _requestMessageController,
-                  _requestMessageFocus,
-                  S.of(context).post_minor_board_create_request_message,
-                  S.of(context).post_minor_board_create_request_message_input,
-                  3,
-                  _validateRequestMessage,
-                  _pendingRequest == null,
-                ),
-                const SizedBox(height: 24),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.cw),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      style: Theme.of(context)
-                          .elevatedButtonTheme
-                          .style
-                          ?.copyWith(
-                            backgroundColor: WidgetStateProperty.resolveWith(
-                              (states) => isButtonEnabled
-                                  ? AppColors.primary500
-                                  : AppColors.grey400,
-                            ),
+        final bool isButtonEnabled = _isNameValid &&
+            _isDescriptionValid &&
+            _isRequestMessageValid &&
+            pendingRequest == null;
+
+        return GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Container(
+              padding: const EdgeInsets.only(bottom: 300),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildInfoBanner(),
+                    ..._buildSection(
+                      _nameController,
+                      _nameFocus,
+                      S.of(context).post_minor_board_name,
+                      S.of(context).post_minor_board_name_input,
+                      1,
+                      _validateName,
+                      pendingRequest == null,
+                    ),
+                    ..._buildSection(
+                      _descriptionController,
+                      _descriptionFocus,
+                      S.of(context).post_minor_board_description,
+                      S.of(context).post_minor_board_description_input,
+                      3,
+                      _validateDescription,
+                      pendingRequest == null,
+                    ),
+                    ..._buildSection(
+                      _requestMessageController,
+                      _requestMessageFocus,
+                      S.of(context).post_minor_board_create_request_message,
+                      S
+                          .of(context)
+                          .post_minor_board_create_request_message_input,
+                      3,
+                      _validateRequestMessage,
+                      pendingRequest == null,
+                    ),
+                    const SizedBox(height: 24),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.cw),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton(
+                          style: Theme.of(context)
+                              .elevatedButtonTheme
+                              .style
+                              ?.copyWith(
+                                backgroundColor:
+                                    WidgetStateProperty.resolveWith(
+                                  (states) => isButtonEnabled
+                                      ? AppColors.primary500
+                                      : AppColors.grey400,
+                                ),
+                              ),
+                          onPressed: isButtonEnabled ? _handleSubmit : null,
+                          child: Text(
+                            pendingRequest == null
+                                ? S.of(context).post_board_create_request_label
+                                : S
+                                    .of(context)
+                                    .post_board_create_request_reviewing,
+                            style:
+                                getTextStyle(AppTypo.body14B, AppColors.grey00),
                           ),
-                      onPressed: isButtonEnabled ? _handleSubmit : null,
-                      child: Text(
-                        _pendingRequest == null
-                            ? S.of(context).post_board_create_request_label
-                            : S.of(context).post_board_create_request_reviewing,
-                        style: getTextStyle(AppTypo.body14B, AppColors.grey00),
+                        ),
                       ),
                     ),
-                  ),
+                    SizedBox(height: 32.cw),
+                  ],
                 ),
-                SizedBox(height: 32.cw),
-              ],
+              ),
             ),
           ),
-        ),
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stackTrace) => Center(
+        child: Text('Error: ${error.toString()}'),
       ),
     );
+  }
+
+  Future<void> _handleSubmit() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        final duplicate = await _boardRequestNotifier
+            .checkDuplicateBoard(_nameController.text);
+        if (duplicate != null) {
+          if (!mounted) return;
+          showSimpleDialog(
+            content: S.of(context).post_board_already_exist,
+            onOk: () => Navigator.of(context).pop(),
+          );
+          return;
+        }
+
+        await _boardRequestNotifier.createBoard(
+          widget.artistId,
+          _nameController.text,
+          _descriptionController.text,
+          _requestMessageController.text,
+        );
+
+        if (!mounted) return;
+        showSimpleDialog(
+          content: S.of(context).post_board_create_request_complete,
+          onOk: () => Navigator.of(context).pop(),
+        );
+      } catch (e, s) {
+        logger.e('Error submitting board request:', error: e, stackTrace: s);
+        if (!mounted) return;
+        showSimpleDialog(
+          type: DialogType.error,
+          content: S.of(context).message_error_occurred,
+          onOk: () => Navigator.of(context).pop(),
+        );
+      }
+    }
   }
 
   String? _validateName(String? value) {
@@ -291,39 +350,5 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
         ),
       ),
     ];
-  }
-
-  Future<void> _handleSubmit() async {
-    if (_formKey.currentState!.validate()) {
-      try {
-        final duplicate = await checkDuplicateBoard(ref, _nameController.text);
-        if (duplicate != null) {
-          showSimpleDialog(
-            content: Intl.message('post_board_already_exist'),
-            onOk: () => Navigator.of(context).pop(),
-          );
-          return;
-        }
-
-        await createBoard(
-          ref,
-          widget.artistId,
-          _nameController.text,
-          _descriptionController.text,
-          _requestMessageController.text,
-        );
-
-        showSimpleDialog(
-          content: Intl.message('post_board_create_request_complete'),
-          onOk: () => Navigator.of(context).pop(),
-        );
-      } catch (e, s) {
-        showSimpleDialog(
-          content: 'Error creating board',
-          onOk: () => Navigator.of(context).pop(),
-        );
-        rethrow;
-      }
-    }
   }
 }
