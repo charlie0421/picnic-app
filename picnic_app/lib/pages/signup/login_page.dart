@@ -13,6 +13,7 @@ import 'package:picnic_app/components/common/custom_pagination.dart';
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
+import 'package:picnic_app/exceptions/auth_exception.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/pages/signup/agreement_terms_page.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
@@ -306,9 +307,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
     }
   }
 
-  Widget _buildAppleLogin(
-    BuildContext context,
-  ) {
+  Widget _buildAppleLogin(BuildContext context) {
     ref.watch(userInfoProvider);
 
     return Stack(
@@ -328,20 +327,34 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                 if (user != null) {
                   _handleSuccessfulLogin();
                 }
+              } on PicnicAuthException catch (e) {
+                OverlayLoadingProgress.stop();
+                logger.e(
+                    'Apple login PicnicAuthException: $e (originalError: ${e.originalError})');
+
+                if (e.code == 'canceled') {
+                  return;
+                }
+
+                showSimpleDialog(
+                    type: DialogType.error,
+                    title: Intl.message('error_title'),
+                    content: e.message,
+                    onOk: () {
+                      Navigator.of(context).pop();
+                    });
               } catch (e, s) {
                 OverlayLoadingProgress.stop();
                 logger.e('Error signing in with Apple: $e', stackTrace: s);
-                if (e.toString() == 'Exception: CANCELED') {
-                } else {
-                  showSimpleDialog(
-                      type: DialogType.error,
-                      title: Intl.message('error_title'),
-                      content: Intl.message('error_message_login_failed'),
-                      onOk: () {
-                        Navigator.of(context).pop();
-                      });
-                  rethrow;
-                }
+
+                showSimpleDialog(
+                    type: DialogType.error,
+                    title: Intl.message('error_title'),
+                    content: Intl.message('error_message_login_failed'),
+                    onOk: () {
+                      Navigator.of(context).pop();
+                    });
+                rethrow;
               }
             },
             style: SignInWithAppleButtonStyle.black,
@@ -368,9 +381,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
     );
   }
 
-  Widget _buildGoogleLogin(
-    BuildContext context,
-  ) {
+  Widget _buildGoogleLogin(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       return Stack(
         children: [
@@ -393,23 +404,37 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                   if (user != null) {
                     _handleSuccessfulLogin();
                   } else {
-                    throw Exception('Failed to sign in with Google');
+                    throw PicnicAuthExceptions.unknown();
                   }
                 }
+              } on PicnicAuthException catch (e) {
+                OverlayLoadingProgress.stop();
+                logger.e(
+                    'Google login PicnicAuthException: $e (originalError: ${e.originalError})');
+
+                if (e.code == 'canceled') {
+                  return;
+                }
+
+                showSimpleDialog(
+                    type: DialogType.error,
+                    title: Intl.message('error_title'),
+                    content: e.message,
+                    onOk: () {
+                      Navigator.of(context).pop();
+                    });
               } catch (e, s) {
                 OverlayLoadingProgress.stop();
                 logger.e('Error signing in with Google: $e', stackTrace: s);
-                if (e.toString() == 'Exception: CANCELED') {
-                } else {
-                  showSimpleDialog(
-                      type: DialogType.error,
-                      title: Intl.message('error_title'),
-                      content: Intl.message('error_message_login_failed'),
-                      onOk: () {
-                        Navigator.of(context).pop();
-                      });
-                  rethrow;
-                }
+
+                showSimpleDialog(
+                    type: DialogType.error,
+                    title: Intl.message('error_title'),
+                    content: Intl.message('error_message_login_failed'),
+                    onOk: () {
+                      Navigator.of(context).pop();
+                    });
+                rethrow;
               }
             },
             child: SizedBox(
@@ -449,9 +474,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
     });
   }
 
-  Widget _buildKakaoLogin(
-    BuildContext context,
-  ) {
+  Widget _buildKakaoLogin(BuildContext context) {
     ref.watch(userInfoProvider);
     return LayoutBuilder(builder: (context, constraints) {
       return Stack(children: [
@@ -474,20 +497,34 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                   _handleSuccessfulLogin();
                 }
               }
+            } on PicnicAuthException catch (e) {
+              OverlayLoadingProgress.stop();
+              logger.e(
+                  'Kakao login PicnicAuthException: $e (originalError: ${e.originalError})');
+
+              if (e.code == 'canceled') {
+                return;
+              }
+
+              showSimpleDialog(
+                  type: DialogType.error,
+                  title: Intl.message('error_title'),
+                  content: e.message,
+                  onOk: () {
+                    Navigator.of(context).pop();
+                  });
             } catch (e, s) {
               OverlayLoadingProgress.stop();
               logger.e('Error signing in with Kakao: $e', stackTrace: s);
-              if (e.toString() == 'Exception: CANCELED') {
-              } else {
-                showSimpleDialog(
-                    type: DialogType.error,
-                    title: Intl.message('error_title'),
-                    content: Intl.message('error_message_login_failed'),
-                    onOk: () {
-                      Navigator.of(context).pop();
-                    });
-                rethrow;
-              }
+
+              showSimpleDialog(
+                  type: DialogType.error,
+                  title: Intl.message('error_title'),
+                  content: Intl.message('error_message_login_failed'),
+                  onOk: () {
+                    Navigator.of(context).pop();
+                  });
+              rethrow;
             }
           },
           child: SizedBox(

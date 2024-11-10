@@ -1,3 +1,5 @@
+// auth_service.dart
+
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -6,6 +8,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:picnic_app/config/environment.dart';
+import 'package:picnic_app/exceptions/auth_exception.dart';
 import 'package:picnic_app/models/common/social_login_result.dart';
 import 'package:picnic_app/storage/storage.dart';
 import 'package:picnic_app/supabase_options.dart';
@@ -23,39 +26,6 @@ abstract class SocialLogin {
   Future<void> logout();
 }
 
-class GoogleLogin implements SocialLogin {
-  final GoogleSignIn _googleSignIn;
-
-  GoogleLogin(this._googleSignIn);
-
-  @override
-  Future<SocialLoginResult> login() async {
-    try {
-      final googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-        throw Exception('CANCELED');
-      }
-      final googleAuth = await googleUser!.authentication;
-
-      return SocialLoginResult(
-        idToken: googleAuth.idToken,
-        accessToken: googleAuth.accessToken,
-        userData: {
-          'email': googleUser.email,
-          'name': googleUser.displayName,
-          'photoUrl': googleUser.photoUrl,
-        },
-      );
-    } catch (e, s) {
-      logger.e('Google login error: $e', stackTrace: s);
-      rethrow;
-    }
-  }
-
-  @override
-  Future<void> logout() => _googleSignIn.signOut();
-}
-
 class AppleLogin implements SocialLogin {
   String _generateNonce([int length = 32]) {
     const charset =
@@ -69,7 +39,6 @@ class AppleLogin implements SocialLogin {
   Future<SocialLoginResult> login() async {
     try {
       final rawNonce = _generateNonce();
-      // final nonce = _sha256ofString(rawNonce);
 
       final credential = await SignInWithApple.getAppleIDCredential(
           scopes: [
@@ -78,31 +47,130 @@ class AppleLogin implements SocialLogin {
           ],
           webAuthenticationOptions: WebAuthenticationOptions(
             clientId: Environment.appleClientId,
-            redirectUri: Uri.parse(
-              Environment.appleRedirectUri,
-            ),
+            redirectUri: Uri.parse(Environment.appleRedirectUri),
           ),
           state: rawNonce);
+
+      if (credential.identityToken == null) {
+        throw PicnicAuthExceptions.invalidToken();
+      }
+
+      final String? fullName =
+          credential.familyName != null || credential.givenName != null
+              ? '${credential.givenName ?? ''} ${credential.familyName ?? ''}'
+                  .trim()
+              : null;
+
       return SocialLoginResult(
         idToken: credential.identityToken,
         accessToken: credential.authorizationCode,
         userData: {
           'email': credential.email,
-          'name': '${credential.givenName} ${credential.familyName}',
+          'name': fullName,
         },
       );
     } catch (e, s) {
       logger.e('Apple login error: $e', stackTrace: s);
+
       if (e is SignInWithAppleAuthorizationException) {
-        throw Exception('CANCELED');
+        // 취소 관련 메시지들 체크
+        if (e.code == AuthorizationErrorCode.canceled) {
+          throw PicnicAuthExceptions.canceled();
+        }
+
+        switch (e.code) {
+          case AuthorizationErrorCode.failed:
+            throw PicnicAuthExceptions.appleSignInFailed();
+          case AuthorizationErrorCode.invalidResponse:
+            throw PicnicAuthExceptions.appleInvalidResponse();
+          case AuthorizationErrorCode.notHandled:
+            throw PicnicAuthExceptions.unknown(originalError: e);
+          default:
+            // 알 수 없는 에러의 경우 로그를 남기고 unknown으로 처리
+            logger.e(
+                'Unknown Apple auth error code: ${e.code}, message: ${e.message}');
+            throw PicnicAuthExceptions.unknown(originalError: e);
+        }
+      } else if (e is PlatformException) {
+        if (e.code == 'ERROR_AUTHORIZATION_DENIED' ||
+            (e.message?.toLowerCase().contains('canceled') ?? false) ||
+            (e.message?.toLowerCase().contains('cancelled') ?? false) ||
+            (e.message?.contains('취소') ?? false)) {
+          throw PicnicAuthExceptions.canceled();
+        }
+        throw PicnicAuthExceptions.unknown(originalError: e);
       }
-      rethrow;
+
+      throw PicnicAuthExceptions.unknown(originalError: e);
     }
   }
 
   @override
   Future<void> logout() async {
     // Apple doesn't provide a logout method
+    return;
+  }
+}
+
+class GoogleLogin implements SocialLogin {
+  final GoogleSignIn _googleSignIn;
+
+  GoogleLogin(this._googleSignIn);
+
+  @override
+  Future<SocialLoginResult> login() async {
+    try {
+      final googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        throw PicnicAuthExceptions.canceled();
+      }
+
+      final googleAuth = await googleUser.authentication;
+      return SocialLoginResult(
+        idToken: googleAuth.idToken,
+        accessToken: googleAuth.accessToken,
+        userData: {
+          'email': googleUser.email,
+          'name': googleUser.displayName,
+          'photoUrl': googleUser.photoUrl,
+        },
+      );
+    } catch (e, s) {
+      logger.e('Google login error: $e', stackTrace: s);
+
+      if (e is PicnicAuthException) {
+        rethrow;
+      }
+
+      if (e is PlatformException) {
+        switch (e.code) {
+          case 'sign_in_canceled':
+          case 'CANCELED':
+            throw PicnicAuthExceptions.canceled();
+          case 'sign_in_failed':
+            if (e.message?.contains('12500') ?? false) {
+              throw PicnicAuthExceptions.googlePlayServices();
+            } else if (e.message?.contains('network_error') ?? false) {
+              throw PicnicAuthExceptions.network();
+            }
+            throw PicnicAuthExceptions.unknown(originalError: e);
+          default:
+            throw PicnicAuthExceptions.unknown(originalError: e);
+        }
+      }
+
+      throw PicnicAuthExceptions.unknown(originalError: e);
+    }
+  }
+
+  @override
+  Future<void> logout() async {
+    try {
+      await _googleSignIn.signOut();
+    } catch (e, s) {
+      logger.e('Google logout error: $e', stackTrace: s);
+      throw PicnicAuthExceptions.unknown(originalError: e);
+    }
   }
 }
 
@@ -111,17 +179,29 @@ class KakaoLogin implements SocialLogin {
     try {
       return await loginMethod();
     } catch (e, s) {
-      logger.e('Login failed $e', stackTrace: s);
+      logger.e('Kakao login failed: $e', stackTrace: s);
+
       if (e is PlatformException) {
-        if (e.code == 'CANCELED') {
-          throw Exception('CANCELED');
-        } else if (e.code == 'NotSupportError') {
-          // 카카오톡이 설치되어 있지만 연동되어 있지 않은 경우
-          // 카카오 계정으로 로그인 시도
-          return await UserApi.instance.loginWithKakaoAccount();
+        switch (e.code) {
+          case 'CANCELED':
+          case 'CANCELLED':
+          case 'USER_CANCELLED':
+            throw PicnicAuthExceptions.canceled();
+          case 'NotSupportError':
+            throw PicnicAuthExceptions.kakaoNotSupported();
+          default:
+            if (e.message != null &&
+                (e.message?.contains('canceled') ??
+                    false || e.message!.contains('cancelled'))) {
+              throw PicnicAuthExceptions.canceled();
+            }
+            if (e.message?.contains('network') ?? false) {
+              throw PicnicAuthExceptions.network();
+            }
+            throw PicnicAuthExceptions.unknown(originalError: e);
         }
       }
-      rethrow;
+      throw PicnicAuthExceptions.unknown(originalError: e);
     }
   }
 
@@ -131,48 +211,64 @@ class KakaoLogin implements SocialLogin {
       KakaoSdk.init(
           nativeAppKey: Environment.kakaoNativeAppKey,
           javaScriptAppKey: Environment.kakaoJavascriptKey);
-      OAuthToken? token;
 
-      logger.i('kIsWeb: $kIsWeb');
+      OAuthToken? token;
 
       if (kIsWeb) {
         await supabase.auth.signInWithOAuth(OAuthProvider.kakao);
         return const SocialLoginResult();
-      } else {
-        if (await isKakaoTalkInstalled()) {
-          try {
-            token = await _tryLogin(UserApi.instance.loginWithKakaoTalk);
-          } catch (e) {
-            // 카카오톡 로그인 실패 시 카카오 계정으로 로그인 시도
-            token = await _tryLogin(UserApi.instance.loginWithKakaoAccount);
-          }
-        } else {
-          token = await _tryLogin(UserApi.instance.loginWithKakaoAccount);
-        }
-
-        if (token == null) {
-          return const SocialLoginResult();
-        }
-
-        final user = await UserApi.instance.me();
-        return SocialLoginResult(
-          idToken: token.idToken,
-          accessToken: token.accessToken,
-          userData: {
-            'email': user.kakaoAccount?.email,
-            'name': user.kakaoAccount?.profile?.nickname,
-            'photoUrl': user.kakaoAccount?.profile?.profileImageUrl,
-          },
-        );
       }
+
+      if (await isKakaoTalkInstalled()) {
+        try {
+          token = await _tryLogin(UserApi.instance.loginWithKakaoTalk);
+        } catch (e) {
+          if (e is PicnicAuthException) {
+            if (e.code == 'kakao_not_supported') {
+              token = await _tryLogin(UserApi.instance.loginWithKakaoAccount);
+            } else {
+              rethrow;
+            }
+          } else {
+            rethrow;
+          }
+        }
+      } else {
+        token = await _tryLogin(UserApi.instance.loginWithKakaoAccount);
+      }
+
+      if (token == null) {
+        throw PicnicAuthExceptions.unknown();
+      }
+
+      final user = await UserApi.instance.me();
+      return SocialLoginResult(
+        idToken: token.idToken,
+        accessToken: token.accessToken,
+        userData: {
+          'email': user.kakaoAccount?.email,
+          'name': user.kakaoAccount?.profile?.nickname,
+          'photoUrl': user.kakaoAccount?.profile?.profileImageUrl,
+        },
+      );
     } catch (e, s) {
-      logger.e('login error: $e', stackTrace: s);
-      rethrow;
+      logger.e('Kakao login error: $e', stackTrace: s);
+      if (e is PicnicAuthException) {
+        rethrow;
+      }
+      throw PicnicAuthExceptions.unknown(originalError: e);
     }
   }
 
   @override
-  Future<void> logout() => UserApi.instance.logout();
+  Future<void> logout() async {
+    try {
+      await UserApi.instance.logout();
+    } catch (e, s) {
+      logger.e('Kakao logout error: $e', stackTrace: s);
+      throw PicnicAuthExceptions.unknown(originalError: e);
+    }
+  }
 }
 
 class AuthService {
@@ -181,8 +277,7 @@ class AuthService {
   final Map<Supabase.OAuthProvider, SocialLogin> _loginProviders = {
     Supabase.OAuthProvider.google: kIsWeb
         ? GoogleLogin(GoogleSignIn(
-            clientId:
-                '853406219989-jrfkss5a0lqe5sq43t4uhm7n6i0g6s1b.apps.googleusercontent.com',
+            clientId: Environment.googleServerClientId,
           ))
         : GoogleLogin(GoogleSignIn(
             clientId: Environment.googleClientId,
@@ -197,12 +292,12 @@ class AuthService {
       final socialLogin = _loginProviders[provider];
       if (socialLogin == null) {
         logger.w('not support provider: $provider');
-        throw Exception('not support provider: $provider');
+        throw PicnicAuthExceptions.unsupportedProvider(provider.name);
       }
 
       final result = await socialLogin.login();
       if (result.idToken == null) {
-        throw Exception('Failed to get ID token');
+        throw PicnicAuthExceptions.invalidToken();
       }
 
       logger.i('idToken ${result.idToken}');
@@ -213,24 +308,37 @@ class AuthService {
 
       if (response.user != null) {
         await _storeSession(response.session!, provider, result.idToken!);
-
         return response.user;
-      } else {
-        logger.e('Supabase login failed');
       }
+
+      throw PicnicAuthExceptions.unknown();
     } catch (e, s) {
       logger.e('Error during sign in: $e', stackTrace: s);
-      rethrow;
+      if (e is PicnicAuthException) {
+        rethrow;
+      }
+      throw PicnicAuthExceptions.unknown(originalError: e);
     }
-    return null;
   }
 
   Future<void> signOut() async {
-    // for (var socialLogin in _loginProviders.values) {
-    //   await socialLogin.logout();
-    // }
-    await supabase.auth.signOut();
-    // await _clearStoredSession();
+    try {
+      final lastProvider = await _storage.read(key: 'last_provider');
+      if (lastProvider != null) {
+        final provider = Supabase.OAuthProvider.values
+            .firstWhere((e) => e.name == lastProvider);
+        final socialLogin = _loginProviders[provider];
+        if (socialLogin != null) {
+          await socialLogin.logout();
+        }
+      }
+
+      await supabase.auth.signOut();
+      await _clearStoredSession();
+    } catch (e, s) {
+      logger.e('Error during sign out: $e', stackTrace: s);
+      throw PicnicAuthExceptions.unknown(originalError: e);
+    }
   }
 
   Future<void> _storeSession(
@@ -285,10 +393,9 @@ class AuthService {
           await _storeSession(response.session!, provider, idToken);
           logger.i('Re-authentication successful for $provider');
           return true;
-        } else {
-          logger
-              .w('Re-authentication failed for $provider: No session returned');
         }
+
+        logger.w('Re-authentication failed for $provider: No session returned');
       } catch (e, s) {
         logger.e('Error during OAuth re-authentication for $provider: $e',
             stackTrace: s);
@@ -302,7 +409,6 @@ class AuthService {
   }
 
   Future<void> _clearStoredSession() async {
-    await _storage.readAll().then((value) => logger.i(value));
     try {
       final allValues = await _storage.readAll();
       logger.i('Before clearing: $allValues');
@@ -318,11 +424,8 @@ class AuthService {
       logger.i('Stored session cleared except last_provider');
     } catch (e, s) {
       logger.e('Error while clearing storage: $e', stackTrace: s);
-      rethrow;
+      throw PicnicAuthExceptions.unknown(originalError: e);
     }
-
-    await _storage.readAll().then((value) => logger.i(value));
-    logger.i('Stored session cleared');
   }
 
   Future<void> refreshToken() async {
@@ -337,13 +440,15 @@ class AuthService {
                 'Token refreshed successfully: ${response.session?.accessToken}');
           } else {
             logger.e('Token refresh failed: No session returned');
+            throw PicnicAuthExceptions.invalidToken();
           }
         } catch (e, s) {
           logger.e('Token refresh failed: $e', stackTrace: s);
-          rethrow; // 에러 처리 (예: 사용자에게 재로그인 요청)
+          throw PicnicAuthExceptions.unknown(originalError: e);
         }
       } else {
         logger.w('Skipping token refresh due to offline status');
+        throw PicnicAuthExceptions.network();
       }
     }
   }
