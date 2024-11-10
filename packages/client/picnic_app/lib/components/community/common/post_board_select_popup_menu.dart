@@ -29,74 +29,113 @@ class _PostBoardSelectPopupMenuState
     extends ConsumerState<PostBoardSelectPopupMenu> {
   @override
   Widget build(BuildContext context) {
-    final currentBoard = ref.watch(
-        communityStateInfoProvider.select((value) => value.currentBoard));
-    final communityStateNotifier =
-        ref.read(communityStateInfoProvider.notifier);
+    final currentBoard = ref.watch(communityStateInfoProvider.select(
+      (value) => value.currentBoard,
+    ));
 
-    return FutureBuilder<List<BoardModel>?>(
-      future: boards(ref, widget.artistId),
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
-        if (snapshot.connectionState == ConnectionState.done &&
-            snapshot.hasData) {
-          final boards = snapshot.data as List<BoardModel>;
-          final selectedBoard = boards.firstWhere(
-            (board) => board.boardId == currentBoard?.boardId,
-            orElse: () => boards.first,
-          );
+    return ref.watch(boardsNotifierProvider(widget.artistId)).when(
+          data: (boards) {
+            if (boards == null || boards.isEmpty) {
+              return const SizedBox.shrink();
+            }
 
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            ref
-                .read(communityStateInfoProvider.notifier)
-                .setCurrentBoard(selectedBoard);
-          });
+            final selectedBoard = boards.firstWhere(
+              (board) => board.boardId == currentBoard?.boardId,
+              orElse: () => boards.first,
+            );
 
-          return PopupMenuButton<BoardModel>(
-            padding: EdgeInsets.zero,
-            child: Container(
-              height: 26,
-              width: 120.cw,
-              alignment: Alignment.center,
-              padding: EdgeInsets.symmetric(horizontal: 10.cw),
-              decoration: BoxDecoration(
-                border: Border.all(color: AppColors.grey300, width: 1),
-                borderRadius: BorderRadius.circular(13),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    getLocaleTextFromJson(selectedBoard.name),
-                    textAlign: TextAlign.center,
-                    style: getTextStyle(AppTypo.caption12R, AppColors.grey700),
-                  ),
-                  const Icon(Icons.arrow_drop_down,
-                      size: 20, color: AppColors.grey700),
-                ],
+            // 초기 보드 설정
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              ref
+                  .read(communityStateInfoProvider.notifier)
+                  .setCurrentBoard(selectedBoard);
+            });
+
+            return PopupMenuButton<BoardModel>(
+              padding: EdgeInsets.zero,
+              position: PopupMenuPosition.under,
+              child: _buildSelectedBoardButton(selectedBoard),
+              itemBuilder: (context) => _buildMenuItems(boards, currentBoard),
+              onSelected: (BoardModel board) {
+                ref
+                    .read(communityStateInfoProvider.notifier)
+                    .setCurrentBoard(board);
+                logger.i('Selected board: ${board.boardId}');
+              },
+            );
+          },
+          loading: () => const SizedBox(
+            height: 26,
+            width: 120,
+            child: Center(
+              child: SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                ),
               ),
             ),
-            onSelected: (BoardModel board) async {
-              communityStateNotifier.setCurrentBoard(board);
-              logger.i('board: $board');
-            },
-            itemBuilder: (BuildContext context) =>
-                boards.map((BoardModel board) {
-              return PopupMenuItem<BoardModel>(
-                value: board,
-                child: Text(
-                  getLocaleTextFromJson(board.name),
-                  style: board.boardId == currentBoard?.boardId
-                      ? getTextStyle(AppTypo.caption12R, AppColors.grey700)
-                      : getTextStyle(AppTypo.caption12B, AppColors.grey400),
-                  textAlign: TextAlign.center,
-                ),
-              );
-            }).toList(),
-          );
-        } else {
-          return const SizedBox.shrink();
-        }
-      },
+          ),
+          error: (error, stackTrace) {
+            logger.e('Error loading boards:',
+                error: error, stackTrace: stackTrace);
+            return const SizedBox.shrink();
+          },
+        );
+  }
+
+  Widget _buildSelectedBoardButton(BoardModel selectedBoard) {
+    return Container(
+      height: 26,
+      width: 120.cw,
+      alignment: Alignment.center,
+      padding: EdgeInsets.symmetric(horizontal: 10.cw),
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.grey300, width: 1),
+        borderRadius: BorderRadius.circular(13),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              getLocaleTextFromJson(selectedBoard.name),
+              textAlign: TextAlign.center,
+              style: getTextStyle(AppTypo.caption12R, AppColors.grey700),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const Icon(
+            Icons.arrow_drop_down,
+            size: 20,
+            color: AppColors.grey700,
+          ),
+        ],
+      ),
     );
+  }
+
+  List<PopupMenuItem<BoardModel>> _buildMenuItems(
+      List<BoardModel> boards, BoardModel? currentBoard) {
+    return boards.map((BoardModel board) {
+      final isSelected = board.boardId == currentBoard?.boardId;
+      return PopupMenuItem<BoardModel>(
+        value: board,
+        height: 36,
+        child: Container(
+          width: double.infinity,
+          alignment: Alignment.center,
+          child: Text(
+            getLocaleTextFromJson(board.name),
+            style: getTextStyle(
+              isSelected ? AppTypo.caption12B : AppTypo.caption12R,
+              isSelected ? AppColors.grey700 : AppColors.grey400,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }).toList();
   }
 }

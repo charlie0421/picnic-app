@@ -7,43 +7,61 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'boards_provider.g.dart';
 
 @riverpod
-Future<List<BoardModel>?> boards(ref, int artistId) async {
-  try {
-    final response = await supabase
-        .from('boards')
-        .select(
-            'name, board_id, artist_id, description, is_official, features, artist(*, artist_group(*))')
-        .eq('artist_id', artistId)
-        .eq('status', 'approved')
-        .order('is_official', ascending: false)
-        .order('order', ascending: true);
+class BoardsNotifier extends _$BoardsNotifier {
+  @override
+  Future<List<BoardModel>?> build(int artistId) async {
+    return _fetchBoards(artistId);
+  }
 
-    return response.map((data) => BoardModel.fromJson(data)).toList();
-  } catch (e, s) {
-    logger.e('Error fetching boards:', error: e, stackTrace: s);
-    return Future.error(e);
+  Future<List<BoardModel>?> _fetchBoards(int artistId) async {
+    try {
+      final response = await supabase
+          .from('boards')
+          .select(
+              'name, board_id, artist_id, description, is_official, features, status, creator_id, artist(*, artist_group(*))')
+          .eq('artist_id', artistId)
+          .eq('status', 'approved')
+          .order('is_official', ascending: false)
+          .order('order', ascending: true);
+
+      return response.map((data) => BoardModel.fromJson(data)).toList();
+    } catch (e, s) {
+      logger.e('Error fetching boards:', error: e, stackTrace: s);
+      return Future.error(e);
+    }
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() => _fetchBoards(artistId));
   }
 }
 
 @riverpod
-Future<List<BoardModel>?> boardsByArtistName(
-    ref, String query, int page, int limit) async {
-  try {
-    List<BoardModel> boardData = [];
-    if (query.isEmpty) {
-      final response = await supabase
-          .from('boards')
-          .select(
-              'name, board_id, artist_id, description, is_official, features, artist!inner(*, artist_group(*))')
-          .neq('artist_id', 0)
-          .eq('status', 'approved')
-          .order('artist(name->>${Intl.getCurrentLocale()})', ascending: true)
-          .order('is_official', ascending: false)
-          .order('order', ascending: true)
-          .range(page * limit, (page + 1) * limit - 1);
+class BoardsByArtistNameNotifier extends _$BoardsByArtistNameNotifier {
+  @override
+  Future<List<BoardModel>?> build(String query, int page, int limit) async {
+    return _fetchBoardsByArtistName(query, page, limit);
+  }
 
-      boardData = response.map(BoardModel.fromJson).toList();
-    } else {
+  Future<List<BoardModel>?> _fetchBoardsByArtistName(
+      String query, int page, int limit) async {
+    try {
+      if (query.isEmpty) {
+        final response = await supabase
+            .from('boards')
+            .select(
+                'name, board_id, artist_id, description, is_official, features, artist!inner(*, artist_group(*))')
+            .neq('artist_id', 0)
+            .eq('status', 'approved')
+            .order('artist(name->>${Intl.getCurrentLocale()})', ascending: true)
+            .order('is_official', ascending: false)
+            .order('order', ascending: true)
+            .range(page * limit, (page + 1) * limit - 1);
+
+        return response.map((data) => BoardModel.fromJson(data)).toList();
+      }
+
       final response = await supabase
           .from('boards')
           .select(
@@ -54,74 +72,92 @@ Future<List<BoardModel>?> boardsByArtistName(
           .order('artist(name->>${Intl.getCurrentLocale()})', ascending: true)
           .range(page * limit, (page + 1) * limit - 1);
 
-      boardData = response.map(BoardModel.fromJson).toList();
+      return response.map((data) => BoardModel.fromJson(data)).toList();
+    } catch (e, s) {
+      logger.e('Error fetching boards by artist name:',
+          error: e, stackTrace: s);
+      return Future.error(e);
     }
+  }
 
-    return boardData;
-  } catch (e, s) {
-    logger.e('Error fetching boards:', error: e, stackTrace: s);
-    return Future.error(e);
+  Future<void> refresh() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(
+        () => _fetchBoardsByArtistName(query, page, limit));
   }
 }
 
 @riverpod
-Future<BoardModel?> getPendingRequest(ref) async {
-  try {
-    final response = await supabase
-        .from('boards')
-        .select('name, board_id, artist_id, description, is_official')
-        .eq('creator_id', supabase.auth.currentUser!.id)
-        .eq('status', 'pending')
-        .maybeSingle();
-
-    return response == null ? null : BoardModel.fromJson(response);
-  } catch (e, s) {
-    logger.e('Error checking pending request:', error: e, stackTrace: s);
-    return Future.error(e);
+class BoardRequestNotifier extends _$BoardRequestNotifier {
+  @override
+  Future<BoardModel?> build() async {
+    return _getPendingRequest();
   }
-}
 
-@riverpod
-Future<BoardModel?> checkDuplicateBoard(ref, String title) async {
-  try {
-    final response = await supabase
-        .from('boards')
-        .select()
-        .or('name->>ko.eq.$title,name->>en.eq.$title,name->>ja.eq.$title,name->>zh.eq.$title')
-        .maybeSingle();
+  Future<BoardModel?> _getPendingRequest() async {
+    try {
+      final response = await supabase
+          .from('boards')
+          .select(
+              'name, board_id, artist_id, description, is_official, request_message')
+          .eq('creator_id', supabase.auth.currentUser!.id)
+          .eq('status', 'pending')
+          .maybeSingle();
 
-    return response == null ? null : BoardModel.fromJson(response);
-  } catch (e, s) {
-    logger.e('Error checking duplicate board:', error: e, stackTrace: s);
-    return Future.error(e);
+      return response == null ? null : BoardModel.fromJson(response);
+    } catch (e, s) {
+      logger.e('Error checking pending request:', error: e, stackTrace: s);
+      return Future.error(e);
+    }
   }
-}
 
-@riverpod
-Future<void> createBoard(ref, int artistId, String title, String description,
-    String requestMessage) async {
-  try {
-    final user = supabase.auth.currentUser;
-    if (user == null) throw Exception('User not authenticated');
+  Future<BoardModel?> checkDuplicateBoard(String title) async {
+    try {
+      final response = await supabase
+          .from('boards')
+          .select()
+          .or('name->>ko.eq.$title,name->>en.eq.$title,name->>ja.eq.$title,name->>zh.eq.$title')
+          .maybeSingle();
 
-    await supabase.from('boards').upsert({
-      'artist_id': artistId,
-      'name': {
-        'ko': title,
-        'en': title,
-        'ja': title,
-        'zh': title,
-      },
-      'description': description,
-      'status': 'pending',
-      'request_message': requestMessage,
-      'creator_id': user.id,
-      'is_official': false,
-      'order': 0,
-      'features': [],
-    });
-  } catch (e, s) {
-    logger.e('Error creating board:', error: e, stackTrace: s);
-    rethrow;
+      return response == null ? null : BoardModel.fromJson(response);
+    } catch (e, s) {
+      logger.e('Error checking duplicate board:', error: e, stackTrace: s);
+      return Future.error(e);
+    }
+  }
+
+  Future<void> createBoard(int artistId, String title, String description,
+      String requestMessage) async {
+    try {
+      final user = supabase.auth.currentUser;
+      if (user == null) throw Exception('User not authenticated');
+
+      await supabase.from('boards').upsert({
+        'artist_id': artistId,
+        'name': {
+          'ko': title,
+          'en': title,
+          'ja': title,
+          'zh': title,
+        },
+        'description': description,
+        'status': 'pending',
+        'request_message': requestMessage,
+        'creator_id': user.id,
+        'is_official': false,
+        'order': 0,
+        'features': [],
+      });
+
+      refresh();
+    } catch (e, s) {
+      logger.e('Error creating board:', error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() => _getPendingRequest());
   }
 }

@@ -6,7 +6,7 @@ part of 'boards_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$boardsHash() => r'5243067de828cb888bd0231aa945aad3822a45c9';
+String _$boardsNotifierHash() => r'3bf2919f8c41eaf900af69990c5d73163e6cd7c2';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -29,27 +29,36 @@ class _SystemHash {
   }
 }
 
-/// See also [boards].
-@ProviderFor(boards)
-const boardsProvider = BoardsFamily();
+abstract class _$BoardsNotifier
+    extends BuildlessAutoDisposeAsyncNotifier<List<BoardModel>?> {
+  late final int artistId;
 
-/// See also [boards].
-class BoardsFamily extends Family<AsyncValue<List<BoardModel>?>> {
-  /// See also [boards].
-  const BoardsFamily();
+  FutureOr<List<BoardModel>?> build(
+    int artistId,
+  );
+}
 
-  /// See also [boards].
-  BoardsProvider call(
+/// See also [BoardsNotifier].
+@ProviderFor(BoardsNotifier)
+const boardsNotifierProvider = BoardsNotifierFamily();
+
+/// See also [BoardsNotifier].
+class BoardsNotifierFamily extends Family<AsyncValue<List<BoardModel>?>> {
+  /// See also [BoardsNotifier].
+  const BoardsNotifierFamily();
+
+  /// See also [BoardsNotifier].
+  BoardsNotifierProvider call(
     int artistId,
   ) {
-    return BoardsProvider(
+    return BoardsNotifierProvider(
       artistId,
     );
   }
 
   @override
-  BoardsProvider getProviderOverride(
-    covariant BoardsProvider provider,
+  BoardsNotifierProvider getProviderOverride(
+    covariant BoardsNotifierProvider provider,
   ) {
     return call(
       provider.artistId,
@@ -68,31 +77,30 @@ class BoardsFamily extends Family<AsyncValue<List<BoardModel>?>> {
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'boardsProvider';
+  String? get name => r'boardsNotifierProvider';
 }
 
-/// See also [boards].
-class BoardsProvider extends AutoDisposeFutureProvider<List<BoardModel>?> {
-  /// See also [boards].
-  BoardsProvider(
+/// See also [BoardsNotifier].
+class BoardsNotifierProvider extends AutoDisposeAsyncNotifierProviderImpl<
+    BoardsNotifier, List<BoardModel>?> {
+  /// See also [BoardsNotifier].
+  BoardsNotifierProvider(
     int artistId,
   ) : this._internal(
-          (ref) => boards(
-            ref as BoardsRef,
-            artistId,
-          ),
-          from: boardsProvider,
-          name: r'boardsProvider',
+          () => BoardsNotifier()..artistId = artistId,
+          from: boardsNotifierProvider,
+          name: r'boardsNotifierProvider',
           debugGetCreateSourceHash:
               const bool.fromEnvironment('dart.vm.product')
                   ? null
-                  : _$boardsHash,
-          dependencies: BoardsFamily._dependencies,
-          allTransitiveDependencies: BoardsFamily._allTransitiveDependencies,
+                  : _$boardsNotifierHash,
+          dependencies: BoardsNotifierFamily._dependencies,
+          allTransitiveDependencies:
+              BoardsNotifierFamily._allTransitiveDependencies,
           artistId: artistId,
         );
 
-  BoardsProvider._internal(
+  BoardsNotifierProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -105,13 +113,20 @@ class BoardsProvider extends AutoDisposeFutureProvider<List<BoardModel>?> {
   final int artistId;
 
   @override
-  Override overrideWith(
-    FutureOr<List<BoardModel>?> Function(BoardsRef provider) create,
+  FutureOr<List<BoardModel>?> runNotifierBuild(
+    covariant BoardsNotifier notifier,
   ) {
+    return notifier.build(
+      artistId,
+    );
+  }
+
+  @override
+  Override overrideWith(BoardsNotifier Function() create) {
     return ProviderOverride(
       origin: this,
-      override: BoardsProvider._internal(
-        (ref) => create(ref as BoardsRef),
+      override: BoardsNotifierProvider._internal(
+        () => create()..artistId = artistId,
         from: from,
         name: null,
         dependencies: null,
@@ -123,13 +138,14 @@ class BoardsProvider extends AutoDisposeFutureProvider<List<BoardModel>?> {
   }
 
   @override
-  AutoDisposeFutureProviderElement<List<BoardModel>?> createElement() {
-    return _BoardsProviderElement(this);
+  AutoDisposeAsyncNotifierProviderElement<BoardsNotifier, List<BoardModel>?>
+      createElement() {
+    return _BoardsNotifierProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is BoardsProvider && other.artistId == artistId;
+    return other is BoardsNotifierProvider && other.artistId == artistId;
   }
 
   @override
@@ -143,38 +159,54 @@ class BoardsProvider extends AutoDisposeFutureProvider<List<BoardModel>?> {
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin BoardsRef on AutoDisposeFutureProviderRef<List<BoardModel>?> {
+mixin BoardsNotifierRef
+    on AutoDisposeAsyncNotifierProviderRef<List<BoardModel>?> {
   /// The parameter `artistId` of this provider.
   int get artistId;
 }
 
-class _BoardsProviderElement
-    extends AutoDisposeFutureProviderElement<List<BoardModel>?> with BoardsRef {
-  _BoardsProviderElement(super.provider);
+class _BoardsNotifierProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<BoardsNotifier,
+        List<BoardModel>?> with BoardsNotifierRef {
+  _BoardsNotifierProviderElement(super.provider);
 
   @override
-  int get artistId => (origin as BoardsProvider).artistId;
+  int get artistId => (origin as BoardsNotifierProvider).artistId;
 }
 
-String _$boardsByArtistNameHash() =>
-    r'd2b6b6fcd06c28d765eea99e18c4da4324218bca';
+String _$boardsByArtistNameNotifierHash() =>
+    r'2c77a403425398b2bf3415213cdd15aa6965945e';
 
-/// See also [boardsByArtistName].
-@ProviderFor(boardsByArtistName)
-const boardsByArtistNameProvider = BoardsByArtistNameFamily();
+abstract class _$BoardsByArtistNameNotifier
+    extends BuildlessAutoDisposeAsyncNotifier<List<BoardModel>?> {
+  late final String query;
+  late final int page;
+  late final int limit;
 
-/// See also [boardsByArtistName].
-class BoardsByArtistNameFamily extends Family<AsyncValue<List<BoardModel>?>> {
-  /// See also [boardsByArtistName].
-  const BoardsByArtistNameFamily();
+  FutureOr<List<BoardModel>?> build(
+    String query,
+    int page,
+    int limit,
+  );
+}
 
-  /// See also [boardsByArtistName].
-  BoardsByArtistNameProvider call(
+/// See also [BoardsByArtistNameNotifier].
+@ProviderFor(BoardsByArtistNameNotifier)
+const boardsByArtistNameNotifierProvider = BoardsByArtistNameNotifierFamily();
+
+/// See also [BoardsByArtistNameNotifier].
+class BoardsByArtistNameNotifierFamily
+    extends Family<AsyncValue<List<BoardModel>?>> {
+  /// See also [BoardsByArtistNameNotifier].
+  const BoardsByArtistNameNotifierFamily();
+
+  /// See also [BoardsByArtistNameNotifier].
+  BoardsByArtistNameNotifierProvider call(
     String query,
     int page,
     int limit,
   ) {
-    return BoardsByArtistNameProvider(
+    return BoardsByArtistNameNotifierProvider(
       query,
       page,
       limit,
@@ -182,8 +214,8 @@ class BoardsByArtistNameFamily extends Family<AsyncValue<List<BoardModel>?>> {
   }
 
   @override
-  BoardsByArtistNameProvider getProviderOverride(
-    covariant BoardsByArtistNameProvider provider,
+  BoardsByArtistNameNotifierProvider getProviderOverride(
+    covariant BoardsByArtistNameNotifierProvider provider,
   ) {
     return call(
       provider.query,
@@ -204,39 +236,38 @@ class BoardsByArtistNameFamily extends Family<AsyncValue<List<BoardModel>?>> {
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'boardsByArtistNameProvider';
+  String? get name => r'boardsByArtistNameNotifierProvider';
 }
 
-/// See also [boardsByArtistName].
-class BoardsByArtistNameProvider
-    extends AutoDisposeFutureProvider<List<BoardModel>?> {
-  /// See also [boardsByArtistName].
-  BoardsByArtistNameProvider(
+/// See also [BoardsByArtistNameNotifier].
+class BoardsByArtistNameNotifierProvider
+    extends AutoDisposeAsyncNotifierProviderImpl<BoardsByArtistNameNotifier,
+        List<BoardModel>?> {
+  /// See also [BoardsByArtistNameNotifier].
+  BoardsByArtistNameNotifierProvider(
     String query,
     int page,
     int limit,
   ) : this._internal(
-          (ref) => boardsByArtistName(
-            ref as BoardsByArtistNameRef,
-            query,
-            page,
-            limit,
-          ),
-          from: boardsByArtistNameProvider,
-          name: r'boardsByArtistNameProvider',
+          () => BoardsByArtistNameNotifier()
+            ..query = query
+            ..page = page
+            ..limit = limit,
+          from: boardsByArtistNameNotifierProvider,
+          name: r'boardsByArtistNameNotifierProvider',
           debugGetCreateSourceHash:
               const bool.fromEnvironment('dart.vm.product')
                   ? null
-                  : _$boardsByArtistNameHash,
-          dependencies: BoardsByArtistNameFamily._dependencies,
+                  : _$boardsByArtistNameNotifierHash,
+          dependencies: BoardsByArtistNameNotifierFamily._dependencies,
           allTransitiveDependencies:
-              BoardsByArtistNameFamily._allTransitiveDependencies,
+              BoardsByArtistNameNotifierFamily._allTransitiveDependencies,
           query: query,
           page: page,
           limit: limit,
         );
 
-  BoardsByArtistNameProvider._internal(
+  BoardsByArtistNameNotifierProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -253,13 +284,25 @@ class BoardsByArtistNameProvider
   final int limit;
 
   @override
-  Override overrideWith(
-    FutureOr<List<BoardModel>?> Function(BoardsByArtistNameRef provider) create,
+  FutureOr<List<BoardModel>?> runNotifierBuild(
+    covariant BoardsByArtistNameNotifier notifier,
   ) {
+    return notifier.build(
+      query,
+      page,
+      limit,
+    );
+  }
+
+  @override
+  Override overrideWith(BoardsByArtistNameNotifier Function() create) {
     return ProviderOverride(
       origin: this,
-      override: BoardsByArtistNameProvider._internal(
-        (ref) => create(ref as BoardsByArtistNameRef),
+      override: BoardsByArtistNameNotifierProvider._internal(
+        () => create()
+          ..query = query
+          ..page = page
+          ..limit = limit,
         from: from,
         name: null,
         dependencies: null,
@@ -273,13 +316,14 @@ class BoardsByArtistNameProvider
   }
 
   @override
-  AutoDisposeFutureProviderElement<List<BoardModel>?> createElement() {
-    return _BoardsByArtistNameProviderElement(this);
+  AutoDisposeAsyncNotifierProviderElement<BoardsByArtistNameNotifier,
+      List<BoardModel>?> createElement() {
+    return _BoardsByArtistNameNotifierProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is BoardsByArtistNameProvider &&
+    return other is BoardsByArtistNameNotifierProvider &&
         other.query == query &&
         other.page == page &&
         other.limit == limit;
@@ -298,7 +342,8 @@ class BoardsByArtistNameProvider
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin BoardsByArtistNameRef on AutoDisposeFutureProviderRef<List<BoardModel>?> {
+mixin BoardsByArtistNameNotifierRef
+    on AutoDisposeAsyncNotifierProviderRef<List<BoardModel>?> {
   /// The parameter `query` of this provider.
   String get query;
 
@@ -309,347 +354,35 @@ mixin BoardsByArtistNameRef on AutoDisposeFutureProviderRef<List<BoardModel>?> {
   int get limit;
 }
 
-class _BoardsByArtistNameProviderElement
-    extends AutoDisposeFutureProviderElement<List<BoardModel>?>
-    with BoardsByArtistNameRef {
-  _BoardsByArtistNameProviderElement(super.provider);
+class _BoardsByArtistNameNotifierProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<BoardsByArtistNameNotifier,
+        List<BoardModel>?> with BoardsByArtistNameNotifierRef {
+  _BoardsByArtistNameNotifierProviderElement(super.provider);
 
   @override
-  String get query => (origin as BoardsByArtistNameProvider).query;
+  String get query => (origin as BoardsByArtistNameNotifierProvider).query;
   @override
-  int get page => (origin as BoardsByArtistNameProvider).page;
+  int get page => (origin as BoardsByArtistNameNotifierProvider).page;
   @override
-  int get limit => (origin as BoardsByArtistNameProvider).limit;
+  int get limit => (origin as BoardsByArtistNameNotifierProvider).limit;
 }
 
-String _$getPendingRequestHash() => r'c4c574897d92b9d5b18a06fe8ae8eef529ca7fcf';
+String _$boardRequestNotifierHash() =>
+    r'282686a0efa594278b1473643a4ddf9bf0fb52bf';
 
-/// See also [getPendingRequest].
-@ProviderFor(getPendingRequest)
-final getPendingRequestProvider =
-    AutoDisposeFutureProvider<BoardModel?>.internal(
-  getPendingRequest,
-  name: r'getPendingRequestProvider',
+/// See also [BoardRequestNotifier].
+@ProviderFor(BoardRequestNotifier)
+final boardRequestNotifierProvider = AutoDisposeAsyncNotifierProvider<
+    BoardRequestNotifier, BoardModel?>.internal(
+  BoardRequestNotifier.new,
+  name: r'boardRequestNotifierProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$getPendingRequestHash,
+      : _$boardRequestNotifierHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef GetPendingRequestRef = AutoDisposeFutureProviderRef<BoardModel?>;
-String _$checkDuplicateBoardHash() =>
-    r'c4c03081291a9b761818590d75047c86a593f5fb';
-
-/// See also [checkDuplicateBoard].
-@ProviderFor(checkDuplicateBoard)
-const checkDuplicateBoardProvider = CheckDuplicateBoardFamily();
-
-/// See also [checkDuplicateBoard].
-class CheckDuplicateBoardFamily extends Family<AsyncValue<BoardModel?>> {
-  /// See also [checkDuplicateBoard].
-  const CheckDuplicateBoardFamily();
-
-  /// See also [checkDuplicateBoard].
-  CheckDuplicateBoardProvider call(
-    String title,
-  ) {
-    return CheckDuplicateBoardProvider(
-      title,
-    );
-  }
-
-  @override
-  CheckDuplicateBoardProvider getProviderOverride(
-    covariant CheckDuplicateBoardProvider provider,
-  ) {
-    return call(
-      provider.title,
-    );
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'checkDuplicateBoardProvider';
-}
-
-/// See also [checkDuplicateBoard].
-class CheckDuplicateBoardProvider
-    extends AutoDisposeFutureProvider<BoardModel?> {
-  /// See also [checkDuplicateBoard].
-  CheckDuplicateBoardProvider(
-    String title,
-  ) : this._internal(
-          (ref) => checkDuplicateBoard(
-            ref as CheckDuplicateBoardRef,
-            title,
-          ),
-          from: checkDuplicateBoardProvider,
-          name: r'checkDuplicateBoardProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$checkDuplicateBoardHash,
-          dependencies: CheckDuplicateBoardFamily._dependencies,
-          allTransitiveDependencies:
-              CheckDuplicateBoardFamily._allTransitiveDependencies,
-          title: title,
-        );
-
-  CheckDuplicateBoardProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.title,
-  }) : super.internal();
-
-  final String title;
-
-  @override
-  Override overrideWith(
-    FutureOr<BoardModel?> Function(CheckDuplicateBoardRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: CheckDuplicateBoardProvider._internal(
-        (ref) => create(ref as CheckDuplicateBoardRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        title: title,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeFutureProviderElement<BoardModel?> createElement() {
-    return _CheckDuplicateBoardProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is CheckDuplicateBoardProvider && other.title == title;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, title.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
-}
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin CheckDuplicateBoardRef on AutoDisposeFutureProviderRef<BoardModel?> {
-  /// The parameter `title` of this provider.
-  String get title;
-}
-
-class _CheckDuplicateBoardProviderElement
-    extends AutoDisposeFutureProviderElement<BoardModel?>
-    with CheckDuplicateBoardRef {
-  _CheckDuplicateBoardProviderElement(super.provider);
-
-  @override
-  String get title => (origin as CheckDuplicateBoardProvider).title;
-}
-
-String _$createBoardHash() => r'd62e6006e5ef125680a5a3ec71416e2e3822a0a3';
-
-/// See also [createBoard].
-@ProviderFor(createBoard)
-const createBoardProvider = CreateBoardFamily();
-
-/// See also [createBoard].
-class CreateBoardFamily extends Family<AsyncValue<void>> {
-  /// See also [createBoard].
-  const CreateBoardFamily();
-
-  /// See also [createBoard].
-  CreateBoardProvider call(
-    int artistId,
-    String title,
-    String description,
-    String requestMessage,
-  ) {
-    return CreateBoardProvider(
-      artistId,
-      title,
-      description,
-      requestMessage,
-    );
-  }
-
-  @override
-  CreateBoardProvider getProviderOverride(
-    covariant CreateBoardProvider provider,
-  ) {
-    return call(
-      provider.artistId,
-      provider.title,
-      provider.description,
-      provider.requestMessage,
-    );
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'createBoardProvider';
-}
-
-/// See also [createBoard].
-class CreateBoardProvider extends AutoDisposeFutureProvider<void> {
-  /// See also [createBoard].
-  CreateBoardProvider(
-    int artistId,
-    String title,
-    String description,
-    String requestMessage,
-  ) : this._internal(
-          (ref) => createBoard(
-            ref as CreateBoardRef,
-            artistId,
-            title,
-            description,
-            requestMessage,
-          ),
-          from: createBoardProvider,
-          name: r'createBoardProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$createBoardHash,
-          dependencies: CreateBoardFamily._dependencies,
-          allTransitiveDependencies:
-              CreateBoardFamily._allTransitiveDependencies,
-          artistId: artistId,
-          title: title,
-          description: description,
-          requestMessage: requestMessage,
-        );
-
-  CreateBoardProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.artistId,
-    required this.title,
-    required this.description,
-    required this.requestMessage,
-  }) : super.internal();
-
-  final int artistId;
-  final String title;
-  final String description;
-  final String requestMessage;
-
-  @override
-  Override overrideWith(
-    FutureOr<void> Function(CreateBoardRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: CreateBoardProvider._internal(
-        (ref) => create(ref as CreateBoardRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        artistId: artistId,
-        title: title,
-        description: description,
-        requestMessage: requestMessage,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeFutureProviderElement<void> createElement() {
-    return _CreateBoardProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is CreateBoardProvider &&
-        other.artistId == artistId &&
-        other.title == title &&
-        other.description == description &&
-        other.requestMessage == requestMessage;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, artistId.hashCode);
-    hash = _SystemHash.combine(hash, title.hashCode);
-    hash = _SystemHash.combine(hash, description.hashCode);
-    hash = _SystemHash.combine(hash, requestMessage.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
-}
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin CreateBoardRef on AutoDisposeFutureProviderRef<void> {
-  /// The parameter `artistId` of this provider.
-  int get artistId;
-
-  /// The parameter `title` of this provider.
-  String get title;
-
-  /// The parameter `description` of this provider.
-  String get description;
-
-  /// The parameter `requestMessage` of this provider.
-  String get requestMessage;
-}
-
-class _CreateBoardProviderElement extends AutoDisposeFutureProviderElement<void>
-    with CreateBoardRef {
-  _CreateBoardProviderElement(super.provider);
-
-  @override
-  int get artistId => (origin as CreateBoardProvider).artistId;
-  @override
-  String get title => (origin as CreateBoardProvider).title;
-  @override
-  String get description => (origin as CreateBoardProvider).description;
-  @override
-  String get requestMessage => (origin as CreateBoardProvider).requestMessage;
-}
+typedef _$BoardRequestNotifier = AutoDisposeAsyncNotifier<BoardModel?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
