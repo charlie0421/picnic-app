@@ -30,7 +30,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m4(count) => "🎉 You\'ve reached \$${count} goals so far! 🎉";
 
-  static String m5(num1) => "${num1}개 +${num1}개 보너스";
+  static String m5(num1) => "${num1} + ${num1} Bonuses";
 
   static String m6(rank) => "Rank ${rank}";
 
@@ -84,7 +84,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Search results"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
-        "dialog_caution": MessageLookupByLibrary.simpleMessage("🚫 경고 🚫"),
+        "dialog_caution": MessageLookupByLibrary.simpleMessage("🚫 Caution 🚫"),
         "dialog_content_ads_exhausted": MessageLookupByLibrary.simpleMessage(
             "All ads have been exhausted. Please try again next time."),
         "dialog_content_ads_loading":
@@ -561,7 +561,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "purchase_web_message": MessageLookupByLibrary.simpleMessage(
             "This is the payment window for those who cannot pay for the app:\\n Please copy the random ID in advance:\\n After copying, click the button below to proceed with the payment."),
         "replies": MessageLookupByLibrary.simpleMessage("Comments"),
-        "reward": MessageLookupByLibrary.simpleMessage("Rewards"),
+        "reward": MessageLookupByLibrary.simpleMessage("Reward"),
         "share_image_fail":
             MessageLookupByLibrary.simpleMessage("Image sharing failed"),
         "share_image_success":
@@ -627,7 +627,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Where\'s My Favorite?"),
         "title_dialog_library_add":
             MessageLookupByLibrary.simpleMessage("Add a new album"),
-        "title_dialog_success": MessageLookupByLibrary.simpleMessage("성공"),
+        "title_dialog_success": MessageLookupByLibrary.simpleMessage("Success"),
         "title_select_language":
             MessageLookupByLibrary.simpleMessage("Select a language"),
         "toast_max_five_celeb": MessageLookupByLibrary.simpleMessage(
