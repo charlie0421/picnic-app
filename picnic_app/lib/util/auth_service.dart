@@ -112,11 +112,16 @@ class KakaoLogin implements SocialLogin {
       return await loginMethod();
     } catch (e, s) {
       logger.e('Login failed $e', stackTrace: s);
-      if (e is PlatformException && e.code == 'CANCELED') {
-        throw Exception('CANCELED');
-      } else {
-        rethrow;
+      if (e is PlatformException) {
+        if (e.code == 'CANCELED') {
+          throw Exception('CANCELED');
+        } else if (e.code == 'NotSupportError') {
+          // 카카오톡이 설치되어 있지만 연동되어 있지 않은 경우
+          // 카카오 계정으로 로그인 시도
+          return await UserApi.instance.loginWithKakaoAccount();
+        }
       }
+      rethrow;
     }
   }
 
@@ -135,10 +140,15 @@ class KakaoLogin implements SocialLogin {
         return const SocialLoginResult();
       } else {
         if (await isKakaoTalkInstalled()) {
-          token = await _tryLogin(UserApi.instance.loginWithKakaoTalk);
+          try {
+            token = await _tryLogin(UserApi.instance.loginWithKakaoTalk);
+          } catch (e) {
+            // 카카오톡 로그인 실패 시 카카오 계정으로 로그인 시도
+            token = await _tryLogin(UserApi.instance.loginWithKakaoAccount);
+          }
+        } else {
+          token = await _tryLogin(UserApi.instance.loginWithKakaoAccount);
         }
-
-        token ??= await _tryLogin(UserApi.instance.loginWithKakaoAccount);
 
         if (token == null) {
           return const SocialLoginResult();
