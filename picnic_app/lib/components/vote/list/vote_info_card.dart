@@ -147,41 +147,60 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   Widget _buildVoteItemList(
       AsyncValue<List<VoteItemModel?>> asyncVoteItemList) {
     return asyncVoteItemList.when(
-      data: (voteItems) => Container(
-        width: ref.watch(globalMediaQueryProvider).size.width,
-        height: 260,
-        padding: const EdgeInsets.only(left: 36, right: 36, top: 16),
-        margin: const EdgeInsets.only(top: 24),
-        clipBehavior: Clip.hardEdge,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(40).r,
-          border: Border.all(
-            color: AppColors.primary500,
-            width: 1.5.cw,
+      data: (voteItems) {
+        // 데이터가 비어있거나 충분하지 않은 경우 처리
+        if (voteItems.isEmpty) {
+          return const Center(child: Text('No vote items available'));
+        }
+
+        // 필요한 최소 항목 수만큼 패딩
+        final paddedItems = [...voteItems];
+        while (paddedItems.length < 3) {
+          paddedItems.add(null);
+        }
+
+        return Container(
+          width: ref.watch(globalMediaQueryProvider).size.width,
+          height: 260,
+          padding: const EdgeInsets.only(left: 36, right: 36, top: 16),
+          margin: const EdgeInsets.only(top: 24),
+          clipBehavior: Clip.hardEdge,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(40).r,
+            border: Border.all(
+              color: AppColors.primary500,
+              width: 1.5.cw,
+            ),
           ),
-        ),
-        child: SlideTransition(
-          position: _offsetAnimation,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              VoteCardColumnVertical(
-                  rank: 2,
-                  voteItem: voteItems[1]!,
-                  opacityAnimation: _opacityAnimation),
-              VoteCardColumnVertical(
-                  rank: 1,
-                  voteItem: voteItems[0]!,
-                  opacityAnimation: _opacityAnimation),
-              VoteCardColumnVertical(
-                  rank: 3,
-                  voteItem: voteItems[2]!,
-                  opacityAnimation: _opacityAnimation),
-            ],
+          child: SlideTransition(
+            position: _offsetAnimation,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if (paddedItems[1] != null)
+                  VoteCardColumnVertical(
+                    rank: 2,
+                    voteItem: paddedItems[1]!,
+                    opacityAnimation: _opacityAnimation,
+                  ),
+                if (paddedItems[0] != null)
+                  VoteCardColumnVertical(
+                    rank: 1,
+                    voteItem: paddedItems[0]!,
+                    opacityAnimation: _opacityAnimation,
+                  ),
+                if (paddedItems[2] != null)
+                  VoteCardColumnVertical(
+                    rank: 3,
+                    voteItem: paddedItems[2]!,
+                    opacityAnimation: _opacityAnimation,
+                  ),
+              ].where((widget) => widget != null).toList(),
+            ),
           ),
-        ),
-      ),
+        );
+      },
       loading: () => const CircularProgressIndicator(),
       error: (error, stack) => Text('Error: $error'),
     );
