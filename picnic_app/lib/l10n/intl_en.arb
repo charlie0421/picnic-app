@@ -1,1488 +1,1500 @@
 {
-  "@@locale": "en",
-  "ads_available_time": "Ad availability",
-  "@ads_available_time": {
-    "manualTranslation": false
-  },
-  "anonymous": "Anonymous",
-  "@anonymous": {
-    "manualTranslation": false
-  },
-  "anonymous_mode": "Anonymous Mode",
-  "@anonymous_mode": {
-    "manualTranslation": false
-  },
-  "app_name": "Picnic",
-  "@app_name": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "button_cancel": "Cancel",
-  "@button_cancel": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "button_complete": "Done",
-  "@button_complete": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "button_login": "Sign in",
-  "@button_login": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "button_ok": "Confirm",
-  "@button_ok": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "button_pic_pic_save": "Save",
-  "@button_pic_pic_save": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "candy_disappear_next_month": "소멸 예정 보너스 별사탕 😢",
-  "@candy_disappear_next_month": {
-    "manualTranslationKey": true,
-    "manualTranslation": true
-  },
-  "candy_usage_policy_contents": "Bonus Star Candy earned in the current month will expire on the 15th of the following month.",
-  "@candy_usage_policy_contents": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "candy_usage_policy_contents2": "When using Star Candy, Star Candy that is about to expire is prioritized.",
-  "@candy_usage_policy_contents2": {
-    "manualTranslation": false
-  },
-  "candy_usage_policy_guide": "*Bonuses will disappear the month after they are earned!",
-  "@candy_usage_policy_guide": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "candy_usage_policy_guide_button": "Learn more",
-  "@candy_usage_policy_guide_button": {
-    "manualTranslation": false
-  },
-  "candy_usage_policy_title": "Stardust Usage Policy",
-  "@candy_usage_policy_title": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "common_all": "All",
-  "@common_all": {
-    "manualTranslation": false
-  },
-  "common_fail": "Failed",
-  "@common_fail": {
-    "manualTranslation": false
-  },
-  "common_retry_label": "Try again",
-  "@common_retry_label": {
-    "manualTranslation": false
-  },
-  "common_success": "성공",
-  "@common_success": {
-    "manualTranslation": true
-  },
-  "common_text_no_data": "No data is available.",
-  "@common_text_no_data": {
-    "manualTranslation": false
-  },
-  "common_text_no_search_result": "No search results found.",
-  "@common_text_no_search_result": {
-    "manualTranslation": false
-  },
-  "common_text_search_error": "An error occurred during the search.",
-  "@common_text_search_error": {
-    "manualTranslation": false
-  },
-  "common_text_search_recent_label": "Recent searches",
-  "@common_text_search_recent_label": {
-    "manualTranslation": false
-  },
-  "common_text_search_result_label": "Search results",
-  "@common_text_search_result_label": {
-    "manualTranslation": false
-  },
-  "dialog_button_cancel": "Cancel",
-  "@dialog_button_cancel": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "dialog_button_ok": "Confirm",
-  "@dialog_button_ok": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "dialog_content_ads_exhausted": "All ads have been exhausted. Please try again next time.",
-  "@dialog_content_ads_exhausted": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "dialog_content_ads_loading": "Ads are loading.",
-  "@dialog_content_ads_loading": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "dialog_content_ads_retrying": "The ad is reloading. Please try again in a moment.",
-  "@dialog_content_ads_retrying": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "dialog_content_login_required": "Login required",
-  "@dialog_content_login_required": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "dialog_message_can_resignup": "When you can rejoin if you cancel your membership now",
-  "@dialog_message_can_resignup": {
-    "manualTranslation": false
-  },
-  "dialog_message_purchase_canceled": "Your purchase has been canceled.",
-  "@dialog_message_purchase_canceled": {
-    "manualTranslation": false
-  },
-  "dialog_message_purchase_failed": "There was an error with your purchase, please try again later.",
-  "@dialog_message_purchase_failed": {
-    "manualTranslation": false
-  },
-  "dialog_message_purchase_success": "Your purchase has been successfully completed.",
-  "@dialog_message_purchase_success": {
-    "manualTranslation": false
-  },
-  "dialog_purchases_fail": "The purchase failed.",
-  "@dialog_purchases_fail": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "dialog_purchases_success": "Your purchase is complete.",
-  "@dialog_purchases_success": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "dialog_title_ads_exhausted": "Exhausted all ads",
-  "@dialog_title_ads_exhausted": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "dialog_title_vote_fail": "Voting Failed",
-  "@dialog_title_vote_fail": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "dialog_will_delete_star_candy": "Starscapes to be deleted",
-  "@dialog_will_delete_star_candy": {
-    "manualTranslation": false
-  },
-  "dialog_withdraw_button_cancel": "Let me think about this one more time",
-  "@dialog_withdraw_button_cancel": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "dialog_withdraw_button_ok": "Unsubscribing",
-  "@dialog_withdraw_button_ok": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "dialog_withdraw_error": "An error occurred during unsubscribe.",
-  "@dialog_withdraw_error": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "dialog_withdraw_message": "If you cancel your membership, your star candy and account information on Picnic will be deleted immediately, and your existing information and data will not be restored when you rejoin.",
-  "@dialog_withdraw_message": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "dialog_withdraw_success": "The unsubscribe was processed successfully.",
-  "@dialog_withdraw_success": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "dialog_withdraw_title": "Are you sure you want to leave?",
-  "@dialog_withdraw_title": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "error_message_login_failed": "An error occurred during login.",
-  "@error_message_login_failed": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "error_message_no_user": "The membership information doesn't exist.",
-  "@error_message_no_user": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "error_message_withdrawal": "A member who has unsubscribed.",
-  "@error_message_withdrawal": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "error_title": "Errors",
-  "@error_title": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "hint_library_add": "Album name",
-  "@hint_library_add": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "hint_nickname_input": "Please enter a nickname.",
-  "@hint_nickname_input": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "image_save_success": "The image has been saved.",
-  "@image_save_success": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_ads_exceeded": "You have exhausted the ads available per ID.",
-  "@label_ads_exceeded": {
-    "manualTranslation": false
-  },
-  "label_ads_next_available_time": "When the next ad will be available.",
-  "@label_ads_next_available_time": {
-    "manualTranslation": false
-  },
-  "label_agreement_privacy": "Consent to the collection and use of personal information",
-  "@label_agreement_privacy": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_agreement_terms": "Accept the Terms of Use",
-  "@label_agreement_terms": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_album_add": "Add a new album",
-  "@label_album_add": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_article_comment_empty": "Be the first to comment!",
-  "@label_article_comment_empty": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_bonus": "Bonuses",
-  "@label_bonus": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_button_agreement": "Accept",
-  "@label_button_agreement": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_button_close": "닫기",
-  "@label_button_close": {
-    "manualTranslation": true
-  },
-  "label_button_disagreement": "Non-Consent",
-  "@label_button_disagreement": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_button_recharge": "Charging",
-  "@label_button_recharge": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_button_save_vote_paper": "Save your ballot",
-  "@label_button_save_vote_paper": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_button_share": "Share",
-  "@label_button_share": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_button_vote": "Vote",
-  "@label_button_vote": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_button_watch_and_charge": "Viewing and charging for ads",
-  "@label_button_watch_and_charge": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_celeb_ask_to_you": "The Artist Asks You!",
-  "@label_celeb_ask_to_you": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_celeb_gallery": "Artist Gallery",
-  "@label_celeb_gallery": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_celeb_recommend": "Artist recommendations",
-  "@label_celeb_recommend": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_checkbox_entire_use": "Full Use",
-  "@label_checkbox_entire_use": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_current_language": "Current language",
-  "@label_current_language": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_draw_image": "Chance to win a random image",
-  "@label_draw_image": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_dropdown_oldest": "Oldest",
-  "@label_dropdown_oldest": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_dropdown_recent": "Newest",
-  "@label_dropdown_recent": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_find_celeb": "Find more artists",
-  "@label_find_celeb": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_gallery_tab_article": "Articles",
-  "@label_gallery_tab_article": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_gallery_tab_chat": "Chat",
-  "@label_gallery_tab_chat": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_hint_comment": "Leave a comment.",
-  "@label_hint_comment": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_input_input": "Input",
-  "@label_input_input": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_last_provider": "Recent",
-  "@label_last_provider": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_library_save": "Save the library",
-  "@label_library_save": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_library_tab_ai_photo": "AI Photos",
-  "@label_library_tab_ai_photo": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_library_tab_library": "Libraries",
-  "@label_library_tab_library": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_library_tab_pic": "PIC",
-  "@label_library_tab_pic": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_loading_ads": "Loading ad",
-  "@label_loading_ads": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_moveto_celeb_gallery": "Go to the Artist Gallery",
-  "@label_moveto_celeb_gallery": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_mypage_charge_history": "Charges",
-  "@label_mypage_charge_history": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_mypage_customer_center": "Help Center",
-  "@label_mypage_customer_center": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_mypage_logout": "Log out",
-  "@label_mypage_logout": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_mypage_membership_history": "Membership history",
-  "@label_mypage_membership_history": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_mypage_my_artist": "My Artists",
-  "@label_mypage_my_artist": {
-    "manualTranslation": false
-  },
-  "label_mypage_no_artist": "Sign up for MyArtist.",
-  "@label_mypage_no_artist": {
-    "manualTranslation": false
-  },
-  "label_mypage_notice": "Announcements",
-  "@label_mypage_notice": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_mypage_picnic_id": "Id.",
-  "@label_mypage_picnic_id": {
-    "manualTranslation": false
-  },
-  "label_mypage_privacy_policy": "Privacy Policy",
-  "@label_mypage_privacy_policy": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_mypage_setting": "Settings",
-  "@label_mypage_setting": {
-    "manualTranslation": false
-  },
-  "label_mypage_should_login": "Please sign in",
-  "@label_mypage_should_login": {
-    "manualTranslation": false
-  },
-  "label_mypage_terms_of_use": "Terms of Use",
-  "@label_mypage_terms_of_use": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_mypage_vote_history": "Star Candy Voting History",
-  "@label_mypage_vote_history": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_mypage_withdrawal": "Withdrawal",
-  "@label_mypage_withdrawal": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_no_ads": "No ads",
-  "@label_no_ads": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_no_celeb": "You don't have any artists bookmarked yet!",
-  "@label_no_celeb": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_pic_image_cropping": "Crop an image",
-  "@label_pic_image_cropping": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_pic_pic_initializing_camera": "Initializing camera...",
-  "@label_pic_pic_initializing_camera": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_pic_pic_save_gallery": "Save to Gallery",
-  "@label_pic_pic_save_gallery": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_pic_pic_synthesizing_image": "Compositing an image...",
-  "@label_pic_pic_synthesizing_image": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_read_more_comment": "More comments",
-  "@label_read_more_comment": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_reply": "Reply",
-  "@label_reply": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_retry": "Retrying",
-  "@label_retry": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_screen_title_agreement": "Accept the terms",
-  "@label_screen_title_agreement": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_setting_alarm": "Notifications",
-  "@label_setting_alarm": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_setting_appinfo": "App info",
-  "@label_setting_appinfo": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_setting_current_version": "Current version",
-  "@label_setting_current_version": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_setting_event_alarm": "Event notifications",
-  "@label_setting_event_alarm": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_setting_event_alarm_desc": "Events and happenings.",
-  "@label_setting_event_alarm_desc": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_setting_language": "Language settings",
-  "@label_setting_language": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_setting_push_alarm": "Push notifications",
-  "@label_setting_push_alarm": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_setting_recent_version": "Latest version",
-  "@label_setting_recent_version": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_setting_recent_version_up_to_date": "Latest version",
-  "@label_setting_recent_version_up_to_date": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_setting_remove_cache": "Delete cache memory",
-  "@label_setting_remove_cache": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_setting_remove_cache_complete": "Done",
-  "@label_setting_remove_cache_complete": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_setting_storage": "Manage storage",
-  "@label_setting_storage": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_setting_update": "Update",
-  "@label_setting_update": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_star_candy_pouch": "Star Candy Pouch",
-  "@label_star_candy_pouch": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_tab_buy_star_candy": "Buy star candy",
-  "@label_tab_buy_star_candy": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_tab_free_charge_station": "Free charging stations",
-  "@label_tab_free_charge_station": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_tab_my_artist": "MyArtist",
-  "@label_tab_my_artist": {
-    "manualTranslation": false
-  },
-  "label_tab_search_my_artist": "Find MyArtist",
-  "@label_tab_search_my_artist": {
-    "manualTranslation": false
-  },
-  "label_tabbar_picchart_daily": "Daily charts",
-  "@label_tabbar_picchart_daily": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_tabbar_picchart_monthly": "Monthly Charts",
-  "@label_tabbar_picchart_monthly": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_tabbar_picchart_weekly": "Weekly charts",
-  "@label_tabbar_picchart_weekly": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_tabbar_vote_active": "In Progress",
-  "@label_tabbar_vote_active": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_tabbar_vote_end": "Exit",
-  "@label_tabbar_vote_end": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_tabbar_vote_upcoming": "Upcoming",
-  "@label_tabbar_vote_upcoming": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_time_ago_day": "{day} days ago",
-  "@label_time_ago_day": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
-  },
-  "label_time_ago_hour": "{hour} hours ago",
-  "@label_time_ago_hour": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
-  },
-  "label_time_ago_minute": "{minute} minutes ago",
-  "@label_time_ago_minute": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
-  },
-  "label_time_ago_right_now": "Just a moment ago",
-  "@label_time_ago_right_now": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_title_comment": "Comments",
-  "@label_title_comment": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_title_report": "Make a report",
-  "@label_title_report": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_vote_end": "Close the poll",
-  "@label_vote_end": {
-    "manualTranslation": false
-  },
-  "label_vote_reward_list": "Rewards list",
-  "@label_vote_reward_list": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_vote_screen_title": "Voting",
-  "@label_vote_screen_title": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_vote_tab_birthday": "Birthday polls",
-  "@label_vote_tab_birthday": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_vote_tab_pic": "PIC Voting",
-  "@label_vote_tab_pic": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_vote_upcoming": "Until voting begins",
-  "@label_vote_upcoming": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_vote_vote_gather": "Collecting votes",
-  "@label_vote_vote_gather": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "label_watch_ads": "View ads",
-  "@label_watch_ads": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "lable_my_celeb": "My Artists",
-  "@lable_my_celeb": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "message_agreement_success": "You've accepted the terms.",
-  "@message_agreement_success": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "message_error_occurred": "An error occurred.",
-  "@message_error_occurred": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "message_noitem_vote_active": "There are currently no active polls.",
-  "@message_noitem_vote_active": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "message_noitem_vote_end": "There are currently no closed polls.",
-  "@message_noitem_vote_end": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "message_noitem_vote_upcoming": "There are currently no upcoming polls.",
-  "@message_noitem_vote_upcoming": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "message_pic_pic_save_fail": "Saving the image failed.",
-  "@message_pic_pic_save_fail": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "message_pic_pic_save_success": "The image has been saved.",
-  "@message_pic_pic_save_success": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "message_report_confirm": "Want to report?",
-  "@message_report_confirm": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "message_report_ok": "The report is complete.",
-  "@message_report_ok": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "message_setting_remove_cache": "Cache memory deletion is complete",
-  "@message_setting_remove_cache": {
-    "manualTranslation": false
-  },
-  "message_update_nickname_fail": "Nickname change failed.\nPlease select a different nickname.",
-  "@message_update_nickname_fail": {
-    "manualTranslation": false
-  },
-  "message_update_nickname_success": "Your nickname has been successfully changed.",
-  "@message_update_nickname_success": {
-    "manualTranslation": false
-  },
-  "message_vote_is_ended": "Poll closed",
-  "@message_vote_is_ended": {
-    "manualTranslation": false
-  },
-  "message_vote_is_upcoming": "This is an upcoming vote",
-  "@message_vote_is_upcoming": {
-    "manualTranslation": false
-  },
-  "mypage_comment": "Manage comments",
-  "@mypage_comment": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "mypage_language": "Language settings",
-  "@mypage_language": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "mypage_purchases": "My purchases",
-  "@mypage_purchases": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "mypage_setting": "Settings",
-  "@mypage_setting": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "mypage_subscription": "Subscription information",
-  "@mypage_subscription": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "nav_ads": "Ads",
-  "@nav_ads": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "nav_board": "Bulletin boards",
-  "@nav_board": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "nav_gallery": "Gallery",
-  "@nav_gallery": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "nav_home": "홈",
-  "@nav_home": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
-  },
-  "nav_library": "Libraries",
-  "@nav_library": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "nav_media": "Media",
-  "@nav_media": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "nav_my": "My",
-  "@nav_my": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "nav_picchart": "PIC Charts",
-  "@nav_picchart": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "nav_purchases": "Purchase",
-  "@nav_purchases": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "nav_setting": "Settings",
-  "@nav_setting": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "nav_store": "Shop",
-  "@nav_store": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "nav_subscription": "Subscriptions",
-  "@nav_subscription": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "nav_vote": "Voting",
-  "@nav_vote": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "nickname_validation_error": "20 characters or less, excluding special characters.",
-  "@nickname_validation_error": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "page_title_mypage": "My Page",
-  "@page_title_mypage": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "page_title_myprofile": "My profile",
-  "@page_title_myprofile": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "page_title_post_write": "Create a post",
-  "@page_title_post_write": {
-    "manualTranslation": false
-  },
-  "page_title_privacy": "Privacy Policy",
-  "@page_title_privacy": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "page_title_setting": "Preferences",
-  "@page_title_setting": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "page_title_terms_of_use": "Terms of Use",
-  "@page_title_terms_of_use": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "page_title_vote_detail": "Vote",
-  "@page_title_vote_detail": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "page_title_vote_gather": "Collecting votes",
-  "@page_title_vote_gather": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "popup_label_delete": "Delete",
-  "@popup_label_delete": {
-    "manualTranslation": false
-  },
-  "post_anonymous": "Anonymous posting",
-  "@post_anonymous": {
-    "manualTranslation": false
-  },
-  "post_ask_go_to_temporary_save_list": "Want to go to the Drafts list?",
-  "@post_ask_go_to_temporary_save_list": {
-    "manualTranslation": false
-  },
-  "post_board_already_exist": "A board that already exists.",
-  "@post_board_already_exist": {
-    "manualTranslation": false
-  },
-  "post_board_create_request_complete": "Your request to open a board is complete.",
-  "@post_board_create_request_complete": {
-    "manualTranslation": false
-  },
-  "post_board_create_request_condition": "*Only one minor board can be applied per ID.",
-  "@post_board_create_request_condition": {
-    "manualTranslation": false
-  },
-  "post_board_create_request_label": "Request to open a board",
-  "@post_board_create_request_label": {
-    "manualTranslation": false
-  },
-  "post_board_create_request_reviewing": "Reviewing a request to open a board",
-  "@post_board_create_request_reviewing": {
-    "manualTranslation": false
-  },
-  "post_board_request_label": "Open requests",
-  "@post_board_request_label": {
-    "manualTranslation": false
-  },
-  "post_cannot_open_youtube": "I can't open Youtube.",
-  "@post_cannot_open_youtube": {
-    "manualTranslation": false
-  },
-  "post_comment_action_translate": "Translation",
-  "@post_comment_action_translate": {
-    "manualTranslation": false
-  },
-  "post_comment_content_more": "More",
-  "@post_comment_content_more": {
-    "manualTranslation": false
-  },
-  "post_comment_delete_confirm": "Are you sure you want to delete the comment?",
-  "@post_comment_delete_confirm": {
-    "manualTranslation": false
-  },
-  "post_comment_delete_fail": "Comment deletion failed.",
-  "@post_comment_delete_fail": {
-    "manualTranslation": false
-  },
-  "post_comment_deleted_comment": "This is a deleted comment.",
-  "@post_comment_deleted_comment": {
-    "manualTranslation": false
-  },
-  "post_comment_like_processing_fail": "Failed to process like.",
-  "@post_comment_like_processing_fail": {
-    "manualTranslation": false
-  },
-  "post_comment_loading_fail": "Comment failed to load.",
-  "@post_comment_loading_fail": {
-    "manualTranslation": false
-  },
-  "post_comment_register_fail": "Comment registration failed.",
-  "@post_comment_register_fail": {
-    "manualTranslation": false
-  },
-  "post_comment_registered_comment": "Your comment has been registered.",
-  "@post_comment_registered_comment": {
-    "manualTranslation": false
-  },
-  "post_comment_reported_comment": "This is a reported comment.",
-  "@post_comment_reported_comment": {
-    "manualTranslation": false
-  },
-  "post_comment_translate_complete": "The translation is complete.",
-  "@post_comment_translate_complete": {
-    "manualTranslation": false
-  },
-  "post_comment_translate_fail": "The translation failed.",
-  "@post_comment_translate_fail": {
-    "manualTranslation": false
-  },
-  "post_comment_translated": "Translated",
-  "@post_comment_translated": {
-    "manualTranslation": false
-  },
-  "post_comment_write_label": "Write a comment",
-  "@post_comment_write_label": {
-    "manualTranslation": false
-  },
-  "post_content_placeholder": "Please enter something.",
-  "@post_content_placeholder": {
-    "manualTranslation": false
-  },
-  "post_delete_scrap_confirm": "Do you want to delete the scrap?",
-  "@post_delete_scrap_confirm": {
-    "manualTranslation": false
-  },
-  "post_delete_scrap_title": "Delete a scrap",
-  "@post_delete_scrap_title": {
-    "manualTranslation": false
-  },
-  "post_go_to_boards": "Go to the board",
-  "@post_go_to_boards": {
-    "manualTranslation": false
-  },
-  "post_header_publish": "Publishing",
-  "@post_header_publish": {
-    "manualTranslation": false
-  },
-  "post_header_temporary_save": "Drafts",
-  "@post_header_temporary_save": {
-    "manualTranslation": false
-  },
-  "post_hint_title": "Please enter a title.",
-  "@post_hint_title": {
-    "manualTranslation": false
-  },
-  "post_hyperlink": "Hyperlinks",
-  "@post_hyperlink": {
-    "manualTranslation": false
-  },
-  "post_insert_link": "Inserting links",
-  "@post_insert_link": {
-    "manualTranslation": false
-  },
-  "post_loading_post_fail": "The post failed to load.",
-  "@post_loading_post_fail": {
-    "manualTranslation": false
-  },
-  "post_minor_board_condition": "Please enter a description of at least 5 characters and no more than 20 characters.",
-  "@post_minor_board_condition": {
-    "manualTranslation": false
-  },
-  "post_minor_board_create_request_message": "* Message requesting to open a board.",
-  "@post_minor_board_create_request_message": {
-    "manualTranslation": false
-  },
-  "post_minor_board_create_request_message_condition": "Please include at least 10 characters in your message requesting to open a board.",
-  "@post_minor_board_create_request_message_condition": {
-    "manualTranslation": false
-  },
-  "post_minor_board_create_request_message_input": "Enter a message requesting to open a board.",
-  "@post_minor_board_create_request_message_input": {
-    "manualTranslation": false
-  },
-  "post_minor_board_description": "Minor bulletin board descriptions",
-  "@post_minor_board_description": {
-    "manualTranslation": false
-  },
-  "post_minor_board_description_input": "Please enter a description for your minor board.",
-  "@post_minor_board_description_input": {
-    "manualTranslation": false
-  },
-  "post_minor_board_name": "Minor board name",
-  "@post_minor_board_name": {
-    "manualTranslation": false
-  },
-  "post_minor_board_name_input": "Please enter a name for your minor board.",
-  "@post_minor_board_name_input": {
-    "manualTranslation": false
-  },
-  "post_my_written_post": "Posts I've written",
-  "@post_my_written_post": {
-    "manualTranslation": false
-  },
-  "post_my_written_reply": "Comments I wrote",
-  "@post_my_written_reply": {
-    "manualTranslation": false
-  },
-  "post_my_written_scrap": "My Scraps",
-  "@post_my_written_scrap": {
-    "manualTranslation": false
-  },
-  "post_no_comment": "No comments.",
-  "@post_no_comment": {
-    "manualTranslation": false
-  },
-  "post_report_reason_1": "Unsavory posts",
-  "@post_report_reason_1": {
-    "manualTranslation": false
-  },
-  "post_report_reason_2": "Sexist, racist posts",
-  "@post_report_reason_2": {
-    "manualTranslation": false
-  },
-  "post_report_reason_3": "Posts containing offensive profanity",
-  "@post_report_reason_3": {
-    "manualTranslation": false
-  },
-  "post_report_reason_4": "Advertising/Promotional Posts",
-  "@post_report_reason_4": {
-    "manualTranslation": false
-  },
-  "post_report_reason_5": "Other",
-  "@post_report_reason_5": {
-    "manualTranslation": false
-  },
-  "post_temporary_save_complete": "Draft complete.",
-  "@post_temporary_save_complete": {
-    "manualTranslation": false
-  },
-  "post_title_placeholder": "Please enter a title.",
-  "@post_title_placeholder": {
-    "manualTranslation": false
-  },
-  "post_write_board_post": "Create a post",
-  "@post_write_board_post": {
-    "manualTranslation": false
-  },
-  "post_write_post_recommend_write": "Please create a post.",
-  "@post_write_post_recommend_write": {
-    "manualTranslation": false
-  },
-  "post_youtube_link": "YouTube link",
-  "@post_youtube_link": {
-    "manualTranslation": false
-  },
-  "replies": "Comments",
-  "@replies": {
-    "manualTranslation": false
-  },
-  "share_image_fail": "Image sharing failed",
-  "@share_image_fail": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "share_image_success": "Shared image successfully",
-  "@share_image_success": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "share_no_twitter": "X app is missing.",
-  "@share_no_twitter": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "share_twitter": "Share on Twitter",
-  "@share_twitter": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "text_ads_random": "Viewing ads and collecting random images.",
-  "@text_ads_random": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "text_bonus": "Bonuses",
-  "@text_bonus": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "text_bookmark_failed": "Failed to unbookmark",
-  "@text_bookmark_failed": {
-    "manualTranslation": false
-  },
-  "text_bookmark_over_5": "You can have up to five bookmarks",
-  "@text_bookmark_over_5": {
-    "manualTranslation": false
-  },
-  "text_comming_soon_pic_chart1": "Welcome to Peek Charts!\nSee you in November 2024!",
-  "@text_comming_soon_pic_chart1": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "text_comming_soon_pic_chart2": "Pie charts are a new chart unique to Peeknick that reflects daily, weekly, and monthly scores.\nPeeknick's new chart that reflects daily, weekly, and monthly scores.",
-  "@text_comming_soon_pic_chart2": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "text_comming_soon_pic_chart3": "Get a real-time reflection\nartist's brand reputation in real-time!",
-  "@text_comming_soon_pic_chart3": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "text_comming_soon_pic_chart_title": "What is a Pie Chart?",
-  "@text_comming_soon_pic_chart_title": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "text_community_board_search": "Searching the Artist Board",
-  "@text_community_board_search": {
-    "manualTranslation": false
-  },
-  "text_community_post_search": "Search",
-  "@text_community_post_search": {
-    "manualTranslation": false
-  },
-  "text_copied_address": "The address has been copied.",
-  "@text_copied_address": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "text_dialog_ad_dismissed": "The ad stopped midway through.",
-  "@text_dialog_ad_dismissed": {
-    "manualTranslation": false
-  },
-  "text_dialog_ad_failed_to_show": "Failed to load ads",
-  "@text_dialog_ad_failed_to_show": {
-    "manualTranslation": false
-  },
-  "text_dialog_star_candy_received": "Star candy has been awarded.",
-  "@text_dialog_star_candy_received": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "text_dialog_vote_amount_should_not_zero": "The number of votes cannot be zero.",
-  "@text_dialog_vote_amount_should_not_zero": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "text_draw_image": "Confirmed ownership of 1 image from the entire gallery",
-  "@text_draw_image": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "text_hint_search": "Search for artists",
-  "@text_hint_search": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "text_moveto_celeb_gallery": "Navigate to the selected artist's home.",
-  "@text_moveto_celeb_gallery": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "text_need_recharge": "Requires charging.",
-  "@text_need_recharge": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "text_no_artist": "No artist",
-  "@text_no_artist": {
-    "manualTranslation": false
-  },
-  "text_no_search_result": "No search results.",
-  "@text_no_search_result": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "text_purchase_vat_included": "*Price includes VAT.",
-  "@text_purchase_vat_included": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "text_star_candy": "Star Candy",
-  "@text_star_candy": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "text_star_candy_with_bonus": "{num1}개 +{num1}개 보너스",
-  "@text_star_candy_with_bonus": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
-  },
-  "text_this_time_vote": "This Vote",
-  "@text_this_time_vote": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "text_vote_complete": "Voting complete",
-  "@text_vote_complete": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "text_vote_rank": "Rank {rank}",
-  "@text_vote_rank": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
-  },
-  "post_replying_comment": "Replying to {nickname}...",
-  "@post_replying_comment": {
-    "manualTranslation": true
-  },
-  "text_vote_rank_in_reward": "Rank in Rewards",
-  "@text_vote_rank_in_reward": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "text_vote_where_is_my_bias": "Where's My Favorite?",
-  "@text_vote_where_is_my_bias": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "title_dialog_library_add": "Add a new album",
-  "@title_dialog_library_add": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "title_dialog_success": "성공",
-  "@title_dialog_success": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
-  },
-  "title_select_language": "Select a language",
-  "@title_select_language": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "toast_max_five_celeb": "You can add up to five of your own artists.",
-  "@toast_max_five_celeb": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": false
-  },
-  "update_button": "Update",
-  "@update_button": {
-    "manualTranslation": false
-  },
-  "update_cannot_open_appstore": "I can't open the app store.",
-  "@update_cannot_open_appstore": {
-    "manualTranslation": false
-  },
-  "update_recommend_text": "A new version ({version}) is available.",
-  "@update_recommend_text": {
-    "manualTranslation": true
-  },
-  "update_required_text": "You need to update to a new version ({version}).",
-  "@update_required_text": {
-    "manualTranslation": true
-  },
-  "update_required_title": "An update is required.",
-  "@update_required_title": {
-    "manualTranslation": false
-  },
-  "views": "Views",
-  "@views": {
-    "manualTranslation": false
-  },
-  "post_report_other_input": "Please enter any other reason.",
-  "@post_report_other_input": {
-    "manualTranslation": false
-  },
-  "post_report_reason_input": "Please select a reason for your report.",
-  "@post_report_reason_input": {
-    "manualTranslation": false
-  },
-  "post_report_success": "The report is complete.",
-  "@post_report_success": {
-    "manualTranslation": false
-  },
-  "post_report_fail": "The report failed.",
-  "@post_report_fail": {
-    "manualTranslation": false
-  },
-  "post_report_reason_label": "Reasons for reporting",
-  "@post_report_reason_label": {
-    "manualTranslation": false
-  },
-  "post_report_label": "Make a report",
-  "@post_report_label": {
-    "manualTranslation": false
-  },
-  "purchase_web_message": "This is the payment window for those who cannot pay for the app:\\n Please copy the random ID in advance:\\n After copying, click the button below to proceed with the payment.",
-  "@purchase_web_message": {
-    "manualTranslation": false
-  },
-  "label_loading_ads_fail": "Ads fail to load",
-  "@label_loading_ads_fail": {
-    "manualTranslation": false
-  },
-  "post_comment_action_show_translation": "View translations",
-  "@post_comment_action_show_translation": {
-    "manualTranslation": false
-  },
-  "post_comment_action_show_original": "View full text",
-  "@post_comment_action_show_original": {
-    "manualTranslation": false
-  },
-  "dialog_caution": "🚫 경고 🚫",
-  "@dialog_caution": {
-    "manualTranslation": true
-  },
-  "post_flagged": "Contains inappropriate content",
-  "@post_flagged": {
-    "manualTranslation": false
-  },
-  "block_user_label": "Blocking users",
-  "@block_user_label": {
-    "manualTranslation": false
-  },
-  "exception_auth_message_common_invalid_token": "The authentication token is invalid, please try again.",
-  "@exception_auth_message_common_invalid_token": {
-    "manualTranslation": false
-  },
-  "exception_auth_message_common_cancel": "Your login has been canceled.",
-  "@exception_auth_message_common_cancel": {
-    "manualTranslation": false
-  },
-  "exception_auth_message_common_unknown": "An unknown error occurred during login.\n please try again in a moment.",
-  "@exception_auth_message_common_unknown": {
-    "manualTranslation": false
-  },
-  "exception_auth_message_common_network": "Check your network connection.",
-  "@exception_auth_message_common_network": {
-    "manualTranslation": false
-  },
-  "exception_auth_message_common_unsupported_provider": "This login method is not supported",
-  "@exception_auth_message_common_unsupported_provider": {
-    "manualTranslation": false
-  },
-  "exception_auth_message_google_google_play_service": "A Google Play Services error has occurred. \nPlease update Google Play Services or restart your device.",
-  "@exception_auth_message_google_google_play_service": {
-    "manualTranslation": false
-  },
-  "exception_auth_message_apple_sign_in_failed": "Apple sign-in failed, \nplease try again.",
-  "@exception_auth_message_apple_sign_in_failed": {
-    "manualTranslation": false
-  },
-  "exception_auth_message_kakao_not_supported": "I can't sign in with the KakaoTalk app. \ntry signing in with your Kakao account.",
-  "@exception_auth_message_kakao_not_supported": {
-    "manualTranslation": false
-  },
-  "exception_auth_message_apple_invalid_response": "We received an invalid response from Apple's servers. \nplease try again.",
-  "@exception_auth_message_apple_invalid_response": {
-    "manualTranslation": false
-  },
-  "error_content_parse": "An error occurred while parsing the content.",
-  "@error_content_parse": {
-    "manualTranslation": false
-  },
-  "post_not_found": "No posts were found.",
-  "@post_not_found": {
-    "manualTranslation": false
-  },
-  "error_delete_post": "An error occurred while deleting the post.",
-  "@error_delete_post": {
-    "manualTranslation": false
-  },
-  "error_network_connection": "Check your network connection.",
-  "@error_network_connection": {
-    "manualTranslation": false
-  },
-  "error_request_timeout": "The request timed out.",
-  "@error_request_timeout": {
-    "manualTranslation": false
-  },
-  "error_invalid_data": "Invalid data.",
-  "@error_invalid_data": {
-    "manualTranslation": false
-  },
-  "error_unknown": "An unknown error occurred.",
-  "@error_unknown": {
-    "manualTranslation": false
-  },
-  "error_loading_more_comments": "There was an error loading the comment.",
-  "@error_loading_more_comments": {
-    "manualTranslation": false
-  },
-  "error_action_failed": "An error occurred while performing the operation.",
-  "@error_action_failed": {
-    "manualTranslation": false
-  },
-  "comments": "Comments",
-  "@comments": {
-    "manualTranslation": false
-  },
-  "error_loading_page": "An error occurred while loading the page.",
-  "@error_loading_page": {
-    "manualTranslation": false
-  }
+    "@@locale": "en",
+    "ads_available_time": "Ad availability",
+    "@ads_available_time": {
+        "manualTranslation": false
+    },
+    "anonymous": "Anonymous",
+    "@anonymous": {
+        "manualTranslation": false
+    },
+    "anonymous_mode": "Anonymous Mode",
+    "@anonymous_mode": {
+        "manualTranslation": false
+    },
+    "app_name": "Picnic",
+    "@app_name": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "button_cancel": "Cancel",
+    "@button_cancel": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "button_complete": "Done",
+    "@button_complete": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "button_login": "Sign in",
+    "@button_login": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "button_ok": "Confirm",
+    "@button_ok": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "button_pic_pic_save": "Save",
+    "@button_pic_pic_save": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "candy_disappear_next_month": "소멸 예정 보너스 별사탕 😢",
+    "@candy_disappear_next_month": {
+        "manualTranslationKey": true,
+        "manualTranslation": true
+    },
+    "candy_usage_policy_contents": "Bonus Star Candy earned in the current month will expire on the 15th of the following month.",
+    "@candy_usage_policy_contents": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "candy_usage_policy_contents2": "When using Star Candy, Star Candy that is about to expire is prioritized.",
+    "@candy_usage_policy_contents2": {
+        "manualTranslation": false
+    },
+    "candy_usage_policy_guide": "*Bonuses will disappear the month after they are earned!",
+    "@candy_usage_policy_guide": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "candy_usage_policy_guide_button": "Learn more",
+    "@candy_usage_policy_guide_button": {
+        "manualTranslation": false
+    },
+    "candy_usage_policy_title": "Stardust Usage Policy",
+    "@candy_usage_policy_title": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "common_all": "All",
+    "@common_all": {
+        "manualTranslation": false
+    },
+    "common_fail": "Failed",
+    "@common_fail": {
+        "manualTranslation": false
+    },
+    "common_retry_label": "Try again",
+    "@common_retry_label": {
+        "manualTranslation": false
+    },
+    "common_success": "성공",
+    "@common_success": {
+        "manualTranslation": true
+    },
+    "common_text_no_data": "No data is available.",
+    "@common_text_no_data": {
+        "manualTranslation": false
+    },
+    "common_text_no_search_result": "No search results found.",
+    "@common_text_no_search_result": {
+        "manualTranslation": false
+    },
+    "common_text_search_error": "An error occurred during the search.",
+    "@common_text_search_error": {
+        "manualTranslation": false
+    },
+    "common_text_search_recent_label": "Recent searches",
+    "@common_text_search_recent_label": {
+        "manualTranslation": false
+    },
+    "common_text_search_result_label": "Search results",
+    "@common_text_search_result_label": {
+        "manualTranslation": false
+    },
+    "dialog_button_cancel": "Cancel",
+    "@dialog_button_cancel": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "dialog_button_ok": "Confirm",
+    "@dialog_button_ok": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "dialog_content_ads_exhausted": "All ads have been exhausted. Please try again next time.",
+    "@dialog_content_ads_exhausted": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "dialog_content_ads_loading": "Ads are loading.",
+    "@dialog_content_ads_loading": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "dialog_content_ads_retrying": "The ad is reloading. Please try again in a moment.",
+    "@dialog_content_ads_retrying": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "dialog_content_login_required": "Login required",
+    "@dialog_content_login_required": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "dialog_message_can_resignup": "When you can rejoin if you cancel your membership now",
+    "@dialog_message_can_resignup": {
+        "manualTranslation": false
+    },
+    "dialog_message_purchase_canceled": "Your purchase has been canceled.",
+    "@dialog_message_purchase_canceled": {
+        "manualTranslation": false
+    },
+    "dialog_message_purchase_failed": "There was an error with your purchase, please try again later.",
+    "@dialog_message_purchase_failed": {
+        "manualTranslation": false
+    },
+    "dialog_message_purchase_success": "Your purchase has been successfully completed.",
+    "@dialog_message_purchase_success": {
+        "manualTranslation": false
+    },
+    "dialog_purchases_fail": "The purchase failed.",
+    "@dialog_purchases_fail": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "dialog_purchases_success": "Your purchase is complete.",
+    "@dialog_purchases_success": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "dialog_title_ads_exhausted": "Exhausted all ads",
+    "@dialog_title_ads_exhausted": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "dialog_title_vote_fail": "Voting Failed",
+    "@dialog_title_vote_fail": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "dialog_will_delete_star_candy": "Starscapes to be deleted",
+    "@dialog_will_delete_star_candy": {
+        "manualTranslation": false
+    },
+    "dialog_withdraw_button_cancel": "Let me think about this one more time",
+    "@dialog_withdraw_button_cancel": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "dialog_withdraw_button_ok": "Unsubscribing",
+    "@dialog_withdraw_button_ok": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "dialog_withdraw_error": "An error occurred during unsubscribe.",
+    "@dialog_withdraw_error": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "dialog_withdraw_message": "If you cancel your membership, your star candy and account information on Picnic will be deleted immediately, and your existing information and data will not be restored when you rejoin.",
+    "@dialog_withdraw_message": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "dialog_withdraw_success": "The unsubscribe was processed successfully.",
+    "@dialog_withdraw_success": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "dialog_withdraw_title": "Are you sure you want to leave?",
+    "@dialog_withdraw_title": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "error_message_login_failed": "An error occurred during login.",
+    "@error_message_login_failed": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "error_message_no_user": "The membership information doesn't exist.",
+    "@error_message_no_user": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "error_message_withdrawal": "A member who has unsubscribed.",
+    "@error_message_withdrawal": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "error_title": "Errors",
+    "@error_title": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "hint_library_add": "Album name",
+    "@hint_library_add": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "hint_nickname_input": "Please enter a nickname.",
+    "@hint_nickname_input": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "image_save_success": "The image has been saved.",
+    "@image_save_success": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_ads_exceeded": "You have exhausted the ads available per ID.",
+    "@label_ads_exceeded": {
+        "manualTranslation": false
+    },
+    "label_ads_next_available_time": "When the next ad will be available.",
+    "@label_ads_next_available_time": {
+        "manualTranslation": false
+    },
+    "label_agreement_privacy": "Consent to the collection and use of personal information",
+    "@label_agreement_privacy": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_agreement_terms": "Accept the Terms of Use",
+    "@label_agreement_terms": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_album_add": "Add a new album",
+    "@label_album_add": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_article_comment_empty": "Be the first to comment!",
+    "@label_article_comment_empty": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_bonus": "Bonuses",
+    "@label_bonus": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_button_agreement": "Accept",
+    "@label_button_agreement": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_button_close": "닫기",
+    "@label_button_close": {
+        "manualTranslation": true
+    },
+    "label_button_disagreement": "Non-Consent",
+    "@label_button_disagreement": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_button_recharge": "Charging",
+    "@label_button_recharge": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_button_save_vote_paper": "Save your ballot",
+    "@label_button_save_vote_paper": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_button_share": "Share",
+    "@label_button_share": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_button_vote": "Vote",
+    "@label_button_vote": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_button_watch_and_charge": "Viewing and charging for ads",
+    "@label_button_watch_and_charge": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_celeb_ask_to_you": "The Artist Asks You!",
+    "@label_celeb_ask_to_you": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_celeb_gallery": "Artist Gallery",
+    "@label_celeb_gallery": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_celeb_recommend": "Artist recommendations",
+    "@label_celeb_recommend": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_checkbox_entire_use": "Full Use",
+    "@label_checkbox_entire_use": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_current_language": "Current language",
+    "@label_current_language": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_draw_image": "Chance to win a random image",
+    "@label_draw_image": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_dropdown_oldest": "Oldest",
+    "@label_dropdown_oldest": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_dropdown_recent": "Newest",
+    "@label_dropdown_recent": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_find_celeb": "Find more artists",
+    "@label_find_celeb": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_gallery_tab_article": "Articles",
+    "@label_gallery_tab_article": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_gallery_tab_chat": "Chat",
+    "@label_gallery_tab_chat": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_hint_comment": "Leave a comment.",
+    "@label_hint_comment": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_input_input": "Input",
+    "@label_input_input": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_last_provider": "Recent",
+    "@label_last_provider": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_library_save": "Save the library",
+    "@label_library_save": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_library_tab_ai_photo": "AI Photos",
+    "@label_library_tab_ai_photo": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_library_tab_library": "Libraries",
+    "@label_library_tab_library": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_library_tab_pic": "PIC",
+    "@label_library_tab_pic": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_loading_ads": "Loading ad",
+    "@label_loading_ads": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_moveto_celeb_gallery": "Go to the Artist Gallery",
+    "@label_moveto_celeb_gallery": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_mypage_charge_history": "Charges",
+    "@label_mypage_charge_history": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_mypage_customer_center": "Help Center",
+    "@label_mypage_customer_center": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_mypage_logout": "Log out",
+    "@label_mypage_logout": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_mypage_membership_history": "Membership history",
+    "@label_mypage_membership_history": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_mypage_my_artist": "My Artists",
+    "@label_mypage_my_artist": {
+        "manualTranslation": false
+    },
+    "label_mypage_no_artist": "Sign up for MyArtist.",
+    "@label_mypage_no_artist": {
+        "manualTranslation": false
+    },
+    "label_mypage_notice": "Announcements",
+    "@label_mypage_notice": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_mypage_picnic_id": "Id.",
+    "@label_mypage_picnic_id": {
+        "manualTranslation": false
+    },
+    "label_mypage_privacy_policy": "Privacy Policy",
+    "@label_mypage_privacy_policy": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_mypage_setting": "Settings",
+    "@label_mypage_setting": {
+        "manualTranslation": false
+    },
+    "label_mypage_should_login": "Please sign in",
+    "@label_mypage_should_login": {
+        "manualTranslation": false
+    },
+    "label_mypage_terms_of_use": "Terms of Use",
+    "@label_mypage_terms_of_use": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_mypage_vote_history": "Star Candy Voting History",
+    "@label_mypage_vote_history": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_mypage_withdrawal": "Withdrawal",
+    "@label_mypage_withdrawal": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_no_ads": "No ads",
+    "@label_no_ads": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_no_celeb": "You don't have any artists bookmarked yet!",
+    "@label_no_celeb": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_pic_image_cropping": "Crop an image",
+    "@label_pic_image_cropping": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_pic_pic_initializing_camera": "Initializing camera...",
+    "@label_pic_pic_initializing_camera": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_pic_pic_save_gallery": "Save to Gallery",
+    "@label_pic_pic_save_gallery": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_pic_pic_synthesizing_image": "Compositing an image...",
+    "@label_pic_pic_synthesizing_image": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_read_more_comment": "More comments",
+    "@label_read_more_comment": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_reply": "Reply",
+    "@label_reply": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_retry": "Retrying",
+    "@label_retry": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_screen_title_agreement": "Accept the terms",
+    "@label_screen_title_agreement": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_setting_alarm": "Notifications",
+    "@label_setting_alarm": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_setting_appinfo": "App info",
+    "@label_setting_appinfo": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_setting_current_version": "Current version",
+    "@label_setting_current_version": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_setting_event_alarm": "Event notifications",
+    "@label_setting_event_alarm": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_setting_event_alarm_desc": "Events and happenings.",
+    "@label_setting_event_alarm_desc": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_setting_language": "Language settings",
+    "@label_setting_language": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_setting_push_alarm": "Push notifications",
+    "@label_setting_push_alarm": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_setting_recent_version": "Latest version",
+    "@label_setting_recent_version": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_setting_recent_version_up_to_date": "Latest version",
+    "@label_setting_recent_version_up_to_date": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_setting_remove_cache": "Delete cache memory",
+    "@label_setting_remove_cache": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_setting_remove_cache_complete": "Done",
+    "@label_setting_remove_cache_complete": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_setting_storage": "Manage storage",
+    "@label_setting_storage": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_setting_update": "Update",
+    "@label_setting_update": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_star_candy_pouch": "Star Candy Pouch",
+    "@label_star_candy_pouch": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_tab_buy_star_candy": "Buy star candy",
+    "@label_tab_buy_star_candy": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_tab_free_charge_station": "Free charging stations",
+    "@label_tab_free_charge_station": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_tab_my_artist": "MyArtist",
+    "@label_tab_my_artist": {
+        "manualTranslation": false
+    },
+    "label_tab_search_my_artist": "Find MyArtist",
+    "@label_tab_search_my_artist": {
+        "manualTranslation": false
+    },
+    "label_tabbar_picchart_daily": "Daily charts",
+    "@label_tabbar_picchart_daily": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_tabbar_picchart_monthly": "Monthly Charts",
+    "@label_tabbar_picchart_monthly": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_tabbar_picchart_weekly": "Weekly charts",
+    "@label_tabbar_picchart_weekly": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_tabbar_vote_active": "In Progress",
+    "@label_tabbar_vote_active": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_tabbar_vote_end": "Exit",
+    "@label_tabbar_vote_end": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_tabbar_vote_upcoming": "Upcoming",
+    "@label_tabbar_vote_upcoming": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_time_ago_day": "{day} days ago",
+    "@label_time_ago_day": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": true
+    },
+    "label_time_ago_hour": "{hour} hours ago",
+    "@label_time_ago_hour": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": true
+    },
+    "label_time_ago_minute": "{minute} minutes ago",
+    "@label_time_ago_minute": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": true
+    },
+    "label_time_ago_right_now": "Just a moment ago",
+    "@label_time_ago_right_now": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_title_comment": "Comments",
+    "@label_title_comment": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_title_report": "Make a report",
+    "@label_title_report": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_vote_end": "Close the poll",
+    "@label_vote_end": {
+        "manualTranslation": false
+    },
+    "label_vote_reward_list": "Rewards list",
+    "@label_vote_reward_list": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_vote_screen_title": "Voting",
+    "@label_vote_screen_title": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_vote_tab_birthday": "Birthday polls",
+    "@label_vote_tab_birthday": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_vote_tab_pic": "PIC Voting",
+    "@label_vote_tab_pic": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_vote_upcoming": "Until voting begins",
+    "@label_vote_upcoming": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_vote_vote_gather": "Collecting votes",
+    "@label_vote_vote_gather": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_watch_ads": "View ads",
+    "@label_watch_ads": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "lable_my_celeb": "My Artists",
+    "@lable_my_celeb": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "message_agreement_success": "You've accepted the terms.",
+    "@message_agreement_success": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "message_error_occurred": "An error occurred.",
+    "@message_error_occurred": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "message_noitem_vote_active": "There are currently no active polls.",
+    "@message_noitem_vote_active": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "message_noitem_vote_end": "There are currently no closed polls.",
+    "@message_noitem_vote_end": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "message_noitem_vote_upcoming": "There are currently no upcoming polls.",
+    "@message_noitem_vote_upcoming": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "message_pic_pic_save_fail": "Saving the image failed.",
+    "@message_pic_pic_save_fail": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "message_pic_pic_save_success": "The image has been saved.",
+    "@message_pic_pic_save_success": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "message_report_confirm": "Want to report?",
+    "@message_report_confirm": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "message_report_ok": "The report is complete.",
+    "@message_report_ok": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "message_setting_remove_cache": "Cache memory deletion is complete",
+    "@message_setting_remove_cache": {
+        "manualTranslation": false
+    },
+    "message_update_nickname_fail": "Nickname change failed.\nPlease select a different nickname.",
+    "@message_update_nickname_fail": {
+        "manualTranslation": false
+    },
+    "message_update_nickname_success": "Your nickname has been successfully changed.",
+    "@message_update_nickname_success": {
+        "manualTranslation": false
+    },
+    "message_vote_is_ended": "Poll closed",
+    "@message_vote_is_ended": {
+        "manualTranslation": false
+    },
+    "message_vote_is_upcoming": "This is an upcoming vote",
+    "@message_vote_is_upcoming": {
+        "manualTranslation": false
+    },
+    "mypage_comment": "Manage comments",
+    "@mypage_comment": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "mypage_language": "Language settings",
+    "@mypage_language": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "mypage_purchases": "My purchases",
+    "@mypage_purchases": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "mypage_setting": "Settings",
+    "@mypage_setting": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "mypage_subscription": "Subscription information",
+    "@mypage_subscription": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "nav_ads": "Ads",
+    "@nav_ads": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "nav_board": "Bulletin boards",
+    "@nav_board": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "nav_gallery": "Gallery",
+    "@nav_gallery": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "nav_home": "홈",
+    "@nav_home": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": true
+    },
+    "nav_library": "Libraries",
+    "@nav_library": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "nav_media": "Media",
+    "@nav_media": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "nav_my": "My",
+    "@nav_my": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "nav_picchart": "PIC Charts",
+    "@nav_picchart": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "nav_purchases": "Purchase",
+    "@nav_purchases": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "nav_setting": "Settings",
+    "@nav_setting": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "nav_store": "Shop",
+    "@nav_store": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "nav_subscription": "Subscriptions",
+    "@nav_subscription": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "nav_vote": "Voting",
+    "@nav_vote": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "nickname_validation_error": "20 characters or less, excluding special characters.",
+    "@nickname_validation_error": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "page_title_mypage": "My Page",
+    "@page_title_mypage": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "page_title_myprofile": "My profile",
+    "@page_title_myprofile": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "page_title_post_write": "Create a post",
+    "@page_title_post_write": {
+        "manualTranslation": false
+    },
+    "page_title_privacy": "Privacy Policy",
+    "@page_title_privacy": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "page_title_setting": "Preferences",
+    "@page_title_setting": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "page_title_terms_of_use": "Terms of Use",
+    "@page_title_terms_of_use": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "page_title_vote_detail": "Vote",
+    "@page_title_vote_detail": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "page_title_vote_gather": "Collecting votes",
+    "@page_title_vote_gather": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "popup_label_delete": "Delete",
+    "@popup_label_delete": {
+        "manualTranslation": false
+    },
+    "post_anonymous": "Anonymous posting",
+    "@post_anonymous": {
+        "manualTranslation": false
+    },
+    "post_ask_go_to_temporary_save_list": "Want to go to the Drafts list?",
+    "@post_ask_go_to_temporary_save_list": {
+        "manualTranslation": false
+    },
+    "post_board_already_exist": "A board that already exists.",
+    "@post_board_already_exist": {
+        "manualTranslation": false
+    },
+    "post_board_create_request_complete": "Your request to open a board is complete.",
+    "@post_board_create_request_complete": {
+        "manualTranslation": false
+    },
+    "post_board_create_request_condition": "*Only one minor board can be applied per ID.",
+    "@post_board_create_request_condition": {
+        "manualTranslation": false
+    },
+    "post_board_create_request_label": "Request to open a board",
+    "@post_board_create_request_label": {
+        "manualTranslation": false
+    },
+    "post_board_create_request_reviewing": "Reviewing a request to open a board",
+    "@post_board_create_request_reviewing": {
+        "manualTranslation": false
+    },
+    "post_board_request_label": "Open requests",
+    "@post_board_request_label": {
+        "manualTranslation": false
+    },
+    "post_cannot_open_youtube": "I can't open Youtube.",
+    "@post_cannot_open_youtube": {
+        "manualTranslation": false
+    },
+    "post_comment_action_translate": "Translation",
+    "@post_comment_action_translate": {
+        "manualTranslation": false
+    },
+    "post_comment_content_more": "More",
+    "@post_comment_content_more": {
+        "manualTranslation": false
+    },
+    "post_comment_delete_confirm": "Are you sure you want to delete the comment?",
+    "@post_comment_delete_confirm": {
+        "manualTranslation": false
+    },
+    "post_comment_delete_fail": "Comment deletion failed.",
+    "@post_comment_delete_fail": {
+        "manualTranslation": false
+    },
+    "post_comment_deleted_comment": "This is a deleted comment.",
+    "@post_comment_deleted_comment": {
+        "manualTranslation": false
+    },
+    "post_comment_like_processing_fail": "Failed to process like.",
+    "@post_comment_like_processing_fail": {
+        "manualTranslation": false
+    },
+    "post_comment_loading_fail": "Comment failed to load.",
+    "@post_comment_loading_fail": {
+        "manualTranslation": false
+    },
+    "post_comment_register_fail": "Comment registration failed.",
+    "@post_comment_register_fail": {
+        "manualTranslation": false
+    },
+    "post_comment_registered_comment": "Your comment has been registered.",
+    "@post_comment_registered_comment": {
+        "manualTranslation": false
+    },
+    "post_comment_reported_comment": "This is a reported comment.",
+    "@post_comment_reported_comment": {
+        "manualTranslation": false
+    },
+    "post_comment_translate_complete": "The translation is complete.",
+    "@post_comment_translate_complete": {
+        "manualTranslation": false
+    },
+    "post_comment_translate_fail": "The translation failed.",
+    "@post_comment_translate_fail": {
+        "manualTranslation": false
+    },
+    "post_comment_translated": "Translated",
+    "@post_comment_translated": {
+        "manualTranslation": false
+    },
+    "post_comment_write_label": "Write a comment",
+    "@post_comment_write_label": {
+        "manualTranslation": false
+    },
+    "post_content_placeholder": "Please enter something.",
+    "@post_content_placeholder": {
+        "manualTranslation": false
+    },
+    "post_delete_scrap_confirm": "Do you want to delete the scrap?",
+    "@post_delete_scrap_confirm": {
+        "manualTranslation": false
+    },
+    "post_delete_scrap_title": "Delete a scrap",
+    "@post_delete_scrap_title": {
+        "manualTranslation": false
+    },
+    "post_go_to_boards": "Go to the board",
+    "@post_go_to_boards": {
+        "manualTranslation": false
+    },
+    "post_header_publish": "Publishing",
+    "@post_header_publish": {
+        "manualTranslation": false
+    },
+    "post_header_temporary_save": "Drafts",
+    "@post_header_temporary_save": {
+        "manualTranslation": false
+    },
+    "post_hint_title": "Please enter a title.",
+    "@post_hint_title": {
+        "manualTranslation": false
+    },
+    "post_hyperlink": "Hyperlinks",
+    "@post_hyperlink": {
+        "manualTranslation": false
+    },
+    "post_insert_link": "Inserting links",
+    "@post_insert_link": {
+        "manualTranslation": false
+    },
+    "post_loading_post_fail": "The post failed to load.",
+    "@post_loading_post_fail": {
+        "manualTranslation": false
+    },
+    "post_minor_board_condition": "Please enter a description of at least 5 characters and no more than 20 characters.",
+    "@post_minor_board_condition": {
+        "manualTranslation": false
+    },
+    "post_minor_board_create_request_message": "* Message requesting to open a board.",
+    "@post_minor_board_create_request_message": {
+        "manualTranslation": false
+    },
+    "post_minor_board_create_request_message_condition": "Please include at least 10 characters in your message requesting to open a board.",
+    "@post_minor_board_create_request_message_condition": {
+        "manualTranslation": false
+    },
+    "post_minor_board_create_request_message_input": "Enter a message requesting to open a board.",
+    "@post_minor_board_create_request_message_input": {
+        "manualTranslation": false
+    },
+    "post_minor_board_description": "Minor bulletin board descriptions",
+    "@post_minor_board_description": {
+        "manualTranslation": false
+    },
+    "post_minor_board_description_input": "Please enter a description for your minor board.",
+    "@post_minor_board_description_input": {
+        "manualTranslation": false
+    },
+    "post_minor_board_name": "Minor board name",
+    "@post_minor_board_name": {
+        "manualTranslation": false
+    },
+    "post_minor_board_name_input": "Please enter a name for your minor board.",
+    "@post_minor_board_name_input": {
+        "manualTranslation": false
+    },
+    "post_my_written_post": "Posts I've written",
+    "@post_my_written_post": {
+        "manualTranslation": false
+    },
+    "post_my_written_reply": "Comments I wrote",
+    "@post_my_written_reply": {
+        "manualTranslation": false
+    },
+    "post_my_written_scrap": "My Scraps",
+    "@post_my_written_scrap": {
+        "manualTranslation": false
+    },
+    "post_no_comment": "No comments.",
+    "@post_no_comment": {
+        "manualTranslation": false
+    },
+    "post_report_reason_1": "Unsavory posts",
+    "@post_report_reason_1": {
+        "manualTranslation": false
+    },
+    "post_report_reason_2": "Sexist, racist posts",
+    "@post_report_reason_2": {
+        "manualTranslation": false
+    },
+    "post_report_reason_3": "Posts containing offensive profanity",
+    "@post_report_reason_3": {
+        "manualTranslation": false
+    },
+    "post_report_reason_4": "Advertising/Promotional Posts",
+    "@post_report_reason_4": {
+        "manualTranslation": false
+    },
+    "post_report_reason_5": "Other",
+    "@post_report_reason_5": {
+        "manualTranslation": false
+    },
+    "post_temporary_save_complete": "Draft complete.",
+    "@post_temporary_save_complete": {
+        "manualTranslation": false
+    },
+    "post_title_placeholder": "Please enter a title.",
+    "@post_title_placeholder": {
+        "manualTranslation": false
+    },
+    "post_write_board_post": "Create a post",
+    "@post_write_board_post": {
+        "manualTranslation": false
+    },
+    "post_write_post_recommend_write": "Please create a post.",
+    "@post_write_post_recommend_write": {
+        "manualTranslation": false
+    },
+    "post_youtube_link": "YouTube link",
+    "@post_youtube_link": {
+        "manualTranslation": false
+    },
+    "replies": "Comments",
+    "@replies": {
+        "manualTranslation": false
+    },
+    "share_image_fail": "Image sharing failed",
+    "@share_image_fail": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "share_image_success": "Shared image successfully",
+    "@share_image_success": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "share_no_twitter": "X app is missing.",
+    "@share_no_twitter": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "share_twitter": "Share on Twitter",
+    "@share_twitter": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "text_ads_random": "Viewing ads and collecting random images.",
+    "@text_ads_random": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "text_bonus": "Bonuses",
+    "@text_bonus": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "text_bookmark_failed": "Failed to unbookmark",
+    "@text_bookmark_failed": {
+        "manualTranslation": false
+    },
+    "text_bookmark_over_5": "You can have up to five bookmarks",
+    "@text_bookmark_over_5": {
+        "manualTranslation": false
+    },
+    "text_comming_soon_pic_chart1": "Welcome to Peek Charts!\nSee you in November 2024!",
+    "@text_comming_soon_pic_chart1": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "text_comming_soon_pic_chart2": "Pie charts are a new chart unique to Peeknick that reflects daily, weekly, and monthly scores.\nPeeknick's new chart that reflects daily, weekly, and monthly scores.",
+    "@text_comming_soon_pic_chart2": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "text_comming_soon_pic_chart3": "Get a real-time reflection\nartist's brand reputation in real-time!",
+    "@text_comming_soon_pic_chart3": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "text_comming_soon_pic_chart_title": "What is a Pie Chart?",
+    "@text_comming_soon_pic_chart_title": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "text_community_board_search": "Searching the Artist Board",
+    "@text_community_board_search": {
+        "manualTranslation": false
+    },
+    "text_community_post_search": "Search",
+    "@text_community_post_search": {
+        "manualTranslation": false
+    },
+    "text_copied_address": "The address has been copied.",
+    "@text_copied_address": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "text_dialog_ad_dismissed": "The ad stopped midway through.",
+    "@text_dialog_ad_dismissed": {
+        "manualTranslation": false
+    },
+    "text_dialog_ad_failed_to_show": "Failed to load ads",
+    "@text_dialog_ad_failed_to_show": {
+        "manualTranslation": false
+    },
+    "text_dialog_star_candy_received": "Star candy has been awarded.",
+    "@text_dialog_star_candy_received": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "text_dialog_vote_amount_should_not_zero": "The number of votes cannot be zero.",
+    "@text_dialog_vote_amount_should_not_zero": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "text_draw_image": "Confirmed ownership of 1 image from the entire gallery",
+    "@text_draw_image": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "text_hint_search": "Search for artists",
+    "@text_hint_search": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "text_moveto_celeb_gallery": "Navigate to the selected artist's home.",
+    "@text_moveto_celeb_gallery": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "text_need_recharge": "Requires charging.",
+    "@text_need_recharge": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "text_no_artist": "No artist",
+    "@text_no_artist": {
+        "manualTranslation": false
+    },
+    "text_no_search_result": "No search results.",
+    "@text_no_search_result": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "text_purchase_vat_included": "*Price includes VAT.",
+    "@text_purchase_vat_included": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "text_star_candy": "Star Candy",
+    "@text_star_candy": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "text_star_candy_with_bonus": "{num1}개 +{num1}개 보너스",
+    "@text_star_candy_with_bonus": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": true
+    },
+    "text_this_time_vote": "This Vote",
+    "@text_this_time_vote": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "text_vote_complete": "Voting complete",
+    "@text_vote_complete": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "text_vote_rank": "Rank {rank}",
+    "@text_vote_rank": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": true
+    },
+    "post_replying_comment": "Replying to {nickname}...",
+    "@post_replying_comment": {
+        "manualTranslation": true
+    },
+    "text_vote_rank_in_reward": "Rank in Rewards",
+    "@text_vote_rank_in_reward": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "text_vote_where_is_my_bias": "Where's My Favorite?",
+    "@text_vote_where_is_my_bias": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "title_dialog_library_add": "Add a new album",
+    "@title_dialog_library_add": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "title_dialog_success": "성공",
+    "@title_dialog_success": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": true
+    },
+    "title_select_language": "Select a language",
+    "@title_select_language": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "toast_max_five_celeb": "You can add up to five of your own artists.",
+    "@toast_max_five_celeb": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "update_button": "Update",
+    "@update_button": {
+        "manualTranslation": false
+    },
+    "update_cannot_open_appstore": "I can't open the app store.",
+    "@update_cannot_open_appstore": {
+        "manualTranslation": false
+    },
+    "update_recommend_text": "A new version ({version}) is available.",
+    "@update_recommend_text": {
+        "manualTranslation": true
+    },
+    "update_required_text": "You need to update to a new version ({version}).",
+    "@update_required_text": {
+        "manualTranslation": true
+    },
+    "update_required_title": "An update is required.",
+    "@update_required_title": {
+        "manualTranslation": false
+    },
+    "views": "Views",
+    "@views": {
+        "manualTranslation": false
+    },
+    "post_report_other_input": "Please enter any other reason.",
+    "@post_report_other_input": {
+        "manualTranslation": false
+    },
+    "post_report_reason_input": "Please select a reason for your report.",
+    "@post_report_reason_input": {
+        "manualTranslation": false
+    },
+    "post_report_success": "The report is complete.",
+    "@post_report_success": {
+        "manualTranslation": false
+    },
+    "post_report_fail": "The report failed.",
+    "@post_report_fail": {
+        "manualTranslation": false
+    },
+    "post_report_reason_label": "Reasons for reporting",
+    "@post_report_reason_label": {
+        "manualTranslation": false
+    },
+    "post_report_label": "Make a report",
+    "@post_report_label": {
+        "manualTranslation": false
+    },
+    "purchase_web_message": "This is the payment window for those who cannot pay for the app:\\n Please copy the random ID in advance:\\n After copying, click the button below to proceed with the payment.",
+    "@purchase_web_message": {
+        "manualTranslation": false
+    },
+    "label_loading_ads_fail": "Ads fail to load",
+    "@label_loading_ads_fail": {
+        "manualTranslation": false
+    },
+    "post_comment_action_show_translation": "View translations",
+    "@post_comment_action_show_translation": {
+        "manualTranslation": false
+    },
+    "post_comment_action_show_original": "View full text",
+    "@post_comment_action_show_original": {
+        "manualTranslation": false
+    },
+    "dialog_caution": "🚫 경고 🚫",
+    "@dialog_caution": {
+        "manualTranslation": true
+    },
+    "post_flagged": "Contains inappropriate content",
+    "@post_flagged": {
+        "manualTranslation": false
+    },
+    "block_user_label": "Blocking users",
+    "@block_user_label": {
+        "manualTranslation": false
+    },
+    "exception_auth_message_common_invalid_token": "The authentication token is invalid, please try again.",
+    "@exception_auth_message_common_invalid_token": {
+        "manualTranslation": false
+    },
+    "exception_auth_message_common_cancel": "Your login has been canceled.",
+    "@exception_auth_message_common_cancel": {
+        "manualTranslation": false
+    },
+    "exception_auth_message_common_unknown": "An unknown error occurred during login.\n please try again in a moment.",
+    "@exception_auth_message_common_unknown": {
+        "manualTranslation": false
+    },
+    "exception_auth_message_common_network": "Check your network connection.",
+    "@exception_auth_message_common_network": {
+        "manualTranslation": false
+    },
+    "exception_auth_message_common_unsupported_provider": "This login method is not supported",
+    "@exception_auth_message_common_unsupported_provider": {
+        "manualTranslation": false
+    },
+    "exception_auth_message_google_google_play_service": "A Google Play Services error has occurred. \nPlease update Google Play Services or restart your device.",
+    "@exception_auth_message_google_google_play_service": {
+        "manualTranslation": false
+    },
+    "text_achievement": "🎉 You've reached ${count} goals so far! 🎉",
+    "@text_achievement": {
+        "manualTranslation": true
+    },
+    "exception_auth_message_apple_sign_in_failed": "Apple sign-in failed, \nplease try again.",
+    "@exception_auth_message_apple_sign_in_failed": {
+        "manualTranslation": false
+    },
+    "exception_auth_message_kakao_not_supported": "I can't sign in with the KakaoTalk app. \ntry signing in with your Kakao account.",
+    "@exception_auth_message_kakao_not_supported": {
+        "manualTranslation": false
+    },
+    "exception_auth_message_apple_invalid_response": "We received an invalid response from Apple's servers. \nplease try again.",
+    "@exception_auth_message_apple_invalid_response": {
+        "manualTranslation": false
+    },
+    "error_content_parse": "An error occurred while parsing the content.",
+    "@error_content_parse": {
+        "manualTranslation": false
+    },
+    "post_not_found": "No posts were found.",
+    "@post_not_found": {
+        "manualTranslation": false
+    },
+    "error_delete_post": "An error occurred while deleting the post.",
+    "@error_delete_post": {
+        "manualTranslation": false
+    },
+    "error_network_connection": "Check your network connection.",
+    "@error_network_connection": {
+        "manualTranslation": false
+    },
+    "error_request_timeout": "The request timed out.",
+    "@error_request_timeout": {
+        "manualTranslation": false
+    },
+    "error_invalid_data": "Invalid data.",
+    "@error_invalid_data": {
+        "manualTranslation": false
+    },
+    "error_unknown": "An unknown error occurred.",
+    "@error_unknown": {
+        "manualTranslation": false
+    },
+    "error_loading_more_comments": "There was an error loading the comment.",
+    "@error_loading_more_comments": {
+        "manualTranslation": false
+    },
+    "error_action_failed": "An error occurred while performing the operation.",
+    "@error_action_failed": {
+        "manualTranslation": false
+    },
+    "comments": "Comments",
+    "@comments": {
+        "manualTranslation": false
+    },
+    "error_loading_page": "An error occurred while loading the page.",
+    "@error_loading_page": {
+        "manualTranslation": false
+    },
+    "achieve": "Achievement",
+    "@achieve": {
+        "manualTranslation": false
+    },
+    "reward": "Rewards",
+    "@reward": {
+        "manualTranslation": false
+    }
 }

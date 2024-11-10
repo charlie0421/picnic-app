@@ -28,16 +28,19 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m3(nickname) => "${nickname}님에게 답글 쓰는 중...";
 
-  static String m4(num1) => "${num1}개 +${num1}개 보너스";
+  static String m4(count) => "🎉 지금까지 \$${count}개 목표 달성! 🎉";
 
-  static String m5(rank) => "${rank}위";
+  static String m5(num1) => "${num1}개 +${num1}개 보너스";
 
-  static String m6(version) => "새로운 버전(${version})이 사용 가능합니다.";
+  static String m6(rank) => "${rank}위";
 
-  static String m7(version) => "새로운 버전(${version})으로 업데이트가 필요합니다.";
+  static String m7(version) => "새로운 버전(${version})이 사용 가능합니다.";
+
+  static String m8(version) => "새로운 버전(${version})으로 업데이트가 필요합니다.";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "achieve": MessageLookupByLibrary.simpleMessage("달성"),
         "ads_available_time":
             MessageLookupByLibrary.simpleMessage("광고 시청 가능 시간"),
         "anonymous": MessageLookupByLibrary.simpleMessage("익명"),
@@ -507,11 +510,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "purchase_web_message": MessageLookupByLibrary.simpleMessage(
             "앱결제가 불가능한 분들을 위한 결제 창입니다.\\n 미리 난수 아이디를 복사해 주세요.\\n 복사 후 아래 버튼을 눌러 결제를 진행해 주세요."),
         "replies": MessageLookupByLibrary.simpleMessage("댓글"),
+        "reward": MessageLookupByLibrary.simpleMessage("리워드"),
         "share_image_fail": MessageLookupByLibrary.simpleMessage("이미지 공유 실패"),
         "share_image_success":
             MessageLookupByLibrary.simpleMessage("이미지 공유 성공"),
         "share_no_twitter": MessageLookupByLibrary.simpleMessage("X 앱이 없습니다."),
         "share_twitter": MessageLookupByLibrary.simpleMessage("트위터 공유"),
+        "text_achievement": m4,
         "text_ads_random":
             MessageLookupByLibrary.simpleMessage("광고 보기 및 무작위 이미지 수집."),
         "text_bonus": MessageLookupByLibrary.simpleMessage("보너스"),
@@ -554,10 +559,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_purchase_vat_included":
             MessageLookupByLibrary.simpleMessage("*VAT 포함 가격입니다."),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("별사탕"),
-        "text_star_candy_with_bonus": m4,
+        "text_star_candy_with_bonus": m5,
         "text_this_time_vote": MessageLookupByLibrary.simpleMessage("이번 투표"),
         "text_vote_complete": MessageLookupByLibrary.simpleMessage("투표 완료"),
-        "text_vote_rank": m5,
+        "text_vote_rank": m6,
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("랭크 인 리워드"),
         "text_vote_where_is_my_bias":
@@ -571,8 +576,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "update_button": MessageLookupByLibrary.simpleMessage("업데이트"),
         "update_cannot_open_appstore":
             MessageLookupByLibrary.simpleMessage("앱스토어를 열 수 없습니다."),
-        "update_recommend_text": m6,
-        "update_required_text": m7,
+        "update_recommend_text": m7,
+        "update_required_text": m8,
         "update_required_title":
             MessageLookupByLibrary.simpleMessage("업데이트가 필요합니다."),
         "views": MessageLookupByLibrary.simpleMessage("조회수")

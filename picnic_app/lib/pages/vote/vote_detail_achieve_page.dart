@@ -211,7 +211,8 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Text(
-                              '🎉 지금까지 ${achievements.length}개 목표 달성! 🎉',
+                              Intl.message('text_achievement',
+                                  args: [achievements.length]),
                               style: getTextStyle(
                                   AppTypo.title18B, AppColors.grey00),
                             ),
@@ -775,7 +776,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    '리워드${rewardIndex + 1}',
+                    '${S.of(context).reward}${rewardIndex + 1}',
                     style: getTextStyle(AppTypo.caption12B,
                         isAchieved ? AppColors.primary500 : AppColors.grey400),
                   ),
