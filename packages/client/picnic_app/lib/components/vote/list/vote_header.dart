@@ -10,7 +10,7 @@ class VoteCardInfoHeader extends StatelessWidget {
     required this.title,
     required this.stopAt,
     this.onRefresh,
-    required this.status, // 새로운 파라미터 추가
+    required this.status,
   });
 
   final String title;
@@ -20,45 +20,45 @@ class VoteCardInfoHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(mainAxisSize: MainAxisSize.min, children: [
-      SizedBox(
-          height: 42,
-          child: Stack(children: [
-            Container(
-              alignment: Alignment.center,
-              child: Text(
-                title,
-                style: getTextStyle(
-                  AppTypo.body16B,
-                  AppColors.grey900,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (status == VoteStatus.active)
+          Container(
+            alignment: Alignment.centerRight,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: onRefresh,
+              child: Container(
+                width: 42,
+                height: 42,
+                padding: const EdgeInsets.all(10),
+                child: SvgPicture.asset(
+                  'assets/icons/reset_style=line.svg',
+                  width: 20,
+                  height: 20,
                 ),
-                textAlign: TextAlign.center,
               ),
             ),
-            if (status == VoteStatus.active)
-              Positioned(
-                  right: 0,
-                  top: 0,
-                  bottom: 0,
-                  child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: onRefresh,
-                      child: Container(
-                        width: 42,
-                        height: 42,
-                        padding: const EdgeInsets.all(10),
-                        child: SvgPicture.asset(
-                          'assets/icons/reset_style=line.svg',
-                          width: 20,
-                          height: 20,
-                        ),
-                      )))
-          ])),
-      CountdownTimer(
-        endTime: stopAt,
-        status: status,
-        onRefresh: onRefresh,
-      )
-    ]);
+          ),
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          alignment: Alignment.center,
+          child: Text(
+            title,
+            style: getTextStyle(
+              AppTypo.body16B,
+              AppColors.grey900,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+        CountdownTimer(
+          endTime: stopAt,
+          status: status,
+          onRefresh: onRefresh,
+        )
+      ],
+    );
   }
 }
