@@ -60,6 +60,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("了解更多"),
         "candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("星糖使用政策"),
+        "comments": MessageLookupByLibrary.simpleMessage("评论"),
         "common_all": MessageLookupByLibrary.simpleMessage("全部"),
         "common_fail": MessageLookupByLibrary.simpleMessage("失败"),
         "common_retry_label": MessageLookupByLibrary.simpleMessage("再试一次"),
@@ -111,13 +112,25 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("取款已成功处理。"),
         "dialog_withdraw_title":
             MessageLookupByLibrary.simpleMessage("您确定要取消订阅吗？"),
+        "error_action_failed":
+            MessageLookupByLibrary.simpleMessage("执行操作时发生错误。"),
+        "error_content_parse":
+            MessageLookupByLibrary.simpleMessage("解析内容时发生错误。"),
+        "error_delete_post": MessageLookupByLibrary.simpleMessage("删除帖子时出现错误。"),
+        "error_invalid_data": MessageLookupByLibrary.simpleMessage("数据无效。"),
+        "error_loading_more_comments":
+            MessageLookupByLibrary.simpleMessage("加载评论时出现错误。"),
         "error_message_login_failed":
             MessageLookupByLibrary.simpleMessage("登录时发生错误。"),
         "error_message_no_user":
             MessageLookupByLibrary.simpleMessage("会员信息不存在。"),
         "error_message_withdrawal":
             MessageLookupByLibrary.simpleMessage("已取消订阅的会员。"),
+        "error_network_connection":
+            MessageLookupByLibrary.simpleMessage("检查网络连接。"),
+        "error_request_timeout": MessageLookupByLibrary.simpleMessage("请求超时。"),
         "error_title": MessageLookupByLibrary.simpleMessage("错误"),
+        "error_unknown": MessageLookupByLibrary.simpleMessage("出现未知错误。"),
         "exception_auth_message_apple_invalid_response":
             MessageLookupByLibrary.simpleMessage("我们收到来自 Apple 服务器的无效响应\n请重试。"),
         "exception_auth_message_apple_sign_in_failed":
@@ -418,6 +431,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "post_my_written_reply": MessageLookupByLibrary.simpleMessage("您写的评论"),
         "post_my_written_scrap": MessageLookupByLibrary.simpleMessage("我的废品"),
         "post_no_comment": MessageLookupByLibrary.simpleMessage("无评论。"),
+        "post_not_found": MessageLookupByLibrary.simpleMessage("未找到帖子。"),
         "post_replying_comment": m3,
         "post_report_fail": MessageLookupByLibrary.simpleMessage("报告失败。"),
         "post_report_label": MessageLookupByLibrary.simpleMessage("提交报告"),

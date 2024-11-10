@@ -1440,5 +1440,45 @@
   "exception_auth_message_apple_invalid_response": "We received an invalid response from Apple's servers. \nplease try again.",
   "@exception_auth_message_apple_invalid_response": {
     "manualTranslation": false
+  },
+  "error_content_parse": "An error occurred while parsing the content.",
+  "@error_content_parse": {
+    "manualTranslation": false
+  },
+  "post_not_found": "No posts were found.",
+  "@post_not_found": {
+    "manualTranslation": false
+  },
+  "error_delete_post": "An error occurred while deleting the post.",
+  "@error_delete_post": {
+    "manualTranslation": false
+  },
+  "error_network_connection": "Check your network connection.",
+  "@error_network_connection": {
+    "manualTranslation": false
+  },
+  "error_request_timeout": "The request timed out.",
+  "@error_request_timeout": {
+    "manualTranslation": false
+  },
+  "error_invalid_data": "Invalid data.",
+  "@error_invalid_data": {
+    "manualTranslation": false
+  },
+  "error_unknown": "An unknown error occurred.",
+  "@error_unknown": {
+    "manualTranslation": false
+  },
+  "error_loading_more_comments": "There was an error loading the comment.",
+  "@error_loading_more_comments": {
+    "manualTranslation": false
+  },
+  "error_action_failed": "An error occurred while performing the operation.",
+  "@error_action_failed": {
+    "manualTranslation": false
+  },
+  "comments": "Comments",
+  "@comments": {
+    "manualTranslation": false
   }
 }

@@ -1439,5 +1439,45 @@
   "exception_auth_message_apple_invalid_response": "Appleのサーバーから無効な応答を受け取りました。 \nもう一度お試しください。",
   "@exception_auth_message_apple_invalid_response": {
     "manualTranslation": false
+  },
+  "error_request_timeout": "リクエストがタイムアウトしました。",
+  "@error_request_timeout": {
+    "manualTranslation": false
+  },
+  "error_content_parse": "コンテンツ解析中にエラーが発生しました。",
+  "@error_content_parse": {
+    "manualTranslation": false
+  },
+  "error_network_connection": "ネットワーク接続を確認してください。",
+  "@error_network_connection": {
+    "manualTranslation": false
+  },
+  "post_not_found": "投稿が見つかりません。",
+  "@post_not_found": {
+    "manualTranslation": false
+  },
+  "error_delete_post": "投稿の削除中にエラーが発生しました。",
+  "@error_delete_post": {
+    "manualTranslation": false
+  },
+  "error_invalid_data": "無効なデータです。",
+  "@error_invalid_data": {
+    "manualTranslation": false
+  },
+  "error_unknown": "不明なエラーが発生しました。",
+  "@error_unknown": {
+    "manualTranslation": false
+  },
+  "error_loading_more_comments": "コメントの読み込み中にエラーが発生しました。",
+  "@error_loading_more_comments": {
+    "manualTranslation": false
+  },
+  "error_action_failed": "作業中にエラーが発生しました。",
+  "@error_action_failed": {
+    "manualTranslation": false
+  },
+  "comments": "コメント",
+  "@comments": {
+    "manualTranslation": false
   }
 }

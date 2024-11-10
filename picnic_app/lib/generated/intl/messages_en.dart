@@ -64,6 +64,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Learn more"),
         "candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("Stardust Usage Policy"),
+        "comments": MessageLookupByLibrary.simpleMessage("Comments"),
         "common_all": MessageLookupByLibrary.simpleMessage("All"),
         "common_fail": MessageLookupByLibrary.simpleMessage("Failed"),
         "common_retry_label": MessageLookupByLibrary.simpleMessage("Try again"),
@@ -120,13 +121,29 @@ class MessageLookup extends MessageLookupByLibrary {
             "The unsubscribe was processed successfully."),
         "dialog_withdraw_title": MessageLookupByLibrary.simpleMessage(
             "Are you sure you want to leave?"),
+        "error_action_failed": MessageLookupByLibrary.simpleMessage(
+            "An error occurred while performing the operation."),
+        "error_content_parse": MessageLookupByLibrary.simpleMessage(
+            "An error occurred while parsing the content."),
+        "error_delete_post": MessageLookupByLibrary.simpleMessage(
+            "An error occurred while deleting the post."),
+        "error_invalid_data":
+            MessageLookupByLibrary.simpleMessage("Invalid data."),
+        "error_loading_more_comments": MessageLookupByLibrary.simpleMessage(
+            "There was an error loading the comment."),
         "error_message_login_failed": MessageLookupByLibrary.simpleMessage(
             "An error occurred during login."),
         "error_message_no_user": MessageLookupByLibrary.simpleMessage(
             "The membership information doesn\'t exist."),
         "error_message_withdrawal": MessageLookupByLibrary.simpleMessage(
             "A member who has unsubscribed."),
+        "error_network_connection": MessageLookupByLibrary.simpleMessage(
+            "Check your network connection."),
+        "error_request_timeout":
+            MessageLookupByLibrary.simpleMessage("The request timed out."),
         "error_title": MessageLookupByLibrary.simpleMessage("Errors"),
+        "error_unknown":
+            MessageLookupByLibrary.simpleMessage("An unknown error occurred."),
         "exception_auth_message_apple_invalid_response":
             MessageLookupByLibrary.simpleMessage(
                 "We received an invalid response from Apple\'s servers. \nplease try again."),
@@ -502,6 +519,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "post_my_written_scrap":
             MessageLookupByLibrary.simpleMessage("My Scraps"),
         "post_no_comment": MessageLookupByLibrary.simpleMessage("No comments."),
+        "post_not_found":
+            MessageLookupByLibrary.simpleMessage("No posts were found."),
         "post_replying_comment": m3,
         "post_report_fail":
             MessageLookupByLibrary.simpleMessage("The report failed."),

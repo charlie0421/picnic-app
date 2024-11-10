@@ -60,6 +60,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("詳細を見る"),
         "candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("スターキャンディー使用ポリシー"),
+        "comments": MessageLookupByLibrary.simpleMessage("コメント"),
         "common_all": MessageLookupByLibrary.simpleMessage("全体"),
         "common_fail": MessageLookupByLibrary.simpleMessage("失敗"),
         "common_retry_label": MessageLookupByLibrary.simpleMessage("再試行"),
@@ -114,13 +115,27 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("退会が正常に処理されました。"),
         "dialog_withdraw_title":
             MessageLookupByLibrary.simpleMessage("本当に退会しますか？"),
+        "error_action_failed":
+            MessageLookupByLibrary.simpleMessage("作業中にエラーが発生しました。"),
+        "error_content_parse":
+            MessageLookupByLibrary.simpleMessage("コンテンツ解析中にエラーが発生しました。"),
+        "error_delete_post":
+            MessageLookupByLibrary.simpleMessage("投稿の削除中にエラーが発生しました。"),
+        "error_invalid_data": MessageLookupByLibrary.simpleMessage("無効なデータです。"),
+        "error_loading_more_comments":
+            MessageLookupByLibrary.simpleMessage("コメントの読み込み中にエラーが発生しました。"),
         "error_message_login_failed":
             MessageLookupByLibrary.simpleMessage("ログイン中にエラーが発生しました。"),
         "error_message_no_user":
             MessageLookupByLibrary.simpleMessage("会員情報が存在しません。"),
         "error_message_withdrawal":
             MessageLookupByLibrary.simpleMessage("退会した会員です。"),
+        "error_network_connection":
+            MessageLookupByLibrary.simpleMessage("ネットワーク接続を確認してください。"),
+        "error_request_timeout":
+            MessageLookupByLibrary.simpleMessage("リクエストがタイムアウトしました。"),
         "error_title": MessageLookupByLibrary.simpleMessage("エラー"),
+        "error_unknown": MessageLookupByLibrary.simpleMessage("不明なエラーが発生しました。"),
         "exception_auth_message_apple_invalid_response":
             MessageLookupByLibrary.simpleMessage(
                 "Appleのサーバーから無効な応答を受け取りました。 \nもう一度お試しください。"),
@@ -451,6 +466,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "post_my_written_scrap":
             MessageLookupByLibrary.simpleMessage("私のスクラップ"),
         "post_no_comment": MessageLookupByLibrary.simpleMessage("コメントはありません。"),
+        "post_not_found": MessageLookupByLibrary.simpleMessage("投稿が見つかりません。"),
         "post_replying_comment": m3,
         "post_report_fail": MessageLookupByLibrary.simpleMessage("申告に失敗しました。"),
         "post_report_label": MessageLookupByLibrary.simpleMessage("報告する"),

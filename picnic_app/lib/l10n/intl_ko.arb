@@ -583,6 +583,35 @@
     "@message_agreement_success": {
         "translationTimestamp": "2024-07-21T11:18:53.669108"
     },
+    "error_delete_post": "게시글 삭제 중 오류가 발생했습니다.",
+    "@error_delete_post": {
+    },
+    "post_not_found": "게시글을 찾을 수 없습니다.",
+    "@post_not_found": {},
+    "error_content_parse": "콘텐츠 파싱 중 오류가 발생했습니다.",
+    "@error_content_parse": {
+    },
+    "error_network_connection": "네트워크 연결을 확인해주세요.",
+    "@error_network_connection": {
+    },
+    "error_request_timeout": "요청 시간이 초과되었습니다.",
+    "@error_request_timeout": {
+    },
+    "error_invalid_data": "유효하지 않은 데이터입니다.",
+    "@error_invalid_data": {
+    },
+    "error_unknown": "알 수 없는 오류가 발생했습니다.",
+    "@error_unknown": {
+    },
+    "error_loading_more_comments": "댓글을 불러오는 중 오류가 발생했습니다.",
+    "@error_loading_more_comments": {
+    },
+    "error_action_failed": "작업을 수행하는 중 오류가 발생했습니다.",
+    "@error_action_failed": {
+    },
+    "comments": "댓글",
+    "@comments": {
+    },
     "message_error_occurred": "오류가 발생했습니다.",
     "@message_error_occurred": {
         "translationTimestamp": "2024-07-21T11:18:53.669108"

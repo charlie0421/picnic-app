@@ -48,37 +48,156 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
   String? _errorMessage;
   bool _isModalOpen = false;
   final bool _shouldShowAds = !kIsWeb && (Platform.isAndroid || Platform.isIOS);
-  final Map<String, BannerAd?> _bannerAds = {};
+  final Map<String, _AdStatus> _adsStatus = {};
   List<CommentModel>? _comments;
   bool _isLoadingComments = false;
+  bool _isDisposed = false;
+  Timer? _refreshTimer;
+  bool _isAllAdsLoaded = false;
 
   @override
   void initState() {
     super.initState();
-
     _postFuture = _loadPost();
-    if (_shouldShowAds) _loadAds();
+    if (_shouldShowAds) {
+      _initAds();
+    } else {
+      _isAllAdsLoaded = true;
+    }
+
+    _refreshTimer = Timer.periodic(const Duration(minutes: 1), (_) {
+      if (!_isModalOpen && mounted) {
+        _refreshPostAndComments();
+      }
+    });
+  }
+
+  Future<void> _initAds() async {
+    if (_isDisposed) return;
+
+    try {
+      setState(() => _isAllAdsLoaded = false); // 광고 로딩 시작 시 상태 업데이트
+
+      final configService = ref.read(configServiceProvider);
+      final topAdUnitId = Platform.isIOS
+          ? await configService.getConfig('ADMOB_IOS_POSTVIEW_TOP')
+          : await configService.getConfig('ADMOB_ANDROID_POSTVIEW_TOP');
+      final bottomAdUnitId = Platform.isIOS
+          ? await configService.getConfig('ADMOB_IOS_POSTVIEW_BOTTOM')
+          : await configService.getConfig('ADMOB_ANDROID_POSTVIEW_BOTTOM');
+
+      if (_isDisposed) return;
+
+      _adsStatus.clear(); // 기존 광고 상태 초기화
+
+      if (topAdUnitId != null) {
+        _adsStatus['top'] = _AdStatus(
+          id: topAdUnitId,
+          size: AdSize.banner,
+          isLoading: true,
+        );
+      }
+      if (bottomAdUnitId != null) {
+        _adsStatus['bottom'] = _AdStatus(
+          id: bottomAdUnitId,
+          size: AdSize.mediumRectangle,
+          isLoading: true,
+        );
+      }
+
+      await _loadAllAds();
+    } catch (e, s) {
+      logger.e('Error initializing ads: $e', stackTrace: s);
+      if (!_isDisposed) {
+        setState(() => _isAllAdsLoaded = true); // Show content even if ads fail
+      }
+    }
+  }
+
+  Future<void> _loadAllAds() async {
+    if (_adsStatus.isEmpty) {
+      setState(() => _isAllAdsLoaded = true);
+      return;
+    }
+
+    final futures = _adsStatus.entries.map((entry) => _loadSingleAd(entry.key));
+    try {
+      await Future.wait(futures);
+      if (!_isDisposed) {
+        setState(() => _isAllAdsLoaded = true);
+      }
+    } catch (e, s) {
+      logger.e('Error loading ads: $e', stackTrace: s);
+      if (!_isDisposed) {
+        setState(() => _isAllAdsLoaded = true); // Show content even if ads fail
+      }
+    }
+  }
+
+  Future<void> _loadSingleAd(String position) async {
+    final status = _adsStatus[position]!;
+    final completer = Completer<void>();
+
+    status.ad = BannerAd(
+      adUnitId: status.id,
+      size: status.size,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          if (!_isDisposed) {
+            setState(() => status.isLoading = false);
+            completer.complete();
+          }
+        },
+        onAdFailedToLoad: (ad, error) {
+          logger.e('Ad failed to load: $error');
+          ad.dispose();
+          status.ad = null;
+          status.isLoading = false;
+          completer.complete(); // Complete anyway to not block content
+        },
+      ),
+    );
+
+    try {
+      await status.ad!.load();
+    } catch (e) {
+      completer.complete(); // Complete anyway to not block content
+    }
+
+    return completer.future;
   }
 
   Future<PostModel> _loadPost({bool isIncrementViewCount = true}) async {
+    if (_isDisposed) return Future.error('Widget is disposed');
+
     try {
       final updatedPost = await postById(ref, widget.postId,
           isIncrementViewCount: isIncrementViewCount);
-      if (updatedPost != null) {
-        _initializeQuillController(updatedPost);
-        _updateNavigationInfo(updatedPost);
-        await _loadComments(updatedPost.postId);
-        return updatedPost;
-      } else {
-        throw Exception('Failed to load post');
+
+      if (_isDisposed) return Future.error('Widget is disposed');
+
+      if (updatedPost == null) {
+        throw Exception(S.of(context).post_not_found);
       }
+
+      _initializeQuillController(updatedPost);
+      _updateNavigationInfo(updatedPost);
+      await _loadComments(updatedPost.postId);
+      return updatedPost;
     } catch (e, s) {
       logger.e('Error loading post: $e', stackTrace: s);
-      rethrow;
+      final errorMessage = _getErrorMessage(e);
+      if (!_isDisposed) {
+        setState(() => _errorMessage = errorMessage);
+      }
+      throw Exception(errorMessage);
     }
   }
 
   void _initializeQuillController(PostModel post) {
+    if (_isDisposed) return;
+
     try {
       final content = _parseContent(post.content);
       _quillController = quill.QuillController(
@@ -88,7 +207,21 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
       );
     } catch (e, s) {
       logger.e('Error initializing QuillController: $e', stackTrace: s);
-      _errorMessage = S.of(context).post_loading_post_fail;
+      if (!_isDisposed) {
+        setState(() => _errorMessage = S.of(context).error_content_parse);
+      }
+    }
+  }
+
+  String _getErrorMessage(dynamic error) {
+    if (error is SocketException) {
+      return S.of(context).error_network_connection;
+    } else if (error is TimeoutException) {
+      return S.of(context).error_request_timeout;
+    } else if (error is FormatException) {
+      return S.of(context).error_invalid_data;
+    } else {
+      return S.of(context).error_unknown;
     }
   }
 
@@ -96,215 +229,264 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
     final currentBoard = ref.read(communityStateInfoProvider).currentBoard;
     ref.read(communityStateInfoProvider.notifier).setCurrentPost(post);
     ref.read(navigationInfoProvider.notifier).settingNavigation(
-        showPortal: true,
-        showTopMenu: true,
-        topRightMenu: TopRightType.postView,
-        showBottomNavigation: false,
-        pageTitle: getLocaleTextFromJson(currentBoard!.name));
+          showPortal: true,
+          showTopMenu: true,
+          topRightMenu: TopRightType.postView,
+          showBottomNavigation: false,
+          pageTitle: getLocaleTextFromJson(currentBoard!.name),
+        );
   }
 
-  Future<void> _loadAds() async {
-    final configService = ref.read(configServiceProvider);
-    final topAdUnitId = Platform.isIOS
-        ? await configService.getConfig('ADMOB_IOS_POSTVIEW_TOP')
-        : await configService.getConfig('ADMOB_ANDROID_POSTVIEW_TOP');
-    final bottomAdUnitId = Platform.isIOS
-        ? await configService.getConfig('ADMOB_IOS_POSTVIEW_BOTTOM')
-        : await configService.getConfig('ADMOB_ANDROID_POSTVIEW_BOTTOM');
-
-    if (topAdUnitId != null) _loadBannerAd('top', topAdUnitId, AdSize.banner);
-    if (bottomAdUnitId != null) {
-      _loadBannerAd('bottom', bottomAdUnitId, AdSize.mediumRectangle);
+  List<dynamic> _parseContent(dynamic content) {
+    try {
+      if (content == null) {
+        return [
+          {"insert": ""}
+        ];
+      }
+      return (content is String ? jsonDecode(content) : content) as List;
+    } catch (e, s) {
+      logger.e('Error parsing content: $e', stackTrace: s);
+      return [
+        {"insert": S.of(context).error_content_parse}
+      ];
     }
   }
 
-  void _loadBannerAd(String position, String adUnitId, AdSize size) {
-    _bannerAds[position] = BannerAd(
-      adUnitId: adUnitId,
-      size: size,
-      request: const AdRequest(),
-      listener: BannerAdListener(
-        onAdLoaded: (_) => setState(() {}),
-        onAdFailedToLoad: (ad, error) {
-          ad.dispose();
-          _bannerAds[position] = null;
-        },
-      ),
-    )..load();
-  }
-
   Future<void> _loadComments(String postId) async {
-    if (!mounted) return;
+    if (_isDisposed) return;
+
     setState(() => _isLoadingComments = true);
+
     try {
-      final loadedComments =
-          await ref.read(commentsNotifierProvider(postId, 1, 3).notifier).build(
+      final loadedComments = await Future.value(
+          ref.read(commentsNotifierProvider(postId, 1, 3).notifier).build(
                 postId,
                 1,
                 3,
                 includeDeleted: false,
                 includeReported: false,
-              );
-      if (!mounted) return;
+              )).timeout(const Duration(seconds: 10));
+
+      if (_isDisposed) return;
+
       setState(() {
         _comments = loadedComments;
         _isLoadingComments = false;
       });
     } catch (e, s) {
       logger.e('Error loading comments: $e', stackTrace: s);
-      if (!mounted) return;
-      setState(() => _isLoadingComments = false);
-    }
-  }
-
-  List<dynamic> _parseContent(dynamic content) {
-    try {
-      return (content is String ? jsonDecode(content) : content) as List;
-    } catch (e, s) {
-      logger.e(e, stackTrace: s);
-      rethrow;
+      if (!_isDisposed) {
+        setState(() {
+          _isLoadingComments = false;
+          _errorMessage = _getErrorMessage(e);
+        });
+      }
     }
   }
 
   @override
   void dispose() {
+    _isDisposed = true;
+    _refreshTimer?.cancel();
     _quillController?.dispose();
-    for (var ad in _bannerAds.values) {
-      ad?.dispose();
+    for (var status in _adsStatus.values) {
+      status.ad?.dispose();
     }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!_isAllAdsLoaded) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
     return FutureBuilder<PostModel>(
       future: _postFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (snapshot.hasData) {
-          final post = snapshot.data!;
-          return SingleChildScrollView(
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  _errorMessage ?? S.of(context).error_unknown,
+                  style: const TextStyle(color: Colors.red),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _postFuture = _loadPost();
+                    });
+                  },
+                  child: Text(S.of(context).label_retry),
+                ),
+              ],
+            ),
+          );
+        }
+
+        if (!snapshot.hasData) {
+          return Center(
+            child: Text(S.of(context).post_not_found),
+          );
+        }
+
+        final post = snapshot.data!;
+        return RefreshIndicator(
+          onRefresh: () => _refreshPostAndComments(),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (_shouldShowAds) _buildAdSpace('top', AdSize.banner),
+                if (_shouldShowAds) _buildAdSpace('top'),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.cw),
-                  child: Text(post.title ?? '',
-                      style: const TextStyle(
-                          fontSize: 24, fontWeight: FontWeight.bold)),
+                  child: Text(
+                    post.title ?? '',
+                    style: const TextStyle(
+                        fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 8),
                   child: post.isAnonymous ?? false
-                      ? Text(S.of(context).anonymous,
+                      ? Text(
+                          S.of(context).anonymous,
                           style: getTextStyle(
-                              AppTypo.caption12B, AppColors.primary500))
-                      : Text(post.userProfiles?.nickname ?? '',
+                              AppTypo.caption12B, AppColors.primary500),
+                        )
+                      : Text(
+                          post.userProfiles?.nickname ?? '',
                           style: getTextStyle(
-                              AppTypo.caption12B, AppColors.primary500)),
+                              AppTypo.caption12B, AppColors.primary500),
+                        ),
                 ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.cw),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Text('${S.of(context).views}: ${post.viewCount}',
-                              style: getTextStyle(AppTypo.caption10SB,
-                                  const Color(0XFF8E8E8E))),
-                          SizedBox(width: 8.cw),
-                          Text('${S.of(context).replies}: ${post.replyCount}',
-                              style: getTextStyle(AppTypo.caption10SB,
-                                  const Color(0XFF8E8E8E))),
-                          SizedBox(width: 8.cw),
-                          Text(formatDateTimeYYYYMMDDHHM(post.createdAt!),
-                              style: getTextStyle(AppTypo.caption10SB,
-                                  const Color(0XFF8E8E8E))),
-                        ],
-                      ),
-                      PostPopupMenu(
-                        post: post,
-                        deletePost: () async {
-                          try {
-                            final ref = this.ref;
-                            await deletePost(ref, post.postId);
-                            ref.read(navigationInfoProvider.notifier).goBack();
-                          } catch (e, s) {
-                            logger.e('Error: $e, StackTrace: $s');
-                            rethrow;
-                          }
-                        },
-                        openReportModal: (String title, PostModel post) async {
-                          try {
-                            setState(() {
-                              _isModalOpen = true;
-                              for (var ad in _bannerAds.values) {
-                                ad?.dispose();
-                              }
-                              _bannerAds.clear();
-                            });
-                            await showDialog(
-                              context: context,
-                              barrierDismissible: true,
-                              builder: (BuildContext context) {
-                                return ReportDialog(
-                                    postId: post.postId,
-                                    title: title,
-                                    type: ReportType.post,
-                                    target: post);
-                              },
-                            ).then((value) {
-                              logger.i('Report dialog result: $value');
-                              if (value == null) {
-                                setState(() {
-                                  _isModalOpen = false;
-                                  if (_shouldShowAds) _loadAds();
-                                });
-                              } else {
-                                ref
-                                    .read(navigationInfoProvider.notifier)
-                                    .goBack();
-                              }
-                            });
-                          } catch (e, s) {
-                            logger.e('Error: $e, StackTrace: $s');
-                          }
-                        },
-                        context: context,
-                      ),
-                    ],
-                  ),
-                ),
+                _buildPostInfo(post),
                 const Divider(color: AppColors.grey500),
                 Padding(
                   padding: EdgeInsets.all(16.cw),
                   child: _buildContent(),
                 ),
-                if (_shouldShowAds)
-                  _buildAdSpace('bottom', AdSize.mediumRectangle),
+                if (_shouldShowAds) _buildAdSpace('bottom'),
                 const SizedBox(height: 36),
                 _buildCommentsList(post),
               ],
             ),
-          );
-        } else {
-          return const Center(child: Text('No data available'));
-        }
+          ),
+        );
       },
+    );
+  }
+
+  Widget _buildPostInfo(PostModel post) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.cw),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Text(
+                '${S.of(context).views}: ${post.viewCount}',
+                style:
+                    getTextStyle(AppTypo.caption10SB, const Color(0XFF8E8E8E)),
+              ),
+              SizedBox(width: 8.cw),
+              Text(
+                '${S.of(context).replies}: ${post.replyCount}',
+                style:
+                    getTextStyle(AppTypo.caption10SB, const Color(0XFF8E8E8E)),
+              ),
+              SizedBox(width: 8.cw),
+              Text(
+                formatDateTimeYYYYMMDDHHM(post.createdAt!),
+                style:
+                    getTextStyle(AppTypo.caption10SB, const Color(0XFF8E8E8E)),
+              ),
+            ],
+          ),
+          PostPopupMenu(
+            post: post,
+            deletePost: () async {
+              try {
+                final ref = this.ref;
+                await deletePost(ref, post.postId);
+                ref.read(navigationInfoProvider.notifier).goBack();
+              } catch (e, s) {
+                logger.e('Error deleting post: $e', stackTrace: s);
+                if (!_isDisposed) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(S.of(context).error_delete_post)),
+                  );
+                }
+              }
+            },
+            openReportModal: (String title, PostModel post) async {
+              try {
+                setState(() {
+                  _isModalOpen = true;
+                  for (var status in _adsStatus.values) {
+                    status.ad?.dispose();
+                  }
+                  _adsStatus.clear();
+                });
+
+                final result = await showDialog<bool>(
+                  context: context,
+                  barrierDismissible: true,
+                  builder: (BuildContext context) {
+                    return ReportDialog(
+                      postId: post.postId,
+                      title: title,
+                      type: ReportType.post,
+                      target: post,
+                    );
+                  },
+                );
+
+                if (!_isDisposed) {
+                  if (result == null) {
+                    setState(() {
+                      _isModalOpen = false;
+                      if (_shouldShowAds) _initAds();
+                    });
+                  } else {
+                    ref.read(navigationInfoProvider.notifier).goBack();
+                  }
+                }
+              } catch (e, s) {
+                logger.e('Error showing report dialog: $e', stackTrace: s);
+              }
+            },
+            context: context,
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildContent() {
     if (_errorMessage != null) {
-      return Text(_errorMessage!, style: const TextStyle(color: Colors.red));
+      return Text(
+        _errorMessage!,
+        style: const TextStyle(color: Colors.red),
+      );
     }
     if (_quillController == null) {
-      return const CircularProgressIndicator();
+      return const Center(child: CircularProgressIndicator());
     }
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 100),
@@ -323,16 +505,20 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
     );
   }
 
-  Widget _buildAdSpace(String position, AdSize size) {
+  Widget _buildAdSpace(String position) {
+    final status = _adsStatus[position];
+    if (status == null || status.isLoading || status.ad == null) {
+      return SizedBox(
+        width: status?.size.width.toDouble() ?? 0,
+        height: status?.size.height.toDouble() ?? 0,
+      );
+    }
+
     return Center(
       child: SizedBox(
-        width: size.width.toDouble(),
-        height: size.height.toDouble(),
-        child: _isModalOpen
-            ? null
-            : _bannerAds[position] != null
-                ? AdWidget(ad: _bannerAds[position]!)
-                : null,
+        width: status.size.width.toDouble(),
+        height: status.size.height.toDouble(),
+        child: _isModalOpen ? null : AdWidget(ad: status.ad!),
       ),
     );
   }
@@ -352,80 +538,12 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 16),
-              _isLoadingComments
-                  ? const Center(child: CircularProgressIndicator())
-                  : _comments == null || _comments!.isEmpty
-                      ? Center(
-                          child: Column(
-                          children: [
-                            Text(S.of(context).post_no_comment),
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: () => _openCommentsModal(post),
-                              child: Text(
-                                  S.of(context).post_comment_write_label,
-                                  style: getTextStyle(
-                                      AppTypo.body14B, AppColors.grey00)),
-                            ),
-                          ],
-                        ))
-                      : Column(
-                          children: [
-                            ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: _comments!.length,
-                              itemBuilder: (context, index) {
-                                return CommentItem(
-                                  postId: post.postId,
-                                  commentModel: _comments![index],
-                                  pagingController: null,
-                                  showReplyButton: false,
-                                  openCommentsModal: () =>
-                                      _openCommentsModal(post),
-                                  openReportModal:
-                                      (String title, CommentModel comment) {
-                                    setState(() {
-                                      _isModalOpen = true;
-                                      for (var ad in _bannerAds.values) {
-                                        ad?.dispose();
-                                      }
-                                      _bannerAds.clear();
-                                    });
-                                    showDialog(
-                                      context: context,
-                                      barrierDismissible: true,
-                                      builder: (BuildContext context) {
-                                        return ReportDialog(
-                                            postId: post.postId,
-                                            title: title,
-                                            type: ReportType.comment,
-                                            target: comment);
-                                      },
-                                    ).then((_) {
-                                      setState(() {
-                                        _isModalOpen = false;
-                                        if (_shouldShowAds) _loadAds();
-                                      });
-                                      WidgetsBinding.instance
-                                          .addPostFrameCallback((_) {
-                                        _loadPost(isIncrementViewCount: false);
-                                        _loadComments(widget.postId);
-                                      });
-                                    });
-                                  },
-                                );
-                              },
-                            ),
-                            ElevatedButton(
-                              onPressed: () => _openCommentsModal(post),
-                              child: Text(
-                                  S.of(context).post_comment_content_more,
-                                  style: getTextStyle(
-                                      AppTypo.body14B, AppColors.grey00)),
-                            ),
-                          ],
-                        ),
+              if (_isLoadingComments)
+                const Center(child: CircularProgressIndicator())
+              else if (_comments == null || _comments!.isEmpty)
+                _buildEmptyComments(post)
+              else
+                _buildCommentItems(post),
             ],
           ),
         ),
@@ -439,13 +557,106 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
               color: AppColors.primary500,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Text('Comments',
-                style: getTextStyle(AppTypo.body14B, AppColors.grey00),
-                textAlign: TextAlign.center),
+            child: Text(
+              S.of(context).comments,
+              style: getTextStyle(AppTypo.body14B, AppColors.grey00),
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
       ],
     );
+  }
+
+  Widget _buildEmptyComments(PostModel post) {
+    return Center(
+      child: Column(
+        children: [
+          Text(S.of(context).post_no_comment),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () => _openCommentsModal(post),
+            child: Text(
+              S.of(context).post_comment_write_label,
+              style: getTextStyle(AppTypo.body14B, AppColors.grey00),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCommentItems(PostModel post) {
+    return Column(
+      children: [
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: _comments!.length,
+          itemBuilder: (context, index) {
+            return CommentItem(
+              postId: post.postId,
+              commentModel: _comments![index],
+              pagingController: null,
+              showReplyButton: false,
+              openCommentsModal: () => _openCommentsModal(post),
+              openReportModal: (String title, CommentModel comment) {
+                _handleCommentReport(title, comment, post);
+              },
+            );
+          },
+        ),
+        ElevatedButton(
+          onPressed: () => _openCommentsModal(post),
+          child: Text(
+            S.of(context).post_comment_content_more,
+            style: getTextStyle(AppTypo.body14B, AppColors.grey00),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _handleCommentReport(
+    String title,
+    CommentModel comment,
+    PostModel post,
+  ) async {
+    setState(() {
+      _isModalOpen = true;
+      _isAllAdsLoaded = false; // 모달이 열릴 때 광고 로딩 상태 리셋
+      for (var status in _adsStatus.values) {
+        status.ad?.dispose();
+      }
+      _adsStatus.clear();
+    });
+
+    await showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return ReportDialog(
+          postId: post.postId,
+          title: title,
+          type: ReportType.comment,
+          target: comment,
+        );
+      },
+    );
+
+    if (!_isDisposed) {
+      setState(() {
+        _isModalOpen = false;
+      });
+      if (_shouldShowAds) {
+        _initAds(); // 모달이 닫힌 후 광고 다시 초기화
+      } else {
+        setState(() {
+          _isAllAdsLoaded = true;
+        });
+      }
+      _refreshPostAndComments();
+    }
   }
 
   void _openCommentsModal(PostModel post) {
@@ -453,13 +664,16 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
       showRequireLoginDialog();
       return;
     }
+
     setState(() {
       _isModalOpen = true;
-      for (var ad in _bannerAds.values) {
-        ad?.dispose();
+      _isAllAdsLoaded = false; // 모달이 열릴 때 광고 로딩 상태 리셋
+      for (var status in _adsStatus.values) {
+        status.ad?.dispose();
       }
-      _bannerAds.clear();
+      _adsStatus.clear();
     });
+
     showModalBottomSheet(
       context: context,
       useSafeArea: true,
@@ -472,57 +686,59 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
         maxHeight: ref.watch(globalMediaQueryProvider).size.height -
             getAppBarHeight(ref),
       ),
-      builder: (context) {
-        return SafeArea(
-          child: CommentList(
-            id: post.postId,
-            S.of(context).replies,
-            openReportModal: (String title, CommentModel comment) {
-              setState(() {
-                _isModalOpen = true;
-                for (var ad in _bannerAds.values) {
-                  ad?.dispose();
-                }
-                _bannerAds.clear();
-              });
-              showDialog(
-                context: context,
-                barrierDismissible: true,
-                builder: (BuildContext context) {
-                  return ReportDialog(
-                      postId: post.postId,
-                      title: title,
-                      type: ReportType.comment,
-                      target: comment);
-                },
-              ).then((_) {
-                setState(() {
-                  _isModalOpen = false;
-                  if (_shouldShowAds) _loadAds();
-                });
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _loadPost(isIncrementViewCount: false);
-                  _loadComments(widget.postId);
-                });
-              });
-            },
-          ),
-        );
-      },
+      builder: (context) => SafeArea(
+        child: CommentList(
+          id: post.postId,
+          title: S.of(context).replies,
+          openReportModal: (String title, CommentModel comment) {
+            _handleCommentReport(title, comment, post);
+          },
+        ),
+      ),
     ).then((_) {
-      setState(() {
-        _isModalOpen = false;
-        if (_shouldShowAds) _loadAds();
-      });
-      _refreshPostAndComments();
+      if (!_isDisposed) {
+        setState(() {
+          _isModalOpen = false;
+        });
+        if (_shouldShowAds) {
+          _initAds(); // 모달이 닫힌 후 광고 다시 초기화
+        } else {
+          setState(() {
+            _isAllAdsLoaded = true;
+          });
+        }
+        _refreshPostAndComments();
+      }
     });
   }
 
-  void _refreshPostAndComments() {
-    _loadComments(widget.postId);
-    _postFuture = _loadPost(isIncrementViewCount: false);
-    setState(() {});
+  Future<void> _refreshPostAndComments() async {
+    if (_isDisposed || _isModalOpen) return;
+
+    try {
+      await _loadComments(widget.postId);
+      _postFuture = _loadPost(isIncrementViewCount: false);
+      if (!_isDisposed) {
+        setState(() {});
+      }
+    } catch (e, s) {
+      logger.e('Error refreshing data: $e', stackTrace: s);
+    }
   }
+}
+
+class _AdStatus {
+  _AdStatus({
+    required this.id,
+    required this.size,
+    this.isLoading = true,
+    this.ad,
+  });
+
+  final String id;
+  final AdSize size;
+  bool isLoading;
+  BannerAd? ad;
 }
 
 class AlwaysDisabledFocusNode extends FocusNode {

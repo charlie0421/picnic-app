@@ -61,6 +61,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("자세히 보기"),
         "candy_usage_policy_title":
             MessageLookupByLibrary.simpleMessage("별사탕 사용정책"),
+        "comments": MessageLookupByLibrary.simpleMessage("댓글"),
         "common_all": MessageLookupByLibrary.simpleMessage("전체"),
         "common_fail": MessageLookupByLibrary.simpleMessage("실패"),
         "common_retry_label": MessageLookupByLibrary.simpleMessage("다시 시도"),
@@ -115,13 +116,29 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("탈퇴가 성공적으로 처리 되었습니다."),
         "dialog_withdraw_title":
             MessageLookupByLibrary.simpleMessage("정말 탈퇴하시겠어요?"),
+        "error_action_failed":
+            MessageLookupByLibrary.simpleMessage("작업을 수행하는 중 오류가 발생했습니다."),
+        "error_content_parse":
+            MessageLookupByLibrary.simpleMessage("콘텐츠 파싱 중 오류가 발생했습니다."),
+        "error_delete_post":
+            MessageLookupByLibrary.simpleMessage("게시글 삭제 중 오류가 발생했습니다."),
+        "error_invalid_data":
+            MessageLookupByLibrary.simpleMessage("유효하지 않은 데이터입니다."),
+        "error_loading_more_comments":
+            MessageLookupByLibrary.simpleMessage("댓글을 불러오는 중 오류가 발생했습니다."),
         "error_message_login_failed":
             MessageLookupByLibrary.simpleMessage("로그인 중 오류가 발생했습니다."),
         "error_message_no_user":
             MessageLookupByLibrary.simpleMessage("회원 정보가 존재하지 않습니다."),
         "error_message_withdrawal":
             MessageLookupByLibrary.simpleMessage("탈퇴한 회원입니다."),
+        "error_network_connection":
+            MessageLookupByLibrary.simpleMessage("네트워크 연결을 확인해주세요."),
+        "error_request_timeout":
+            MessageLookupByLibrary.simpleMessage("요청 시간이 초과되었습니다."),
         "error_title": MessageLookupByLibrary.simpleMessage("에러"),
+        "error_unknown":
+            MessageLookupByLibrary.simpleMessage("알 수 없는 오류가 발생했습니다."),
         "exception_auth_message_apple_invalid_response":
             MessageLookupByLibrary.simpleMessage(
                 "Apple 서버로부터 유효하지 않은 응답을 받았습니다. \n다시 시도해주세요."),
@@ -454,6 +471,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("내가 쓴 댓글"),
         "post_my_written_scrap": MessageLookupByLibrary.simpleMessage("내 스크랩"),
         "post_no_comment": MessageLookupByLibrary.simpleMessage("댓글이 없습니다."),
+        "post_not_found":
+            MessageLookupByLibrary.simpleMessage("게시글을 찾을 수 없습니다."),
         "post_replying_comment": m3,
         "post_report_fail": MessageLookupByLibrary.simpleMessage("신고에 실패했습니다."),
         "post_report_label": MessageLookupByLibrary.simpleMessage("신고하기"),

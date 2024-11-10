@@ -1439,5 +1439,45 @@
   "exception_auth_message_apple_invalid_response": "我们收到来自 Apple 服务器的无效响应\n请重试。",
   "@exception_auth_message_apple_invalid_response": {
     "manualTranslation": false
+  },
+  "post_not_found": "未找到帖子。",
+  "@post_not_found": {
+    "manualTranslation": false
+  },
+  "error_network_connection": "检查网络连接。",
+  "@error_network_connection": {
+    "manualTranslation": false
+  },
+  "error_content_parse": "解析内容时发生错误。",
+  "@error_content_parse": {
+    "manualTranslation": false
+  },
+  "error_request_timeout": "请求超时。",
+  "@error_request_timeout": {
+    "manualTranslation": false
+  },
+  "error_delete_post": "删除帖子时出现错误。",
+  "@error_delete_post": {
+    "manualTranslation": false
+  },
+  "error_invalid_data": "数据无效。",
+  "@error_invalid_data": {
+    "manualTranslation": false
+  },
+  "error_unknown": "出现未知错误。",
+  "@error_unknown": {
+    "manualTranslation": false
+  },
+  "error_loading_more_comments": "加载评论时出现错误。",
+  "@error_loading_more_comments": {
+    "manualTranslation": false
+  },
+  "error_action_failed": "执行操作时发生错误。",
+  "@error_action_failed": {
+    "manualTranslation": false
+  },
+  "comments": "评论",
+  "@comments": {
+    "manualTranslation": false
   }
 }
