@@ -75,7 +75,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("搜索结果"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("取消"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("确认"),
-        "dialog_caution": MessageLookupByLibrary.simpleMessage("🚫 警告 🚫"),
+        "dialog_caution": MessageLookupByLibrary.simpleMessage("警告 🚫"),
         "dialog_content_ads_exhausted":
             MessageLookupByLibrary.simpleMessage("所有广告已用尽。请稍后再试。"),
         "dialog_content_ads_loading":
@@ -118,6 +118,26 @@ class MessageLookup extends MessageLookupByLibrary {
         "error_message_withdrawal":
             MessageLookupByLibrary.simpleMessage("已取消订阅的会员。"),
         "error_title": MessageLookupByLibrary.simpleMessage("错误"),
+        "exception_auth_message_apple_invalid_response":
+            MessageLookupByLibrary.simpleMessage("我们收到来自 Apple 服务器的无效响应，请重试。"),
+        "exception_auth_message_apple_sign_in_failed":
+            MessageLookupByLibrary.simpleMessage("Apple 登录失败，请重试。"),
+        "exception_auth_message_common_cancel":
+            MessageLookupByLibrary.simpleMessage("您的登录已被取消。"),
+        "exception_auth_message_common_invalid_token":
+            MessageLookupByLibrary.simpleMessage("验证令牌无效，请重试。"),
+        "exception_auth_message_common_network":
+            MessageLookupByLibrary.simpleMessage("检查网络连接。"),
+        "exception_auth_message_common_unknown":
+            MessageLookupByLibrary.simpleMessage("登录过程中出现未知错误，请稍后再试。"),
+        "exception_auth_message_common_unsupported_provider":
+            MessageLookupByLibrary.simpleMessage("不支持该登录方法"),
+        "exception_auth_message_google_google_play_service":
+            MessageLookupByLibrary.simpleMessage(
+                "Google Play 服务出现错误。请更新 Google Play 服务或重启设备。"),
+        "exception_auth_message_kakao_not_supported":
+            MessageLookupByLibrary.simpleMessage(
+                "我无法使用 KakaoTalk 应用程序登录，请尝试使用您的 Kakao 帐户登录。"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("专辑名称"),
         "hint_nickname_input": MessageLookupByLibrary.simpleMessage("请输入昵称。"),
         "image_save_success": MessageLookupByLibrary.simpleMessage("图像已保存。"),

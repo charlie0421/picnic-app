@@ -76,7 +76,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("検索結果"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("キャンセル"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("確認"),
-        "dialog_caution": MessageLookupByLibrary.simpleMessage("🚫 警告 🚫"),
+        "dialog_caution": MessageLookupByLibrary.simpleMessage("警告 🚫 🚫 注意事項"),
         "dialog_content_ads_exhausted":
             MessageLookupByLibrary.simpleMessage("広告がなくなりました。次回、もう一度お試しください。"),
         "dialog_content_ads_loading":
@@ -121,6 +121,29 @@ class MessageLookup extends MessageLookupByLibrary {
         "error_message_withdrawal":
             MessageLookupByLibrary.simpleMessage("退会した会員です。"),
         "error_title": MessageLookupByLibrary.simpleMessage("エラー"),
+        "exception_auth_message_apple_invalid_response":
+            MessageLookupByLibrary.simpleMessage(
+                "Appleのサーバーから無効な応答を受け取りました。 もう一度お試しください。"),
+        "exception_auth_message_apple_sign_in_failed":
+            MessageLookupByLibrary.simpleMessage(
+                "Appleログインに失敗しました。 もう一度お試しください。"),
+        "exception_auth_message_common_cancel":
+            MessageLookupByLibrary.simpleMessage("ログインがキャンセルされました。"),
+        "exception_auth_message_common_invalid_token":
+            MessageLookupByLibrary.simpleMessage("認証トークンが無効です。 もう一度お試しください。"),
+        "exception_auth_message_common_network":
+            MessageLookupByLibrary.simpleMessage("ネットワーク接続を確認してください。"),
+        "exception_auth_message_common_unknown":
+            MessageLookupByLibrary.simpleMessage(
+                "ログイン中に不明なエラーが発生しました。 しばらくしてから再試行してください。"),
+        "exception_auth_message_common_unsupported_provider":
+            MessageLookupByLibrary.simpleMessage("サポートされていないログイン方法です"),
+        "exception_auth_message_google_google_play_service":
+            MessageLookupByLibrary.simpleMessage(
+                "Google Play Servicesエラーが発生しました。Google Play Servicesを更新するか、デバイスを再起動してください。"),
+        "exception_auth_message_kakao_not_supported":
+            MessageLookupByLibrary.simpleMessage(
+                "カカオトークのアプリでログインできません。 カカオアカウントでログインを試みます。"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("アルバム名"),
         "hint_nickname_input":
             MessageLookupByLibrary.simpleMessage("ニックネームを入力してください。"),

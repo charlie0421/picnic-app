@@ -381,7 +381,7 @@
   "label_last_provider": "Recent",
   "@label_last_provider": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
-    "manualTranslation": true
+    "manualTranslation": false
   },
   "label_library_save": "Save the library",
   "@label_library_save": {
@@ -513,7 +513,7 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
   },
-  "label_reply": "Replying to a reply",
+  "label_reply": "Reply",
   "@label_reply": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
@@ -695,7 +695,7 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
   },
-  "label_vote_tab_pic": "PIC voting",
+  "label_vote_tab_pic": "PIC Voting",
   "@label_vote_tab_pic": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
@@ -720,7 +720,7 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
   },
-  "message_agreement_success": "Acceptance of the terms is complete.",
+  "message_agreement_success": "You've accepted the terms.",
   "@message_agreement_success": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
@@ -1393,7 +1393,7 @@
   "@post_comment_action_show_original": {
     "manualTranslation": false
   },
-  "dialog_caution": "🚫 Caution 🚫",
+  "dialog_caution": "🚫 경고 🚫",
   "@dialog_caution": {
     "manualTranslation": true
   },
@@ -1403,6 +1403,42 @@
   },
   "block_user_label": "Blocking users",
   "@block_user_label": {
+    "manualTranslation": false
+  },
+  "exception_auth_message_common_invalid_token": "The authentication token is invalid, please try again.",
+  "@exception_auth_message_common_invalid_token": {
+    "manualTranslation": false
+  },
+  "exception_auth_message_common_cancel": "Your login has been canceled.",
+  "@exception_auth_message_common_cancel": {
+    "manualTranslation": false
+  },
+  "exception_auth_message_common_unknown": "An unknown error occurred during login, please try again in a moment.",
+  "@exception_auth_message_common_unknown": {
+    "manualTranslation": false
+  },
+  "exception_auth_message_common_network": "Check your network connection.",
+  "@exception_auth_message_common_network": {
+    "manualTranslation": false
+  },
+  "exception_auth_message_common_unsupported_provider": "This login method is not supported",
+  "@exception_auth_message_common_unsupported_provider": {
+    "manualTranslation": false
+  },
+  "exception_auth_message_google_google_play_service": "A Google Play Services error has occurred. Please update Google Play Services or restart your device.",
+  "@exception_auth_message_google_google_play_service": {
+    "manualTranslation": false
+  },
+  "exception_auth_message_apple_sign_in_failed": "Apple sign-in failed, please try again.",
+  "@exception_auth_message_apple_sign_in_failed": {
+    "manualTranslation": false
+  },
+  "exception_auth_message_kakao_not_supported": "I can't sign in with the KakaoTalk app, try signing in with your Kakao account.",
+  "@exception_auth_message_kakao_not_supported": {
+    "manualTranslation": false
+  },
+  "exception_auth_message_apple_invalid_response": "We received an invalid response from Apple's servers, please try again.",
+  "@exception_auth_message_apple_invalid_response": {
     "manualTranslation": false
   }
 }
