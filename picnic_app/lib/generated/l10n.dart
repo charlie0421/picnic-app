@@ -1130,10 +1130,10 @@ class S {
     );
   }
 
-  /// `Replying to a reply`
+  /// `Reply`
   String get label_reply {
     return Intl.message(
-      'Replying to a reply',
+      'Reply',
       name: 'label_reply',
       desc: '',
       args: [],
@@ -1500,10 +1500,10 @@ class S {
     );
   }
 
-  /// `PIC voting`
+  /// `PIC Voting`
   String get label_vote_tab_pic {
     return Intl.message(
-      'PIC voting',
+      'PIC Voting',
       name: 'label_vote_tab_pic',
       desc: '',
       args: [],
@@ -1550,10 +1550,10 @@ class S {
     );
   }
 
-  /// `Acceptance of the terms is complete.`
+  /// `You've accepted the terms.`
   String get message_agreement_success {
     return Intl.message(
-      'Acceptance of the terms is complete.',
+      'You\'ve accepted the terms.',
       name: 'message_agreement_success',
       desc: '',
       args: [],
@@ -3070,10 +3070,10 @@ class S {
     );
   }
 
-  /// `🚫 Caution 🚫`
+  /// `🚫 경고 🚫`
   String get dialog_caution {
     return Intl.message(
-      '🚫 Caution 🚫',
+      '🚫 경고 🚫',
       name: 'dialog_caution',
       desc: '',
       args: [],
@@ -3095,6 +3095,96 @@ class S {
     return Intl.message(
       'Blocking users',
       name: 'block_user_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The authentication token is invalid, please try again.`
+  String get exception_auth_message_common_invalid_token {
+    return Intl.message(
+      'The authentication token is invalid, please try again.',
+      name: 'exception_auth_message_common_invalid_token',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your login has been canceled.`
+  String get exception_auth_message_common_cancel {
+    return Intl.message(
+      'Your login has been canceled.',
+      name: 'exception_auth_message_common_cancel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `An unknown error occurred during login, please try again in a moment.`
+  String get exception_auth_message_common_unknown {
+    return Intl.message(
+      'An unknown error occurred during login, please try again in a moment.',
+      name: 'exception_auth_message_common_unknown',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Check your network connection.`
+  String get exception_auth_message_common_network {
+    return Intl.message(
+      'Check your network connection.',
+      name: 'exception_auth_message_common_network',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This login method is not supported`
+  String get exception_auth_message_common_unsupported_provider {
+    return Intl.message(
+      'This login method is not supported',
+      name: 'exception_auth_message_common_unsupported_provider',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `A Google Play Services error has occurred. Please update Google Play Services or restart your device.`
+  String get exception_auth_message_google_google_play_service {
+    return Intl.message(
+      'A Google Play Services error has occurred. Please update Google Play Services or restart your device.',
+      name: 'exception_auth_message_google_google_play_service',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Apple sign-in failed, please try again.`
+  String get exception_auth_message_apple_sign_in_failed {
+    return Intl.message(
+      'Apple sign-in failed, please try again.',
+      name: 'exception_auth_message_apple_sign_in_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `I can't sign in with the KakaoTalk app, try signing in with your Kakao account.`
+  String get exception_auth_message_kakao_not_supported {
+    return Intl.message(
+      'I can\'t sign in with the KakaoTalk app, try signing in with your Kakao account.',
+      name: 'exception_auth_message_kakao_not_supported',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `We received an invalid response from Apple's servers, please try again.`
+  String get exception_auth_message_apple_invalid_response {
+    return Intl.message(
+      'We received an invalid response from Apple\'s servers, please try again.',
+      name: 'exception_auth_message_apple_invalid_response',
       desc: '',
       args: [],
     );

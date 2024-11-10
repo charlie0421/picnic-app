@@ -80,7 +80,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Search results"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
-        "dialog_caution": MessageLookupByLibrary.simpleMessage("🚫 Caution 🚫"),
+        "dialog_caution": MessageLookupByLibrary.simpleMessage("🚫 경고 🚫"),
         "dialog_content_ads_exhausted": MessageLookupByLibrary.simpleMessage(
             "All ads have been exhausted. Please try again next time."),
         "dialog_content_ads_loading":
@@ -127,6 +127,33 @@ class MessageLookup extends MessageLookupByLibrary {
         "error_message_withdrawal": MessageLookupByLibrary.simpleMessage(
             "A member who has unsubscribed."),
         "error_title": MessageLookupByLibrary.simpleMessage("Errors"),
+        "exception_auth_message_apple_invalid_response":
+            MessageLookupByLibrary.simpleMessage(
+                "We received an invalid response from Apple\'s servers, please try again."),
+        "exception_auth_message_apple_sign_in_failed":
+            MessageLookupByLibrary.simpleMessage(
+                "Apple sign-in failed, please try again."),
+        "exception_auth_message_common_cancel":
+            MessageLookupByLibrary.simpleMessage(
+                "Your login has been canceled."),
+        "exception_auth_message_common_invalid_token":
+            MessageLookupByLibrary.simpleMessage(
+                "The authentication token is invalid, please try again."),
+        "exception_auth_message_common_network":
+            MessageLookupByLibrary.simpleMessage(
+                "Check your network connection."),
+        "exception_auth_message_common_unknown":
+            MessageLookupByLibrary.simpleMessage(
+                "An unknown error occurred during login, please try again in a moment."),
+        "exception_auth_message_common_unsupported_provider":
+            MessageLookupByLibrary.simpleMessage(
+                "This login method is not supported"),
+        "exception_auth_message_google_google_play_service":
+            MessageLookupByLibrary.simpleMessage(
+                "A Google Play Services error has occurred. Please update Google Play Services or restart your device."),
+        "exception_auth_message_kakao_not_supported":
+            MessageLookupByLibrary.simpleMessage(
+                "I can\'t sign in with the KakaoTalk app, try signing in with your Kakao account."),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("Album name"),
         "hint_nickname_input":
             MessageLookupByLibrary.simpleMessage("Please enter a nickname."),
@@ -232,8 +259,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Compositing an image..."),
         "label_read_more_comment":
             MessageLookupByLibrary.simpleMessage("More comments"),
-        "label_reply":
-            MessageLookupByLibrary.simpleMessage("Replying to a reply"),
+        "label_reply": MessageLookupByLibrary.simpleMessage("Reply"),
         "label_retry": MessageLookupByLibrary.simpleMessage("Retrying"),
         "label_screen_title_agreement":
             MessageLookupByLibrary.simpleMessage("Accept the terms"),
@@ -299,15 +325,15 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("Birthday polls"),
         "label_vote_tab_pic":
-            MessageLookupByLibrary.simpleMessage("PIC voting"),
+            MessageLookupByLibrary.simpleMessage("PIC Voting"),
         "label_vote_upcoming":
             MessageLookupByLibrary.simpleMessage("Until voting begins"),
         "label_vote_vote_gather":
             MessageLookupByLibrary.simpleMessage("Collecting votes"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("View ads"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("My Artists"),
-        "message_agreement_success": MessageLookupByLibrary.simpleMessage(
-            "Acceptance of the terms is complete."),
+        "message_agreement_success":
+            MessageLookupByLibrary.simpleMessage("You\'ve accepted the terms."),
         "message_error_occurred":
             MessageLookupByLibrary.simpleMessage("An error occurred."),
         "message_noitem_vote_active": MessageLookupByLibrary.simpleMessage(
