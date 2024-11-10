@@ -1479,5 +1479,9 @@
   "comments": "コメント",
   "@comments": {
     "manualTranslation": false
+  },
+  "error_loading_page": "ページの読み込み中にエラーが発生しました。",
+  "@error_loading_page": {
+    "manualTranslation": false
   }
 }

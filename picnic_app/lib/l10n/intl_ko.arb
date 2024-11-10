@@ -78,6 +78,9 @@
     "@dialog_content_ads_exhausted": {
         "translationTimestamp": "2024-07-21T11:18:53.669108"
     },
+    "error_loading_page": "페이지 로딩 중 오류가 발생했습니다.",
+    "@error_loading_page": {
+    },
     "dialog_content_ads_loading": "광고 로딩중입니다.",
     "@dialog_content_ads_loading": {
         "translationTimestamp": "2024-07-21T11:18:53.669108"

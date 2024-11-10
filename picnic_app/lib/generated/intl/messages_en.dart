@@ -131,6 +131,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Invalid data."),
         "error_loading_more_comments": MessageLookupByLibrary.simpleMessage(
             "There was an error loading the comment."),
+        "error_loading_page": MessageLookupByLibrary.simpleMessage(
+            "An error occurred while loading the page."),
         "error_message_login_failed": MessageLookupByLibrary.simpleMessage(
             "An error occurred during login."),
         "error_message_no_user": MessageLookupByLibrary.simpleMessage(

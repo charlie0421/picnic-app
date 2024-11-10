@@ -124,6 +124,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "error_invalid_data": MessageLookupByLibrary.simpleMessage("無効なデータです。"),
         "error_loading_more_comments":
             MessageLookupByLibrary.simpleMessage("コメントの読み込み中にエラーが発生しました。"),
+        "error_loading_page":
+            MessageLookupByLibrary.simpleMessage("ページの読み込み中にエラーが発生しました。"),
         "error_message_login_failed":
             MessageLookupByLibrary.simpleMessage("ログイン中にエラーが発生しました。"),
         "error_message_no_user":
