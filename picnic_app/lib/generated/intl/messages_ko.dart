@@ -508,7 +508,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("게시글을 작성해주세요."),
         "post_youtube_link": MessageLookupByLibrary.simpleMessage("유튜브 링크"),
         "purchase_web_message": MessageLookupByLibrary.simpleMessage(
-            "앱결제가 불가능한 분들을 위한 결제 창입니다.\\n 미리 난수 아이디를 복사해 주세요.\\n 복사 후 아래 버튼을 눌러 결제를 진행해 주세요."),
+            "앱결제가 불가능한 분들을 위한 결제 창입니다.\n 미리 난수 아이디를 복사해 주세요.\n 복사 후 아래 버튼을 눌러 결제를 진행해 주세요."),
         "replies": MessageLookupByLibrary.simpleMessage("댓글"),
         "reward": MessageLookupByLibrary.simpleMessage("리워드"),
         "share_image_fail": MessageLookupByLibrary.simpleMessage("이미지 공유 실패"),

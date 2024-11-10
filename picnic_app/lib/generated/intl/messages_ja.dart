@@ -20,23 +20,23 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ja';
 
-  static String m0(day) => "${day}일 전";
+  static String m0(day) => "${day}日前";
 
-  static String m1(hour) => "${hour}시간 전";
+  static String m1(hour) => "${hour}時間前";
 
-  static String m2(minute) => "${minute}분 전";
+  static String m2(minute) => "${minute}分前";
 
-  static String m3(nickname) => "${nickname}님에게 답글 쓰는 중...";
+  static String m3(nickname) => "${nickname}さんへの返信中...";
 
   static String m4(count) => "🎉 これまでに\$${count}個の目標達成！ 🎉";
 
-  static String m5(num1) => "${num1}개 +${num1}개 보너스";
+  static String m5(num1) => "${num1}個  +${num1}個のボーナス";
 
-  static String m6(rank) => "${rank}위";
+  static String m6(rank) => "${rank}位";
 
-  static String m7(version) => "새로운 버전(${version})이 사용 가능합니다.";
+  static String m7(version) => "新しいバージョン(${version})が利用可能です。";
 
-  static String m8(version) => "새로운 버전(${version})으로 업데이트가 필요합니다.";
+  static String m8(version) => "新しいバージョン(${version})へのアップデートが必要です。";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{

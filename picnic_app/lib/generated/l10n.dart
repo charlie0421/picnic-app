@@ -2800,10 +2800,10 @@ class S {
     );
   }
 
-  /// `{num1}개 +{num1}개 보너스`
+  /// `{num1} + {num1} Bonuses`
   String text_star_candy_with_bonus(Object num1) {
     return Intl.message(
-      '$num1개 +$num1개 보너스',
+      '$num1 + $num1 Bonuses',
       name: 'text_star_candy_with_bonus',
       desc: '',
       args: [num1],
@@ -2880,10 +2880,10 @@ class S {
     );
   }
 
-  /// `성공`
+  /// `Success`
   String get title_dialog_success {
     return Intl.message(
-      '성공',
+      'Success',
       name: 'title_dialog_success',
       desc: '',
       args: [],
@@ -3070,10 +3070,10 @@ class S {
     );
   }
 
-  /// `🚫 경고 🚫`
+  /// `🚫 Caution 🚫`
   String get dialog_caution {
     return Intl.message(
-      '🚫 경고 🚫',
+      '🚫 Caution 🚫',
       name: 'dialog_caution',
       desc: '',
       args: [],
@@ -3320,10 +3320,10 @@ class S {
     );
   }
 
-  /// `Rewards`
+  /// `Reward`
   String get reward {
     return Intl.message(
-      'Rewards',
+      'Reward',
       name: 'reward',
       desc: '',
       args: [],

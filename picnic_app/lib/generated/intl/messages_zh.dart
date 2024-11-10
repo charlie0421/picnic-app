@@ -22,21 +22,21 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m0(day) => "${day}일 전";
 
-  static String m1(hour) => "${hour}시간 전";
+  static String m1(hour) => "${hour}小时前";
 
-  static String m2(minute) => "${minute}분 전";
+  static String m2(minute) => "${minute}分钟前";
 
-  static String m3(nickname) => "${nickname}님에게 답글 쓰는 중...";
+  static String m3(nickname) => "回复 ${nickname}...";
 
   static String m4(count) => "🎉 到目前为止，您已达到 \$${count} 目标！ 🎉";
 
-  static String m5(num1) => "${num1}개 +${num1}개 보너스";
+  static String m5(num1) => "${num1} +${num1}奖金";
 
-  static String m6(rank) => "${rank}위";
+  static String m6(rank) => "第${rank}名";
 
-  static String m7(version) => "새로운 버전(${version})이 사용 가능합니다.";
+  static String m7(version) => "新版本(${version})发布。";
 
-  static String m8(version) => "새로운 버전(${version})으로 업데이트가 필요합니다.";
+  static String m8(version) => "您需要更新到新版本(${version})";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{

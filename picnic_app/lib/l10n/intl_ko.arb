@@ -518,15 +518,18 @@
     },
     "label_time_ago_day": "{day}일 전",
     "@label_time_ago_day": {
-        "translationTimestamp": "2024-07-21T11:18:53.669108"
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": true
     },
     "label_time_ago_hour": "{hour}시간 전",
     "@label_time_ago_hour": {
-        "translationTimestamp": "2024-07-21T11:18:53.669108"
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": true
     },
     "label_time_ago_minute": "{minute}분 전",
     "@label_time_ago_minute": {
-        "translationTimestamp": "2024-07-21T11:18:53.669108"
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": true
     },
     "label_time_ago_right_now": "방금 전",
     "@label_time_ago_right_now": {
@@ -1002,7 +1005,8 @@
     },
     "text_star_candy_with_bonus": "{num1}개 +{num1}개 보너스",
     "@text_star_candy_with_bonus": {
-        "translationTimestamp": "2024-07-21T11:18:53.669108"
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": true
     },
     "text_this_time_vote": "이번 투표",
     "@text_this_time_vote": {
@@ -1014,10 +1018,12 @@
     },
     "text_vote_rank": "{rank}위",
     "@text_vote_rank": {
-        "translationTimestamp": "2024-07-21T11:18:53.669108"
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": true
     },
     "post_replying_comment": "{nickname}님에게 답글 쓰는 중...",
     "@post_replying_comment": {
+        "manualTranslation": true
     },
     "text_vote_rank_in_reward": "랭크 인 리워드",
     "@text_vote_rank_in_reward": {
@@ -1031,7 +1037,7 @@
     "@title_dialog_library_add": {
         "translationTimestamp": "2024-07-21T11:18:53.669108"
     },
-    "purchase_web_message": "앱결제가 불가능한 분들을 위한 결제 창입니다.\\n 미리 난수 아이디를 복사해 주세요.\\n 복사 후 아래 버튼을 눌러 결제를 진행해 주세요.",
+    "purchase_web_message": "앱결제가 불가능한 분들을 위한 결제 창입니다.\n 미리 난수 아이디를 복사해 주세요.\n 복사 후 아래 버튼을 눌러 결제를 진행해 주세요.",
     "@purchase_web_message": {
     },
     "title_dialog_success": "성공",

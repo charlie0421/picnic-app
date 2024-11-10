@@ -1,13 +1,13 @@
 {
-    "label_time_ago_day": "{day}일 전",
+    "label_time_ago_day": "{day}日前",
     "@label_time_ago_day": {
         "manualTranslation": true
     },
-    "label_time_ago_hour": "{hour}시간 전",
+    "label_time_ago_hour": "{hour}時間前",
     "@label_time_ago_hour": {
         "manualTranslation": true
     },
-    "label_time_ago_minute": "{minute}분 전",
+    "label_time_ago_minute": "{minute}分前",
     "@label_time_ago_minute": {
         "manualTranslation": true
     },
@@ -15,23 +15,23 @@
     "@text_achievement": {
         "manualTranslation": true
     },
-    "text_star_candy_with_bonus": "{num1}개 +{num1}개 보너스",
+    "text_star_candy_with_bonus": "{num1}個  +{num1}個のボーナス",
     "@text_star_candy_with_bonus": {
         "manualTranslation": true
     },
-    "text_vote_rank": "{rank}위",
+    "text_vote_rank": "{rank}位",
     "@text_vote_rank": {
         "manualTranslation": true
     },
-    "post_replying_comment": "{nickname}님에게 답글 쓰는 중...",
+    "post_replying_comment": "{nickname}さんへの返信中...",
     "@post_replying_comment": {
         "manualTranslation": true
     },
-    "update_recommend_text": "새로운 버전({version})이 사용 가능합니다.",
+    "update_recommend_text": "新しいバージョン({version})が利用可能です。",
     "@update_recommend_text": {
         "manualTranslation": true
     },
-    "update_required_text": "새로운 버전({version})으로 업데이트가 필요합니다.",
+    "update_required_text": "新しいバージョン({version})へのアップデートが必要です。",
     "@update_required_text": {
         "manualTranslation": true
     },
