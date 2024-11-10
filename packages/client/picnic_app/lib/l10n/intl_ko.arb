@@ -546,6 +546,12 @@
     "@label_vote_reward_list": {
         "translationTimestamp": "2024-07-21T11:18:53.669108"
     },
+    "reward": "리워드",
+    "@reward": {
+    },
+    "achieve": "달성",
+    "@achieve": {
+    },
     "post_flagged": "부적절한 내용이 포함되어 있습니다",
     "@post_flagged": {},
     "dialog_caution": "\uD83D\uDEAB 경고 \uD83D\uDEAB",
@@ -990,6 +996,9 @@
     "text_star_candy": "별사탕",
     "@text_star_candy": {
         "translationTimestamp": "2024-07-21T11:18:53.669108"
+    },
+    "text_achievement": "\uD83C\uDF89 지금까지 ${count}개 목표 달성! \uD83C\uDF89",
+    "@text_achievement": {
     },
     "text_star_candy_with_bonus": "{num1}개 +{num1}개 보너스",
     "@text_star_candy_with_bonus": {

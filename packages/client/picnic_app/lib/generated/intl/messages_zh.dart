@@ -20,24 +20,27 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'zh';
 
-  static String m0(day) => "${day}天前";
+  static String m0(day) => "${day}일 전";
 
-  static String m1(hour) => "${hour}小时前";
+  static String m1(hour) => "${hour}시간 전";
 
-  static String m2(minute) => "${minute}分钟前";
+  static String m2(minute) => "${minute}분 전";
 
-  static String m3(nickname) => "回复 ${nickname}...";
+  static String m3(nickname) => "${nickname}님에게 답글 쓰는 중...";
 
-  static String m4(num1) => "${num1}개 +${num1}개 보너스";
+  static String m4(count) => "🎉 到目前为止，您已达到 \$${count} 目标！ 🎉";
 
-  static String m5(rank) => "第${rank}名";
+  static String m5(num1) => "${num1}개 +${num1}개 보너스";
 
-  static String m6(version) => "新版本 (${version}) 已发布。";
+  static String m6(rank) => "${rank}위";
 
-  static String m7(version) => "您需要更新到新版本 ({版本})。";
+  static String m7(version) => "새로운 버전(${version})이 사용 가능합니다.";
+
+  static String m8(version) => "새로운 버전(${version})으로 업데이트가 필요합니다.";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "achieve": MessageLookupByLibrary.simpleMessage("成就"),
         "ads_available_time": MessageLookupByLibrary.simpleMessage("广告可用性"),
         "anonymous": MessageLookupByLibrary.simpleMessage("匿名"),
         "anonymous_mode": MessageLookupByLibrary.simpleMessage("匿名模式"),
@@ -134,25 +137,26 @@ class MessageLookup extends MessageLookupByLibrary {
         "error_title": MessageLookupByLibrary.simpleMessage("错误"),
         "error_unknown": MessageLookupByLibrary.simpleMessage("出现未知错误。"),
         "exception_auth_message_apple_invalid_response":
-            MessageLookupByLibrary.simpleMessage("我们收到来自 Apple 服务器的无效响应\n请重试。"),
+            MessageLookupByLibrary.simpleMessage(
+                "我们收到来自 Apple 服务器的无效响应。\n请重试。"),
         "exception_auth_message_apple_sign_in_failed":
-            MessageLookupByLibrary.simpleMessage("Apple 登录失败，请重试。"),
+            MessageLookupByLibrary.simpleMessage("Apple 登录失败。\n请重试。"),
         "exception_auth_message_common_cancel":
             MessageLookupByLibrary.simpleMessage("您的登录已被取消。"),
         "exception_auth_message_common_invalid_token":
-            MessageLookupByLibrary.simpleMessage("验证令牌无效\n请重试。"),
+            MessageLookupByLibrary.simpleMessage("验证令牌无效。\n请重试。"),
         "exception_auth_message_common_network":
             MessageLookupByLibrary.simpleMessage("检查网络连接。"),
         "exception_auth_message_common_unknown":
-            MessageLookupByLibrary.simpleMessage("登录过程中出现未知错误\n请稍后再试。"),
+            MessageLookupByLibrary.simpleMessage("登录过程中出现未知错误。\n请稍后再试。"),
         "exception_auth_message_common_unsupported_provider":
             MessageLookupByLibrary.simpleMessage("不支持该登录方法"),
         "exception_auth_message_google_google_play_service":
             MessageLookupByLibrary.simpleMessage(
-                "Google Play 服务出现错误\n请更新 Google Play 服务或重启设备。"),
+                "Google Play 服务出现错误。\n请更新 Google Play 服务或重启设备。"),
         "exception_auth_message_kakao_not_supported":
             MessageLookupByLibrary.simpleMessage(
-                "我无法使用 KakaoTalk 应用程序登录\n请尝试使用您的 Kakao 帐户登录。"),
+                "我无法使用 KakaoTalk 应用程序登录。\n请尝试使用您的 Kakao 帐户登录。"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("专辑名称"),
         "hint_nickname_input": MessageLookupByLibrary.simpleMessage("请输入昵称。"),
         "image_save_success": MessageLookupByLibrary.simpleMessage("图像已保存。"),
@@ -462,10 +466,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "purchase_web_message": MessageLookupByLibrary.simpleMessage(
             "\\n 请提前复制随机数字 ID： \\n 复制后，点击下面的按钮继续付款。"),
         "replies": MessageLookupByLibrary.simpleMessage("评论"),
+        "reward": MessageLookupByLibrary.simpleMessage("奖励"),
         "share_image_fail": MessageLookupByLibrary.simpleMessage("图像共享失败"),
         "share_image_success": MessageLookupByLibrary.simpleMessage("成功共享图像"),
         "share_no_twitter": MessageLookupByLibrary.simpleMessage("X 应用程序丢失。"),
         "share_twitter": MessageLookupByLibrary.simpleMessage("在 Twitter 上分享"),
+        "text_achievement": m4,
         "text_ads_random": MessageLookupByLibrary.simpleMessage("查看广告并收集随机图片。"),
         "text_bonus": MessageLookupByLibrary.simpleMessage("奖金"),
         "text_bookmark_failed": MessageLookupByLibrary.simpleMessage("取消书签失败"),
@@ -504,10 +510,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_purchase_vat_included":
             MessageLookupByLibrary.simpleMessage("*价格包含增值税。"),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("星形糖果"),
-        "text_star_candy_with_bonus": m4,
+        "text_star_candy_with_bonus": m5,
         "text_this_time_vote": MessageLookupByLibrary.simpleMessage("这次投票"),
         "text_vote_complete": MessageLookupByLibrary.simpleMessage("投票结束"),
-        "text_vote_rank": m5,
+        "text_vote_rank": m6,
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("奖励排名"),
         "text_vote_where_is_my_bias":
@@ -521,8 +527,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "update_button": MessageLookupByLibrary.simpleMessage("更新"),
         "update_cannot_open_appstore":
             MessageLookupByLibrary.simpleMessage("我无法打开应用程序商店。"),
-        "update_recommend_text": m6,
-        "update_required_text": m7,
+        "update_recommend_text": m7,
+        "update_required_text": m8,
         "update_required_title": MessageLookupByLibrary.simpleMessage("需要更新。"),
         "views": MessageLookupByLibrary.simpleMessage("意见")
       };

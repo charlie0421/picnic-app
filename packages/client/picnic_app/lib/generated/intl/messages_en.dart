@@ -28,17 +28,20 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m3(nickname) => "Replying to ${nickname}...";
 
-  static String m4(num1) => "${num1}개 +${num1}개 보너스";
+  static String m4(count) => "🎉 You\'ve reached \$${count} goals so far! 🎉";
 
-  static String m5(rank) => "Rank ${rank}";
+  static String m5(num1) => "${num1}개 +${num1}개 보너스";
 
-  static String m6(version) => "A new version (${version}) is available.";
+  static String m6(rank) => "Rank ${rank}";
 
-  static String m7(version) =>
+  static String m7(version) => "A new version (${version}) is available.";
+
+  static String m8(version) =>
       "You need to update to a new version (${version}).";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "achieve": MessageLookupByLibrary.simpleMessage("Achievement"),
         "ads_available_time":
             MessageLookupByLibrary.simpleMessage("Ad availability"),
         "anonymous": MessageLookupByLibrary.simpleMessage("Anonymous"),
@@ -558,6 +561,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "purchase_web_message": MessageLookupByLibrary.simpleMessage(
             "This is the payment window for those who cannot pay for the app:\\n Please copy the random ID in advance:\\n After copying, click the button below to proceed with the payment."),
         "replies": MessageLookupByLibrary.simpleMessage("Comments"),
+        "reward": MessageLookupByLibrary.simpleMessage("Rewards"),
         "share_image_fail":
             MessageLookupByLibrary.simpleMessage("Image sharing failed"),
         "share_image_success":
@@ -566,6 +570,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("X app is missing."),
         "share_twitter":
             MessageLookupByLibrary.simpleMessage("Share on Twitter"),
+        "text_achievement": m4,
         "text_ads_random": MessageLookupByLibrary.simpleMessage(
             "Viewing ads and collecting random images."),
         "text_bonus": MessageLookupByLibrary.simpleMessage("Bonuses"),
@@ -610,12 +615,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_purchase_vat_included":
             MessageLookupByLibrary.simpleMessage("*Price includes VAT."),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("Star Candy"),
-        "text_star_candy_with_bonus": m4,
+        "text_star_candy_with_bonus": m5,
         "text_this_time_vote":
             MessageLookupByLibrary.simpleMessage("This Vote"),
         "text_vote_complete":
             MessageLookupByLibrary.simpleMessage("Voting complete"),
-        "text_vote_rank": m5,
+        "text_vote_rank": m6,
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("Rank in Rewards"),
         "text_vote_where_is_my_bias":
@@ -630,8 +635,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "update_button": MessageLookupByLibrary.simpleMessage("Update"),
         "update_cannot_open_appstore": MessageLookupByLibrary.simpleMessage(
             "I can\'t open the app store."),
-        "update_recommend_text": m6,
-        "update_required_text": m7,
+        "update_recommend_text": m7,
+        "update_required_text": m8,
         "update_required_title":
             MessageLookupByLibrary.simpleMessage("An update is required."),
         "views": MessageLookupByLibrary.simpleMessage("Views")

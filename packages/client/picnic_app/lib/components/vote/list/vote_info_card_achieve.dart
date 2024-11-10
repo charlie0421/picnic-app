@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -47,7 +48,7 @@ class VoteCardColumnAchieve extends StatelessWidget {
           child: FadeTransition(
             opacity: opacityAnimation,
             child: Text(
-              isAchieve ? '달성!' : '',
+              isAchieve ? '{$S.of(context).achieve}!' : '',
               style: getTextStyle(AppTypo.caption12B, AppColors.point900),
               textAlign: TextAlign.center,
             ),
@@ -60,11 +61,7 @@ class VoteCardColumnAchieve extends StatelessWidget {
             height: width,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              gradient: rank == 1
-                  ? goldGradient
-                  : rank == 2
-                      ? silverGradient
-                      : bronzeGradient,
+              gradient: isAchieve ? goldGradient : silverGradient,
               borderRadius: BorderRadius.circular(100),
             ),
             child: Container(
@@ -113,7 +110,7 @@ class VoteCardColumnAchieve extends StatelessWidget {
               width: width,
               child: Column(children: [
                 Text(
-                  '리워드${rank.order}',
+                  '${S.of(context).reward}${rank.order}',
                   style: getTextStyle(
                     AppTypo.caption10SB,
                     AppColors.grey00,

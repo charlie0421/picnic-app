@@ -20,24 +20,27 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ja';
 
-  static String m0(day) => "${day}日前";
+  static String m0(day) => "${day}일 전";
 
-  static String m1(hour) => "${hour}時間前";
+  static String m1(hour) => "${hour}시간 전";
 
-  static String m2(minute) => "${minute}分前";
+  static String m2(minute) => "${minute}분 전";
 
-  static String m3(nickname) => "${nickname}さんへの返信中...";
+  static String m3(nickname) => "${nickname}님에게 답글 쓰는 중...";
 
-  static String m4(num1) => "${num1}개 +${num1}개 보너스";
+  static String m4(count) => "🎉 これまでに\$${count}個の目標達成！ 🎉";
 
-  static String m5(rank) => "${rank}位";
+  static String m5(num1) => "${num1}개 +${num1}개 보너스";
 
-  static String m6(version) => "新しいバージョン(${version})が利用可能です。";
+  static String m6(rank) => "${rank}위";
 
-  static String m7(version) => "新しいバージョン(${version})へのアップデートが必要です。";
+  static String m7(version) => "새로운 버전(${version})이 사용 가능합니다.";
+
+  static String m8(version) => "새로운 버전(${version})으로 업데이트가 필요합니다.";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "achieve": MessageLookupByLibrary.simpleMessage("達成"),
         "ads_available_time": MessageLookupByLibrary.simpleMessage("広告視聴可能時間"),
         "anonymous": MessageLookupByLibrary.simpleMessage("匿名"),
         "anonymous_mode": MessageLookupByLibrary.simpleMessage("匿名モード"),
@@ -140,19 +143,19 @@ class MessageLookup extends MessageLookupByLibrary {
         "error_unknown": MessageLookupByLibrary.simpleMessage("不明なエラーが発生しました。"),
         "exception_auth_message_apple_invalid_response":
             MessageLookupByLibrary.simpleMessage(
-                "Appleのサーバーから無効な応答を受け取りました。 \nもう一度お試しください。"),
+                "Appleのサーバーから無効な応答を受け取りました。\nもう一度お試しください。"),
         "exception_auth_message_apple_sign_in_failed":
             MessageLookupByLibrary.simpleMessage(
-                "Appleログインに失敗しました。 \nもう一度お試しください。"),
+                "Appleログインに失敗しました。\nもう一度お試しください。"),
         "exception_auth_message_common_cancel":
             MessageLookupByLibrary.simpleMessage("ログインがキャンセルされました。"),
         "exception_auth_message_common_invalid_token":
-            MessageLookupByLibrary.simpleMessage("認証トークンが無効です。 \nもう一度お試しください。"),
+            MessageLookupByLibrary.simpleMessage("認証トークンが無効です。\n再試行してください。"),
         "exception_auth_message_common_network":
             MessageLookupByLibrary.simpleMessage("ネットワーク接続を確認してください。"),
         "exception_auth_message_common_unknown":
             MessageLookupByLibrary.simpleMessage(
-                "ログイン中に不明なエラーが発生しました。 \nしばらくしてから再試行してください。"),
+                "ログイン中に不明なエラーが発生しました。\nしばらくしてから再試行してください。"),
         "exception_auth_message_common_unsupported_provider":
             MessageLookupByLibrary.simpleMessage("サポートされていないログイン方法です"),
         "exception_auth_message_google_google_play_service":
@@ -160,7 +163,7 @@ class MessageLookup extends MessageLookupByLibrary {
                 "Google Play Servicesエラーが発生しました。\nGoogle Play Servicesを更新するか、デバイスを再起動してください。"),
         "exception_auth_message_kakao_not_supported":
             MessageLookupByLibrary.simpleMessage(
-                "カカオトークのアプリでログインできません。 \nカカオアカウントでログインを試みます。"),
+                "カカオトークのアプリでログインできません。\nカカオアカウントでログインを試みます。"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("アルバム名"),
         "hint_nickname_input":
             MessageLookupByLibrary.simpleMessage("ニックネームを入力してください。"),
@@ -500,10 +503,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "purchase_web_message": MessageLookupByLibrary.simpleMessage(
             "アプリ決済ができない方のための決済画面です.\\nあらかじめ乱数IDをコピーしてください.\\nコピーした後、下のボタンを押して決済を行ってください。"),
         "replies": MessageLookupByLibrary.simpleMessage("コメント"),
+        "reward": MessageLookupByLibrary.simpleMessage("リワード"),
         "share_image_fail": MessageLookupByLibrary.simpleMessage("画像共有に失敗"),
         "share_image_success": MessageLookupByLibrary.simpleMessage("画像共有成功"),
         "share_no_twitter": MessageLookupByLibrary.simpleMessage("Xアプリがありません。"),
         "share_twitter": MessageLookupByLibrary.simpleMessage("Twitter共有"),
+        "text_achievement": m4,
         "text_ads_random":
             MessageLookupByLibrary.simpleMessage("広告表示とランダム画像収集。"),
         "text_bonus": MessageLookupByLibrary.simpleMessage("ボーナス"),
@@ -545,10 +550,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_purchase_vat_included":
             MessageLookupByLibrary.simpleMessage("*価格はVAT込みの価格です。"),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("スターキャンディー"),
-        "text_star_candy_with_bonus": m4,
+        "text_star_candy_with_bonus": m5,
         "text_this_time_vote": MessageLookupByLibrary.simpleMessage("今回の投票"),
         "text_vote_complete": MessageLookupByLibrary.simpleMessage("投票完了"),
-        "text_vote_rank": m5,
+        "text_vote_rank": m6,
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("ランクインリワード"),
         "text_vote_where_is_my_bias":
@@ -562,8 +567,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "update_button": MessageLookupByLibrary.simpleMessage("最新情報"),
         "update_cannot_open_appstore":
             MessageLookupByLibrary.simpleMessage("アプリストアを開くことができません。"),
-        "update_recommend_text": m6,
-        "update_required_text": m7,
+        "update_recommend_text": m7,
+        "update_required_text": m8,
         "update_required_title":
             MessageLookupByLibrary.simpleMessage("アップデートが必要です。"),
         "views": MessageLookupByLibrary.simpleMessage("再生回数")

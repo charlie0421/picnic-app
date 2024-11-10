@@ -3160,6 +3160,16 @@ class S {
     );
   }
 
+  /// `🎉 You've reached ${count} goals so far! 🎉`
+  String text_achievement(Object count) {
+    return Intl.message(
+      '🎉 You\'ve reached \$$count goals so far! 🎉',
+      name: 'text_achievement',
+      desc: '',
+      args: [count],
+    );
+  }
+
   /// `Apple sign-in failed, \nplease try again.`
   String get exception_auth_message_apple_sign_in_failed {
     return Intl.message(
@@ -3295,6 +3305,26 @@ class S {
     return Intl.message(
       'An error occurred while loading the page.',
       name: 'error_loading_page',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Achievement`
+  String get achieve {
+    return Intl.message(
+      'Achievement',
+      name: 'achieve',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rewards`
+  String get reward {
+    return Intl.message(
+      'Rewards',
+      name: 'reward',
       desc: '',
       args: [],
     );
