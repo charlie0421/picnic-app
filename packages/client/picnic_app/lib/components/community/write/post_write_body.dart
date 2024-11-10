@@ -51,6 +51,7 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
   late final quill.QuillController _controller;
   double _keyboardHeight = 0;
   KeyboardHeightPlugin? _keyboardHeightPlugin;
+  bool _isKeyboardListenerInitialized = false;
 
   @override
   void initState() {
@@ -61,14 +62,33 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
     _controller = widget.contentController;
     _controller.addListener(_onTextChanged);
 
-    // Only initialize KeyboardHeightPlugin for mobile platforms
+    // 웹이 아닌 경우에만 키보드 플러그인 초기화
     if (!kIsWeb) {
+      _initializeKeyboardListener();
+    }
+  }
+
+  Future<void> _initializeKeyboardListener() async {
+    try {
       _keyboardHeightPlugin = KeyboardHeightPlugin();
+      // 플러그인이 정상적으로 초기화될 때까지 대기
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      if (!mounted) return; // 위젯이 이미 dispose된 경우 리턴
+
       _keyboardHeightPlugin?.onKeyboardHeightChanged((double height) {
-        setState(() {
-          _keyboardHeight = height;
-        });
+        if (mounted) {
+          // setState 호출 전에 mounted 체크
+          setState(() {
+            _keyboardHeight = height;
+          });
+        }
       });
+
+      _isKeyboardListenerInitialized = true;
+    } catch (e) {
+      debugPrint('Keyboard height plugin initialization failed: $e');
+      _isKeyboardListenerInitialized = false;
     }
   }
 
@@ -80,7 +100,16 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
     _titleFocusNode.dispose();
     _editorFocusNode.dispose();
     _controller.removeListener(_onTextChanged);
+    _keyboardHeightPlugin = null; // 명시적으로 null로 설정
     super.dispose();
+  }
+
+  // 키보드 높이 getter
+  double get keyboardHeight {
+    if (!_isKeyboardListenerInitialized || kIsWeb) {
+      return 0;
+    }
+    return _keyboardHeight;
   }
 
   @override
