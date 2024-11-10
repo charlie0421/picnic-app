@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -11,11 +12,51 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/providers/comment_list_provider.dart';
 import 'package:picnic_app/providers/community/comments_provider.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
+final commentsPageProvider = FutureProvider.autoDispose
+    .family<List<CommentModel>, CommentsPageParams>((ref, params) async {
+  final commentsNotifier = ref.read(
+    commentsNotifierProvider(params.postId, params.pageKey, params.pageSize)
+        .notifier,
+  );
+
+  return Future.value(
+    commentsNotifier.build(params.postId, params.pageKey, params.pageSize),
+  ).timeout(
+    const Duration(seconds: 10),
+    onTimeout: () => throw TimeoutException('Comments loading timed out'),
+  );
+});
+
+class CommentsPageParams {
+  final String postId;
+  final int pageKey;
+  final int pageSize;
+
+  const CommentsPageParams({
+    required this.postId,
+    required this.pageKey,
+    required this.pageSize,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CommentsPageParams &&
+          runtimeType == other.runtimeType &&
+          postId == other.postId &&
+          pageKey == other.pageKey &&
+          pageSize == other.pageSize;
+
+  @override
+  int get hashCode => Object.hash(postId, pageKey, pageSize);
+}
+
 class CommentList extends ConsumerStatefulWidget {
-  const CommentList(
-    this.title, {
+  const CommentList({
+    required this.title,
     required this.id,
     this.openCommentsModal,
     this.openReportModal,
@@ -32,33 +73,51 @@ class CommentList extends ConsumerStatefulWidget {
 }
 
 class _CommentListState extends ConsumerState<CommentList> {
-  late final PagingController<int, CommentModel> _pagingController =
-      PagingController(firstPageKey: 1);
+  static const int _pageSize = 10;
+  late final PagingController<int, CommentModel> _pagingController;
+  bool _isDisposed = false;
+  Timer? _debounceTimer;
 
   @override
   void initState() {
     super.initState();
-    _pagingController.addPageRequestListener((pageKey) {
-      _fetchPage(pageKey);
-    });
+    _pagingController = PagingController(firstPageKey: 1)
+      ..addPageRequestListener(_fetchPage);
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    _pagingController.dispose();
+    _debounceTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _fetchPage(int pageKey) async {
-    try {
-      final commentsNotifier =
-          ref.read(commentsNotifierProvider(widget.id, pageKey, 10).notifier);
-      final newItemsValue =
-          await commentsNotifier.build(widget.id, pageKey, 10);
+    if (_isDisposed) return;
 
-      final isLastPage = newItemsValue.length < 10;
+    try {
+      final params = CommentsPageParams(
+        postId: widget.id,
+        pageKey: pageKey,
+        pageSize: _pageSize,
+      );
+
+      final newItems = await ref.read(commentsPageProvider(params).future);
+
+      if (_isDisposed) return;
+
+      final isLastPage = newItems.length < _pageSize;
       if (isLastPage) {
-        _pagingController.appendLastPage(newItemsValue);
+        _pagingController.appendLastPage(newItems);
       } else {
-        final nextPageKey = pageKey + 1;
-        _pagingController.appendPage(newItemsValue, nextPageKey);
+        _pagingController.appendPage(newItems, pageKey + 1);
       }
-    } catch (error) {
-      _pagingController.error = error;
+    } catch (error, stack) {
+      logger.e('Error fetching comments: $error', stackTrace: stack);
+      if (!_isDisposed) {
+        _pagingController.error = error;
+      }
     }
   }
 
@@ -66,55 +125,183 @@ class _CommentListState extends ConsumerState<CommentList> {
     _pagingController.refresh();
   }
 
-  @override
-  void dispose() {
-    _pagingController.dispose();
-    super.dispose();
-  }
-
   void _dismissKeyboard() {
-    FocusScope.of(context).unfocus();
-  }
-
-  Future<void> _handleLikeComment(
-      String commentId, bool currentLikeStatus) async {
-    final commentsNotifier =
-        ref.read(commentsNotifierProvider(widget.id, 1, 10).notifier);
-    if (currentLikeStatus) {
-      await commentsNotifier.unlikeComment(commentId);
-    } else {
-      await commentsNotifier.likeComment(commentId);
+    final currentFocus = FocusScope.of(context);
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.unfocus();
     }
   }
 
-  Future<void> _handleReportComment(
-      CommentModel comment, String reason, String text) async {
-    final commentsNotifier =
-        ref.read(commentsNotifierProvider(widget.id, 1, 10).notifier);
-    await commentsNotifier.reportComment(comment, reason, text);
+  Future<void> _handleCommentAction(Future<void> Function() action) async {
+    if (_debounceTimer?.isActive ?? false) return;
+
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {});
+
+    try {
+      await action();
+      if (!_isDisposed) {
+        await _refreshComments();
+      }
+    } catch (e, s) {
+      logger.e('Error handling comment action: $e', stackTrace: s);
+      if (!_isDisposed) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(S.of(context).error_action_failed)),
+        );
+      }
+    } finally {
+      _debounceTimer?.cancel();
+    }
   }
 
-  Future<void> _handleDeleteComment(String commentId) async {
-    final commentsNotifier =
-        ref.read(commentsNotifierProvider(widget.id, 1, 10).notifier);
-    await commentsNotifier.deleteComment(commentId);
-    _refreshComments();
+  Future<void> _handleLikeComment(String commentId, bool currentLikeStatus) {
+    final commentsNotifier = ref.read(
+      commentsNotifierProvider(widget.id, 1, _pageSize).notifier,
+    );
+
+    return _handleCommentAction(() {
+      return currentLikeStatus
+          ? commentsNotifier.unlikeComment(commentId)
+          : commentsNotifier.likeComment(commentId);
+    });
+  }
+
+  Future<void> _handleReportComment(
+    CommentModel comment,
+    String reason,
+    String text,
+  ) {
+    final commentsNotifier = ref.read(
+      commentsNotifierProvider(widget.id, 1, _pageSize).notifier,
+    );
+
+    return _handleCommentAction(() {
+      return commentsNotifier.reportComment(comment, reason, text);
+    });
+  }
+
+  Future<void> _handleDeleteComment(String commentId) {
+    final commentsNotifier = ref.read(
+      commentsNotifierProvider(widget.id, 1, _pageSize).notifier,
+    );
+
+    return _handleCommentAction(() {
+      return commentsNotifier.deleteComment(commentId);
+    });
+  }
+
+  Widget _buildCommentItem(CommentModel item) {
+    return Column(
+      children: [
+        CommentItem(
+          postId: widget.id,
+          commentModel: item,
+          pagingController: _pagingController,
+          openCommentsModal: widget.openCommentsModal,
+          openReportModal: widget.openReportModal,
+          onLike: () => _handleLikeComment(
+            item.commentId,
+            item.isLikedByMe ?? false,
+          ),
+          onReport: (reason, text) => _handleReportComment(item, reason, text),
+          onDelete: () => _handleDeleteComment(item.commentId),
+        ),
+        if (item.children?.isNotEmpty ?? false)
+          _buildChildComments(item.children!),
+      ],
+    );
+  }
+
+  Widget _buildChildComments(List<CommentModel> children) {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: children.length,
+      itemBuilder: (context, index) {
+        final childItem = children[index];
+        return Padding(
+          padding: EdgeInsets.only(left: 40.cw),
+          child: CommentItem(
+            postId: widget.id,
+            commentModel: childItem,
+            pagingController: _pagingController,
+            openCommentsModal: widget.openCommentsModal,
+            onLike: () => _handleLikeComment(
+              childItem.commentId,
+              childItem.isLikedByMe ?? false,
+            ),
+            onReport: (reason, text) => _handleReportComment(
+              childItem,
+              reason,
+              text,
+            ),
+            onDelete: () => _handleDeleteComment(childItem.commentId),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPagedListView() {
+    return PagedListView<int, CommentModel>(
+      pagingController: _pagingController,
+      builderDelegate: PagedChildBuilderDelegate<CommentModel>(
+        noItemsFoundIndicatorBuilder: (_) => NoItemContainer(
+          message: S.of(context).label_article_comment_empty,
+        ),
+        firstPageProgressIndicatorBuilder: (_) => const Center(
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: CircularProgressIndicator(),
+          ),
+        ),
+        newPageProgressIndicatorBuilder: (_) => const Center(
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: CircularProgressIndicator(),
+          ),
+        ),
+        firstPageErrorIndicatorBuilder: (context) => ErrorView(
+          context,
+          error: _pagingController.error,
+          retryFunction: _refreshComments,
+          stackTrace: null,
+        ),
+        newPageErrorIndicatorBuilder: (context) => Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              Text(
+                S.of(context).error_loading_more_comments,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: _refreshComments,
+                child: Text(S.of(context).label_retry),
+              ),
+            ],
+          ),
+        ),
+        itemBuilder: (_, item, __) => _buildCommentItem(item),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final parentComment = ref.watch(parentItemProvider);
-    final bool isReplyMode =
-        parentComment != null && parentComment.commentId.isNotEmpty;
+    final bool isReplyMode = parentComment?.commentId.isNotEmpty ?? false;
 
     return GestureDetector(
       onTap: _dismissKeyboard,
+      behavior: HitTestBehavior.opaque,
       child: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(16),
-            topRight: Radius.circular(16),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(16),
           ),
         ),
         child: Scaffold(
@@ -126,104 +313,37 @@ class _CommentListState extends ConsumerState<CommentList> {
                 BottomSheetHeader(title: widget.title),
                 Expanded(
                   child: NotificationListener<ScrollStartNotification>(
-                    onNotification: (scrollNotification) {
+                    onNotification: (notification) {
                       _dismissKeyboard();
                       return true;
                     },
                     child: RefreshIndicator(
                       onRefresh: _refreshComments,
-                      child: PagedListView<int, CommentModel>(
-                        pagingController: _pagingController,
-                        builderDelegate:
-                            PagedChildBuilderDelegate<CommentModel>(
-                          noItemsFoundIndicatorBuilder: (context) =>
-                              NoItemContainer(
-                            message: S.of(context).label_article_comment_empty,
-                          ),
-                          firstPageErrorIndicatorBuilder: (context) =>
-                              ErrorView(
-                            context,
-                            error: _pagingController.error,
-                            retryFunction: _refreshComments,
-                            stackTrace: null,
-                          ),
-                          newPageErrorIndicatorBuilder: (context) => Center(
-                            child: Text(
-                                'Error loading more comments: ${_pagingController.error}'),
-                          ),
-                          itemBuilder: (context, item, index) {
-                            return Column(
-                              children: [
-                                CommentItem(
-                                  postId: widget.id,
-                                  commentModel: item,
-                                  pagingController: _pagingController,
-                                  openCommentsModal: widget.openCommentsModal,
-                                  openReportModal: widget.openReportModal,
-                                  onLike: () => _handleLikeComment(
-                                      item.commentId,
-                                      item.isLikedByMe ?? false),
-                                  onReport: (String reason, String text) =>
-                                      _handleReportComment(item, reason, text),
-                                  onDelete: () =>
-                                      _handleDeleteComment(item.commentId),
-                                ),
-                                if (item.children != null &&
-                                    item.children!.isNotEmpty)
-                                  ListView.builder(
-                                    shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    itemCount: item.children!.length,
-                                    itemBuilder: (context, index) {
-                                      final childItem = item.children![index];
-                                      return Container(
-                                        padding: EdgeInsets.only(left: 40.cw),
-                                        child: CommentItem(
-                                          postId: widget.id,
-                                          commentModel: childItem,
-                                          pagingController: _pagingController,
-                                          openCommentsModal:
-                                              widget.openCommentsModal,
-                                          onLike: () => _handleLikeComment(
-                                            childItem.commentId,
-                                            childItem.isLikedByMe ?? false,
-                                          ),
-                                          onReport: (reason, text) =>
-                                              _handleReportComment(
-                                                  childItem, reason, text),
-                                          onDelete: () => _handleDeleteComment(
-                                              childItem.commentId),
-                                        ),
-                                      );
-                                    },
-                                  )
-                                else
-                                  const SizedBox.shrink(),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
+                      child: _buildPagedListView(),
                     ),
                   ),
                 ),
                 if (isReplyMode)
                   CommentReplyLayer(
-                    parentComment: parentComment,
+                    parentComment: parentComment!,
                     pagingController: _pagingController,
                   ),
                 CommentInput(
                   id: widget.id,
                   pagingController: _pagingController,
-                  onPostComment: (String postId, String? parentId,
-                      String locale, String content) async {
+                  onPostComment: (postId, parentId, locale, content) async {
                     final commentsNotifier = ref.read(
-                      commentsNotifierProvider(widget.id, 1, 10).notifier,
+                      commentsNotifierProvider(widget.id, 1, _pageSize)
+                          .notifier,
                     );
-
-                    await commentsNotifier.postComment(
-                        postId, parentId, locale, content);
+                    await _handleCommentAction(() {
+                      return commentsNotifier.postComment(
+                        postId,
+                        parentId,
+                        locale,
+                        content,
+                      );
+                    });
                   },
                 ),
               ],

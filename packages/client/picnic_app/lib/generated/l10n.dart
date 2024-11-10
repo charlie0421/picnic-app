@@ -3189,6 +3189,106 @@ class S {
       args: [],
     );
   }
+
+  /// `An error occurred while parsing the content.`
+  String get error_content_parse {
+    return Intl.message(
+      'An error occurred while parsing the content.',
+      name: 'error_content_parse',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No posts were found.`
+  String get post_not_found {
+    return Intl.message(
+      'No posts were found.',
+      name: 'post_not_found',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `An error occurred while deleting the post.`
+  String get error_delete_post {
+    return Intl.message(
+      'An error occurred while deleting the post.',
+      name: 'error_delete_post',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Check your network connection.`
+  String get error_network_connection {
+    return Intl.message(
+      'Check your network connection.',
+      name: 'error_network_connection',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The request timed out.`
+  String get error_request_timeout {
+    return Intl.message(
+      'The request timed out.',
+      name: 'error_request_timeout',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Invalid data.`
+  String get error_invalid_data {
+    return Intl.message(
+      'Invalid data.',
+      name: 'error_invalid_data',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `An unknown error occurred.`
+  String get error_unknown {
+    return Intl.message(
+      'An unknown error occurred.',
+      name: 'error_unknown',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `There was an error loading the comment.`
+  String get error_loading_more_comments {
+    return Intl.message(
+      'There was an error loading the comment.',
+      name: 'error_loading_more_comments',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `An error occurred while performing the operation.`
+  String get error_action_failed {
+    return Intl.message(
+      'An error occurred while performing the operation.',
+      name: 'error_action_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Comments`
+  String get comments {
+    return Intl.message(
+      'Comments',
+      name: 'comments',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
