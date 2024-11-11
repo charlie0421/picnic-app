@@ -101,7 +101,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
         setState(() {
           _isPageReady = true; // 에러가 발생해도 페이지는 보여줌
         });
-        _showErrorDialog(S.of(context).error_loading_page);
+        rethrow;
       }
     }
   }
