@@ -25,6 +25,7 @@ import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/number.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
@@ -46,7 +47,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
   late ConfettiController _confettiController;
   List<VoteAchieve>? _achievements;
   OverlayEntry? _overlayEntry;
-  List<int> _achievedMilestones = [];
+  final List<int> _achievedMilestones = [];
 
   @override
   void initState() {
@@ -422,10 +423,10 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
         border: Border.all(color: AppColors.primary500, width: 1.5),
       ),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             FutureBuilder<List<VoteAchieve>?>(
                 future: fetchVoteAchieve(ref, voteId: widget.voteId),
@@ -468,7 +469,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                                     achievements, rewardIndex++, isAchieved)
                               else
                                 const SizedBox(width: 180),
-                              SizedBox(width: 10.w),
+                              SizedBox(width: 5.w),
                               Container(
                                 width: 80,
                                 height: 50,
@@ -488,9 +489,9 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                                   textAlign: TextAlign.right,
                                 ),
                               ),
-                              SizedBox(width: 10.w),
+                              SizedBox(width: 5.w),
                               Container(
-                                width: 20.w,
+                                width: 10.w,
                                 height: 2,
                                 color: isAchieved
                                     ? AppColors.primary500
@@ -515,59 +516,32 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                   final mainMilestones =
                       _generateMilestonesFromAchievements(achievements);
 
+                  final progressHeight =
+                      50 * _calculateTotalSteps(mainMilestones).toDouble() - 50;
                   return Container(
                     width: 20,
-                    height: 50 * _calculateTotalSteps(mainMilestones) + 20,
-                    padding: const EdgeInsets.symmetric(vertical: 30),
-                    alignment: Alignment.topCenter,
+                    height: progressHeight,
+                    padding: const EdgeInsets.symmetric(vertical: 0),
+                    alignment: Alignment.center,
                     child: LayoutBuilder(builder: (context, constraints) {
                       final allLevels = _generateLevels(mainMilestones);
-                      double exactProgress = 0.0;
+                      final voteTotal = data.voteTotal ?? 0;
 
-                      if (data.voteTotal! >= allLevels.last) {
-                        exactProgress = 100.0;
-                      } else if (data.voteTotal! == 0) {
-                        exactProgress = 0.0;
-                      } else {
-                        int currentStepIndex = 0;
-                        for (int i = 0; i < allLevels.length - 1; i++) {
-                          if (data.voteTotal! >= allLevels[i] &&
-                              data.voteTotal! < allLevels[i + 1]) {
-                            currentStepIndex = i;
-                            break;
-                          }
-                        }
-
-                        final currentLevel = allLevels[currentStepIndex];
-                        final nextLevel = allLevels[currentStepIndex + 1];
-                        final totalSteps = allLevels.length - 1;
-                        final stepProgress =
-                            currentStepIndex.toDouble() / totalSteps;
-                        final levelDiff = nextLevel - currentLevel;
-                        final currentDiff = data.voteTotal! - currentLevel;
-                        final segmentProgress =
-                            levelDiff != 0 ? currentDiff / levelDiff : 0.0;
-                        final stepSize = 1.0 / totalSteps;
-
-                        exactProgress =
-                            ((stepProgress + (segmentProgress * stepSize)) *
-                                100.0);
-                      }
+                      // 개선된 진행률 계산 로직
+                      double exactProgress =
+                          _calculateExactProgress(voteTotal, allLevels);
 
                       return FAProgressBar(
-                        key: ValueKey(data.voteTotal),
-                        currentValue: exactProgress.clamp(0.0, 100.0),
+                        key: ValueKey(voteTotal),
+                        currentValue: exactProgress,
                         maxValue: 100,
                         animatedDuration: const Duration(milliseconds: 300),
                         direction: Axis.vertical,
                         verticalDirection: VerticalDirection.down,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(5),
                         backgroundColor: AppColors.grey300,
-                        progressColor: AppColors.primary500,
                         progressGradient: commonGradientVertical,
-                        displayText: null,
-                        displayTextStyle:
-                            const TextStyle(color: Colors.transparent),
+                        displayText: null, // 텍스트 표시 제거
                       );
                     }),
                   );
@@ -769,7 +743,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             SizedBox(
-              width: 120,
+              width: 130,
               height: 50,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -818,9 +792,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                     child: PicnicCachedNetworkImage(
                       imageUrl: achievements[rewardIndex].reward.thumbnail!,
                       width: 50,
-                      height: 50,
                       memCacheWidth: 50,
-                      memCacheHeight: 50,
                     ),
                   ),
                 ),
@@ -849,6 +821,44 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
     return milestones;
   }
 
+  double _calculateExactProgress(int voteTotal, List<int> levels) {
+    if (voteTotal >= levels.last) {
+      return 100.0;
+    }
+    if (voteTotal <= levels.first) {
+      return 0.0;
+    }
+
+    // 현재 단계 찾기
+    int currentLevelIndex = 0;
+    for (int i = 0; i < levels.length - 1; i++) {
+      if (voteTotal >= levels[i] && voteTotal < levels[i + 1]) {
+        currentLevelIndex = i;
+        break;
+      }
+    }
+
+    // 각 단계의 크기를 동일하게 설정
+    final totalSteps = levels.length - 1;
+    final stepSize = 100.0 / totalSteps; // 각 단계는 동일한 크기를 가짐
+
+    // 현재 단계 내에서의 진행률 계산
+    final currentLevel = levels[currentLevelIndex];
+    final nextLevel = levels[currentLevelIndex + 1];
+    final levelDiff = nextLevel - currentLevel;
+    final currentDiff = voteTotal - currentLevel;
+
+    // 현재 단계에서의 진행률을 0-1 사이의 값으로 계산
+    final progressInCurrentStep = levelDiff > 0 ? currentDiff / levelDiff : 0.0;
+
+    // 전체 진행률 계산
+    // 이전 단계들의 진행률 + 현재 단계에서의 진행률
+    final baseProgress = currentLevelIndex * stepSize;
+    final additionalProgress = progressInCurrentStep * stepSize;
+
+    return (baseProgress + additionalProgress).clamp(0.0, 100.0);
+  }
+
   List<int> _generateLevels(List<int> mainMilestones) {
     List<int> allLevels = [];
     allLevels.add(0);
@@ -856,6 +866,8 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
     for (int i = 1; i < mainMilestones.length; i++) {
       final start = mainMilestones[i - 1];
       final end = mainMilestones[i];
+
+      // 각 구간을 5개의 동일한 간격으로 나눔
       final stepSize = (end - start) ~/ 5;
 
       if (start != 0) {
