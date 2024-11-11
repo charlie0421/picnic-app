@@ -3,48 +3,89 @@ import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:http/http.dart' as http;
-import 'package:http/http.dart';
 import 'package:picnic_app/util/auth_service.dart';
 import 'package:picnic_app/util/logger.dart';
-import 'package:retry/retry.dart';
 
 class RetryHttpClient extends http.BaseClient {
   final http.Client _inner;
   final int maxAttempts;
+  final Duration timeout;
 
-  RetryHttpClient(this._inner, {this.maxAttempts = 3});
+  RetryHttpClient(
+    this._inner, {
+    this.maxAttempts = 3,
+    this.timeout = const Duration(seconds: 30),
+  });
 
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
-    try {
-      return await retry(
-        () => _inner.send(request).timeout(const Duration(seconds: 30)),
-        maxAttempts: maxAttempts,
-        retryIf: (e) =>
-            e is SocketException ||
+    int attempts = 0;
+    Exception? lastException;
+
+    while (attempts < maxAttempts) {
+      attempts++;
+      try {
+        // Create a fresh copy of the request for each attempt
+        final newRequest = await _copyRequest(request);
+        return await _inner.send(newRequest).timeout(timeout);
+      } on Exception catch (e) {
+        lastException = e;
+        if (e is SocketException ||
             e is TimeoutException ||
-            e is ClientException,
-        onRetry: (e) => logger.e('retrying: $e'),
-      );
-    } on Exception catch (e, s) {
-      logger.e('HTTP request fail: $e, $s');
-      return http.StreamedResponse(
-        Stream.fromIterable([]),
-        500,
-        reasonPhrase: 'Network Error',
-      );
+            e is http.ClientException) {
+          logger.e('Attempt $attempts failed: $e');
+          if (attempts < maxAttempts) {
+            // Add exponential backoff
+            await Future.delayed(
+                Duration(milliseconds: 200 * attempts * attempts));
+            continue;
+          }
+        }
+        break;
+      }
     }
+
+    logger.e('All attempts failed. Last error: $lastException');
+    return http.StreamedResponse(
+      Stream.fromIterable([]),
+      500,
+      reasonPhrase: 'Network Error',
+    );
+  }
+
+  Future<http.BaseRequest> _copyRequest(http.BaseRequest original) async {
+    final copy = http.Request(original.method, original.url)
+      ..encoding = (original as http.Request).encoding
+      ..headers.addAll(original.headers)
+      ..followRedirects = original.followRedirects
+      ..maxRedirects = original.maxRedirects
+      ..persistentConnection = original.persistentConnection;
+
+    if (original is http.Request) {
+      (copy as http.Request).body = original.body;
+    }
+
+    return copy;
+  }
+
+  @override
+  void close() {
+    _inner.close();
+    super.close();
   }
 }
 
 class NetworkCheck {
   static Future<bool> isOnline() async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-
-    logger.i('Connectivity result: $connectivityResult');
-
-    return connectivityResult.isNotEmpty &&
-        connectivityResult.first != ConnectivityResult.none;
+    try {
+      var connectivityResult = await Connectivity().checkConnectivity();
+      logger.i('Connectivity result: $connectivityResult');
+      return connectivityResult.isNotEmpty &&
+          connectivityResult.first != ConnectivityResult.none;
+    } catch (e) {
+      logger.e('Error checking connectivity: $e');
+      return false;
+    }
   }
 }
 
@@ -53,6 +94,7 @@ class NetworkStatusListener {
   late StreamSubscription<List<ConnectivityResult>> _subscription;
   bool _wasConnected = true;
   Timer? _periodicCheck;
+  bool _isDisposed = false;
 
   NetworkStatusListener(this._authService) {
     _initConnectivity();
@@ -62,16 +104,19 @@ class NetworkStatusListener {
   }
 
   Future<void> _initConnectivity() async {
+    if (_isDisposed) return;
+
     try {
       final result = await Connectivity().checkConnectivity();
       _updateConnectionStatus(result);
     } catch (e, s) {
       logger.e('Error checking initial connectivity: $e', stackTrace: s);
-      rethrow;
     }
   }
 
   void _updateConnectionStatus(List<ConnectivityResult> result) async {
+    if (_isDisposed) return;
+
     bool isConnected =
         result.isNotEmpty && result.first != ConnectivityResult.none;
 
@@ -80,7 +125,11 @@ class NetworkStatusListener {
 
     if (isConnected && !_wasConnected) {
       logger.i('Network connection restored. Attempting token refresh.');
-      await _authService.refreshToken();
+      try {
+        await _authService.refreshToken();
+      } catch (e) {
+        logger.e('Failed to refresh token: $e');
+      }
     } else if (!isConnected && _wasConnected) {
       logger.i('Network connection lost.');
     }
@@ -89,6 +138,8 @@ class NetworkStatusListener {
   }
 
   void _startPeriodicCheck() {
+    if (_isDisposed) return;
+
     logger.i('Starting periodic network check');
     _periodicCheck = Timer.periodic(const Duration(seconds: 30), (_) {
       _initConnectivity();
@@ -96,6 +147,7 @@ class NetworkStatusListener {
   }
 
   void dispose() {
+    _isDisposed = true;
     _subscription.cancel();
     _periodicCheck?.cancel();
   }
