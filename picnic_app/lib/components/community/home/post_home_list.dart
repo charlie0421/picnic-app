@@ -62,8 +62,8 @@ class _PostHomeListState extends ConsumerState<PostHomeList> {
                         popupMenu: PostPopupMenu(
                           post: data[index],
                           context: context,
-                          deletePost: () async {
-                            await deletePost(ref, data[index].postId);
+                          deletePost: (PostModel post) async {
+                            await deletePost(ref, post.postId);
                             ref.invalidate(
                                 postsByArtistProvider(currentArtist.id, 3, 1));
                           },

@@ -67,7 +67,7 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
               title: S.of(context).popup_label_delete,
               content: S.of(context).post_comment_delete_confirm,
               onOk: () async {
-                if (widget.deletePost != null) widget.deletePost!();
+                if (widget.deletePost != null) widget.deletePost!(widget.post);
                 if (navigatorKey.currentContext != null) {
                   Navigator.of(navigatorKey.currentContext!).pop();
                 }
