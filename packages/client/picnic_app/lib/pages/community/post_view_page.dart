@@ -507,10 +507,25 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
 
   Widget _buildAdSpace(String position) {
     final status = _adsStatus[position];
-    if (status == null || status.isLoading || status.ad == null) {
+    if (status == null) {
       return SizedBox(
-        width: status?.size.width.toDouble() ?? 0,
-        height: status?.size.height.toDouble() ?? 0,
+        width: AdSize.banner.width.toDouble(),
+        height: AdSize.banner.height.toDouble(),
+      );
+    }
+
+    if (status.isLoading) {
+      return SizedBox(
+        width: status.size.width.toDouble(),
+        height: status.size.height.toDouble(),
+        child: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (status.ad == null) {
+      return SizedBox(
+        width: status.size.width.toDouble(),
+        height: status.size.height.toDouble(),
       );
     }
 
