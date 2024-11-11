@@ -59,6 +59,10 @@ class _CommunityMyWritenState extends ConsumerState<CommunityMyWriten>
               popupMenu: PostPopupMenu(
                   post: item,
                   context: context,
+                  deletePost: (PostModel post) async {
+                    await deletePost(ref, post.postId);
+                    _pagingController.refresh();
+                  },
                   refreshFunction: () => _pagingController.refresh()),
             );
           },

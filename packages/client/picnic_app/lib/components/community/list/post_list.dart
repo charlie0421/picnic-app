@@ -87,8 +87,8 @@ class _PostListState extends ConsumerState<PostList> {
                   popupMenu: PostPopupMenu(
                     post: data[index],
                     context: context,
-                    deletePost: () async {
-                      await deletePost(ref, data[index].postId);
+                    deletePost: (PostModel post) async {
+                      await deletePost(ref, post.postId);
                       try {
                         if (widget.type == PostListType.artist) {
                           ref.invalidate(
