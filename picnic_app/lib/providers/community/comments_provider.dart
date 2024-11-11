@@ -16,10 +16,7 @@ class CommentsNotifier extends _$CommentsNotifier {
     bool includeDeleted = true,
     bool includeReported = true,
   }) async {
-    // 차단된 사용자 목록 조회
     final blockedUserIds = await getBlockedUserIds();
-
-    // 댓글 조회 시 차단된 사용자의 댓글 제외
     final comments = await _fetchComments(
       postId,
       page,
@@ -43,68 +40,84 @@ class CommentsNotifier extends _$CommentsNotifier {
     final currentUserId = supabase.auth.currentUser?.id;
 
     try {
-      var query = supabase.from('comments').select('''
-        comment_id,parent_comment_id,likes,replies,content,locale,created_at,updated_at,deleted_at,
+      // 루트 댓글 조회를 위한 기본 쿼리
+      var rootQuery = supabase.from('comments').select('''
+        comment_id,
+        parent_comment_id,
+        likes,
+        replies,
+        content,
+        locale,
+        created_at,
+        updated_at,
+        deleted_at,
         user_profiles(nickname,avatar_url,created_at,updated_at,deleted_at),
         comment_reports!left(comment_id),
-        comment_likes!left(comment_id),
+        comment_likes!left(comment_id, user_id, deleted_at),
         post:posts(post_id,board_id,title,created_at,updated_at,deleted_at)
       ''').eq('post_id', postId);
 
-      if (!includeDeleted) query = query.isFilter('deleted_at', null);
-      if (!includeReported) query = query.isFilter('comment_reports', null);
+      if (!includeDeleted) rootQuery = rootQuery.isFilter('deleted_at', null);
+      if (!includeReported)
+        rootQuery = rootQuery.isFilter('comment_reports', null);
 
-      if (supabase.isLogged && currentUserId != null) {
-        query = query.eq('comment_likes.user_id', currentUserId);
-        query = query.eq('comment_reports.user_id', currentUserId);
-      }
-
-      final rootResponse = await query
+      final rootResponse = await rootQuery
           .isFilter('parent_comment_id', null)
-          .isFilter('comment_likes.deleted_at', null)
           .order('created_at', ascending: false)
           .range((page - 1) * limit, page * limit - 1);
 
       final rootComments = rootResponse.map((row) {
         final comment = CommentModel.fromJson(row);
+        final likes = (row['comment_likes'] as List).where((like) =>
+            like['user_id'] == currentUserId && like['deleted_at'] == null);
+
         return comment.copyWith(
           isReportedByMe: row['comment_reports'].length > 0,
-          isLikedByMe: row['comment_likes'].length > 0,
+          isLikedByMe: likes.isNotEmpty,
         );
       }).toList();
 
+      // 자식 댓글 조회를 위한 별도 쿼리
       final rootCommentIds = rootComments.map((c) => c.commentId).toList();
+      if (rootCommentIds.isEmpty) return rootComments;
 
       var childQuery = supabase.from('comments').select('''
-        comment_id,parent_comment_id,likes,replies,content,locale,created_at,updated_at,deleted_at,
+        comment_id,
+        parent_comment_id,
+        likes,
+        replies,
+        content,
+        locale,
+        created_at,
+        updated_at,
+        deleted_at,
         user_profiles(nickname,avatar_url,created_at,updated_at,deleted_at),
         comment_reports!left(comment_id),
-        comment_likes!left(comment_id),
+        comment_likes!left(comment_id, user_id, deleted_at),
         post:posts(post_id,board_id,title,created_at,updated_at,deleted_at)
-          ''').eq('post_id', postId);
+      ''').eq('post_id', postId);
 
-      if (supabase.isLogged && currentUserId != null) {
-        childQuery = childQuery.eq('comment_likes.user_id', currentUserId);
-        childQuery = childQuery.eq('comment_reports.user_id', currentUserId);
-      }
+      if (!includeDeleted) childQuery = childQuery.isFilter('deleted_at', null);
+      if (!includeReported)
+        childQuery = childQuery.isFilter('comment_reports', null);
 
-      final childResponse = await query
-          .isFilter('parent_comment_id', null)
-          .isFilter('comment_likes.deleted_at', null)
+      final childResponse = await childQuery
           .inFilter('parent_comment_id', rootCommentIds)
-          .order('created_at', ascending: false)
-          .range((page - 1) * limit, page * limit - 1);
+          .order('created_at', ascending: false);
 
       final childComments = childResponse.map((row) {
         final comment = CommentModel.fromJson(row);
+        final likes = (row['comment_likes'] as List).where((like) =>
+            like['user_id'] == currentUserId && like['deleted_at'] == null);
+
         return comment.copyWith(
           isReportedByMe: row['comment_reports'].length > 0,
-          isLikedByMe: row['comment_likes'].length > 0,
+          isLikedByMe: likes.isNotEmpty,
         );
       }).toList();
 
+      // 댓글 트리 구성
       final Map<String, CommentModel> commentMap = {};
-
       for (var comment in [...rootComments, ...childComments]) {
         if (comment.parentCommentId == null) {
           commentMap[comment.commentId] = comment.copyWith(children: []);
@@ -162,12 +175,15 @@ class CommentsNotifier extends _$CommentsNotifier {
   Future<void> likeComment(String commentId) async {
     state = const AsyncLoading();
     try {
-      await supabase.from('comment_likes').upsert({
-        'comment_id': commentId,
-        'user_id': supabase.auth.currentUser!.id,
-      });
+      await supabase.from('comment_likes').upsert(
+        {
+          'comment_id': commentId,
+          'user_id': supabase.auth.currentUser!.id,
+          'deleted_at': null, // null로 설정하여 삭제 상태 해제
+        },
+        onConflict: 'comment_id,user_id', // 복합 키로 충돌 처리
+      );
 
-      // Update the local state to reflect the like
       if (state.value != null) {
         state = AsyncValue.data(
             _updateCommentLikeStatus(state.value!, commentId, true));
@@ -185,9 +201,9 @@ class CommentsNotifier extends _$CommentsNotifier {
           .from('comment_likes')
           .update({'deleted_at': DateTime.now().toIso8601String()})
           .eq('comment_id', commentId)
-          .eq('user_id', supabase.auth.currentUser!.id);
+          .eq('user_id', supabase.auth.currentUser!.id)
+          .isFilter('deleted_at', null); // 이미 삭제된 것은 제외
 
-      // Update the local state to reflect the unlike
       if (state.value != null) {
         state = AsyncValue.data(
             _updateCommentLikeStatus(state.value!, commentId, false));
