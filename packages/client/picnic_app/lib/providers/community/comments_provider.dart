@@ -73,8 +73,6 @@ class CommentsNotifier extends _$CommentsNotifier {
         );
       }).toList();
 
-      logger.i('rootComments: $rootComments');
-
       final rootCommentIds = rootComments.map((c) => c.commentId).toList();
 
       var childQuery = supabase.from('comments').select('''
