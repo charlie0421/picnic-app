@@ -1294,10 +1294,10 @@ packages:
     dependency: "direct main"
     description:
       name: infinite_scroll_pagination
-      sha256: b68bce20752fcf36c7739e60de4175494f74e99e9a69b4dd2fe3a1dd07a7f16a
+      sha256: "4047eb8191e8b33573690922a9e995af64c3949dc87efc844f936b039ea279df"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.0"
+    version: "4.1.0"
   intl:
     dependency: "direct main"
     description:
@@ -1742,10 +1742,10 @@ packages:
     dependency: "direct main"
     description:
       name: photo_manager
-      sha256: f5ef2618870e9a50d8bfeb81a02c242d580ae8614bd5ea9e1b80dbb7e49d4260
+      sha256: ebe91591ec4148ddb4864352b2612a9c9e70c02384d27c8672d8ab604c7021e6
       url: "https://pub.dev"
     source: hosted
-    version: "3.6.1"
+    version: "3.6.2"
   platform:
     dependency: transitive
     description:
