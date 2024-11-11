@@ -20,6 +20,31 @@ import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
+/// 광고 로딩 상태를 관리하기 위한 클래스
+class BannerAdState {
+  final bool isLoading;
+  final BannerAd? bannerAd;
+  final String? error;
+
+  const BannerAdState({
+    this.isLoading = true,
+    this.bannerAd,
+    this.error,
+  });
+
+  BannerAdState copyWith({
+    bool? isLoading,
+    BannerAd? bannerAd,
+    String? error,
+  }) {
+    return BannerAdState(
+      isLoading: isLoading ?? this.isLoading,
+      bannerAd: bannerAd ?? this.bannerAd,
+      error: error ?? this.error,
+    );
+  }
+}
+
 class FreeChargeStation extends ConsumerStatefulWidget {
   const FreeChargeStation({super.key});
 
@@ -31,12 +56,20 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _buttonScaleAnimation;
-  BannerAd? _bannerAd;
+  BannerAdState _bannerAdState = const BannerAdState();
   bool _isPageReady = false;
+  Timer? _retryTimer;
+  int _retryCount = 0;
+  static const int maxRetries = 3;
 
   @override
   void initState() {
     super.initState();
+    _setupAnimation();
+    _initializePage();
+  }
+
+  void _setupAnimation() {
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
@@ -44,13 +77,13 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     _buttonScaleAnimation = Tween<double>(begin: .5, end: 2.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
-    _initializePage();
   }
 
   @override
   void dispose() {
     _animationController.dispose();
-    _bannerAd?.dispose();
+    _bannerAdState.bannerAd?.dispose();
+    _retryTimer?.cancel();
     super.dispose();
   }
 
@@ -65,17 +98,25 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     } catch (e, s) {
       logger.e('Error initializing page', error: e, stackTrace: s);
       if (mounted) {
-        showSimpleDialog(
-          contentWidget: Text(
-            S.of(context).error_loading_page,
-            style: getTextStyle(AppTypo.body14M, AppColors.grey900),
-          ),
-        );
+        setState(() {
+          _isPageReady = true; // 에러가 발생해도 페이지는 보여줌
+        });
+        _showErrorDialog(S.of(context).error_loading_page);
       }
     }
   }
 
   Future<void> _loadBannerAd() async {
+    if (_retryCount >= maxRetries) {
+      setState(() {
+        _bannerAdState = BannerAdState(
+          isLoading: false,
+          error: 'Maximum retry attempts reached',
+        );
+      });
+      return;
+    }
+
     try {
       final configService = ref.read(configServiceProvider);
       final adUnitId = isIOS()
@@ -97,7 +138,11 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
             }
             if (mounted) {
               setState(() {
-                _bannerAd = ad as BannerAd;
+                _bannerAdState = BannerAdState(
+                  isLoading: false,
+                  bannerAd: ad as BannerAd,
+                );
+                _retryCount = 0; // 성공하면 재시도 카운트 리셋
               });
             }
           },
@@ -107,16 +152,45 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
             if (!completer.isCompleted) {
               completer.completeError(error);
             }
+            _scheduleRetry();
           },
         ),
       );
 
+      setState(() {
+        _bannerAdState = BannerAdState(isLoading: true);
+      });
+
       await bannerAd.load();
-      await completer.future; // 광고가 실제로 로드될 때까지 대기
+      await completer.future;
     } catch (e, s) {
       logger.e('Error loading banner ad', error: e, stackTrace: s);
-      rethrow; // 상위 _initializePage에서 에러 처리하도록 전파
+      _scheduleRetry();
     }
+  }
+
+  void _scheduleRetry() {
+    if (mounted && _retryCount < maxRetries) {
+      setState(() {
+        _retryCount++;
+        _bannerAdState = BannerAdState(
+          isLoading: false,
+          error: 'Failed to load ad. Retrying... ($_retryCount/$maxRetries)',
+        );
+      });
+
+      _retryTimer?.cancel();
+      _retryTimer = Timer(const Duration(seconds: 5), _loadBannerAd);
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showSimpleDialog(
+      contentWidget: Text(
+        message,
+        style: getTextStyle(AppTypo.body14M, AppColors.grey900),
+      ),
+    );
   }
 
   Future<void> _showRewardedAdmob(int index) async {
@@ -136,33 +210,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
 
       final allowed = response.data['allowed'] as bool?;
       if (allowed != true) {
-        final nextAvailableTime =
-            DateTime.parse(response.data['nextAvailableTime'] ?? '').toLocal();
-        final formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
-
-        if (!mounted) return;
-        showSimpleDialog(
-          contentWidget: Column(
-            children: [
-              Text(
-                S.of(context).label_ads_exceeded,
-                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                S.of(context).ads_available_time,
-                style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
-                textAlign: TextAlign.center,
-              ),
-              Text(
-                formatter.format(nextAvailableTime),
-                style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        );
+        _handleExceededAdsLimit(response.data['nextAvailableTime']);
         return;
       }
 
@@ -172,14 +220,39 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     } catch (e, s) {
       logger.e('Error in _showRewardedAdmob', error: e, stackTrace: s);
       if (!mounted) return;
-
-      showSimpleDialog(
-        contentWidget: Text(
-          S.of(context).label_loading_ads_fail,
-          style: getTextStyle(AppTypo.body14M, AppColors.grey900),
-        ),
-      );
+      _showErrorDialog(S.of(context).label_loading_ads_fail);
     }
+  }
+
+  void _handleExceededAdsLimit(String? nextAvailableTimeStr) {
+    if (nextAvailableTimeStr == null) return;
+
+    final nextAvailableTime = DateTime.parse(nextAvailableTimeStr).toLocal();
+    final formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+
+    showSimpleDialog(
+      contentWidget: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            S.of(context).label_ads_exceeded,
+            style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            S.of(context).ads_available_time,
+            style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
+            textAlign: TextAlign.center,
+          ),
+          Text(
+            formatter.format(nextAvailableTime),
+            style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
   }
 
   void _animateButton() {
@@ -189,32 +262,33 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
   @override
   Widget build(BuildContext context) {
     if (!_isPageReady) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     return FreeChargeContent(
-      bannerAd: _bannerAd!,
+      bannerAdState: _bannerAdState,
       buttonScaleAnimation: _buttonScaleAnimation,
       onPolicyTap: () => showUsagePolicyDialog(context, ref),
       onAdButtonPressed: _showRewardedAdmob,
+      onRetryBannerAd: _retryCount < maxRetries ? _loadBannerAd : null,
     );
   }
 }
 
 class FreeChargeContent extends ConsumerWidget {
-  final BannerAd bannerAd;
+  final BannerAdState bannerAdState;
   final Animation<double> buttonScaleAnimation;
   final VoidCallback onPolicyTap;
   final Function(int) onAdButtonPressed;
+  final VoidCallback? onRetryBannerAd;
 
   const FreeChargeContent({
     super.key,
-    required this.bannerAd,
+    required this.bannerAdState,
     required this.buttonScaleAnimation,
     required this.onPolicyTap,
     required this.onAdButtonPressed,
+    this.onRetryBannerAd,
   });
 
   @override
@@ -235,41 +309,55 @@ class FreeChargeContent extends ConsumerWidget {
             ),
           ],
           const SizedBox(height: 18),
-          SizedBox(
-            height: 50,
-            child: AdWidget(ad: bannerAd),
-          ),
+          _buildBannerAdSection(),
           const SizedBox(height: 18),
           _buildStoreListTileAdmob(context, 0, adState),
           const Divider(height: 32, thickness: 1, color: AppColors.grey200),
           _buildStoreListTileAdmob(context, 1, adState),
           const Divider(height: 32, thickness: 1, color: AppColors.grey200),
-          GestureDetector(
-            onTap: onPolicyTap,
-            child: Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: S.of(context).candy_usage_policy_guide,
-                    style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
-                  ),
-                  const TextSpan(text: ' '),
-                  TextSpan(
-                    text: S.of(context).candy_usage_policy_guide_button,
-                    style: getTextStyle(AppTypo.caption12B, AppColors.grey600)
-                        .copyWith(decoration: TextDecoration.underline),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          _buildPolicyGuide(),
         ],
       ),
     );
   }
 
+  Widget _buildBannerAdSection() {
+    return SizedBox(
+      height: 50,
+      child: Builder(
+        builder: (context) {
+          if (bannerAdState.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (bannerAdState.error != null && onRetryBannerAd != null) {
+            return Center(
+              child: TextButton(
+                onPressed: onRetryBannerAd,
+                child: Text(
+                  '${S.of(context).label_retry}\n${bannerAdState.error}',
+                  textAlign: TextAlign.center,
+                  style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
+                ),
+              ),
+            );
+          }
+
+          if (bannerAdState.bannerAd != null) {
+            return AdWidget(ad: bannerAdState.bannerAd!);
+          }
+
+          return const SizedBox.shrink();
+        },
+      ),
+    );
+  }
+
   Widget _buildStoreListTileAdmob(
-      BuildContext context, int index, AdState adState) {
+    BuildContext context,
+    int index,
+    AdState adState,
+  ) {
     final adInfo = adState.ads[index];
     final isLoading = adInfo.isLoading;
 
@@ -301,6 +389,28 @@ class FreeChargeContent extends ConsumerWidget {
       buttonOnPressed: isLoading ? null : () => onAdButtonPressed(index),
       isLoading: isLoading,
       buttonScale: buttonScaleAnimation.value,
+    );
+  }
+
+  Widget _buildPolicyGuide() {
+    return GestureDetector(
+      onTap: onPolicyTap,
+      child: Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(
+              text: Intl.message('candy_usage_policy_guide'),
+              style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
+            ),
+            const TextSpan(text: ' '),
+            TextSpan(
+              text: Intl.message('candy_usage_policy_guide_button'),
+              style: getTextStyle(AppTypo.caption12B, AppColors.grey600)
+                  .copyWith(decoration: TextDecoration.underline),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
