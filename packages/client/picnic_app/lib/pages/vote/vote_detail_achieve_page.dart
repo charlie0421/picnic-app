@@ -587,7 +587,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                                   const TextSpan(text: ' '),
                                   TextSpan(
                                     text: getLocaleTextFromJson(
-                                        item.artist.artist_group.name),
+                                        item.artist.artist_group!.name),
                                     style: getTextStyle(
                                         AppTypo.caption10SB, AppColors.grey600),
                                   ),

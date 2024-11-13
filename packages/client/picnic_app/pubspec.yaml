@@ -96,6 +96,8 @@ dependencies:
     qr_flutter: ^4.1.0
     universal_io: ^2.2.2
     confetti: ^0.8.0
+    percent_indicator: ^4.2.3
+    dart_openai: ^5.1.0
 dev_dependencies:
     flutter_test:
         sdk: flutter

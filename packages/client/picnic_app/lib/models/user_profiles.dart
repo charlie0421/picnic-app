@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'user_profiles.freezed.dart';
+
 part 'user_profiles.g.dart';
 
 @freezed
@@ -17,6 +18,8 @@ class UserProfilesModel with _$UserProfilesModel {
     @JsonKey(name: 'is_admin') required bool? isAdmin,
     @JsonKey(name: 'star_candy') required int? starCandy,
     @JsonKey(name: 'star_candy_bonus') required int? starCandyBonus,
+    @JsonKey(name: 'birth_date') DateTime? birthDate,
+    @JsonKey(name: 'gender') String? gender,
   }) = _UserProfilesModel;
 
   factory UserProfilesModel.fromJson(Map<String, dynamic> json) =>

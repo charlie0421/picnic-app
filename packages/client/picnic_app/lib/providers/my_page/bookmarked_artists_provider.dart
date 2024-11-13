@@ -16,7 +16,7 @@ class AsyncBookmarkedArtists extends _$AsyncBookmarkedArtists {
   Future<List<ArtistModel>> _fetchBookmarkedArtists() async {
     try {
       final response = await supabase.from('artist_user_bookmark').select(
-          'artist_id, artist(id, name, image, gender, artist_group(id, name, image))');
+          'artist_id, artist(id, name, image, gender, birth_date, artist_group(id, name, image))');
 
       List<ArtistModel> bookmarkedArtists = response.map((data) {
         final artistData = data['artist'] as Map<String, dynamic>;

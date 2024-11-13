@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/common_my_point_info.dart';
 import 'package:picnic_app/components/common/top/top_right_common.dart';
+import 'package:picnic_app/components/common/top/top_right_community.dart';
 import 'package:picnic_app/components/common/top/top_right_post.dart';
 import 'package:picnic_app/components/common/top/top_right_post_view.dart';
 import 'package:picnic_app/models/common/navigation.dart';
@@ -82,7 +83,10 @@ class _TopState extends ConsumerState<TopMenu> {
                       ? const TopRightCommon()
                       : navigationInfo.topRightMenu == TopRightType.board
                           ? const TopRightPost()
-                          : const TopRightPostView()),
+                          : navigationInfo.topRightMenu ==
+                                  TopRightType.community
+                              ? const TopRightCommunity()
+                              : const TopRightPostView()),
         ],
       ),
     );

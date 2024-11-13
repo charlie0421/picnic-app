@@ -17,7 +17,7 @@ import 'package:picnic_app/screens/vote/vote_home_screen.dart';
 
 part 'navigation.freezed.dart';
 
-enum TopRightType { none, common, board, postView }
+enum TopRightType { none, common, board, postView, community }
 
 @reflector
 @freezed
