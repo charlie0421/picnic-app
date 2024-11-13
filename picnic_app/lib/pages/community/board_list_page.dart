@@ -5,7 +5,10 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/common/common_search_box.dart';
 import 'package:picnic_app/components/common/no_item_container.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
+import 'package:picnic_app/components/common/top/top_right_common.dart';
+import 'package:picnic_app/components/common/top/top_right_community.dart';
 import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/board.dart';
 import 'package:picnic_app/pages/community/post_list_page.dart';
 import 'package:picnic_app/providers/community/boards_provider.dart';
@@ -40,7 +43,10 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
-          showPortal: true, showTopMenu: false, showBottomNavigation: true);
+          showPortal: true,
+          showTopMenu: false,
+          showBottomNavigation: true,
+          topRightMenu: TopRightType.community);
     });
 
     _pagingController.addPageRequestListener(_fetch);

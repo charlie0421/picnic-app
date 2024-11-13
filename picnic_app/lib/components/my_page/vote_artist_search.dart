@@ -318,7 +318,7 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
                     ),
                     const TextSpan(text: ' '),
                     ..._buildHighlightedTextSpans(
-                      getLocaleTextFromJson(item.artist_group.name),
+                      getLocaleTextFromJson(item.artist_group!.name),
                       _textEditingController.text,
                       AppTypo.caption12M,
                       AppColors.grey600,

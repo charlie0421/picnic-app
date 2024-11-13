@@ -14,7 +14,7 @@ import 'package:supabase_extensions/supabase_extensions.dart';
 
 part 'user_info_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class UserInfo extends _$UserInfo {
   StreamSubscription? _configSubscription;
 
@@ -45,7 +45,7 @@ class UserInfo extends _$UserInfo {
       final response = await supabase
           .from('user_profiles')
           .select(
-              'id,avatar_url,star_candy,nickname,email,star_candy_bonus,is_admin, user_agreement(id,terms,privacy)')
+              'id,avatar_url,star_candy,nickname,email,star_candy_bonus,is_admin,birth_date,gender,user_agreement(id,terms,privacy)')
           .eq('id', supabase.auth.currentUser!.id)
           .maybeSingle();
 
@@ -75,6 +75,39 @@ class UserInfo extends _$UserInfo {
 
       state = AsyncValue.error(e, s);
       return null;
+    }
+  }
+
+  Future<void> updateProfile({
+    String? gender,
+    DateTime? birthDate,
+  }) async {
+    logger.i('Updating profile - gender: $gender, birthDate: $birthDate');
+    try {
+      if (!supabase.isLogged) {
+        logger.w('Cannot update profile: user not logged in');
+        return;
+      }
+
+      final updates = {
+        if (gender != null) 'gender': gender,
+        if (birthDate != null) 'birth_date': birthDate.toIso8601String(),
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      };
+
+      await supabase.from('user_profiles').upsert({
+        'id': supabase.auth.currentUser!.id,
+        ...updates,
+      });
+
+      // Refresh the profile
+      await getUserProfiles();
+
+      logger.i('Profile updated successfully');
+    } catch (e, s) {
+      logger.e('Error updating profile', error: e, stackTrace: s);
+      Sentry.captureException(e, stackTrace: s);
+      throw Exception('프로필 업데이트 중 오류가 발생했습니다');
     }
   }
 

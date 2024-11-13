@@ -118,7 +118,7 @@ class VoteCardColumnVertical extends StatelessWidget {
                         ),
                         Text(
                           getLocaleTextFromJson(
-                              voteItem.artist.artist_group.name),
+                              voteItem.artist.artist_group!.name),
                           style: getTextStyle(
                             AppTypo.caption10SB,
                             AppColors.grey00,

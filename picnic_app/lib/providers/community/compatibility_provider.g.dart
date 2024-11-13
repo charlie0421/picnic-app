@@ -1,27 +1,26 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'vote_artist_list_provider.dart';
+part of 'compatibility_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$asyncVoteArtistListHash() =>
-    r'5b8943b36aa2135da7713aa7725d09878dfcb825';
+String _$compatibilityHash() => r'bd21f9f88ccaf4cce660f9aa0f40de9f566fe616';
 
-/// See also [AsyncVoteArtistList].
-@ProviderFor(AsyncVoteArtistList)
-final asyncVoteArtistListProvider = AutoDisposeAsyncNotifierProvider<
-    AsyncVoteArtistList, List<ArtistModel>>.internal(
-  AsyncVoteArtistList.new,
-  name: r'asyncVoteArtistListProvider',
+/// See also [Compatibility].
+@ProviderFor(Compatibility)
+final compatibilityProvider =
+    NotifierProvider<Compatibility, CompatibilityModel?>.internal(
+  Compatibility.new,
+  name: r'compatibilityProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$asyncVoteArtistListHash,
+      : _$compatibilityHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$AsyncVoteArtistList = AutoDisposeAsyncNotifier<List<ArtistModel>>;
+typedef _$Compatibility = Notifier<CompatibilityModel?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
