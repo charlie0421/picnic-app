@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/common_search_box.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
@@ -52,12 +53,16 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   final Map<int, int> _previousVoteCounts = {};
   final Map<int, int> _previousRanks = {};
 
+  BannerAd? _bannerAd;
+  bool _isBannerLoaded = false;
+
   @override
   void initState() {
     super.initState();
     _initializeControllers();
     _setupListeners();
     _setupUpdateTimer();
+    _loadAds();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
@@ -66,6 +71,26 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
           showBottomNavigation: false,
           pageTitle: S.of(context).page_title_vote_detail);
     });
+  }
+
+  void _loadAds() {
+    _bannerAd = BannerAd(
+      adUnitId: isAndroid()
+          ? 'ca-app-pub-3940256099942544/6300978111'
+          : 'ca-app-pub-3940256099942544/2934735716',
+      size: AdSize.largeBanner,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isBannerLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
+    )..load();
   }
 
   void _initializeControllers() {
@@ -205,12 +230,20 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
           ),
         ),
-        const SizedBox(height: 36),
+        const SizedBox(height: 8),
+        (_isBannerLoaded && _bannerAd != null)
+            ? Container(
+                alignment: Alignment.center,
+                width: _bannerAd!.size.width.toDouble(),
+                height: _bannerAd!.size.height.toDouble(),
+                child: AdWidget(ad: _bannerAd!),
+              )
+            : SizedBox(height: _bannerAd?.size.height.toDouble()),
+        const SizedBox(height: 8),
         Text(
           S.of(context).text_vote_rank_in_reward,
           style: getTextStyle(AppTypo.body14B, AppColors.primary500),
         ),
-        const SizedBox(height: 4),
         if (voteModel.reward != null)
           Column(
             children: voteModel.reward!
@@ -226,7 +259,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                     ))
                 .toList(),
           ),
-        const SizedBox(height: 36),
+        const SizedBox(height: 18),
       ],
     );
   }
