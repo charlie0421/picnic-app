@@ -20,7 +20,6 @@ import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
-/// 광고 로딩 상태를 관리하기 위한 클래스
 class BannerAdState {
   final bool isLoading;
   final BannerAd? bannerAd;
@@ -56,6 +55,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _buttonScaleAnimation;
+  BannerAd? _bannerAd;
   BannerAdState _bannerAdState = const BannerAdState();
   bool _isPageReady = false;
   Timer? _retryTimer;
@@ -82,7 +82,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
   @override
   void dispose() {
     _animationController.dispose();
-    _bannerAdState.bannerAd?.dispose();
+    _bannerAd?.dispose();
     _retryTimer?.cancel();
     super.dispose();
   }
@@ -99,7 +99,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       logger.e('Error initializing page', error: e, stackTrace: s);
       if (mounted) {
         setState(() {
-          _isPageReady = true; // 에러가 발생해도 페이지는 보여줌
+          _isPageReady = true;
         });
         rethrow;
       }
@@ -118,6 +118,9 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     }
 
     try {
+      _bannerAd?.dispose();
+      _bannerAd = null;
+
       final configService = ref.read(configServiceProvider);
       final adUnitId = isIOS()
           ? await configService.getConfig('ADMOB_IOS_FREE_CHARGE_STATION')
@@ -127,24 +130,27 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
 
       final completer = Completer<void>();
 
-      final bannerAd = BannerAd(
+      final newBannerAd = BannerAd(
         adUnitId: adUnitId,
         size: AdSize.banner,
         request: const AdRequest(),
         listener: BannerAdListener(
           onAdLoaded: (Ad ad) {
+            if (!mounted) {
+              ad.dispose();
+              return;
+            }
             if (!completer.isCompleted) {
               completer.complete();
             }
-            if (mounted) {
-              setState(() {
-                _bannerAdState = BannerAdState(
-                  isLoading: false,
-                  bannerAd: ad as BannerAd,
-                );
-                _retryCount = 0; // 성공하면 재시도 카운트 리셋
-              });
-            }
+            setState(() {
+              _bannerAd = ad as BannerAd;
+              _bannerAdState = BannerAdState(
+                isLoading: false,
+                bannerAd: _bannerAd,
+              );
+              _retryCount = 0;
+            });
           },
           onAdFailedToLoad: (Ad ad, LoadAdError error) {
             logger.e('Banner ad failed to load: $error');
@@ -152,7 +158,9 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
             if (!completer.isCompleted) {
               completer.completeError(error);
             }
-            _scheduleRetry();
+            if (mounted) {
+              _scheduleRetry();
+            }
           },
         ),
       );
@@ -161,11 +169,13 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
         _bannerAdState = BannerAdState(isLoading: true);
       });
 
-      await bannerAd.load();
+      await newBannerAd.load();
       await completer.future;
     } catch (e, s) {
       logger.e('Error loading banner ad', error: e, stackTrace: s);
-      _scheduleRetry();
+      if (mounted) {
+        _scheduleRetry();
+      }
     }
   }
 

@@ -50,6 +50,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "app_name": MessageLookupByLibrary.simpleMessage("Picnic"),
         "block_user_label":
             MessageLookupByLibrary.simpleMessage("Blocking users"),
+        "bonus_candy_awarded": MessageLookupByLibrary.simpleMessage(
+            "Star candy has been awarded."),
         "button_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "button_complete": MessageLookupByLibrary.simpleMessage("Done"),
         "button_login": MessageLookupByLibrary.simpleMessage("Sign in"),
@@ -84,7 +86,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Search results"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
-        "dialog_caution": MessageLookupByLibrary.simpleMessage("🚫 Caution 🚫"),
+        "dialog_caution": MessageLookupByLibrary.simpleMessage("🚫 경고 🚫"),
         "dialog_content_ads_exhausted": MessageLookupByLibrary.simpleMessage(
             "All ads have been exhausted. Please try again next time."),
         "dialog_content_ads_loading":
@@ -151,31 +153,31 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("An unknown error occurred."),
         "exception_auth_message_apple_invalid_response":
             MessageLookupByLibrary.simpleMessage(
-                "We received an invalid response from Apple\'s servers. \nplease try again."),
+                "We received an invalid response from the Apple server.\nPlease try again."),
         "exception_auth_message_apple_sign_in_failed":
             MessageLookupByLibrary.simpleMessage(
-                "Apple sign-in failed, \nplease try again."),
+                "Apple sign-in failed.\nPlease try again."),
         "exception_auth_message_common_cancel":
             MessageLookupByLibrary.simpleMessage(
                 "Your login has been canceled."),
         "exception_auth_message_common_invalid_token":
             MessageLookupByLibrary.simpleMessage(
-                "The authentication token is invalid, please try again."),
+                "The authentication token is invalid.\nPlease try again."),
         "exception_auth_message_common_network":
             MessageLookupByLibrary.simpleMessage(
                 "Check your network connection."),
         "exception_auth_message_common_unknown":
             MessageLookupByLibrary.simpleMessage(
-                "An unknown error occurred during login.\n please try again in a moment."),
+                "An unknown error occurred during login.\nPlease try again in a moment."),
         "exception_auth_message_common_unsupported_provider":
             MessageLookupByLibrary.simpleMessage(
                 "This login method is not supported"),
         "exception_auth_message_google_google_play_service":
             MessageLookupByLibrary.simpleMessage(
-                "A Google Play Services error has occurred. \nPlease update Google Play Services or restart your device."),
+                "A Google Play Services error has occurred.\nPlease update Google Play Services or restart your device."),
         "exception_auth_message_kakao_not_supported":
             MessageLookupByLibrary.simpleMessage(
-                "I can\'t sign in with the KakaoTalk app. \ntry signing in with your Kakao account."),
+                "I can\'t sign in with the KakaoTalk app.\nTry signing in with your Kakao account."),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("Album name"),
         "hint_nickname_input":
             MessageLookupByLibrary.simpleMessage("Please enter a nickname."),
@@ -347,7 +349,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("Birthday polls"),
         "label_vote_tab_pic":
-            MessageLookupByLibrary.simpleMessage("PIC Voting"),
+            MessageLookupByLibrary.simpleMessage("PIC voting"),
         "label_vote_upcoming":
             MessageLookupByLibrary.simpleMessage("Until voting begins"),
         "label_vote_vote_gather":
@@ -559,9 +561,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "post_youtube_link":
             MessageLookupByLibrary.simpleMessage("YouTube link"),
         "purchase_web_message": MessageLookupByLibrary.simpleMessage(
-            "This is the payment window for those who cannot pay for the app:\\n Please copy the random ID in advance:\\n After copying, click the button below to proceed with the payment."),
+            "This is the payment window for those who can\'t pay with the app.\n Please copy the random ID in advance.\n After copying it, click the button below to proceed with the payment."),
         "replies": MessageLookupByLibrary.simpleMessage("Comments"),
-        "reward": MessageLookupByLibrary.simpleMessage("Reward"),
+        "reward": MessageLookupByLibrary.simpleMessage("Rewards"),
         "share_image_fail":
             MessageLookupByLibrary.simpleMessage("Image sharing failed"),
         "share_image_success":
@@ -627,7 +629,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Where\'s My Favorite?"),
         "title_dialog_library_add":
             MessageLookupByLibrary.simpleMessage("Add a new album"),
-        "title_dialog_success": MessageLookupByLibrary.simpleMessage("Success"),
+        "title_dialog_success": MessageLookupByLibrary.simpleMessage("성공"),
         "title_select_language":
             MessageLookupByLibrary.simpleMessage("Select a language"),
         "toast_max_five_celeb": MessageLookupByLibrary.simpleMessage(
@@ -639,6 +641,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "update_required_text": m8,
         "update_required_title":
             MessageLookupByLibrary.simpleMessage("An update is required."),
-        "views": MessageLookupByLibrary.simpleMessage("Views")
+        "views": MessageLookupByLibrary.simpleMessage("Views"),
+        "vote_share_message": MessageLookupByLibrary.simpleMessage("Voted!"),
+        "voting_share_benefit_text": MessageLookupByLibrary.simpleMessage(
+            "Get 1 bonus star candy for every 100 votes!")
       };
 }

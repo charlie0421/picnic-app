@@ -57,6 +57,8 @@ Deno.serve(async (req) => {
 
         if (error) throw error;
 
+        console.log('Response data:', data);
+
         return new Response(JSON.stringify(data), {
             headers: {
                 ...corsHeaders,

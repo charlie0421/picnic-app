@@ -1,4 +1,4 @@
-import 'package:bubble/bubble.dart';
+import 'package:bubble_box/bubble_box.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -360,23 +360,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
             style: SignInWithAppleButtonStyle.black,
           ),
         ),
-        if (lastProvider == 'apple')
-          Positioned(
-            top: 0,
-            bottom: 0,
-            left: 20.cw,
-            child: Bubble(
-              color: AppColors.primary500.withOpacity(.9),
-              alignment: Alignment.center,
-              elevation: 0.5,
-              nip: BubbleNip.rightCenter,
-              stick: true,
-              child: Text(
-                S.of(context).label_last_provider,
-                style: getTextStyle(AppTypo.caption10SB, AppColors.grey00),
-              ),
-            ),
-          )
+        if (lastProvider == 'apple') LastProvider()
       ],
     );
   }
@@ -452,23 +436,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               ),
             ),
           ),
-          if (lastProvider == 'google')
-            Positioned(
-              top: 0,
-              bottom: 0,
-              left: 20.cw,
-              child: Bubble(
-                color: AppColors.primary500.withOpacity(.9),
-                alignment: Alignment.center,
-                elevation: 0.5,
-                nip: BubbleNip.rightCenter,
-                stick: true,
-                child: Text(
-                  S.of(context).label_last_provider,
-                  style: getTextStyle(AppTypo.caption10SB, AppColors.grey00),
-                ),
-              ),
-            )
+          if (lastProvider == 'google') LastProvider()
         ],
       );
     });
@@ -542,24 +510,39 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
             ),
           ),
         ),
-        if (lastProvider == 'kakao')
-          Positioned(
-            top: 0,
-            bottom: 0,
-            left: 20.cw,
-            child: Bubble(
-              color: AppColors.primary500.withOpacity(.9),
-              alignment: Alignment.center,
-              elevation: 0.5,
-              nip: BubbleNip.rightCenter,
-              stick: true,
-              child: Text(
-                S.of(context).label_last_provider,
-                style: getTextStyle(AppTypo.caption10SB, AppColors.grey00),
-              ),
-            ),
-          )
+        if (lastProvider == 'kakao') LastProvider(),
       ]);
     });
+  }
+}
+
+class LastProvider extends StatelessWidget {
+  const LastProvider({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: 10,
+      bottom: 10,
+      left: 10.cw,
+      child: BubbleBox(
+        shape: BubbleShapeBorder(
+          border: BubbleBoxBorder(
+            color: AppColors.primary500,
+            width: 1.5,
+            style: BubbleBoxBorderStyle.dashed,
+          ),
+          position: const BubblePosition.center(0),
+          direction: BubbleDirection.right,
+        ),
+        backgroundColor: AppColors.mint500,
+        child: Center(
+          child: Text(
+            S.of(context).label_last_provider,
+            style: getTextStyle(AppTypo.caption10SB, AppColors.primary500),
+          ),
+        ),
+      ),
+    );
   }
 }

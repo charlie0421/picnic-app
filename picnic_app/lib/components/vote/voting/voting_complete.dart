@@ -5,7 +5,7 @@ import 'dart:ui' as ui;
 
 import 'package:animated_digit/animated_digit.dart';
 import 'package:appinio_social_share/appinio_social_share.dart';
-import 'package:bubble/bubble.dart';
+import 'package:bubble_box/bubble_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,12 +19,14 @@ import 'package:picnic_app/components/common/avatar_container.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/components/vote/voting/gradient_circular_progress_indicator.dart';
+import 'package:picnic_app/config/config_service.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/models/vote/artist_group.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
@@ -79,13 +81,18 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
   void initState() {
     super.initState();
     _loadAds();
+    logger.i('widget.result: ${widget.result}');
   }
 
-  void _loadAds() {
+  void _loadAds() async {
+    final configService = ref.read(configServiceProvider);
+
+    String? adUnitId = isIOS()
+        ? await configService.getConfig('ADMOB_IOS_VOTE_COMPLETE')!
+        : await configService.getConfig('ADMOB_ANDROID_VOTE_COMPLETE')!;
+
     _bannerAd = BannerAd(
-      adUnitId: isAndroid()
-          ? 'ca-app-pub-3940256099942544/6300978111'
-          : 'ca-app-pub-3940256099942544/2934735716',
+      adUnitId: adUnitId!,
       size: AdSize.largeBanner,
       request: const AdRequest(),
       listener: BannerAdListener(
@@ -194,18 +201,35 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
       final file = File(path);
       await file.writeAsBytes(pngBytes);
 
+      final artist = widget.voteItemModel.artist.id != 0
+          ? getLocaleTextFromJson(widget.voteItemModel.artist.name)
+          : getLocaleTextFromJson(widget.voteItemModel.artistGroup.name);
+      final voteTitle = getLocaleTextFromJson(widget.voteModel.title);
+
+      final shareMessage = '''$artist - $voteTitle
+${Intl.message('vote_share_message')} 🎉
+#Picnic #Vote #${artist.replaceAll(' ', '')} #PicnicApp''';
+
       final result = Platform.isIOS
-          ? await appinioSocialShare.iOS
-              .shareToTwitter(S.of(context).share_twitter, path)
-          : await appinioSocialShare.android
-              .shareToTwitter(S.of(context).share_twitter, path);
+          ? await appinioSocialShare.iOS.shareToTwitter(shareMessage, path)
+          : await appinioSocialShare.android.shareToTwitter(shareMessage, path);
 
       logger.d('image share result: $result');
+
       if (result == 'ERROR_APP_NOT_AVAILABLE') {
         showSimpleDialog(
-          content: S.of(context).share_no_twitter,
+          type: DialogType.error,
+          content: Intl.message('share_no_twitter'),
         );
+      } else if (result == 'SUCCESS') {
+        final voteCount = widget.result['addedVoteTotal'];
+        if (voteCount >= 100) {
+          final userInfo = ref.read(userInfoProvider);
+          await _awardBonus(userInfo.value?.id);
+        }
       }
+
+      await ref.read(userInfoProvider.notifier).getUserProfiles();
 
       await file.delete();
     } catch (e) {
@@ -224,6 +248,36 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
           _isSaving = false;
         });
       }
+    }
+  }
+
+  Future<void> _awardBonus(String? userId) async {
+    if (userId == null) return;
+
+    try {
+      logger.d('Awarding bonus candy for user: $userId');
+      logger.d('voteId: ${widget.voteModel.id}');
+      logger.d('votePickId: ${widget.result['votePickId']}');
+      final response = await supabase.functions.invoke(
+        'check-and-award-bonus',
+        body: {
+          'voteId': widget.voteModel.id,
+          'userId': userId,
+          'votePickId': widget.result['votePickId'], // vote_pick 테이블의 ID
+        },
+      );
+
+      if (response.data['success']) {
+        showSimpleDialog(
+          content: Intl.message('bonus_candy_awarded'),
+        );
+      }
+    } catch (e) {
+      showSimpleDialog(
+        type: DialogType.error,
+        content: Intl.message('bonus_candy_fail'),
+      );
+      logger.e('Failed to award bonus: $e');
     }
   }
 
@@ -549,7 +603,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                       ],
                     )
                   else
-                    SizedBox(height: _bannerAd?.size.height.toDouble()),
+                    SizedBox(height: AdSize.largeBanner.height.toDouble()),
                   !_isSaving
                       ? Stack(
                           children: [
@@ -620,16 +674,22 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                               right: 16.cw,
                               child: Container(
                                 constraints: BoxConstraints(maxWidth: 180.cw),
-                                height: 40,
-                                child: Bubble(
-                                  nip: BubbleNip.no,
-                                  // nip 위치 수정
-                                  nipWidth: 8,
-                                  nipHeight: 8,
-                                  // nipOffset: 40,
-                                  color: AppColors.grey00,
+                                height: 56,
+                                child: BubbleBox(
+                                  shape: BubbleShapeBorder(
+                                    border: BubbleBoxBorder(
+                                      color: AppColors.primary500,
+                                      width: 1.5,
+                                      style: BubbleBoxBorderStyle.dashed,
+                                    ),
+                                    position: const BubblePosition.center(40),
+                                    arrowHeight: 8,
+                                    arrowAngle: 8,
+                                    direction: BubbleDirection.top,
+                                  ),
+                                  backgroundColor: AppColors.grey00,
                                   child: Text(
-                                    '100개 투표 공유 시\n보너스 별사탕 1개 적립!',
+                                    S.of(context).voting_share_benefit_text,
                                     style: getTextStyle(
                                       AppTypo.caption10SB,
                                       AppColors.primary500,

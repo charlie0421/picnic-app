@@ -1500,10 +1500,10 @@ class S {
     );
   }
 
-  /// `PIC Voting`
+  /// `PIC voting`
   String get label_vote_tab_pic {
     return Intl.message(
-      'PIC Voting',
+      'PIC voting',
       name: 'label_vote_tab_pic',
       desc: '',
       args: [],
@@ -2880,10 +2880,10 @@ class S {
     );
   }
 
-  /// `Success`
+  /// `성공`
   String get title_dialog_success {
     return Intl.message(
-      'Success',
+      '성공',
       name: 'title_dialog_success',
       desc: '',
       args: [],
@@ -3030,10 +3030,10 @@ class S {
     );
   }
 
-  /// `This is the payment window for those who cannot pay for the app:\n Please copy the random ID in advance:\n After copying, click the button below to proceed with the payment.`
+  /// `This is the payment window for those who can't pay with the app.\n Please copy the random ID in advance.\n After copying it, click the button below to proceed with the payment.`
   String get purchase_web_message {
     return Intl.message(
-      'This is the payment window for those who cannot pay for the app:\\n Please copy the random ID in advance:\\n After copying, click the button below to proceed with the payment.',
+      'This is the payment window for those who can\'t pay with the app.\n Please copy the random ID in advance.\n After copying it, click the button below to proceed with the payment.',
       name: 'purchase_web_message',
       desc: '',
       args: [],
@@ -3070,10 +3070,10 @@ class S {
     );
   }
 
-  /// `🚫 Caution 🚫`
+  /// `🚫 경고 🚫`
   String get dialog_caution {
     return Intl.message(
-      '🚫 Caution 🚫',
+      '🚫 경고 🚫',
       name: 'dialog_caution',
       desc: '',
       args: [],
@@ -3100,10 +3100,10 @@ class S {
     );
   }
 
-  /// `The authentication token is invalid, please try again.`
+  /// `The authentication token is invalid.\nPlease try again.`
   String get exception_auth_message_common_invalid_token {
     return Intl.message(
-      'The authentication token is invalid, please try again.',
+      'The authentication token is invalid.\nPlease try again.',
       name: 'exception_auth_message_common_invalid_token',
       desc: '',
       args: [],
@@ -3120,10 +3120,10 @@ class S {
     );
   }
 
-  /// `An unknown error occurred during login.\n please try again in a moment.`
+  /// `An unknown error occurred during login.\nPlease try again in a moment.`
   String get exception_auth_message_common_unknown {
     return Intl.message(
-      'An unknown error occurred during login.\n please try again in a moment.',
+      'An unknown error occurred during login.\nPlease try again in a moment.',
       name: 'exception_auth_message_common_unknown',
       desc: '',
       args: [],
@@ -3150,10 +3150,10 @@ class S {
     );
   }
 
-  /// `A Google Play Services error has occurred. \nPlease update Google Play Services or restart your device.`
+  /// `A Google Play Services error has occurred.\nPlease update Google Play Services or restart your device.`
   String get exception_auth_message_google_google_play_service {
     return Intl.message(
-      'A Google Play Services error has occurred. \nPlease update Google Play Services or restart your device.',
+      'A Google Play Services error has occurred.\nPlease update Google Play Services or restart your device.',
       name: 'exception_auth_message_google_google_play_service',
       desc: '',
       args: [],
@@ -3170,30 +3170,30 @@ class S {
     );
   }
 
-  /// `Apple sign-in failed, \nplease try again.`
+  /// `Apple sign-in failed.\nPlease try again.`
   String get exception_auth_message_apple_sign_in_failed {
     return Intl.message(
-      'Apple sign-in failed, \nplease try again.',
+      'Apple sign-in failed.\nPlease try again.',
       name: 'exception_auth_message_apple_sign_in_failed',
       desc: '',
       args: [],
     );
   }
 
-  /// `I can't sign in with the KakaoTalk app. \ntry signing in with your Kakao account.`
+  /// `I can't sign in with the KakaoTalk app.\nTry signing in with your Kakao account.`
   String get exception_auth_message_kakao_not_supported {
     return Intl.message(
-      'I can\'t sign in with the KakaoTalk app. \ntry signing in with your Kakao account.',
+      'I can\'t sign in with the KakaoTalk app.\nTry signing in with your Kakao account.',
       name: 'exception_auth_message_kakao_not_supported',
       desc: '',
       args: [],
     );
   }
 
-  /// `We received an invalid response from Apple's servers. \nplease try again.`
+  /// `We received an invalid response from the Apple server.\nPlease try again.`
   String get exception_auth_message_apple_invalid_response {
     return Intl.message(
-      'We received an invalid response from Apple\'s servers. \nplease try again.',
+      'We received an invalid response from the Apple server.\nPlease try again.',
       name: 'exception_auth_message_apple_invalid_response',
       desc: '',
       args: [],
@@ -3320,11 +3320,41 @@ class S {
     );
   }
 
-  /// `Reward`
+  /// `Rewards`
   String get reward {
     return Intl.message(
-      'Reward',
+      'Rewards',
       name: 'reward',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Get 1 bonus star candy for every 100 votes!`
+  String get voting_share_benefit_text {
+    return Intl.message(
+      'Get 1 bonus star candy for every 100 votes!',
+      name: 'voting_share_benefit_text',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Star candy has been awarded.`
+  String get bonus_candy_awarded {
+    return Intl.message(
+      'Star candy has been awarded.',
+      name: 'bonus_candy_awarded',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Voted!`
+  String get vote_share_message {
+    return Intl.message(
+      'Voted!',
+      name: 'vote_share_message',
       desc: '',
       args: [],
     );
