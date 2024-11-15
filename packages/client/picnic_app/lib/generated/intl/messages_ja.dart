@@ -46,6 +46,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "anonymous_mode": MessageLookupByLibrary.simpleMessage("匿名モード"),
         "app_name": MessageLookupByLibrary.simpleMessage("ピクニック"),
         "block_user_label": MessageLookupByLibrary.simpleMessage("ユーザーブロック"),
+        "bonus_candy_awarded":
+            MessageLookupByLibrary.simpleMessage("星飴が支給されました。"),
         "button_cancel": MessageLookupByLibrary.simpleMessage("キャンセル"),
         "button_complete": MessageLookupByLibrary.simpleMessage("完了"),
         "button_login": MessageLookupByLibrary.simpleMessage("ログイン"),
@@ -501,7 +503,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("投稿をお願いします。"),
         "post_youtube_link": MessageLookupByLibrary.simpleMessage("ユーチューブリンク"),
         "purchase_web_message": MessageLookupByLibrary.simpleMessage(
-            "アプリ決済ができない方のための決済画面です.\\nあらかじめ乱数IDをコピーしてください.\\nコピーした後、下のボタンを押して決済を行ってください。"),
+            "アプリ決済ができない方のための決済画面です。\n あらかじめ乱数IDをコピーしてください。\n コピー後、下のボタンを押して支払いを行ってください。"),
         "replies": MessageLookupByLibrary.simpleMessage("コメント"),
         "reward": MessageLookupByLibrary.simpleMessage("リワード"),
         "share_image_fail": MessageLookupByLibrary.simpleMessage("画像共有に失敗"),
@@ -571,6 +573,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "update_required_text": m8,
         "update_required_title":
             MessageLookupByLibrary.simpleMessage("アップデートが必要です。"),
-        "views": MessageLookupByLibrary.simpleMessage("再生回数")
+        "views": MessageLookupByLibrary.simpleMessage("再生回数"),
+        "vote_share_message": MessageLookupByLibrary.simpleMessage("投票完了！"),
+        "voting_share_benefit_text": MessageLookupByLibrary.simpleMessage(
+            "100票以上投票すると、100票につき1個のボーナスお菓子をプレゼント！")
       };
 }

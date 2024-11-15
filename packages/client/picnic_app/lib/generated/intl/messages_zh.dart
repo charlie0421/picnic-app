@@ -46,6 +46,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "anonymous_mode": MessageLookupByLibrary.simpleMessage("匿名模式"),
         "app_name": MessageLookupByLibrary.simpleMessage("野餐"),
         "block_user_label": MessageLookupByLibrary.simpleMessage("阻止用户"),
+        "bonus_candy_awarded": MessageLookupByLibrary.simpleMessage("已颁发星形糖果。"),
         "button_cancel": MessageLookupByLibrary.simpleMessage("取消"),
         "button_complete": MessageLookupByLibrary.simpleMessage("完成"),
         "button_login": MessageLookupByLibrary.simpleMessage("登录"),
@@ -171,7 +172,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("成为第一个发表评论的人！"),
         "label_bonus": MessageLookupByLibrary.simpleMessage("奖金"),
-        "label_button_agreement": MessageLookupByLibrary.simpleMessage("同意"),
+        "label_button_agreement": MessageLookupByLibrary.simpleMessage("接受"),
         "label_button_close": MessageLookupByLibrary.simpleMessage("關閉"),
         "label_button_disagreement":
             MessageLookupByLibrary.simpleMessage("不同意"),
@@ -417,7 +418,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "post_hyperlink": MessageLookupByLibrary.simpleMessage("超链接"),
         "post_insert_link": MessageLookupByLibrary.simpleMessage("插入链接"),
         "post_loading_post_fail":
-            MessageLookupByLibrary.simpleMessage("帖子加载失败。"),
+            MessageLookupByLibrary.simpleMessage("加载帖子失败。"),
         "post_minor_board_condition":
             MessageLookupByLibrary.simpleMessage("请输入至少 5 个字符但不超过 20 个字符的描述。"),
         "post_minor_board_create_request_message":
@@ -464,7 +465,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("请写一篇文章。"),
         "post_youtube_link": MessageLookupByLibrary.simpleMessage("YouTube 链接"),
         "purchase_web_message": MessageLookupByLibrary.simpleMessage(
-            "\\n 请提前复制随机数字 ID： \\n 复制后，点击下面的按钮继续付款。"),
+            "这是为无法使用应用程序付款的用户提供的付款窗口。\n 请事先复制随机数字 ID。\n 复制后，点击下面的按钮进行支付。"),
         "replies": MessageLookupByLibrary.simpleMessage("评论"),
         "reward": MessageLookupByLibrary.simpleMessage("奖励"),
         "share_image_fail": MessageLookupByLibrary.simpleMessage("图像共享失败"),
@@ -530,6 +531,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "update_recommend_text": m7,
         "update_required_text": m8,
         "update_required_title": MessageLookupByLibrary.simpleMessage("需要更新。"),
-        "views": MessageLookupByLibrary.simpleMessage("意见")
+        "views": MessageLookupByLibrary.simpleMessage("意见"),
+        "vote_share_message": MessageLookupByLibrary.simpleMessage("投了赞成票！"),
+        "voting_share_benefit_text":
+            MessageLookupByLibrary.simpleMessage("每 100 票可获得 1 颗奖励星形糖果！")
       };
 }

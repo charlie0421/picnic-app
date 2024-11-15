@@ -47,6 +47,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "anonymous_mode": MessageLookupByLibrary.simpleMessage("익명모드"),
         "app_name": MessageLookupByLibrary.simpleMessage("피크닠"),
         "block_user_label": MessageLookupByLibrary.simpleMessage("사용자 차단"),
+        "bonus_candy_awarded":
+            MessageLookupByLibrary.simpleMessage("별사탕이 지급되었습니다."),
         "button_cancel": MessageLookupByLibrary.simpleMessage("취소"),
         "button_complete": MessageLookupByLibrary.simpleMessage("완료"),
         "button_login": MessageLookupByLibrary.simpleMessage("로그인"),
@@ -580,6 +582,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "update_required_text": m8,
         "update_required_title":
             MessageLookupByLibrary.simpleMessage("업데이트가 필요합니다."),
-        "views": MessageLookupByLibrary.simpleMessage("조회수")
+        "views": MessageLookupByLibrary.simpleMessage("조회수"),
+        "vote_share_message": MessageLookupByLibrary.simpleMessage("투표 완료!"),
+        "voting_share_benefit_text": MessageLookupByLibrary.simpleMessage(
+            "100개 이상 투표 후 공유하면 100개당 1개 보너스 별사탕 지급!")
       };
 }

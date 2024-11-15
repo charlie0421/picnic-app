@@ -14,6 +14,7 @@ import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
 import 'package:picnic_app/components/vote/voting/voting_dialog.dart';
+import 'package:picnic_app/config/config_service.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/dialogs/reward_dialog.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
@@ -91,11 +92,15 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
     });
   }
 
-  void _loadAds() {
+  void _loadAds() async {
+    final configService = ref.read(configServiceProvider);
+
+    String? adUnitId = isIOS()
+        ? await configService.getConfig('ADMOB_IOS_VOTE_COMPLETE')!
+        : await configService.getConfig('ADMOB_ANDROID_VOTE_COMPLETE')!;
+
     _bannerAd = BannerAd(
-      adUnitId: isAndroid()
-          ? 'ca-app-pub-3940256099942544/6300978111'
-          : 'ca-app-pub-3940256099942544/2934735716',
+      adUnitId: adUnitId!,
       size: AdSize.largeBanner,
       request: const AdRequest(),
       listener: BannerAdListener(
@@ -436,7 +441,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                       height: _bannerAd!.size.height.toDouble(),
                       child: AdWidget(ad: _bannerAd!),
                     )
-                  : SizedBox(height: _bannerAd?.size.height.toDouble()),
+                  : SizedBox(height: AdSize.largeBanner.height.toDouble()),
               const SizedBox(height: 18),
             ],
           );

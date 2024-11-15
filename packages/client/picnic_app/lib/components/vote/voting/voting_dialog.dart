@@ -1,4 +1,5 @@
 import 'package:animated_digit/animated_digit.dart';
+import 'package:bubble_box/bubble_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -116,11 +117,35 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
               _buildCheckAllOption(),
               const SizedBox(height: 8),
               _buildVoteAmountInput(),
+              const SizedBox(height: 8),
               _buildErrorMessage(),
+              _buildBubble(),
               const SizedBox(height: 9),
               _buildVoteButton(myStarCandy, userId),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  _buildBubble() {
+    return BubbleBox(
+      shape: BubbleShapeBorder(
+        border: BubbleBoxBorder(
+          color: AppColors.primary500,
+          width: 1.5,
+          style: BubbleBoxBorderStyle.dashed,
+        ),
+        position: const BubblePosition.center(0),
+        direction: BubbleDirection.top,
+      ),
+      backgroundColor: AppColors.mint500,
+      child: Text(
+        S.of(context).voting_share_benefit_text,
+        style: getTextStyle(
+          AppTypo.caption10SB,
+          AppColors.primary500,
         ),
       ),
     );
@@ -414,7 +439,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         ),
       );
     }
-    return const SizedBox(height: 15);
+    return const SizedBox(height: 0);
   }
 
   Widget _buildVoteButton(int myStarCandy, String userId) {
@@ -497,7 +522,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
       if (!mounted) return;
 
-      _showVotingCompleteDialog(response.data);
+      final result = Map<String, dynamic>.from(response.data);
+      result['votePickId'] = response.data['votePickId'];
+
+      logger.i(result);
+
+      _showVotingCompleteDialog(result);
 
       logger.i(response.status);
     } catch (e, s) {
