@@ -8,6 +8,7 @@ import 'package:flutter_animation_progress_bar/flutter_animation_progress_bar.da
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/error.dart';
@@ -27,6 +28,7 @@ import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/number.dart';
+import 'package:picnic_app/util/ui.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
@@ -49,6 +51,9 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
   OverlayEntry? _overlayEntry;
   final List<int> _achievedMilestones = [];
 
+  BannerAd? _bannerAd;
+  bool _isBannerLoaded = false;
+
   @override
   void initState() {
     super.initState();
@@ -56,6 +61,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
     _confettiController =
         ConfettiController(duration: const Duration(seconds: 2));
     _setupTimer();
+    _loadAds();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
@@ -83,6 +89,26 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
         _checkMilestoneAchievement(currentVotes, _achievements!);
       }
     });
+  }
+
+  void _loadAds() {
+    _bannerAd = BannerAd(
+      adUnitId: isAndroid()
+          ? 'ca-app-pub-3940256099942544/6300978111'
+          : 'ca-app-pub-3940256099942544/2934735716',
+      size: AdSize.largeBanner,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isBannerLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
+    )..load();
   }
 
   void _checkMilestoneAchievement(
@@ -402,7 +428,16 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                   style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
                 ),
               ),
-              const SizedBox(height: 36),
+              const SizedBox(height: 8),
+              (_isBannerLoaded && _bannerAd != null)
+                  ? Container(
+                      alignment: Alignment.center,
+                      width: _bannerAd!.size.width.toDouble(),
+                      height: _bannerAd!.size.height.toDouble(),
+                      child: AdWidget(ad: _bannerAd!),
+                    )
+                  : SizedBox(height: _bannerAd?.size.height.toDouble()),
+              const SizedBox(height: 18),
             ],
           );
         },
