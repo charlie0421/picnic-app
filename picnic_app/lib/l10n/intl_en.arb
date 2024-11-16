@@ -513,7 +513,7 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
   },
-  "label_reply": "Reply",
+  "label_reply": "Replying to a reply",
   "@label_reply": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
@@ -720,7 +720,7 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
   },
-  "message_agreement_success": "You've accepted the terms.",
+  "message_agreement_success": "Acceptance of the terms is complete.",
   "@message_agreement_success": {
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
@@ -1497,7 +1497,7 @@
   "@reward": {
     "manualTranslation": false
   },
-  "voting_share_benefit_text": "Get 1 bonus star candy for every 100 votes!",
+  "voting_share_benefit_text": "Get 1 bonus star candy for every 100 votes and share!",
   "@voting_share_benefit_text": {
     "manualTranslation": false
   },
@@ -1507,6 +1507,22 @@
   },
   "vote_share_message": "Voted!",
   "@vote_share_message": {
+    "manualTranslation": false
+  },
+  "vote_result_save_button": "Save the results",
+  "@vote_result_save_button": {
+    "manualTranslation": false
+  },
+  "vote_result_share_button": "Share your results",
+  "@vote_result_share_button": {
+    "manualTranslation": false
+  },
+  "save": "Save",
+  "@save": {
+    "manualTranslation": false
+  },
+  "share": "Share",
+  "@share": {
     "manualTranslation": false
   }
 }

@@ -513,6 +513,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "앱결제가 불가능한 분들을 위한 결제 창입니다.\n 미리 난수 아이디를 복사해 주세요.\n 복사 후 아래 버튼을 눌러 결제를 진행해 주세요."),
         "replies": MessageLookupByLibrary.simpleMessage("댓글"),
         "reward": MessageLookupByLibrary.simpleMessage("리워드"),
+        "save": MessageLookupByLibrary.simpleMessage("저장"),
+        "share": MessageLookupByLibrary.simpleMessage("공유"),
         "share_image_fail": MessageLookupByLibrary.simpleMessage("이미지 공유 실패"),
         "share_image_success":
             MessageLookupByLibrary.simpleMessage("이미지 공유 성공"),
@@ -583,6 +585,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "update_required_title":
             MessageLookupByLibrary.simpleMessage("업데이트가 필요합니다."),
         "views": MessageLookupByLibrary.simpleMessage("조회수"),
+        "vote_result_save_button":
+            MessageLookupByLibrary.simpleMessage("결과 저장"),
+        "vote_result_share_button":
+            MessageLookupByLibrary.simpleMessage("결과 공유"),
         "vote_share_message": MessageLookupByLibrary.simpleMessage("투표 완료!"),
         "voting_share_benefit_text": MessageLookupByLibrary.simpleMessage(
             "100개 이상 투표 후 공유하면 100개당 1개 보너스 별사탕 지급!")

@@ -172,13 +172,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("成为第一个发表评论的人！"),
         "label_bonus": MessageLookupByLibrary.simpleMessage("奖金"),
-        "label_button_agreement": MessageLookupByLibrary.simpleMessage("接受"),
+        "label_button_agreement": MessageLookupByLibrary.simpleMessage("同意"),
         "label_button_close": MessageLookupByLibrary.simpleMessage("關閉"),
         "label_button_disagreement":
             MessageLookupByLibrary.simpleMessage("不同意"),
         "label_button_recharge": MessageLookupByLibrary.simpleMessage("充电"),
         "label_button_save_vote_paper":
-            MessageLookupByLibrary.simpleMessage("存储您的选票"),
+            MessageLookupByLibrary.simpleMessage("保存您的选票"),
         "label_button_share": MessageLookupByLibrary.simpleMessage("分享"),
         "label_button_vote": MessageLookupByLibrary.simpleMessage("投票"),
         "label_button_watch_and_charge":
@@ -418,7 +418,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "post_hyperlink": MessageLookupByLibrary.simpleMessage("超链接"),
         "post_insert_link": MessageLookupByLibrary.simpleMessage("插入链接"),
         "post_loading_post_fail":
-            MessageLookupByLibrary.simpleMessage("加载帖子失败。"),
+            MessageLookupByLibrary.simpleMessage("帖子加载失败。"),
         "post_minor_board_condition":
             MessageLookupByLibrary.simpleMessage("请输入至少 5 个字符但不超过 20 个字符的描述。"),
         "post_minor_board_create_request_message":
@@ -468,6 +468,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "这是为无法使用应用程序付款的用户提供的付款窗口。\n 请事先复制随机数字 ID。\n 复制后，点击下面的按钮进行支付。"),
         "replies": MessageLookupByLibrary.simpleMessage("评论"),
         "reward": MessageLookupByLibrary.simpleMessage("奖励"),
+        "save": MessageLookupByLibrary.simpleMessage("节省"),
+        "share": MessageLookupByLibrary.simpleMessage("分享"),
         "share_image_fail": MessageLookupByLibrary.simpleMessage("图像共享失败"),
         "share_image_success": MessageLookupByLibrary.simpleMessage("成功共享图像"),
         "share_no_twitter": MessageLookupByLibrary.simpleMessage("X 应用程序丢失。"),
@@ -532,8 +534,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "update_required_text": m8,
         "update_required_title": MessageLookupByLibrary.simpleMessage("需要更新。"),
         "views": MessageLookupByLibrary.simpleMessage("意见"),
+        "vote_result_save_button": MessageLookupByLibrary.simpleMessage("保存结果"),
+        "vote_result_share_button":
+            MessageLookupByLibrary.simpleMessage("分享您的成果"),
         "vote_share_message": MessageLookupByLibrary.simpleMessage("投了赞成票！"),
         "voting_share_benefit_text":
-            MessageLookupByLibrary.simpleMessage("每 100 票可获得 1 颗奖励星形糖果！")
+            MessageLookupByLibrary.simpleMessage("每 100 次投票和分享可获得 1 个奖励星星糖果！")
       };
 }

@@ -1130,10 +1130,10 @@ class S {
     );
   }
 
-  /// `Reply`
+  /// `Replying to a reply`
   String get label_reply {
     return Intl.message(
-      'Reply',
+      'Replying to a reply',
       name: 'label_reply',
       desc: '',
       args: [],
@@ -1550,10 +1550,10 @@ class S {
     );
   }
 
-  /// `You've accepted the terms.`
+  /// `Acceptance of the terms is complete.`
   String get message_agreement_success {
     return Intl.message(
-      'You\'ve accepted the terms.',
+      'Acceptance of the terms is complete.',
       name: 'message_agreement_success',
       desc: '',
       args: [],
@@ -3330,10 +3330,10 @@ class S {
     );
   }
 
-  /// `Get 1 bonus star candy for every 100 votes!`
+  /// `Get 1 bonus star candy for every 100 votes and share!`
   String get voting_share_benefit_text {
     return Intl.message(
-      'Get 1 bonus star candy for every 100 votes!',
+      'Get 1 bonus star candy for every 100 votes and share!',
       name: 'voting_share_benefit_text',
       desc: '',
       args: [],
@@ -3355,6 +3355,46 @@ class S {
     return Intl.message(
       'Voted!',
       name: 'vote_share_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save the results`
+  String get vote_result_save_button {
+    return Intl.message(
+      'Save the results',
+      name: 'vote_result_save_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Share your results`
+  String get vote_result_share_button {
+    return Intl.message(
+      'Share your results',
+      name: 'vote_result_share_button',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save`
+  String get save {
+    return Intl.message(
+      'Save',
+      name: 'save',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Share`
+  String get share {
+    return Intl.message(
+      'Share',
+      name: 'share',
       desc: '',
       args: [],
     );

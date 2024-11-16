@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_app/components/vote/list/vote_header.dart';
+import 'package:picnic_app/components/vote/list/vote_info_card_header.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_horizontal.dart';
 import 'package:picnic_app/models/pic/artist_vote.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';

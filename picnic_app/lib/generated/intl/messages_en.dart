@@ -283,7 +283,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Compositing an image..."),
         "label_read_more_comment":
             MessageLookupByLibrary.simpleMessage("More comments"),
-        "label_reply": MessageLookupByLibrary.simpleMessage("Reply"),
+        "label_reply":
+            MessageLookupByLibrary.simpleMessage("Replying to a reply"),
         "label_retry": MessageLookupByLibrary.simpleMessage("Retrying"),
         "label_screen_title_agreement":
             MessageLookupByLibrary.simpleMessage("Accept the terms"),
@@ -356,8 +357,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Collecting votes"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("View ads"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("My Artists"),
-        "message_agreement_success":
-            MessageLookupByLibrary.simpleMessage("You\'ve accepted the terms."),
+        "message_agreement_success": MessageLookupByLibrary.simpleMessage(
+            "Acceptance of the terms is complete."),
         "message_error_occurred":
             MessageLookupByLibrary.simpleMessage("An error occurred."),
         "message_noitem_vote_active": MessageLookupByLibrary.simpleMessage(
@@ -564,6 +565,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "This is the payment window for those who can\'t pay with the app.\n Please copy the random ID in advance.\n After copying it, click the button below to proceed with the payment."),
         "replies": MessageLookupByLibrary.simpleMessage("Comments"),
         "reward": MessageLookupByLibrary.simpleMessage("Rewards"),
+        "save": MessageLookupByLibrary.simpleMessage("Save"),
+        "share": MessageLookupByLibrary.simpleMessage("Share"),
         "share_image_fail":
             MessageLookupByLibrary.simpleMessage("Image sharing failed"),
         "share_image_success":
@@ -642,8 +645,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "update_required_title":
             MessageLookupByLibrary.simpleMessage("An update is required."),
         "views": MessageLookupByLibrary.simpleMessage("Views"),
+        "vote_result_save_button":
+            MessageLookupByLibrary.simpleMessage("Save the results"),
+        "vote_result_share_button":
+            MessageLookupByLibrary.simpleMessage("Share your results"),
         "vote_share_message": MessageLookupByLibrary.simpleMessage("Voted!"),
         "voting_share_benefit_text": MessageLookupByLibrary.simpleMessage(
-            "Get 1 bonus star candy for every 100 votes!")
+            "Get 1 bonus star candy for every 100 votes and share!")
       };
 }

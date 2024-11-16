@@ -928,6 +928,18 @@
     "bonus_candy_awarded": "별사탕이 지급되었습니다.",
     "@bonus_candy_awarded": {
     },
+    "vote_result_save_button": "결과 저장",
+    "@vote_result_save_button": {
+    },
+    "vote_result_share_button": "결과 공유",
+    "@vote_result_share_button": {
+    },
+    "save": "저장",
+    "@save": {
+    },
+    "share": "공유",
+    "@share": {
+    },
     "vote_share_message": "투표 완료!",
     "@vote_share_message": {
     },

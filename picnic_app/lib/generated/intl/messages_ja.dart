@@ -506,6 +506,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "アプリ決済ができない方のための決済画面です。\n あらかじめ乱数IDをコピーしてください。\n コピー後、下のボタンを押して支払いを行ってください。"),
         "replies": MessageLookupByLibrary.simpleMessage("コメント"),
         "reward": MessageLookupByLibrary.simpleMessage("リワード"),
+        "save": MessageLookupByLibrary.simpleMessage("ストレージ"),
+        "share": MessageLookupByLibrary.simpleMessage("共有"),
         "share_image_fail": MessageLookupByLibrary.simpleMessage("画像共有に失敗"),
         "share_image_success": MessageLookupByLibrary.simpleMessage("画像共有成功"),
         "share_no_twitter": MessageLookupByLibrary.simpleMessage("Xアプリがありません。"),
@@ -574,8 +576,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "update_required_title":
             MessageLookupByLibrary.simpleMessage("アップデートが必要です。"),
         "views": MessageLookupByLibrary.simpleMessage("再生回数"),
+        "vote_result_save_button": MessageLookupByLibrary.simpleMessage("結果保存"),
+        "vote_result_share_button":
+            MessageLookupByLibrary.simpleMessage("結果共有"),
         "vote_share_message": MessageLookupByLibrary.simpleMessage("投票完了！"),
         "voting_share_benefit_text": MessageLookupByLibrary.simpleMessage(
-            "100票以上投票すると、100票につき1個のボーナスお菓子をプレゼント！")
+            "100個以上投票してシェアすると、100個につき1個のボーナスお菓子をプレゼント！")
       };
 }

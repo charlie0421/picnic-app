@@ -1311,7 +1311,7 @@
   "@views": {
     "manualTranslation": false
   },
-  "voting_share_benefit_text": "100票以上投票すると、100票につき1個のボーナスお菓子をプレゼント！",
+  "voting_share_benefit_text": "100個以上投票してシェアすると、100個につき1個のボーナスお菓子をプレゼント！",
   "@voting_share_benefit_text": {
     "manualTranslation": false
   },
@@ -1321,6 +1321,22 @@
   },
   "vote_share_message": "投票完了！",
   "@vote_share_message": {
+    "manualTranslation": false
+  },
+  "vote_result_save_button": "結果保存",
+  "@vote_result_save_button": {
+    "manualTranslation": false
+  },
+  "vote_result_share_button": "結果共有",
+  "@vote_result_share_button": {
+    "manualTranslation": false
+  },
+  "save": "ストレージ",
+  "@save": {
+    "manualTranslation": false
+  },
+  "share": "共有",
+  "@share": {
     "manualTranslation": false
   }
 }

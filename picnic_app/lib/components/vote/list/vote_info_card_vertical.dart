@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/models/vote/vote.dart';
+import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
@@ -13,22 +14,23 @@ class VoteCardColumnVertical extends StatelessWidget {
     required this.voteItem,
     required this.rank,
     required this.opacityAnimation,
+    this.status,
   });
 
   final VoteItemModel voteItem;
   final int rank;
   final Animation<double> opacityAnimation;
+  final VoteStatus? status;
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     const width = 80.0;
     final barHeight = (rank == 1
         ? 220 * .65
         : rank == 2
             ? 220 * .50
             : 220 * .40);
+
     return Stack(
       alignment: Alignment.bottomCenter,
       clipBehavior: Clip.none,
@@ -47,6 +49,25 @@ class VoteCardColumnVertical extends StatelessWidget {
             ),
           ),
         ),
+        // 득표수 표시 (종료된 투표에만 표시)
+        if (status == VoteStatus.end)
+          Positioned(
+            bottom: (barHeight + width * .7) + 20,
+            child: FadeTransition(
+              opacity: opacityAnimation,
+              child: Column(
+                children: [
+                  Text(
+                    NumberFormat('#,###').format(voteItem.voteTotal),
+                    style:
+                        getTextStyle(AppTypo.caption12M, AppColors.primary500),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 2),
+                ],
+              ),
+            ),
+          ),
         Positioned(
           bottom: (barHeight + width * .7),
           child: FadeTransition(
