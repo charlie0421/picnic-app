@@ -290,8 +290,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
           Column(
             children: [
               VoteCardInfoFooter(
-                saveButtonText: "결과 저장",
-                shareButtonText: "결과 공유",
+                saveButtonText: S.of(context).vote_result_save_button,
+                shareButtonText: S.of(context).vote_result_share_button,
                 onSave: () {
                   if (_isSaving) return;
                   VoteShareUtils.captureAndSaveImage(
@@ -626,104 +626,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
 
   void _handleVoteItemTap(BuildContext context, VoteItemModel item, int index) {
     if (isEnded) {
-      // 3위 이내인 경우에만 저장/공유 다이얼로그 표시
-      if (index < 3) {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return Dialog(
-              backgroundColor: Colors.transparent,
-              child: Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: AppColors.grey00,
-                  borderRadius: BorderRadius.circular(20.r),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '${index + 1}위 투표 결과',
-                      style: getTextStyle(AppTypo.body16B, AppColors.grey900),
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            VoteShareUtils.captureAndSaveImage(
-                              _globalKey,
-                              context,
-                              onStart: () => setState(() => _isSaving = true),
-                              onComplete: () =>
-                                  setState(() => _isSaving = false),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary500,
-                            padding: EdgeInsets.zero,
-                            minimumSize: Size(104.cw, 32),
-                            maximumSize: Size(104.cw, 32),
-                          ),
-                          child: Text(
-                            '투표권 저장',
-                            style:
-                                getTextStyle(AppTypo.body14B, AppColors.grey00),
-                          ),
-                        ),
-                        SizedBox(width: 16.cw),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            VoteShareUtils.shareToTwitter(
-                              _globalKey,
-                              context,
-                              title: getLocaleTextFromJson(item.artist.id != 0
-                                  ? item.artist.name
-                                  : item.artistGroup.name),
-                              onStart: () => setState(() => _isSaving = true),
-                              onComplete: () =>
-                                  setState(() => _isSaving = false),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary500,
-                            padding: EdgeInsets.zero,
-                            minimumSize: Size(104.cw, 32),
-                            maximumSize: Size(104.cw, 32),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                '공유하기',
-                                style: getTextStyle(
-                                  AppTypo.body14B,
-                                  AppColors.grey00,
-                                ),
-                              ),
-                              SizedBox(width: 4.cw),
-                              SvgPicture.asset(
-                                'assets/icons/twitter_style=fill.svg',
-                                width: 16.cw,
-                                height: 16,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      } else {
-        showSimpleDialog(content: S.of(context).message_vote_is_ended);
-      }
+      showSimpleDialog(content: S.of(context).message_vote_is_ended);
     } else if (isUpcoming) {
       showSimpleDialog(content: S.of(context).message_vote_is_upcoming);
     } else {
