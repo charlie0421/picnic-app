@@ -189,29 +189,32 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   Widget build(BuildContext context) {
     return RepaintBoundary(
       key: _globalKey,
-      child: ref.watch(asyncVoteDetailProvider(voteId: widget.voteId)).when(
-            data: (voteModel) {
-              if (voteModel == null) return const SizedBox.shrink();
-              isEnded = voteModel.isEnded!;
-              isUpcoming = voteModel.isUpcoming!;
+      child: Container(
+        color: AppColors.grey00,
+        child: ref.watch(asyncVoteDetailProvider(voteId: widget.voteId)).when(
+              data: (voteModel) {
+                if (voteModel == null) return const SizedBox.shrink();
+                isEnded = voteModel.isEnded!;
+                isUpcoming = voteModel.isUpcoming!;
 
-              return GestureDetector(
-                onTap: () => _focusNode.unfocus(),
-                child: CustomScrollView(
-                  controller: _scrollController,
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: _buildVoteInfo(context, voteModel),
-                    ),
-                    _buildVoteItemList(context),
-                  ],
-                ),
-              );
-            },
-            loading: () => _buildLoadingShimmer(),
-            error: (error, stackTrace) => ErrorView(context,
-                error: error.toString(), stackTrace: stackTrace),
-          ),
+                return GestureDetector(
+                  onTap: () => _focusNode.unfocus(),
+                  child: CustomScrollView(
+                    controller: _scrollController,
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: _buildVoteInfo(context, voteModel),
+                      ),
+                      _buildVoteItemList(context),
+                    ],
+                  ),
+                );
+              },
+              loading: () => _buildLoadingShimmer(),
+              error: (error, stackTrace) => ErrorView(context,
+                  error: error.toString(), stackTrace: stackTrace),
+            ),
+      ),
     );
   }
 

@@ -274,10 +274,13 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
 
     return RepaintBoundary(
       key: _globalKey,
-      child: asyncVoteDetail.when(
-        data: (vote) => _buildCard(context, vote, asyncVoteItemList),
-        loading: () => buildLoadingOverlay(),
-        error: (error, stack) => Text('Error: $error'),
+      child: Container(
+        color: AppColors.grey00,
+        child: asyncVoteDetail.when(
+          data: (vote) => _buildCard(context, vote, asyncVoteItemList),
+          loading: () => buildLoadingOverlay(),
+          error: (error, stack) => Text('Error: $error'),
+        ),
       ),
     );
   }

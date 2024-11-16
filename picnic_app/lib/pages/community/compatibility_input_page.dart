@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:picnic_app/components/common/avatar_container.dart';
+import 'package:picnic_app/components/community/compatibility/compatibility_info.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/providers/community/compatibility_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
@@ -31,21 +33,7 @@ class _CompatibilityInputScreenState
   String? _gender;
   bool _agreedToSaveProfile = false;
   bool _isLoading = true;
-
-  static const timeSlots = [
-    '자시 (23:30-01:29)',
-    '축시 (01:30-03:29)',
-    '인시 (03:30-05:29)',
-    '묘시 (05:30-07:29)',
-    '진시 (07:30-09:29)',
-    '사시 (09:30-11:29)',
-    '오시 (11:30-13:29)',
-    '미시 (13:30-15:29)',
-    '신시 (15:30-17:29)',
-    '유시 (17:30-19:29)',
-    '술시 (19:30-21:29)',
-    '해시 (21:30-23:29)',
-  ];
+  List<String>? _timeSlots;
 
   static const genderOptions = [
     {'value': 'male', 'label': '남성'},
@@ -56,6 +44,26 @@ class _CompatibilityInputScreenState
   void initState() {
     super.initState();
     _loadUserProfile();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Move the time slots initialization here
+    _timeSlots = [
+      S.of(context).compatibility_time_slot1,
+      S.of(context).compatibility_time_slot2,
+      S.of(context).compatibility_time_slot3,
+      S.of(context).compatibility_time_slot4,
+      S.of(context).compatibility_time_slot5,
+      S.of(context).compatibility_time_slot6,
+      S.of(context).compatibility_time_slot7,
+      S.of(context).compatibility_time_slot8,
+      S.of(context).compatibility_time_slot9,
+      S.of(context).compatibility_time_slot10,
+      S.of(context).compatibility_time_slot11,
+      S.of(context).compatibility_time_slot12,
+    ];
   }
 
   Future<void> _loadUserProfile() async {
@@ -181,185 +189,85 @@ class _CompatibilityInputScreenState
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('${getLocaleTextFromJson(widget.artist.name)}님과의 궁합'),
-      ),
-      body: SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              // 프로필 이미지와 이름
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Column(
-                    children: [
-                      ProfileImageContainer(
-                        avatarUrl: widget.artist.image ?? '',
-                        width: 120,
-                        height: 120,
-                        borderRadius: 40,
-                      ),
-                      Text(
-                        getLocaleTextFromJson(widget.artist.name) ?? '',
-                        textAlign: TextAlign.center,
-                        style:
-                            getTextStyle(AppTypo.title18B, AppColors.grey900),
-                      ),
-                      Text(
-                        formatDateTimeYYYYMMDD(
-                            widget.artist.birthDate ?? DateTime.now()),
-                        textAlign: TextAlign.center,
-                        style: getTextStyle(AppTypo.body16B, AppColors.grey900),
-                      ),
-                    ],
-                  ),
-                  const Icon(FontAwesomeIcons.heart,
-                      size: 48, color: Colors.red),
-                  Column(
-                    children: [
-                      ProfileImageContainer(
-                        avatarUrl: ref.read(userInfoProvider
-                                .select((value) => value.value?.avatarUrl)) ??
-                            '',
-                        width: 120,
-                        height: 120,
-                        borderRadius: 40,
-                      ),
-                      Text(
-                        ref.read(userInfoProvider
-                                .select((value) => value.value?.nickname)) ??
-                            '',
-                        textAlign: TextAlign.center,
-                        style:
-                            getTextStyle(AppTypo.title18B, AppColors.grey900),
-                      ),
-                      Text(
-                        formatDateTimeYYYYMMDD(_birthDate ?? DateTime.now()),
-                        textAlign: TextAlign.center,
-                        style: getTextStyle(AppTypo.body16B, AppColors.grey900),
-                      ),
-                    ],
-                  ),
-                ],
+    return SingleChildScrollView(
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            // 프로필 이미지와 이름
+            CompatibilityInfo(
+                artist: widget.artist, ref: ref, birthDate: _birthDate),
+            const SizedBox(height: 8),
+
+            // 성별 선택
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
-              const SizedBox(height: 32),
-
-              // 성별 선택
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.person_outline,
-                              color: AppColors.primary500),
-                          const SizedBox(width: 8),
-                          Text(
-                            '성별',
-                            style: getTextStyle(
-                                AppTypo.body14B, AppColors.grey900),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: genderOptions
-                            .map((option) => Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 4),
-                                    child: FilledButton(
-                                      onPressed: () => setState(
-                                          () => _gender = option['value']),
-                                      style: FilledButton.styleFrom(
-                                        backgroundColor:
-                                            _gender == option['value']
-                                                ? AppColors.primary500
-                                                : AppColors.grey300,
-                                      ),
-                                      child: Text(
-                                        option['label']!,
-                                        style: getTextStyle(
-                                          AppTypo.body14B,
-                                          _gender == option['value']
-                                              ? AppColors.grey00
-                                              : AppColors.grey900,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ))
-                            .toList(),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // 생년월일 선택
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: InkWell(
-                  onTap: _selectDate,
-                  borderRadius: BorderRadius.circular(16),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.calendar_today,
-                                color: AppColors.primary500),
-                            const SizedBox(width: 8),
-                            Text(
-                              '생년월일',
-                              style: getTextStyle(
-                                  AppTypo.body14B, AppColors.grey900),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
+                        const Icon(Icons.person_outline,
+                            color: AppColors.primary500),
+                        const SizedBox(width: 8),
                         Text(
-                          _birthDate == null
-                              ? '날짜를 선택해주세요'
-                              : '${_birthDate!.year}년 ${_birthDate!.month}월 ${_birthDate!.day}일',
-                          style: getTextStyle(
-                            AppTypo.body16B,
-                            _birthDate == null
-                                ? AppColors.grey500
-                                : AppColors.grey900,
-                          ),
+                          '성별',
+                          style:
+                              getTextStyle(AppTypo.body14B, AppColors.grey900),
                         ),
                       ],
                     ),
-                  ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: genderOptions
+                          .map((option) => Expanded(
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 4),
+                                  child: FilledButton(
+                                    onPressed: () => setState(
+                                        () => _gender = option['value']),
+                                    style: FilledButton.styleFrom(
+                                      backgroundColor:
+                                          _gender == option['value']
+                                              ? AppColors.primary500
+                                              : AppColors.grey300,
+                                    ),
+                                    child: Text(
+                                      option['label']!,
+                                      style: getTextStyle(
+                                        AppTypo.body14B,
+                                        _gender == option['value']
+                                            ? AppColors.grey00
+                                            : AppColors.grey900,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ))
+                          .toList(),
+                    ),
+                  ],
                 ),
               ),
+            ),
 
-              const SizedBox(height: 16),
+            const SizedBox(height: 8),
 
-              // 시간 선택
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
+            // 생년월일 선택
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: InkWell(
+                onTap: _selectDate,
+                borderRadius: BorderRadius.circular(16),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -367,106 +275,147 @@ class _CompatibilityInputScreenState
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.access_time,
+                          const Icon(Icons.calendar_today,
                               color: AppColors.primary500),
                           const SizedBox(width: 8),
                           Text(
-                            '태어난 시간 (선택사항)',
+                            '생년월일',
                             style: getTextStyle(
                                 AppTypo.body14B, AppColors.grey900),
                           ),
                         ],
                       ),
                       const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
-                              color: AppColors.grey300,
-                            ),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
+                      Text(
+                        _birthDate == null
+                            ? '날짜를 선택해주세요'
+                            : '${_birthDate!.year}년 ${_birthDate!.month}월 ${_birthDate!.day}일',
+                        style: getTextStyle(
+                          AppTypo.body16B,
+                          _birthDate == null
+                              ? AppColors.grey500
+                              : AppColors.grey900,
                         ),
-                        value: _birthTime,
-                        hint: Text(
-                          '시간을 선택해주세요',
-                          style:
-                              getTextStyle(AppTypo.body14M, AppColors.grey500),
-                        ),
-                        items: [
-                          DropdownMenuItem(
-                            value: null,
-                            child: Text(
-                              '모름',
-                              style: getTextStyle(
-                                  AppTypo.body14M, AppColors.grey900),
-                            ),
-                          ),
-                          ...timeSlots.map(
-                            (time) => DropdownMenuItem(
-                              value: time,
-                              child: Text(
-                                time,
-                                style: getTextStyle(
-                                    AppTypo.body14M, AppColors.grey900),
-                              ),
-                            ),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          setState(() {
-                            _birthTime = value;
-                          });
-                        },
                       ),
                     ],
                   ),
                 ),
               ),
+            ),
 
-              const SizedBox(height: 24),
+            const SizedBox(height: 8),
 
-              // 동의 체크박스
-              CheckboxListTile(
-                value: _agreedToSaveProfile,
-                onChanged: (value) {
-                  setState(() {
-                    _agreedToSaveProfile = value ?? false;
-                  });
-                },
-                title: Text(
-                  '입력한 성별, 생일 정보를 프로필에 저장하는 것에 동의합니다.',
-                  style: getTextStyle(AppTypo.body14M, AppColors.grey900),
-                ),
-                controlAffinity: ListTileControlAffinity.leading,
-                contentPadding: EdgeInsets.zero,
+            // 시간 선택
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
-
-              const SizedBox(height: 24),
-
-              // Submit Button
-              FilledButton(
-                onPressed: _agreedToSaveProfile ? _submit : null,
-                style: FilledButton.styleFrom(
-                  minimumSize: const Size.fromHeight(56),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  backgroundColor: _agreedToSaveProfile
-                      ? AppColors.primary500
-                      : AppColors.grey300,
-                ),
-                child: Text(
-                  '궁합 보기',
-                  style: getTextStyle(AppTypo.body16B, AppColors.grey00),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.access_time,
+                            color: AppColors.primary500),
+                        const SizedBox(width: 8),
+                        Text(
+                          '태어난 시간 (선택사항)',
+                          style:
+                              getTextStyle(AppTypo.body14B, AppColors.grey900),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<String>(
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(
+                            color: AppColors.grey300,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                      ),
+                      value: _birthTime,
+                      hint: Text(
+                        '시간을 선택해주세요',
+                        style: getTextStyle(AppTypo.body14M, AppColors.grey500),
+                      ),
+                      items: [
+                        DropdownMenuItem(
+                          value: null,
+                          child: Text(
+                            '모름',
+                            style: getTextStyle(
+                                AppTypo.body14M, AppColors.grey900),
+                          ),
+                        ),
+                        ...?_timeSlots?.map(
+                          (time) => DropdownMenuItem(
+                            value: time,
+                            child: Text(
+                              time,
+                              style: getTextStyle(
+                                  AppTypo.body14M, AppColors.grey900),
+                            ),
+                          ),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _birthTime = value;
+                        });
+                      },
+                    ),
+                  ],
                 ),
               ),
+            ),
 
-              const SizedBox(height: 24),
-            ],
-          ),
+            const SizedBox(height: 8),
+
+            // 동의 체크박스
+            CheckboxListTile(
+              value: _agreedToSaveProfile,
+              onChanged: (value) {
+                setState(() {
+                  _agreedToSaveProfile = value ?? false;
+                });
+              },
+              title: Text(
+                '입력한 성별, 생일 정보를 프로필에 저장하는 것에 동의합니다.',
+                style: getTextStyle(AppTypo.body14M, AppColors.grey900),
+              ),
+              controlAffinity: ListTileControlAffinity.leading,
+              contentPadding: EdgeInsets.zero,
+            ),
+
+            const SizedBox(height: 24),
+
+            // Submit Button
+            FilledButton(
+              onPressed: _agreedToSaveProfile ? _submit : null,
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(56),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                backgroundColor: _agreedToSaveProfile
+                    ? AppColors.primary500
+                    : AppColors.grey300,
+              ),
+              child: Text(
+                '궁합 보기',
+                style: getTextStyle(AppTypo.body16B, AppColors.grey00),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+          ],
         ),
       ),
     );

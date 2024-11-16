@@ -78,6 +78,30 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("最近的搜索"),
         "common_text_search_result_label":
             MessageLookupByLibrary.simpleMessage("搜索结果"),
+        "compatibility_time_slot1":
+            MessageLookupByLibrary.simpleMessage("子时 (23:30-01:29)"),
+        "compatibility_time_slot10":
+            MessageLookupByLibrary.simpleMessage("酉时 (17:30-19:29)"),
+        "compatibility_time_slot11":
+            MessageLookupByLibrary.simpleMessage("戌时 (19:30-21:29)"),
+        "compatibility_time_slot12":
+            MessageLookupByLibrary.simpleMessage("亥时 (21:30-23:29)"),
+        "compatibility_time_slot2":
+            MessageLookupByLibrary.simpleMessage("丑时 (01:30-03:29)"),
+        "compatibility_time_slot3":
+            MessageLookupByLibrary.simpleMessage("寅时 (03:30-05:29)"),
+        "compatibility_time_slot4":
+            MessageLookupByLibrary.simpleMessage("卯时 (05:30-07:29)"),
+        "compatibility_time_slot5":
+            MessageLookupByLibrary.simpleMessage("辰时 (07:30-09:29)"),
+        "compatibility_time_slot6":
+            MessageLookupByLibrary.simpleMessage("巳时 (09:30-11:29)"),
+        "compatibility_time_slot7":
+            MessageLookupByLibrary.simpleMessage("午时 (11:30-13:29)"),
+        "compatibility_time_slot8":
+            MessageLookupByLibrary.simpleMessage("未时 (13:30-15:29)"),
+        "compatibility_time_slot9":
+            MessageLookupByLibrary.simpleMessage("申时 (15:30-17:29)"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("取消"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("确认"),
         "dialog_caution": MessageLookupByLibrary.simpleMessage("警告 🚫"),
