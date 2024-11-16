@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:picnic_app/components/community/compatibility/animated_heart.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/pages/community/compatibility_input_page.dart';
 import 'package:picnic_app/pages/community/post_search_page.dart';
@@ -45,19 +46,13 @@ class _TopRightPostState extends ConsumerState<TopRightPost> {
                 showRequireLoginDialog();
               }
             },
-            child: Container(
-              alignment: Alignment.centerLeft,
-              width: 48,
-              height: 48,
-              child: SvgPicture.asset(
-                'assets/icons/compatibility_style=fill.svg',
-                width: 48,
-                height: 48,
-                colorFilter:
-                    const ColorFilter.mode(Colors.pinkAccent, BlendMode.srcIn),
-              ),
+            child: PulsingHeart(
+              size: 24.0,
+              color: Colors.red,
+              duration: const Duration(milliseconds: 3000),
             ),
           ),
+        SizedBox(width: 12),
         GestureDetector(
           onTap: () {
             if (supabase.isLogged) {

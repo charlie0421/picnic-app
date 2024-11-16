@@ -951,6 +951,54 @@
     "@text_bonus": {
         "translationTimestamp": "2024-07-21T11:18:53.669108"
     },
+    "compatibility_time_slot1": "자시 (23:30-01:29)",
+    "@compatibility_time_slot1": {
+        "manualTranslation": true
+    },
+    "compatibility_time_slot2": "축시 (01:30-03:29)",
+    "@compatibility_time_slot2": {
+        "manualTranslation": true
+    },
+    "compatibility_time_slot3": "인시 (03:30-05:29)",
+    "@compatibility_time_slot3": {
+        "manualTranslation": true
+    },
+    "compatibility_time_slot4": "묘시 (05:30-07:29)",
+    "@compatibility_time_slot4": {
+        "manualTranslation": true
+    },
+    "compatibility_time_slot5": "진시 (07:30-09:29)",
+    "@compatibility_time_slot5": {
+        "manualTranslation": true
+    },
+    "compatibility_time_slot6": "사시 (09:30-11:29)",
+    "@compatibility_time_slot6": {
+        "manualTranslation": true
+    },
+    "compatibility_time_slot7": "오시 (11:30-13:29)",
+    "@compatibility_time_slot7": {
+        "manualTranslation": true
+    },
+    "compatibility_time_slot8": "미시 (13:30-15:29)",
+    "@compatibility_time_slot8": {
+        "manualTranslation": true
+    },
+    "compatibility_time_slot9": "신시 (15:30-17:29)",
+    "@compatibility_time_slot9": {
+        "manualTranslation": true
+    },
+    "compatibility_time_slot10": "유시 (17:30-19:29)",
+    "@compatibility_time_slot10": {
+        "manualTranslation": true
+    },
+    "compatibility_time_slot11": "술시 (19:30-21:29)",
+    "@compatibility_time_slot11": {
+        "manualTranslation": true
+    },
+    "compatibility_time_slot12": "해시 (21:30-23:29)",
+    "@compatibility_time_slot12": {
+        "manualTranslation": true
+    },
     "text_bookmark_failed": "북마크 해제에 실패했습니다",
     "@text_bookmark_failed": {},
     "text_bookmark_over_5": "북마크는 최대 5개까지 가능합니다",

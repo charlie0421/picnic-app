@@ -3399,6 +3399,126 @@ class S {
       args: [],
     );
   }
+
+  /// `Jasi / Rat Hour(23:30-01:29)`
+  String get compatibility_time_slot1 {
+    return Intl.message(
+      'Jasi / Rat Hour(23:30-01:29)',
+      name: 'compatibility_time_slot1',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Chuksi / Ox Hour(01:30-03:29)`
+  String get compatibility_time_slot2 {
+    return Intl.message(
+      'Chuksi / Ox Hour(01:30-03:29)',
+      name: 'compatibility_time_slot2',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Insi / Tiger Hour(03:30-05:29)`
+  String get compatibility_time_slot3 {
+    return Intl.message(
+      'Insi / Tiger Hour(03:30-05:29)',
+      name: 'compatibility_time_slot3',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Myosi / Rabbit Hour(07:30-09:29)`
+  String get compatibility_time_slot5 {
+    return Intl.message(
+      'Myosi / Rabbit Hour(07:30-09:29)',
+      name: 'compatibility_time_slot5',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Jinsi / Dragon Hour(05:30-07:29)`
+  String get compatibility_time_slot4 {
+    return Intl.message(
+      'Jinsi / Dragon Hour(05:30-07:29)',
+      name: 'compatibility_time_slot4',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sasi / Snake Hour(13:30-15:29)`
+  String get compatibility_time_slot8 {
+    return Intl.message(
+      'Sasi / Snake Hour(13:30-15:29)',
+      name: 'compatibility_time_slot8',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Osi/Horse Hour(09:30-11:29)`
+  String get compatibility_time_slot6 {
+    return Intl.message(
+      'Osi/Horse Hour(09:30-11:29)',
+      name: 'compatibility_time_slot6',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Misi / Sheep Hour(11:30-13:29)`
+  String get compatibility_time_slot7 {
+    return Intl.message(
+      'Misi / Sheep Hour(11:30-13:29)',
+      name: 'compatibility_time_slot7',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sinsi / Monkey Hour(17:30-19:29)`
+  String get compatibility_time_slot10 {
+    return Intl.message(
+      'Sinsi / Monkey Hour(17:30-19:29)',
+      name: 'compatibility_time_slot10',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Yusi / Rooster Hour(15:30-17:29)`
+  String get compatibility_time_slot9 {
+    return Intl.message(
+      'Yusi / Rooster Hour(15:30-17:29)',
+      name: 'compatibility_time_slot9',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Haesi / Pig Hour(19:30-21:29)`
+  String get compatibility_time_slot11 {
+    return Intl.message(
+      'Haesi / Pig Hour(19:30-21:29)',
+      name: 'compatibility_time_slot11',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Hash (21:30-23:29)`
+  String get compatibility_time_slot12 {
+    return Intl.message(
+      'Hash (21:30-23:29)',
+      name: 'compatibility_time_slot12',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

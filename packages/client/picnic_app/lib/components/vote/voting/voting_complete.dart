@@ -337,10 +337,10 @@ ${Intl.message('vote_share_message')} 🎉
   Widget build(BuildContext context) {
     final userInfo = ref.watch(userInfoProvider);
 
-    return RepaintBoundary(
-      key: _globalKey,
-      child: Material(
-        color: Colors.transparent,
+    return Material(
+      color: AppColors.transparent,
+      child: RepaintBoundary(
+        key: _globalKey,
         child: Dialog(
           insetPadding: EdgeInsets.symmetric(horizontal: 24.cw),
           backgroundColor: Colors.transparent,
