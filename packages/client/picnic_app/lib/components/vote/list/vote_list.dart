@@ -25,22 +25,59 @@ class _VoteListState extends ConsumerState<VoteList> {
   final PagingController<int, VoteModel> _pagingController =
       PagingController(firstPageKey: 1);
   static const _pageSize = 10;
+  late PageController _pageController;
 
   @override
   void initState() {
     super.initState();
+    _pageController = PageController();
     _pagingController.addPageRequestListener(
         (pageKey) => _fetch(pageKey, status: widget.status));
   }
 
   @override
   void dispose() {
+    _pageController.dispose();
     _pagingController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (widget.status == VoteStatus.end) {
+      return PagedPageView<int, VoteModel>(
+        pagingController: _pagingController,
+        scrollDirection: Axis.vertical,
+        physics: const AlwaysScrollableScrollPhysics(),
+        pageController: _pageController,
+        builderDelegate: PagedChildBuilderDelegate<VoteModel>(
+          firstPageErrorIndicatorBuilder: (context) => ErrorView(
+            context,
+            error: _pagingController.error.toString(),
+            retryFunction: () => _pagingController.refresh(),
+            stackTrace: _pagingController.error.stackTrace,
+          ),
+          firstPageProgressIndicatorBuilder: (context) =>
+              SizedBox(height: 400, child: buildLoadingOverlay()),
+          noItemsFoundIndicatorBuilder: (context) =>
+              _buildNoItemsFound(context),
+          itemBuilder: (context, item, index) {
+            return SizedBox(
+              height: MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top -
+                  kToolbarHeight,
+              child: VoteInfoCard(
+                context: context,
+                vote: item,
+                status: widget.status,
+              ),
+            );
+          },
+        ),
+      );
+    }
+
+    // 진행중이거나 예정된 투표는 기존 방식대로 표시
     return PagedListView<int, VoteModel>(
       shrinkWrap: true,
       pagingController: _pagingController,

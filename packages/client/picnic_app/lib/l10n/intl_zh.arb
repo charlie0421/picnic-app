@@ -267,7 +267,7 @@
   "@label_album_add": {
     "manualTranslation": false
   },
-  "label_button_agreement": "接受",
+  "label_button_agreement": "同意",
   "@label_button_agreement": {
     "manualTranslation": false
   },
@@ -291,7 +291,7 @@
   "@label_button_disagreement": {
     "manualTranslation": false
   },
-  "label_button_save_vote_paper": "存储您的选票",
+  "label_button_save_vote_paper": "保存您的选票",
   "@label_button_save_vote_paper": {
     "manualTranslation": false
   },
@@ -1031,7 +1031,7 @@
   "@post_insert_link": {
     "manualTranslation": false
   },
-  "post_loading_post_fail": "加载帖子失败。",
+  "post_loading_post_fail": "帖子加载失败。",
   "@post_loading_post_fail": {
     "manualTranslation": false
   },
@@ -1311,7 +1311,7 @@
   "@views": {
     "manualTranslation": false
   },
-  "voting_share_benefit_text": "每 100 票可获得 1 颗奖励星形糖果！",
+  "voting_share_benefit_text": "每 100 次投票和分享可获得 1 个奖励星星糖果！",
   "@voting_share_benefit_text": {
     "manualTranslation": false
   },
@@ -1321,6 +1321,22 @@
   },
   "vote_share_message": "投了赞成票！",
   "@vote_share_message": {
+    "manualTranslation": false
+  },
+  "vote_result_save_button": "保存结果",
+  "@vote_result_save_button": {
+    "manualTranslation": false
+  },
+  "vote_result_share_button": "分享您的成果",
+  "@vote_result_share_button": {
+    "manualTranslation": false
+  },
+  "save": "节省",
+  "@save": {
+    "manualTranslation": false
+  },
+  "share": "分享",
+  "@share": {
     "manualTranslation": false
   }
 }
