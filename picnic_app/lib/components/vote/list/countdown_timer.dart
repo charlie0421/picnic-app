@@ -9,6 +9,7 @@ class CountdownTimer extends StatefulWidget {
   final DateTime endTime;
   final VoteStatus status;
   final VoidCallback? onRefresh;
+
   const CountdownTimer(
       {super.key, required this.endTime, required this.status, this.onRefresh});
 
@@ -83,7 +84,10 @@ class _CountdownTimerState extends State<CountdownTimer> {
           ),
         if (widget.status == VoteStatus.end)
           Text(S.of(context).label_vote_end,
-              style: getTextStyle(AppTypo.caption12B, AppColors.grey300)),
+              style:
+                  getTextStyle(AppTypo.body14B, AppColors.primary500).copyWith(
+                decoration: TextDecoration.underline,
+              )),
         if (widget.status != VoteStatus.end)
           SizedBox(
             height: 18,
