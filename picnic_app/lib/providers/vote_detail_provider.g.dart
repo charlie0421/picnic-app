@@ -159,14 +159,16 @@ class _FetchVoteAchieveProviderElement
   int get voteId => (origin as FetchVoteAchieveProvider).voteId;
 }
 
-String _$asyncVoteDetailHash() => r'56ceb5fa802ebd89b5c73f86b672abcb5fd1e891';
+String _$asyncVoteDetailHash() => r'cedc7de5adff4d9f3952d9a6c95380de0823da4d';
 
 abstract class _$AsyncVoteDetail
     extends BuildlessAutoDisposeAsyncNotifier<VoteModel?> {
   late final int voteId;
+  late final VotePortal votePortal;
 
   FutureOr<VoteModel?> build({
     required int voteId,
+    VotePortal votePortal = VotePortal.vote,
   });
 }
 
@@ -182,9 +184,11 @@ class AsyncVoteDetailFamily extends Family<AsyncValue<VoteModel?>> {
   /// See also [AsyncVoteDetail].
   AsyncVoteDetailProvider call({
     required int voteId,
+    VotePortal votePortal = VotePortal.vote,
   }) {
     return AsyncVoteDetailProvider(
       voteId: voteId,
+      votePortal: votePortal,
     );
   }
 
@@ -194,6 +198,7 @@ class AsyncVoteDetailFamily extends Family<AsyncValue<VoteModel?>> {
   ) {
     return call(
       voteId: provider.voteId,
+      votePortal: provider.votePortal,
     );
   }
 
@@ -218,8 +223,11 @@ class AsyncVoteDetailProvider
   /// See also [AsyncVoteDetail].
   AsyncVoteDetailProvider({
     required int voteId,
+    VotePortal votePortal = VotePortal.vote,
   }) : this._internal(
-          () => AsyncVoteDetail()..voteId = voteId,
+          () => AsyncVoteDetail()
+            ..voteId = voteId
+            ..votePortal = votePortal,
           from: asyncVoteDetailProvider,
           name: r'asyncVoteDetailProvider',
           debugGetCreateSourceHash:
@@ -230,6 +238,7 @@ class AsyncVoteDetailProvider
           allTransitiveDependencies:
               AsyncVoteDetailFamily._allTransitiveDependencies,
           voteId: voteId,
+          votePortal: votePortal,
         );
 
   AsyncVoteDetailProvider._internal(
@@ -240,9 +249,11 @@ class AsyncVoteDetailProvider
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.voteId,
+    required this.votePortal,
   }) : super.internal();
 
   final int voteId;
+  final VotePortal votePortal;
 
   @override
   FutureOr<VoteModel?> runNotifierBuild(
@@ -250,6 +261,7 @@ class AsyncVoteDetailProvider
   ) {
     return notifier.build(
       voteId: voteId,
+      votePortal: votePortal,
     );
   }
 
@@ -258,13 +270,16 @@ class AsyncVoteDetailProvider
     return ProviderOverride(
       origin: this,
       override: AsyncVoteDetailProvider._internal(
-        () => create()..voteId = voteId,
+        () => create()
+          ..voteId = voteId
+          ..votePortal = votePortal,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         voteId: voteId,
+        votePortal: votePortal,
       ),
     );
   }
@@ -277,13 +292,16 @@ class AsyncVoteDetailProvider
 
   @override
   bool operator ==(Object other) {
-    return other is AsyncVoteDetailProvider && other.voteId == voteId;
+    return other is AsyncVoteDetailProvider &&
+        other.voteId == voteId &&
+        other.votePortal == votePortal;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, voteId.hashCode);
+    hash = _SystemHash.combine(hash, votePortal.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -294,6 +312,9 @@ class AsyncVoteDetailProvider
 mixin AsyncVoteDetailRef on AutoDisposeAsyncNotifierProviderRef<VoteModel?> {
   /// The parameter `voteId` of this provider.
   int get voteId;
+
+  /// The parameter `votePortal` of this provider.
+  VotePortal get votePortal;
 }
 
 class _AsyncVoteDetailProviderElement
@@ -303,16 +324,20 @@ class _AsyncVoteDetailProviderElement
 
   @override
   int get voteId => (origin as AsyncVoteDetailProvider).voteId;
+  @override
+  VotePortal get votePortal => (origin as AsyncVoteDetailProvider).votePortal;
 }
 
-String _$asyncVoteItemListHash() => r'e683f98814f53a9ec632e7e5e6e8730f4c240e03';
+String _$asyncVoteItemListHash() => r'21c83019159e59b7ae5de4358f9664c8d1f1166a';
 
 abstract class _$AsyncVoteItemList
     extends BuildlessAutoDisposeAsyncNotifier<List<VoteItemModel?>> {
   late final int voteId;
+  late final VotePortal votePortal;
 
   FutureOr<List<VoteItemModel?>> build({
     required int voteId,
+    VotePortal votePortal = VotePortal.vote,
   });
 }
 
@@ -328,9 +353,11 @@ class AsyncVoteItemListFamily extends Family<AsyncValue<List<VoteItemModel?>>> {
   /// See also [AsyncVoteItemList].
   AsyncVoteItemListProvider call({
     required int voteId,
+    VotePortal votePortal = VotePortal.vote,
   }) {
     return AsyncVoteItemListProvider(
       voteId: voteId,
+      votePortal: votePortal,
     );
   }
 
@@ -340,6 +367,7 @@ class AsyncVoteItemListFamily extends Family<AsyncValue<List<VoteItemModel?>>> {
   ) {
     return call(
       voteId: provider.voteId,
+      votePortal: provider.votePortal,
     );
   }
 
@@ -364,8 +392,11 @@ class AsyncVoteItemListProvider extends AutoDisposeAsyncNotifierProviderImpl<
   /// See also [AsyncVoteItemList].
   AsyncVoteItemListProvider({
     required int voteId,
+    VotePortal votePortal = VotePortal.vote,
   }) : this._internal(
-          () => AsyncVoteItemList()..voteId = voteId,
+          () => AsyncVoteItemList()
+            ..voteId = voteId
+            ..votePortal = votePortal,
           from: asyncVoteItemListProvider,
           name: r'asyncVoteItemListProvider',
           debugGetCreateSourceHash:
@@ -376,6 +407,7 @@ class AsyncVoteItemListProvider extends AutoDisposeAsyncNotifierProviderImpl<
           allTransitiveDependencies:
               AsyncVoteItemListFamily._allTransitiveDependencies,
           voteId: voteId,
+          votePortal: votePortal,
         );
 
   AsyncVoteItemListProvider._internal(
@@ -386,9 +418,11 @@ class AsyncVoteItemListProvider extends AutoDisposeAsyncNotifierProviderImpl<
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.voteId,
+    required this.votePortal,
   }) : super.internal();
 
   final int voteId;
+  final VotePortal votePortal;
 
   @override
   FutureOr<List<VoteItemModel?>> runNotifierBuild(
@@ -396,6 +430,7 @@ class AsyncVoteItemListProvider extends AutoDisposeAsyncNotifierProviderImpl<
   ) {
     return notifier.build(
       voteId: voteId,
+      votePortal: votePortal,
     );
   }
 
@@ -404,13 +439,16 @@ class AsyncVoteItemListProvider extends AutoDisposeAsyncNotifierProviderImpl<
     return ProviderOverride(
       origin: this,
       override: AsyncVoteItemListProvider._internal(
-        () => create()..voteId = voteId,
+        () => create()
+          ..voteId = voteId
+          ..votePortal = votePortal,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         voteId: voteId,
+        votePortal: votePortal,
       ),
     );
   }
@@ -423,13 +461,16 @@ class AsyncVoteItemListProvider extends AutoDisposeAsyncNotifierProviderImpl<
 
   @override
   bool operator ==(Object other) {
-    return other is AsyncVoteItemListProvider && other.voteId == voteId;
+    return other is AsyncVoteItemListProvider &&
+        other.voteId == voteId &&
+        other.votePortal == votePortal;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, voteId.hashCode);
+    hash = _SystemHash.combine(hash, votePortal.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -441,6 +482,9 @@ mixin AsyncVoteItemListRef
     on AutoDisposeAsyncNotifierProviderRef<List<VoteItemModel?>> {
   /// The parameter `voteId` of this provider.
   int get voteId;
+
+  /// The parameter `votePortal` of this provider.
+  VotePortal get votePortal;
 }
 
 class _AsyncVoteItemListProviderElement
@@ -450,6 +494,8 @@ class _AsyncVoteItemListProviderElement
 
   @override
   int get voteId => (origin as AsyncVoteItemListProvider).voteId;
+  @override
+  VotePortal get votePortal => (origin as AsyncVoteItemListProvider).votePortal;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
