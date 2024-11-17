@@ -20,20 +20,23 @@ import 'package:picnic_app/providers/vote_detail_provider.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:picnic_app/util/vote_share_util.dart';
 
 class VoteInfoCard extends ConsumerStatefulWidget {
-  const VoteInfoCard({
+  VoteInfoCard({
     super.key,
     required this.context,
     required this.vote,
     required this.status,
+    this.votePortal = VotePortal.vote,
   });
 
   final BuildContext context;
   final VoteModel vote;
   final VoteStatus status;
+  final VotePortal votePortal;
 
   @override
   ConsumerState<VoteInfoCard> createState() => _VoteInfoCardState();
@@ -212,7 +215,9 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   }
 
   Future<void> _handleRefresh() async {
-    await ref.refresh(asyncVoteDetailProvider(voteId: widget.vote.id).future);
+    await ref.refresh(asyncVoteDetailProvider(
+            voteId: widget.vote.id, votePortal: widget.votePortal)
+        .future);
     await ref.refresh(asyncVoteItemListProvider(voteId: widget.vote.id).future);
     _restartAnimation();
   }
@@ -267,10 +272,10 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
 
   @override
   Widget build(BuildContext context) {
-    final asyncVoteDetail =
-        ref.watch(asyncVoteDetailProvider(voteId: widget.vote.id));
-    final asyncVoteItemList =
-        ref.watch(asyncVoteItemListProvider(voteId: widget.vote.id));
+    final asyncVoteDetail = ref.watch(asyncVoteDetailProvider(
+        voteId: widget.vote.id, votePortal: widget.votePortal));
+    final asyncVoteItemList = ref.watch(asyncVoteItemListProvider(
+        voteId: widget.vote.id, votePortal: widget.votePortal));
 
     return RepaintBoundary(
       key: _globalKey,

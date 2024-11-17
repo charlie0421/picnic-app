@@ -4,21 +4,29 @@ import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import 'vote_list_provider.dart';
+
 part 'vote_detail_provider.g.dart';
 
 @riverpod
 class AsyncVoteDetail extends _$AsyncVoteDetail {
   @override
-  Future<VoteModel?> build({required int voteId}) async {
-    return fetch(voteId: voteId);
+  Future<VoteModel?> build(
+      {required int voteId, VotePortal votePortal = VotePortal.vote}) async {
+    return fetch(voteId: voteId, votePortal: votePortal);
   }
 
-  Future<VoteModel?> fetch({required int voteId}) async {
+  Future<VoteModel?> fetch(
+      {required int voteId, VotePortal votePortal = VotePortal.vote}) async {
+    final voteTable = votePortal == VotePortal.vote ? 'vote' : 'pic_vote';
+    final voteItemTable =
+        votePortal == VotePortal.vote ? 'vote_item' : 'pic_vote_item';
+
     try {
       final response = await supabase
-          .from('vote')
+          .from(voteTable)
           .select(
-              'id, main_image, title, start_at, stop_at, visible_at, vote_category, vote_item(*, artist(*, artist_group(*)), artist_group(*)), reward(*)')
+              'id, main_image, title, start_at, stop_at, visible_at, vote_category, $voteItemTable(*, artist(*, artist_group(*)), artist_group(*))')
           .eq('id', voteId)
           .single();
 
@@ -44,14 +52,18 @@ class AsyncVoteDetail extends _$AsyncVoteDetail {
 @riverpod
 class AsyncVoteItemList extends _$AsyncVoteItemList {
   @override
-  FutureOr<List<VoteItemModel?>> build({required int voteId}) async {
-    return fetch(voteId: voteId);
+  FutureOr<List<VoteItemModel?>> build(
+      {required int voteId, VotePortal votePortal = VotePortal.vote}) async {
+    return fetch(voteId: voteId, votePortal: votePortal);
   }
 
-  FutureOr<List<VoteItemModel?>> fetch({required int voteId}) async {
+  FutureOr<List<VoteItemModel?>> fetch(
+      {required int voteId, VotePortal votePortal = VotePortal.vote}) async {
+    final voteItemTable =
+        votePortal == VotePortal.vote ? 'vote_item' : 'pic_vote_item';
     try {
       final response = await supabase
-          .from('vote_item')
+          .from(voteItemTable)
           .select(
               'id, vote_id, vote_total, artist(*,artist_group(*)), artist_group(*)')
           .eq('vote_id', voteId)

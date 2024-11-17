@@ -11,6 +11,8 @@ import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/no_bookmark_celeb.dart';
 import 'package:picnic_app/components/vote/list/pic_vote_info_card.dart';
+import 'package:picnic_app/components/vote/list/vote_info_card.dart';
+import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/pic/artist_vote.dart';
@@ -37,24 +39,38 @@ class PicHomePage extends ConsumerStatefulWidget {
 }
 
 class _PicHomePageState extends ConsumerState<PicHomePage> {
-  final PagingController<int, ArtistVoteModel> _pagingController =
+  final PagingController<int, VoteModel> _pagingController =
       PagingController(firstPageKey: 1);
+  static const _pageSize = 20;
 
   @override
   void initState() {
     super.initState();
-    _pagingController.addPageRequestListener((pageKey) {
-      _fetch(pageKey, 10, 'id', "DESC").then((newItems) {
-        final isLastPage =
-            newItems.meta.currentPage == newItems.meta.totalPages;
-        if (isLastPage) {
-          _pagingController.appendLastPage(newItems.items);
-        } else {
-          final nextPageKey = newItems.meta.currentPage + 1;
-          _pagingController.appendPage(newItems.items, nextPageKey);
-        }
-      });
-    });
+    _pagingController.addPageRequestListener(_fetchPage);
+  }
+
+  Future<void> _fetchPage(int pageKey) async {
+    try {
+      final newItems = await ref.read(asyncVoteListProvider(
+        pageKey,
+        _pageSize,
+        'vote.id',
+        'DESC',
+        votePortal: VotePortal.pic,
+        status: VoteStatus.activeAndUpcoming,
+        category: VoteCategory.all,
+      ).future);
+
+      final isLastPage = newItems.length < _pageSize;
+      if (isLastPage) {
+        _pagingController.appendLastPage(newItems);
+      } else {
+        _pagingController.appendPage(newItems, pageKey + 1);
+      }
+    } catch (e, s) {
+      _pagingController.error = e;
+      logger.e(e, stackTrace: s);
+    }
   }
 
   @override
@@ -122,7 +138,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                     child: Row(
                       children: [
                         Text(
-                          S.of(context).label_celeb_ask_to_you,
+                          "아티스트 투표",
                           style:
                               getTextStyle(AppTypo.title18B, AppColors.grey900),
                         ),
@@ -136,30 +152,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  PagedListView<int, ArtistVoteModel>(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    pagingController: _pagingController,
-                    scrollDirection: Axis.vertical,
-                    builderDelegate: PagedChildBuilderDelegate<ArtistVoteModel>(
-                        firstPageErrorIndicatorBuilder: (context) {
-                          return ErrorView(context,
-                              error: _pagingController.error.toString(),
-                              retryFunction: () => _pagingController.refresh(),
-                              stackTrace: _pagingController.error.stackTrace);
-                        },
-                        firstPageProgressIndicatorBuilder: (context) {
-                          return buildLoadingOverlay();
-                        },
-                        noItemsFoundIndicatorBuilder: (context) =>
-                            const NoItemContainer(),
-                        itemBuilder: (context, item, index) => PicVoteInfoCard(
-                              context: context,
-                              vote: item,
-                              status: VoteStatus.active,
-                            )),
-                  ),
+                  _buildVoteSection()
                 ],
               )),
             ],
@@ -262,29 +255,35 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
     );
   }
 
-  _fetch(int page, int limit, String sort, String order) async {
-    final response = await supabase
-        .from('artist_vote')
-        .select('*, artist_vote_item(*)')
-        .eq('category', 'pic')
-        // .lt('start_at', 'now()')
-        // .gt('stop_at', 'now()')
-        .order('id', ascending: false)
-        .order('vote_total',
-            ascending: false, referencedTable: 'artist_vote_item')
-        .range((page - 1) * limit, page * limit - 1)
-        .limit(limit)
-        .count();
-
-    final meta = {
-      'totalItems': response.count,
-      'currentPage': page,
-      'itemCount': response.data.length,
-      'itemsPerPage': limit,
-      'totalPages': response.count ~/ limit + 1,
-    };
-
-    return ArtistVoteListModel.fromJson({'items': response.data, 'meta': meta});
+  Widget _buildVoteSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        PagedListView<int, VoteModel>.separated(
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          pagingController: _pagingController,
+          builderDelegate: PagedChildBuilderDelegate<VoteModel>(
+            firstPageProgressIndicatorBuilder: (context) =>
+                SizedBox(height: 400, child: buildLoadingOverlay()),
+            itemBuilder: (context, vote, index) {
+              final now = DateTime.now().toUtc();
+              final status = vote.startAt!.isAfter(now)
+                  ? VoteStatus.upcoming
+                  : VoteStatus.active;
+              return VoteInfoCard(
+                  context: context,
+                  vote: vote,
+                  status: status,
+                  votePortal: VotePortal.pic);
+            },
+            noItemsFoundIndicatorBuilder: (context) => NoItemContainer(),
+          ),
+          separatorBuilder: (context, index) =>
+              const Divider(height: 1, color: AppColors.grey300),
+        ),
+      ],
+    );
   }
 }
 
