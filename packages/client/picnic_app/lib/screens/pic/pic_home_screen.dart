@@ -31,34 +31,13 @@ class _PicHomeScreenState extends ConsumerState<PicHomeScreen> {
         const PicnicAnimatedSwitcher(),
         if (showBottomNavigation == true)
           Positioned(
-              bottom: 0,
+              bottom: MediaQuery.of(context).padding.bottom + 20,
               left: 0,
               right: 0,
               child: CommonBottomNavigationBar(
                 screenInfo: picScreenInfo,
               )),
-        if (picBottomNavigationIndex == 0)
-          Positioned(
-              right: 20.cw,
-              bottom: 120.cw,
-              child: FloatingActionButton(
-                onPressed: _buildFloating,
-                backgroundColor: picMainColor,
-                child: const Icon(Icons.bookmarks),
-              )),
       ],
     );
-  }
-
-  void _buildFloating() {
-    logger.d('Floating button clicked');
-    showModalBottomSheet(
-        context: context,
-        useSafeArea: true,
-        showDragHandle: true,
-        isScrollControlled: true,
-        builder: (BuildContext context) {
-          return const LandingPage();
-        });
   }
 }

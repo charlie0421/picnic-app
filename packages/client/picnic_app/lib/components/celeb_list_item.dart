@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
+import 'package:picnic_app/components/common/avatar_container.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/pic/celeb.dart';
@@ -13,18 +14,19 @@ import 'package:picnic_app/util/ui.dart';
 class CelebListItem extends ConsumerWidget {
   final CelebModel item;
   final String type;
-  bool? showBookmark;
-  bool? enableBookmark;
-  bool? moveHome;
-  VoidCallback? onTap;
+  final bool showBookmark;
+  final bool enableBookmark;
+  final bool moveHome;
+  final VoidCallback? onTap;
 
   CelebListItem({
     super.key,
+    required this.item,
+    required this.type,
     this.showBookmark = true,
     this.enableBookmark = true,
     this.moveHome = false,
-    required this.item,
-    required this.type,
+    this.onTap,
   });
 
   @override
@@ -36,7 +38,7 @@ class CelebListItem extends ConsumerWidget {
     final selectedCelebNotifier = ref.read(selectedCelebProvider.notifier);
 
     return InkWell(
-      onTap: () async {
+      onTap: () {
         selectedCelebNotifier.setSelectedCeleb(item);
         logger.i('selectedCeleb: ${item.name_ko}');
         onTap?.call();
@@ -49,83 +51,70 @@ class CelebListItem extends ConsumerWidget {
           children: [
             Row(
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(50),
-                  child: PicnicCachedNetworkImage(
-                    imageUrl: item.thumbnail ?? '',
-                    width: 60,
-                    height: 60,
-                  ),
+                ProfileImageContainer(
+                  avatarUrl: item.thumbnail,
+                  borderRadius: 20,
+                  width: 40,
+                  height: 40,
                 ),
                 const SizedBox(width: 16),
                 Text(item.name_ko,
                     style: Theme.of(context).textTheme.titleLarge),
               ],
             ),
-            showBookmark != null && !showBookmark!
-                ? Container()
-                : type == 'my'
-                    ? GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: enableBookmark != null && enableBookmark!
-                            ? () async {
-                                await asyncCelebListNotifier
-                                    .removeBookmark(item);
-                                asyncCelebSearchNotifier.repeatSearch();
-                                if (getBookmarkCount(ref.read(
-                                        asyncCelebListProvider
-                                            as ProviderListenable<
-                                                AsyncValue<
-                                                    List<CelebModel>>?>))! <=
-                                    0) {}
-                              }
-                            : () {},
-                        child: SvgPicture.asset(
-                          'assets/landing/bookmark_added.svg',
-                          width: 24,
-                          height: 24,
-                          colorFilter: ColorFilter.mode(
-                              Color(type == 'my' ? 0xFF08C97E : 0xFFC4C4C4),
-                              BlendMode.srcIn),
-                        ),
-                      )
-                    : InkWell(
-                        onTap: enableBookmark != null && enableBookmark!
-                            ? () async {
-                                if (getBookmarkCount(asyncCelebListState
-                                        as AsyncValue<List<CelebModel>>?)! >=
-                                    5) {
-                                  showOverlayToast(
-                                      context,
-                                      Text(S.of(context).toast_max_five_celeb,
-                                          style: getTextStyle(AppTypo.body16M,
-                                              AppColors.grey900)));
-
-                                  return;
-                                }
-                                await asyncCelebListNotifier.addBookmark(item);
-                                asyncCelebSearchNotifier.repeatSearch();
-                              }
-                            : () {},
-                        child: SvgPicture.asset(
-                          'assets/landing/bookmark_add.svg',
-                          width: 24,
-                          height: 24,
-                          colorFilter: ColorFilter.mode(
-                              Color(type == 'my' ? 0xFF08C97E : 0xFFC4C4C4),
-                              BlendMode.srcIn),
-                        ),
-                      ),
+            if (showBookmark)
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: enableBookmark
+                    ? () async {
+                        if (type == 'my') {
+                          await asyncCelebListNotifier.removeBookmark(item);
+                        } else {
+                          if (await getBookmarkCount(asyncCelebListState) >=
+                              5) {
+                            showOverlayToast(
+                              context,
+                              Text(
+                                S.of(context).toast_max_five_celeb,
+                                style: getTextStyle(
+                                    AppTypo.body16M, AppColors.grey900),
+                              ),
+                            );
+                            return;
+                          }
+                          await asyncCelebListNotifier.addBookmark(item);
+                        }
+                        asyncCelebSearchNotifier.repeatSearch();
+                      }
+                    : null,
+                child: SvgPicture.asset(
+                  type == 'my'
+                      ? 'assets/landing/bookmark_added.svg'
+                      : 'assets/landing/bookmark_add.svg',
+                  width: 24,
+                  height: 24,
+                  colorFilter: ColorFilter.mode(
+                    Color(type == 'my' ? 0xFF08C97E : 0xFFC4C4C4),
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
 
-  int? getBookmarkCount(AsyncValue<List<CelebModel>>? celebList) {
-    return celebList?.value
-        ?.where((element) =>
-            element.users!.where((element) => element.id == 2).isNotEmpty)
-        .length;
+  Future<int> getBookmarkCount(AsyncValue<List<CelebModel>?> celebList) async {
+    logger.i(celebList.value);
+
+    final response = await supabase
+        .from('celeb_bookmark_user')
+        .select()
+        .eq('celeb_id', item.id)
+        .eq('user_id', supabase.auth.currentUser!.id)
+        .count();
+
+    return response.count;
   }
 }
