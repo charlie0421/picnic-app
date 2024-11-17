@@ -272,24 +272,26 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         else
           SizedBox(height: AdSize.largeBanner.height.toDouble()),
         const SizedBox(height: 8),
-        Text(
-          S.of(context).text_vote_rank_in_reward,
-          style: getTextStyle(AppTypo.body14B, AppColors.primary500),
-        ),
-        if (voteModel.reward != null)
+        if (voteModel.reward != null && widget.votePortal == VotePortal.vote)
           Column(
-            children: voteModel.reward!
-                .map((rewardModel) => GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => showRewardDialog(context, rewardModel),
-                      child: Text(
-                        getLocaleTextFromJson(rewardModel.title!),
-                        style:
-                            getTextStyle(AppTypo.caption12R, AppColors.grey900)
-                                .copyWith(decoration: TextDecoration.underline),
-                      ),
-                    ))
-                .toList(),
+            children: [
+              Text(
+                S.of(context).text_vote_rank_in_reward,
+                style: getTextStyle(AppTypo.body14B, AppColors.primary500),
+              ),
+              ...voteModel.reward!
+                  .map((rewardModel) => GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => showRewardDialog(context, rewardModel),
+                        child: Text(
+                          getLocaleTextFromJson(rewardModel.title!),
+                          style: getTextStyle(
+                                  AppTypo.caption12R, AppColors.grey900)
+                              .copyWith(decoration: TextDecoration.underline),
+                        ),
+                      ))
+                  .toList()
+            ],
           ),
         const SizedBox(height: 18),
         if (isEnded && !_isSaving)
@@ -330,7 +332,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     final searchQuery = ref.watch(searchQueryProvider);
     return Consumer(
       builder: (context, ref, _) {
-        return ref.watch(asyncVoteItemListProvider(voteId: widget.voteId)).when(
+        return ref
+            .watch(asyncVoteItemListProvider(
+                voteId: widget.voteId, votePortal: widget.votePortal))
+            .when(
               data: (data) {
                 final filteredIndices =
                     _getFilteredIndices([data, searchQuery]);
@@ -640,7 +645,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
           ? showVotingDialog(
               context: context,
               voteModel: ref
-                  .read(asyncVoteDetailProvider(voteId: widget.voteId))
+                  .read(asyncVoteDetailProvider(
+                      voteId: widget.voteId, votePortal: widget.votePortal))
                   .value!,
               voteItemModel: item,
             )
