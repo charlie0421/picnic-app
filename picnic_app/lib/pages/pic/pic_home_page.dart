@@ -47,6 +47,11 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
   void initState() {
     super.initState();
     _pagingController.addPageRequestListener(_fetchPage);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+          showPortal: true, showTopMenu: true, showBottomNavigation: true);
+    });
   }
 
   Future<void> _fetchPage(int pageKey) async {
@@ -132,26 +137,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                   const SizedBox(height: 20),
                   _buildCelebGallery(),
                   const SizedBox(height: 20),
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.only(left: 16.cw),
-                    child: Row(
-                      children: [
-                        Text(
-                          "아티스트 투표",
-                          style:
-                              getTextStyle(AppTypo.title18B, AppColors.grey900),
-                        ),
-                        SvgPicture.asset(
-                          'assets/icons/arrow_right_style=line.svg',
-                          width: 8.cw,
-                          height: 15,
-                          colorFilter: const ColorFilter.mode(
-                              AppColors.grey900, BlendMode.srcIn),
-                        ),
-                      ],
-                    ),
-                  ),
+                  _buildVoteListTitle(),
                   _buildVoteSection()
                 ],
               )),
@@ -169,6 +155,28 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
             },
           );
         });
+  }
+
+  Widget _buildVoteListTitle() {
+    return Container(
+      alignment: Alignment.centerLeft,
+      padding: EdgeInsets.only(left: 16.cw),
+      child: Row(
+        children: [
+          Text(
+            "아티스트 투표",
+            style: getTextStyle(AppTypo.title18B, AppColors.grey900),
+          ),
+          SvgPicture.asset(
+            'assets/icons/arrow_right_style=line.svg',
+            width: 8.cw,
+            height: 15,
+            colorFilter:
+                const ColorFilter.mode(AppColors.grey900, BlendMode.srcIn),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildCelebGallery() {
