@@ -22,6 +22,7 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';
+import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -35,8 +36,10 @@ import 'package:supabase_extensions/supabase_extensions.dart';
 
 class VoteDetailAchievePage extends ConsumerStatefulWidget {
   final int voteId;
+  final VotePortal votePortal;
 
-  const VoteDetailAchievePage({super.key, required this.voteId});
+  const VoteDetailAchievePage(
+      {super.key, required this.voteId, this.votePortal = VotePortal.vote});
 
   @override
   ConsumerState<VoteDetailAchievePage> createState() =>
@@ -376,27 +379,30 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
 
   @override
   Widget build(BuildContext context) {
-    return ref.watch(asyncVoteItemListProvider(voteId: widget.voteId)).when(
-        data: (data) {
-          if (data.isEmpty) return const SizedBox.shrink();
-          return Column(
-            children: [
-              _buildVoteInfo(),
-              _buildAchieveItem(data[0]!),
-              Expanded(
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  child: Column(
-                    children: [_buildLevelItem(data[0]!)],
+    return ref
+        .watch(asyncVoteItemListProvider(
+            voteId: widget.voteId, votePortal: widget.votePortal))
+        .when(
+            data: (data) {
+              if (data.isEmpty) return const SizedBox.shrink();
+              return Column(
+                children: [
+                  _buildVoteInfo(),
+                  _buildAchieveItem(data[0]!),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      child: Column(
+                        children: [_buildLevelItem(data[0]!)],
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ],
-          );
-        },
-        loading: () => _buildLoadingShimmer(),
-        error: (error, stackTrace) => ErrorView(context,
-            error: error.toString(), stackTrace: stackTrace));
+                ],
+              );
+            },
+            loading: () => _buildLoadingShimmer(),
+            error: (error, stackTrace) => ErrorView(context,
+                error: error.toString(), stackTrace: stackTrace));
   }
 
   Widget _buildVoteInfo() {

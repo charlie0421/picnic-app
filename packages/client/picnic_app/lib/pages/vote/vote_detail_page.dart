@@ -21,6 +21,7 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';
+import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -36,8 +37,10 @@ final searchQueryProvider = StateProvider<String>((ref) => '');
 
 class VoteDetailPage extends ConsumerStatefulWidget {
   final int voteId;
+  final VotePortal votePortal;
 
-  const VoteDetailPage({super.key, required this.voteId});
+  const VoteDetailPage(
+      {super.key, required this.voteId, this.votePortal = VotePortal.vote});
 
   @override
   ConsumerState<VoteDetailPage> createState() => _VoteDetailPageState();
@@ -191,7 +194,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
       key: _globalKey,
       child: Container(
         color: AppColors.grey00,
-        child: ref.watch(asyncVoteDetailProvider(voteId: widget.voteId)).when(
+        child: ref
+            .watch(asyncVoteDetailProvider(
+                voteId: widget.voteId, votePortal: widget.votePortal))
+            .when(
               data: (voteModel) {
                 if (voteModel == null) return const SizedBox.shrink();
                 isEnded = voteModel.isEnded!;

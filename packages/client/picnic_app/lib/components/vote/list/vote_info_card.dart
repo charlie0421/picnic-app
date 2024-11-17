@@ -299,9 +299,12 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
         final navigationInfoNotifier =
             ref.read(navigationInfoProvider.notifier);
         navigationInfoNotifier.setCurrentPage(
-            vote.voteCategory == VoteCategory.achieve.name
-                ? VoteDetailAchievePage(voteId: widget.vote.id)
-                : VoteDetailPage(voteId: widget.vote.id));
+          vote.voteCategory == VoteCategory.achieve.name
+              ? VoteDetailAchievePage(
+                  voteId: widget.vote.id, votePortal: widget.votePortal)
+              : VoteDetailPage(
+                  voteId: widget.vote.id, votePortal: widget.votePortal),
+        );
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.cw),
