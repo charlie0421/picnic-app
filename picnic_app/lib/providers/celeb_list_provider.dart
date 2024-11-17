@@ -25,9 +25,9 @@ class AsyncCelebList extends _$AsyncCelebList {
   }
 
   Future<void> addBookmark(CelebModel celeb) async {
-    final response = await supabase
-        .from('celeb_bookmark')
-        .insert({'celeb_id': celeb.id, 'user_id': 1});
+    logger.i('addBookmark: ${celeb}');
+    final response = await supabase.from('celeb_bookmark_user').upsert(
+        {'celeb_id': celeb.id, 'user_id': supabase.auth.currentUser!.id});
 
     state = AsyncValue.data(response);
 
@@ -36,7 +36,7 @@ class AsyncCelebList extends _$AsyncCelebList {
 
   Future<void> removeBookmark(CelebModel celeb) async {
     final response = await supabase
-        .from('celeb_bookmark')
+        .from('celeb_bookmark_user')
         .delete()
         .eq('celeb_id', celeb.id)
         .eq('user_id', 1);
@@ -62,10 +62,13 @@ class AsyncMyCelebList extends _$AsyncMyCelebList {
       }
 
       final response = await supabase
-          .from('celeb_user')
+          .from('celeb_bookmark_user')
           .select('celeb(*)')
           .eq('user_id', supabase.uid.toString())
           .order('celeb_id', ascending: true);
+
+      logger.i('fetchMyCelebList: ${response}');
+
       List<CelebModel> celebList = List<CelebModel>.from(
           response.map((e) => CelebModel.fromJson(e['celeb'])));
 

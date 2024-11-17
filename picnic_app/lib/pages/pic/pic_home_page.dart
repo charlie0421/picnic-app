@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_app/components/celeb_list_item.dart';
+import 'package:picnic_app/components/common/common_banner.dart';
 import 'package:picnic_app/components/common/no_item_container.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/error.dart';
@@ -59,7 +60,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
   @override
   Widget build(BuildContext context) {
     final asyncCelebListState = ref.watch(asyncCelebListProvider);
-    final selectedCelebState = ref.watch(selectedCelebProvider);
+
     final selectedCelebNotifier = ref.read(selectedCelebProvider.notifier);
 
     return asyncCelebListState.when(
@@ -78,43 +79,9 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
 
           final asyncBannerListState =
               ref.watch(asyncBannerListProvider(location: 'pic_home'));
-          final asyncGalleryListState =
-              ref.watch(asyncCelebGalleryListProvider(1));
           return ListView(
             children: [
-              Container(
-                alignment: Alignment.centerLeft,
-                height: 44,
-                padding: EdgeInsets.only(left: 16.cw, top: 8, bottom: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(24).r,
-                      child: PicnicCachedNetworkImage(
-                        imageUrl: selectedCelebState?.thumbnail ?? '',
-                        width: 28,
-                        height: 28,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      selectedCelebState?.name_ko ?? '',
-                      style: getTextStyle(AppTypo.body16B, AppColors.grey900),
-                    ),
-                    const SizedBox(width: 8),
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => _buildSelectCelebBottomSheet(),
-                      child: SvgPicture.asset(
-                        'assets/icons/arrow_down_style=line.svg',
-                        width: 20.cw,
-                        height: 20,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              CelebDropDown(),
               SingleChildScrollView(
                   child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -125,69 +92,16 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                       final width = getPlatformScreenSize(context).width;
                       final height = width * .5;
 
-                      logger.w('data: $data');
-
-                      return SizedBox(
-                        width: width,
-                        height: height + 30,
-                        child: Swiper(
-                          itemBuilder: (BuildContext context, int index) {
-                            String title =
-                                getLocaleTextFromJson(data[index].title);
-                            return Stack(
-                              children: [
-                                Container(
-                                  alignment: Alignment.center,
-                                  width: width,
-                                  height: height,
-                                  child: PicnicCachedNetworkImage(
-                                      imageUrl: data[index].thumbnail,
-                                      width: width.toInt(),
-                                      height: height.toInt(),
-                                      fit: BoxFit.cover),
-                                ),
-                                Positioned(
-                                  bottom: 30,
-                                  child: Container(
-                                    width: getPlatformScreenSize(context).width,
-                                    alignment: Alignment.center,
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: 4, horizontal: 8.cw),
-                                    color: Colors.black.withOpacity(0.5),
-                                    child: Text(
-                                      title,
-                                      style: getTextStyle(
-                                              AppTypo.body14R, Colors.white)
-                                          .copyWith(
-                                              overflow: TextOverflow.ellipsis),
-                                    ),
-                                  ),
-                                )
-                              ],
-                            );
-                          },
-                          itemCount: data.length,
-                          containerHeight: height,
-                          itemHeight: height,
-                          autoplay: true,
-                          pagination: const SwiperPagination(
-                              builder: DotSwiperPaginationBuilder(
-                                  size: 8,
-                                  color: AppColors.grey200,
-                                  activeColor: AppColors.grey500)),
-                          layout: SwiperLayout.DEFAULT,
-                        ),
-                      );
+                      return const CommonBanner('pic_home', 16 / 9);
                     },
-                    loading: () => buildLoadingOverlay(),
-                    error: (error, stackTrace) => ErrorView(
-                      context,
-                      retryFunction: () {
-                        ref.refresh(
-                            asyncBannerListProvider(location: 'pic_home'));
-                      },
-                      error: error,
-                      stackTrace: stackTrace,
+                    loading: () => SizedBox(
+                      width: getPlatformScreenSize(context).width,
+                      height: getPlatformScreenSize(context).width * .5,
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                    error: (error, stackTrace) => SizedBox(
+                      width: getPlatformScreenSize(context).width,
+                      height: getPlatformScreenSize(context).width * .5,
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -200,19 +114,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  asyncGalleryListState.when(
-                      data: (data) => _buildGalleryList(data),
-                      error: (error, stackTrace) {
-                        return ErrorView(
-                          context,
-                          error: error,
-                          stackTrace: stackTrace,
-                          retryFunction: () => ref
-                              .read(asyncGalleryListProvider.notifier)
-                              .build(),
-                        );
-                      },
-                      loading: () => buildLoadingOverlay()),
+                  _buildCelebGallery(),
                   const SizedBox(height: 20),
                   Container(
                     alignment: Alignment.centerLeft,
@@ -274,6 +176,24 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
             },
           );
         });
+  }
+
+  Widget _buildCelebGallery() {
+    final asyncCelebGalleryListState =
+        ref.watch(asyncCelebGalleryListProvider(9));
+
+    return asyncCelebGalleryListState.when(
+        data: (data) => _buildGalleryList(data),
+        error: (error, stackTrace) {
+          return ErrorView(
+            context,
+            error: error,
+            stackTrace: stackTrace,
+            retryFunction: () =>
+                ref.read(asyncGalleryListProvider.notifier).build(),
+          );
+        },
+        loading: () => buildLoadingOverlay());
   }
 
   Widget _buildGalleryList(List<GalleryModel> data) {
@@ -342,11 +262,83 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
     );
   }
 
+  _fetch(int page, int limit, String sort, String order) async {
+    final response = await supabase
+        .from('artist_vote')
+        .select('*, artist_vote_item(*)')
+        .eq('category', 'pic')
+        // .lt('start_at', 'now()')
+        // .gt('stop_at', 'now()')
+        .order('id', ascending: false)
+        .order('vote_total',
+            ascending: false, referencedTable: 'artist_vote_item')
+        .range((page - 1) * limit, page * limit - 1)
+        .limit(limit)
+        .count();
+
+    final meta = {
+      'totalItems': response.count,
+      'currentPage': page,
+      'itemCount': response.data.length,
+      'itemsPerPage': limit,
+      'totalPages': response.count ~/ limit + 1,
+    };
+
+    return ArtistVoteListModel.fromJson({'items': response.data, 'meta': meta});
+  }
+}
+
+class CelebDropDown extends ConsumerStatefulWidget {
+  const CelebDropDown({super.key});
+
+  @override
+  ConsumerState<CelebDropDown> createState() => _CelebDropDownState();
+}
+
+class _CelebDropDownState extends ConsumerState<CelebDropDown> {
+  @override
+  Widget build(BuildContext context) {
+    final selectedCelebState = ref.watch(selectedCelebProvider);
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => _buildSelectCelebBottomSheet(),
+      child: Container(
+        alignment: Alignment.centerLeft,
+        height: 44,
+        padding: EdgeInsets.only(left: 16.cw, top: 8, bottom: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(24).r,
+              child: PicnicCachedNetworkImage(
+                imageUrl: selectedCelebState?.thumbnail ?? '',
+                width: 28,
+                height: 28,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              selectedCelebState?.name_ko ?? '',
+              style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+            ),
+            const SizedBox(width: 8),
+            SvgPicture.asset(
+              'assets/icons/arrow_down_style=line.svg',
+              width: 20.cw,
+              height: 20,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _buildSelectCelebBottomSheet() {
-    final asyncMyCelebListState = ref.watch(asyncMyCelebListProvider);
+    final asyncCelebListState = ref.watch(asyncMyCelebListProvider);
     final selectedCelebState = ref.watch(selectedCelebProvider);
 
-    logger.w('asyncMyCelebListState: $asyncMyCelebListState');
+    logger.w('asyncMyCelebListState: $asyncCelebListState');
 
     showModalBottomSheet(
         context: context,
@@ -373,7 +365,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
               ),
               const SizedBox(height: 16),
               if (selectedCelebState != null)
-                ...asyncMyCelebListState.when(
+                ...asyncCelebListState.when(
                     data: (data) {
                       logger.w('data: $data');
                       if (data == null) {
@@ -396,15 +388,6 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                           )
                         ]),
               const SizedBox(
-                height: 20,
-              ),
-              GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    _buildFloating(context);
-                  },
-                  child: Text(S.of(context).label_find_celeb)),
-              const SizedBox(
                 height: 40,
               ),
             ],
@@ -414,12 +397,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
 
   List<Widget> _buildSearchList(
       BuildContext context, List<CelebModel> data, CelebModel selectedCeleb) {
-    logger.w('selectedCeleb: $selectedCeleb');
-    logger.w('selectedCeleb: ${selectedCeleb.name_ko}');
-    logger.w('CelebListModel: ${data.length}');
-
     data.removeWhere((item) => item.id == selectedCeleb.id);
-    data.insert(0, selectedCeleb);
     return selectedCeleb != null
         ? data
             .map((e) => Container(
@@ -451,41 +429,5 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                 )))
             .toList()
         : [const NoBookmarkCeleb()];
-  }
-
-  void _buildFloating(context) {
-    showModalBottomSheet(
-        context: context,
-        useSafeArea: true,
-        showDragHandle: true,
-        isScrollControlled: true,
-        builder: (BuildContext context) {
-          return const LandingPage();
-        });
-  }
-
-  _fetch(int page, int limit, String sort, String order) async {
-    final response = await supabase
-        .from('artist_vote')
-        .select('*, artist_vote_item(*)')
-        .eq('category', 'pic')
-        // .lt('start_at', 'now()')
-        // .gt('stop_at', 'now()')
-        .order('id', ascending: false)
-        .order('vote_total',
-            ascending: false, referencedTable: 'artist_vote_item')
-        .range((page - 1) * limit, page * limit - 1)
-        .limit(limit)
-        .count();
-
-    final meta = {
-      'totalItems': response.count,
-      'currentPage': page,
-      'itemCount': response.data.length,
-      'itemsPerPage': limit,
-      'totalPages': response.count ~/ limit + 1,
-    };
-
-    return ArtistVoteListModel.fromJson({'items': response.data, 'meta': meta});
   }
 }

@@ -56,12 +56,12 @@ final expireBonusProvider =
 // ignore: unused_element
 typedef ExpireBonusRef
     = AutoDisposeFutureProviderRef<List<Map<String, dynamic>?>?>;
-String _$userInfoHash() => r'269e15d99f8a8d6e7f5177cd5288207597d0a27a';
+String _$userInfoHash() => r'564ff98729d15c97281f781f5b5691bf1fbab30d';
 
 /// See also [UserInfo].
 @ProviderFor(UserInfo)
 final userInfoProvider =
-    AutoDisposeAsyncNotifierProvider<UserInfo, UserProfilesModel?>.internal(
+    AsyncNotifierProvider<UserInfo, UserProfilesModel?>.internal(
   UserInfo.new,
   name: r'userInfoProvider',
   debugGetCreateSourceHash:
@@ -70,6 +70,6 @@ final userInfoProvider =
   allTransitiveDependencies: null,
 );
 
-typedef _$UserInfo = AutoDisposeAsyncNotifier<UserProfilesModel?>;
+typedef _$UserInfo = AsyncNotifier<UserProfilesModel?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

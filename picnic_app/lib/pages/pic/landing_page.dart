@@ -102,7 +102,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
             ),
           ),
           const SizedBox(height: 16),
-          ...celebList.map((item) {
+          ...celebList?.map((item) {
             return CelebListItem(
               item: item,
               type: 'find',
