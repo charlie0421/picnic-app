@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/loading_view.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/library_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/logger.dart';
 
 class AlbumList extends ConsumerStatefulWidget {
   final int imageId;

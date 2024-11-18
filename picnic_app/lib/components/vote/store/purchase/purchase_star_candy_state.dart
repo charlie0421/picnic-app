@@ -12,10 +12,10 @@ import 'package:picnic_app/components/vote/store/purchase/in_app_purchase_servic
 import 'package:picnic_app/components/vote/store/purchase/purchase_star_candy.dart';
 import 'package:picnic_app/components/vote/store/purchase/receipt_verification_service.dart';
 import 'package:picnic_app/components/vote/store/purchase/store_list_tile.dart';
-import 'package:picnic_app/providers/config_service.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/providers/config_service.dart';
 import 'package:picnic_app/providers/product_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';

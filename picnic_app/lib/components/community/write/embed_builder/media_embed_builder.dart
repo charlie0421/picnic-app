@@ -1,14 +1,15 @@
 import 'dart:async';
 import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:http/http.dart' as http;
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/ui/s3_uploader.dart';
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/util/ui.dart';
-import 'package:flutter/foundation.dart';
 import 'package:universal_io/io.dart';
-import 'package:http/http.dart' as http;
 
 class LocalImageEmbedBuilder extends EmbedBuilder {
   final Function(String localPath, String networkUrl) onUploadComplete;

@@ -1,7 +1,6 @@
-import 'package:picnic_app/models/community/compatibility.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/providers/community/compatibility_history_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 

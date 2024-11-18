@@ -1,9 +1,11 @@
+import 'dart:ui' as ui;
+
+import 'package:http/http.dart' as http;
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/models/common/banner.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:http/http.dart' as http;
-import 'dart:ui' as ui;
+
 import '../util/logger.dart';
 
 part '../generated/providers/banner_list_provider.g.dart';

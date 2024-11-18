@@ -16,10 +16,10 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:picnic_app/components/pic/bottom_bar_widget.dart';
 import 'package:picnic_app/components/pic/image_overlay_painter.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/global_media_query.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class PicCameraViewPage extends ConsumerStatefulWidget {
