@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:picnic_app/components/common/avatar_container.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_info.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/artist.dart';
@@ -9,8 +7,6 @@ import 'package:picnic_app/providers/community/compatibility_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util/date.dart';
-import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
 
 class CompatibilityInputScreen extends ConsumerStatefulWidget {
@@ -70,7 +66,7 @@ class _CompatibilityInputScreenState
     setState(() => _isLoading = true);
     try {
       final userProfileAsync = ref.read(userInfoProvider);
-      await userProfileAsync.when(
+      userProfileAsync.when(
         data: (userProfile) {
           if (userProfile != null) {
             setState(() {

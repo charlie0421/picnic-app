@@ -3,7 +3,6 @@ import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/logger.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CompatibilityRepository {
   static const String _table = 'compatibility_results';

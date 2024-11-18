@@ -1,4 +1,3 @@
-import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,23 +9,18 @@ import 'package:picnic_app/components/common/no_item_container.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/no_bookmark_celeb.dart';
-import 'package:picnic_app/components/vote/list/pic_vote_info_card.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/generated/l10n.dart';
-import 'package:picnic_app/models/pic/artist_vote.dart';
 import 'package:picnic_app/models/pic/celeb.dart';
 import 'package:picnic_app/models/pic/gallery.dart';
 import 'package:picnic_app/pages/pic/gallery_detail_page.dart';
-import 'package:picnic_app/pages/pic/landing_page.dart';
 import 'package:picnic_app/providers/banner_list_provider.dart';
 import 'package:picnic_app/providers/gallery_list_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
-import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/ui.dart';
 
 import '../../providers/celeb_list_provider.dart';

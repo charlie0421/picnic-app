@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:picnic_app/components/common/avatar_container.dart';
 import 'package:picnic_app/components/community/compatibility/animated_heart.dart';
 import 'package:picnic_app/models/vote/artist.dart';
-import 'package:picnic_app/pages/community/compatibility_input_page.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';

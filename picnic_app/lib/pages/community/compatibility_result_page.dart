@@ -1,25 +1,17 @@
 import 'dart:async';
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_error.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_info.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_loading_view.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_result.dart';
-import 'package:picnic_app/components/loading_view.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_footer.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/providers/community/compatibility_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
-import 'dart:io';
 
-import 'package:picnic_app/util/ui.dart';
 import 'package:picnic_app/util/vote_share_util.dart';
 
 class CompatibilityResultScreen extends ConsumerStatefulWidget {

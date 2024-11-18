@@ -19,7 +19,7 @@ class CelebListItem extends ConsumerWidget {
   final bool moveHome;
   final VoidCallback? onTap;
 
-  CelebListItem({
+  const CelebListItem({
     super.key,
     required this.item,
     required this.type,

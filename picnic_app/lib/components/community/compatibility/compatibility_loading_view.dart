@@ -110,7 +110,7 @@ class CompatibilityLoadingViewState extends State<CompatibilityLoadingView> {
           ),
           const SizedBox(height: 24),
           Text(
-            '궁합을 분석하고 있습니다...\n(${_remainingSeconds}초)',
+            '궁합을 분석하고 있습니다...\n($_remainingSeconds초)',
             style: getTextStyle(AppTypo.body16B, AppColors.grey900),
             textAlign: TextAlign.center,
           ),

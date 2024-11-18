@@ -1,6 +1,4 @@
 import 'dart:io';
-import 'dart:math';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:animated_digit/animated_digit.dart';
@@ -87,8 +85,8 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
     final configService = ref.read(configServiceProvider);
 
     String? adUnitId = isIOS()
-        ? await configService.getConfig('ADMOB_IOS_VOTE_COMPLETE')!
-        : await configService.getConfig('ADMOB_ANDROID_VOTE_COMPLETE')!;
+        ? await configService.getConfig('ADMOB_IOS_VOTE_COMPLETE')
+        : await configService.getConfig('ADMOB_ANDROID_VOTE_COMPLETE');
 
     _bannerAd = BannerAd(
       adUnitId: adUnitId!,

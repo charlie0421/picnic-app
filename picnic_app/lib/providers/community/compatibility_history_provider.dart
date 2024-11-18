@@ -2,7 +2,6 @@ import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/providers/community/compatibility_repository_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:picnic_app/repositories/compatibility_repository.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/logger.dart';
 

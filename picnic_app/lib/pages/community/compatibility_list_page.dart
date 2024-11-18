@@ -1,14 +1,8 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_app/pages/community/compatibility_result_page.dart';
 import 'package:picnic_app/providers/community/compatibility_history_provider.dart';
-import 'package:picnic_app/providers/community/compatibility_provider.dart';
-import 'package:picnic_app/providers/navigation_provider.dart';
-import 'package:picnic_app/providers/user_info_provider.dart';
-import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class CompatibilityHistoryPage extends ConsumerStatefulWidget {

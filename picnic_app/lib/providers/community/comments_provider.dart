@@ -2,7 +2,6 @@ import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:supabase_extensions/supabase_extensions.dart';
 
 part '../../generated/providers/community/comments_provider.g.dart';
 
@@ -58,8 +57,9 @@ class CommentsNotifier extends _$CommentsNotifier {
       ''').eq('post_id', postId);
 
       if (!includeDeleted) rootQuery = rootQuery.isFilter('deleted_at', null);
-      if (!includeReported)
+      if (!includeReported) {
         rootQuery = rootQuery.isFilter('comment_reports', null);
+      }
 
       final rootResponse = await rootQuery
           .isFilter('parent_comment_id', null)
@@ -98,8 +98,9 @@ class CommentsNotifier extends _$CommentsNotifier {
       ''').eq('post_id', postId);
 
       if (!includeDeleted) childQuery = childQuery.isFilter('deleted_at', null);
-      if (!includeReported)
+      if (!includeReported) {
         childQuery = childQuery.isFilter('comment_reports', null);
+      }
 
       final childResponse = await childQuery
           .inFilter('parent_comment_id', rootCommentIds)

@@ -6,7 +6,7 @@ part of '../../../providers/community/comments_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$commentsNotifierHash() => r'6f977c7b60d2b658b66ed4f63e47eedc1af76363';
+String _$commentsNotifierHash() => r'990cab214aa6fca433f5e2f4bf42dd480e34088f';
 
 /// Copied from Dart SDK
 class _SystemHash {
