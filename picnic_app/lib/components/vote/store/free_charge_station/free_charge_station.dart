@@ -8,7 +8,7 @@ import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/vote/store/common/store_point_info.dart';
 import 'package:picnic_app/components/vote/store/common/usage_policy_dialog.dart';
 import 'package:picnic_app/components/vote/store/purchase/store_list_tile.dart';
-import 'package:picnic_app/config/config_service.dart';
+import 'package:picnic_app/providers/config_service.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';

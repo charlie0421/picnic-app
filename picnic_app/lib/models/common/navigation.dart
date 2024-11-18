@@ -15,7 +15,7 @@ import 'package:picnic_app/screens/novel/novel_home_screen.dart';
 import 'package:picnic_app/screens/pic/pic_home_screen.dart';
 import 'package:picnic_app/screens/vote/vote_home_screen.dart';
 
-part 'navigation.freezed.dart';
+part '../../generated/models/common/navigation.freezed.dart';
 
 enum TopRightType { none, common, board, postView, community }
 

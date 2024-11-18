@@ -3,8 +3,9 @@ import 'package:picnic_app/models/community/board.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 
-part 'post_scrap.freezed.dart';
-part 'post_scrap.g.dart';
+part '../../generated/models/community/post_scrap.freezed.dart';
+
+part '../../generated/models/community/post_scrap.g.dart';
 
 @freezed
 class PostScrapModel with _$PostScrapModel {

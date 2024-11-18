@@ -1,12 +1,14 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/vote/artist_group.dart';
 
-part 'artist.freezed.dart';
+part '../../generated/models/vote/artist.freezed.dart';
 
-part 'artist.g.dart';
+part '../../generated/models/vote/artist.g.dart';
 
 @freezed
 class ArtistModel with _$ArtistModel {
+  const ArtistModel._();
+
   const factory ArtistModel({
     required int id,
     required Map<String, dynamic> name,
@@ -25,8 +27,6 @@ class ArtistModel with _$ArtistModel {
 
   factory ArtistModel.fromJson(Map<String, dynamic> json) =>
       _$ArtistModelFromJson(json);
-
-  const ArtistModel._(); // private constructor for custom methods
 
   DateTime? get birthDate {
     if (birth_date != null) return birth_date;

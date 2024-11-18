@@ -4,7 +4,7 @@ import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
-part 'comments_provider.g.dart';
+part '../../generated/providers/community/comments_provider.g.dart';
 
 @riverpod
 class CommentsNotifier extends _$CommentsNotifier {

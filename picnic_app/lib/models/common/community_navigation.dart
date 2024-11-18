@@ -4,7 +4,7 @@ import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/reflector.dart';
 
-part 'community_navigation.freezed.dart';
+part '../../generated/models/common/community_navigation.freezed.dart';
 
 @reflector
 @freezed

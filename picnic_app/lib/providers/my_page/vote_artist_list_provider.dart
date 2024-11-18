@@ -5,7 +5,7 @@ import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-part 'vote_artist_list_provider.g.dart';
+part '../../generated/providers/my_page/vote_artist_list_provider.g.dart';
 
 @riverpod
 class AsyncVoteArtistList extends _$AsyncVoteArtistList {

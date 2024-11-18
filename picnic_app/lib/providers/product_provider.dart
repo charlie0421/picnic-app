@@ -6,7 +6,7 @@ import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'product_provider.g.dart';
+part '../generated/providers/product_provider.g.dart';
 
 @Riverpod(keepAlive: true)
 class ServerProducts extends _$ServerProducts {

@@ -5,7 +5,7 @@ import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-part 'comment_list_provider.g.dart';
+part '../generated/providers/comment_list_provider.g.dart';
 
 @riverpod
 class AsyncCommentList extends _$AsyncCommentList {

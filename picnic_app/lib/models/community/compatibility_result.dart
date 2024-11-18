@@ -1,8 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'compatibility_result.freezed.dart';
+part '../../generated/models/community/compatibility_result.freezed.dart';
 
-part 'compatibility_result.g.dart';
+part '../../generated/models/community/compatibility_result.g.dart';
 
 @freezed
 class CompatibilityResult with _$CompatibilityResult {

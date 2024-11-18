@@ -4,7 +4,7 @@ import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-part 'article_list_provider.g.dart';
+part '../generated/providers/article_list_provider.g.dart';
 
 @riverpod
 Future<List<ArticleModel>?> fetchArticleList(

@@ -13,7 +13,7 @@ import 'package:picnic_app/components/common/comment/post_popup_menu.dart';
 import 'package:picnic_app/components/community/write/embed_builder/link_embed_builder.dart';
 import 'package:picnic_app/components/community/write/embed_builder/media_embed_builder.dart';
 import 'package:picnic_app/components/community/write/embed_builder/youtube_embed_builder.dart';
-import 'package:picnic_app/config/config_service.dart';
+import 'package:picnic_app/providers/config_service.dart';
 import 'package:picnic_app/dialogs/report_dialog.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';

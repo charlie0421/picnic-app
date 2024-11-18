@@ -2,7 +2,7 @@ import 'package:intl/intl.dart';
 import 'package:picnic_app/models/vote/purchase_product.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'purchase_product_provider.g.dart';
+part '../generated/providers/purchase_product_provider.g.dart';
 
 @riverpod
 class PurchaseProductList extends _$PurchaseProductList {

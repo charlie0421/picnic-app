@@ -2,7 +2,7 @@ import 'package:picnic_app/models/pic/celeb.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'celeb_search_provider.g.dart';
+part '../generated/providers/celeb_search_provider.g.dart';
 
 @riverpod
 class AsyncCelebSearch extends _$AsyncCelebSearch {

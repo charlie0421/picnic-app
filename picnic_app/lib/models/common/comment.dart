@@ -3,9 +3,9 @@ import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/models/pic/comment_like.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 
-part 'comment.freezed.dart';
+part '../../generated/models/common/comment.freezed.dart';
 
-part 'comment.g.dart';
+part '../../generated/models/common/comment.g.dart';
 
 @freezed
 class CommentModel with _$CommentModel {

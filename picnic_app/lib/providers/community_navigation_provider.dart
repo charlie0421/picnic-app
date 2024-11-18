@@ -4,7 +4,7 @@ import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/models/vote/artist.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'community_navigation_provider.g.dart';
+part '../generated/providers/community_navigation_provider.g.dart';
 
 @Riverpod(keepAlive: true)
 class CommunityStateInfo extends _$CommunityStateInfo {

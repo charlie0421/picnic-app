@@ -2,9 +2,9 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/models/pic/celeb.dart';
 
-part 'gallery.freezed.dart';
+part '../../generated/models/pic/gallery.freezed.dart';
 
-part 'gallery.g.dart';
+part '../../generated/models/pic/gallery.g.dart';
 
 @freezed
 class GalleryModel with _$GalleryModel {

@@ -1,7 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'video_info.freezed.dart';
-part 'video_info.g.dart';
+part '../../generated/models/vote/video_info.freezed.dart';
+
+part '../../generated/models/vote/video_info.g.dart';
 
 @freezed
 class VideoInfo with _$VideoInfo {

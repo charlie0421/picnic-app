@@ -1,9 +1,9 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intl/intl.dart';
 
-part 'artist_vote.freezed.dart';
+part '../../generated/models/pic/artist_vote.freezed.dart';
 
-part 'artist_vote.g.dart';
+part '../../generated/models/pic/artist_vote.g.dart';
 
 @freezed
 class ArtistVoteModel with _$ArtistVoteModel {

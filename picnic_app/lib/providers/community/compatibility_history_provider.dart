@@ -6,7 +6,7 @@ import 'package:picnic_app/repositories/compatibility_repository.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/logger.dart';
 
-part 'compatibility_history_provider.g.dart';
+part '../../generated/providers/community/compatibility_history_provider.g.dart';
 
 @riverpod
 class CompatibilityHistory extends _$CompatibilityHistory {

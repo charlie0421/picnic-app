@@ -1,8 +1,9 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
-part 'purchase_product.freezed.dart';
-part 'purchase_product.g.dart';
+part '../../generated/models/vote/purchase_product.freezed.dart';
+
+part '../../generated/models/vote/purchase_product.g.dart';
 
 @freezed
 class PurchaseProduct with _$PurchaseProduct {

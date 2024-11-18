@@ -5,7 +5,7 @@ import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'screen_protector_provider.g.dart';
+part '../generated/providers/screen_protector_provider.g.dart';
 
 @riverpod
 class IsScreenProtector extends _$IsScreenProtector {

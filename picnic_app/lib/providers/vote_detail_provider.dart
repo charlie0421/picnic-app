@@ -6,7 +6,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'vote_list_provider.dart';
 
-part 'vote_detail_provider.g.dart';
+part '../generated/providers/vote_detail_provider.g.dart';
 
 @riverpod
 class AsyncVoteDetail extends _$AsyncVoteDetail {

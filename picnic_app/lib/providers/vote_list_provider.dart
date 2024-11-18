@@ -5,7 +5,7 @@ import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-part 'vote_list_provider.g.dart';
+part '../generated/providers/vote_list_provider.g.dart';
 
 enum VoteStatus { all, active, end, upcoming, activeAndUpcoming }
 
