@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_error.dart';
@@ -11,7 +12,6 @@ import 'package:picnic_app/providers/community/compatibility_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
-
 import 'package:picnic_app/util/vote_share_util.dart';
 
 class CompatibilityResultScreen extends ConsumerStatefulWidget {

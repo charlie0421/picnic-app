@@ -13,12 +13,12 @@ import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_footer.dart';
 import 'package:picnic_app/components/vote/voting/voting_dialog.dart';
-import 'package:picnic_app/providers/config_service.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/dialogs/reward_dialog.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
+import 'package:picnic_app/providers/config_service.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
@@ -279,18 +279,15 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 S.of(context).text_vote_rank_in_reward,
                 style: getTextStyle(AppTypo.body14B, AppColors.primary500),
               ),
-              ...voteModel.reward!
-                  .map((rewardModel) => GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => showRewardDialog(context, rewardModel),
-                        child: Text(
-                          getLocaleTextFromJson(rewardModel.title!),
-                          style: getTextStyle(
-                                  AppTypo.caption12R, AppColors.grey900)
-                              .copyWith(decoration: TextDecoration.underline),
-                        ),
-                      ))
-                  
+              ...voteModel.reward!.map((rewardModel) => GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => showRewardDialog(context, rewardModel),
+                    child: Text(
+                      getLocaleTextFromJson(rewardModel.title!),
+                      style: getTextStyle(AppTypo.caption12R, AppColors.grey900)
+                          .copyWith(decoration: TextDecoration.underline),
+                    ),
+                  ))
             ],
           ),
         const SizedBox(height: 18),

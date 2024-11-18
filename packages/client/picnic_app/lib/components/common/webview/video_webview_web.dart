@@ -1,8 +1,10 @@
 // lib/components/vote/media/webview/video_webview_web.dart
 
 import 'dart:html' as html;
-import 'package:flutter/material.dart';
 import 'dart:ui_web' as ui_web;
+
+import 'package:flutter/material.dart';
+
 import 'video_webview_interface.dart';
 
 class WebWebViewProvider implements WebViewProvider {

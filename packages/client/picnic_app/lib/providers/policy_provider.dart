@@ -1,6 +1,6 @@
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/models/policy.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part '../generated/providers/policy_provider.g.dart';

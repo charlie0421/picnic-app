@@ -1,10 +1,12 @@
 // lib/services/compatibility_service.dart
 
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:dart_openai/dart_openai.dart';
-import '../models/community/compatibility_result.dart';
-import 'package:uuid/uuid.dart';
 import 'dart:convert';
+
+import 'package:dart_openai/dart_openai.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
+
+import '../models/community/compatibility_result.dart';
 
 class CompatibilityService {
   final String openAiApiKey;

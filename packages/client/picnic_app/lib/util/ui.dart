@@ -4,9 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -134,6 +134,7 @@ bool isLinux() {
 
 extension CustomSizeExtension on num {
   double get cw => kIsWeb ? (this * 600 / 393) : w;
+
   double get ch => kIsWeb ? (this * 800 / 852) : h;
 }
 

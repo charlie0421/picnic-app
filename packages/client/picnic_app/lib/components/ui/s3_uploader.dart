@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
-import 'package:universal_io/io.dart';
+
 import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:path/path.dart' as path;
 import 'package:mime/mime.dart';
+import 'package:path/path.dart' as path;
+import 'package:universal_io/io.dart';
 
 class S3Uploader {
   final String accessKey;

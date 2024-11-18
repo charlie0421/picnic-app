@@ -1,19 +1,20 @@
 import 'dart:async';
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_app/components/vote/list/vote_info_card_achieve.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_footer.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_header.dart';
-import 'package:picnic_app/components/vote/list/vote_info_card_achieve.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_vertical.dart';
-import 'package:picnic_app/providers/config_service.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/pages/vote/vote_detail_achieve_page.dart';
 import 'package:picnic_app/pages/vote/vote_detail_page.dart';
+import 'package:picnic_app/providers/config_service.dart';
 import 'package:picnic_app/providers/global_media_query.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';

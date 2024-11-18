@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/util/logger.dart';
 
 final postListProvider = FutureProvider.family((ref, String boardId) async {
   try {

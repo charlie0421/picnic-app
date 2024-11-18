@@ -1,8 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/supabase_options.dart';
-import 'package:flutter/foundation.dart';
+import 'package:picnic_app/util/logger.dart';
+
 import 'url_strategy.dart' if (dart.html) 'url_strategy_web.dart' as strategy;
 
 class OAuthCallbackPage extends ConsumerStatefulWidget {

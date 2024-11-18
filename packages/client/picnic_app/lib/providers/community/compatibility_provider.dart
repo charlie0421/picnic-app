@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/pages/community/compatibility_result_page.dart';

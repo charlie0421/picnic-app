@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_app/app.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class DialogType {
