@@ -3,8 +3,9 @@ import 'package:picnic_app/models/reward.dart';
 import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/models/vote/artist_group.dart';
 
-part 'vote.freezed.dart';
-part 'vote.g.dart';
+part '../../generated/models/vote/vote.freezed.dart';
+
+part '../../generated/models/vote/vote.g.dart';
 
 @freezed
 class VoteModel with _$VoteModel {

@@ -1,9 +1,9 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 
-part 'vote_pick.freezed.dart';
+part '../../generated/models/vote/vote_pick.freezed.dart';
 
-part 'vote_pick.g.dart';
+part '../../generated/models/vote/vote_pick.g.dart';
 
 @freezed
 class VotePickModel with _$VotePickModel {

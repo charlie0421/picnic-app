@@ -9,7 +9,7 @@ import 'package:picnic_app/components/vote/list/vote_info_card_footer.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_header.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_achieve.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_vertical.dart';
-import 'package:picnic_app/config/config_service.dart';
+import 'package:picnic_app/providers/config_service.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/pages/vote/vote_detail_achieve_page.dart';

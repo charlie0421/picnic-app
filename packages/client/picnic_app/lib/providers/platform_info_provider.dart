@@ -1,7 +1,7 @@
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'platform_info_provider.g.dart';
+part '../generated/providers/platform_info_provider.g.dart';
 
 @riverpod
 class PlatformInfo extends _$PlatformInfo {

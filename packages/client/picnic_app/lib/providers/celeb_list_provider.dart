@@ -5,7 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
-part 'celeb_list_provider.g.dart';
+part '../generated/providers/celeb_list_provider.g.dart';
 
 @riverpod
 class AsyncCelebList extends _$AsyncCelebList {

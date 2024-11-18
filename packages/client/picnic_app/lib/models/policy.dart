@@ -1,7 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'policy.freezed.dart';
-part 'policy.g.dart';
+part '../generated/models/policy.freezed.dart';
+
+part '../generated/models/policy.g.dart';
 
 @freezed
 class PolicyModel with _$PolicyModel {

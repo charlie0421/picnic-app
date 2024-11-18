@@ -1,8 +1,9 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/vote/artist.dart';
 
-part 'board.freezed.dart';
-part 'board.g.dart';
+part '../../generated/models/community/board.freezed.dart';
+
+part '../../generated/models/community/board.g.dart';
 
 @freezed
 class BoardModel with _$BoardModel {

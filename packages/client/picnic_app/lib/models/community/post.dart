@@ -2,8 +2,9 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/community/board.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 
-part 'post.freezed.dart';
-part 'post.g.dart';
+part '../../generated/models/community/post.freezed.dart';
+
+part '../../generated/models/community/post.g.dart';
 
 @freezed
 class PostModel with _$PostModel {

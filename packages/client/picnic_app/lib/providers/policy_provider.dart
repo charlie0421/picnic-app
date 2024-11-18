@@ -3,7 +3,7 @@ import 'package:picnic_app/models/policy.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'policy_provider.g.dart';
+part '../generated/providers/policy_provider.g.dart';
 
 // @riverpod
 // class AsyncPolicy extends _$AsyncPolicy {

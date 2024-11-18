@@ -6,7 +6,7 @@ import 'package:picnic_app/dialogs/force_update_overlay.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
-import 'package:picnic_app/util/update_checker.dart';
+import 'package:picnic_app/providers/update_checker.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class UpdateDialog extends ConsumerStatefulWidget {

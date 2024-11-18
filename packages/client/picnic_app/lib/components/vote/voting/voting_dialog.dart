@@ -9,7 +9,7 @@ import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/components/vote/voting/voting_complete.dart';
-import 'package:picnic_app/config/config_service.dart';
+import 'package:picnic_app/providers/config_service.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/enums.dart';
 import 'package:picnic_app/generated/l10n.dart';

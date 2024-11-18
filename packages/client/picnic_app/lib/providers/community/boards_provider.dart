@@ -4,7 +4,7 @@ import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'boards_provider.g.dart';
+part '../../generated/providers/community/boards_provider.g.dart';
 
 @riverpod
 class BoardsNotifier extends _$BoardsNotifier {

@@ -2,7 +2,7 @@ import 'package:picnic_app/models/pic/gallery.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'gallery_list_provider.g.dart';
+part '../generated/providers/gallery_list_provider.g.dart';
 
 @riverpod
 class AsyncGalleryList extends _$AsyncGalleryList {

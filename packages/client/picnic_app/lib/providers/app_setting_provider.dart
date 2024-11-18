@@ -5,8 +5,9 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'app_setting_provider.freezed.dart';
-part 'app_setting_provider.g.dart';
+part '../generated/providers/app_setting_provider.freezed.dart';
+
+part '../generated/providers/app_setting_provider.g.dart';
 
 @riverpod
 class AppSetting extends _$AppSetting {

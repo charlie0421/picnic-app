@@ -1,8 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'banner.freezed.dart';
+part '../../generated/models/common/banner.freezed.dart';
 
-part 'banner.g.dart';
+part '../../generated/models/common/banner.g.dart';
 
 @freezed
 class BannerModel with _$BannerModel {

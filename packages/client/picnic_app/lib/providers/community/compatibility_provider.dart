@@ -7,7 +7,7 @@ import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'compatibility_provider.g.dart';
+part '../../generated/providers/community/compatibility_provider.g.dart';
 
 @Riverpod(keepAlive: true)
 class Compatibility extends _$Compatibility {

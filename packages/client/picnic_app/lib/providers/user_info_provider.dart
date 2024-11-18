@@ -12,7 +12,7 @@ import 'package:screen_protector/screen_protector.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
-part 'user_info_provider.g.dart';
+part '../generated/providers/user_info_provider.g.dart';
 
 @Riverpod(keepAlive: true)
 class UserInfo extends _$UserInfo {

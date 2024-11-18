@@ -36,7 +36,7 @@ import 'package:picnic_app/ui/pic_theme.dart';
 import 'package:picnic_app/ui/vote_theme.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
-import 'package:picnic_app/util/update_checker.dart';
+import 'package:picnic_app/providers/update_checker.dart';
 import 'package:screen_protector/screen_protector.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';

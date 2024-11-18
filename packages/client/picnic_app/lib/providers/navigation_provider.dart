@@ -13,7 +13,7 @@ import 'package:picnic_app/screens/vote/vote_home_screen.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'navigation_provider.g.dart';
+part '../generated/providers/navigation_provider.g.dart';
 
 @Riverpod(keepAlive: true)
 class NavigationInfo extends _$NavigationInfo {

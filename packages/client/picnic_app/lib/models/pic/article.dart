@@ -3,9 +3,9 @@ import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/models/pic/article_image.dart';
 import 'package:picnic_app/models/pic/gallery.dart';
 
-part 'article.freezed.dart';
+part '../../generated/models/pic/article.freezed.dart';
 
-part 'article.g.dart';
+part '../../generated/models/pic/article.g.dart';
 
 @freezed
 class ArticleModel with _$ArticleModel {

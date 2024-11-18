@@ -1,9 +1,9 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 
-part 'article_image.freezed.dart';
+part '../../generated/models/pic/article_image.freezed.dart';
 
-part 'article_image.g.dart';
+part '../../generated/models/pic/article_image.g.dart';
 
 @freezed
 class ArticleImageModel with _$ArticleImageModel {

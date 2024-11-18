@@ -4,7 +4,7 @@ import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-part 'bookmarked_artists_provider.g.dart';
+part '../../generated/providers/my_page/bookmarked_artists_provider.g.dart';
 
 @riverpod
 class AsyncBookmarkedArtists extends _$AsyncBookmarkedArtists {

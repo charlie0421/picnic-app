@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:ui' as ui;
 import '../util/logger.dart';
 
-part 'banner_list_provider.g.dart';
+part '../generated/providers/banner_list_provider.g.dart';
 
 @riverpod
 class AsyncBannerList extends _$AsyncBannerList {

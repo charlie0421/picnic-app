@@ -1,8 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'comment_like.freezed.dart';
+part '../../generated/models/pic/comment_like.freezed.dart';
 
-part 'comment_like.g.dart';
+part '../../generated/models/pic/comment_like.g.dart';
 
 @freezed
 class UserCommentLikeModel with _$UserCommentLikeModel {
