@@ -1,23 +1,10 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/models/pic/celeb.dart';
 
 part 'gallery.freezed.dart';
+
 part 'gallery.g.dart';
-
-@freezed
-class GalleryListModel with _$GalleryListModel {
-  const GalleryListModel._();
-
-  const factory GalleryListModel({
-    required List<GalleryModel> items,
-    required MetaModel meta,
-  }) = _GalleryListModel;
-
-  factory GalleryListModel.fromJson(Map<String, dynamic> json) =>
-      _$GalleryListModelFromJson(json);
-}
 
 @freezed
 class GalleryModel with _$GalleryModel {

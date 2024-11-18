@@ -1,22 +1,9 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:picnic_app/models/meta.dart';
 import 'package:picnic_app/models/pic/article_image.dart';
 
 part 'library.freezed.dart';
+
 part 'library.g.dart';
-
-@freezed
-class LibraryListModel with _$LibraryListModel {
-  const LibraryListModel._();
-
-  const factory LibraryListModel({
-    required List<LibraryModel> items,
-    required MetaModel meta,
-  }) = _LibraryListModel;
-
-  factory LibraryListModel.fromJson(Map<String, dynamic> json) =>
-      _$LibraryListModelFromJson(json);
-}
 
 @freezed
 class LibraryModel with _$LibraryModel {

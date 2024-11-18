@@ -531,8 +531,6 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       final result = Map<String, dynamic>.from(response.data);
       result['votePickId'] = response.data['votePickId'];
 
-      logger.i(result);
-
       _showVotingCompleteDialog(result);
     } catch (e, s) {
       logger.e(e, stackTrace: s);

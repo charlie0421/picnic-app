@@ -6,22 +6,6 @@ part of 'comment.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$CommentListModelImpl _$$CommentListModelImplFromJson(
-        Map<String, dynamic> json) =>
-    _$CommentListModelImpl(
-      items: (json['items'] as List<dynamic>)
-          .map((e) => CommentModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      meta: MetaModel.fromJson(json['meta'] as Map<String, dynamic>),
-    );
-
-Map<String, dynamic> _$$CommentListModelImplToJson(
-        _$CommentListModelImpl instance) =>
-    <String, dynamic>{
-      'items': instance.items,
-      'meta': instance.meta,
-    };
-
 _$CommentModelImpl _$$CommentModelImplFromJson(Map<String, dynamic> json) =>
     _$CommentModelImpl(
       commentId: json['comment_id'] as String,

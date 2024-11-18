@@ -6,22 +6,6 @@ part of 'article.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$ArticleListModelImpl _$$ArticleListModelImplFromJson(
-        Map<String, dynamic> json) =>
-    _$ArticleListModelImpl(
-      items: (json['items'] as List<dynamic>)
-          .map((e) => ArticleModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      meta: MetaModel.fromJson(json['meta'] as Map<String, dynamic>),
-    );
-
-Map<String, dynamic> _$$ArticleListModelImplToJson(
-        _$ArticleListModelImpl instance) =>
-    <String, dynamic>{
-      'items': instance.items,
-      'meta': instance.meta,
-    };
-
 _$ArticleModelImpl _$$ArticleModelImplFromJson(Map<String, dynamic> json) =>
     _$ArticleModelImpl(
       id: (json['id'] as num).toInt(),

@@ -1,22 +1,9 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_app/models/meta.dart';
 
 part 'artist_vote.freezed.dart';
+
 part 'artist_vote.g.dart';
-
-@freezed
-class ArtistVoteListModel with _$ArtistVoteListModel {
-  const ArtistVoteListModel._();
-
-  const factory ArtistVoteListModel({
-    required List<ArtistVoteModel> items,
-    required MetaModel meta,
-  }) = _ArtistVoteListModel;
-
-  factory ArtistVoteListModel.fromJson(Map<String, dynamic> json) =>
-      _$ArtistVoteListModelFromJson(json);
-}
 
 @freezed
 class ArtistVoteModel with _$ArtistVoteModel {
