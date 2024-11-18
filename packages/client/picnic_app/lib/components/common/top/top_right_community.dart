@@ -4,7 +4,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/rotate_image.dart';
 import 'package:picnic_app/components/ui/bounce_red_dot.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
-import 'package:picnic_app/pages/community/compatibility_input_page.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/ui.dart';

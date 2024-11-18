@@ -11,7 +11,6 @@ import 'package:picnic_app/providers/banner_list_provider.dart';
 import 'package:picnic_app/providers/global_media_query.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -68,7 +67,7 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
       children: [
         // key를 추가하여 위젯을 강제로 리빌드
         PicnicCachedNetworkImage(
-          key: ValueKey('${item.id}_${_currentIndex}'),
+          key: ValueKey('${item.id}_$_currentIndex'),
           imageUrl: imageUrl,
           fit: BoxFit.cover,
           duration: isGif ? item.duration : null,

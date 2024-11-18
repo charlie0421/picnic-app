@@ -28,7 +28,6 @@ import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/number.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:shimmer/shimmer.dart';
@@ -99,8 +98,8 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
     final configService = ref.read(configServiceProvider);
 
     String? adUnitId = isIOS()
-        ? await configService.getConfig('ADMOB_IOS_VOTE_COMPLETE')!
-        : await configService.getConfig('ADMOB_ANDROID_VOTE_COMPLETE')!;
+        ? await configService.getConfig('ADMOB_IOS_VOTE_COMPLETE')
+        : await configService.getConfig('ADMOB_ANDROID_VOTE_COMPLETE');
 
     _bannerAd = BannerAd(
       adUnitId: adUnitId!,

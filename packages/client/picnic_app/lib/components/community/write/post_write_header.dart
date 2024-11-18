@@ -5,7 +5,6 @@ import 'package:picnic_app/components/community/write/post_write_actions.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
-import 'package:picnic_app/util/logger.dart';
 
 class PostWriteHeader extends ConsumerStatefulWidget {
   final Function(bool isTemporary) onSave;

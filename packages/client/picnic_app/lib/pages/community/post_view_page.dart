@@ -747,7 +747,6 @@ class _AdStatus {
     required this.id,
     required this.size,
     this.isLoading = true,
-    this.ad,
   });
 
   final String id;

@@ -86,8 +86,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     final configService = ref.read(configServiceProvider);
 
     String? adUnitId = isIOS()
-        ? await configService.getConfig('ADMOB_IOS_VOTE_DETAIL')!
-        : await configService.getConfig('ADMOB_ANDROID_VOTE_DETAIL')!;
+        ? await configService.getConfig('ADMOB_IOS_VOTE_DETAIL')
+        : await configService.getConfig('ADMOB_ANDROID_VOTE_DETAIL');
 
     _bannerAd = BannerAd(
       adUnitId: adUnitId!,
@@ -290,7 +290,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                               .copyWith(decoration: TextDecoration.underline),
                         ),
                       ))
-                  .toList()
+                  
             ],
           ),
         const SizedBox(height: 18),
