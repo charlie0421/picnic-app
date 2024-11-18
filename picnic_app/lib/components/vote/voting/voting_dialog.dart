@@ -11,12 +11,14 @@ import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/components/vote/voting/voting_complete.dart';
 import 'package:picnic_app/config/config_service.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
+import 'package:picnic_app/enums.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/pages/vote/store_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';
+import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
@@ -28,6 +30,7 @@ Future showVotingDialog({
   required BuildContext context,
   required VoteModel voteModel,
   required VoteItemModel voteItemModel,
+  VotePortal portalType = VotePortal.vote,
 }) {
   return showDialog(
     context: context,
@@ -35,6 +38,7 @@ Future showVotingDialog({
       return VotingDialog(
         voteModel: voteModel,
         voteItemModel: voteItemModel,
+        portalType: portalType,
       );
     },
   );
@@ -43,11 +47,13 @@ Future showVotingDialog({
 class VotingDialog extends ConsumerStatefulWidget {
   final VoteModel voteModel;
   final VoteItemModel voteItemModel;
+  final VotePortal portalType;
 
   const VotingDialog({
     super.key,
     required this.voteModel,
     required this.voteItemModel,
+    required this.portalType,
   });
 
   @override
@@ -487,15 +493,15 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   }
 
   Future<void> _performVoting(int voteAmount, String userId) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-
     try {
-      final response = await supabase.functions.invoke('voting', body: {
-        'vote_id': widget.voteModel.id,
-        'vote_item_id': widget.voteItemModel.id,
-        'amount': voteAmount,
-        'user_id': userId,
-      });
+      final response = await supabase.functions.invoke(
+          widget.portalType == VotePortal.vote ? 'voting' : 'pic-voting',
+          body: {
+            'vote_id': widget.voteModel.id,
+            'vote_item_id': widget.voteItemModel.id,
+            'amount': voteAmount,
+            'user_id': userId,
+          });
 
       final configService = ref.read(configServiceProvider);
       final useRealtimeProfile =
@@ -528,8 +534,6 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       logger.i(result);
 
       _showVotingCompleteDialog(result);
-
-      logger.i(response.status);
     } catch (e, s) {
       logger.e(e, stackTrace: s);
       OverlayLoadingProgress.stop();

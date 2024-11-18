@@ -649,6 +649,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                       voteId: widget.voteId, votePortal: widget.votePortal))
                   .value!,
               voteItemModel: item,
+              portalType: widget.votePortal,
             )
           : showRequireLoginDialog();
     }
