@@ -113,18 +113,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
       );
       await _analyticsService.logPurchaseEvent(productDetails);
 
-      // 실시간 프로필 업데이트 설정 확인
-      final configService = ref.read(configServiceProvider);
-      final useRealtimeProfile =
-          await configService.getConfig('USE_REALTIME_PROFILE') == 'true';
-
-      if (!useRealtimeProfile) {
-        // 실시간 업데이트가 비활성화된 경우에만 수동으로 프로필 업데이트
-        await ref.read(userInfoProvider.notifier).getUserProfiles();
-      } else {
-        logger.i(
-            'Realtime profile update is enabled. Skipping manual update after purchase.');
-      }
+      await ref.read(userInfoProvider.notifier).getUserProfiles();
 
       if (mounted) {
         await _showSuccessDialog();

@@ -84,30 +84,32 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Recent searches"),
         "common_text_search_result_label":
             MessageLookupByLibrary.simpleMessage("Search results"),
-        "compatibility_time_slot1": MessageLookupByLibrary.simpleMessage(
-            "Jasi / Rat Hour(23:30-01:29)"),
-        "compatibility_time_slot10": MessageLookupByLibrary.simpleMessage(
-            "Sinsi / Monkey Hour(17:30-19:29)"),
-        "compatibility_time_slot11": MessageLookupByLibrary.simpleMessage(
-            "Haesi / Pig Hour(19:30-21:29)"),
+        "compatibility_agree_checkbox": MessageLookupByLibrary.simpleMessage(
+            "I agree to store my gender and birthday information in my profile."),
+        "compatibility_time_slot1":
+            MessageLookupByLibrary.simpleMessage("Jassi (23:30-01:29)"),
+        "compatibility_time_slot10":
+            MessageLookupByLibrary.simpleMessage("Yushi (17:30-19:29)"),
+        "compatibility_time_slot11":
+            MessageLookupByLibrary.simpleMessage("Sulshi (19:30-21:29)"),
         "compatibility_time_slot12":
             MessageLookupByLibrary.simpleMessage("Hash (21:30-23:29)"),
-        "compatibility_time_slot2": MessageLookupByLibrary.simpleMessage(
-            "Chuksi / Ox Hour(01:30-03:29)"),
-        "compatibility_time_slot3": MessageLookupByLibrary.simpleMessage(
-            "Insi / Tiger Hour(03:30-05:29)"),
-        "compatibility_time_slot4": MessageLookupByLibrary.simpleMessage(
-            "Jinsi / Dragon Hour(05:30-07:29)"),
-        "compatibility_time_slot5": MessageLookupByLibrary.simpleMessage(
-            "Myosi / Rabbit Hour(07:30-09:29)"),
+        "compatibility_time_slot2":
+            MessageLookupByLibrary.simpleMessage("Chuksi (01:30-03:29)"),
+        "compatibility_time_slot3":
+            MessageLookupByLibrary.simpleMessage("Inshi (03:30-05:29)"),
+        "compatibility_time_slot4":
+            MessageLookupByLibrary.simpleMessage("Myoshi (05:30-07:29)"),
+        "compatibility_time_slot5":
+            MessageLookupByLibrary.simpleMessage("Jinxi (07:30-09:29)"),
         "compatibility_time_slot6":
-            MessageLookupByLibrary.simpleMessage("Osi/Horse Hour(09:30-11:29)"),
-        "compatibility_time_slot7": MessageLookupByLibrary.simpleMessage(
-            "Misi / Sheep Hour(11:30-13:29)"),
-        "compatibility_time_slot8": MessageLookupByLibrary.simpleMessage(
-            "Sasi / Snake Hour(13:30-15:29)"),
-        "compatibility_time_slot9": MessageLookupByLibrary.simpleMessage(
-            "Yusi / Rooster Hour(15:30-17:29)"),
+            MessageLookupByLibrary.simpleMessage("Strabismus (09:30-11:29)"),
+        "compatibility_time_slot7":
+            MessageLookupByLibrary.simpleMessage("O\'clock (11:30-13:29)"),
+        "compatibility_time_slot8":
+            MessageLookupByLibrary.simpleMessage("Missy (13:30-15:29)"),
+        "compatibility_time_slot9":
+            MessageLookupByLibrary.simpleMessage("Cincy (15:30-17:29)"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
         "dialog_caution": MessageLookupByLibrary.simpleMessage("🚫 경고 🚫"),
@@ -374,15 +376,15 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("Birthday polls"),
         "label_vote_tab_pic":
-            MessageLookupByLibrary.simpleMessage("PIC voting"),
+            MessageLookupByLibrary.simpleMessage("PIC Voting"),
         "label_vote_upcoming":
             MessageLookupByLibrary.simpleMessage("Until voting begins"),
         "label_vote_vote_gather":
             MessageLookupByLibrary.simpleMessage("Collecting votes"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("View ads"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("My Artists"),
-        "message_agreement_success": MessageLookupByLibrary.simpleMessage(
-            "Acceptance of the terms is complete."),
+        "message_agreement_success":
+            MessageLookupByLibrary.simpleMessage("You\'ve accepted the terms."),
         "message_error_occurred":
             MessageLookupByLibrary.simpleMessage("An error occurred."),
         "message_noitem_vote_active": MessageLookupByLibrary.simpleMessage(

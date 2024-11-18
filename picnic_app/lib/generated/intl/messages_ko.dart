@@ -81,6 +81,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("최근 검색어"),
         "common_text_search_result_label":
             MessageLookupByLibrary.simpleMessage("검색 결과"),
+        "compatibility_agree_checkbox": MessageLookupByLibrary.simpleMessage(
+            "성별, 생일 정보를 프로필에 저장하는 것에 동의합니다."),
         "compatibility_time_slot1":
             MessageLookupByLibrary.simpleMessage("자시 (23:30-01:29)"),
         "compatibility_time_slot10":

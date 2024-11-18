@@ -26,7 +26,7 @@ class CompatibilityInfo extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.grey100,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primary500, width: 2),
+        border: Border.all(color: AppColors.primary500, width: 1.5),
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -37,9 +37,9 @@ class CompatibilityInfo extends StatelessWidget {
             children: [
               ProfileImageContainer(
                 avatarUrl: artist.image ?? '',
-                width: 120,
-                height: 120,
-                borderRadius: 40,
+                width: 100,
+                height: 100,
+                borderRadius: 20,
               ),
               SizedBox(width: 16),
               FancyPulsingHeart(
@@ -52,9 +52,9 @@ class CompatibilityInfo extends StatelessWidget {
                 avatarUrl: ref.read(userInfoProvider
                         .select((value) => value.value?.avatarUrl)) ??
                     '',
-                width: 120,
-                height: 120,
-                borderRadius: 40,
+                width: 100,
+                height: 100,
+                borderRadius: 20,
               ),
             ],
           ),
@@ -64,26 +64,27 @@ class CompatibilityInfo extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
-                width: 120,
+                width: 100,
                 child: Column(
                   children: [
                     Text(
                       getLocaleTextFromJson(artist.name) ?? '',
                       textAlign: TextAlign.center,
-                      style: getTextStyle(AppTypo.body16R, AppColors.grey900),
+                      style: getTextStyle(AppTypo.body14M, AppColors.grey900),
                     ),
                     Text(
                       formatDateTimeYYYYMMDD(
                           artist.birthDate ?? DateTime.now()),
                       textAlign: TextAlign.center,
-                      style: getTextStyle(AppTypo.body14M, AppColors.grey900),
+                      style:
+                          getTextStyle(AppTypo.caption12M, AppColors.grey900),
                     ),
                   ],
                 ),
               ),
-              SizedBox(width: 72),
+              SizedBox(width: 70),
               SizedBox(
-                width: 120,
+                width: 100,
                 child: Column(
                   children: [
                     Text(
@@ -91,12 +92,13 @@ class CompatibilityInfo extends StatelessWidget {
                               .select((value) => value.value?.nickname)) ??
                           '',
                       textAlign: TextAlign.center,
-                      style: getTextStyle(AppTypo.body16R, AppColors.grey900),
+                      style: getTextStyle(AppTypo.body14M, AppColors.grey900),
                     ),
                     Text(
                       formatDateTimeYYYYMMDD(_birthDate ?? DateTime.now()),
                       textAlign: TextAlign.center,
-                      style: getTextStyle(AppTypo.body14M, AppColors.grey900),
+                      style:
+                          getTextStyle(AppTypo.caption12M, AppColors.grey900),
                     ),
                   ],
                 ),
