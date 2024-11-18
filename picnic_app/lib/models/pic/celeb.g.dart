@@ -6,21 +6,6 @@ part of 'celeb.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$CelebListModelImpl _$$CelebListModelImplFromJson(Map<String, dynamic> json) =>
-    _$CelebListModelImpl(
-      items: (json['items'] as List<dynamic>)
-          .map((e) => CelebModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      meta: MetaModel.fromJson(json['meta'] as Map<String, dynamic>),
-    );
-
-Map<String, dynamic> _$$CelebListModelImplToJson(
-        _$CelebListModelImpl instance) =>
-    <String, dynamic>{
-      'items': instance.items,
-      'meta': instance.meta,
-    };
-
 _$CelebModelImpl _$$CelebModelImplFromJson(Map<String, dynamic> json) =>
     _$CelebModelImpl(
       id: (json['id'] as num).toInt(),

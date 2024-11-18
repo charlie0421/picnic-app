@@ -6,22 +6,6 @@ part of 'comment_like.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$UserCommentLikeListModelImpl _$$UserCommentLikeListModelImplFromJson(
-        Map<String, dynamic> json) =>
-    _$UserCommentLikeListModelImpl(
-      items: (json['items'] as List<dynamic>)
-          .map((e) => UserCommentLikeModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      meta: MetaModel.fromJson(json['meta'] as Map<String, dynamic>),
-    );
-
-Map<String, dynamic> _$$UserCommentLikeListModelImplToJson(
-        _$UserCommentLikeListModelImpl instance) =>
-    <String, dynamic>{
-      'items': instance.items,
-      'meta': instance.meta,
-    };
-
 _$UserCommentLikeModelImpl _$$UserCommentLikeModelImplFromJson(
         Map<String, dynamic> json) =>
     _$UserCommentLikeModelImpl(

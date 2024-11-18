@@ -6,22 +6,6 @@ part of 'gallery.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$GalleryListModelImpl _$$GalleryListModelImplFromJson(
-        Map<String, dynamic> json) =>
-    _$GalleryListModelImpl(
-      items: (json['items'] as List<dynamic>)
-          .map((e) => GalleryModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      meta: MetaModel.fromJson(json['meta'] as Map<String, dynamic>),
-    );
-
-Map<String, dynamic> _$$GalleryListModelImplToJson(
-        _$GalleryListModelImpl instance) =>
-    <String, dynamic>{
-      'items': instance.items,
-      'meta': instance.meta,
-    };
-
 _$GalleryModelImpl _$$GalleryModelImplFromJson(Map<String, dynamic> json) =>
     _$GalleryModelImpl(
       id: (json['id'] as num).toInt(),

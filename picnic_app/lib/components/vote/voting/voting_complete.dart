@@ -81,7 +81,6 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
   void initState() {
     super.initState();
     _loadAds();
-    logger.i('widget.result: ${widget.result}');
   }
 
   void _loadAds() async {

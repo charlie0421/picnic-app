@@ -6,22 +6,6 @@ part of 'vote_pick.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$VotePickListModelImpl _$$VotePickListModelImplFromJson(
-        Map<String, dynamic> json) =>
-    _$VotePickListModelImpl(
-      items: (json['items'] as List<dynamic>)
-          .map((e) => VotePickModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      meta: MetaModel.fromJson(json['meta'] as Map<String, dynamic>),
-    );
-
-Map<String, dynamic> _$$VotePickListModelImplToJson(
-        _$VotePickListModelImpl instance) =>
-    <String, dynamic>{
-      'items': instance.items,
-      'meta': instance.meta,
-    };
-
 _$VotePickModelImpl _$$VotePickModelImplFromJson(Map<String, dynamic> json) =>
     _$VotePickModelImpl(
       id: (json['id'] as num).toInt(),

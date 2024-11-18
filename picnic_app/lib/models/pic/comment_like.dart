@@ -1,21 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:picnic_app/models/meta.dart';
 
 part 'comment_like.freezed.dart';
+
 part 'comment_like.g.dart';
-
-@freezed
-class UserCommentLikeListModel with _$UserCommentLikeListModel {
-  const UserCommentLikeListModel._();
-
-  const factory UserCommentLikeListModel({
-    required List<UserCommentLikeModel> items,
-    required MetaModel meta,
-  }) = _UserCommentLikeListModel;
-
-  factory UserCommentLikeListModel.fromJson(Map<String, dynamic> json) =>
-      _$UserCommentLikeListModelFromJson(json);
-}
 
 @freezed
 class UserCommentLikeModel with _$UserCommentLikeModel {
