@@ -568,6 +568,8 @@
     "@label_vote_tab_birthday": {
         "translationTimestamp": "2024-07-21T11:18:53.669108"
     },
+    "compatibility_agree_checkbox": "성별, 생일 정보를 프로필에 저장하는 것에 동의합니다.",
+    "@compatibility_agree_checkbox": {},
     "block_user_label": "사용자 차단",
     "@block_user_label": {
     },

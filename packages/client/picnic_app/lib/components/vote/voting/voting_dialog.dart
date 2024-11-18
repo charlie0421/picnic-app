@@ -502,16 +502,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             'user_id': userId,
           });
 
-      final configService = ref.read(configServiceProvider);
-      final useRealtimeProfile =
-          await configService.getConfig('USE_REALTIME_PROFILE') == 'true';
-
-      if (!useRealtimeProfile) {
-        // 실시간 업데이트가 비활성화된 경우에만 수동으로 프로필 업데이트
-        await ref.read(userInfoProvider.notifier).getUserProfiles();
-      } else {
-        logger.i('Realtime profile update is enabled. Skipping manual update.');
-      }
+      await ref.read(userInfoProvider.notifier).getUserProfiles();
 
       ref
           .read(asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier)

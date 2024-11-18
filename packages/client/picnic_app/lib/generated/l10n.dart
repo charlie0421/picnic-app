@@ -1,7 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
 import 'intl/messages_all.dart';
 
 // **************************************************************************
@@ -1501,10 +1500,10 @@ class S {
     );
   }
 
-  /// `PIC voting`
+  /// `PIC Voting`
   String get label_vote_tab_pic {
     return Intl.message(
-      'PIC voting',
+      'PIC Voting',
       name: 'label_vote_tab_pic',
       desc: '',
       args: [],
@@ -1551,10 +1550,10 @@ class S {
     );
   }
 
-  /// `Acceptance of the terms is complete.`
+  /// `You've accepted the terms.`
   String get message_agreement_success {
     return Intl.message(
-      'Acceptance of the terms is complete.',
+      'You\'ve accepted the terms.',
       name: 'message_agreement_success',
       desc: '',
       args: [],
@@ -3401,110 +3400,110 @@ class S {
     );
   }
 
-  /// `Jasi / Rat Hour(23:30-01:29)`
+  /// `Jassi (23:30-01:29)`
   String get compatibility_time_slot1 {
     return Intl.message(
-      'Jasi / Rat Hour(23:30-01:29)',
+      'Jassi (23:30-01:29)',
       name: 'compatibility_time_slot1',
       desc: '',
       args: [],
     );
   }
 
-  /// `Chuksi / Ox Hour(01:30-03:29)`
+  /// `Chuksi (01:30-03:29)`
   String get compatibility_time_slot2 {
     return Intl.message(
-      'Chuksi / Ox Hour(01:30-03:29)',
+      'Chuksi (01:30-03:29)',
       name: 'compatibility_time_slot2',
       desc: '',
       args: [],
     );
   }
 
-  /// `Insi / Tiger Hour(03:30-05:29)`
+  /// `Inshi (03:30-05:29)`
   String get compatibility_time_slot3 {
     return Intl.message(
-      'Insi / Tiger Hour(03:30-05:29)',
+      'Inshi (03:30-05:29)',
       name: 'compatibility_time_slot3',
       desc: '',
       args: [],
     );
   }
 
-  /// `Myosi / Rabbit Hour(07:30-09:29)`
-  String get compatibility_time_slot5 {
-    return Intl.message(
-      'Myosi / Rabbit Hour(07:30-09:29)',
-      name: 'compatibility_time_slot5',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Jinsi / Dragon Hour(05:30-07:29)`
+  /// `Myoshi (05:30-07:29)`
   String get compatibility_time_slot4 {
     return Intl.message(
-      'Jinsi / Dragon Hour(05:30-07:29)',
+      'Myoshi (05:30-07:29)',
       name: 'compatibility_time_slot4',
       desc: '',
       args: [],
     );
   }
 
-  /// `Sasi / Snake Hour(13:30-15:29)`
+  /// `Jinxi (07:30-09:29)`
+  String get compatibility_time_slot5 {
+    return Intl.message(
+      'Jinxi (07:30-09:29)',
+      name: 'compatibility_time_slot5',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Missy (13:30-15:29)`
   String get compatibility_time_slot8 {
     return Intl.message(
-      'Sasi / Snake Hour(13:30-15:29)',
+      'Missy (13:30-15:29)',
       name: 'compatibility_time_slot8',
       desc: '',
       args: [],
     );
   }
 
-  /// `Osi/Horse Hour(09:30-11:29)`
+  /// `Strabismus (09:30-11:29)`
   String get compatibility_time_slot6 {
     return Intl.message(
-      'Osi/Horse Hour(09:30-11:29)',
+      'Strabismus (09:30-11:29)',
       name: 'compatibility_time_slot6',
       desc: '',
       args: [],
     );
   }
 
-  /// `Misi / Sheep Hour(11:30-13:29)`
+  /// `O'clock (11:30-13:29)`
   String get compatibility_time_slot7 {
     return Intl.message(
-      'Misi / Sheep Hour(11:30-13:29)',
+      'O\'clock (11:30-13:29)',
       name: 'compatibility_time_slot7',
       desc: '',
       args: [],
     );
   }
 
-  /// `Sinsi / Monkey Hour(17:30-19:29)`
+  /// `Yushi (17:30-19:29)`
   String get compatibility_time_slot10 {
     return Intl.message(
-      'Sinsi / Monkey Hour(17:30-19:29)',
+      'Yushi (17:30-19:29)',
       name: 'compatibility_time_slot10',
       desc: '',
       args: [],
     );
   }
 
-  /// `Yusi / Rooster Hour(15:30-17:29)`
+  /// `Cincy (15:30-17:29)`
   String get compatibility_time_slot9 {
     return Intl.message(
-      'Yusi / Rooster Hour(15:30-17:29)',
+      'Cincy (15:30-17:29)',
       name: 'compatibility_time_slot9',
       desc: '',
       args: [],
     );
   }
 
-  /// `Haesi / Pig Hour(19:30-21:29)`
+  /// `Sulshi (19:30-21:29)`
   String get compatibility_time_slot11 {
     return Intl.message(
-      'Haesi / Pig Hour(19:30-21:29)',
+      'Sulshi (19:30-21:29)',
       name: 'compatibility_time_slot11',
       desc: '',
       args: [],
@@ -3516,6 +3515,16 @@ class S {
     return Intl.message(
       'Hash (21:30-23:29)',
       name: 'compatibility_time_slot12',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `I agree to store my gender and birthday information in my profile.`
+  String get compatibility_agree_checkbox {
+    return Intl.message(
+      'I agree to store my gender and birthday information in my profile.',
+      name: 'compatibility_agree_checkbox',
       desc: '',
       args: [],
     );
@@ -3536,10 +3545,8 @@ class AppLocalizationDelegate extends LocalizationsDelegate<S> {
 
   @override
   bool isSupported(Locale locale) => _isSupported(locale);
-
   @override
   Future<S> load(Locale locale) => S.load(locale);
-
   @override
   bool shouldReload(AppLocalizationDelegate old) => false;
 

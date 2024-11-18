@@ -202,7 +202,7 @@ class _CompatibilityInputScreenState
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -218,7 +218,7 @@ class _CompatibilityInputScreenState
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 8),
                     Row(
                       children: genderOptions
                           .map((option) => Expanded(
@@ -265,7 +265,7 @@ class _CompatibilityInputScreenState
                 onTap: _selectDate,
                 borderRadius: BorderRadius.circular(16),
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -287,7 +287,7 @@ class _CompatibilityInputScreenState
                             ? '날짜를 선택해주세요'
                             : '${_birthDate!.year}년 ${_birthDate!.month}월 ${_birthDate!.day}일',
                         style: getTextStyle(
-                          AppTypo.body16B,
+                          AppTypo.body14B,
                           _birthDate == null
                               ? AppColors.grey500
                               : AppColors.grey900,
@@ -308,7 +308,7 @@ class _CompatibilityInputScreenState
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -320,7 +320,7 @@ class _CompatibilityInputScreenState
                         Text(
                           '태어난 시간 (선택사항)',
                           style:
-                              getTextStyle(AppTypo.body14B, AppColors.grey900),
+                              getTextStyle(AppTypo.body14R, AppColors.grey900),
                         ),
                       ],
                     ),
@@ -334,7 +334,7 @@ class _CompatibilityInputScreenState
                           ),
                         ),
                         contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
+                            horizontal: 12, vertical: 8),
                       ),
                       value: _birthTime,
                       hint: Text(
@@ -377,20 +377,19 @@ class _CompatibilityInputScreenState
             // 동의 체크박스
             CheckboxListTile(
               value: _agreedToSaveProfile,
+              activeColor: AppColors.primary500,
               onChanged: (value) {
                 setState(() {
                   _agreedToSaveProfile = value ?? false;
                 });
               },
               title: Text(
-                '입력한 성별, 생일 정보를 프로필에 저장하는 것에 동의합니다.',
-                style: getTextStyle(AppTypo.body14M, AppColors.grey900),
+                S.of(context).compatibility_agree_checkbox,
+                style: getTextStyle(AppTypo.caption12R, AppColors.grey500),
               ),
               controlAffinity: ListTileControlAffinity.leading,
               contentPadding: EdgeInsets.zero,
             ),
-
-            const SizedBox(height: 24),
 
             // Submit Button
             FilledButton(

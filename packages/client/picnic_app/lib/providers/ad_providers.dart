@@ -60,17 +60,7 @@ class RewardedAds extends _$RewardedAds {
 
   void _handleAdResult(AdResult result, BuildContext context) async {
     // 실시간 프로필 업데이트 설정 확인
-    final configService = ref.read(configServiceProvider);
-    final useRealtimeProfile =
-        await configService.getConfig('USE_REALTIME_PROFILE') == 'true';
-
-    if (!useRealtimeProfile) {
-      // 실시간 업데이트가 비활성화된 경우에만 수동으로 프로필 업데이트
-      await ref.read(userInfoProvider.notifier).getUserProfiles();
-    } else {
-      logger.i(
-          'Realtime profile update is enabled. Skipping manual update after purchase.');
-    }
+    await ref.read(userInfoProvider.notifier).getUserProfiles();
 
     switch (result) {
       case AdResult.completed:
@@ -78,23 +68,14 @@ class RewardedAds extends _$RewardedAds {
           content: S.of(context).text_dialog_star_candy_received,
           onOk: () {
             Navigator.of(context).pop();
-            if (!useRealtimeProfile) {
-              // 실시간 업데이트가 비활성화된 경우에만 수동으로 프로필 업데이트
-              ref.read(userInfoProvider.notifier).getUserProfiles();
-            }
+            ref.read(userInfoProvider.notifier).getUserProfiles();
           },
         );
 
-        if (!useRealtimeProfile) {
-          // 실시간 업데이트가 비활성화된 경우 2초 후 프로필 업데이트
-          Future.delayed(const Duration(seconds: 2), () {
-            ref.read(userInfoProvider.notifier).getUserProfiles();
-          });
-        } else {
-          // 실시간 업데이트가 활성화된 경우, 프로필이 자동으로 업데이트될 것이므로 추가 작업 필요 없음
-          logger
-              .i('Realtime profile update is enabled. Skipping manual update.');
-        }
+        Future.delayed(const Duration(seconds: 2), () {
+          ref.read(userInfoProvider.notifier).getUserProfiles();
+        });
+
         break;
       case AdResult.dismissed:
         showSimpleDialog(
