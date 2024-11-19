@@ -28,9 +28,9 @@ mixin _$CompatibilityResult {
   String get userGender => throw _privateConstructorUsedError;
   String? get birthTime => throw _privateConstructorUsedError; // Optional
   int get compatibilityScore => throw _privateConstructorUsedError;
-  String get compatibilitySummary => throw _privateConstructorUsedError;
-  Map<String, dynamic> get details => throw _privateConstructorUsedError;
-  List<String> get tips => throw _privateConstructorUsedError;
+  String? get compatibilitySummary => throw _privateConstructorUsedError;
+  Map<String, dynamic>? get details => throw _privateConstructorUsedError;
+  List<String>? get tips => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
 
   /// Serializes this CompatibilityResult to a JSON map.
@@ -58,9 +58,9 @@ abstract class $CompatibilityResultCopyWith<$Res> {
       String userGender,
       String? birthTime,
       int compatibilityScore,
-      String compatibilitySummary,
-      Map<String, dynamic> details,
-      List<String> tips,
+      String? compatibilitySummary,
+      Map<String, dynamic>? details,
+      List<String>? tips,
       DateTime createdAt});
 }
 
@@ -87,9 +87,9 @@ class _$CompatibilityResultCopyWithImpl<$Res, $Val extends CompatibilityResult>
     Object? userGender = null,
     Object? birthTime = freezed,
     Object? compatibilityScore = null,
-    Object? compatibilitySummary = null,
-    Object? details = null,
-    Object? tips = null,
+    Object? compatibilitySummary = freezed,
+    Object? details = freezed,
+    Object? tips = freezed,
     Object? createdAt = null,
   }) {
     return _then(_value.copyWith(
@@ -125,18 +125,18 @@ class _$CompatibilityResultCopyWithImpl<$Res, $Val extends CompatibilityResult>
           ? _value.compatibilityScore
           : compatibilityScore // ignore: cast_nullable_to_non_nullable
               as int,
-      compatibilitySummary: null == compatibilitySummary
+      compatibilitySummary: freezed == compatibilitySummary
           ? _value.compatibilitySummary
           : compatibilitySummary // ignore: cast_nullable_to_non_nullable
-              as String,
-      details: null == details
+              as String?,
+      details: freezed == details
           ? _value.details
           : details // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>,
-      tips: null == tips
+              as Map<String, dynamic>?,
+      tips: freezed == tips
           ? _value.tips
           : tips // ignore: cast_nullable_to_non_nullable
-              as List<String>,
+              as List<String>?,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -162,9 +162,9 @@ abstract class _$$CompatibilityResultImplCopyWith<$Res>
       String userGender,
       String? birthTime,
       int compatibilityScore,
-      String compatibilitySummary,
-      Map<String, dynamic> details,
-      List<String> tips,
+      String? compatibilitySummary,
+      Map<String, dynamic>? details,
+      List<String>? tips,
       DateTime createdAt});
 }
 
@@ -189,9 +189,9 @@ class __$$CompatibilityResultImplCopyWithImpl<$Res>
     Object? userGender = null,
     Object? birthTime = freezed,
     Object? compatibilityScore = null,
-    Object? compatibilitySummary = null,
-    Object? details = null,
-    Object? tips = null,
+    Object? compatibilitySummary = freezed,
+    Object? details = freezed,
+    Object? tips = freezed,
     Object? createdAt = null,
   }) {
     return _then(_$CompatibilityResultImpl(
@@ -227,18 +227,18 @@ class __$$CompatibilityResultImplCopyWithImpl<$Res>
           ? _value.compatibilityScore
           : compatibilityScore // ignore: cast_nullable_to_non_nullable
               as int,
-      compatibilitySummary: null == compatibilitySummary
+      compatibilitySummary: freezed == compatibilitySummary
           ? _value.compatibilitySummary
           : compatibilitySummary // ignore: cast_nullable_to_non_nullable
-              as String,
-      details: null == details
+              as String?,
+      details: freezed == details
           ? _value._details
           : details // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>,
-      tips: null == tips
+              as Map<String, dynamic>?,
+      tips: freezed == tips
           ? _value._tips
           : tips // ignore: cast_nullable_to_non_nullable
-              as List<String>,
+              as List<String>?,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -260,8 +260,8 @@ class _$CompatibilityResultImpl implements _CompatibilityResult {
       this.birthTime,
       required this.compatibilityScore,
       required this.compatibilitySummary,
-      required final Map<String, dynamic> details,
-      required final List<String> tips,
+      required final Map<String, dynamic>? details,
+      required final List<String>? tips,
       required this.createdAt})
       : _details = details,
         _tips = tips;
@@ -287,21 +287,25 @@ class _$CompatibilityResultImpl implements _CompatibilityResult {
   @override
   final int compatibilityScore;
   @override
-  final String compatibilitySummary;
-  final Map<String, dynamic> _details;
+  final String? compatibilitySummary;
+  final Map<String, dynamic>? _details;
   @override
-  Map<String, dynamic> get details {
+  Map<String, dynamic>? get details {
+    final value = _details;
+    if (value == null) return null;
     if (_details is EqualUnmodifiableMapView) return _details;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(_details);
+    return EqualUnmodifiableMapView(value);
   }
 
-  final List<String> _tips;
+  final List<String>? _tips;
   @override
-  List<String> get tips {
+  List<String>? get tips {
+    final value = _tips;
+    if (value == null) return null;
     if (_tips is EqualUnmodifiableListView) return _tips;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_tips);
+    return EqualUnmodifiableListView(value);
   }
 
   @override
@@ -383,9 +387,9 @@ abstract class _CompatibilityResult implements CompatibilityResult {
       required final String userGender,
       final String? birthTime,
       required final int compatibilityScore,
-      required final String compatibilitySummary,
-      required final Map<String, dynamic> details,
-      required final List<String> tips,
+      required final String? compatibilitySummary,
+      required final Map<String, dynamic>? details,
+      required final List<String>? tips,
       required final DateTime createdAt}) = _$CompatibilityResultImpl;
 
   factory _CompatibilityResult.fromJson(Map<String, dynamic> json) =
@@ -408,11 +412,11 @@ abstract class _CompatibilityResult implements CompatibilityResult {
   @override
   int get compatibilityScore;
   @override
-  String get compatibilitySummary;
+  String? get compatibilitySummary;
   @override
-  Map<String, dynamic> get details;
+  Map<String, dynamic>? get details;
   @override
-  List<String> get tips;
+  List<String>? get tips;
   @override
   DateTime get createdAt;
 
@@ -430,9 +434,9 @@ StyleDetails _$StyleDetailsFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$StyleDetails {
-  String get idolStyle => throw _privateConstructorUsedError;
-  String get userStyle => throw _privateConstructorUsedError;
-  String get coupleStyle => throw _privateConstructorUsedError;
+  String? get idolStyle => throw _privateConstructorUsedError;
+  String? get userStyle => throw _privateConstructorUsedError;
+  String? get coupleStyle => throw _privateConstructorUsedError;
 
   /// Serializes this StyleDetails to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -450,7 +454,7 @@ abstract class $StyleDetailsCopyWith<$Res> {
           StyleDetails value, $Res Function(StyleDetails) then) =
       _$StyleDetailsCopyWithImpl<$Res, StyleDetails>;
   @useResult
-  $Res call({String idolStyle, String userStyle, String coupleStyle});
+  $Res call({String? idolStyle, String? userStyle, String? coupleStyle});
 }
 
 /// @nodoc
@@ -468,23 +472,23 @@ class _$StyleDetailsCopyWithImpl<$Res, $Val extends StyleDetails>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? idolStyle = null,
-    Object? userStyle = null,
-    Object? coupleStyle = null,
+    Object? idolStyle = freezed,
+    Object? userStyle = freezed,
+    Object? coupleStyle = freezed,
   }) {
     return _then(_value.copyWith(
-      idolStyle: null == idolStyle
+      idolStyle: freezed == idolStyle
           ? _value.idolStyle
           : idolStyle // ignore: cast_nullable_to_non_nullable
-              as String,
-      userStyle: null == userStyle
+              as String?,
+      userStyle: freezed == userStyle
           ? _value.userStyle
           : userStyle // ignore: cast_nullable_to_non_nullable
-              as String,
-      coupleStyle: null == coupleStyle
+              as String?,
+      coupleStyle: freezed == coupleStyle
           ? _value.coupleStyle
           : coupleStyle // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
     ) as $Val);
   }
 }
@@ -497,7 +501,7 @@ abstract class _$$StyleDetailsImplCopyWith<$Res>
       __$$StyleDetailsImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String idolStyle, String userStyle, String coupleStyle});
+  $Res call({String? idolStyle, String? userStyle, String? coupleStyle});
 }
 
 /// @nodoc
@@ -513,23 +517,23 @@ class __$$StyleDetailsImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? idolStyle = null,
-    Object? userStyle = null,
-    Object? coupleStyle = null,
+    Object? idolStyle = freezed,
+    Object? userStyle = freezed,
+    Object? coupleStyle = freezed,
   }) {
     return _then(_$StyleDetailsImpl(
-      idolStyle: null == idolStyle
+      idolStyle: freezed == idolStyle
           ? _value.idolStyle
           : idolStyle // ignore: cast_nullable_to_non_nullable
-              as String,
-      userStyle: null == userStyle
+              as String?,
+      userStyle: freezed == userStyle
           ? _value.userStyle
           : userStyle // ignore: cast_nullable_to_non_nullable
-              as String,
-      coupleStyle: null == coupleStyle
+              as String?,
+      coupleStyle: freezed == coupleStyle
           ? _value.coupleStyle
           : coupleStyle // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
     ));
   }
 }
@@ -546,11 +550,11 @@ class _$StyleDetailsImpl implements _StyleDetails {
       _$$StyleDetailsImplFromJson(json);
 
   @override
-  final String idolStyle;
+  final String? idolStyle;
   @override
-  final String userStyle;
+  final String? userStyle;
   @override
-  final String coupleStyle;
+  final String? coupleStyle;
 
   @override
   String toString() {
@@ -593,19 +597,19 @@ class _$StyleDetailsImpl implements _StyleDetails {
 
 abstract class _StyleDetails implements StyleDetails {
   const factory _StyleDetails(
-      {required final String idolStyle,
-      required final String userStyle,
-      required final String coupleStyle}) = _$StyleDetailsImpl;
+      {required final String? idolStyle,
+      required final String? userStyle,
+      required final String? coupleStyle}) = _$StyleDetailsImpl;
 
   factory _StyleDetails.fromJson(Map<String, dynamic> json) =
       _$StyleDetailsImpl.fromJson;
 
   @override
-  String get idolStyle;
+  String? get idolStyle;
   @override
-  String get userStyle;
+  String? get userStyle;
   @override
-  String get coupleStyle;
+  String? get coupleStyle;
 
   /// Create a copy of StyleDetails
   /// with the given fields replaced by the non-null parameter values.
@@ -621,8 +625,8 @@ ActivitiesDetails _$ActivitiesDetailsFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$ActivitiesDetails {
-  List<String> get recommended => throw _privateConstructorUsedError;
-  String get description => throw _privateConstructorUsedError;
+  List<String>? get recommended => throw _privateConstructorUsedError;
+  String? get description => throw _privateConstructorUsedError;
 
   /// Serializes this ActivitiesDetails to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -640,7 +644,7 @@ abstract class $ActivitiesDetailsCopyWith<$Res> {
           ActivitiesDetails value, $Res Function(ActivitiesDetails) then) =
       _$ActivitiesDetailsCopyWithImpl<$Res, ActivitiesDetails>;
   @useResult
-  $Res call({List<String> recommended, String description});
+  $Res call({List<String>? recommended, String? description});
 }
 
 /// @nodoc
@@ -658,18 +662,18 @@ class _$ActivitiesDetailsCopyWithImpl<$Res, $Val extends ActivitiesDetails>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? recommended = null,
-    Object? description = null,
+    Object? recommended = freezed,
+    Object? description = freezed,
   }) {
     return _then(_value.copyWith(
-      recommended: null == recommended
+      recommended: freezed == recommended
           ? _value.recommended
           : recommended // ignore: cast_nullable_to_non_nullable
-              as List<String>,
-      description: null == description
+              as List<String>?,
+      description: freezed == description
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
     ) as $Val);
   }
 }
@@ -682,7 +686,7 @@ abstract class _$$ActivitiesDetailsImplCopyWith<$Res>
       __$$ActivitiesDetailsImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({List<String> recommended, String description});
+  $Res call({List<String>? recommended, String? description});
 }
 
 /// @nodoc
@@ -698,18 +702,18 @@ class __$$ActivitiesDetailsImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? recommended = null,
-    Object? description = null,
+    Object? recommended = freezed,
+    Object? description = freezed,
   }) {
     return _then(_$ActivitiesDetailsImpl(
-      recommended: null == recommended
+      recommended: freezed == recommended
           ? _value._recommended
           : recommended // ignore: cast_nullable_to_non_nullable
-              as List<String>,
-      description: null == description
+              as List<String>?,
+      description: freezed == description
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
     ));
   }
 }
@@ -718,22 +722,24 @@ class __$$ActivitiesDetailsImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$ActivitiesDetailsImpl implements _ActivitiesDetails {
   const _$ActivitiesDetailsImpl(
-      {required final List<String> recommended, required this.description})
+      {required final List<String>? recommended, required this.description})
       : _recommended = recommended;
 
   factory _$ActivitiesDetailsImpl.fromJson(Map<String, dynamic> json) =>
       _$$ActivitiesDetailsImplFromJson(json);
 
-  final List<String> _recommended;
+  final List<String>? _recommended;
   @override
-  List<String> get recommended {
+  List<String>? get recommended {
+    final value = _recommended;
+    if (value == null) return null;
     if (_recommended is EqualUnmodifiableListView) return _recommended;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_recommended);
+    return EqualUnmodifiableListView(value);
   }
 
   @override
-  final String description;
+  final String? description;
 
   @override
   String toString() {
@@ -775,16 +781,16 @@ class _$ActivitiesDetailsImpl implements _ActivitiesDetails {
 
 abstract class _ActivitiesDetails implements ActivitiesDetails {
   const factory _ActivitiesDetails(
-      {required final List<String> recommended,
-      required final String description}) = _$ActivitiesDetailsImpl;
+      {required final List<String>? recommended,
+      required final String? description}) = _$ActivitiesDetailsImpl;
 
   factory _ActivitiesDetails.fromJson(Map<String, dynamic> json) =
       _$ActivitiesDetailsImpl.fromJson;
 
   @override
-  List<String> get recommended;
+  List<String>? get recommended;
   @override
-  String get description;
+  String? get description;
 
   /// Create a copy of ActivitiesDetails
   /// with the given fields replaced by the non-null parameter values.

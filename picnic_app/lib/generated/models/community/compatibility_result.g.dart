@@ -25,10 +25,11 @@ _$CompatibilityResultImpl _$$CompatibilityResultImplFromJson(
           compatibilityScore:
               $checkedConvert('compatibility_score', (v) => (v as num).toInt()),
           compatibilitySummary:
-              $checkedConvert('compatibility_summary', (v) => v as String),
-          details: $checkedConvert('details', (v) => v as Map<String, dynamic>),
+              $checkedConvert('compatibility_summary', (v) => v as String?),
+          details:
+              $checkedConvert('details', (v) => v as Map<String, dynamic>?),
           tips: $checkedConvert('tips',
-              (v) => (v as List<dynamic>).map((e) => e as String).toList()),
+              (v) => (v as List<dynamic>?)?.map((e) => e as String).toList()),
           createdAt:
               $checkedConvert('created_at', (v) => DateTime.parse(v as String)),
         );
@@ -70,9 +71,9 @@ _$StyleDetailsImpl _$$StyleDetailsImplFromJson(Map<String, dynamic> json) =>
       json,
       ($checkedConvert) {
         final val = _$StyleDetailsImpl(
-          idolStyle: $checkedConvert('idol_style', (v) => v as String),
-          userStyle: $checkedConvert('user_style', (v) => v as String),
-          coupleStyle: $checkedConvert('couple_style', (v) => v as String),
+          idolStyle: $checkedConvert('idol_style', (v) => v as String?),
+          userStyle: $checkedConvert('user_style', (v) => v as String?),
+          coupleStyle: $checkedConvert('couple_style', (v) => v as String?),
         );
         return val;
       },
@@ -98,8 +99,8 @@ _$ActivitiesDetailsImpl _$$ActivitiesDetailsImplFromJson(
       ($checkedConvert) {
         final val = _$ActivitiesDetailsImpl(
           recommended: $checkedConvert('recommended',
-              (v) => (v as List<dynamic>).map((e) => e as String).toList()),
-          description: $checkedConvert('description', (v) => v as String),
+              (v) => (v as List<dynamic>?)?.map((e) => e as String).toList()),
+          description: $checkedConvert('description', (v) => v as String?),
         );
         return val;
       },

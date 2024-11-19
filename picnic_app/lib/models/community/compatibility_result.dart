@@ -15,9 +15,9 @@ class CompatibilityResult with _$CompatibilityResult {
     required String userGender,
     String? birthTime, // Optional
     required int compatibilityScore,
-    required String compatibilitySummary,
-    required Map<String, dynamic> details,
-    required List<String> tips,
+    required String? compatibilitySummary,
+    required Map<String, dynamic>? details,
+    required List<String>? tips,
     required DateTime createdAt,
   }) = _CompatibilityResult;
 
@@ -28,9 +28,9 @@ class CompatibilityResult with _$CompatibilityResult {
 @freezed
 class StyleDetails with _$StyleDetails {
   const factory StyleDetails({
-    required String idolStyle,
-    required String userStyle,
-    required String coupleStyle,
+    required String? idolStyle,
+    required String? userStyle,
+    required String? coupleStyle,
   }) = _StyleDetails;
 
   factory StyleDetails.fromJson(Map<String, dynamic> json) =>
@@ -40,8 +40,8 @@ class StyleDetails with _$StyleDetails {
 @freezed
 class ActivitiesDetails with _$ActivitiesDetails {
   const factory ActivitiesDetails({
-    required List<String> recommended,
-    required String description,
+    required List<String>? recommended,
+    required String? description,
   }) = _ActivitiesDetails;
 
   factory ActivitiesDetails.fromJson(Map<String, dynamic> json) =>

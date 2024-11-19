@@ -17,7 +17,8 @@ class CompatibilityResultView extends StatelessWidget {
         children: [
           // 궁합 점수
           Card(
-            child: Padding(
+            child: Container(
+              width: double.infinity,
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
@@ -48,17 +49,17 @@ class CompatibilityResultView extends StatelessWidget {
                 children: [
                   _buildDetailItem(
                     '${compatibility.artist.name['ko']}님의 스타일',
-                    compatibility.details?.style.idol_style ?? '',
+                    compatibility.details?.style?.idol_style ?? '',
                   ),
                   const Divider(height: 24),
                   _buildDetailItem(
                     '당신의 스타일',
-                    compatibility.details?.style.user_style ?? '',
+                    compatibility.details?.style?.user_style ?? '',
                   ),
                   const Divider(height: 24),
                   _buildDetailItem(
                     '커플 스타일 제안',
-                    compatibility.details?.style.couple_style ?? '',
+                    compatibility.details?.style?.couple_style ?? '',
                   ),
                 ],
               ),
@@ -74,7 +75,7 @@ class CompatibilityResultView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ...compatibility.details!.activities.recommended.map(
+                  ...compatibility.details!.activities!.recommended!.map(
                     (activity) => Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4),
                       child: Row(
@@ -98,10 +99,10 @@ class CompatibilityResultView extends StatelessWidget {
                     ),
                   ),
                   if (compatibility
-                      .details!.activities.description.isNotEmpty) ...[
+                      .details!.activities!.description!.isNotEmpty) ...[
                     const Divider(height: 24),
                     Text(
-                      compatibility.details!.activities.description,
+                      compatibility.details!.activities!.description ?? '',
                       style: getTextStyle(AppTypo.body14M, AppColors.grey900),
                     ),
                   ],
