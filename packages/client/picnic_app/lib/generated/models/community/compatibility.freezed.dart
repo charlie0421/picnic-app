@@ -226,7 +226,9 @@ mixin _$CompatibilityModel {
   String get id => throw _privateConstructorUsedError;
   String get userId => throw _privateConstructorUsedError;
   ArtistModel get artist => throw _privateConstructorUsedError;
+  @JsonKey(name: 'user_birth_date')
   DateTime get birthDate => throw _privateConstructorUsedError;
+  @JsonKey(name: 'user_birth_time')
   String? get birthTime => throw _privateConstructorUsedError;
   CompatibilityStatus get status => throw _privateConstructorUsedError;
   String? get gender => throw _privateConstructorUsedError;
@@ -260,8 +262,8 @@ abstract class $CompatibilityModelCopyWith<$Res> {
       {String id,
       String userId,
       ArtistModel artist,
-      DateTime birthDate,
-      String? birthTime,
+      @JsonKey(name: 'user_birth_date') DateTime birthDate,
+      @JsonKey(name: 'user_birth_time') String? birthTime,
       CompatibilityStatus status,
       String? gender,
       String? errorMessage,
@@ -430,8 +432,8 @@ abstract class _$$CompatibilityModelImplCopyWith<$Res>
       {String id,
       String userId,
       ArtistModel artist,
-      DateTime birthDate,
-      String? birthTime,
+      @JsonKey(name: 'user_birth_date') DateTime birthDate,
+      @JsonKey(name: 'user_birth_time') String? birthTime,
       CompatibilityStatus status,
       String? gender,
       String? errorMessage,
@@ -558,8 +560,8 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
       {this.id = '',
       required this.userId,
       required this.artist,
-      required this.birthDate,
-      this.birthTime,
+      @JsonKey(name: 'user_birth_date') required this.birthDate,
+      @JsonKey(name: 'user_birth_time') this.birthTime,
       this.status = CompatibilityStatus.pending,
       this.gender,
       this.errorMessage,
@@ -585,8 +587,10 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
   @override
   final ArtistModel artist;
   @override
+  @JsonKey(name: 'user_birth_date')
   final DateTime birthDate;
   @override
+  @JsonKey(name: 'user_birth_time')
   final String? birthTime;
   @override
   @JsonKey()
@@ -700,8 +704,8 @@ abstract class _CompatibilityModel extends CompatibilityModel {
       {final String id,
       required final String userId,
       required final ArtistModel artist,
-      required final DateTime birthDate,
-      final String? birthTime,
+      @JsonKey(name: 'user_birth_date') required final DateTime birthDate,
+      @JsonKey(name: 'user_birth_time') final String? birthTime,
       final CompatibilityStatus status,
       final String? gender,
       final String? errorMessage,
@@ -725,8 +729,10 @@ abstract class _CompatibilityModel extends CompatibilityModel {
   @override
   ArtistModel get artist;
   @override
+  @JsonKey(name: 'user_birth_date')
   DateTime get birthDate;
   @override
+  @JsonKey(name: 'user_birth_time')
   String? get birthTime;
   @override
   CompatibilityStatus get status;
