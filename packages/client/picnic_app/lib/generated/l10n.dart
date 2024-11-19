@@ -3400,120 +3400,120 @@ class S {
     );
   }
 
-  /// `Jassi (23:30-01:29)`
+  /// `Hour of the Rat|(23:30-01:29)|🐀`
   String get compatibility_time_slot1 {
     return Intl.message(
-      'Jassi (23:30-01:29)',
+      'Hour of the Rat|(23:30-01:29)|🐀',
       name: 'compatibility_time_slot1',
       desc: '',
       args: [],
     );
   }
 
-  /// `Chuksi (01:30-03:29)`
+  /// `Hour of the Ox|(01:30-03:29)|🐂`
   String get compatibility_time_slot2 {
     return Intl.message(
-      'Chuksi (01:30-03:29)',
+      'Hour of the Ox|(01:30-03:29)|🐂',
       name: 'compatibility_time_slot2',
       desc: '',
       args: [],
     );
   }
 
-  /// `Inshi (03:30-05:29)`
+  /// `Hour of the Tiger|(03:30-05:29)|🐅`
   String get compatibility_time_slot3 {
     return Intl.message(
-      'Inshi (03:30-05:29)',
+      'Hour of the Tiger|(03:30-05:29)|🐅',
       name: 'compatibility_time_slot3',
       desc: '',
       args: [],
     );
   }
 
-  /// `Myoshi (05:30-07:29)`
+  /// `Hour of the Rabbit|(05:30-07:29)|🐇`
   String get compatibility_time_slot4 {
     return Intl.message(
-      'Myoshi (05:30-07:29)',
+      'Hour of the Rabbit|(05:30-07:29)|🐇',
       name: 'compatibility_time_slot4',
       desc: '',
       args: [],
     );
   }
 
-  /// `Jinxi (07:30-09:29)`
+  /// `Hour of the Dragon|(07:30-09:29)|🐉`
   String get compatibility_time_slot5 {
     return Intl.message(
-      'Jinxi (07:30-09:29)',
+      'Hour of the Dragon|(07:30-09:29)|🐉',
       name: 'compatibility_time_slot5',
       desc: '',
       args: [],
     );
   }
 
-  /// `Missy (13:30-15:29)`
-  String get compatibility_time_slot8 {
-    return Intl.message(
-      'Missy (13:30-15:29)',
-      name: 'compatibility_time_slot8',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Strabismus (09:30-11:29)`
+  /// `Hour of the Snake|(09:30-11:29)|🐍`
   String get compatibility_time_slot6 {
     return Intl.message(
-      'Strabismus (09:30-11:29)',
+      'Hour of the Snake|(09:30-11:29)|🐍',
       name: 'compatibility_time_slot6',
       desc: '',
       args: [],
     );
   }
 
-  /// `O'clock (11:30-13:29)`
+  /// `Hour of the Horse|(11:30-13:29)|🐎`
   String get compatibility_time_slot7 {
     return Intl.message(
-      'O\'clock (11:30-13:29)',
+      'Hour of the Horse|(11:30-13:29)|🐎',
       name: 'compatibility_time_slot7',
       desc: '',
       args: [],
     );
   }
 
-  /// `Yushi (17:30-19:29)`
-  String get compatibility_time_slot10 {
+  /// `Hour of the Goat|(13:30-15:29)|🐐`
+  String get compatibility_time_slot8 {
     return Intl.message(
-      'Yushi (17:30-19:29)',
-      name: 'compatibility_time_slot10',
+      'Hour of the Goat|(13:30-15:29)|🐐',
+      name: 'compatibility_time_slot8',
       desc: '',
       args: [],
     );
   }
 
-  /// `Cincy (15:30-17:29)`
+  /// `Hour of the Monkey|(15:30-17:29)|🐒`
   String get compatibility_time_slot9 {
     return Intl.message(
-      'Cincy (15:30-17:29)',
+      'Hour of the Monkey|(15:30-17:29)|🐒',
       name: 'compatibility_time_slot9',
       desc: '',
       args: [],
     );
   }
 
-  /// `Sulshi (19:30-21:29)`
+  /// `Hour of the Rooster|(17:30-19:29)|🐔`
+  String get compatibility_time_slot10 {
+    return Intl.message(
+      'Hour of the Rooster|(17:30-19:29)|🐔',
+      name: 'compatibility_time_slot10',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Hour of the Dog|(19:30-21:29)|🐕`
   String get compatibility_time_slot11 {
     return Intl.message(
-      'Sulshi (19:30-21:29)',
+      'Hour of the Dog|(19:30-21:29)|🐕',
       name: 'compatibility_time_slot11',
       desc: '',
       args: [],
     );
   }
 
-  /// `Hash (21:30-23:29)`
+  /// `Hour of the Pig|(21:30-23:29)|🐖`
   String get compatibility_time_slot12 {
     return Intl.message(
-      'Hash (21:30-23:29)',
+      'Hour of the Pig|(21:30-23:29)|🐖',
       name: 'compatibility_time_slot12',
       desc: '',
       args: [],

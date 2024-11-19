@@ -86,30 +86,30 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Search results"),
         "compatibility_agree_checkbox": MessageLookupByLibrary.simpleMessage(
             "I agree to store my gender and birthday information in my profile."),
-        "compatibility_time_slot1":
-            MessageLookupByLibrary.simpleMessage("Jassi (23:30-01:29)"),
-        "compatibility_time_slot10":
-            MessageLookupByLibrary.simpleMessage("Yushi (17:30-19:29)"),
-        "compatibility_time_slot11":
-            MessageLookupByLibrary.simpleMessage("Sulshi (19:30-21:29)"),
-        "compatibility_time_slot12":
-            MessageLookupByLibrary.simpleMessage("Hash (21:30-23:29)"),
-        "compatibility_time_slot2":
-            MessageLookupByLibrary.simpleMessage("Chuksi (01:30-03:29)"),
-        "compatibility_time_slot3":
-            MessageLookupByLibrary.simpleMessage("Inshi (03:30-05:29)"),
-        "compatibility_time_slot4":
-            MessageLookupByLibrary.simpleMessage("Myoshi (05:30-07:29)"),
-        "compatibility_time_slot5":
-            MessageLookupByLibrary.simpleMessage("Jinxi (07:30-09:29)"),
-        "compatibility_time_slot6":
-            MessageLookupByLibrary.simpleMessage("Strabismus (09:30-11:29)"),
-        "compatibility_time_slot7":
-            MessageLookupByLibrary.simpleMessage("O\'clock (11:30-13:29)"),
-        "compatibility_time_slot8":
-            MessageLookupByLibrary.simpleMessage("Missy (13:30-15:29)"),
-        "compatibility_time_slot9":
-            MessageLookupByLibrary.simpleMessage("Cincy (15:30-17:29)"),
+        "compatibility_time_slot1": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Rat|(23:30-01:29)|🐀"),
+        "compatibility_time_slot10": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Rooster|(17:30-19:29)|🐔"),
+        "compatibility_time_slot11": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Dog|(19:30-21:29)|🐕"),
+        "compatibility_time_slot12": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Pig|(21:30-23:29)|🐖"),
+        "compatibility_time_slot2": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Ox|(01:30-03:29)|🐂"),
+        "compatibility_time_slot3": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Tiger|(03:30-05:29)|🐅"),
+        "compatibility_time_slot4": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Rabbit|(05:30-07:29)|🐇"),
+        "compatibility_time_slot5": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Dragon|(07:30-09:29)|🐉"),
+        "compatibility_time_slot6": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Snake|(09:30-11:29)|🐍"),
+        "compatibility_time_slot7": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Horse|(11:30-13:29)|🐎"),
+        "compatibility_time_slot8": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Goat|(13:30-15:29)|🐐"),
+        "compatibility_time_slot9": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Monkey|(15:30-17:29)|🐒"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
         "dialog_caution": MessageLookupByLibrary.simpleMessage("🚫 경고 🚫"),

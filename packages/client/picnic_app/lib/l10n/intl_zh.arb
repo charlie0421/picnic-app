@@ -1340,53 +1340,53 @@
   "@share": {
     "manualTranslation": false
   },
-  "compatibility_time_slot1": "贾西（23:30-01:29）",
+  "compatibility_time_slot1": "子时|(23:30-01:29)|🐀",
   "@compatibility_time_slot1": {
-    "manualTranslation": false
+    "manualTranslation": true
   },
-  "compatibility_time_slot2": "楚克希（01:30-03:29）",
+  "compatibility_time_slot2": "丑时|(01:30-03:29)|🐂",
   "@compatibility_time_slot2": {
-    "manualTranslation": false
+    "manualTranslation": true
   },
-  "compatibility_time_slot3": "仁寺（03:30-05:29）",
+  "compatibility_time_slot3": "寅时|(03:30-05:29)|🐅",
   "@compatibility_time_slot3": {
-    "manualTranslation": false
+    "manualTranslation": true
   },
-  "compatibility_time_slot4": "묘시 (05:30-07:29)",
+  "compatibility_time_slot4": "卯时|(05:30-07:29)|🐇",
   "@compatibility_time_slot4": {
     "manualTranslation": true
   },
-  "compatibility_time_slot5": "锦溪（07:30-09:29）",
+  "compatibility_time_slot5": "辰时|(07:30-09:29)|🐉",
   "@compatibility_time_slot5": {
-    "manualTranslation": false
+    "manualTranslation": true
   },
-  "compatibility_time_slot6": "斜视 (09:30-11:29)",
+  "compatibility_time_slot6": "巳时|(09:30-11:29)|🐍",
   "@compatibility_time_slot6": {
-    "manualTranslation": false
+    "manualTranslation": true
   },
-  "compatibility_time_slot7": "时钟（11:30-13:29）",
+  "compatibility_time_slot7": "午时|(11:30-13:29)|🐎",
   "@compatibility_time_slot7": {
-    "manualTranslation": false
+    "manualTranslation": true
   },
-  "compatibility_time_slot8": "大小姐（13:30-15:29）",
+  "compatibility_time_slot8": "未时|(13:30-15:29)|🐐",
   "@compatibility_time_slot8": {
-    "manualTranslation": false
+    "manualTranslation": true
   },
-  "compatibility_time_slot9": "辛西（15:30-17:29）",
+  "compatibility_time_slot9": "申时|(15:30-17:29)|🐒",
   "@compatibility_time_slot9": {
-    "manualTranslation": false
+    "manualTranslation": true
   },
-  "compatibility_time_slot10": "玉石（17:30-19:29）",
+  "compatibility_time_slot10": "酉时|(17:30-19:29)|🐔",
   "@compatibility_time_slot10": {
-    "manualTranslation": false
+    "manualTranslation": true
   },
-  "compatibility_time_slot11": "苏尔希（19:30-21:29）",
+  "compatibility_time_slot11": "戌时|(19:30-21:29)|🐕",
   "@compatibility_time_slot11": {
-    "manualTranslation": false
+    "manualTranslation": true
   },
-  "compatibility_time_slot12": "哈希（21:30-23:29）",
+  "compatibility_time_slot12": "亥时|(21:30-23:29)|🐖",
   "@compatibility_time_slot12": {
-    "manualTranslation": false
+    "manualTranslation": true
   },
   "compatibility_agree_checkbox": "我同意在个人档案中存储我的性别和生日信息。",
   "@compatibility_agree_checkbox": {
