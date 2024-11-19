@@ -870,6 +870,8 @@
     "@post_my_written_post": {},
     "post_my_written_reply": "내가 쓴 댓글",
     "@post_my_written_reply": {},
+    "post_my_compatibilities": "나의 궁합",
+    "@post_my_compatibilities": {},
     "post_my_written_scrap": "내 스크랩",
     "@post_my_written_scrap": {},
     "post_no_comment": "댓글이 없습니다.",

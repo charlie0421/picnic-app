@@ -233,46 +233,46 @@ class _CompatibilityHistoryPageState
                       );
                     },
                   ),
-            // New Compatibility Button
-            Positioned(
-              bottom: 24,
-              left: 24,
-              right: 24,
-              child: Container(
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary500.withOpacity(0.2),
-                      blurRadius: 15,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: ElevatedButton(
-                  onPressed: _onNewCompatibilityTap,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary500,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.add_circle_outline, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        '새로운 궁합 확인하기',
-                        style: getTextStyle(AppTypo.body16B, Colors.white),
+            if (widget.artistId != null)
+              Positioned(
+                bottom: 24,
+                left: 24,
+                right: 24,
+                child: Container(
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary500.withOpacity(0.2),
+                        blurRadius: 15,
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
+                  child: ElevatedButton(
+                    onPressed: _onNewCompatibilityTap,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary500,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.add_circle_outline, size: 20),
+                        const SizedBox(width: 8),
+                        Text(
+                          '새로운 궁합 확인하기',
+                          style: getTextStyle(AppTypo.body16B, Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),

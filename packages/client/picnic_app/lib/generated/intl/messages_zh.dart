@@ -460,6 +460,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "post_minor_board_name": MessageLookupByLibrary.simpleMessage("小板名称"),
         "post_minor_board_name_input":
             MessageLookupByLibrary.simpleMessage("请输入未成年人板的名称。"),
+        "post_my_compatibilities":
+            MessageLookupByLibrary.simpleMessage("我的兼容性"),
         "post_my_written_post": MessageLookupByLibrary.simpleMessage("我撰写的文章"),
         "post_my_written_reply": MessageLookupByLibrary.simpleMessage("您写的评论"),
         "post_my_written_scrap": MessageLookupByLibrary.simpleMessage("我的废品"),

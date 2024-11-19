@@ -498,6 +498,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("마이너 게시판 이름"),
         "post_minor_board_name_input":
             MessageLookupByLibrary.simpleMessage("마이너 게시판 이름을 입력해주세요."),
+        "post_my_compatibilities":
+            MessageLookupByLibrary.simpleMessage("나의 궁합"),
         "post_my_written_post":
             MessageLookupByLibrary.simpleMessage("내가 쓴 게시글"),
         "post_my_written_reply":
