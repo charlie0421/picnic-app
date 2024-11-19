@@ -5,6 +5,7 @@ import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/pages/community/compatibility_input_page.dart';
 import 'package:picnic_app/pages/community/compatibility_result_page.dart';
 import 'package:picnic_app/providers/community/compatibility_history_provider.dart';
+import 'package:picnic_app/providers/community/compatibility_provider.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -13,7 +14,9 @@ import 'package:picnic_app/util/logger.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class CompatibilityHistoryPage extends ConsumerStatefulWidget {
-  const CompatibilityHistoryPage({super.key});
+  const CompatibilityHistoryPage({super.key, this.artistId});
+
+  final int? artistId;
 
   @override
   ConsumerState<CompatibilityHistoryPage> createState() =>
@@ -28,14 +31,17 @@ class _CompatibilityHistoryPageState
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    Future.microtask(
-        () => ref.read(compatibilityHistoryProvider.notifier).loadInitial());
+    Future.microtask(() => ref
+        .read(compatibilityListProvider(artistId: widget.artistId).notifier)
+        .loadInitial());
   }
 
   void _onScroll() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent * 0.8) {
-      ref.read(compatibilityHistoryProvider.notifier).loadMore();
+      ref
+          .read(compatibilityListProvider(artistId: widget.artistId).notifier)
+          .loadMore();
     }
   }
 
@@ -76,7 +82,8 @@ class _CompatibilityHistoryPageState
 
   @override
   Widget build(BuildContext context) {
-    final history = ref.watch(compatibilityHistoryProvider);
+    final history =
+        ref.watch(compatibilityListProvider(artistId: widget.artistId));
 
     return Scaffold(
       body: Container(

@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:picnic_app/models/community/compatibility.dart';
+import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/pages/community/compatibility_result_page.dart';
 import 'package:picnic_app/providers/community/compatibility_repository_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -12,12 +14,14 @@ part '../../generated/providers/community/compatibility_provider.g.dart';
 
 @Riverpod(keepAlive: true)
 class Compatibility extends _$Compatibility {
-  Timer? _displayTimer;
-  Timer? _retryTimer;
-  CompatibilityModel? _cachedResult;
+  static const String _table = 'compatibility_results';
   static const _waitDuration = Duration(seconds: 30);
   static const _maxRetries = 3;
   static const _retryDelay = Duration(seconds: 2);
+
+  Timer? _displayTimer;
+  Timer? _retryTimer;
+  CompatibilityModel? _cachedResult;
 
   @override
   CompatibilityModel? build() {
@@ -37,28 +41,75 @@ class Compatibility extends _$Compatibility {
     String? birthTime,
   }) async {
     try {
-      final repository = ref.read(compatibilityRepositoryProvider);
+      final userId = supabase.auth.currentUser?.id;
+      if (userId == null) throw Exception('User not authenticated');
 
-      // 새로운 compatibility 생성 (재시도 로직 포함)
+      final compatibilityData = {
+        'user_id': userId,
+        'artist_id': artist.id,
+        'idol_birth_date': artist.birthDate?.toIso8601String(),
+        'user_birth_date': birthDate.toIso8601String(),
+        'user_birth_time': birthTime,
+        'gender': gender,
+        'status': 'pending',
+      };
+
+      final response = await supabase
+          .from(_table)
+          .insert(compatibilityData)
+          .select('*, artist:artist(*)')
+          .single();
+
       final compatibility =
-          await _retryOnError(() => repository.createCompatibility(
-                userId: userId,
-                artist: artist,
-                birthDate: birthDate,
-                birthTime: birthTime,
-                gender: gender,
-              ));
+          CompatibilityModel.fromJson({...response, 'artist': artist.toJson()});
 
-      // 초기 상태를 pending으로 설정
       state = compatibility;
-
-      // 결과 확인 및 30초 타이머 시작
-      _startWaitTimer(compatibility);
+      _processInBackground(compatibility);
 
       return compatibility;
     } catch (e) {
-      logger.e('Failed to create compatibility after retries', error: e);
+      logger.e('Failed to create compatibility', error: e);
       rethrow;
+    }
+  }
+
+  void _processInBackground(CompatibilityModel initial) {
+    _startCompatibilityAnalysis(initial.id);
+    _startWaitTimer(initial);
+  }
+
+  Future<void> _startCompatibilityAnalysis(String compatibilityId) async {
+    try {
+      final response = await supabase.functions.invoke(
+        'compatibility',
+        body: {'compatibility_id': compatibilityId},
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.status != 200) {
+        throw Exception('Edge function error: ${response.data}');
+      }
+    } catch (e) {
+      logger.e('Edge function error, will retry', error: e);
+      _retryAnalysis(compatibilityId);
+    }
+  }
+
+  Future<void> _retryAnalysis(String compatibilityId) async {
+    for (var i = 0; i < _maxRetries; i++) {
+      try {
+        await Future.delayed(_retryDelay);
+        await _startCompatibilityAnalysis(compatibilityId);
+        return;
+      } catch (e) {
+        logger.e('Retry $i failed', error: e);
+        if (i == _maxRetries - 1) {
+          await supabase.from(_table).update({
+            'status': 'error',
+            'error_message': 'Edge function failed after retries',
+          }).eq('id', compatibilityId);
+        }
+      }
     }
   }
 
@@ -67,52 +118,38 @@ class Compatibility extends _$Compatibility {
     _retryTimer?.cancel();
     _cachedResult = null;
 
-    // 5초 후에 결과를 미리 확인
     Future.delayed(const Duration(seconds: 5), () async {
       try {
-        final repository = ref.read(compatibilityRepositoryProvider);
-        final result = await _retryOnError(
-          () => repository.getCompatibility(initial.id),
-        );
-
+        final result = await getCompatibility(initial.id);
         if (result != null &&
             (result.isCompleted ||
                 result.status == CompatibilityStatus.error)) {
           _cachedResult = result;
         }
       } catch (e) {
-        logger.e('Failed to fetch early result after retries', error: e);
+        logger.e('Failed to fetch early result', error: e);
       }
     });
 
-    // 30초 타이머 시작
     _displayTimer = Timer(_waitDuration, () async {
       try {
         if (_cachedResult != null) {
-          // 캐시된 결과가 있으면 사용
           state = _cachedResult;
         } else {
-          // 캐시된 결과가 없으면 다시 한번 확인 (재시도 로직 포함)
-          final repository = ref.read(compatibilityRepositoryProvider);
-          final result = await _retryOnError(
-            () => repository.getCompatibility(initial.id),
-          );
-
+          final result = await getCompatibility(initial.id);
           if (result != null) {
             state = result;
           } else {
-            // 모든 재시도 실패 후에도 결과가 없으면 에러 상태로 변경
             _startErrorRetryTimer(initial);
           }
         }
       } catch (e) {
-        logger.e('Failed to fetch final result after retries', error: e);
+        logger.e('Failed to fetch final result', error: e);
         _startErrorRetryTimer(initial);
       }
     });
   }
 
-  // 에러 발생 시 자동 재시도 타이머 시작
   void _startErrorRetryTimer(CompatibilityModel initial) {
     _retryTimer?.cancel();
 
@@ -121,46 +158,34 @@ class Compatibility extends _$Compatibility {
       errorMessage: '결과를 확인하는 중입니다. 잠시만 기다려주세요...',
     );
 
-    // 2초 후에 다시 시도
-    _retryTimer = Timer(_retryDelay, () => refresh());
+    _retryTimer = Timer(_retryDelay, refresh);
   }
 
-  // 에러 발생 시 재시도하는 유틸리티 함수
-  Future<T> _retryOnError<T>(Future<T> Function() operation) async {
-    int retryCount = 0;
+  Future<CompatibilityModel?> getCompatibility(String id) async {
+    try {
+      final response = await supabase
+          .from(_table)
+          .select('*, artist:artist(*)')
+          .eq('id', id)
+          .single();
 
-    while (true) {
-      try {
-        return await operation();
-      } catch (e) {
-        retryCount++;
-        if (retryCount >= _maxRetries) {
-          rethrow;
-        }
-
-        logger.w('Operation failed, retrying (${retryCount}/${_maxRetries})',
-            error: e);
-        // 재시도 전에 잠시 대기
-        await Future.delayed(_retryDelay);
-      }
+      return CompatibilityModel.fromJson(response);
+    } catch (e) {
+      logger.e('Failed to get compatibility', error: e);
+      rethrow;
     }
   }
 
-  // 수동으로 결과를 새로고침하는 메서드
   Future<void> refresh() async {
     if (state == null) return;
 
     try {
-      final repository = ref.read(compatibilityRepositoryProvider);
-      final result = await _retryOnError(
-        () => repository.getCompatibility(state!.id),
-      );
-
+      final result = await getCompatibility(state!.id);
       if (result != null) {
         state = result;
       }
     } catch (e) {
-      logger.e('Failed to refresh compatibility after retries', error: e);
+      logger.e('Failed to refresh compatibility', error: e);
     }
   }
 }

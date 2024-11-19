@@ -41,8 +41,8 @@ class _TopRightPostState extends ConsumerState<TopRightPost> {
           GestureDetector(
             onTap: () {
               if (supabase.isLogged) {
-                navigationInfoNotifier
-                    .setCurrentPage(CompatibilityHistoryPage());
+                navigationInfoNotifier.setCurrentPage(
+                    CompatibilityHistoryPage(artistId: currentArtist?.id));
               } else {
                 showRequireLoginDialog();
               }
