@@ -7,7 +7,6 @@ import 'package:picnic_app/components/community/compatibility/compatibility_resu
 import 'package:picnic_app/components/vote/list/vote_info_card_footer.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/providers/community/compatibility_provider.dart';
-import 'package:picnic_app/providers/community/compatibility_repository_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
@@ -58,7 +57,6 @@ class _CompatibilityResultScreenState
   Widget build(BuildContext context) {
     final compatibility =
         ref.watch(compatibilityProvider) ?? widget.compatibility;
-    logger.d(compatibility.toJson());
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(

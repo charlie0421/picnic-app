@@ -236,8 +236,7 @@ mixin _$CompatibilityModel {
   bool? get isLoading => throw _privateConstructorUsedError;
   int? get compatibilityScore => throw _privateConstructorUsedError;
   String? get compatibilitySummary => throw _privateConstructorUsedError;
-  StyleDetails? get style => throw _privateConstructorUsedError;
-  ActivitiesDetails? get activities => throw _privateConstructorUsedError;
+  Details? get details => throw _privateConstructorUsedError;
   List<String>? get tips => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
   DateTime? get completedAt => throw _privateConstructorUsedError;
@@ -270,15 +269,13 @@ abstract class $CompatibilityModelCopyWith<$Res> {
       bool? isLoading,
       int? compatibilityScore,
       String? compatibilitySummary,
-      StyleDetails? style,
-      ActivitiesDetails? activities,
+      Details? details,
       List<String>? tips,
       DateTime? createdAt,
       DateTime? completedAt});
 
   $ArtistModelCopyWith<$Res> get artist;
-  $StyleDetailsCopyWith<$Res>? get style;
-  $ActivitiesDetailsCopyWith<$Res>? get activities;
+  $DetailsCopyWith<$Res>? get details;
 }
 
 /// @nodoc
@@ -307,8 +304,7 @@ class _$CompatibilityModelCopyWithImpl<$Res, $Val extends CompatibilityModel>
     Object? isLoading = freezed,
     Object? compatibilityScore = freezed,
     Object? compatibilitySummary = freezed,
-    Object? style = freezed,
-    Object? activities = freezed,
+    Object? details = freezed,
     Object? tips = freezed,
     Object? createdAt = freezed,
     Object? completedAt = freezed,
@@ -358,14 +354,10 @@ class _$CompatibilityModelCopyWithImpl<$Res, $Val extends CompatibilityModel>
           ? _value.compatibilitySummary
           : compatibilitySummary // ignore: cast_nullable_to_non_nullable
               as String?,
-      style: freezed == style
-          ? _value.style
-          : style // ignore: cast_nullable_to_non_nullable
-              as StyleDetails?,
-      activities: freezed == activities
-          ? _value.activities
-          : activities // ignore: cast_nullable_to_non_nullable
-              as ActivitiesDetails?,
+      details: freezed == details
+          ? _value.details
+          : details // ignore: cast_nullable_to_non_nullable
+              as Details?,
       tips: freezed == tips
           ? _value.tips
           : tips // ignore: cast_nullable_to_non_nullable
@@ -395,27 +387,13 @@ class _$CompatibilityModelCopyWithImpl<$Res, $Val extends CompatibilityModel>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $StyleDetailsCopyWith<$Res>? get style {
-    if (_value.style == null) {
+  $DetailsCopyWith<$Res>? get details {
+    if (_value.details == null) {
       return null;
     }
 
-    return $StyleDetailsCopyWith<$Res>(_value.style!, (value) {
-      return _then(_value.copyWith(style: value) as $Val);
-    });
-  }
-
-  /// Create a copy of CompatibilityModel
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $ActivitiesDetailsCopyWith<$Res>? get activities {
-    if (_value.activities == null) {
-      return null;
-    }
-
-    return $ActivitiesDetailsCopyWith<$Res>(_value.activities!, (value) {
-      return _then(_value.copyWith(activities: value) as $Val);
+    return $DetailsCopyWith<$Res>(_value.details!, (value) {
+      return _then(_value.copyWith(details: value) as $Val);
     });
   }
 }
@@ -440,8 +418,7 @@ abstract class _$$CompatibilityModelImplCopyWith<$Res>
       bool? isLoading,
       int? compatibilityScore,
       String? compatibilitySummary,
-      StyleDetails? style,
-      ActivitiesDetails? activities,
+      Details? details,
       List<String>? tips,
       DateTime? createdAt,
       DateTime? completedAt});
@@ -449,9 +426,7 @@ abstract class _$$CompatibilityModelImplCopyWith<$Res>
   @override
   $ArtistModelCopyWith<$Res> get artist;
   @override
-  $StyleDetailsCopyWith<$Res>? get style;
-  @override
-  $ActivitiesDetailsCopyWith<$Res>? get activities;
+  $DetailsCopyWith<$Res>? get details;
 }
 
 /// @nodoc
@@ -478,8 +453,7 @@ class __$$CompatibilityModelImplCopyWithImpl<$Res>
     Object? isLoading = freezed,
     Object? compatibilityScore = freezed,
     Object? compatibilitySummary = freezed,
-    Object? style = freezed,
-    Object? activities = freezed,
+    Object? details = freezed,
     Object? tips = freezed,
     Object? createdAt = freezed,
     Object? completedAt = freezed,
@@ -529,14 +503,10 @@ class __$$CompatibilityModelImplCopyWithImpl<$Res>
           ? _value.compatibilitySummary
           : compatibilitySummary // ignore: cast_nullable_to_non_nullable
               as String?,
-      style: freezed == style
-          ? _value.style
-          : style // ignore: cast_nullable_to_non_nullable
-              as StyleDetails?,
-      activities: freezed == activities
-          ? _value.activities
-          : activities // ignore: cast_nullable_to_non_nullable
-              as ActivitiesDetails?,
+      details: freezed == details
+          ? _value.details
+          : details // ignore: cast_nullable_to_non_nullable
+              as Details?,
       tips: freezed == tips
           ? _value._tips
           : tips // ignore: cast_nullable_to_non_nullable
@@ -568,8 +538,7 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
       this.isLoading,
       this.compatibilityScore,
       this.compatibilitySummary,
-      this.style,
-      this.activities,
+      this.details,
       final List<String>? tips,
       this.createdAt,
       this.completedAt})
@@ -606,9 +575,7 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
   @override
   final String? compatibilitySummary;
   @override
-  final StyleDetails? style;
-  @override
-  final ActivitiesDetails? activities;
+  final Details? details;
   final List<String>? _tips;
   @override
   List<String>? get tips {
@@ -626,7 +593,7 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
 
   @override
   String toString() {
-    return 'CompatibilityModel(id: $id, userId: $userId, artist: $artist, birthDate: $birthDate, birthTime: $birthTime, status: $status, gender: $gender, errorMessage: $errorMessage, isLoading: $isLoading, compatibilityScore: $compatibilityScore, compatibilitySummary: $compatibilitySummary, style: $style, activities: $activities, tips: $tips, createdAt: $createdAt, completedAt: $completedAt)';
+    return 'CompatibilityModel(id: $id, userId: $userId, artist: $artist, birthDate: $birthDate, birthTime: $birthTime, status: $status, gender: $gender, errorMessage: $errorMessage, isLoading: $isLoading, compatibilityScore: $compatibilityScore, compatibilitySummary: $compatibilitySummary, details: $details, tips: $tips, createdAt: $createdAt, completedAt: $completedAt)';
   }
 
   @override
@@ -651,9 +618,7 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
                 other.compatibilityScore == compatibilityScore) &&
             (identical(other.compatibilitySummary, compatibilitySummary) ||
                 other.compatibilitySummary == compatibilitySummary) &&
-            (identical(other.style, style) || other.style == style) &&
-            (identical(other.activities, activities) ||
-                other.activities == activities) &&
+            (identical(other.details, details) || other.details == details) &&
             const DeepCollectionEquality().equals(other._tips, _tips) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
@@ -676,8 +641,7 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
       isLoading,
       compatibilityScore,
       compatibilitySummary,
-      style,
-      activities,
+      details,
       const DeepCollectionEquality().hash(_tips),
       createdAt,
       completedAt);
@@ -712,8 +676,7 @@ abstract class _CompatibilityModel extends CompatibilityModel {
       final bool? isLoading,
       final int? compatibilityScore,
       final String? compatibilitySummary,
-      final StyleDetails? style,
-      final ActivitiesDetails? activities,
+      final Details? details,
       final List<String>? tips,
       final DateTime? createdAt,
       final DateTime? completedAt}) = _$CompatibilityModelImpl;
@@ -747,9 +710,7 @@ abstract class _CompatibilityModel extends CompatibilityModel {
   @override
   String? get compatibilitySummary;
   @override
-  StyleDetails? get style;
-  @override
-  ActivitiesDetails? get activities;
+  Details? get details;
   @override
   List<String>? get tips;
   @override
@@ -762,6 +723,198 @@ abstract class _CompatibilityModel extends CompatibilityModel {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$CompatibilityModelImplCopyWith<_$CompatibilityModelImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+Details _$DetailsFromJson(Map<String, dynamic> json) {
+  return _Details.fromJson(json);
+}
+
+/// @nodoc
+mixin _$Details {
+  StyleDetails get style => throw _privateConstructorUsedError;
+  ActivitiesDetails get activities => throw _privateConstructorUsedError;
+
+  /// Serializes this Details to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of Details
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $DetailsCopyWith<Details> get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $DetailsCopyWith<$Res> {
+  factory $DetailsCopyWith(Details value, $Res Function(Details) then) =
+      _$DetailsCopyWithImpl<$Res, Details>;
+  @useResult
+  $Res call({StyleDetails style, ActivitiesDetails activities});
+
+  $StyleDetailsCopyWith<$Res> get style;
+  $ActivitiesDetailsCopyWith<$Res> get activities;
+}
+
+/// @nodoc
+class _$DetailsCopyWithImpl<$Res, $Val extends Details>
+    implements $DetailsCopyWith<$Res> {
+  _$DetailsCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of Details
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? style = null,
+    Object? activities = null,
+  }) {
+    return _then(_value.copyWith(
+      style: null == style
+          ? _value.style
+          : style // ignore: cast_nullable_to_non_nullable
+              as StyleDetails,
+      activities: null == activities
+          ? _value.activities
+          : activities // ignore: cast_nullable_to_non_nullable
+              as ActivitiesDetails,
+    ) as $Val);
+  }
+
+  /// Create a copy of Details
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $StyleDetailsCopyWith<$Res> get style {
+    return $StyleDetailsCopyWith<$Res>(_value.style, (value) {
+      return _then(_value.copyWith(style: value) as $Val);
+    });
+  }
+
+  /// Create a copy of Details
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $ActivitiesDetailsCopyWith<$Res> get activities {
+    return $ActivitiesDetailsCopyWith<$Res>(_value.activities, (value) {
+      return _then(_value.copyWith(activities: value) as $Val);
+    });
+  }
+}
+
+/// @nodoc
+abstract class _$$DetailsImplCopyWith<$Res> implements $DetailsCopyWith<$Res> {
+  factory _$$DetailsImplCopyWith(
+          _$DetailsImpl value, $Res Function(_$DetailsImpl) then) =
+      __$$DetailsImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({StyleDetails style, ActivitiesDetails activities});
+
+  @override
+  $StyleDetailsCopyWith<$Res> get style;
+  @override
+  $ActivitiesDetailsCopyWith<$Res> get activities;
+}
+
+/// @nodoc
+class __$$DetailsImplCopyWithImpl<$Res>
+    extends _$DetailsCopyWithImpl<$Res, _$DetailsImpl>
+    implements _$$DetailsImplCopyWith<$Res> {
+  __$$DetailsImplCopyWithImpl(
+      _$DetailsImpl _value, $Res Function(_$DetailsImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of Details
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? style = null,
+    Object? activities = null,
+  }) {
+    return _then(_$DetailsImpl(
+      style: null == style
+          ? _value.style
+          : style // ignore: cast_nullable_to_non_nullable
+              as StyleDetails,
+      activities: null == activities
+          ? _value.activities
+          : activities // ignore: cast_nullable_to_non_nullable
+              as ActivitiesDetails,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$DetailsImpl implements _Details {
+  const _$DetailsImpl({required this.style, required this.activities});
+
+  factory _$DetailsImpl.fromJson(Map<String, dynamic> json) =>
+      _$$DetailsImplFromJson(json);
+
+  @override
+  final StyleDetails style;
+  @override
+  final ActivitiesDetails activities;
+
+  @override
+  String toString() {
+    return 'Details(style: $style, activities: $activities)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$DetailsImpl &&
+            (identical(other.style, style) || other.style == style) &&
+            (identical(other.activities, activities) ||
+                other.activities == activities));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, style, activities);
+
+  /// Create a copy of Details
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$DetailsImplCopyWith<_$DetailsImpl> get copyWith =>
+      __$$DetailsImplCopyWithImpl<_$DetailsImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$DetailsImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _Details implements Details {
+  const factory _Details(
+      {required final StyleDetails style,
+      required final ActivitiesDetails activities}) = _$DetailsImpl;
+
+  factory _Details.fromJson(Map<String, dynamic> json) = _$DetailsImpl.fromJson;
+
+  @override
+  StyleDetails get style;
+  @override
+  ActivitiesDetails get activities;
+
+  /// Create a copy of Details
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$DetailsImplCopyWith<_$DetailsImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 

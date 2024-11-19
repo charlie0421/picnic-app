@@ -61,16 +61,11 @@ _$CompatibilityModelImpl _$$CompatibilityModelImplFromJson(
               'compatibility_score', (v) => (v as num?)?.toInt()),
           compatibilitySummary:
               $checkedConvert('compatibility_summary', (v) => v as String?),
-          style: $checkedConvert(
-              'style',
+          details: $checkedConvert(
+              'details',
               (v) => v == null
                   ? null
-                  : StyleDetails.fromJson(v as Map<String, dynamic>)),
-          activities: $checkedConvert(
-              'activities',
-              (v) => v == null
-                  ? null
-                  : ActivitiesDetails.fromJson(v as Map<String, dynamic>)),
+                  : Details.fromJson(v as Map<String, dynamic>)),
           tips: $checkedConvert('tips',
               (v) => (v as List<dynamic>?)?.map((e) => e as String).toList()),
           createdAt: $checkedConvert('created_at',
@@ -107,8 +102,7 @@ Map<String, dynamic> _$$CompatibilityModelImplToJson(
       'is_loading': instance.isLoading,
       'compatibility_score': instance.compatibilityScore,
       'compatibility_summary': instance.compatibilitySummary,
-      'style': instance.style?.toJson(),
-      'activities': instance.activities?.toJson(),
+      'details': instance.details?.toJson(),
       'tips': instance.tips,
       'created_at': instance.createdAt?.toIso8601String(),
       'completed_at': instance.completedAt?.toIso8601String(),
@@ -119,6 +113,27 @@ const _$CompatibilityStatusEnumMap = {
   CompatibilityStatus.completed: 'completed',
   CompatibilityStatus.error: 'error',
 };
+
+_$DetailsImpl _$$DetailsImplFromJson(Map<String, dynamic> json) =>
+    $checkedCreate(
+      r'_$DetailsImpl',
+      json,
+      ($checkedConvert) {
+        final val = _$DetailsImpl(
+          style: $checkedConvert(
+              'style', (v) => StyleDetails.fromJson(v as Map<String, dynamic>)),
+          activities: $checkedConvert('activities',
+              (v) => ActivitiesDetails.fromJson(v as Map<String, dynamic>)),
+        );
+        return val;
+      },
+    );
+
+Map<String, dynamic> _$$DetailsImplToJson(_$DetailsImpl instance) =>
+    <String, dynamic>{
+      'style': instance.style.toJson(),
+      'activities': instance.activities.toJson(),
+    };
 
 _$StyleDetailsImpl _$$StyleDetailsImplFromJson(Map<String, dynamic> json) =>
     $checkedCreate(

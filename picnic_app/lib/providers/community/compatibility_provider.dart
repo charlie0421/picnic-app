@@ -4,7 +4,6 @@ import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/pages/community/compatibility_result_page.dart';
-import 'package:picnic_app/providers/community/compatibility_repository_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/logger.dart';
@@ -168,6 +167,8 @@ class Compatibility extends _$Compatibility {
           .select('*, artist:artist(*)')
           .eq('id', id)
           .single();
+
+      logger.i('Compatibility response: $response');
 
       return CompatibilityModel.fromJson(response);
     } catch (e) {
