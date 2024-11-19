@@ -37,8 +37,7 @@ class CompatibilityModel with _$CompatibilityModel {
     bool? isLoading,
     int? compatibilityScore,
     String? compatibilitySummary,
-    StyleDetails? style,
-    ActivitiesDetails? activities,
+    Details? details,
     List<String>? tips,
     DateTime? createdAt,
     DateTime? completedAt,
@@ -53,6 +52,17 @@ class CompatibilityModel with _$CompatibilityModel {
 
   factory CompatibilityModel.fromJson(Map<String, dynamic> json) =>
       _$CompatibilityModelFromJson(json);
+}
+
+@freezed
+class Details with _$Details {
+  const factory Details({
+    required StyleDetails style,
+    required ActivitiesDetails activities,
+  }) = _Details;
+
+  factory Details.fromJson(Map<String, dynamic> json) =>
+      _$DetailsFromJson(json);
 }
 
 @freezed

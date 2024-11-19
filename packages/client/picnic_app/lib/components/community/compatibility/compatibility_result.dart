@@ -40,7 +40,7 @@ class CompatibilityResultView extends StatelessWidget {
           ),
 
           // 스타일 분석
-          if (compatibility.style != null) ...[
+          if (compatibility.details?.style != null) ...[
             _buildSection(
               title: '스타일 분석',
               icon: Icons.style,
@@ -48,17 +48,17 @@ class CompatibilityResultView extends StatelessWidget {
                 children: [
                   _buildDetailItem(
                     '${compatibility.artist.name['ko']}님의 스타일',
-                    compatibility.style!.idol_style,
+                    compatibility.details?.style.idol_style ?? '',
                   ),
                   const Divider(height: 24),
                   _buildDetailItem(
                     '당신의 스타일',
-                    compatibility.style!.user_style,
+                    compatibility.details?.style.user_style ?? '',
                   ),
                   const Divider(height: 24),
                   _buildDetailItem(
                     '커플 스타일 제안',
-                    compatibility.style!.couple_style,
+                    compatibility.details?.style.couple_style ?? '',
                   ),
                 ],
               ),
@@ -66,14 +66,15 @@ class CompatibilityResultView extends StatelessWidget {
           ],
 
           // 추천 활동
-          if (compatibility.activities != null) ...[
+          if (compatibility.details?.activities != null &&
+              compatibility.details?.activities != null) ...[
             _buildSection(
               title: '추천 활동',
               icon: Icons.local_activity,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ...compatibility.activities!.recommended.map(
+                  ...compatibility.details!.activities.recommended.map(
                     (activity) => Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4),
                       child: Row(
@@ -96,10 +97,11 @@ class CompatibilityResultView extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (compatibility.activities!.description.isNotEmpty) ...[
+                  if (compatibility
+                      .details!.activities.description.isNotEmpty) ...[
                     const Divider(height: 24),
                     Text(
-                      compatibility.activities!.description,
+                      compatibility.details!.activities.description,
                       style: getTextStyle(AppTypo.body14M, AppColors.grey900),
                     ),
                   ],
