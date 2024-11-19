@@ -6,6 +6,7 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/pages/community/community_my_comment.dart';
 import 'package:picnic_app/pages/community/community_my_scraps.dart';
 import 'package:picnic_app/pages/community/community_my_writen.dart';
+import 'package:picnic_app/pages/community/compatibility_list_page.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
@@ -115,6 +116,15 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
               ref
                   .read(navigationInfoProvider.notifier)
                   .setCurrentPage(const CommunityMyComment());
+            },
+          ),
+          PicnicListItem(
+            leading: S.of(context).post_my_compatibilities,
+            assetPath: 'assets/icons/arrow_right_style=line.svg',
+            onTap: () {
+              ref
+                  .read(navigationInfoProvider.notifier)
+                  .setCurrentPage(const CompatibilityHistoryPage());
             },
           ),
         ],

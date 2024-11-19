@@ -493,6 +493,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("マイナー掲示板名"),
         "post_minor_board_name_input":
             MessageLookupByLibrary.simpleMessage("マイナー掲示板名を入力してください。"),
+        "post_my_compatibilities": MessageLookupByLibrary.simpleMessage("私の相性"),
         "post_my_written_post": MessageLookupByLibrary.simpleMessage("私が書いた記事"),
         "post_my_written_reply":
             MessageLookupByLibrary.simpleMessage("私が書いたコメント"),

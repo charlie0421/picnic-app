@@ -1391,5 +1391,9 @@
   "compatibility_agree_checkbox": "性別、誕生日情報をプロフィールに保存することに同意します。",
   "@compatibility_agree_checkbox": {
     "manualTranslation": false
+  },
+  "post_my_compatibilities": "私の相性",
+  "@post_my_compatibilities": {
+    "manualTranslation": false
   }
 }

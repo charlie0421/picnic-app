@@ -3529,6 +3529,16 @@ class S {
       args: [],
     );
   }
+
+  /// `My compatibility`
+  String get post_my_compatibilities {
+    return Intl.message(
+      'My compatibility',
+      name: 'post_my_compatibilities',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

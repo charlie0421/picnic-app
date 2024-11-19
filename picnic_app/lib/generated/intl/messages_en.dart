@@ -546,6 +546,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Minor board name"),
         "post_minor_board_name_input": MessageLookupByLibrary.simpleMessage(
             "Please enter a name for your minor board."),
+        "post_my_compatibilities":
+            MessageLookupByLibrary.simpleMessage("My compatibility"),
         "post_my_written_post":
             MessageLookupByLibrary.simpleMessage("Posts I\'ve written"),
         "post_my_written_reply":
