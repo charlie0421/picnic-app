@@ -7,9 +7,6 @@ const openai = new OpenAI({
 })
 
 serve(async (req) => {
-    console.log(`${req.method} ${req.url}`)
-    console.log(req.headers.get('content-type'))
-    console.log(await req.text())
     try {
         const { compatibility_id } = await req.json()
 
@@ -26,6 +23,8 @@ serve(async (req) => {
             .eq('id', compatibility_id)
             .single()
 
+        console.log(compatibility)
+
         if (fetchError || !compatibility) {
             throw new Error('Compatibility record not found')
         }
@@ -34,7 +33,7 @@ serve(async (req) => {
         const prompt = `
 궁합 분석 정보:
 - 아이돌: ${compatibility.idol_name} (${compatibility.idol_birth_date})
-- 사용자: ${compatibility.user_birth_date}
+- 사용자: ${compatibility.user_birth_date} ${compatibility.birth_time ? `(${compatibility.birth_time})` : ''}
 - 성별: ${compatibility.user_gender}
 - 태어난 시간: ${compatibility.birth_time || '미상'}
 
@@ -42,7 +41,6 @@ serve(async (req) => {
 {
   "compatibility_score": 85,
   "compatibility_summary": "뜨겁고 활기찬 에너지의 완벽한 조합! (200자 이내로 요약)",
-  "details": {
     "style": {
       "idol_style": "아이돌의 패션과 스타일 특징 설명",
       "user_style": "사용자에게 어울리는 스타일 추천",
@@ -52,7 +50,6 @@ serve(async (req) => {
       "recommended": ["추천 활동 1", "추천 활동 2", "추천 활동 3"],
       "description": "추천 활동에 대한 상세 설명"
     }
-  },
   "tips": [
     "궁합을 높이기 위한 팁 1",
     "궁합을 높이기 위한 팁 2",
@@ -61,6 +58,8 @@ serve(async (req) => {
 }
 
 결과는 긍정적이고 구체적으로 작성해주되, 현실적인 조언을 포함해주세요.
+compatibility_summary 항목은 200자 이내로 작성해주세요.
+MZ 말투로 작성해주세요.
     `
 
         const completion = await openai.chat.completions.create({

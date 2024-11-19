@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/community/compatibility/animated_heart.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/pages/community/compatibility_input_page.dart';
+import 'package:picnic_app/pages/community/compatibility_list_page.dart';
 import 'package:picnic_app/pages/community/post_search_page.dart';
 import 'package:picnic_app/pages/community/post_write_page.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
@@ -40,8 +41,8 @@ class _TopRightPostState extends ConsumerState<TopRightPost> {
           GestureDetector(
             onTap: () {
               if (supabase.isLogged) {
-                navigationInfoNotifier.setCurrentPage(
-                    CompatibilityInputScreen(artist: currentArtist!));
+                navigationInfoNotifier
+                    .setCurrentPage(CompatibilityHistoryPage());
               } else {
                 showRequireLoginDialog();
               }

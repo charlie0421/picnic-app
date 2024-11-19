@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_error.dart';
@@ -9,105 +7,112 @@ import 'package:picnic_app/components/community/compatibility/compatibility_resu
 import 'package:picnic_app/components/vote/list/vote_info_card_footer.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/providers/community/compatibility_provider.dart';
+import 'package:picnic_app/providers/community/compatibility_repository_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/vote_share_util.dart';
 
-class CompatibilityResultScreen extends ConsumerStatefulWidget {
-  const CompatibilityResultScreen({
+class CompatibilityResultPage extends ConsumerStatefulWidget {
+  const CompatibilityResultPage({
     super.key,
-    required this.compatibilityId,
+    required this.compatibility,
   });
 
-  final String compatibilityId;
+  final CompatibilityModel compatibility;
 
   @override
-  ConsumerState<CompatibilityResultScreen> createState() =>
+  ConsumerState<CompatibilityResultPage> createState() =>
       _CompatibilityResultScreenState();
 }
 
 class _CompatibilityResultScreenState
-    extends ConsumerState<CompatibilityResultScreen> {
+    extends ConsumerState<CompatibilityResultPage> {
   final GlobalKey _printKey = GlobalKey();
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _loadCompatibility();
+    _initializeIfNeeded();
   }
 
-  Future<void> _loadCompatibility() async {
-    final compatibility = ref.read(compatibilityProvider);
-    if (compatibility == null || compatibility.id != widget.compatibilityId) {
-      try {
-        await ref.read(compatibilityProvider.notifier).refreshCompatibility();
-      } catch (e) {
-        logger.e('Error loading compatibility', error: e);
-      }
+  void _initializeIfNeeded() {
+    if (!_isInitialized &&
+        widget.compatibility.status == CompatibilityStatus.pending) {
+      _isInitialized = true;
+      // 위젯 빌드 후에 provider 상태 초기화
+      Future.microtask(() {
+        if (!mounted) return;
+
+        final currentState = ref.read(compatibilityProvider);
+        // 이미 동일한 ID의 상태가 있다면 스킵
+        if (currentState?.id == widget.compatibility.id) return;
+
+        ref.read(compatibilityProvider.notifier).state = widget.compatibility;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final compatibility = ref.watch(compatibilityProvider);
-
-    if (compatibility == null) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    return SingleChildScrollView(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            RepaintBoundary(
-              key: _printKey,
-              child: Container(
-                color: AppColors.grey00,
-                child: Column(
-                  children: [
-                    CompatibilityInfo(
+    final compatibility =
+        ref.watch(compatibilityProvider) ?? widget.compatibility;
+    logger.d(compatibility.toJson());
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              RepaintBoundary(
+                key: _printKey,
+                child: Container(
+                  color: AppColors.grey00,
+                  child: Column(
+                    children: [
+                      CompatibilityInfo(
                         artist: compatibility.artist,
                         ref: ref,
-                        birthDate: compatibility.birthDate),
-                    switch (compatibility.status) {
-                      CompatibilityStatus.pending =>
-                        const CompatibilityLoadingView(),
-                      CompatibilityStatus.error => CompatibilityErrorView(
-                          error: compatibility.errorMessage ??
-                              '알 수 없는 오류가 발생했습니다.',
-                        ),
-                      CompatibilityStatus.completed => CompatibilityResultView(
-                          compatibility: compatibility,
-                        ),
-                    },
-                  ],
+                        birthDate: compatibility.birthDate,
+                      ),
+                      switch (compatibility.status) {
+                        CompatibilityStatus.pending =>
+                          const CompatibilityLoadingView(),
+                        CompatibilityStatus.error => CompatibilityErrorView(
+                            error: compatibility.errorMessage ??
+                                '알 수 없는 오류가 발생했습니다.',
+                          ),
+                        CompatibilityStatus.completed =>
+                          CompatibilityResultView(
+                            compatibility: compatibility,
+                          ),
+                      },
+                    ],
+                  ),
                 ),
               ),
-            ),
-            VoteCardInfoFooter(
-              saveButtonText: '이미지 저장',
-              shareButtonText: '공유하기',
-              onSave: () => VoteShareUtils.captureAndSaveImage(
-                _printKey,
-                context,
-                onStart: () {},
-                onComplete: () {},
-              ),
-              onShare: () => VoteShareUtils.shareToTwitter(
-                _printKey,
-                title: getLocaleTextFromJson(compatibility.artist.name),
-                context,
-                onStart: () {},
-                onComplete: () {},
-              ),
-            ),
-          ],
+              if (compatibility.isCompleted) ...[
+                VoteCardInfoFooter(
+                  saveButtonText: '이미지 저장',
+                  shareButtonText: '공유하기',
+                  onSave: () => VoteShareUtils.captureAndSaveImage(
+                    _printKey,
+                    context,
+                    onStart: () {},
+                    onComplete: () {},
+                  ),
+                  onShare: () => VoteShareUtils.shareToTwitter(
+                    _printKey,
+                    title: getLocaleTextFromJson(compatibility.artist.name),
+                    context,
+                    onStart: () {},
+                    onComplete: () {},
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
       ),
     );

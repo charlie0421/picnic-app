@@ -3,14 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_info.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/artist.dart';
+import 'package:picnic_app/pages/community/compatibility_result_page.dart';
 import 'package:picnic_app/providers/community/compatibility_provider.dart';
+import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/logger.dart';
 
-class CompatibilityInputScreen extends ConsumerStatefulWidget {
-  const CompatibilityInputScreen({
+class CompatibilityInputPage extends ConsumerStatefulWidget {
+  const CompatibilityInputPage({
     super.key,
     required this.artist,
   });
@@ -18,12 +20,12 @@ class CompatibilityInputScreen extends ConsumerStatefulWidget {
   final ArtistModel artist;
 
   @override
-  ConsumerState<CompatibilityInputScreen> createState() =>
+  ConsumerState<CompatibilityInputPage> createState() =>
       _CompatibilityInputScreenState();
 }
 
 class _CompatibilityInputScreenState
-    extends ConsumerState<CompatibilityInputScreen> {
+    extends ConsumerState<CompatibilityInputPage> {
   DateTime? _birthDate;
   String? _birthTime;
   String? _gender;
@@ -157,14 +159,25 @@ class _CompatibilityInputScreenState
           );
 
       logger.i('Starting compatibility analysis');
+
       // 궁합 분석 시작
-      await ref.read(compatibilityProvider.notifier).createCompatibility(
-            userId: supabase.auth.currentUser!.id,
-            artist: widget.artist,
-            birthDate: _birthDate!,
-            birthTime: _birthTime,
-            gender: _gender!,
-          );
+      final compatibility =
+          await ref.read(compatibilityProvider.notifier).createCompatibility(
+                userId: supabase.auth.currentUser!.id,
+                artist: widget.artist,
+                birthDate: _birthDate!,
+                birthTime: _birthTime,
+                gender: _gender!,
+              );
+
+      if (mounted) {
+        // 결과 페이지로 이동
+        ref.read(navigationInfoProvider.notifier).setCurrentPage(
+              CompatibilityResultPage(
+                compatibility: compatibility,
+              ),
+            );
+      }
     } catch (e) {
       logger.e('Error in submit', error: e);
       if (mounted) {

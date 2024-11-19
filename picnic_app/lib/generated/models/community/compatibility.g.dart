@@ -46,9 +46,9 @@ _$CompatibilityModelImpl _$$CompatibilityModelImplFromJson(
           userId: $checkedConvert('user_id', (v) => v as String),
           artist: $checkedConvert(
               'artist', (v) => ArtistModel.fromJson(v as Map<String, dynamic>)),
-          birthDate:
-              $checkedConvert('birth_date', (v) => DateTime.parse(v as String)),
-          birthTime: $checkedConvert('birth_time', (v) => v as String?),
+          birthDate: $checkedConvert(
+              'user_birth_date', (v) => DateTime.parse(v as String)),
+          birthTime: $checkedConvert('user_birth_time', (v) => v as String?),
           status: $checkedConvert(
               'status',
               (v) =>
@@ -82,8 +82,8 @@ _$CompatibilityModelImpl _$$CompatibilityModelImplFromJson(
       },
       fieldKeyMap: const {
         'userId': 'user_id',
-        'birthDate': 'birth_date',
-        'birthTime': 'birth_time',
+        'birthDate': 'user_birth_date',
+        'birthTime': 'user_birth_time',
         'errorMessage': 'error_message',
         'isLoading': 'is_loading',
         'compatibilityScore': 'compatibility_score',
@@ -99,8 +99,8 @@ Map<String, dynamic> _$$CompatibilityModelImplToJson(
       'id': instance.id,
       'user_id': instance.userId,
       'artist': instance.artist.toJson(),
-      'birth_date': instance.birthDate.toIso8601String(),
-      'birth_time': instance.birthTime,
+      'user_birth_date': instance.birthDate.toIso8601String(),
+      'user_birth_time': instance.birthTime,
       'status': _$CompatibilityStatusEnumMap[instance.status]!,
       'gender': instance.gender,
       'error_message': instance.errorMessage,

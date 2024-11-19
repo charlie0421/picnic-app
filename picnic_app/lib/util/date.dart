@@ -33,7 +33,7 @@ String formatDateTimeYYYYMMDD(DateTime dateTime) {
 }
 
 String formatDateTimeYYYYMMDDHHM(DateTime dateTime) {
-  var formatter = DateFormat('yyyy.MM.dd HH:m', Intl.getCurrentLocale());
+  var formatter = DateFormat('yyyy.MM.dd HH:mm', Intl.getCurrentLocale());
   return formatter.format(dateTime);
 }
 

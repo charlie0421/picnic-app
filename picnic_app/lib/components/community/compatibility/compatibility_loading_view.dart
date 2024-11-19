@@ -1,19 +1,22 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:picnic_app/providers/community/compatibility_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
 
-class CompatibilityLoadingView extends StatefulWidget {
+class CompatibilityLoadingView extends ConsumerStatefulWidget {
   const CompatibilityLoadingView({super.key});
 
   @override
-  State<CompatibilityLoadingView> createState() =>
+  ConsumerState<CompatibilityLoadingView> createState() =>
       CompatibilityLoadingViewState();
 }
 
-class CompatibilityLoadingViewState extends State<CompatibilityLoadingView> {
+class CompatibilityLoadingViewState
+    extends ConsumerState<CompatibilityLoadingView> {
   BannerAd? _topBannerAd;
   BannerAd? _bottomBannerAd;
   bool _isTopBannerLoaded = false;
@@ -82,6 +85,7 @@ class CompatibilityLoadingViewState extends State<CompatibilityLoadingView> {
         });
       } else {
         timer.cancel();
+        ref.refresh(compatibilityProvider);
       }
     });
   }
