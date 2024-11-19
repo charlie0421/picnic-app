@@ -40,7 +40,8 @@ serve(async (req) => {
 위 정보를 바탕으로 두 사람의 궁합을 분석하여 다음 JSON 형식으로 결과를 알려주세요:
 {
   "compatibility_score": 85,
-  "compatibility_summary": "뜨겁고 활기찬 에너지의 완벽한 조합! (200자 이내로 요약)",
+  "compatibility_summary": "뜨겁고 활기찬 에너지의 완벽한 조합!",
+  "details": {
     "style": {
       "idol_style": "아이돌의 패션과 스타일 특징 설명",
       "user_style": "사용자에게 어울리는 스타일 추천",
@@ -50,6 +51,7 @@ serve(async (req) => {
       "recommended": ["추천 활동 1", "추천 활동 2", "추천 활동 3"],
       "description": "추천 활동에 대한 상세 설명"
     }
+  },
   "tips": [
     "궁합을 높이기 위한 팁 1",
     "궁합을 높이기 위한 팁 2",
@@ -57,13 +59,14 @@ serve(async (req) => {
   ]
 }
 
+compatibility_score : 0~100 사이의 숫자로 궁합의 점수를 나타냅니다. 높을수록 더 좋은 궁합입니다.
 결과는 긍정적이고 구체적으로 작성해주되, 현실적인 조언을 포함해주세요.
 compatibility_summary 항목은 200자 이내로 작성해주세요.
-MZ 말투로 작성해주세요.
+MZ 세대 여성의 말투로 작성해주세요.
     `
 
         const completion = await openai.chat.completions.create({
-            model: 'gpt-3.5-turbo-1106',
+            model: 'gpt-4o',
             response_format: { type: 'json_object' },
             messages: [
                 { role: 'system', content: '당신은 K-POP 아이돌과 팬의 궁합을 분석하는 전문가입니다.' },
@@ -73,6 +76,7 @@ MZ 말투로 작성해주세요.
 
         const result = JSON.parse(completion.choices[0].message.content)
 
+        console.log(result)
         // 결과 업데이트
         const { error: updateError } = await supabaseClient
             .from('compatibility_results')
