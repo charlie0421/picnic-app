@@ -1525,53 +1525,53 @@
   "@share": {
     "manualTranslation": false
   },
-  "compatibility_time_slot1": "Jassi (23:30-01:29)",
+  "compatibility_time_slot1": "Hour of the Rat|(23:30-01:29)|🐀",
   "@compatibility_time_slot1": {
-    "manualTranslation": false
+    "manualTranslation": true
   },
-  "compatibility_time_slot2": "Chuksi (01:30-03:29)",
+  "compatibility_time_slot2": "Hour of the Ox|(01:30-03:29)|🐂",
   "@compatibility_time_slot2": {
-    "manualTranslation": false
+    "manualTranslation": true
   },
-  "compatibility_time_slot3": "Inshi (03:30-05:29)",
+  "compatibility_time_slot3": "Hour of the Tiger|(03:30-05:29)|🐅",
   "@compatibility_time_slot3": {
-    "manualTranslation": false
+    "manualTranslation": true
   },
-  "compatibility_time_slot4": "Myoshi (05:30-07:29)",
+  "compatibility_time_slot4": "Hour of the Rabbit|(05:30-07:29)|🐇",
   "@compatibility_time_slot4": {
-    "manualTranslation": false
+    "manualTranslation": true
   },
-  "compatibility_time_slot5": "Jinxi (07:30-09:29)",
+  "compatibility_time_slot5": "Hour of the Dragon|(07:30-09:29)|🐉",
   "@compatibility_time_slot5": {
-    "manualTranslation": false
+    "manualTranslation": true
   },
-  "compatibility_time_slot8": "Missy (13:30-15:29)",
-  "@compatibility_time_slot8": {
-    "manualTranslation": false
-  },
-  "compatibility_time_slot6": "Strabismus (09:30-11:29)",
+  "compatibility_time_slot6": "Hour of the Snake|(09:30-11:29)|🐍",
   "@compatibility_time_slot6": {
-    "manualTranslation": false
+    "manualTranslation": true
   },
-  "compatibility_time_slot7": "O'clock (11:30-13:29)",
+  "compatibility_time_slot7": "Hour of the Horse|(11:30-13:29)|🐎",
   "@compatibility_time_slot7": {
-    "manualTranslation": false
+    "manualTranslation": true
   },
-  "compatibility_time_slot10": "Yushi (17:30-19:29)",
-  "@compatibility_time_slot10": {
-    "manualTranslation": false
+  "compatibility_time_slot8": "Hour of the Goat|(13:30-15:29)|🐐",
+  "@compatibility_time_slot8": {
+    "manualTranslation": true
   },
-  "compatibility_time_slot9": "Cincy (15:30-17:29)",
+  "compatibility_time_slot9": "Hour of the Monkey|(15:30-17:29)|🐒",
   "@compatibility_time_slot9": {
-    "manualTranslation": false
+    "manualTranslation": true
   },
-  "compatibility_time_slot11": "Sulshi (19:30-21:29)",
+  "compatibility_time_slot10": "Hour of the Rooster|(17:30-19:29)|🐔",
+  "@compatibility_time_slot10": {
+    "manualTranslation": true
+  },
+  "compatibility_time_slot11": "Hour of the Dog|(19:30-21:29)|🐕",
   "@compatibility_time_slot11": {
-    "manualTranslation": false
+    "manualTranslation": true
   },
-  "compatibility_time_slot12": "Hash (21:30-23:29)",
+  "compatibility_time_slot12": "Hour of the Pig|(21:30-23:29)|🐖",
   "@compatibility_time_slot12": {
-    "manualTranslation": false
+    "manualTranslation": true
   },
   "compatibility_agree_checkbox": "I agree to store my gender and birthday information in my profile.",
   "@compatibility_agree_checkbox": {

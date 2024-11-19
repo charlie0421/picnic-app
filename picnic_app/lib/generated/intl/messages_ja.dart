@@ -83,29 +83,29 @@ class MessageLookup extends MessageLookupByLibrary {
         "compatibility_agree_checkbox": MessageLookupByLibrary.simpleMessage(
             "性別、誕生日情報をプロフィールに保存することに同意します。"),
         "compatibility_time_slot1":
-            MessageLookupByLibrary.simpleMessage("夜更かし (23:30-01:29)"),
+            MessageLookupByLibrary.simpleMessage("子の刻|(23:30-01:29)|🐀"),
         "compatibility_time_slot10":
-            MessageLookupByLibrary.simpleMessage("遊時 (17:30-19:29)"),
+            MessageLookupByLibrary.simpleMessage("酉の刻|(17:30-19:29)|🐔"),
         "compatibility_time_slot11":
-            MessageLookupByLibrary.simpleMessage("酒席 (19:30-21:29)"),
+            MessageLookupByLibrary.simpleMessage("戌の刻|(19:30-21:29)|🐕"),
         "compatibility_time_slot12":
-            MessageLookupByLibrary.simpleMessage("ハッシュ (21:30-23:29)"),
+            MessageLookupByLibrary.simpleMessage("亥の刻|(21:30-23:29)|🐖"),
         "compatibility_time_slot2":
-            MessageLookupByLibrary.simpleMessage("祝詞 (01:30-03:29)"),
+            MessageLookupByLibrary.simpleMessage("丑の刻|(01:30-03:29)|🐂"),
         "compatibility_time_slot3":
-            MessageLookupByLibrary.simpleMessage("インシー (03:30-05:29)"),
+            MessageLookupByLibrary.simpleMessage("寅の刻|(03:30-05:29)|🐅"),
         "compatibility_time_slot4":
-            MessageLookupByLibrary.simpleMessage("明石 (05:30-07:29)"),
+            MessageLookupByLibrary.simpleMessage("卯の刻|(05:30-07:29)|🐇"),
         "compatibility_time_slot5":
-            MessageLookupByLibrary.simpleMessage("ジンシ (07:30-09:29)"),
+            MessageLookupByLibrary.simpleMessage("辰の刻|(07:30-09:29)|🐉"),
         "compatibility_time_slot6":
-            MessageLookupByLibrary.simpleMessage("斜視 (09:30-11:29)"),
+            MessageLookupByLibrary.simpleMessage("巳の刻|(09:30-11:29)|🐍"),
         "compatibility_time_slot7":
-            MessageLookupByLibrary.simpleMessage("お昼 (11:30-13:29)"),
+            MessageLookupByLibrary.simpleMessage("午の刻|(11:30-13:29)|🐎"),
         "compatibility_time_slot8":
-            MessageLookupByLibrary.simpleMessage("ミッシー (13:30-15:29)"),
+            MessageLookupByLibrary.simpleMessage("未の刻|(13:30-15:29)|🐐"),
         "compatibility_time_slot9":
-            MessageLookupByLibrary.simpleMessage("シンシー (15:30-17:29)"),
+            MessageLookupByLibrary.simpleMessage("申の刻|(15:30-17:29)|🐒"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("キャンセル"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("確認"),
         "dialog_caution": MessageLookupByLibrary.simpleMessage("警告 🚫 🚫 注意事項"),

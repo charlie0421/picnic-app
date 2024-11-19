@@ -84,29 +84,29 @@ class MessageLookup extends MessageLookupByLibrary {
         "compatibility_agree_checkbox": MessageLookupByLibrary.simpleMessage(
             "성별, 생일 정보를 프로필에 저장하는 것에 동의합니다."),
         "compatibility_time_slot1":
-            MessageLookupByLibrary.simpleMessage("자시 (23:30-01:29)"),
+            MessageLookupByLibrary.simpleMessage("자시|(23:30-01:29)|🐀"),
         "compatibility_time_slot10":
-            MessageLookupByLibrary.simpleMessage("유시 (17:30-19:29)"),
+            MessageLookupByLibrary.simpleMessage("유시|(17:30-19:29)|🐔"),
         "compatibility_time_slot11":
-            MessageLookupByLibrary.simpleMessage("술시 (19:30-21:29)"),
+            MessageLookupByLibrary.simpleMessage("술시|(19:30-21:29)|🐕"),
         "compatibility_time_slot12":
-            MessageLookupByLibrary.simpleMessage("해시 (21:30-23:29)"),
+            MessageLookupByLibrary.simpleMessage("해시|(21:30-23:29)|🐖"),
         "compatibility_time_slot2":
-            MessageLookupByLibrary.simpleMessage("축시 (01:30-03:29)"),
+            MessageLookupByLibrary.simpleMessage("축시|(01:30-03:29)|🐂"),
         "compatibility_time_slot3":
-            MessageLookupByLibrary.simpleMessage("인시 (03:30-05:29)"),
+            MessageLookupByLibrary.simpleMessage("인시|(03:30-05:29)|🐅"),
         "compatibility_time_slot4":
-            MessageLookupByLibrary.simpleMessage("묘시 (05:30-07:29)"),
+            MessageLookupByLibrary.simpleMessage("묘시|(05:30-07:29)|🐇"),
         "compatibility_time_slot5":
-            MessageLookupByLibrary.simpleMessage("진시 (07:30-09:29)"),
+            MessageLookupByLibrary.simpleMessage("진시|(07:30-09:29)|🐉"),
         "compatibility_time_slot6":
-            MessageLookupByLibrary.simpleMessage("사시 (09:30-11:29)"),
+            MessageLookupByLibrary.simpleMessage("사시|(09:30-11:29)|🐍"),
         "compatibility_time_slot7":
-            MessageLookupByLibrary.simpleMessage("오시 (11:30-13:29)"),
+            MessageLookupByLibrary.simpleMessage("오시|(11:30-13:29)|🐎"),
         "compatibility_time_slot8":
-            MessageLookupByLibrary.simpleMessage("미시 (13:30-15:29)"),
+            MessageLookupByLibrary.simpleMessage("미시|(13:30-15:29)|🐐"),
         "compatibility_time_slot9":
-            MessageLookupByLibrary.simpleMessage("신시 (15:30-17:29)"),
+            MessageLookupByLibrary.simpleMessage("신시|(15:30-17:29)|🐒"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("취소"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("확인"),
         "dialog_caution": MessageLookupByLibrary.simpleMessage("🚫 경고 🚫"),

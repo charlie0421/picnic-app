@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_info.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/artist.dart';
@@ -363,15 +366,32 @@ class _CompatibilityInputScreenState
                                 AppTypo.body14M, AppColors.grey900),
                           ),
                         ),
-                        ...?_timeSlots?.map(
-                          (time) => DropdownMenuItem(
-                            value: time,
-                            child: Text(
-                              time,
-                              style: getTextStyle(
-                                  AppTypo.body14M, AppColors.grey900),
-                            ),
-                          ),
+                        ...?_timeSlots?.asMap().entries.map(
+                          (entry) {
+                            final index = entry.key;
+                            final time = entry.value;
+                            final text = time.split('|')[0];
+                            final textTime = time.split('|')[1];
+                            final icon = time.split('|').last;
+
+                            logger.i('icon: $icon, text: $text');
+                            return DropdownMenuItem(
+                              value: index.toString(),
+                              child: Row(
+                                children: [
+                                  Text(icon),
+                                  Text(' '),
+                                  Text(
+                                    text,
+                                    style: getTextStyle(
+                                        AppTypo.body14M, AppColors.grey900),
+                                  ),
+                                  Text(' '),
+                                  Text(textTime),
+                                ],
+                              ),
+                            );
+                          },
                         ),
                       ],
                       onChanged: (value) {
