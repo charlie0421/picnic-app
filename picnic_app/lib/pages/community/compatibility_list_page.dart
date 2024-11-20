@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
+import 'package:picnic_app/components/community/compatibility/compatibility_result_card.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/pages/community/compatibility_input_page.dart';
 import 'package:picnic_app/pages/community/compatibility_result_page.dart';
@@ -8,6 +9,7 @@ import 'package:picnic_app/providers/community/compatibility_history_provider.da
 import 'package:picnic_app/providers/community/compatibility_provider.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/logger.dart';
@@ -116,7 +118,7 @@ class _CompatibilityHistoryPageState
                       ],
                     ),
                   )
-                : ListView.builder(
+                : ListView.separated(
                     controller: _scrollController,
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
                     itemCount:
@@ -133,104 +135,19 @@ class _CompatibilityHistoryPageState
 
                       final item = history.items[index];
                       return InkWell(
-                        onTap: () {
-                          ref
-                              .read(navigationInfoProvider.notifier)
-                              .setCurrentPage(
-                                CompatibilityResultPage(compatibility: item),
-                              );
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.03),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Artist Image with decorative border
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: AppColors.primary500,
-                                      width: 2,
-                                    ),
-                                  ),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(10),
-                                    child: item.artist.image != null
-                                        ? PicnicCachedNetworkImage(
-                                            imageUrl: item.artist.image!,
-                                            width: 70,
-                                            height: 70,
-                                            fit: BoxFit.cover,
-                                          )
-                                        : Container(
-                                            width: 70,
-                                            height: 70,
-                                            color: AppColors.grey100,
-                                            child: Icon(
-                                              Icons.person,
-                                              color: AppColors.grey300,
-                                              size: 32,
-                                            ),
-                                          ),
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: Text(
-                                              item.artist.name['ko'] ?? '',
-                                              style: getTextStyle(
-                                                AppTypo.body16B,
-                                                AppColors.grey900,
-                                              ),
-                                            ),
-                                          ),
-                                          _buildStatusBadge(item.status),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Text(
-                                        '${item.birthDate.year}년 ${item.birthDate.month}월 ${item.birthDate.day}일',
-                                        style: getTextStyle(
-                                          AppTypo.body14R,
-                                          AppColors.grey600,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      _buildAnalysisTimeInfo(item),
-                                      if (item.compatibilityScore != null) ...[
-                                        const SizedBox(height: 8),
-                                        _buildScoreBadge(
-                                            item.compatibilityScore!),
-                                      ],
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
+                          onTap: () {
+                            ref
+                                .read(navigationInfoProvider.notifier)
+                                .setCurrentPage(
+                                  CompatibilityResultPage(compatibility: item),
+                                );
+                          },
+                          child: CompatibilityResultCard(
+                            compatibility: item,
+                          ));
+                    },
+                    separatorBuilder: (BuildContext context, int index) {
+                      return const SizedBox(height: 16);
                     },
                   ),
             if (widget.artistId != null)
