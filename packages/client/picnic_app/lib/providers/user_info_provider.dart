@@ -45,7 +45,7 @@ class UserInfo extends _$UserInfo {
       final response = await supabase
           .from('user_profiles')
           .select(
-              'id,avatar_url,star_candy,nickname,email,star_candy_bonus,is_admin,birth_date,gender,user_agreement(id,terms,privacy)')
+              'id,avatar_url,star_candy,nickname,email,star_candy_bonus,is_admin,birth_date,gender,birth_time,user_agreement(id,terms,privacy)')
           .eq('id', supabase.auth.currentUser!.id)
           .maybeSingle();
 
@@ -81,6 +81,7 @@ class UserInfo extends _$UserInfo {
   Future<void> updateProfile({
     String? gender,
     DateTime? birthDate,
+    String? birthTime,
   }) async {
     logger.i('Updating profile - gender: $gender, birthDate: $birthDate');
     try {
@@ -92,6 +93,7 @@ class UserInfo extends _$UserInfo {
       final updates = {
         if (gender != null) 'gender': gender,
         if (birthDate != null) 'birth_date': birthDate.toIso8601String(),
+        if (birthTime != null) 'birth_time': birthTime,
         'updated_at': DateTime.now().toUtc().toIso8601String(),
       };
 

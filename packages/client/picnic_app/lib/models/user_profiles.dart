@@ -20,6 +20,7 @@ class UserProfilesModel with _$UserProfilesModel {
     @JsonKey(name: 'star_candy_bonus') required int? starCandyBonus,
     @JsonKey(name: 'birth_date') DateTime? birthDate,
     @JsonKey(name: 'gender') String? gender,
+    @JsonKey(name: 'birth_time') String? birthTime,
   }) = _UserProfilesModel;
 
   factory UserProfilesModel.fromJson(Map<String, dynamic> json) =>
