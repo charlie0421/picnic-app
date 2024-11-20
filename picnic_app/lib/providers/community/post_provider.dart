@@ -275,8 +275,12 @@ Future<List<PostScrapModel>> postsScrapedByUser(
 
     // 차단된 사용자가 있는 경우에만 필터 적용
     if (blockedUserIds.isNotEmpty) {
-      query = query.or(
-          '''and(post.user_id.not.in.(${blockedUserIds.map((id) => id).join(',')}))''');
+      // 수정된 부분: not.in 연산자를 직접 사용
+      query = query.not(
+        'post.user_id',
+        'in',
+        '(${blockedUserIds.join(',')})',
+      );
     }
 
     final response = await query.range((page - 1) * limit, page * limit - 1);
