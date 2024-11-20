@@ -53,9 +53,10 @@ class _PostListItemState extends ConsumerState<PostListItem> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text(getLocaleTextFromJson(widget.post.board!.name),
-                        style: getTextStyle(
-                            AppTypo.caption12B, AppColors.primary500)),
+                    if (widget.post.board != null)
+                      Text(getLocaleTextFromJson(widget.post.board!.name),
+                          style: getTextStyle(
+                              AppTypo.caption12B, AppColors.primary500)),
                     SizedBox(width: 4.cw),
                     widget.post.isAnonymous ?? false
                         ? const NoAvatar(
