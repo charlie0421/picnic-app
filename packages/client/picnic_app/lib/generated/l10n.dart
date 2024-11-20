@@ -3470,10 +3470,10 @@ class S {
     );
   }
 
-  /// `Hour of the Goat|(13:30-15:29)|🐐`
+  /// `Hour of the Sheep|(13:30-15:29)|🐑`
   String get compatibility_time_slot8 {
     return Intl.message(
-      'Hour of the Goat|(13:30-15:29)|🐐',
+      'Hour of the Sheep|(13:30-15:29)|🐑',
       name: 'compatibility_time_slot8',
       desc: '',
       args: [],

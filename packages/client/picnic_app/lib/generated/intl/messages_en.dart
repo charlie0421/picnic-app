@@ -107,7 +107,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "compatibility_time_slot7": MessageLookupByLibrary.simpleMessage(
             "Hour of the Horse|(11:30-13:29)|🐎"),
         "compatibility_time_slot8": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Goat|(13:30-15:29)|🐐"),
+            "Hour of the Sheep|(13:30-15:29)|🐑"),
         "compatibility_time_slot9": MessageLookupByLibrary.simpleMessage(
             "Hour of the Monkey|(15:30-17:29)|🐒"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),

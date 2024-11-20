@@ -33,7 +33,6 @@ class _CompatibilityInputScreenState
   String? _birthTime;
   String? _gender;
   bool _agreedToSaveProfile = false;
-  bool _isLoading = true;
   List<String>? _timeSlots;
 
   static const genderOptions = [
@@ -68,7 +67,6 @@ class _CompatibilityInputScreenState
   }
 
   Future<void> _loadUserProfile() async {
-    setState(() => _isLoading = true);
     try {
       final userProfileAsync = ref.read(userInfoProvider);
       userProfileAsync.when(
@@ -91,9 +89,9 @@ class _CompatibilityInputScreenState
               error: error, stackTrace: stack);
         },
       );
-    } finally {
-      setState(() => _isLoading = false);
-    }
+    } catch (e, s) {
+      logger.e('Error loading user profile', error: e, stackTrace: s);
+    } finally {}
   }
 
   Future<void> _selectDate() async {
@@ -193,14 +191,7 @@ class _CompatibilityInputScreenState
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
+    logger.i('Building CompatibilityInputPage');
     return SingleChildScrollView(
       child: Container(
         padding: const EdgeInsets.all(24),
@@ -208,7 +199,11 @@ class _CompatibilityInputScreenState
           children: [
             // 프로필 이미지와 이름
             CompatibilityInfo(
-                artist: widget.artist, ref: ref, birthDate: _birthDate),
+              artist: widget.artist,
+              ref: ref,
+              birthDate: _birthDate,
+              birthTime: _birthTime,
+            ),
             const SizedBox(height: 8),
 
             // 성별 선택
@@ -374,9 +369,8 @@ class _CompatibilityInputScreenState
                             final textTime = time.split('|')[1];
                             final icon = time.split('|').last;
 
-                            logger.i('icon: $icon, text: $text');
                             return DropdownMenuItem(
-                              value: index.toString(),
+                              value: (index + 1).toString(),
                               child: Row(
                                 children: [
                                   Text(icon),
