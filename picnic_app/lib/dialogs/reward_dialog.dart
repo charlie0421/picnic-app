@@ -45,9 +45,6 @@ class RewardDialog extends StatefulWidget {
 class _RewardDialogState extends State<RewardDialog> {
   @override
   Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    final topPadding = mediaQuery.padding.top;
-
     return Dialog(
       insetPadding: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
@@ -59,33 +56,30 @@ class _RewardDialogState extends State<RewardDialog> {
         height: getPlatformScreenSize(context).height,
         child: Stack(
           children: [
-            Transform.translate(
-              offset: Offset(0, -topPadding),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    _buildTopSection(),
-                    const SizedBox(height: 67),
-                    ...RewardType.values.map((type) {
-                      return Column(
-                        children: [
-                          RewardSection(
-                            type: type,
-                            data: widget.data,
-                          ),
-                          if (type != RewardType.values.last)
-                            const SizedBox(height: 68),
-                        ],
-                      );
-                    }),
-                  ],
-                ),
+            SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  _buildTopSection(),
+                  const SizedBox(height: 67),
+                  ...RewardType.values.map((type) {
+                    return Column(
+                      children: [
+                        RewardSection(
+                          type: type,
+                          data: widget.data,
+                        ),
+                        if (type != RewardType.values.last)
+                          const SizedBox(height: 68),
+                      ],
+                    );
+                  }),
+                ],
               ),
             ),
             Positioned(
-              top: 40 + topPadding,
+              top: 50,
               right: 15.cw,
               child: GestureDetector(
                 onTap: () => Navigator.of(context).pop(),
