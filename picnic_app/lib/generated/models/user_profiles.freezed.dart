@@ -42,6 +42,8 @@ mixin _$UserProfilesModel {
   DateTime? get birthDate => throw _privateConstructorUsedError;
   @JsonKey(name: 'gender')
   String? get gender => throw _privateConstructorUsedError;
+  @JsonKey(name: 'birth_time')
+  String? get birthTime => throw _privateConstructorUsedError;
 
   /// Serializes this UserProfilesModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -70,7 +72,8 @@ abstract class $UserProfilesModelCopyWith<$Res> {
       @JsonKey(name: 'star_candy') int? starCandy,
       @JsonKey(name: 'star_candy_bonus') int? starCandyBonus,
       @JsonKey(name: 'birth_date') DateTime? birthDate,
-      @JsonKey(name: 'gender') String? gender});
+      @JsonKey(name: 'gender') String? gender,
+      @JsonKey(name: 'birth_time') String? birthTime});
 
   $UserAgreementCopyWith<$Res>? get userAgreement;
 }
@@ -101,6 +104,7 @@ class _$UserProfilesModelCopyWithImpl<$Res, $Val extends UserProfilesModel>
     Object? starCandyBonus = freezed,
     Object? birthDate = freezed,
     Object? gender = freezed,
+    Object? birthTime = freezed,
   }) {
     return _then(_value.copyWith(
       id: freezed == id
@@ -147,6 +151,10 @@ class _$UserProfilesModelCopyWithImpl<$Res, $Val extends UserProfilesModel>
           ? _value.gender
           : gender // ignore: cast_nullable_to_non_nullable
               as String?,
+      birthTime: freezed == birthTime
+          ? _value.birthTime
+          : birthTime // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 
@@ -184,7 +192,8 @@ abstract class _$$UserProfilesModelImplCopyWith<$Res>
       @JsonKey(name: 'star_candy') int? starCandy,
       @JsonKey(name: 'star_candy_bonus') int? starCandyBonus,
       @JsonKey(name: 'birth_date') DateTime? birthDate,
-      @JsonKey(name: 'gender') String? gender});
+      @JsonKey(name: 'gender') String? gender,
+      @JsonKey(name: 'birth_time') String? birthTime});
 
   @override
   $UserAgreementCopyWith<$Res>? get userAgreement;
@@ -214,6 +223,7 @@ class __$$UserProfilesModelImplCopyWithImpl<$Res>
     Object? starCandyBonus = freezed,
     Object? birthDate = freezed,
     Object? gender = freezed,
+    Object? birthTime = freezed,
   }) {
     return _then(_$UserProfilesModelImpl(
       id: freezed == id
@@ -260,6 +270,10 @@ class __$$UserProfilesModelImplCopyWithImpl<$Res>
           ? _value.gender
           : gender // ignore: cast_nullable_to_non_nullable
               as String?,
+      birthTime: freezed == birthTime
+          ? _value.birthTime
+          : birthTime // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -278,7 +292,8 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
       @JsonKey(name: 'star_candy') required this.starCandy,
       @JsonKey(name: 'star_candy_bonus') required this.starCandyBonus,
       @JsonKey(name: 'birth_date') this.birthDate,
-      @JsonKey(name: 'gender') this.gender})
+      @JsonKey(name: 'gender') this.gender,
+      @JsonKey(name: 'birth_time') this.birthTime})
       : super._();
 
   factory _$UserProfilesModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -317,10 +332,13 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
   @override
   @JsonKey(name: 'gender')
   final String? gender;
+  @override
+  @JsonKey(name: 'birth_time')
+  final String? birthTime;
 
   @override
   String toString() {
-    return 'UserProfilesModel(id: $id, nickname: $nickname, avatarUrl: $avatarUrl, countryCode: $countryCode, deletedAt: $deletedAt, userAgreement: $userAgreement, isAdmin: $isAdmin, starCandy: $starCandy, starCandyBonus: $starCandyBonus, birthDate: $birthDate, gender: $gender)';
+    return 'UserProfilesModel(id: $id, nickname: $nickname, avatarUrl: $avatarUrl, countryCode: $countryCode, deletedAt: $deletedAt, userAgreement: $userAgreement, isAdmin: $isAdmin, starCandy: $starCandy, starCandyBonus: $starCandyBonus, birthDate: $birthDate, gender: $gender, birthTime: $birthTime)';
   }
 
   @override
@@ -346,7 +364,9 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
                 other.starCandyBonus == starCandyBonus) &&
             (identical(other.birthDate, birthDate) ||
                 other.birthDate == birthDate) &&
-            (identical(other.gender, gender) || other.gender == gender));
+            (identical(other.gender, gender) || other.gender == gender) &&
+            (identical(other.birthTime, birthTime) ||
+                other.birthTime == birthTime));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -363,7 +383,8 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
       starCandy,
       starCandyBonus,
       birthDate,
-      gender);
+      gender,
+      birthTime);
 
   /// Create a copy of UserProfilesModel
   /// with the given fields replaced by the non-null parameter values.
@@ -384,17 +405,19 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
 
 abstract class _UserProfilesModel extends UserProfilesModel {
   const factory _UserProfilesModel(
-      {@JsonKey(name: 'id') final String? id,
-      @JsonKey(name: 'nickname') final String? nickname,
-      @JsonKey(name: 'avatar_url') final String? avatarUrl,
-      @JsonKey(name: 'country_code') final String? countryCode,
-      @JsonKey(name: 'deleted_at') final DateTime? deletedAt,
-      @JsonKey(name: 'user_agreement') final UserAgreement? userAgreement,
-      @JsonKey(name: 'is_admin') required final bool? isAdmin,
-      @JsonKey(name: 'star_candy') required final int? starCandy,
-      @JsonKey(name: 'star_candy_bonus') required final int? starCandyBonus,
-      @JsonKey(name: 'birth_date') final DateTime? birthDate,
-      @JsonKey(name: 'gender') final String? gender}) = _$UserProfilesModelImpl;
+          {@JsonKey(name: 'id') final String? id,
+          @JsonKey(name: 'nickname') final String? nickname,
+          @JsonKey(name: 'avatar_url') final String? avatarUrl,
+          @JsonKey(name: 'country_code') final String? countryCode,
+          @JsonKey(name: 'deleted_at') final DateTime? deletedAt,
+          @JsonKey(name: 'user_agreement') final UserAgreement? userAgreement,
+          @JsonKey(name: 'is_admin') required final bool? isAdmin,
+          @JsonKey(name: 'star_candy') required final int? starCandy,
+          @JsonKey(name: 'star_candy_bonus') required final int? starCandyBonus,
+          @JsonKey(name: 'birth_date') final DateTime? birthDate,
+          @JsonKey(name: 'gender') final String? gender,
+          @JsonKey(name: 'birth_time') final String? birthTime}) =
+      _$UserProfilesModelImpl;
   const _UserProfilesModel._() : super._();
 
   factory _UserProfilesModel.fromJson(Map<String, dynamic> json) =
@@ -433,6 +456,9 @@ abstract class _UserProfilesModel extends UserProfilesModel {
   @override
   @JsonKey(name: 'gender')
   String? get gender;
+  @override
+  @JsonKey(name: 'birth_time')
+  String? get birthTime;
 
   /// Create a copy of UserProfilesModel
   /// with the given fields replaced by the non-null parameter values.

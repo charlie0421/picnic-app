@@ -95,47 +95,45 @@ class CompatibilityLoadingViewState
     return Container(
       alignment: Alignment.center,
       padding: const EdgeInsets.all(32),
-      child: Expanded(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            (_isTopBannerLoaded && _topBannerAd != null)
-                ? Container(
-                    alignment: Alignment.center,
-                    width: _topBannerAd!.size.width.toDouble(),
-                    height: _topBannerAd!.size.height.toDouble(),
-                    child: AdWidget(ad: _topBannerAd!),
-                  )
-                : SizedBox(height: AdSize.largeBanner.height.toDouble()),
-            const SizedBox(height: 6),
-            CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary500),
-              value: _remainingSeconds / 30,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              '궁합을 분석하고 있습니다...\n($_remainingSeconds초)',
-              style: getTextStyle(AppTypo.body16B, AppColors.grey900),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '잠시만 기다려주세요',
-              style: getTextStyle(AppTypo.body14M, AppColors.grey600),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 6),
-            (_isBottomBannerLoaded && _bottomBannerAd != null)
-                ? Container(
-                    alignment: Alignment.center,
-                    width: _bottomBannerAd!.size.width.toDouble(),
-                    height: _bottomBannerAd!.size.height.toDouble(),
-                    child: AdWidget(ad: _bottomBannerAd!),
-                  )
-                : SizedBox(height: AdSize.largeBanner.height.toDouble()),
-          ],
-        ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          (_isTopBannerLoaded && _topBannerAd != null)
+              ? Container(
+                  alignment: Alignment.center,
+                  width: _topBannerAd!.size.width.toDouble(),
+                  height: _topBannerAd!.size.height.toDouble(),
+                  child: AdWidget(ad: _topBannerAd!),
+                )
+              : SizedBox(height: AdSize.largeBanner.height.toDouble()),
+          const SizedBox(height: 6),
+          CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary500),
+            value: _remainingSeconds / 30,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            '궁합을 분석하고 있습니다...\n($_remainingSeconds초)',
+            style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '잠시만 기다려주세요\n화면을 나가면 분석을 다시 해야 합니다.',
+            style: getTextStyle(AppTypo.body14M, AppColors.grey600),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 6),
+          (_isBottomBannerLoaded && _bottomBannerAd != null)
+              ? Container(
+                  alignment: Alignment.center,
+                  width: _bottomBannerAd!.size.width.toDouble(),
+                  height: _bottomBannerAd!.size.height.toDouble(),
+                  child: AdWidget(ad: _bottomBannerAd!),
+                )
+              : SizedBox(height: AdSize.largeBanner.height.toDouble()),
+        ],
       ),
     );
   }

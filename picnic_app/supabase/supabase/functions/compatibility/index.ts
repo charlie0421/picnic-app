@@ -88,12 +88,15 @@ serve(async (req) => {
 
 compatibility_score : 0~100 사이의 숫자로 궁합의 점수를 나타냅니다. 높을수록 더 좋은 궁합입니다.
 결과는 긍정적이고 구체적으로 작성해주되, 현실적인 조언을 포함해주세요.
-compatibility_summary 항목은 200자 이내로 작성해주세요.
+compatibility_summary 항목은 100자 이상 250자 이내로 작성해주세요.
+추천활동은 아티스트의 관심을 받기 위해서 사용자 개인이 할 수 있는 활동을 추천해주세요.
+궁합을 높이기 위한 팁은 사용자가 아티스트의 사랑을 받기 위한 팁이었으면 좋겠어
+궁합을 높이기 위한 팁3 은 패션 아이템 추천으로 해 줘
 MZ 세대 여성의 말투로 작성해주세요.
             `
 
             const completion = await openai.chat.completions.create({
-                model: 'gpt-4-mini',
+                model: 'gpt-4o-mini',
                 response_format: { type: 'json_object' },
                 messages: [
                     { role: 'system', content: '당신은 K-POP 아이돌과 팬의 궁합을 분석하는 전문가입니다.' },

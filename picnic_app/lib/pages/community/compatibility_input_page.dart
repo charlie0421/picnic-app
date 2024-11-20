@@ -75,12 +75,11 @@ class _CompatibilityInputScreenState
             setState(() {
               _birthDate = userProfile.birthDate;
               _gender = userProfile.gender;
-              // 기존 데이터가 있다면 저장 동의는 자동으로 체크
-              _agreedToSaveProfile =
-                  userProfile.birthDate != null || userProfile.gender != null;
+              _birthTime =
+                  userProfile.birthTime; // Load birth time from profile
             });
             logger.i(
-                'Loaded user profile - birthDate: $_birthDate, gender: $_gender');
+                'Loaded user profile - birthDate: $_birthDate, gender: $_gender, birthTime: $_birthTime');
           }
         },
         loading: () => null,
@@ -91,14 +90,14 @@ class _CompatibilityInputScreenState
       );
     } catch (e, s) {
       logger.e('Error loading user profile', error: e, stackTrace: s);
-    } finally {}
+    }
   }
 
   Future<void> _selectDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _birthDate ?? DateTime.now(),
-      firstDate: DateTime(1900),
+      firstDate: DateTime(1990),
       lastDate: DateTime.now(),
       locale: const Locale('ko', 'KR'),
       builder: (context, child) {
@@ -157,6 +156,7 @@ class _CompatibilityInputScreenState
       await ref.read(userInfoProvider.notifier).updateProfile(
             gender: _gender,
             birthDate: _birthDate,
+            birthTime: _birthTime,
           );
 
       logger.i('Starting compatibility analysis');
@@ -348,6 +348,7 @@ class _CompatibilityInputScreenState
                             horizontal: 12, vertical: 8),
                       ),
                       value: _birthTime,
+                      // This will now use the loaded birth time
                       hint: Text(
                         '시간을 선택해주세요',
                         style: getTextStyle(AppTypo.body14M, AppColors.grey500),
