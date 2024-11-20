@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_info.dart';
 import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/pages/community/compatibility_result_page.dart';
 import 'package:picnic_app/providers/community/compatibility_provider.dart';
@@ -44,6 +45,15 @@ class _CompatibilityInputScreenState
   void initState() {
     super.initState();
     _loadUserProfile();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+          showPortal: true,
+          showTopMenu: true,
+          topRightMenu: TopRightType.board,
+          showBottomNavigation: false,
+          pageTitle: S.of(context).compatibility_input_page);
+    });
   }
 
   @override

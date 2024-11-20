@@ -25,18 +25,6 @@ class CompatibilityErrorView extends StatelessWidget {
             style: getTextStyle(AppTypo.body14M, AppColors.grey900),
           ),
           const SizedBox(height: 24),
-          FilledButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            style: FilledButton.styleFrom(
-              backgroundColor: AppColors.primary500,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: const Text('돌아가기'),
-          ),
         ],
       ),
     );
