@@ -1,6 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import OpenAI from 'https://esm.sh/openai@4.20.1'
+import OpenAI from 'https://esm.sh/openai'
 
 const openai = new OpenAI({
     apiKey: Deno.env.get('OPENAI_COMPATIBILITY_API_KEY')
@@ -66,7 +66,7 @@ MZ 세대 여성의 말투로 작성해주세요.
     `
 
         const completion = await openai.chat.completions.create({
-            model: 'gpt-4o',
+            model: 'gpt-4o-mini',
             response_format: { type: 'json_object' },
             messages: [
                 { role: 'system', content: '당신은 K-POP 아이돌과 팬의 궁합을 분석하는 전문가입니다.' },
