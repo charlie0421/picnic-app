@@ -86,30 +86,32 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Search results"),
         "compatibility_agree_checkbox": MessageLookupByLibrary.simpleMessage(
             "I agree to store my gender and birthday information in my profile."),
-        "compatibility_time_slot1": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Rat|(23:30-01:29)|🐀"),
-        "compatibility_time_slot10": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Rooster|(17:30-19:29)|🐔"),
-        "compatibility_time_slot11": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Dog|(19:30-21:29)|🐕"),
-        "compatibility_time_slot12": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Pig|(21:30-23:29)|🐖"),
-        "compatibility_time_slot2": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Ox|(01:30-03:29)|🐂"),
-        "compatibility_time_slot3": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Tiger|(03:30-05:29)|🐅"),
-        "compatibility_time_slot4": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Rabbit|(05:30-07:29)|🐇"),
-        "compatibility_time_slot5": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Dragon|(07:30-09:29)|🐉"),
-        "compatibility_time_slot6": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Snake|(09:30-11:29)|🐍"),
-        "compatibility_time_slot7": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Horse|(11:30-13:29)|🐎"),
-        "compatibility_time_slot8": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Sheep|(13:30-15:29)|🐑"),
-        "compatibility_time_slot9": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Monkey|(15:30-17:29)|🐒"),
+        "compatibility_input_page":
+            MessageLookupByLibrary.simpleMessage("Compatibility entry page"),
+        "compatibility_time_slot1":
+            MessageLookupByLibrary.simpleMessage("자시|(23:30-01:29)|🐀"),
+        "compatibility_time_slot10":
+            MessageLookupByLibrary.simpleMessage("유시|(17:30-19:29)|🐔"),
+        "compatibility_time_slot11":
+            MessageLookupByLibrary.simpleMessage("술시|(19:30-21:29)|🐕"),
+        "compatibility_time_slot12":
+            MessageLookupByLibrary.simpleMessage("해시|(21:30-23:29)|🐖"),
+        "compatibility_time_slot2":
+            MessageLookupByLibrary.simpleMessage("축시|(01:30-03:29)|🐂"),
+        "compatibility_time_slot3":
+            MessageLookupByLibrary.simpleMessage("인시|(03:30-05:29)|🐅"),
+        "compatibility_time_slot4":
+            MessageLookupByLibrary.simpleMessage("묘시|(05:30-07:29)|🐇"),
+        "compatibility_time_slot5":
+            MessageLookupByLibrary.simpleMessage("진시|(07:30-09:29)|🐉"),
+        "compatibility_time_slot6":
+            MessageLookupByLibrary.simpleMessage("사시|(09:30-11:29)|🐍"),
+        "compatibility_time_slot7":
+            MessageLookupByLibrary.simpleMessage("오시|(11:30-13:29)|🐎"),
+        "compatibility_time_slot8":
+            MessageLookupByLibrary.simpleMessage("미시|(13:30-15:29)|🐑"),
+        "compatibility_time_slot9":
+            MessageLookupByLibrary.simpleMessage("신시|(15:30-17:29)|🐒"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
         "dialog_caution": MessageLookupByLibrary.simpleMessage("🚫 경고 🚫"),
@@ -124,8 +126,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialog_message_can_resignup": MessageLookupByLibrary.simpleMessage(
             "When you can rejoin if you cancel your membership now"),
         "dialog_message_purchase_canceled":
-            MessageLookupByLibrary.simpleMessage(
-                "Your purchase has been canceled."),
+            MessageLookupByLibrary.simpleMessage("The purchase was canceled."),
         "dialog_message_purchase_failed": MessageLookupByLibrary.simpleMessage(
             "There was an error with your purchase, please try again later."),
         "dialog_message_purchase_success": MessageLookupByLibrary.simpleMessage(
@@ -376,15 +377,15 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_tab_birthday":
             MessageLookupByLibrary.simpleMessage("Birthday polls"),
         "label_vote_tab_pic":
-            MessageLookupByLibrary.simpleMessage("PIC Voting"),
+            MessageLookupByLibrary.simpleMessage("PIC voting"),
         "label_vote_upcoming":
             MessageLookupByLibrary.simpleMessage("Until voting begins"),
         "label_vote_vote_gather":
             MessageLookupByLibrary.simpleMessage("Collecting votes"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("View ads"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("My Artists"),
-        "message_agreement_success":
-            MessageLookupByLibrary.simpleMessage("You\'ve accepted the terms."),
+        "message_agreement_success": MessageLookupByLibrary.simpleMessage(
+            "Acceptance of the terms is complete."),
         "message_error_occurred":
             MessageLookupByLibrary.simpleMessage("An error occurred."),
         "message_noitem_vote_active": MessageLookupByLibrary.simpleMessage(

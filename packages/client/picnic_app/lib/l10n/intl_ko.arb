@@ -868,6 +868,8 @@
     "@post_minor_board_name_input": {},
     "post_my_written_post": "내가 쓴 게시글",
     "@post_my_written_post": {},
+    "compatibility_input_page": "궁합",
+    "@compatibility_input_page": {},
     "post_my_written_reply": "내가 쓴 댓글",
     "@post_my_written_reply": {},
     "post_my_compatibilities": "나의 궁합",

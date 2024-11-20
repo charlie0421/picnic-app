@@ -5,8 +5,11 @@ import 'package:picnic_app/components/community/compatibility/compatibility_info
 import 'package:picnic_app/components/community/compatibility/compatibility_loading_view.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_result.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_footer.dart';
+import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/providers/community/compatibility_provider.dart';
+import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
@@ -34,6 +37,15 @@ class _CompatibilityResultScreenState
   void initState() {
     super.initState();
     _initializeIfNeeded();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+          showPortal: true,
+          showTopMenu: true,
+          topRightMenu: TopRightType.board,
+          showBottomNavigation: false,
+          pageTitle: S.of(context).compatibility_input_page);
+    });
   }
 
   void _initializeIfNeeded() {
