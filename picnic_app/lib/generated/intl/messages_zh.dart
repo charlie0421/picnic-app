@@ -101,7 +101,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "compatibility_time_slot7":
             MessageLookupByLibrary.simpleMessage("午时|(11:30-13:29)|🐎"),
         "compatibility_time_slot8":
-            MessageLookupByLibrary.simpleMessage("未时|(13:30-15:29)|🐐"),
+            MessageLookupByLibrary.simpleMessage("未时|(13:30-15:29)|🐑"),
         "compatibility_time_slot9":
             MessageLookupByLibrary.simpleMessage("申时|(15:30-17:29)|🐒"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("取消"),

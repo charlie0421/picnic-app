@@ -57,60 +57,58 @@ class _CompatibilityResultScreenState
   Widget build(BuildContext context) {
     final compatibility =
         ref.watch(compatibilityProvider) ?? widget.compatibility;
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              RepaintBoundary(
-                key: _printKey,
-                child: Container(
-                  color: AppColors.grey00,
-                  child: Column(
-                    children: [
-                      CompatibilityInfo(
-                        artist: compatibility.artist,
-                        ref: ref,
-                        birthDate: compatibility.birthDate,
-                      ),
-                      switch (compatibility.status) {
-                        CompatibilityStatus.pending =>
-                          const CompatibilityLoadingView(),
-                        CompatibilityStatus.error => CompatibilityErrorView(
-                            error: compatibility.errorMessage ??
-                                '알 수 없는 오류가 발생했습니다.',
-                          ),
-                        CompatibilityStatus.completed =>
-                          CompatibilityResultView(
-                            compatibility: compatibility,
-                          ),
-                      },
-                    ],
-                  ),
+    return SingleChildScrollView(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            RepaintBoundary(
+              key: _printKey,
+              child: Container(
+                color: AppColors.grey00,
+                child: Column(
+                  children: [
+                    CompatibilityInfo(
+                      artist: compatibility.artist,
+                      ref: ref,
+                      birthDate: compatibility.birthDate,
+                      birthTime: compatibility.birthTime,
+                    ),
+                    switch (compatibility.status) {
+                      CompatibilityStatus.pending =>
+                        const CompatibilityLoadingView(),
+                      CompatibilityStatus.error => CompatibilityErrorView(
+                          error: compatibility.errorMessage ??
+                              '알 수 없는 오류가 발생했습니다.',
+                        ),
+                      CompatibilityStatus.completed => CompatibilityResultView(
+                          compatibility: compatibility,
+                        ),
+                    },
+                  ],
                 ),
               ),
-              if (compatibility.isCompleted) ...[
-                VoteCardInfoFooter(
-                  saveButtonText: '이미지 저장',
-                  shareButtonText: '공유하기',
-                  onSave: () => VoteShareUtils.captureAndSaveImage(
-                    _printKey,
-                    context,
-                    onStart: () {},
-                    onComplete: () {},
-                  ),
-                  onShare: () => VoteShareUtils.shareToTwitter(
-                    _printKey,
-                    title: getLocaleTextFromJson(compatibility.artist.name),
-                    context,
-                    onStart: () {},
-                    onComplete: () {},
-                  ),
+            ),
+            if (compatibility.isCompleted) ...[
+              VoteCardInfoFooter(
+                saveButtonText: '이미지 저장',
+                shareButtonText: '공유하기',
+                onSave: () => VoteShareUtils.captureAndSaveImage(
+                  _printKey,
+                  context,
+                  onStart: () {},
+                  onComplete: () {},
                 ),
-              ],
+                onShare: () => VoteShareUtils.shareToTwitter(
+                  _printKey,
+                  title: getLocaleTextFromJson(compatibility.artist.name),
+                  context,
+                  onStart: () {},
+                  onComplete: () {},
+                ),
+              ),
             ],
-          ),
+          ],
         ),
       ),
     );

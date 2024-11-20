@@ -107,12 +107,12 @@ class CompatibilityLoadingViewState
                   child: AdWidget(ad: _topBannerAd!),
                 )
               : SizedBox(height: AdSize.largeBanner.height.toDouble()),
-          const SizedBox(height: 24),
+          const SizedBox(height: 6),
           CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary500),
             value: _remainingSeconds / 30,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
           Text(
             '궁합을 분석하고 있습니다...\n($_remainingSeconds초)',
             style: getTextStyle(AppTypo.body16B, AppColors.grey900),
@@ -124,7 +124,7 @@ class CompatibilityLoadingViewState
             style: getTextStyle(AppTypo.body14M, AppColors.grey600),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 6),
           (_isBottomBannerLoaded && _bottomBannerAd != null)
               ? Container(
                   alignment: Alignment.center,
