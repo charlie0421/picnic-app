@@ -10,32 +10,59 @@ serve(async (req) => {
     try {
         const { compatibility_id } = await req.json()
 
-        // Supabase 클라이언트 초기화
         const supabaseClient = createClient(
             Deno.env.get('SUPABASE_URL') ?? '',
             Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
         )
 
-        // 궁합 데이터 조회
-        const { data: compatibility, error: fetchError } = await supabaseClient
+        // 현재 궁합 데이터 조회
+        const { data: currentCompatibility, error: fetchError } = await supabaseClient
             .from('compatibility_results')
             .select('*')
             .eq('id', compatibility_id)
             .single()
 
-        console.log(compatibility)
-
-        if (fetchError || !compatibility) {
+        if (fetchError || !currentCompatibility) {
             throw new Error('Compatibility record not found')
         }
 
-        // OpenAI API 호출
-        const prompt = `
+        // 기본 쿼리 조건
+        const query = supabaseClient
+            .from('compatibility_results')
+            .select('compatibility_score, compatibility_summary, details, tips')
+            .eq('idol_birth_date', currentCompatibility.idol_birth_date)
+            .eq('user_birth_date', currentCompatibility.user_birth_date)
+            .eq('gender', currentCompatibility.gender)
+            .eq('status', 'completed')
+            .neq('id', compatibility_id)
+            .order('completed_at', { ascending: false })
+            .limit(1)
+
+        // user_birth_time이 null인 경우와 아닌 경우를 구분하여 처리
+        const { data: existingResults, error: searchError } = await (
+            currentCompatibility.user_birth_time === null
+                ? query.is('user_birth_time', null)
+                : query.eq('user_birth_time', currentCompatibility.user_birth_time)
+        )
+
+        if (searchError) {
+            throw searchError
+        }
+
+        let result
+
+        if (existingResults && existingResults.length > 0) {
+            // 기존 결과 재활용
+            result = existingResults[0]
+            console.log('Reusing existing result')
+        } else {
+            // 새로운 분석 수행
+            const prompt = `
 궁합 분석 정보:
-- 아이돌: ${compatibility.idol_name} (${compatibility.idol_birth_date})
-- 사용자: ${compatibility.user_birth_date} ${compatibility.birth_time ? `(${compatibility.birth_time})` : ''}
-- 성별: ${compatibility.user_gender}
-- 태어난 시간: ${compatibility.birth_time || '미상'}
+- 생년월일: ${formatDate(currentCompatibility.idol_birth_date)}
+- 사용자: ${formatDate(currentCompatibility.user_birth_date)} ${currentCompatibility.user_birth_time ? `(${currentCompatibility.user_birth_time})` : ''}
+- 성별: ${currentCompatibility.gender}
+- 태어난 시간: ${currentCompatibility.user_birth_time || '미상'}
 
 위 정보를 바탕으로 두 사람의 궁합을 분석하여 다음 JSON 형식으로 결과를 알려주세요:
 {
@@ -63,20 +90,21 @@ compatibility_score : 0~100 사이의 숫자로 궁합의 점수를 나타냅니
 결과는 긍정적이고 구체적으로 작성해주되, 현실적인 조언을 포함해주세요.
 compatibility_summary 항목은 200자 이내로 작성해주세요.
 MZ 세대 여성의 말투로 작성해주세요.
-    `
+            `
 
-        const completion = await openai.chat.completions.create({
-            model: 'gpt-4o-mini',
-            response_format: { type: 'json_object' },
-            messages: [
-                { role: 'system', content: '당신은 K-POP 아이돌과 팬의 궁합을 분석하는 전문가입니다.' },
-                { role: 'user', content: prompt }
-            ],
-        })
+            const completion = await openai.chat.completions.create({
+                model: 'gpt-4-mini',
+                response_format: { type: 'json_object' },
+                messages: [
+                    { role: 'system', content: '당신은 K-POP 아이돌과 팬의 궁합을 분석하는 전문가입니다.' },
+                    { role: 'user', content: prompt }
+                ],
+            })
 
-        const result = JSON.parse(completion.choices[0].message.content)
+            result = JSON.parse(completion.choices[0].message.content)
+            console.log('Generated new result')
+        }
 
-        console.log(result)
         // 결과 업데이트
         const { error: updateError } = await supabaseClient
             .from('compatibility_results')
@@ -104,3 +132,8 @@ MZ 세대 여성의 말투로 작성해주세요.
         })
     }
 })
+
+function formatDate(dateString: string): string {
+    const date = new Date(dateString)
+    return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`
+}

@@ -85,6 +85,8 @@ class Compatibility extends _$Compatibility {
         headers: {'Content-Type': 'application/json'},
       );
 
+      logger.i('Edge function response: ${response.data}');
+
       if (response.status != 200) {
         throw Exception('Edge function error: ${response.data}');
       }
