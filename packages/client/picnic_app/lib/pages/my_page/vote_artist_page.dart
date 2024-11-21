@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_app/components/my_page/vote_artist_search.dart';
+import 'package:picnic_app/components/my_page/vote_artist_list.dart';
 
 class VoteArtistPage extends StatelessWidget {
   final String pageName = 'label_tab_my_artist';

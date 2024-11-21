@@ -5,9 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="11e4844d-d946-4133-bdfe-177e6d8bead2" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/ios/Podfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/ios/Podfile.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/components/my_page/vote_artist_search.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/components/my_page/vote_artist_list.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/pages/my_page/vote_artist_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/pages/my_page/vote_artist_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/my_page/bookmarked_artists_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/my_page/bookmarked_artists_provider.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resize_image_lambda/deploy.sh" beforeDir="false" afterPath="$PROJECT_DIR$/resize_image_lambda/deploy.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resize_image_lambda/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/resize_image_lambda/index.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -96,7 +98,9 @@
       <workItem from="1731071460080" duration="1644000" />
       <workItem from="1731137537317" duration="1243000" />
       <workItem from="1731160486798" duration="2841000" />
-      <workItem from="1732120382163" duration="11665000" />
+      <workItem from="1732120382163" duration="12153000" />
+      <workItem from="1732145004357" duration="599000" />
+      <workItem from="1732153993144" duration="464000" />
     </task>
     <servers />
   </component>
