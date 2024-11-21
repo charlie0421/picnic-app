@@ -155,6 +155,100 @@ class _CompatibilityInputScreenState
     }
 
     try {
+      // 중복 데이터 확인을 위한 쿼리 빌더
+      var query = supabase
+          .from('compatibility_results')
+          .select()
+          .eq('user_id', supabase.auth.currentUser!.id)
+          .eq('artist_id', widget.artist.id)
+          .eq('user_birth_date', _birthDate!.toIso8601String())
+          .eq('gender', _gender!);
+
+      // birth_time이 null인 경우와 아닌 경우를 구분하여 처리
+      if (_birthTime == null) {
+        query = query.isFilter('user_birth_time', null);
+      } else {
+        query = query.eq('user_birth_time', _birthTime!);
+      }
+
+      final existingResult = await query.select();
+
+      if (existingResult.isNotEmpty) {
+        // 중복된 데이터가 있는 경우 확인 다이얼로그 표시
+        if (!mounted) return;
+
+        final shouldProceed = await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: Text(
+                '이미 존재하는 궁합 데이터',
+                style: getTextStyle(AppTypo.title18B, AppColors.grey900),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '동일한 조건의 궁합 데이터가 이미 존재합니다:',
+                    style: getTextStyle(AppTypo.body14R, AppColors.grey900),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '• 생년월일: ${DateFormat('yyyy년 MM월 dd일').format(_birthDate!)}',
+                    style: getTextStyle(AppTypo.body14R, AppColors.grey700),
+                  ),
+                  if (_birthTime != null)
+                    Text(
+                      '• 태어난 시간: ${_timeSlots![int.parse(_birthTime!) - 1].split('|')[0]}',
+                      style: getTextStyle(AppTypo.body14R, AppColors.grey700),
+                    ),
+                  Text(
+                    '• 성별: ${_gender == 'male' ? '남성' : '여성'}',
+                    style: getTextStyle(AppTypo.body14R, AppColors.grey700),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    '새로운 궁합을 보시겠습니까?',
+                    style: getTextStyle(AppTypo.body14M, AppColors.grey900),
+                  ),
+                ],
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: Text(
+                    '취소',
+                    style: getTextStyle(AppTypo.body14M, AppColors.grey500),
+                  ),
+                  onPressed: () => Navigator.of(context).pop(false),
+                ),
+                FilledButton(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.primary500,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text(
+                    '새로 보기',
+                    style: getTextStyle(AppTypo.body14M, AppColors.grey00),
+                  ),
+                  onPressed: () => Navigator.of(context).pop(true),
+                ),
+              ],
+              actionsPadding: const EdgeInsets.all(16),
+            );
+          },
+        );
+
+        if (shouldProceed != true) {
+          return;
+        }
+      }
+
       // Show loading indicator
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -201,7 +295,6 @@ class _CompatibilityInputScreenState
 
   @override
   Widget build(BuildContext context) {
-    logger.i('Building CompatibilityInputPage');
     return SingleChildScrollView(
       child: Container(
         padding: const EdgeInsets.all(24),

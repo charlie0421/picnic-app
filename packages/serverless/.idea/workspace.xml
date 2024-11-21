@@ -5,10 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="11e4844d-d946-4133-bdfe-177e6d8bead2" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/ios/Podfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/ios/Podfile.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/components/my_page/vote_artist_search.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/components/my_page/vote_artist_list.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/pages/my_page/vote_artist_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/pages/my_page/vote_artist_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/providers/my_page/bookmarked_artists_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/providers/my_page/bookmarked_artists_provider.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/compatibility_input_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/pages/community/compatibility_input_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
