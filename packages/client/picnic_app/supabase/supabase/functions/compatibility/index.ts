@@ -100,7 +100,8 @@ serve(async (req) => {
             .from('compatibility_results')
             .update({
                 status: 'completed',
-                completed_at: new Date().toISOString()
+                completed_at: new Date().toISOString(),
+                compatibility_score: results[SUPPORTED_LANGUAGES[0]].compatibility_score
             })
             .eq('id', compatibility_id)
 

@@ -7,6 +7,7 @@ import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
+import 'package:picnic_app/util/i18n.dart';
 
 class CompatibilityResultCard extends ConsumerWidget {
   const CompatibilityResultCard({
@@ -23,7 +24,7 @@ class CompatibilityResultCard extends ConsumerWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.primary500.withOpacity(0.3),
+          color: AppColors.primary500.withOpacity(0.7),
           width: 1.5,
         ),
         boxShadow: [
@@ -40,7 +41,7 @@ class CompatibilityResultCard extends ConsumerWidget {
             _buildScoreSection(compatibility.compatibilityScore!),
           ],
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -49,14 +50,23 @@ class CompatibilityResultCard extends ConsumerWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(4),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildProfileImage(compatibility.artist.image),
+                ProfileImageContainer(
+                  avatarUrl: compatibility.artist.image ?? '',
+                  width: 70,
+                  height: 70,
+                  borderRadius: 10,
+                  border: Border.all(
+                    color: AppColors.primary500,
+                    width: 1.5,
+                  ),
+                ),
                 const SizedBox(width: 16),
                 const FancyPulsingHeart(
-                  size: 32.0,
+                  size: 60.0,
                   color: Color(0xFFFF4B8B),
                   duration: Duration(seconds: 2),
                 ),
@@ -68,24 +78,30 @@ class CompatibilityResultCard extends ConsumerWidget {
                   width: 70,
                   height: 70,
                   borderRadius: 10,
+                  border: Border.all(
+                    color: AppColors.primary500,
+                    width: 1.5,
+                  ),
                 ),
               ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.only(bottom: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Expanded(
                   child: _buildProfileInfo(
                     AxisDirection.left,
-                    compatibility.artist.name['ko'] ?? '',
+                    getLocaleTextFromJson(
+                      compatibility.artist.name,
+                    ),
                     compatibility.artist.birthDate,
                     null,
                   ),
                 ),
-                const SizedBox(width: 64),
+                const SizedBox(width: 110),
                 Expanded(
                   child: _buildProfileInfo(
                     AxisDirection.right,
@@ -117,7 +133,7 @@ class CompatibilityResultCard extends ConsumerWidget {
             _getScoreColor(score).withOpacity(0.5),
           ],
         ),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
       ),
       child: Column(
         children: [
@@ -156,38 +172,6 @@ class CompatibilityResultCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildProfileImage(String? imageUrl) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppColors.primary500,
-          width: 2,
-        ),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: imageUrl != null && imageUrl.isNotEmpty
-            ? PicnicCachedNetworkImage(
-                imageUrl: imageUrl,
-                width: 70,
-                height: 70,
-                fit: BoxFit.cover,
-              )
-            : Container(
-                width: 70,
-                height: 70,
-                color: AppColors.grey100,
-                child: Icon(
-                  Icons.person,
-                  color: AppColors.grey300,
-                  size: 32,
-                ),
-              ),
-      ),
-    );
-  }
-
   Widget _buildProfileInfo(AxisDirection direction, String name,
       DateTime? birthDate, String? birthTime) {
     return Column(
@@ -202,7 +186,6 @@ class CompatibilityResultCard extends ConsumerWidget {
           textAlign: TextAlign.center,
         ),
         if (birthDate != null) ...[
-          const SizedBox(height: 4),
           Row(
             mainAxisAlignment: direction == AxisDirection.left
                 ? MainAxisAlignment.end
@@ -211,11 +194,11 @@ class CompatibilityResultCard extends ConsumerWidget {
             children: [
               Text(
                 formatDateTimeYYYYMMDD(birthDate),
-                style: getTextStyle(AppTypo.body14R, AppColors.grey600),
+                style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
               ),
               Text(
                 convertKoreanTraditionalTime(birthTime),
-                style: getTextStyle(AppTypo.body16B, AppColors.grey600),
+                style: getTextStyle(AppTypo.body14M, AppColors.grey600),
               ),
             ],
           ),
@@ -227,7 +210,7 @@ class CompatibilityResultCard extends ConsumerWidget {
 
   Widget _buildStatusBadge(CompatibilityStatus status) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
       decoration: BoxDecoration(
         color: _getStatusColor(status).withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
@@ -251,6 +234,7 @@ class CompatibilityResultCard extends ConsumerWidget {
       CompatibilityStatus.completed => const Color(0xFFFF1493),
       CompatibilityStatus.pending => AppColors.grey500,
       CompatibilityStatus.error => AppColors.point900,
+      CompatibilityStatus.input => AppColors.grey500,
     };
   }
 
@@ -259,6 +243,7 @@ class CompatibilityResultCard extends ConsumerWidget {
       CompatibilityStatus.completed => '완료',
       CompatibilityStatus.pending => '분석중',
       CompatibilityStatus.error => '오류',
+      CompatibilityStatus.input => '입력중',
     };
   }
 

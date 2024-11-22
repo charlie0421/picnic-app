@@ -6,7 +6,7 @@ part '../../generated/models/community/compatibility.freezed.dart';
 
 part '../../generated/models/community/compatibility.g.dart';
 
-enum CompatibilityStatus { pending, completed, error }
+enum CompatibilityStatus { pending, completed, error, input }
 
 Map<String, LocalizedCompatibility>? _parseI18nResults(dynamic i18nData) {
   if (i18nData == null) return null;
@@ -65,8 +65,7 @@ class CompatibilityModel with _$CompatibilityModel {
     String? gender,
     String? errorMessage,
     bool? isLoading,
-    int? compatibilityScore,
-    String? compatibilitySummary,
+    @JsonKey(name: 'compatibility_score') int? compatibilityScore,
     Details? details,
     List<String>? tips,
     DateTime? createdAt,
@@ -92,7 +91,6 @@ class CompatibilityModel with _$CompatibilityModel {
 class LocalizedCompatibility with _$LocalizedCompatibility {
   const factory LocalizedCompatibility({
     required String language,
-    @JsonKey(name: 'compatibility_score') required int compatibilityScore,
     @JsonKey(name: 'compatibility_summary', defaultValue: '')
     required String compatibilitySummary,
     required Details details,

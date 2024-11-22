@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_info.dart';
+import 'package:picnic_app/components/community/compatibility/compatibility_result_card.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/navigation.dart';
+import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/pages/community/compatibility_result_page.dart';
 import 'package:picnic_app/providers/community/compatibility_provider.dart';
@@ -301,12 +303,20 @@ class _CompatibilityInputScreenState
         child: Column(
           children: [
             // 프로필 이미지와 이름
-            CompatibilityInfo(
+            CompatibilityResultCard(
+                compatibility: CompatibilityModel(
+              userId: supabase.auth.currentUser!.id,
               artist: widget.artist,
-              ref: ref,
-              birthDate: _birthDate,
-              birthTime: _birthTime,
-            ),
+              birthDate: widget.artist.birth_date!,
+              status: CompatibilityStatus.input,
+            ))
+            // CompatibilityInfo(
+            //   artist: widget.artist,
+            //   ref: ref,
+            //   birthDate: _birthDate,
+            //   birthTime: _birthTime,
+            // ),
+            ,
             const SizedBox(height: 8),
 
             // 성별 선택

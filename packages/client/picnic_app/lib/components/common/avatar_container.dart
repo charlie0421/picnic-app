@@ -5,21 +5,21 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/ui/style.dart';
 
-
-
 class ProfileImageContainer extends StatelessWidget {
   const ProfileImageContainer({
     super.key,
     required this.avatarUrl,
     required this.borderRadius,
-    required this.width, 
+    required this.width,
     required this.height,
+    this.border,
   });
 
   final String? avatarUrl;
   final double? borderRadius;
   final double? width;
   final double? height;
+  final Border? border;
 
   @override
   Widget build(BuildContext context) {
@@ -27,10 +27,24 @@ class ProfileImageContainer extends StatelessWidget {
       width: width,
       height: height,
       alignment: Alignment.center,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(borderRadius!),
-        child: _buildImage(),
-      ),
+      decoration: (borderRadius != null)
+          ? BoxDecoration(
+              color: AppColors.primary500,
+              borderRadius: BorderRadius.circular(borderRadius!),
+              border: border != null
+                  ? Border.all(
+                      color: AppColors.primary500,
+                      width: 1.5,
+                    )
+                  : null,
+            )
+          : null,
+      child: (borderRadius != null)
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(borderRadius!),
+              child: _buildImage(),
+            )
+          : _buildImage(),
     );
   }
 
