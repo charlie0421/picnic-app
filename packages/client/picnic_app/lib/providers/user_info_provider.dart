@@ -154,7 +154,7 @@ class UserInfo extends _$UserInfo {
     logger.i('Updating avatar URL to: $url');
     await supabase.from('user_profiles').update({
       'avatar_url': url,
-    });
+    }).eq('id', supabase.auth.currentUser!.id);
     state = AsyncValue.data(state.value!.copyWith(avatarUrl: url));
     logger.i('Avatar URL updated successfully');
   }
