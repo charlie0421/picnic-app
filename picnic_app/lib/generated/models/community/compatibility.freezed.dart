@@ -236,6 +236,8 @@ mixin _$CompatibilityModel {
   bool? get isLoading => throw _privateConstructorUsedError;
   @JsonKey(name: 'compatibility_score')
   int? get compatibilityScore => throw _privateConstructorUsedError;
+  @JsonKey(name: 'compatibility_summary')
+  String? get compatibilitySummary => throw _privateConstructorUsedError;
   Details? get details => throw _privateConstructorUsedError;
   List<String>? get tips => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
@@ -271,6 +273,7 @@ abstract class $CompatibilityModelCopyWith<$Res> {
       String? errorMessage,
       bool? isLoading,
       @JsonKey(name: 'compatibility_score') int? compatibilityScore,
+      @JsonKey(name: 'compatibility_summary') String? compatibilitySummary,
       Details? details,
       List<String>? tips,
       DateTime? createdAt,
@@ -307,6 +310,7 @@ class _$CompatibilityModelCopyWithImpl<$Res, $Val extends CompatibilityModel>
     Object? errorMessage = freezed,
     Object? isLoading = freezed,
     Object? compatibilityScore = freezed,
+    Object? compatibilitySummary = freezed,
     Object? details = freezed,
     Object? tips = freezed,
     Object? createdAt = freezed,
@@ -354,6 +358,10 @@ class _$CompatibilityModelCopyWithImpl<$Res, $Val extends CompatibilityModel>
           ? _value.compatibilityScore
           : compatibilityScore // ignore: cast_nullable_to_non_nullable
               as int?,
+      compatibilitySummary: freezed == compatibilitySummary
+          ? _value.compatibilitySummary
+          : compatibilitySummary // ignore: cast_nullable_to_non_nullable
+              as String?,
       details: freezed == details
           ? _value.details
           : details // ignore: cast_nullable_to_non_nullable
@@ -421,6 +429,7 @@ abstract class _$$CompatibilityModelImplCopyWith<$Res>
       String? errorMessage,
       bool? isLoading,
       @JsonKey(name: 'compatibility_score') int? compatibilityScore,
+      @JsonKey(name: 'compatibility_summary') String? compatibilitySummary,
       Details? details,
       List<String>? tips,
       DateTime? createdAt,
@@ -457,6 +466,7 @@ class __$$CompatibilityModelImplCopyWithImpl<$Res>
     Object? errorMessage = freezed,
     Object? isLoading = freezed,
     Object? compatibilityScore = freezed,
+    Object? compatibilitySummary = freezed,
     Object? details = freezed,
     Object? tips = freezed,
     Object? createdAt = freezed,
@@ -504,6 +514,10 @@ class __$$CompatibilityModelImplCopyWithImpl<$Res>
           ? _value.compatibilityScore
           : compatibilityScore // ignore: cast_nullable_to_non_nullable
               as int?,
+      compatibilitySummary: freezed == compatibilitySummary
+          ? _value.compatibilitySummary
+          : compatibilitySummary // ignore: cast_nullable_to_non_nullable
+              as String?,
       details: freezed == details
           ? _value.details
           : details // ignore: cast_nullable_to_non_nullable
@@ -542,6 +556,7 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
       this.errorMessage,
       this.isLoading,
       @JsonKey(name: 'compatibility_score') this.compatibilityScore,
+      @JsonKey(name: 'compatibility_summary') this.compatibilitySummary,
       this.details,
       final List<String>? tips,
       this.createdAt,
@@ -581,6 +596,9 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
   @JsonKey(name: 'compatibility_score')
   final int? compatibilityScore;
   @override
+  @JsonKey(name: 'compatibility_summary')
+  final String? compatibilitySummary;
+  @override
   final Details? details;
   final List<String>? _tips;
   @override
@@ -609,7 +627,7 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
 
   @override
   String toString() {
-    return 'CompatibilityModel(id: $id, userId: $userId, artist: $artist, birthDate: $birthDate, birthTime: $birthTime, status: $status, gender: $gender, errorMessage: $errorMessage, isLoading: $isLoading, compatibilityScore: $compatibilityScore, details: $details, tips: $tips, createdAt: $createdAt, completedAt: $completedAt, localizedResults: $localizedResults)';
+    return 'CompatibilityModel(id: $id, userId: $userId, artist: $artist, birthDate: $birthDate, birthTime: $birthTime, status: $status, gender: $gender, errorMessage: $errorMessage, isLoading: $isLoading, compatibilityScore: $compatibilityScore, compatibilitySummary: $compatibilitySummary, details: $details, tips: $tips, createdAt: $createdAt, completedAt: $completedAt, localizedResults: $localizedResults)';
   }
 
   @override
@@ -632,6 +650,8 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
                 other.isLoading == isLoading) &&
             (identical(other.compatibilityScore, compatibilityScore) ||
                 other.compatibilityScore == compatibilityScore) &&
+            (identical(other.compatibilitySummary, compatibilitySummary) ||
+                other.compatibilitySummary == compatibilitySummary) &&
             (identical(other.details, details) || other.details == details) &&
             const DeepCollectionEquality().equals(other._tips, _tips) &&
             (identical(other.createdAt, createdAt) ||
@@ -656,6 +676,7 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
       errorMessage,
       isLoading,
       compatibilityScore,
+      compatibilitySummary,
       details,
       const DeepCollectionEquality().hash(_tips),
       createdAt,
@@ -691,6 +712,8 @@ abstract class _CompatibilityModel extends CompatibilityModel {
           final String? errorMessage,
           final bool? isLoading,
           @JsonKey(name: 'compatibility_score') final int? compatibilityScore,
+          @JsonKey(name: 'compatibility_summary')
+          final String? compatibilitySummary,
           final Details? details,
           final List<String>? tips,
           final DateTime? createdAt,
@@ -727,6 +750,9 @@ abstract class _CompatibilityModel extends CompatibilityModel {
   @JsonKey(name: 'compatibility_score')
   int? get compatibilityScore;
   @override
+  @JsonKey(name: 'compatibility_summary')
+  String? get compatibilitySummary;
+  @override
   Details? get details;
   @override
   List<String>? get tips;
@@ -754,9 +780,10 @@ LocalizedCompatibility _$LocalizedCompatibilityFromJson(
 /// @nodoc
 mixin _$LocalizedCompatibility {
   String get language => throw _privateConstructorUsedError;
-  @JsonKey(name: 'compatibility_summary', defaultValue: '')
+  @JsonKey(name: 'compatibility_summary')
   String get compatibilitySummary => throw _privateConstructorUsedError;
-  Details get details => throw _privateConstructorUsedError;
+  @JsonKey(name: 'details')
+  Details? get details => throw _privateConstructorUsedError;
   List<String> get tips => throw _privateConstructorUsedError;
 
   /// Serializes this LocalizedCompatibility to a JSON map.
@@ -777,12 +804,11 @@ abstract class $LocalizedCompatibilityCopyWith<$Res> {
   @useResult
   $Res call(
       {String language,
-      @JsonKey(name: 'compatibility_summary', defaultValue: '')
-      String compatibilitySummary,
-      Details details,
+      @JsonKey(name: 'compatibility_summary') String compatibilitySummary,
+      @JsonKey(name: 'details') Details? details,
       List<String> tips});
 
-  $DetailsCopyWith<$Res> get details;
+  $DetailsCopyWith<$Res>? get details;
 }
 
 /// @nodoc
@@ -803,7 +829,7 @@ class _$LocalizedCompatibilityCopyWithImpl<$Res,
   $Res call({
     Object? language = null,
     Object? compatibilitySummary = null,
-    Object? details = null,
+    Object? details = freezed,
     Object? tips = null,
   }) {
     return _then(_value.copyWith(
@@ -815,10 +841,10 @@ class _$LocalizedCompatibilityCopyWithImpl<$Res,
           ? _value.compatibilitySummary
           : compatibilitySummary // ignore: cast_nullable_to_non_nullable
               as String,
-      details: null == details
+      details: freezed == details
           ? _value.details
           : details // ignore: cast_nullable_to_non_nullable
-              as Details,
+              as Details?,
       tips: null == tips
           ? _value.tips
           : tips // ignore: cast_nullable_to_non_nullable
@@ -830,8 +856,12 @@ class _$LocalizedCompatibilityCopyWithImpl<$Res,
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $DetailsCopyWith<$Res> get details {
-    return $DetailsCopyWith<$Res>(_value.details, (value) {
+  $DetailsCopyWith<$Res>? get details {
+    if (_value.details == null) {
+      return null;
+    }
+
+    return $DetailsCopyWith<$Res>(_value.details!, (value) {
       return _then(_value.copyWith(details: value) as $Val);
     });
   }
@@ -848,13 +878,12 @@ abstract class _$$LocalizedCompatibilityImplCopyWith<$Res>
   @useResult
   $Res call(
       {String language,
-      @JsonKey(name: 'compatibility_summary', defaultValue: '')
-      String compatibilitySummary,
-      Details details,
+      @JsonKey(name: 'compatibility_summary') String compatibilitySummary,
+      @JsonKey(name: 'details') Details? details,
       List<String> tips});
 
   @override
-  $DetailsCopyWith<$Res> get details;
+  $DetailsCopyWith<$Res>? get details;
 }
 
 /// @nodoc
@@ -874,7 +903,7 @@ class __$$LocalizedCompatibilityImplCopyWithImpl<$Res>
   $Res call({
     Object? language = null,
     Object? compatibilitySummary = null,
-    Object? details = null,
+    Object? details = freezed,
     Object? tips = null,
   }) {
     return _then(_$LocalizedCompatibilityImpl(
@@ -886,10 +915,10 @@ class __$$LocalizedCompatibilityImplCopyWithImpl<$Res>
           ? _value.compatibilitySummary
           : compatibilitySummary // ignore: cast_nullable_to_non_nullable
               as String,
-      details: null == details
+      details: freezed == details
           ? _value.details
           : details // ignore: cast_nullable_to_non_nullable
-              as Details,
+              as Details?,
       tips: null == tips
           ? _value._tips
           : tips // ignore: cast_nullable_to_non_nullable
@@ -903,9 +932,9 @@ class __$$LocalizedCompatibilityImplCopyWithImpl<$Res>
 class _$LocalizedCompatibilityImpl implements _LocalizedCompatibility {
   const _$LocalizedCompatibilityImpl(
       {required this.language,
-      @JsonKey(name: 'compatibility_summary', defaultValue: '')
+      @JsonKey(name: 'compatibility_summary')
       required this.compatibilitySummary,
-      required this.details,
+      @JsonKey(name: 'details') this.details,
       final List<String> tips = const []})
       : _tips = tips;
 
@@ -915,10 +944,11 @@ class _$LocalizedCompatibilityImpl implements _LocalizedCompatibility {
   @override
   final String language;
   @override
-  @JsonKey(name: 'compatibility_summary', defaultValue: '')
+  @JsonKey(name: 'compatibility_summary')
   final String compatibilitySummary;
   @override
-  final Details details;
+  @JsonKey(name: 'details')
+  final Details? details;
   final List<String> _tips;
   @override
   @JsonKey()
@@ -971,9 +1001,9 @@ class _$LocalizedCompatibilityImpl implements _LocalizedCompatibility {
 abstract class _LocalizedCompatibility implements LocalizedCompatibility {
   const factory _LocalizedCompatibility(
       {required final String language,
-      @JsonKey(name: 'compatibility_summary', defaultValue: '')
+      @JsonKey(name: 'compatibility_summary')
       required final String compatibilitySummary,
-      required final Details details,
+      @JsonKey(name: 'details') final Details? details,
       final List<String> tips}) = _$LocalizedCompatibilityImpl;
 
   factory _LocalizedCompatibility.fromJson(Map<String, dynamic> json) =
@@ -982,10 +1012,11 @@ abstract class _LocalizedCompatibility implements LocalizedCompatibility {
   @override
   String get language;
   @override
-  @JsonKey(name: 'compatibility_summary', defaultValue: '')
+  @JsonKey(name: 'compatibility_summary')
   String get compatibilitySummary;
   @override
-  Details get details;
+  @JsonKey(name: 'details')
+  Details? get details;
   @override
   List<String> get tips;
 
