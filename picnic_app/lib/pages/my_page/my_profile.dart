@@ -135,7 +135,6 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     final userId = supabase.auth.currentUser?.id;
 
-    logger.d('image: $image');
     if (image != null) {
       // 이미지 크롭
       final croppedFile = await ImageCropper().cropImage(
@@ -152,7 +151,6 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         ],
       );
 
-      logger.d('croppedFile: $croppedFile');
       if (croppedFile != null) {
         try {
           OverlayLoadingProgress.start(context);
@@ -161,8 +159,6 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
           // 파일 이름 생성
           final String fileName =
               '$userId/avatar_${DateTime.now().millisecondsSinceEpoch}${path.extension(croppedFile.path)}';
-
-          logger.d('fileName: $fileName');
 
           // Supabase Storage에 이미지 업로드
           final storageResponse =
@@ -174,8 +170,6 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                       upsert: true,
                     ),
                   );
-
-          logger.d('storageResponse: $storageResponse');
 
           if (storageResponse.isNotEmpty) {
             // 업로드된 이미지의 공개 URL 가져오기
