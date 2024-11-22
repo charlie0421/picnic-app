@@ -59,6 +59,8 @@ _$CompatibilityModelImpl _$$CompatibilityModelImplFromJson(
           isLoading: $checkedConvert('is_loading', (v) => v as bool?),
           compatibilityScore: $checkedConvert(
               'compatibility_score', (v) => (v as num?)?.toInt()),
+          compatibilitySummary:
+              $checkedConvert('compatibility_summary', (v) => v as String?),
           details: $checkedConvert(
               'details',
               (v) => v == null
@@ -82,6 +84,7 @@ _$CompatibilityModelImpl _$$CompatibilityModelImplFromJson(
         'errorMessage': 'error_message',
         'isLoading': 'is_loading',
         'compatibilityScore': 'compatibility_score',
+        'compatibilitySummary': 'compatibility_summary',
         'createdAt': 'created_at',
         'completedAt': 'completed_at',
         'localizedResults': 'i18n'
@@ -101,6 +104,7 @@ Map<String, dynamic> _$$CompatibilityModelImplToJson(
       'error_message': instance.errorMessage,
       'is_loading': instance.isLoading,
       'compatibility_score': instance.compatibilityScore,
+      'compatibility_summary': instance.compatibilitySummary,
       'details': instance.details?.toJson(),
       'tips': instance.tips,
       'created_at': instance.createdAt?.toIso8601String(),
@@ -123,10 +127,13 @@ _$LocalizedCompatibilityImpl _$$LocalizedCompatibilityImplFromJson(
       ($checkedConvert) {
         final val = _$LocalizedCompatibilityImpl(
           language: $checkedConvert('language', (v) => v as String),
-          compatibilitySummary: $checkedConvert(
-              'compatibility_summary', (v) => v as String? ?? ''),
+          compatibilitySummary:
+              $checkedConvert('compatibility_summary', (v) => v as String),
           details: $checkedConvert(
-              'details', (v) => Details.fromJson(v as Map<String, dynamic>)),
+              'details',
+              (v) => v == null
+                  ? null
+                  : Details.fromJson(v as Map<String, dynamic>)),
           tips: $checkedConvert(
               'tips',
               (v) =>
@@ -143,7 +150,7 @@ Map<String, dynamic> _$$LocalizedCompatibilityImplToJson(
     <String, dynamic>{
       'language': instance.language,
       'compatibility_summary': instance.compatibilitySummary,
-      'details': instance.details.toJson(),
+      'details': instance.details?.toJson(),
       'tips': instance.tips,
     };
 

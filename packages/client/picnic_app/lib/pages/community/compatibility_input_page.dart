@@ -285,8 +285,8 @@ class _CompatibilityInputScreenState
               ),
             );
       }
-    } catch (e) {
-      logger.e('Error in submit', error: e);
+    } catch (e, s) {
+      logger.e('Error in submit', error: e, stackTrace: s);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('오류가 발생했습니다: $e')),

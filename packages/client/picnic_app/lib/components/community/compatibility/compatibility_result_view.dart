@@ -17,13 +17,30 @@ class CompatibilityResultView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localizedResult = compatibility.getLocalizedResult(language);
+    // 한국어인 경우 메인 테이블의 데이터 사용
+    final localizedResult = language == 'ko'
+        ? LocalizedCompatibility(
+            language: 'ko',
+            compatibilitySummary: compatibility.compatibilitySummary ?? '',
+            details: compatibility.details ??
+                Details(
+                    style: StyleDetails(
+                        idolStyle: '', userStyle: '', coupleStyle: ''),
+                    activities:
+                        ActivitiesDetails(recommended: [], description: '')),
+            tips: compatibility.tips ?? [])
+        : compatibility.getLocalizedResult(language);
 
     if (localizedResult == null) {
       return Container(
           margin: const EdgeInsets.only(top: 24),
           child: ErrorView(context,
-              error: "localizedResult == null",
+              error: '''
+Localized result not found
+Language: $language
+Available results: ${compatibility.localizedResults?.keys.join(', ')}
+Raw data: ${compatibility.localizedResults}
+            ''',
               stackTrace: StackTrace.current));
     }
 

@@ -12,29 +12,51 @@ Map<String, LocalizedCompatibility>? _parseI18nResults(dynamic i18nData) {
   if (i18nData == null) return null;
 
   try {
-    final List i18nList = i18nData as List;
-    if (i18nList.isEmpty) return null;
+    // 디버그 로깅 추가
+    logger.d('Processing i18n data: $i18nData');
+    logger.d('i18n data type: ${i18nData.runtimeType}');
 
     final Map<String, LocalizedCompatibility> results = {};
 
-    for (final item in i18nList) {
-      if (item is! Map<String, dynamic>) continue;
+    // 맵으로 직접 처리하는 경우
+    if (i18nData is Map) {
+      i18nData.forEach((key, value) {
+        if (value is Map<String, dynamic>) {
+          try {
+            final localizedResult = LocalizedCompatibility.fromJson(value);
+            results[key] = localizedResult;
+          } catch (e, s) {
+            logger.d('Error parsing localized result for $key: $e',
+                stackTrace: s);
+          }
+        }
+      });
+    }
+    // 리스트로 처리하는 경우
+    else if (i18nData is List) {
+      for (final item in i18nData) {
+        if (item is! Map<String, dynamic>) continue;
 
-      final language = item['language'] as String?;
-      if (language == null) continue;
+        final language = item['language'] as String?;
+        if (language == null) continue;
 
-      try {
-        final localizedResult = LocalizedCompatibility.fromJson(item);
-        results[language] = localizedResult;
-      } catch (e) {
-        logger.d('Error parsing localized result for $language: $e');
-        continue;
+        try {
+          logger.d('Processing language: $language with data: $item');
+          final localizedResult = LocalizedCompatibility.fromJson(item);
+          results[language] = localizedResult;
+        } catch (e, s) {
+          logger.d(
+              'Error parsing localized result for $language: $e\nData: $item',
+              stackTrace: s);
+          continue;
+        }
       }
     }
 
+    logger.d('Parsed results: $results');
     return results.isEmpty ? null : results;
-  } catch (e) {
-    logger.d('Error parsing i18n results: $e');
+  } catch (e, s) {
+    logger.d('Error parsing i18n results: $e', stackTrace: s);
     return null;
   }
 }
@@ -66,6 +88,7 @@ class CompatibilityModel with _$CompatibilityModel {
     String? errorMessage,
     bool? isLoading,
     @JsonKey(name: 'compatibility_score') int? compatibilityScore,
+    @JsonKey(name: 'compatibility_summary') String? compatibilitySummary,
     Details? details,
     List<String>? tips,
     DateTime? createdAt,
@@ -91,14 +114,25 @@ class CompatibilityModel with _$CompatibilityModel {
 class LocalizedCompatibility with _$LocalizedCompatibility {
   const factory LocalizedCompatibility({
     required String language,
-    @JsonKey(name: 'compatibility_summary', defaultValue: '')
+    @JsonKey(name: 'compatibility_summary')
     required String compatibilitySummary,
-    required Details details,
+    @JsonKey(name: 'details') Details? details,
     @Default([]) List<String> tips,
   }) = _LocalizedCompatibility;
 
   factory LocalizedCompatibility.fromJson(Map<String, dynamic> json) =>
       _$LocalizedCompatibilityFromJson(json);
+}
+
+extension LocalizedCompatibilityX on LocalizedCompatibility {
+  Details? get details {
+    try {
+      return Details.fromJson(details as Map<String, dynamic>);
+    } catch (e, s) {
+      logger.d('Error parsing details: $e', stackTrace: s);
+      return null;
+    }
+  }
 }
 
 @freezed

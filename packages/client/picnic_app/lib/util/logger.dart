@@ -14,13 +14,68 @@ class LongMessagePrinter extends PrettyPrinter {
 
   String _getCallerInfo() {
     final frames = Trace.current().frames;
-    // Skip frames related to logging infrastructure
     const skipFrames = 4;
     if (frames.length > skipFrames) {
       final frame = frames[skipFrames];
       return '${frame.uri}:${frame.line}';
     }
     return '';
+  }
+
+  String _extractErrorDetails(dynamic error) {
+    final details = <String>[];
+    final errorString = error.toString();
+
+    details.add('Error Details:');
+    details.add('  • Type: ${error.runtimeType}');
+    details.add('  • Message: $errorString');
+
+    // Postgres 관련 에러 정보 추출
+    final patterns = {
+      'code': r'code[\":\s]+([^,}\s]+)',
+      'details': r'detail[s]?[\":\s]+([^,}\s]+[^,}]*)',
+      'hint': r'hint[\":\s]+([^,}\s]+[^,}]*)',
+      'table': r'table[\":\s]+([^,}\s]+)',
+      'column': r'column[\":\s]+([^,}\s]+)',
+      'constraint': r'constraint[\":\s]+([^,}\s]+)',
+      'severity': r'severity[\":\s]+([^,}\s]+)',
+    };
+
+    patterns.forEach((key, pattern) {
+      try {
+        final match =
+            RegExp(pattern, caseSensitive: false).firstMatch(errorString);
+        if (match != null) {
+          String? value = match.group(1);
+          value = value?.replaceAll('"', '');
+          value = value?.replaceAll("'", '');
+          if (value != null && value.isNotEmpty) {
+            details.add(
+                '  • ${key.substring(0, 1).toUpperCase()}${key.substring(1)}: $value');
+          }
+        }
+      } catch (_) {}
+    });
+
+    // JSON 형태의 데이터가 있는지 확인
+    try {
+      final jsonMatch = RegExp(r'\{[^}]+\}').firstMatch(errorString);
+      if (jsonMatch != null) {
+        final jsonStr = jsonMatch.group(0);
+        if (jsonStr != null) {
+          final Map<String, dynamic> jsonData = json.decode(jsonStr);
+          jsonData.forEach((key, value) {
+            if (!details.any(
+                (detail) => detail.toLowerCase().contains(key.toLowerCase()))) {
+              details.add(
+                  '  • ${key.substring(0, 1).toUpperCase()}${key.substring(1)}: $value');
+            }
+          });
+        }
+      }
+    } catch (_) {}
+
+    return details.join('\n');
   }
 
   @override
@@ -57,8 +112,9 @@ class LongMessagePrinter extends PrettyPrinter {
     if (event.error != null) {
       messages.add('│');
       messages.add('│ 🚫 Error:');
-      messages.addAll(
-          event.error.toString().split('\n').map((line) => '│   $line'));
+      messages.addAll(_extractErrorDetails(event.error)
+          .split('\n')
+          .map((line) => '│   $line'));
     }
 
     if (event.stackTrace != null) {
