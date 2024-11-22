@@ -240,6 +240,9 @@ mixin _$CompatibilityModel {
   List<String>? get tips => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
   DateTime? get completedAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'i18n', fromJson: _parseI18nResults)
+  Map<String, LocalizedCompatibility>? get localizedResults =>
+      throw _privateConstructorUsedError;
 
   /// Serializes this CompatibilityModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -272,7 +275,9 @@ abstract class $CompatibilityModelCopyWith<$Res> {
       Details? details,
       List<String>? tips,
       DateTime? createdAt,
-      DateTime? completedAt});
+      DateTime? completedAt,
+      @JsonKey(name: 'i18n', fromJson: _parseI18nResults)
+      Map<String, LocalizedCompatibility>? localizedResults});
 
   $ArtistModelCopyWith<$Res> get artist;
   $DetailsCopyWith<$Res>? get details;
@@ -308,6 +313,7 @@ class _$CompatibilityModelCopyWithImpl<$Res, $Val extends CompatibilityModel>
     Object? tips = freezed,
     Object? createdAt = freezed,
     Object? completedAt = freezed,
+    Object? localizedResults = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -370,6 +376,10 @@ class _$CompatibilityModelCopyWithImpl<$Res, $Val extends CompatibilityModel>
           ? _value.completedAt
           : completedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      localizedResults: freezed == localizedResults
+          ? _value.localizedResults
+          : localizedResults // ignore: cast_nullable_to_non_nullable
+              as Map<String, LocalizedCompatibility>?,
     ) as $Val);
   }
 
@@ -421,7 +431,9 @@ abstract class _$$CompatibilityModelImplCopyWith<$Res>
       Details? details,
       List<String>? tips,
       DateTime? createdAt,
-      DateTime? completedAt});
+      DateTime? completedAt,
+      @JsonKey(name: 'i18n', fromJson: _parseI18nResults)
+      Map<String, LocalizedCompatibility>? localizedResults});
 
   @override
   $ArtistModelCopyWith<$Res> get artist;
@@ -457,6 +469,7 @@ class __$$CompatibilityModelImplCopyWithImpl<$Res>
     Object? tips = freezed,
     Object? createdAt = freezed,
     Object? completedAt = freezed,
+    Object? localizedResults = freezed,
   }) {
     return _then(_$CompatibilityModelImpl(
       id: null == id
@@ -519,6 +532,10 @@ class __$$CompatibilityModelImplCopyWithImpl<$Res>
           ? _value.completedAt
           : completedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      localizedResults: freezed == localizedResults
+          ? _value._localizedResults
+          : localizedResults // ignore: cast_nullable_to_non_nullable
+              as Map<String, LocalizedCompatibility>?,
     ));
   }
 }
@@ -541,8 +558,11 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
       this.details,
       final List<String>? tips,
       this.createdAt,
-      this.completedAt})
+      this.completedAt,
+      @JsonKey(name: 'i18n', fromJson: _parseI18nResults)
+      final Map<String, LocalizedCompatibility>? localizedResults})
       : _tips = tips,
+        _localizedResults = localizedResults,
         super._();
 
   factory _$CompatibilityModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -590,10 +610,20 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
   final DateTime? createdAt;
   @override
   final DateTime? completedAt;
+  final Map<String, LocalizedCompatibility>? _localizedResults;
+  @override
+  @JsonKey(name: 'i18n', fromJson: _parseI18nResults)
+  Map<String, LocalizedCompatibility>? get localizedResults {
+    final value = _localizedResults;
+    if (value == null) return null;
+    if (_localizedResults is EqualUnmodifiableMapView) return _localizedResults;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(value);
+  }
 
   @override
   String toString() {
-    return 'CompatibilityModel(id: $id, userId: $userId, artist: $artist, birthDate: $birthDate, birthTime: $birthTime, status: $status, gender: $gender, errorMessage: $errorMessage, isLoading: $isLoading, compatibilityScore: $compatibilityScore, compatibilitySummary: $compatibilitySummary, details: $details, tips: $tips, createdAt: $createdAt, completedAt: $completedAt)';
+    return 'CompatibilityModel(id: $id, userId: $userId, artist: $artist, birthDate: $birthDate, birthTime: $birthTime, status: $status, gender: $gender, errorMessage: $errorMessage, isLoading: $isLoading, compatibilityScore: $compatibilityScore, compatibilitySummary: $compatibilitySummary, details: $details, tips: $tips, createdAt: $createdAt, completedAt: $completedAt, localizedResults: $localizedResults)';
   }
 
   @override
@@ -623,7 +653,9 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.completedAt, completedAt) ||
-                other.completedAt == completedAt));
+                other.completedAt == completedAt) &&
+            const DeepCollectionEquality()
+                .equals(other._localizedResults, _localizedResults));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -644,7 +676,8 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
       details,
       const DeepCollectionEquality().hash(_tips),
       createdAt,
-      completedAt);
+      completedAt,
+      const DeepCollectionEquality().hash(_localizedResults));
 
   /// Create a copy of CompatibilityModel
   /// with the given fields replaced by the non-null parameter values.
@@ -665,21 +698,24 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
 
 abstract class _CompatibilityModel extends CompatibilityModel {
   const factory _CompatibilityModel(
-      {final String id,
-      required final String userId,
-      required final ArtistModel artist,
-      @JsonKey(name: 'user_birth_date') required final DateTime birthDate,
-      @JsonKey(name: 'user_birth_time') final String? birthTime,
-      final CompatibilityStatus status,
-      final String? gender,
-      final String? errorMessage,
-      final bool? isLoading,
-      final int? compatibilityScore,
-      final String? compatibilitySummary,
-      final Details? details,
-      final List<String>? tips,
-      final DateTime? createdAt,
-      final DateTime? completedAt}) = _$CompatibilityModelImpl;
+          {final String id,
+          required final String userId,
+          required final ArtistModel artist,
+          @JsonKey(name: 'user_birth_date') required final DateTime birthDate,
+          @JsonKey(name: 'user_birth_time') final String? birthTime,
+          final CompatibilityStatus status,
+          final String? gender,
+          final String? errorMessage,
+          final bool? isLoading,
+          final int? compatibilityScore,
+          final String? compatibilitySummary,
+          final Details? details,
+          final List<String>? tips,
+          final DateTime? createdAt,
+          final DateTime? completedAt,
+          @JsonKey(name: 'i18n', fromJson: _parseI18nResults)
+          final Map<String, LocalizedCompatibility>? localizedResults}) =
+      _$CompatibilityModelImpl;
   const _CompatibilityModel._() : super._();
 
   factory _CompatibilityModel.fromJson(Map<String, dynamic> json) =
@@ -717,6 +753,9 @@ abstract class _CompatibilityModel extends CompatibilityModel {
   DateTime? get createdAt;
   @override
   DateTime? get completedAt;
+  @override
+  @JsonKey(name: 'i18n', fromJson: _parseI18nResults)
+  Map<String, LocalizedCompatibility>? get localizedResults;
 
   /// Create a copy of CompatibilityModel
   /// with the given fields replaced by the non-null parameter values.
@@ -724,6 +763,287 @@ abstract class _CompatibilityModel extends CompatibilityModel {
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$CompatibilityModelImplCopyWith<_$CompatibilityModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
+}
+
+LocalizedCompatibility _$LocalizedCompatibilityFromJson(
+    Map<String, dynamic> json) {
+  return _LocalizedCompatibility.fromJson(json);
+}
+
+/// @nodoc
+mixin _$LocalizedCompatibility {
+  String get language => throw _privateConstructorUsedError;
+  @JsonKey(name: 'compatibility_score')
+  int get compatibilityScore => throw _privateConstructorUsedError;
+  @JsonKey(name: 'compatibility_summary', defaultValue: '')
+  String get compatibilitySummary => throw _privateConstructorUsedError;
+  Details get details => throw _privateConstructorUsedError;
+  List<String> get tips => throw _privateConstructorUsedError;
+
+  /// Serializes this LocalizedCompatibility to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of LocalizedCompatibility
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $LocalizedCompatibilityCopyWith<LocalizedCompatibility> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $LocalizedCompatibilityCopyWith<$Res> {
+  factory $LocalizedCompatibilityCopyWith(LocalizedCompatibility value,
+          $Res Function(LocalizedCompatibility) then) =
+      _$LocalizedCompatibilityCopyWithImpl<$Res, LocalizedCompatibility>;
+  @useResult
+  $Res call(
+      {String language,
+      @JsonKey(name: 'compatibility_score') int compatibilityScore,
+      @JsonKey(name: 'compatibility_summary', defaultValue: '')
+      String compatibilitySummary,
+      Details details,
+      List<String> tips});
+
+  $DetailsCopyWith<$Res> get details;
+}
+
+/// @nodoc
+class _$LocalizedCompatibilityCopyWithImpl<$Res,
+        $Val extends LocalizedCompatibility>
+    implements $LocalizedCompatibilityCopyWith<$Res> {
+  _$LocalizedCompatibilityCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of LocalizedCompatibility
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? language = null,
+    Object? compatibilityScore = null,
+    Object? compatibilitySummary = null,
+    Object? details = null,
+    Object? tips = null,
+  }) {
+    return _then(_value.copyWith(
+      language: null == language
+          ? _value.language
+          : language // ignore: cast_nullable_to_non_nullable
+              as String,
+      compatibilityScore: null == compatibilityScore
+          ? _value.compatibilityScore
+          : compatibilityScore // ignore: cast_nullable_to_non_nullable
+              as int,
+      compatibilitySummary: null == compatibilitySummary
+          ? _value.compatibilitySummary
+          : compatibilitySummary // ignore: cast_nullable_to_non_nullable
+              as String,
+      details: null == details
+          ? _value.details
+          : details // ignore: cast_nullable_to_non_nullable
+              as Details,
+      tips: null == tips
+          ? _value.tips
+          : tips // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+    ) as $Val);
+  }
+
+  /// Create a copy of LocalizedCompatibility
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $DetailsCopyWith<$Res> get details {
+    return $DetailsCopyWith<$Res>(_value.details, (value) {
+      return _then(_value.copyWith(details: value) as $Val);
+    });
+  }
+}
+
+/// @nodoc
+abstract class _$$LocalizedCompatibilityImplCopyWith<$Res>
+    implements $LocalizedCompatibilityCopyWith<$Res> {
+  factory _$$LocalizedCompatibilityImplCopyWith(
+          _$LocalizedCompatibilityImpl value,
+          $Res Function(_$LocalizedCompatibilityImpl) then) =
+      __$$LocalizedCompatibilityImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {String language,
+      @JsonKey(name: 'compatibility_score') int compatibilityScore,
+      @JsonKey(name: 'compatibility_summary', defaultValue: '')
+      String compatibilitySummary,
+      Details details,
+      List<String> tips});
+
+  @override
+  $DetailsCopyWith<$Res> get details;
+}
+
+/// @nodoc
+class __$$LocalizedCompatibilityImplCopyWithImpl<$Res>
+    extends _$LocalizedCompatibilityCopyWithImpl<$Res,
+        _$LocalizedCompatibilityImpl>
+    implements _$$LocalizedCompatibilityImplCopyWith<$Res> {
+  __$$LocalizedCompatibilityImplCopyWithImpl(
+      _$LocalizedCompatibilityImpl _value,
+      $Res Function(_$LocalizedCompatibilityImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of LocalizedCompatibility
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? language = null,
+    Object? compatibilityScore = null,
+    Object? compatibilitySummary = null,
+    Object? details = null,
+    Object? tips = null,
+  }) {
+    return _then(_$LocalizedCompatibilityImpl(
+      language: null == language
+          ? _value.language
+          : language // ignore: cast_nullable_to_non_nullable
+              as String,
+      compatibilityScore: null == compatibilityScore
+          ? _value.compatibilityScore
+          : compatibilityScore // ignore: cast_nullable_to_non_nullable
+              as int,
+      compatibilitySummary: null == compatibilitySummary
+          ? _value.compatibilitySummary
+          : compatibilitySummary // ignore: cast_nullable_to_non_nullable
+              as String,
+      details: null == details
+          ? _value.details
+          : details // ignore: cast_nullable_to_non_nullable
+              as Details,
+      tips: null == tips
+          ? _value._tips
+          : tips // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$LocalizedCompatibilityImpl implements _LocalizedCompatibility {
+  const _$LocalizedCompatibilityImpl(
+      {required this.language,
+      @JsonKey(name: 'compatibility_score') required this.compatibilityScore,
+      @JsonKey(name: 'compatibility_summary', defaultValue: '')
+      required this.compatibilitySummary,
+      required this.details,
+      final List<String> tips = const []})
+      : _tips = tips;
+
+  factory _$LocalizedCompatibilityImpl.fromJson(Map<String, dynamic> json) =>
+      _$$LocalizedCompatibilityImplFromJson(json);
+
+  @override
+  final String language;
+  @override
+  @JsonKey(name: 'compatibility_score')
+  final int compatibilityScore;
+  @override
+  @JsonKey(name: 'compatibility_summary', defaultValue: '')
+  final String compatibilitySummary;
+  @override
+  final Details details;
+  final List<String> _tips;
+  @override
+  @JsonKey()
+  List<String> get tips {
+    if (_tips is EqualUnmodifiableListView) return _tips;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_tips);
+  }
+
+  @override
+  String toString() {
+    return 'LocalizedCompatibility(language: $language, compatibilityScore: $compatibilityScore, compatibilitySummary: $compatibilitySummary, details: $details, tips: $tips)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$LocalizedCompatibilityImpl &&
+            (identical(other.language, language) ||
+                other.language == language) &&
+            (identical(other.compatibilityScore, compatibilityScore) ||
+                other.compatibilityScore == compatibilityScore) &&
+            (identical(other.compatibilitySummary, compatibilitySummary) ||
+                other.compatibilitySummary == compatibilitySummary) &&
+            (identical(other.details, details) || other.details == details) &&
+            const DeepCollectionEquality().equals(other._tips, _tips));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      language,
+      compatibilityScore,
+      compatibilitySummary,
+      details,
+      const DeepCollectionEquality().hash(_tips));
+
+  /// Create a copy of LocalizedCompatibility
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$LocalizedCompatibilityImplCopyWith<_$LocalizedCompatibilityImpl>
+      get copyWith => __$$LocalizedCompatibilityImplCopyWithImpl<
+          _$LocalizedCompatibilityImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$LocalizedCompatibilityImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _LocalizedCompatibility implements LocalizedCompatibility {
+  const factory _LocalizedCompatibility(
+      {required final String language,
+      @JsonKey(name: 'compatibility_score')
+      required final int compatibilityScore,
+      @JsonKey(name: 'compatibility_summary', defaultValue: '')
+      required final String compatibilitySummary,
+      required final Details details,
+      final List<String> tips}) = _$LocalizedCompatibilityImpl;
+
+  factory _LocalizedCompatibility.fromJson(Map<String, dynamic> json) =
+      _$LocalizedCompatibilityImpl.fromJson;
+
+  @override
+  String get language;
+  @override
+  @JsonKey(name: 'compatibility_score')
+  int get compatibilityScore;
+  @override
+  @JsonKey(name: 'compatibility_summary', defaultValue: '')
+  String get compatibilitySummary;
+  @override
+  Details get details;
+  @override
+  List<String> get tips;
+
+  /// Create a copy of LocalizedCompatibility
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$LocalizedCompatibilityImplCopyWith<_$LocalizedCompatibilityImpl>
+      get copyWith => throw _privateConstructorUsedError;
 }
 
 Details _$DetailsFromJson(Map<String, dynamic> json) {
@@ -924,9 +1244,12 @@ StyleDetails _$StyleDetailsFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$StyleDetails {
-  String get idol_style => throw _privateConstructorUsedError;
-  String get user_style => throw _privateConstructorUsedError;
-  String get couple_style => throw _privateConstructorUsedError;
+  @JsonKey(name: 'idol_style')
+  String get idolStyle => throw _privateConstructorUsedError;
+  @JsonKey(name: 'user_style')
+  String get userStyle => throw _privateConstructorUsedError;
+  @JsonKey(name: 'couple_style')
+  String get coupleStyle => throw _privateConstructorUsedError;
 
   /// Serializes this StyleDetails to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -944,7 +1267,10 @@ abstract class $StyleDetailsCopyWith<$Res> {
           StyleDetails value, $Res Function(StyleDetails) then) =
       _$StyleDetailsCopyWithImpl<$Res, StyleDetails>;
   @useResult
-  $Res call({String idol_style, String user_style, String couple_style});
+  $Res call(
+      {@JsonKey(name: 'idol_style') String idolStyle,
+      @JsonKey(name: 'user_style') String userStyle,
+      @JsonKey(name: 'couple_style') String coupleStyle});
 }
 
 /// @nodoc
@@ -962,22 +1288,22 @@ class _$StyleDetailsCopyWithImpl<$Res, $Val extends StyleDetails>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? idol_style = null,
-    Object? user_style = null,
-    Object? couple_style = null,
+    Object? idolStyle = null,
+    Object? userStyle = null,
+    Object? coupleStyle = null,
   }) {
     return _then(_value.copyWith(
-      idol_style: null == idol_style
-          ? _value.idol_style
-          : idol_style // ignore: cast_nullable_to_non_nullable
+      idolStyle: null == idolStyle
+          ? _value.idolStyle
+          : idolStyle // ignore: cast_nullable_to_non_nullable
               as String,
-      user_style: null == user_style
-          ? _value.user_style
-          : user_style // ignore: cast_nullable_to_non_nullable
+      userStyle: null == userStyle
+          ? _value.userStyle
+          : userStyle // ignore: cast_nullable_to_non_nullable
               as String,
-      couple_style: null == couple_style
-          ? _value.couple_style
-          : couple_style // ignore: cast_nullable_to_non_nullable
+      coupleStyle: null == coupleStyle
+          ? _value.coupleStyle
+          : coupleStyle // ignore: cast_nullable_to_non_nullable
               as String,
     ) as $Val);
   }
@@ -991,7 +1317,10 @@ abstract class _$$StyleDetailsImplCopyWith<$Res>
       __$$StyleDetailsImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String idol_style, String user_style, String couple_style});
+  $Res call(
+      {@JsonKey(name: 'idol_style') String idolStyle,
+      @JsonKey(name: 'user_style') String userStyle,
+      @JsonKey(name: 'couple_style') String coupleStyle});
 }
 
 /// @nodoc
@@ -1007,22 +1336,22 @@ class __$$StyleDetailsImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? idol_style = null,
-    Object? user_style = null,
-    Object? couple_style = null,
+    Object? idolStyle = null,
+    Object? userStyle = null,
+    Object? coupleStyle = null,
   }) {
     return _then(_$StyleDetailsImpl(
-      idol_style: null == idol_style
-          ? _value.idol_style
-          : idol_style // ignore: cast_nullable_to_non_nullable
+      idolStyle: null == idolStyle
+          ? _value.idolStyle
+          : idolStyle // ignore: cast_nullable_to_non_nullable
               as String,
-      user_style: null == user_style
-          ? _value.user_style
-          : user_style // ignore: cast_nullable_to_non_nullable
+      userStyle: null == userStyle
+          ? _value.userStyle
+          : userStyle // ignore: cast_nullable_to_non_nullable
               as String,
-      couple_style: null == couple_style
-          ? _value.couple_style
-          : couple_style // ignore: cast_nullable_to_non_nullable
+      coupleStyle: null == coupleStyle
+          ? _value.coupleStyle
+          : coupleStyle // ignore: cast_nullable_to_non_nullable
               as String,
     ));
   }
@@ -1032,23 +1361,26 @@ class __$$StyleDetailsImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$StyleDetailsImpl implements _StyleDetails {
   const _$StyleDetailsImpl(
-      {required this.idol_style,
-      required this.user_style,
-      required this.couple_style});
+      {@JsonKey(name: 'idol_style') required this.idolStyle,
+      @JsonKey(name: 'user_style') required this.userStyle,
+      @JsonKey(name: 'couple_style') required this.coupleStyle});
 
   factory _$StyleDetailsImpl.fromJson(Map<String, dynamic> json) =>
       _$$StyleDetailsImplFromJson(json);
 
   @override
-  final String idol_style;
+  @JsonKey(name: 'idol_style')
+  final String idolStyle;
   @override
-  final String user_style;
+  @JsonKey(name: 'user_style')
+  final String userStyle;
   @override
-  final String couple_style;
+  @JsonKey(name: 'couple_style')
+  final String coupleStyle;
 
   @override
   String toString() {
-    return 'StyleDetails(idol_style: $idol_style, user_style: $user_style, couple_style: $couple_style)';
+    return 'StyleDetails(idolStyle: $idolStyle, userStyle: $userStyle, coupleStyle: $coupleStyle)';
   }
 
   @override
@@ -1056,18 +1388,18 @@ class _$StyleDetailsImpl implements _StyleDetails {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$StyleDetailsImpl &&
-            (identical(other.idol_style, idol_style) ||
-                other.idol_style == idol_style) &&
-            (identical(other.user_style, user_style) ||
-                other.user_style == user_style) &&
-            (identical(other.couple_style, couple_style) ||
-                other.couple_style == couple_style));
+            (identical(other.idolStyle, idolStyle) ||
+                other.idolStyle == idolStyle) &&
+            (identical(other.userStyle, userStyle) ||
+                other.userStyle == userStyle) &&
+            (identical(other.coupleStyle, coupleStyle) ||
+                other.coupleStyle == coupleStyle));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, idol_style, user_style, couple_style);
+      Object.hash(runtimeType, idolStyle, userStyle, coupleStyle);
 
   /// Create a copy of StyleDetails
   /// with the given fields replaced by the non-null parameter values.
@@ -1087,19 +1419,23 @@ class _$StyleDetailsImpl implements _StyleDetails {
 
 abstract class _StyleDetails implements StyleDetails {
   const factory _StyleDetails(
-      {required final String idol_style,
-      required final String user_style,
-      required final String couple_style}) = _$StyleDetailsImpl;
+          {@JsonKey(name: 'idol_style') required final String idolStyle,
+          @JsonKey(name: 'user_style') required final String userStyle,
+          @JsonKey(name: 'couple_style') required final String coupleStyle}) =
+      _$StyleDetailsImpl;
 
   factory _StyleDetails.fromJson(Map<String, dynamic> json) =
       _$StyleDetailsImpl.fromJson;
 
   @override
-  String get idol_style;
+  @JsonKey(name: 'idol_style')
+  String get idolStyle;
   @override
-  String get user_style;
+  @JsonKey(name: 'user_style')
+  String get userStyle;
   @override
-  String get couple_style;
+  @JsonKey(name: 'couple_style')
+  String get coupleStyle;
 
   /// Create a copy of StyleDetails
   /// with the given fields replaced by the non-null parameter values.

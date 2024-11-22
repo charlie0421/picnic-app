@@ -1396,8 +1396,8 @@
   "@post_my_compatibilities": {
     "manualTranslation": false
   },
-  "compatibility_input_page": "相性入力ページ",
-  "@compatibility_input_page": {
+  "compatibility_page_title": "相性",
+  "@compatibility_page_title": {
     "manualTranslation": false
   }
 }

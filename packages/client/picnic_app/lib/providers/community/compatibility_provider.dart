@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/models/vote/artist.dart';
-import 'package:picnic_app/pages/community/compatibility_result_page.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/logger.dart';
@@ -43,6 +42,7 @@ class Compatibility extends _$Compatibility {
       final userId = supabase.auth.currentUser?.id;
       if (userId == null) throw Exception('User not authenticated');
 
+      // 1. 먼저 레코드 생성
       final compatibilityData = {
         'user_id': userId,
         'artist_id': artist.id,
@@ -59,10 +59,26 @@ class Compatibility extends _$Compatibility {
           .select('*, artist:artist(*)')
           .single();
 
+      logger.i('Created compatibility record:$response');
+
+      // 2. 레코드 생성 확인
       final compatibility =
           CompatibilityModel.fromJson({...response, 'artist': artist.toJson()});
 
       state = compatibility;
+
+      // 3. 레코드가 실제로 생성되었는지 확인
+      final verifyResponse = await supabase
+          .from(_table)
+          .select('id')
+          .eq('id', compatibility.id)
+          .single();
+
+      logger.i('Verified compatibility record:$verifyResponse');
+
+      // 4. Edge Function 호출 전 약간의 지연
+      await Future.delayed(const Duration(milliseconds: 500));
+
       _processInBackground(compatibility);
 
       return compatibility;
@@ -79,13 +95,23 @@ class Compatibility extends _$Compatibility {
 
   Future<void> _startCompatibilityAnalysis(String compatibilityId) async {
     try {
+      // 1. 레코드 존재 확인
+      final checkResponse = await supabase
+          .from(_table)
+          .select('id, status')
+          .eq('id', compatibilityId)
+          .single();
+
+      logger.i('Checking record before analysis:$checkResponse');
+
+      // 2. Edge Function 호출
       final response = await supabase.functions.invoke(
         'compatibility',
         body: {'compatibility_id': compatibilityId},
         headers: {'Content-Type': 'application/json'},
       );
 
-      logger.i('Edge function response: ${response.data}');
+      logger.i('Edge function response:${response.data}');
 
       if (response.status != 200) {
         throw Exception('Edge function error: ${response.data}');
@@ -100,6 +126,16 @@ class Compatibility extends _$Compatibility {
     for (var i = 0; i < _maxRetries; i++) {
       try {
         await Future.delayed(_retryDelay);
+
+        // 재시도 전 레코드 상태 확인
+        final checkResponse = await supabase
+            .from(_table)
+            .select('id, status')
+            .eq('id', compatibilityId)
+            .single();
+
+        logger.i('Retry $i - Current record status:$checkResponse');
+
         await _startCompatibilityAnalysis(compatibilityId);
         return;
       } catch (e) {
@@ -164,17 +200,28 @@ class Compatibility extends _$Compatibility {
 
   Future<CompatibilityModel?> getCompatibility(String id) async {
     try {
-      final response = await supabase
-          .from(_table)
-          .select('*, artist:artist(*)')
-          .eq('id', id)
-          .single();
+      logger.i('Getting compatibility for ID:$id');
+      final response = await supabase.from(_table).select('''
+          *,
+          artist:artist(*),
+          i18n:compatibility_results_i18n(
+            language,
+            compatibility_score,
+            compatibility_summary,
+            details,
+            tips
+          )
+        ''').eq('id', id).single();
 
-      logger.i('Compatibility response: $response');
+      if (response['i18n'] == null || (response['i18n'] as List).isEmpty) {
+        // i18n 데이터가 없으면 다시 시도
+        await Future.delayed(const Duration(seconds: 1));
+        return getCompatibility(id);
+      }
 
       return CompatibilityModel.fromJson(response);
-    } catch (e) {
-      logger.e('Failed to get compatibility', error: e);
+    } catch (e, stackTrace) {
+      logger.e('Failed to get compatibility', error: e, stackTrace: stackTrace);
       rethrow;
     }
   }

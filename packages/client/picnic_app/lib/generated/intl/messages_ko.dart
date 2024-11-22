@@ -83,7 +83,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("검색 결과"),
         "compatibility_agree_checkbox": MessageLookupByLibrary.simpleMessage(
             "성별, 생일 정보를 프로필에 저장하는 것에 동의합니다."),
-        "compatibility_input_page": MessageLookupByLibrary.simpleMessage("궁합"),
+        "compatibility_page_title": MessageLookupByLibrary.simpleMessage("궁합"),
         "compatibility_time_slot1":
             MessageLookupByLibrary.simpleMessage("자시|(23:30-01:29)|🐀"),
         "compatibility_time_slot10":

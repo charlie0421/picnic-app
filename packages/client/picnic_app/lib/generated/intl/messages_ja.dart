@@ -82,8 +82,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("検索結果"),
         "compatibility_agree_checkbox": MessageLookupByLibrary.simpleMessage(
             "性別、誕生日情報をプロフィールに保存することに同意します。"),
-        "compatibility_input_page":
-            MessageLookupByLibrary.simpleMessage("相性入力ページ"),
+        "compatibility_page_title": MessageLookupByLibrary.simpleMessage("相性"),
         "compatibility_time_slot1":
             MessageLookupByLibrary.simpleMessage("ジャッシー|(23:30-01:29)｜🐀さん"),
         "compatibility_time_slot10":

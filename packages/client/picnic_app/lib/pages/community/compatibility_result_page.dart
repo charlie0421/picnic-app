@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_error.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_info.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_loading_view.dart';
-import 'package:picnic_app/components/community/compatibility/compatibility_result.dart';
+import 'package:picnic_app/components/community/compatibility/compatibility_result_view.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_footer.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/navigation.dart';
@@ -37,30 +38,51 @@ class _CompatibilityResultScreenState
   void initState() {
     super.initState();
     _initializeIfNeeded();
+  }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateNavigation();
+  }
+
+  void _updateNavigation() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       ref.read(navigationInfoProvider.notifier).settingNavigation(
           showPortal: true,
           showTopMenu: true,
           topRightMenu: TopRightType.board,
           showBottomNavigation: false,
-          pageTitle: S.of(context).compatibility_input_page);
+          pageTitle: S.of(context).compatibility_page_title);
     });
   }
 
-  void _initializeIfNeeded() {
-    if (!_isInitialized &&
-        widget.compatibility.status == CompatibilityStatus.pending) {
+  Future<void> _initializeIfNeeded() async {
+    if (!_isInitialized) {
       _isInitialized = true;
+
       // 위젯 빌드 후에 provider 상태 초기화
-      Future.microtask(() {
+      await Future.microtask(() async {
         if (!mounted) return;
 
-        final currentState = ref.read(compatibilityProvider);
-        // 이미 동일한 ID의 상태가 있다면 스킵
-        if (currentState?.id == widget.compatibility.id) return;
+        final compatibilityNotifier = ref.read(compatibilityProvider.notifier);
 
-        ref.read(compatibilityProvider.notifier).state = widget.compatibility;
+        try {
+          // 항상 최신 데이터를 가져오도록 수정
+          final updatedCompatibility = await compatibilityNotifier
+              .getCompatibility(widget.compatibility.id);
+          if (updatedCompatibility != null) {
+            compatibilityNotifier.state = updatedCompatibility;
+          } else {
+            // 데이터를 가져오지 못했을 경우 기존 데이터로 초기화
+            compatibilityNotifier.state = widget.compatibility;
+          }
+        } catch (e) {
+          logger.e('Failed to fetch updated compatibility', error: e);
+          // 에러 발생 시 기존 데이터 사용
+          compatibilityNotifier.state = widget.compatibility;
+        }
       });
     }
   }
@@ -69,6 +91,13 @@ class _CompatibilityResultScreenState
   Widget build(BuildContext context) {
     final compatibility =
         ref.watch(compatibilityProvider) ?? widget.compatibility;
+
+    // i18n 데이터가 없는 경우 새로고침
+    if (compatibility.isCompleted && compatibility.localizedResults == null) {
+      Future.microtask(() {
+        ref.read(compatibilityProvider.notifier).refresh();
+      });
+    }
     return SingleChildScrollView(
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -95,6 +124,7 @@ class _CompatibilityResultScreenState
                         ),
                       CompatibilityStatus.completed => CompatibilityResultView(
                           compatibility: compatibility,
+                          language: Intl.getCurrentLocale(),
                         ),
                     },
                   ],

@@ -55,7 +55,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "candy_disappear_next_month":
             MessageLookupByLibrary.simpleMessage("过期的奖励星星糖果 😢"),
         "candy_usage_policy_contents":
-            MessageLookupByLibrary.simpleMessage("当月获得的奖励星糖将于下月 15 日失效。"),
+            MessageLookupByLibrary.simpleMessage("当月获得的奖励星糖将在下个月 15 日失效。"),
         "candy_usage_policy_contents2": MessageLookupByLibrary.simpleMessage(
             "使用 \"星星糖 \"时，即将过期的 \"星星糖 \"会被优先处理。"),
         "candy_usage_policy_guide":
@@ -79,9 +79,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "common_text_search_result_label":
             MessageLookupByLibrary.simpleMessage("搜索结果"),
         "compatibility_agree_checkbox":
-            MessageLookupByLibrary.simpleMessage("我同意在个人档案中存储我的性别和生日信息。"),
-        "compatibility_input_page":
-            MessageLookupByLibrary.simpleMessage("进入兼容性页面"),
+            MessageLookupByLibrary.simpleMessage("我同意将我的性别和生日信息保存在我的个人资料中。"),
+        "compatibility_page_title": MessageLookupByLibrary.simpleMessage("兼容性"),
         "compatibility_time_slot1":
             MessageLookupByLibrary.simpleMessage("자시|(23:30-01:29)|🐀"),
         "compatibility_time_slot10":
@@ -89,7 +88,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "compatibility_time_slot11":
             MessageLookupByLibrary.simpleMessage("술시|(19:30-21:29)|🐕"),
         "compatibility_time_slot12":
-            MessageLookupByLibrary.simpleMessage("哈希|(21:30-23:29)|🐖"),
+            MessageLookupByLibrary.simpleMessage("해시|(21:30-23:29)|🐖"),
         "compatibility_time_slot2":
             MessageLookupByLibrary.simpleMessage("축시|(01:30-03:29)|🐂"),
         "compatibility_time_slot3":
@@ -130,7 +129,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("购买完成。"),
         "dialog_title_ads_exhausted":
             MessageLookupByLibrary.simpleMessage("所有广告已用尽"),
-        "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("表决失败"),
+        "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("投票失败"),
         "dialog_will_delete_star_candy":
             MessageLookupByLibrary.simpleMessage("将被删除的星星糖果"),
         "dialog_withdraw_button_cancel":
@@ -206,7 +205,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("不同意"),
         "label_button_recharge": MessageLookupByLibrary.simpleMessage("充电"),
         "label_button_save_vote_paper":
-            MessageLookupByLibrary.simpleMessage("保存您的选票"),
+            MessageLookupByLibrary.simpleMessage("存储您的选票"),
         "label_button_share": MessageLookupByLibrary.simpleMessage("分享"),
         "label_button_vote": MessageLookupByLibrary.simpleMessage("投票"),
         "label_button_watch_and_charge":
@@ -260,8 +259,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("星星糖投票历史"),
         "label_mypage_withdrawal": MessageLookupByLibrary.simpleMessage("退出"),
         "label_no_ads": MessageLookupByLibrary.simpleMessage("无广告"),
-        "label_no_celeb":
-            MessageLookupByLibrary.simpleMessage("您还没有将任何艺术家加入书签！"),
+        "label_no_celeb": MessageLookupByLibrary.simpleMessage("您还没有收藏任何艺术家！"),
         "label_pic_image_cropping":
             MessageLookupByLibrary.simpleMessage("裁剪图像"),
         "label_pic_pic_initializing_camera":
@@ -438,7 +436,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("您想删除废料吗？"),
         "post_delete_scrap_title": MessageLookupByLibrary.simpleMessage("删除废料"),
         "post_flagged": MessageLookupByLibrary.simpleMessage("包含不当内容"),
-        "post_go_to_boards": MessageLookupByLibrary.simpleMessage("前往留言板"),
+        "post_go_to_boards": MessageLookupByLibrary.simpleMessage("转到留言板"),
         "post_header_publish": MessageLookupByLibrary.simpleMessage("出版"),
         "post_header_temporary_save":
             MessageLookupByLibrary.simpleMessage("草稿"),
@@ -515,7 +513,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_comming_soon_pic_chart2": MessageLookupByLibrary.simpleMessage(
             "饼图是 Peeknick 独有的新图表，可反映每日、每周和每月的分数。\nPiknick 反映每日、每周和每月得分的新图表。"),
         "text_comming_soon_pic_chart3":
-            MessageLookupByLibrary.simpleMessage("实时查看您的品牌声誉\n实时反映艺术家的品牌声誉！"),
+            MessageLookupByLibrary.simpleMessage("实时反映您的\n艺人的品牌声誉！"),
         "text_comming_soon_pic_chart_title":
             MessageLookupByLibrary.simpleMessage("什么是饼图？"),
         "text_community_board_search":

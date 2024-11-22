@@ -86,8 +86,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Search results"),
         "compatibility_agree_checkbox": MessageLookupByLibrary.simpleMessage(
             "I agree to store my gender and birthday information in my profile."),
-        "compatibility_input_page":
-            MessageLookupByLibrary.simpleMessage("Compatibility entry page"),
+        "compatibility_page_title":
+            MessageLookupByLibrary.simpleMessage("Compatibility"),
         "compatibility_time_slot1":
             MessageLookupByLibrary.simpleMessage("자시|(23:30-01:29)|🐀"),
         "compatibility_time_slot10":
@@ -126,7 +126,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialog_message_can_resignup": MessageLookupByLibrary.simpleMessage(
             "When you can rejoin if you cancel your membership now"),
         "dialog_message_purchase_canceled":
-            MessageLookupByLibrary.simpleMessage("The purchase was canceled."),
+            MessageLookupByLibrary.simpleMessage(
+                "Your purchase has been canceled."),
         "dialog_message_purchase_failed": MessageLookupByLibrary.simpleMessage(
             "There was an error with your purchase, please try again later."),
         "dialog_message_purchase_success": MessageLookupByLibrary.simpleMessage(

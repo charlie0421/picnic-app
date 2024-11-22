@@ -1,13 +1,43 @@
-// lib/models/compatibility_model.dart
-
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/vote/artist.dart';
+import 'package:picnic_app/util/logger.dart';
 
 part '../../generated/models/community/compatibility.freezed.dart';
 
 part '../../generated/models/community/compatibility.g.dart';
 
 enum CompatibilityStatus { pending, completed, error }
+
+Map<String, LocalizedCompatibility>? _parseI18nResults(dynamic i18nData) {
+  if (i18nData == null) return null;
+
+  try {
+    final List i18nList = i18nData as List;
+    if (i18nList.isEmpty) return null;
+
+    final Map<String, LocalizedCompatibility> results = {};
+
+    for (final item in i18nList) {
+      if (item is! Map<String, dynamic>) continue;
+
+      final language = item['language'] as String?;
+      if (language == null) continue;
+
+      try {
+        final localizedResult = LocalizedCompatibility.fromJson(item);
+        results[language] = localizedResult;
+      } catch (e) {
+        logger.d('Error parsing localized result for $language: $e');
+        continue;
+      }
+    }
+
+    return results.isEmpty ? null : results;
+  } catch (e) {
+    logger.d('Error parsing i18n results: $e');
+    return null;
+  }
+}
 
 @freezed
 class CompatibilityHistoryModel with _$CompatibilityHistoryModel {
@@ -23,7 +53,7 @@ class CompatibilityHistoryModel with _$CompatibilityHistoryModel {
 
 @freezed
 class CompatibilityModel with _$CompatibilityModel {
-  const CompatibilityModel._(); // 이 줄이 중요합니다
+  const CompatibilityModel._();
 
   const factory CompatibilityModel({
     @Default('') String id,
@@ -41,17 +71,36 @@ class CompatibilityModel with _$CompatibilityModel {
     List<String>? tips,
     DateTime? createdAt,
     DateTime? completedAt,
+    @JsonKey(name: 'i18n', fromJson: _parseI18nResults)
+    Map<String, LocalizedCompatibility>? localizedResults,
   }) = _CompatibilityModel;
 
-  // getter 메소드들 추가
+  factory CompatibilityModel.fromJson(Map<String, dynamic> json) =>
+      _$CompatibilityModelFromJson(json);
+
   bool get isPending => status == CompatibilityStatus.pending;
 
   bool get isCompleted => status == CompatibilityStatus.completed;
 
   bool get hasError => status == CompatibilityStatus.error;
 
-  factory CompatibilityModel.fromJson(Map<String, dynamic> json) =>
-      _$CompatibilityModelFromJson(json);
+  LocalizedCompatibility? getLocalizedResult(String language) =>
+      localizedResults?[language];
+}
+
+@freezed
+class LocalizedCompatibility with _$LocalizedCompatibility {
+  const factory LocalizedCompatibility({
+    required String language,
+    @JsonKey(name: 'compatibility_score') required int compatibilityScore,
+    @JsonKey(name: 'compatibility_summary', defaultValue: '')
+    required String compatibilitySummary,
+    required Details details,
+    @Default([]) List<String> tips,
+  }) = _LocalizedCompatibility;
+
+  factory LocalizedCompatibility.fromJson(Map<String, dynamic> json) =>
+      _$LocalizedCompatibilityFromJson(json);
 }
 
 @freezed
@@ -68,9 +117,9 @@ class Details with _$Details {
 @freezed
 class StyleDetails with _$StyleDetails {
   const factory StyleDetails({
-    required String idol_style,
-    required String user_style,
-    required String couple_style,
+    @JsonKey(name: 'idol_style') required String idolStyle,
+    @JsonKey(name: 'user_style') required String userStyle,
+    @JsonKey(name: 'couple_style') required String coupleStyle,
   }) = _StyleDetails;
 
   factory StyleDetails.fromJson(Map<String, dynamic> json) =>
@@ -88,7 +137,6 @@ class ActivitiesDetails with _$ActivitiesDetails {
       _$ActivitiesDetailsFromJson(json);
 }
 
-// JSON 필드명 매핑을 위한 extension
 extension CompatibilityStatusX on CompatibilityStatus {
   String toJson() => name;
 
