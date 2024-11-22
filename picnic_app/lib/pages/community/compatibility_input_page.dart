@@ -52,7 +52,7 @@ class _CompatibilityInputScreenState
           showTopMenu: true,
           topRightMenu: TopRightType.board,
           showBottomNavigation: false,
-          pageTitle: S.of(context).compatibility_input_page);
+          pageTitle: S.of(context).compatibility_page_title);
     });
   }
 

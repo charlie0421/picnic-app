@@ -140,7 +140,7 @@
   "@dialog_message_can_resignup": {
     "manualTranslation": false
   },
-  "dialog_message_purchase_canceled": "The purchase was canceled.",
+  "dialog_message_purchase_canceled": "Your purchase has been canceled.",
   "@dialog_message_purchase_canceled": {
     "manualTranslation": false
   },
@@ -1581,8 +1581,8 @@
   "@post_my_compatibilities": {
     "manualTranslation": false
   },
-  "compatibility_input_page": "Compatibility entry page",
-  "@compatibility_input_page": {
+  "compatibility_page_title": "Compatibility",
+  "@compatibility_page_title": {
     "manualTranslation": false
   }
 }

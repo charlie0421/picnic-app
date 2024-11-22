@@ -6,7 +6,7 @@ part of '../../../providers/community/compatibility_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$compatibilityHash() => r'8a7026068d105227a152ab87c1a0b345ff2e18ec';
+String _$compatibilityHash() => r'424e1e6a8c4fb3464c0c05e352d066903473b25d';
 
 /// See also [Compatibility].
 @ProviderFor(Compatibility)

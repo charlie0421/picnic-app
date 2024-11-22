@@ -7,7 +7,7 @@ part of '../../../providers/my_page/bookmarked_artists_provider.dart';
 // **************************************************************************
 
 String _$asyncBookmarkedArtistsHash() =>
-    r'fd511800f1401bf1368c534199dae23a04c9fe6c';
+    r'f7d1fcbcdc1b0897373b5d0070ef1076a0777ca2';
 
 /// See also [AsyncBookmarkedArtists].
 @ProviderFor(AsyncBookmarkedArtists)

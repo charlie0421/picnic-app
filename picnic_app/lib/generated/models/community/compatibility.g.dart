@@ -72,6 +72,8 @@ _$CompatibilityModelImpl _$$CompatibilityModelImplFromJson(
               (v) => v == null ? null : DateTime.parse(v as String)),
           completedAt: $checkedConvert('completed_at',
               (v) => v == null ? null : DateTime.parse(v as String)),
+          localizedResults:
+              $checkedConvert('i18n', (v) => _parseI18nResults(v)),
         );
         return val;
       },
@@ -84,7 +86,8 @@ _$CompatibilityModelImpl _$$CompatibilityModelImplFromJson(
         'compatibilityScore': 'compatibility_score',
         'compatibilitySummary': 'compatibility_summary',
         'createdAt': 'created_at',
-        'completedAt': 'completed_at'
+        'completedAt': 'completed_at',
+        'localizedResults': 'i18n'
       },
     );
 
@@ -106,6 +109,7 @@ Map<String, dynamic> _$$CompatibilityModelImplToJson(
       'tips': instance.tips,
       'created_at': instance.createdAt?.toIso8601String(),
       'completed_at': instance.completedAt?.toIso8601String(),
+      'i18n': instance.localizedResults?.map((k, e) => MapEntry(k, e.toJson())),
     };
 
 const _$CompatibilityStatusEnumMap = {
@@ -113,6 +117,44 @@ const _$CompatibilityStatusEnumMap = {
   CompatibilityStatus.completed: 'completed',
   CompatibilityStatus.error: 'error',
 };
+
+_$LocalizedCompatibilityImpl _$$LocalizedCompatibilityImplFromJson(
+        Map<String, dynamic> json) =>
+    $checkedCreate(
+      r'_$LocalizedCompatibilityImpl',
+      json,
+      ($checkedConvert) {
+        final val = _$LocalizedCompatibilityImpl(
+          language: $checkedConvert('language', (v) => v as String),
+          compatibilityScore:
+              $checkedConvert('compatibility_score', (v) => (v as num).toInt()),
+          compatibilitySummary: $checkedConvert(
+              'compatibility_summary', (v) => v as String? ?? ''),
+          details: $checkedConvert(
+              'details', (v) => Details.fromJson(v as Map<String, dynamic>)),
+          tips: $checkedConvert(
+              'tips',
+              (v) =>
+                  (v as List<dynamic>?)?.map((e) => e as String).toList() ??
+                  const []),
+        );
+        return val;
+      },
+      fieldKeyMap: const {
+        'compatibilityScore': 'compatibility_score',
+        'compatibilitySummary': 'compatibility_summary'
+      },
+    );
+
+Map<String, dynamic> _$$LocalizedCompatibilityImplToJson(
+        _$LocalizedCompatibilityImpl instance) =>
+    <String, dynamic>{
+      'language': instance.language,
+      'compatibility_score': instance.compatibilityScore,
+      'compatibility_summary': instance.compatibilitySummary,
+      'details': instance.details.toJson(),
+      'tips': instance.tips,
+    };
 
 _$DetailsImpl _$$DetailsImplFromJson(Map<String, dynamic> json) =>
     $checkedCreate(
@@ -141,19 +183,24 @@ _$StyleDetailsImpl _$$StyleDetailsImplFromJson(Map<String, dynamic> json) =>
       json,
       ($checkedConvert) {
         final val = _$StyleDetailsImpl(
-          idol_style: $checkedConvert('idol_style', (v) => v as String),
-          user_style: $checkedConvert('user_style', (v) => v as String),
-          couple_style: $checkedConvert('couple_style', (v) => v as String),
+          idolStyle: $checkedConvert('idol_style', (v) => v as String),
+          userStyle: $checkedConvert('user_style', (v) => v as String),
+          coupleStyle: $checkedConvert('couple_style', (v) => v as String),
         );
         return val;
+      },
+      fieldKeyMap: const {
+        'idolStyle': 'idol_style',
+        'userStyle': 'user_style',
+        'coupleStyle': 'couple_style'
       },
     );
 
 Map<String, dynamic> _$$StyleDetailsImplToJson(_$StyleDetailsImpl instance) =>
     <String, dynamic>{
-      'idol_style': instance.idol_style,
-      'user_style': instance.user_style,
-      'couple_style': instance.couple_style,
+      'idol_style': instance.idolStyle,
+      'user_style': instance.userStyle,
+      'couple_style': instance.coupleStyle,
     };
 
 _$ActivitiesDetailsImpl _$$ActivitiesDetailsImplFromJson(

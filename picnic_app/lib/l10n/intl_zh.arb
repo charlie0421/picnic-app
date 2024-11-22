@@ -76,7 +76,7 @@
   "@candy_disappear_next_month": {
     "manualTranslation": false
   },
-  "candy_usage_policy_contents": "当月获得的奖励星糖将于下月 15 日失效。",
+  "candy_usage_policy_contents": "当月获得的奖励星糖将在下个月 15 日失效。",
   "@candy_usage_policy_contents": {
     "manualTranslation": false
   },
@@ -188,7 +188,7 @@
   "@dialog_purchases_success": {
     "manualTranslation": false
   },
-  "dialog_title_vote_fail": "表决失败",
+  "dialog_title_vote_fail": "投票失败",
   "@dialog_title_vote_fail": {
     "manualTranslation": false
   },
@@ -292,7 +292,7 @@
   "@label_button_disagreement": {
     "manualTranslation": false
   },
-  "label_button_save_vote_paper": "保存您的选票",
+  "label_button_save_vote_paper": "存储您的选票",
   "@label_button_save_vote_paper": {
     "manualTranslation": false
   },
@@ -492,7 +492,7 @@
   "@label_pic_image_cropping": {
     "manualTranslation": false
   },
-  "label_no_celeb": "您还没有将任何艺术家加入书签！",
+  "label_no_celeb": "您还没有收藏任何艺术家！",
   "@label_no_celeb": {
     "manualTranslation": false
   },
@@ -1008,7 +1008,7 @@
   "@post_delete_scrap_title": {
     "manualTranslation": false
   },
-  "post_go_to_boards": "前往留言板",
+  "post_go_to_boards": "转到留言板",
   "@post_go_to_boards": {
     "manualTranslation": false
   },
@@ -1188,7 +1188,7 @@
   "@text_comming_soon_pic_chart1": {
     "manualTranslation": false
   },
-  "text_comming_soon_pic_chart3": "实时查看您的品牌声誉\n实时反映艺术家的品牌声誉！",
+  "text_comming_soon_pic_chart3": "实时反映您的\n艺人的品牌声誉！",
   "@text_comming_soon_pic_chart3": {
     "manualTranslation": false
   },
@@ -1384,11 +1384,11 @@
   "@compatibility_time_slot11": {
     "manualTranslation": true
   },
-  "compatibility_time_slot12": "哈希|(21:30-23:29)|🐖",
+  "compatibility_time_slot12": "해시|(21:30-23:29)|🐖",
   "@compatibility_time_slot12": {
-    "manualTranslation": false
+    "manualTranslation": true
   },
-  "compatibility_agree_checkbox": "我同意在个人档案中存储我的性别和生日信息。",
+  "compatibility_agree_checkbox": "我同意将我的性别和生日信息保存在我的个人资料中。",
   "@compatibility_agree_checkbox": {
     "manualTranslation": false
   },
@@ -1396,8 +1396,8 @@
   "@post_my_compatibilities": {
     "manualTranslation": false
   },
-  "compatibility_input_page": "进入兼容性页面",
-  "@compatibility_input_page": {
+  "compatibility_page_title": "兼容性",
+  "@compatibility_page_title": {
     "manualTranslation": false
   }
 }

@@ -360,10 +360,10 @@ class S {
     );
   }
 
-  /// `The purchase was canceled.`
+  /// `Your purchase has been canceled.`
   String get dialog_message_purchase_canceled {
     return Intl.message(
-      'The purchase was canceled.',
+      'Your purchase has been canceled.',
       name: 'dialog_message_purchase_canceled',
       desc: '',
       args: [],
@@ -3540,11 +3540,11 @@ class S {
     );
   }
 
-  /// `Compatibility entry page`
-  String get compatibility_input_page {
+  /// `Compatibility`
+  String get compatibility_page_title {
     return Intl.message(
-      'Compatibility entry page',
-      name: 'compatibility_input_page',
+      'Compatibility',
+      name: 'compatibility_page_title',
       desc: '',
       args: [],
     );
