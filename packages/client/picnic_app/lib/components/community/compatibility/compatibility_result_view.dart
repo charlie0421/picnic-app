@@ -23,7 +23,8 @@ class CompatibilityResultView extends StatelessWidget {
       return Container(
           margin: const EdgeInsets.only(top: 24),
           child: ErrorView(context,
-              error: "localizedResult == null", stackTrace: null));
+              error: "localizedResult == null",
+              stackTrace: StackTrace.current));
     }
 
     // 로컬라이즈된 결과가 없으면 기본 결과 사용
