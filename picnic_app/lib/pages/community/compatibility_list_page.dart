@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_result_card.dart';
+import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/models/common/community_navigation.dart';
+import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/pages/community/compatibility_input_page.dart';
 import 'package:picnic_app/pages/community/compatibility_result_page.dart';
@@ -36,6 +39,15 @@ class _CompatibilityHistoryPageState
     Future.microtask(() => ref
         .read(compatibilityListProvider(artistId: widget.artistId).notifier)
         .loadInitial());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+          showPortal: true,
+          showTopMenu: true,
+          topRightMenu: TopRightType.board,
+          showBottomNavigation: false,
+          pageTitle: S.of(context).compatibility_page_title);
+    });
   }
 
   void _onScroll() {
@@ -188,72 +200,6 @@ class _CompatibilityHistoryPageState
         ),
       ),
     );
-  }
-
-  Widget _buildStatusBadge(CompatibilityStatus status) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: _getStatusColor(status).withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        _getStatusText(status),
-        style: getTextStyle(
-          AppTypo.caption12B,
-          _getStatusColor(status),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildScoreBadge(int score) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            _getScoreColor(score),
-            _getScoreColor(score).withOpacity(0.8),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: _getScoreColor(score).withOpacity(0.2),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Text(
-        '${score}% 일치',
-        style: getTextStyle(AppTypo.caption12B, Colors.white),
-      ),
-    );
-  }
-
-  Color _getScoreColor(int score) {
-    if (score >= 90) return const Color(0xFFFF4B8B); // 진한 핑크
-    if (score >= 80) return const Color(0xFFFF6B9F); // 중간 핑크
-    if (score >= 70) return const Color(0xFFFF8FB3); // 연한 핑크
-    return AppColors.grey500;
-  }
-
-  Color _getStatusColor(CompatibilityStatus status) {
-    return switch (status) {
-      CompatibilityStatus.completed => const Color(0xFFFF4B8B),
-      CompatibilityStatus.pending => AppColors.grey500,
-      CompatibilityStatus.error => AppColors.point900,
-    };
-  }
-
-  String _getStatusText(CompatibilityStatus status) {
-    return switch (status) {
-      CompatibilityStatus.completed => '완료',
-      CompatibilityStatus.pending => '분석중',
-      CompatibilityStatus.error => '오류',
-    };
   }
 
   @override

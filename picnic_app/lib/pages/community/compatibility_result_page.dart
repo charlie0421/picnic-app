@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_error.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_info.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_loading_view.dart';
+import 'package:picnic_app/components/community/compatibility/compatibility_result_card.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_result_view.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_footer.dart';
 import 'package:picnic_app/generated/l10n.dart';
@@ -109,11 +110,8 @@ class _CompatibilityResultScreenState
                 color: AppColors.grey00,
                 child: Column(
                   children: [
-                    CompatibilityInfo(
-                      artist: compatibility.artist,
-                      ref: ref,
-                      birthDate: compatibility.birthDate,
-                      birthTime: compatibility.birthTime,
+                    CompatibilityResultCard(
+                      compatibility: compatibility,
                     ),
                     switch (compatibility.status) {
                       CompatibilityStatus.pending =>
@@ -126,6 +124,7 @@ class _CompatibilityResultScreenState
                           compatibility: compatibility,
                           language: Intl.getCurrentLocale(),
                         ),
+                      _ => const SizedBox(),
                     },
                   ],
                 ),

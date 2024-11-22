@@ -28,12 +28,8 @@ class CompatibilityResultView extends StatelessWidget {
     }
 
     // 로컬라이즈된 결과가 없으면 기본 결과 사용
-    final score = localizedResult.compatibilityScore ??
-        compatibility.compatibilityScore ??
-        0;
-    final summary = localizedResult.compatibilitySummary ??
-        compatibility.compatibilitySummary ??
-        '';
+    final score = compatibility.compatibilityScore ?? 0;
+    final summary = localizedResult.compatibilitySummary ?? '';
     final details = localizedResult.details;
     final tips = localizedResult.tips;
 
@@ -45,22 +41,10 @@ class CompatibilityResultView extends StatelessWidget {
             child: Container(
               width: double.infinity,
               padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  Text(
-                    '$score%',
-                    style: getTextStyle(
-                      AppTypo.title18B,
-                      _getScoreColor(score),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    summary,
-                    textAlign: TextAlign.center,
-                    style: getTextStyle(AppTypo.body16M, AppColors.grey900),
-                  ),
-                ],
+              child: Text(
+                summary,
+                textAlign: TextAlign.center,
+                style: getTextStyle(AppTypo.body16M, AppColors.grey900),
               ),
             ),
           ),

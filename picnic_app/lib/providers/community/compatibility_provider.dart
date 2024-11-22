@@ -200,7 +200,6 @@ class Compatibility extends _$Compatibility {
 
   Future<CompatibilityModel?> getCompatibility(String id) async {
     try {
-      logger.i('Getting compatibility for ID:$id');
       final response = await supabase.from(_table).select('''
           *,
           artist:artist(*),

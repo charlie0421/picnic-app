@@ -107,7 +107,7 @@ class CompatibilityLoadingViewState
                   child: AdWidget(ad: _topBannerAd!),
                 )
               : SizedBox(height: AdSize.largeBanner.height.toDouble()),
-          const SizedBox(height: 6),
+          const SizedBox(height: 12),
           CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary500),
             value: _remainingSeconds / 30,
@@ -118,10 +118,15 @@ class CompatibilityLoadingViewState
             style: getTextStyle(AppTypo.body16B, AppColors.grey900),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
-            '잠시만 기다려주세요\n화면을 나가면 분석을 다시 해야 합니다.',
+            '잠시만 기다려주세요',
             style: getTextStyle(AppTypo.body14M, AppColors.grey600),
+            textAlign: TextAlign.center,
+          ),
+          Text(
+            '화면을 나가면 분석을 다시 해야 합니다.',
+            style: getTextStyle(AppTypo.caption10SB, AppColors.grey600),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 6),

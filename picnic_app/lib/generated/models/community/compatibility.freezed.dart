@@ -234,8 +234,8 @@ mixin _$CompatibilityModel {
   String? get gender => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
   bool? get isLoading => throw _privateConstructorUsedError;
+  @JsonKey(name: 'compatibility_score')
   int? get compatibilityScore => throw _privateConstructorUsedError;
-  String? get compatibilitySummary => throw _privateConstructorUsedError;
   Details? get details => throw _privateConstructorUsedError;
   List<String>? get tips => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
@@ -270,8 +270,7 @@ abstract class $CompatibilityModelCopyWith<$Res> {
       String? gender,
       String? errorMessage,
       bool? isLoading,
-      int? compatibilityScore,
-      String? compatibilitySummary,
+      @JsonKey(name: 'compatibility_score') int? compatibilityScore,
       Details? details,
       List<String>? tips,
       DateTime? createdAt,
@@ -308,7 +307,6 @@ class _$CompatibilityModelCopyWithImpl<$Res, $Val extends CompatibilityModel>
     Object? errorMessage = freezed,
     Object? isLoading = freezed,
     Object? compatibilityScore = freezed,
-    Object? compatibilitySummary = freezed,
     Object? details = freezed,
     Object? tips = freezed,
     Object? createdAt = freezed,
@@ -356,10 +354,6 @@ class _$CompatibilityModelCopyWithImpl<$Res, $Val extends CompatibilityModel>
           ? _value.compatibilityScore
           : compatibilityScore // ignore: cast_nullable_to_non_nullable
               as int?,
-      compatibilitySummary: freezed == compatibilitySummary
-          ? _value.compatibilitySummary
-          : compatibilitySummary // ignore: cast_nullable_to_non_nullable
-              as String?,
       details: freezed == details
           ? _value.details
           : details // ignore: cast_nullable_to_non_nullable
@@ -426,8 +420,7 @@ abstract class _$$CompatibilityModelImplCopyWith<$Res>
       String? gender,
       String? errorMessage,
       bool? isLoading,
-      int? compatibilityScore,
-      String? compatibilitySummary,
+      @JsonKey(name: 'compatibility_score') int? compatibilityScore,
       Details? details,
       List<String>? tips,
       DateTime? createdAt,
@@ -464,7 +457,6 @@ class __$$CompatibilityModelImplCopyWithImpl<$Res>
     Object? errorMessage = freezed,
     Object? isLoading = freezed,
     Object? compatibilityScore = freezed,
-    Object? compatibilitySummary = freezed,
     Object? details = freezed,
     Object? tips = freezed,
     Object? createdAt = freezed,
@@ -512,10 +504,6 @@ class __$$CompatibilityModelImplCopyWithImpl<$Res>
           ? _value.compatibilityScore
           : compatibilityScore // ignore: cast_nullable_to_non_nullable
               as int?,
-      compatibilitySummary: freezed == compatibilitySummary
-          ? _value.compatibilitySummary
-          : compatibilitySummary // ignore: cast_nullable_to_non_nullable
-              as String?,
       details: freezed == details
           ? _value.details
           : details // ignore: cast_nullable_to_non_nullable
@@ -553,8 +541,7 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
       this.gender,
       this.errorMessage,
       this.isLoading,
-      this.compatibilityScore,
-      this.compatibilitySummary,
+      @JsonKey(name: 'compatibility_score') this.compatibilityScore,
       this.details,
       final List<String>? tips,
       this.createdAt,
@@ -591,9 +578,8 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
   @override
   final bool? isLoading;
   @override
+  @JsonKey(name: 'compatibility_score')
   final int? compatibilityScore;
-  @override
-  final String? compatibilitySummary;
   @override
   final Details? details;
   final List<String>? _tips;
@@ -623,7 +609,7 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
 
   @override
   String toString() {
-    return 'CompatibilityModel(id: $id, userId: $userId, artist: $artist, birthDate: $birthDate, birthTime: $birthTime, status: $status, gender: $gender, errorMessage: $errorMessage, isLoading: $isLoading, compatibilityScore: $compatibilityScore, compatibilitySummary: $compatibilitySummary, details: $details, tips: $tips, createdAt: $createdAt, completedAt: $completedAt, localizedResults: $localizedResults)';
+    return 'CompatibilityModel(id: $id, userId: $userId, artist: $artist, birthDate: $birthDate, birthTime: $birthTime, status: $status, gender: $gender, errorMessage: $errorMessage, isLoading: $isLoading, compatibilityScore: $compatibilityScore, details: $details, tips: $tips, createdAt: $createdAt, completedAt: $completedAt, localizedResults: $localizedResults)';
   }
 
   @override
@@ -646,8 +632,6 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
                 other.isLoading == isLoading) &&
             (identical(other.compatibilityScore, compatibilityScore) ||
                 other.compatibilityScore == compatibilityScore) &&
-            (identical(other.compatibilitySummary, compatibilitySummary) ||
-                other.compatibilitySummary == compatibilitySummary) &&
             (identical(other.details, details) || other.details == details) &&
             const DeepCollectionEquality().equals(other._tips, _tips) &&
             (identical(other.createdAt, createdAt) ||
@@ -672,7 +656,6 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
       errorMessage,
       isLoading,
       compatibilityScore,
-      compatibilitySummary,
       details,
       const DeepCollectionEquality().hash(_tips),
       createdAt,
@@ -707,8 +690,7 @@ abstract class _CompatibilityModel extends CompatibilityModel {
           final String? gender,
           final String? errorMessage,
           final bool? isLoading,
-          final int? compatibilityScore,
-          final String? compatibilitySummary,
+          @JsonKey(name: 'compatibility_score') final int? compatibilityScore,
           final Details? details,
           final List<String>? tips,
           final DateTime? createdAt,
@@ -742,9 +724,8 @@ abstract class _CompatibilityModel extends CompatibilityModel {
   @override
   bool? get isLoading;
   @override
+  @JsonKey(name: 'compatibility_score')
   int? get compatibilityScore;
-  @override
-  String? get compatibilitySummary;
   @override
   Details? get details;
   @override
@@ -773,8 +754,6 @@ LocalizedCompatibility _$LocalizedCompatibilityFromJson(
 /// @nodoc
 mixin _$LocalizedCompatibility {
   String get language => throw _privateConstructorUsedError;
-  @JsonKey(name: 'compatibility_score')
-  int get compatibilityScore => throw _privateConstructorUsedError;
   @JsonKey(name: 'compatibility_summary', defaultValue: '')
   String get compatibilitySummary => throw _privateConstructorUsedError;
   Details get details => throw _privateConstructorUsedError;
@@ -798,7 +777,6 @@ abstract class $LocalizedCompatibilityCopyWith<$Res> {
   @useResult
   $Res call(
       {String language,
-      @JsonKey(name: 'compatibility_score') int compatibilityScore,
       @JsonKey(name: 'compatibility_summary', defaultValue: '')
       String compatibilitySummary,
       Details details,
@@ -824,7 +802,6 @@ class _$LocalizedCompatibilityCopyWithImpl<$Res,
   @override
   $Res call({
     Object? language = null,
-    Object? compatibilityScore = null,
     Object? compatibilitySummary = null,
     Object? details = null,
     Object? tips = null,
@@ -834,10 +811,6 @@ class _$LocalizedCompatibilityCopyWithImpl<$Res,
           ? _value.language
           : language // ignore: cast_nullable_to_non_nullable
               as String,
-      compatibilityScore: null == compatibilityScore
-          ? _value.compatibilityScore
-          : compatibilityScore // ignore: cast_nullable_to_non_nullable
-              as int,
       compatibilitySummary: null == compatibilitySummary
           ? _value.compatibilitySummary
           : compatibilitySummary // ignore: cast_nullable_to_non_nullable
@@ -875,7 +848,6 @@ abstract class _$$LocalizedCompatibilityImplCopyWith<$Res>
   @useResult
   $Res call(
       {String language,
-      @JsonKey(name: 'compatibility_score') int compatibilityScore,
       @JsonKey(name: 'compatibility_summary', defaultValue: '')
       String compatibilitySummary,
       Details details,
@@ -901,7 +873,6 @@ class __$$LocalizedCompatibilityImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? language = null,
-    Object? compatibilityScore = null,
     Object? compatibilitySummary = null,
     Object? details = null,
     Object? tips = null,
@@ -911,10 +882,6 @@ class __$$LocalizedCompatibilityImplCopyWithImpl<$Res>
           ? _value.language
           : language // ignore: cast_nullable_to_non_nullable
               as String,
-      compatibilityScore: null == compatibilityScore
-          ? _value.compatibilityScore
-          : compatibilityScore // ignore: cast_nullable_to_non_nullable
-              as int,
       compatibilitySummary: null == compatibilitySummary
           ? _value.compatibilitySummary
           : compatibilitySummary // ignore: cast_nullable_to_non_nullable
@@ -936,7 +903,6 @@ class __$$LocalizedCompatibilityImplCopyWithImpl<$Res>
 class _$LocalizedCompatibilityImpl implements _LocalizedCompatibility {
   const _$LocalizedCompatibilityImpl(
       {required this.language,
-      @JsonKey(name: 'compatibility_score') required this.compatibilityScore,
       @JsonKey(name: 'compatibility_summary', defaultValue: '')
       required this.compatibilitySummary,
       required this.details,
@@ -948,9 +914,6 @@ class _$LocalizedCompatibilityImpl implements _LocalizedCompatibility {
 
   @override
   final String language;
-  @override
-  @JsonKey(name: 'compatibility_score')
-  final int compatibilityScore;
   @override
   @JsonKey(name: 'compatibility_summary', defaultValue: '')
   final String compatibilitySummary;
@@ -967,7 +930,7 @@ class _$LocalizedCompatibilityImpl implements _LocalizedCompatibility {
 
   @override
   String toString() {
-    return 'LocalizedCompatibility(language: $language, compatibilityScore: $compatibilityScore, compatibilitySummary: $compatibilitySummary, details: $details, tips: $tips)';
+    return 'LocalizedCompatibility(language: $language, compatibilitySummary: $compatibilitySummary, details: $details, tips: $tips)';
   }
 
   @override
@@ -977,8 +940,6 @@ class _$LocalizedCompatibilityImpl implements _LocalizedCompatibility {
             other is _$LocalizedCompatibilityImpl &&
             (identical(other.language, language) ||
                 other.language == language) &&
-            (identical(other.compatibilityScore, compatibilityScore) ||
-                other.compatibilityScore == compatibilityScore) &&
             (identical(other.compatibilitySummary, compatibilitySummary) ||
                 other.compatibilitySummary == compatibilitySummary) &&
             (identical(other.details, details) || other.details == details) &&
@@ -987,13 +948,8 @@ class _$LocalizedCompatibilityImpl implements _LocalizedCompatibility {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      language,
-      compatibilityScore,
-      compatibilitySummary,
-      details,
-      const DeepCollectionEquality().hash(_tips));
+  int get hashCode => Object.hash(runtimeType, language, compatibilitySummary,
+      details, const DeepCollectionEquality().hash(_tips));
 
   /// Create a copy of LocalizedCompatibility
   /// with the given fields replaced by the non-null parameter values.
@@ -1015,8 +971,6 @@ class _$LocalizedCompatibilityImpl implements _LocalizedCompatibility {
 abstract class _LocalizedCompatibility implements LocalizedCompatibility {
   const factory _LocalizedCompatibility(
       {required final String language,
-      @JsonKey(name: 'compatibility_score')
-      required final int compatibilityScore,
       @JsonKey(name: 'compatibility_summary', defaultValue: '')
       required final String compatibilitySummary,
       required final Details details,
@@ -1027,9 +981,6 @@ abstract class _LocalizedCompatibility implements LocalizedCompatibility {
 
   @override
   String get language;
-  @override
-  @JsonKey(name: 'compatibility_score')
-  int get compatibilityScore;
   @override
   @JsonKey(name: 'compatibility_summary', defaultValue: '')
   String get compatibilitySummary;
