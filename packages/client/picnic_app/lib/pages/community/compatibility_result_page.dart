@@ -33,19 +33,21 @@ class _CompatibilityResultPageState
     extends ConsumerState<CompatibilityResultPage> {
   final GlobalKey _printKey = GlobalKey();
   bool _isInitialized = false;
-  bool _isLoading = false;
-  CompatibilityModel? _compatibility;
-
-  @override
-  void initState() {
-    super.initState();
-    _compatibility = widget.compatibility;
-  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _updateNavigation();
+
+    // 최초 한 번만 초기화
+    if (!_isInitialized) {
+      _isInitialized = true;
+      // 다음 프레임에서 provider 초기화
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ref.read(compatibilityProvider.notifier).state = widget.compatibility;
+      });
+    }
   }
 
   void _updateNavigation() {
@@ -63,7 +65,32 @@ class _CompatibilityResultPageState
 
   @override
   Widget build(BuildContext context) {
-    final compatibility = _compatibility!;
+    final compatibility = ref.watch(compatibilityProvider);
+
+    // 초기화 전이거나 데이터가 없는 경우
+    if (!_isInitialized || compatibility == null) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            RepaintBoundary(
+              key: _printKey,
+              child: Container(
+                color: AppColors.grey00,
+                child: Column(
+                  children: [
+                    CompatibilityResultCard(
+                      compatibility: widget.compatibility,
+                    ),
+                    const CompatibilityLoadingView(),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     // i18n 데이터가 없는 경우 새로고침
     if (compatibility.isCompleted && compatibility.localizedResults == null) {
@@ -87,8 +114,7 @@ class _CompatibilityResultPageState
                     CompatibilityResultCard(
                       compatibility: compatibility,
                     ),
-                    if (_isLoading ||
-                        compatibility.status == CompatibilityStatus.pending)
+                    if (compatibility.status == CompatibilityStatus.pending)
                       const CompatibilityLoadingView()
                     else if (compatibility.status == CompatibilityStatus.error)
                       CompatibilityErrorView(
@@ -105,7 +131,7 @@ class _CompatibilityResultPageState
                 ),
               ),
             ),
-            if (compatibility.isCompleted && !_isLoading) ...[
+            if (compatibility.isCompleted) ...[
               VoteCardInfoFooter(
                 saveButtonText: S.of(context).vote_result_save_button,
                 shareButtonText: S.of(context).vote_result_share_button,

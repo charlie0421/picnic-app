@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'dart:async';
 
+import 'package:picnic_app/util/ui.dart';
+
 class CompatibilityLoadingView extends ConsumerStatefulWidget {
   const CompatibilityLoadingView({super.key});
 
@@ -13,53 +15,86 @@ class CompatibilityLoadingView extends ConsumerStatefulWidget {
 
 class _CompatibilityLoadingViewState
     extends ConsumerState<CompatibilityLoadingView> {
-  int _seconds = 30;
+  static const int _totalSeconds = 30;
+  int _seconds = _totalSeconds;
+  BannerAd? _topBannerAd;
+  BannerAd? _bottomBannerAd;
+  bool _isTopBannerLoaded = false;
+  bool _isBottomBannerLoaded = false;
+  int _remainingSeconds = 30;
   Timer? _timer;
-  final BannerAd _bannerAd = BannerAd(
-    adUnitId: 'ca-app-pub-3940256099942544/6300978111', // 테스트 광고 ID
-    size: AdSize.largeBanner,
-    request: const AdRequest(),
-    listener: BannerAdListener(
-      onAdFailedToLoad: (ad, error) {
-        ad.dispose();
-      },
-    ),
-  );
-  bool _isAdLoaded = false;
 
   @override
   void initState() {
     super.initState();
+    _loadAds();
     _startTimer();
-    _loadAd();
+  }
+
+  void _loadAds() {
+    _topBannerAd = BannerAd(
+      adUnitId: isAndroid()
+          ? 'ca-app-pub-3940256099942544/6300978111'
+          : 'ca-app-pub-3940256099942544/2934735716',
+      size: AdSize.largeBanner,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isTopBannerLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
+    )..load();
+
+    _bottomBannerAd = BannerAd(
+      adUnitId: isAndroid()
+          ? 'ca-app-pub-3940256099942544/6300978111'
+          : 'ca-app-pub-3940256099942544/2934735716',
+      size: AdSize.largeBanner,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isBottomBannerLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
+    )..load();
   }
 
   @override
   void dispose() {
+    _topBannerAd?.dispose();
+    _bottomBannerAd?.dispose();
     _timer?.cancel();
-    _bannerAd.dispose();
     super.dispose();
   }
 
-  void _loadAd() {
-    _bannerAd.load().then((_) {
-      setState(() {
-        _isAdLoaded = true;
-      });
-    });
-  }
-
   void _startTimer() {
+    // 기존 타이머가 있다면 취소
+    _timer?.cancel();
+
     _timer = Timer.periodic(
       const Duration(seconds: 1),
-      (_) {
+      (timer) {
+        if (!mounted) {
+          timer.cancel();
+          return;
+        }
+
         if (_seconds > 0) {
           setState(() {
             _seconds--;
           });
         } else {
-          _timer?.cancel();
-          // 30초 후 작업
+          timer.cancel();
         }
       },
     );
@@ -72,16 +107,22 @@ class _CompatibilityLoadingViewState
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (_isAdLoaded)
-            Container(
-              alignment: Alignment.center,
-              width: _bannerAd.size.width.toDouble(),
-              height: _bannerAd.size.height.toDouble(),
-              child: AdWidget(ad: _bannerAd),
-            ),
+          (_isTopBannerLoaded && _topBannerAd != null)
+              ? Container(
+                  alignment: Alignment.center,
+                  width: _topBannerAd!.size.width.toDouble(),
+                  height: _topBannerAd!.size.height.toDouble(),
+                  child: AdWidget(ad: _topBannerAd!),
+                )
+              : SizedBox(height: AdSize.largeBanner.height.toDouble()),
           const SizedBox(height: 32),
-          CircularProgressIndicator(
-            value: _seconds / 30,
+          SizedBox(
+            width: 48,
+            height: 48,
+            child: CircularProgressIndicator(
+              value: _seconds / _totalSeconds,
+              strokeWidth: 4,
+            ),
           ),
           const SizedBox(height: 24),
           Text(
@@ -105,9 +146,19 @@ class _CompatibilityLoadingViewState
             '화면을 나가면 분석을 다시 해야 합니다',
             style: TextStyle(
               fontSize: 12,
-              color: Colors.grey,
+              color: Colors.red,
+              fontWeight: FontWeight.w500,
             ),
           ),
+          const SizedBox(height: 24),
+          (_isBottomBannerLoaded && _bottomBannerAd != null)
+              ? Container(
+                  alignment: Alignment.center,
+                  width: _bottomBannerAd!.size.width.toDouble(),
+                  height: _bottomBannerAd!.size.height.toDouble(),
+                  child: AdWidget(ad: _bottomBannerAd!),
+                )
+              : SizedBox(height: AdSize.largeBanner.height.toDouble()),
         ],
       ),
     );
