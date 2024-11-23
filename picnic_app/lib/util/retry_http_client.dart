@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
@@ -10,6 +12,12 @@ class RetryHttpClient extends http.BaseClient {
   final int maxAttempts;
   final Duration timeout;
   final Duration keepAlive;
+
+  // Connection pool 관리를 위한 변수들
+  final Map<String, DateTime> _connectionPool = {};
+  final Duration _connectionMaxAge = Duration(minutes: 5);
+  static const int _maxConcurrentConnections = 6;
+  final Random _random = Random();
 
   RetryHttpClient(
     this._inner, {
@@ -22,53 +30,39 @@ class RetryHttpClient extends http.BaseClient {
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
     int attempts = 0;
     Exception? lastException;
+    final String hostKey = '${request.url.host}:${request.url.port}';
 
     while (attempts < maxAttempts) {
       attempts++;
       try {
+        // Connection pool 관리
+        _manageConnectionPool(hostKey);
+
         final newRequest = await _copyRequest(request);
+        _setOptimizedHeaders(newRequest);
 
-        // Connection 설정 추가
-        newRequest.headers.addAll({
-          'Connection': 'keep-alive',
-          'Keep-Alive': 'timeout=${keepAlive.inSeconds}',
-          if (newRequest is http.Request && newRequest.body.isNotEmpty)
-            'Content-Length': newRequest.body.length.toString(),
-        });
+        final response = await _sendWithTimeout(newRequest);
 
-        final response = await _inner.send(newRequest).timeout(
-          timeout,
-          onTimeout: () {
-            throw TimeoutException(
-                'Request timed out after ${timeout.inSeconds} seconds');
-          },
-        );
+        // 응답 스트림 최적화
+        final optimizedStream =
+            await _optimizeResponseStream(response, newRequest);
 
-        // 스트림 버퍼링 처리
-        final stream = response.stream.handleError((error) {
-          throw ClientException(
-            'Error while receiving data: $error',
-            newRequest.url,
-          );
-        });
+        // 성공적인 응답인 경우 connection pool 업데이트
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          _updateConnectionPool(hostKey);
+        }
 
-        return http.StreamedResponse(
-          stream,
-          response.statusCode,
-          contentLength: response.contentLength,
-          request: newRequest,
-          headers: response.headers,
-          isRedirect: response.isRedirect,
-          persistentConnection: response.persistentConnection,
-          reasonPhrase: response.reasonPhrase,
-        );
+        return optimizedStream;
       } on Exception catch (e) {
         lastException = e;
         if (_shouldRetry(e)) {
-          logger.e('Attempt $attempts failed: $e');
+          final logMessage = _createDetailedErrorLog(e, attempts, request.url);
+          logger.e(logMessage);
+
           if (attempts < maxAttempts) {
-            final waitTime = Duration(milliseconds: 200 * attempts * attempts);
-            await Future.delayed(waitTime);
+            await _handleRetryDelay(attempts);
+            // Connection 재설정
+            _resetConnection(hostKey);
             continue;
           }
         }
@@ -77,19 +71,178 @@ class RetryHttpClient extends http.BaseClient {
     }
 
     logger.e('All attempts failed. Last error: $lastException');
+    return _createErrorResponse(lastException);
+  }
+
+  void _manageConnectionPool(String hostKey) {
+    final now = DateTime.now();
+
+    // 오래된 연결 제거
+    _connectionPool.removeWhere(
+        (_, timestamp) => now.difference(timestamp) > _connectionMaxAge);
+
+    // 최대 연결 수 제한
+    if (_connectionPool.length >= _maxConcurrentConnections) {
+      final oldestKey = _connectionPool.entries
+          .reduce((a, b) => a.value.isBefore(b.value) ? a : b)
+          .key;
+      _connectionPool.remove(oldestKey);
+    }
+
+    _connectionPool[hostKey] = now;
+  }
+
+  void _updateConnectionPool(String hostKey) {
+    _connectionPool[hostKey] = DateTime.now();
+  }
+
+  void _setOptimizedHeaders(http.BaseRequest request) {
+    final optimizedHeaders = {
+      'Connection': 'keep-alive',
+      'Keep-Alive': 'timeout=${keepAlive.inSeconds}',
+      'Accept-Encoding': 'gzip, deflate',
+      'Accept-Charset': 'utf-8',
+      'X-DNS-Prefetch-Control': 'on',
+    };
+
+    request.headers.addAll(optimizedHeaders);
+  }
+
+  Future<http.StreamedResponse> _sendWithTimeout(
+      http.BaseRequest request) async {
+    try {
+      // Content-Length 헤더 제거
+      request.headers.remove('Content-Length');
+
+      final response = await _inner.send(request).timeout(
+        timeout,
+        onTimeout: () {
+          throw TimeoutException(
+            'Request timed out after ${timeout.inSeconds} seconds',
+            timeout,
+          );
+        },
+      );
+
+      // chunked transfer encoding 사용
+      if (response.contentLength == null || response.contentLength! < 0) {
+        return http.StreamedResponse(
+          response.stream,
+          response.statusCode,
+          headers: {
+            ...response.headers,
+            'Transfer-Encoding': 'chunked',
+          },
+          isRedirect: response.isRedirect,
+          persistentConnection: response.persistentConnection,
+          reasonPhrase: response.reasonPhrase,
+        );
+      }
+
+      return response;
+    } catch (e) {
+      if (e is TimeoutException) {
+        throw e;
+      }
+      throw ClientException('Failed to send request: $e', request.url);
+    }
+  }
+
+  Future<http.StreamedResponse> _optimizeResponseStream(
+      http.StreamedResponse response, http.BaseRequest request) async {
+    final optimizedStream = response.stream
+        .transform(utf8.decoder) // UTF-8 디코딩
+        .transform(utf8.encoder) // UTF-8 인코딩
+        .timeout(
+      timeout,
+      onTimeout: (EventSink<List<int>> sink) {
+        sink.addError(TimeoutException(
+          'Stream processing timed out',
+          timeout,
+        ));
+        sink.close();
+      },
+    ).handleError((error) {
+      final errorMessage = error.toString().toLowerCase();
+      if (errorMessage.contains('content size exceeds') ||
+          errorMessage.contains('connection closed') ||
+          errorMessage.contains('connection reset')) {
+        // 콘텐츠 크기 초과 에러를 무시하고 계속 진행
+        return;
+      }
+      throw ClientException(
+        'Stream processing error: $error',
+        request.url,
+      );
+    });
+
+    return http.StreamedResponse(
+      optimizedStream,
+      response.statusCode,
+      contentLength: null,
+      // chunked transfer encoding 사용
+      request: request,
+      headers: {
+        ...response.headers,
+        'Transfer-Encoding': 'chunked',
+      },
+      isRedirect: response.isRedirect,
+      persistentConnection: true,
+      reasonPhrase: response.reasonPhrase,
+    );
+  }
+
+  String _createDetailedErrorLog(Exception error, int attempt, Uri url) {
+    return '''
+Attempt $attempt failed:
+URL: $url
+Error Type: ${error.runtimeType}
+Error Message: $error
+Timestamp: ${DateTime.now().toIso8601String()}
+Headers: ${error is ClientException ? error.uri : 'N/A'}
+''';
+  }
+
+  Future<void> _handleRetryDelay(int attempt) async {
+    // 지수 백오프 with 약간의 랜덤성 추가
+    final baseDelay = Duration(milliseconds: 200 * attempt * attempt);
+    final jitter = Duration(milliseconds: (_random.nextDouble() * 50).round());
+    await Future.delayed(baseDelay + jitter);
+  }
+
+  void _resetConnection(String hostKey) {
+    _connectionPool.remove(hostKey);
+  }
+
+  http.StreamedResponse _createErrorResponse(Exception? lastException) {
     return http.StreamedResponse(
       Stream.fromIterable([]),
       500,
+      contentLength: 0,
       reasonPhrase: 'Network Error: ${lastException?.toString()}',
+      headers: {
+        'X-Error-Type': lastException?.runtimeType.toString() ?? 'Unknown',
+        'X-Error-Time': DateTime.now().toIso8601String(),
+      },
     );
   }
 
   bool _shouldRetry(Exception error) {
-    return error is SocketException ||
+    if (error is SocketException ||
         error is TimeoutException ||
-        error is ClientException ||
+        error is ClientException) {
+      return true;
+    }
+
+    final errorString = error.toString().toLowerCase();
+    return errorString.contains('connection closed') ||
+        errorString.contains('connection reset') ||
+        errorString.contains('broken pipe') ||
+        errorString.contains('before full header was received') ||
+        errorString.contains('content size exceeds') ||
         (error is HttpException &&
-            error.toString().contains('Connection closed'));
+            (errorString.contains('connection closed') ||
+                errorString.contains('connection reset')));
   }
 
   Future<http.BaseRequest> _copyRequest(http.BaseRequest original) async {
@@ -111,12 +264,11 @@ class RetryHttpClient extends http.BaseClient {
       ..headers.addAll(original.headers)
       ..followRedirects = original.followRedirects
       ..maxRedirects = original.maxRedirects
-      ..persistentConnection = true; // 연결 유지 설정
+      ..persistentConnection = true;
 
     return copy;
   }
 
-  // 대용량 응답을 위한 스트림 처리 메서드
   Future<List<int>> _collectResponseBytes(
       http.StreamedResponse response) async {
     final completer = Completer<List<int>>();
@@ -144,6 +296,7 @@ class RetryHttpClient extends http.BaseClient {
 
   @override
   void close() {
+    _connectionPool.clear();
     _inner.close();
     super.close();
   }
