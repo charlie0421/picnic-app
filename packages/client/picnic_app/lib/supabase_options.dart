@@ -26,4 +26,7 @@ final supabaseStorage = SupabaseClient(
   Environment.supabaseStorageUrl,
   Environment.supabaseStorageAnonKey,
   httpClient: customHttpClient,
+  headers: {
+    'Accept-Charset': 'utf-8',
+  },
 );

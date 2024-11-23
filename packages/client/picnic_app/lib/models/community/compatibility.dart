@@ -12,10 +12,6 @@ Map<String, LocalizedCompatibility>? _parseI18nResults(dynamic i18nData) {
   if (i18nData == null) return null;
 
   try {
-    // 디버그 로깅 추가
-    logger.d('Processing i18n data: $i18nData');
-    logger.d('i18n data type: ${i18nData.runtimeType}');
-
     final Map<String, LocalizedCompatibility> results = {};
 
     // 맵으로 직접 처리하는 경우
@@ -41,7 +37,6 @@ Map<String, LocalizedCompatibility>? _parseI18nResults(dynamic i18nData) {
         if (language == null) continue;
 
         try {
-          logger.d('Processing language: $language with data: $item');
           final localizedResult = LocalizedCompatibility.fromJson(item);
           results[language] = localizedResult;
         } catch (e, s) {
@@ -53,7 +48,6 @@ Map<String, LocalizedCompatibility>? _parseI18nResults(dynamic i18nData) {
       }
     }
 
-    logger.d('Parsed results: $results');
     return results.isEmpty ? null : results;
   } catch (e, s) {
     logger.d('Error parsing i18n results: $e', stackTrace: s);

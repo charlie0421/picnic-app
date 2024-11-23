@@ -46,6 +46,8 @@ class Compatibility extends _$Compatibility {
         birthTime: birthTime,
       );
 
+      logger.i('Existing compatibility: $existingResponse');
+
 // 기존 데이터가 있는 경우 복사
       if (existingResponse != null) {
         final compatibility = await _copyExistingCompatibility(
@@ -95,6 +97,8 @@ class Compatibility extends _$Compatibility {
           error_message,
           compatibility_score,
           compatibility_summary,
+          details,
+          tips,
           completed_at,
           created_at,
           is_paid,
@@ -137,13 +141,15 @@ class Compatibility extends _$Compatibility {
       'gender': gender,
       'status': 'completed',
       'compatibility_score': existingResponse['compatibility_score'],
-      'compatibility_summary':
-          utf8.decode(existingResponse['compatibility_summary']),
+      'compatibility_summary': existingResponse['compatibility_summary'],
+      'details': existingResponse['details'],
+      'tips': existingResponse['tips'],
       'error_message': null,
       'completed_at': DateTime.now().toIso8601String(),
       'is_paid': existingResponse['is_paid'],
     };
 
+    logger.i('Copying existing compatibility data: $compatibilityData');
     final response =
         await supabase.from(_table).insert(compatibilityData).select().single();
 
@@ -247,7 +253,9 @@ class Compatibility extends _$Compatibility {
           completed_at,
           is_paid,
           artist:artist(*)
-        ''').eq('id', id).single();
+        ''').eq('id', id).maybeSingle();
+
+      logger.i('Main response: $mainResponse');
 
       if (mainResponse == null) {
         throw Exception('Compatibility not found');
@@ -351,47 +359,70 @@ class Compatibility extends _$Compatibility {
   Future<void> _saveI18nData(
       String compatibilityId, Map<String, dynamic> i18nData) async {
     try {
-      // 1. 기본 정보 저장
-      await supabase.from(_i18nTable).upsert({
+      // 기존 데이터가 있는지 먼저 확인
+      final existingData = await supabase
+          .from(_i18nTable)
+          .select()
+          .eq('compatibility_id', compatibilityId)
+          .eq('language', i18nData['language'])
+          .maybeSingle();
+
+      final baseData = {
         'compatibility_id': compatibilityId,
         'language': i18nData['language'],
         'compatibility_score': i18nData['compatibility_score'],
-      });
+      };
 
-      // 2. summary 저장
+      if (existingData != null) {
+        // 기존 데이터가 있으면 UPDATE
+        await supabase
+            .from(_i18nTable)
+            .update(baseData)
+            .eq('compatibility_id', compatibilityId)
+            .eq('language', i18nData['language']);
+      } else {
+        // 기존 데이터가 없으면 INSERT
+        await supabase.from(_i18nTable).insert(baseData);
+      }
+
+      // Summary 업데이트 (있는 경우만)
       if (i18nData['compatibility_summary'] != null) {
-        await supabase.from(_i18nTable).upsert({
-          'compatibility_id': compatibilityId,
-          'language': i18nData['language'],
-          'compatibility_summary': i18nData['compatibility_summary'],
-        });
+        await supabase
+            .from(_i18nTable)
+            .update(
+                {'compatibility_summary': i18nData['compatibility_summary']})
+            .eq('compatibility_id', compatibilityId)
+            .eq('language', i18nData['language']);
       }
 
-      // 3. details.style 저장
-      if (i18nData['details']?['style'] != null) {
-        await supabase.from(_i18nTable).upsert({
-          'compatibility_id': compatibilityId,
-          'language': i18nData['language'],
-          'details': {'style': i18nData['details']['style']},
-        });
+      // Details 업데이트 (있는 경우만)
+      if (i18nData['details'] != null) {
+        final details = {};
+
+        if (i18nData['details']['style'] != null) {
+          details['style'] = i18nData['details']['style'];
+        }
+
+        if (i18nData['details']['activities'] != null) {
+          details['activities'] = i18nData['details']['activities'];
+        }
+
+        if (details.isNotEmpty) {
+          await supabase
+              .from(_i18nTable)
+              .update({'details': details})
+              .eq('compatibility_id', compatibilityId)
+              .eq('language', i18nData['language']);
+        }
       }
 
-      // 4. details.activities 저장
-      if (i18nData['details']?['activities'] != null) {
-        await supabase.from(_i18nTable).upsert({
-          'compatibility_id': compatibilityId,
-          'language': i18nData['language'],
-          'details': {'activities': i18nData['details']['activities']},
-        });
-      }
-
-      // 5. tips 저장
+      // Tips 업데이트 (있는 경우만)
       if (i18nData['tips'] != null) {
-        await supabase.from(_i18nTable).upsert({
-          'compatibility_id': compatibilityId,
-          'language': i18nData['language'],
-          'tips': i18nData['tips'],
-        });
+        await supabase
+            .from(_i18nTable)
+            .update({'tips': i18nData['tips']})
+            .eq('compatibility_id', compatibilityId)
+            .eq('language', i18nData['language']);
       }
     } catch (e, s) {
       logger.e('Error saving i18n data', error: e, stackTrace: s);

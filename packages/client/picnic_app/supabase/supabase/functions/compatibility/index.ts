@@ -187,8 +187,6 @@ async function generateNewResults(compatibility): Promise<CompatibilityResult> {
 
 async function generateAndStoreTranslations(supabaseClient, compatibility_id, result: CompatibilityResult) {
     try {
-        const translations = []
-
         for (const targetLang of SUPPORTED_LANGUAGES) {
             if (targetLang === 'ko') continue
 
@@ -214,6 +212,14 @@ async function generateAndStoreTranslations(supabaseClient, compatibility_id, re
                 result.tips.map(tip => translateText(tip, targetLang))
             );
 
+            // 기존 데이터 확인
+            const { data: existingData } = await supabaseClient
+                .from('compatibility_results_i18n')
+                .select()
+                .eq('compatibility_id', compatibility_id)
+                .eq('language', targetLang)
+                .maybeSingle();
+
             const translatedResult = {
                 compatibility_id,
                 language: targetLang,
@@ -223,23 +229,32 @@ async function generateAndStoreTranslations(supabaseClient, compatibility_id, re
                     targetLang
                 ),
                 details: translatedDetails,
-                tips: translatedTips, // 배열로 직접 저장
+                tips: translatedTips,
                 updated_at: new Date().toISOString()
-            }
+            };
 
-            translations.push(translatedResult)
-        }
+            if (existingData) {
+                // UPDATE
+                const { error } = await supabaseClient
+                    .from('compatibility_results_i18n')
+                    .update(translatedResult)
+                    .eq('compatibility_id', compatibility_id)
+                    .eq('language', targetLang);
 
-        if (translations.length > 0) {
-            const { error } = await supabaseClient
-                .from('compatibility_results_i18n')
-                .upsert(translations, {
-                    onConflict: 'compatibility_id,language'
-                })
+                if (error) {
+                    console.error('Translation update error:', error);
+                    throw error;
+                }
+            } else {
+                // INSERT
+                const { error } = await supabaseClient
+                    .from('compatibility_results_i18n')
+                    .insert(translatedResult);
 
-            if (error) {
-                console.error('Translation save error:', error);
-                throw error;
+                if (error) {
+                    console.error('Translation insert error:', error);
+                    throw error;
+                }
             }
         }
     } catch (error) {

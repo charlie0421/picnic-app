@@ -90,8 +90,6 @@ class _CompatibilityInputScreenState
               _birthTime =
                   userProfile.birthTime; // Load birth time from profile
             });
-            logger.i(
-                'Loaded user profile - birthDate: $_birthDate, gender: $_gender, birthTime: $_birthTime');
           }
         },
         loading: () => null,
