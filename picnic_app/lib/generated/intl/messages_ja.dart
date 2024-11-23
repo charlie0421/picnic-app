@@ -82,31 +82,83 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("検索結果"),
         "compatibility_agree_checkbox": MessageLookupByLibrary.simpleMessage(
             "性別、誕生日情報をプロフィールに保存することに同意します。"),
+        "compatibility_analyze_start":
+            MessageLookupByLibrary.simpleMessage("相性分析開始"),
+        "compatibility_analyzing":
+            MessageLookupByLibrary.simpleMessage("相性を分析しています。"),
+        "compatibility_birthday": MessageLookupByLibrary.simpleMessage("生年月日"),
+        "compatibility_birthtime": MessageLookupByLibrary.simpleMessage("出生時間"),
+        "compatibility_duplicate_data_message":
+            MessageLookupByLibrary.simpleMessage("同じ条件の相性データが既に存在します。"),
+        "compatibility_duplicate_data_title":
+            MessageLookupByLibrary.simpleMessage("既に存在する相性データ"),
+        "compatibility_gender": MessageLookupByLibrary.simpleMessage("性別"),
+        "compatibility_gender_female":
+            MessageLookupByLibrary.simpleMessage("女性"),
+        "compatibility_gender_male": MessageLookupByLibrary.simpleMessage("男性"),
+        "compatibility_new_compatibility":
+            MessageLookupByLibrary.simpleMessage("新しい相性を確認する"),
+        "compatibility_new_compatibility_ask":
+            MessageLookupByLibrary.simpleMessage("新しい相性を見ませんか？"),
         "compatibility_page_title": MessageLookupByLibrary.simpleMessage("相性"),
+        "compatibility_result_70":
+            MessageLookupByLibrary.simpleMessage("相性がいいですよ！🌟。"),
+        "compatibility_result_80":
+            MessageLookupByLibrary.simpleMessage("とても相性が良いですね！💫。"),
+        "compatibility_result_90":
+            MessageLookupByLibrary.simpleMessage("最高の相性です！✨。"),
+        "compatibility_result_low":
+            MessageLookupByLibrary.simpleMessage("自分に合う部分を探してみてください😊。"),
+        "compatibility_snackbar_error":
+            MessageLookupByLibrary.simpleMessage("エラーが発生しました。"),
+        "compatibility_snackbar_need_birthday":
+            MessageLookupByLibrary.simpleMessage("生年月日を入力してください。"),
+        "compatibility_snackbar_need_birthtime":
+            MessageLookupByLibrary.simpleMessage("出生時刻を入力してください。"),
+        "compatibility_snackbar_need_gender":
+            MessageLookupByLibrary.simpleMessage("性別を選択してください。"),
+        "compatibility_snackbar_need_profile_save_agree":
+            MessageLookupByLibrary.simpleMessage("プロフィール保存に同意してください。"),
+        "compatibility_snackbar_start":
+            MessageLookupByLibrary.simpleMessage("相性を分析し始めます。"),
+        "compatibility_status_completed":
+            MessageLookupByLibrary.simpleMessage("完了"),
+        "compatibility_status_error":
+            MessageLookupByLibrary.simpleMessage("エラー"),
+        "compatibility_status_input":
+            MessageLookupByLibrary.simpleMessage("入力中"),
+        "compatibility_status_pending":
+            MessageLookupByLibrary.simpleMessage("分析中"),
         "compatibility_time_slot1":
-            MessageLookupByLibrary.simpleMessage("ジャッシー|(23:30-01:29)｜🐀さん"),
+            MessageLookupByLibrary.simpleMessage("子の刻|(23:30-01:29)|🐀"),
         "compatibility_time_slot10":
-            MessageLookupByLibrary.simpleMessage("ゆーし|(17:30-19:29)｜🐔｜｜🐔｜🐔"),
+            MessageLookupByLibrary.simpleMessage("酉の刻|(17:30-19:29)|🐔"),
         "compatibility_time_slot11":
-            MessageLookupByLibrary.simpleMessage("スルシ|(19:30～21:29)｜🐕｜🐕"),
+            MessageLookupByLibrary.simpleMessage("戌の刻|(19:30-21:29)|🐕"),
         "compatibility_time_slot12":
-            MessageLookupByLibrary.simpleMessage("ハッシュ|(21:30-23:29)｜🐖｜🐖"),
+            MessageLookupByLibrary.simpleMessage("亥の刻|(21:30-23:29)|🐖"),
         "compatibility_time_slot2":
-            MessageLookupByLibrary.simpleMessage("祝詞|(01:30-03:29)｜🐂｜🐂"),
+            MessageLookupByLibrary.simpleMessage("丑の刻|(01:30-03:29)|🐂"),
         "compatibility_time_slot3":
-            MessageLookupByLibrary.simpleMessage("インシー|(03:30-05:29)|🐅｜🐅"),
+            MessageLookupByLibrary.simpleMessage("寅の刻|(03:30-05:29)|🐅"),
         "compatibility_time_slot4":
-            MessageLookupByLibrary.simpleMessage("ミョシ|(05:30-07:29)｜🐇｜🐇"),
+            MessageLookupByLibrary.simpleMessage("卯の刻|(05:30-07:29)|🐇"),
         "compatibility_time_slot5":
-            MessageLookupByLibrary.simpleMessage("ジンシ|(07:30-09:29)|🐉｜🐉"),
+            MessageLookupByLibrary.simpleMessage("辰の刻|(07:30-09:29)|🐉"),
         "compatibility_time_slot6":
-            MessageLookupByLibrary.simpleMessage("サシ|(09:30-11:29)｜🐍｜🐍"),
+            MessageLookupByLibrary.simpleMessage("巳の刻|(09:30-11:29)|🐍"),
         "compatibility_time_slot7":
-            MessageLookupByLibrary.simpleMessage("丑三つ時|(11:30-13:29)｜🐎｜🐎"),
+            MessageLookupByLibrary.simpleMessage("午の刻|(11:30-13:29)|🐎"),
         "compatibility_time_slot8":
-            MessageLookupByLibrary.simpleMessage("ミッシー|(13:30-15:29)｜🐑｜🐑"),
+            MessageLookupByLibrary.simpleMessage("未の刻|(13:30-15:29)|🐑"),
         "compatibility_time_slot9":
-            MessageLookupByLibrary.simpleMessage("シンシ|(15:30-17:29)｜🐒｜🐒"),
+            MessageLookupByLibrary.simpleMessage("申の刻|(15:30-17:29)|🐒"),
+        "compatibility_time_slot_unknown":
+            MessageLookupByLibrary.simpleMessage("不明"),
+        "compatibility_waiting_message":
+            MessageLookupByLibrary.simpleMessage("しばらくお待ちください。"),
+        "compatibility_warning_exit":
+            MessageLookupByLibrary.simpleMessage("画面を離れると、分析をやり直す必要があります。"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("キャンセル"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("確認"),
         "dialog_caution": MessageLookupByLibrary.simpleMessage("警告 🚫 🚫 注意事項"),
@@ -400,6 +452,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_vote": MessageLookupByLibrary.simpleMessage("投票"),
         "nickname_validation_error":
             MessageLookupByLibrary.simpleMessage("20文字以内、特殊文字を除くことができます。"),
+        "optional": MessageLookupByLibrary.simpleMessage("オプション"),
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("マイページ"),
         "page_title_myprofile":
             MessageLookupByLibrary.simpleMessage("私のプロフィール"),
@@ -535,6 +588,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "replies": MessageLookupByLibrary.simpleMessage("コメント"),
         "reward": MessageLookupByLibrary.simpleMessage("リワード"),
         "save": MessageLookupByLibrary.simpleMessage("ストレージ"),
+        "seconds": MessageLookupByLibrary.simpleMessage("蝋燭"),
         "share": MessageLookupByLibrary.simpleMessage("共有"),
         "share_image_fail": MessageLookupByLibrary.simpleMessage("画像共有に失敗"),
         "share_image_success": MessageLookupByLibrary.simpleMessage("画像共有成功"),

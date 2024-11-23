@@ -191,7 +191,7 @@ class _CompatibilityHistoryPageState
                         const Icon(Icons.add_circle_outline, size: 20),
                         const SizedBox(width: 8),
                         Text(
-                          '새로운 궁합 확인하기',
+                          S.of(context).compatibility_new_compatibility,
                           style: getTextStyle(AppTypo.body16B, Colors.white),
                         ),
                       ],

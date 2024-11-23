@@ -86,32 +86,92 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Search results"),
         "compatibility_agree_checkbox": MessageLookupByLibrary.simpleMessage(
             "I agree to store my gender and birthday information in my profile."),
+        "compatibility_analyze_start": MessageLookupByLibrary.simpleMessage(
+            "Start compatibility analysis"),
+        "compatibility_analyzing":
+            MessageLookupByLibrary.simpleMessage("Analyzing compatibility."),
+        "compatibility_birthday":
+            MessageLookupByLibrary.simpleMessage("Date of birth"),
+        "compatibility_birthtime":
+            MessageLookupByLibrary.simpleMessage("Birth time"),
+        "compatibility_duplicate_data_message":
+            MessageLookupByLibrary.simpleMessage(
+                "Compatibility data with the same conditions already exists."),
+        "compatibility_duplicate_data_title":
+            MessageLookupByLibrary.simpleMessage(
+                "Compatibility data that already exists"),
+        "compatibility_gender": MessageLookupByLibrary.simpleMessage("Gender"),
+        "compatibility_gender_female":
+            MessageLookupByLibrary.simpleMessage("Female"),
+        "compatibility_gender_male":
+            MessageLookupByLibrary.simpleMessage("Male"),
+        "compatibility_new_compatibility":
+            MessageLookupByLibrary.simpleMessage("Check out new matches"),
+        "compatibility_new_compatibility_ask":
+            MessageLookupByLibrary.simpleMessage("Want to see a new pairing?"),
         "compatibility_page_title":
             MessageLookupByLibrary.simpleMessage("Compatibility"),
-        "compatibility_time_slot1":
-            MessageLookupByLibrary.simpleMessage("자시|(23:30-01:29)|🐀"),
-        "compatibility_time_slot10":
-            MessageLookupByLibrary.simpleMessage("유시|(17:30-19:29)|🐔"),
-        "compatibility_time_slot11":
-            MessageLookupByLibrary.simpleMessage("술시|(19:30-21:29)|🐕"),
-        "compatibility_time_slot12":
-            MessageLookupByLibrary.simpleMessage("해시|(21:30-23:29)|🐖"),
-        "compatibility_time_slot2":
-            MessageLookupByLibrary.simpleMessage("축시|(01:30-03:29)|🐂"),
-        "compatibility_time_slot3":
-            MessageLookupByLibrary.simpleMessage("인시|(03:30-05:29)|🐅"),
-        "compatibility_time_slot4":
-            MessageLookupByLibrary.simpleMessage("묘시|(05:30-07:29)|🐇"),
-        "compatibility_time_slot5":
-            MessageLookupByLibrary.simpleMessage("진시|(07:30-09:29)|🐉"),
-        "compatibility_time_slot6":
-            MessageLookupByLibrary.simpleMessage("사시|(09:30-11:29)|🐍"),
-        "compatibility_time_slot7":
-            MessageLookupByLibrary.simpleMessage("오시|(11:30-13:29)|🐎"),
-        "compatibility_time_slot8":
-            MessageLookupByLibrary.simpleMessage("미시|(13:30-15:29)|🐑"),
-        "compatibility_time_slot9":
-            MessageLookupByLibrary.simpleMessage("신시|(15:30-17:29)|🐒"),
+        "compatibility_result_70":
+            MessageLookupByLibrary.simpleMessage("좋은 궁합이에요! 🌟"),
+        "compatibility_result_80":
+            MessageLookupByLibrary.simpleMessage("아주 좋은 궁합이에요! 💫"),
+        "compatibility_result_90":
+            MessageLookupByLibrary.simpleMessage("최고의 궁합이에요! ✨"),
+        "compatibility_result_low":
+            MessageLookupByLibrary.simpleMessage("잘 맞는 부분을 찾아보세요 😊"),
+        "compatibility_snackbar_error":
+            MessageLookupByLibrary.simpleMessage("An error occurred."),
+        "compatibility_snackbar_need_birthday":
+            MessageLookupByLibrary.simpleMessage(
+                "Please enter your date of birth."),
+        "compatibility_snackbar_need_birthtime":
+            MessageLookupByLibrary.simpleMessage(
+                "Please enter your birth time."),
+        "compatibility_snackbar_need_gender":
+            MessageLookupByLibrary.simpleMessage("Please select a gender."),
+        "compatibility_snackbar_need_profile_save_agree":
+            MessageLookupByLibrary.simpleMessage(
+                "Give your consent to save your profile."),
+        "compatibility_snackbar_start": MessageLookupByLibrary.simpleMessage(
+            "Start analyzing compatibility."),
+        "compatibility_status_completed":
+            MessageLookupByLibrary.simpleMessage("Done"),
+        "compatibility_status_error":
+            MessageLookupByLibrary.simpleMessage("오류"),
+        "compatibility_status_input":
+            MessageLookupByLibrary.simpleMessage("Typing"),
+        "compatibility_status_pending":
+            MessageLookupByLibrary.simpleMessage("Analyzing"),
+        "compatibility_time_slot1": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Rat|(23:30-01:29)|🐀"),
+        "compatibility_time_slot10": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Rooster|(17:30-19:29)|🐔"),
+        "compatibility_time_slot11": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Dog|(19:30-21:29)|🐕"),
+        "compatibility_time_slot12": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Pig|(21:30-23:29)|🐖"),
+        "compatibility_time_slot2": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Ox|(01:30-03:29)|🐂"),
+        "compatibility_time_slot3": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Tiger|(03:30-05:29)|🐅"),
+        "compatibility_time_slot4": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Rabbit|(05:30-07:29)|🐇"),
+        "compatibility_time_slot5": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Dragon|(07:30-09:29)|🐉"),
+        "compatibility_time_slot6": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Snake|(09:30-11:29)|🐍"),
+        "compatibility_time_slot7": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Horse|(11:30-13:29)|🐎"),
+        "compatibility_time_slot8": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Sheep|(13:30-15:29)|🐑"),
+        "compatibility_time_slot9": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Monkey|(15:30-17:29)|🐒"),
+        "compatibility_time_slot_unknown":
+            MessageLookupByLibrary.simpleMessage("Don\'t know"),
+        "compatibility_waiting_message":
+            MessageLookupByLibrary.simpleMessage("Please wait a moment."),
+        "compatibility_warning_exit": MessageLookupByLibrary.simpleMessage(
+            "If you leave the screen, you\'ll need to do the analysis again."),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("Confirm"),
         "dialog_caution": MessageLookupByLibrary.simpleMessage("🚫 경고 🚫"),
@@ -438,6 +498,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_vote": MessageLookupByLibrary.simpleMessage("Voting"),
         "nickname_validation_error": MessageLookupByLibrary.simpleMessage(
             "20 characters or less, excluding special characters."),
+        "optional": MessageLookupByLibrary.simpleMessage("Optional"),
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("My Page"),
         "page_title_myprofile":
             MessageLookupByLibrary.simpleMessage("My profile"),
@@ -596,6 +657,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "replies": MessageLookupByLibrary.simpleMessage("Comments"),
         "reward": MessageLookupByLibrary.simpleMessage("Rewards"),
         "save": MessageLookupByLibrary.simpleMessage("Save"),
+        "seconds": MessageLookupByLibrary.simpleMessage("seconds"),
         "share": MessageLookupByLibrary.simpleMessage("Share"),
         "share_image_fail":
             MessageLookupByLibrary.simpleMessage("Image sharing failed"),

@@ -3,13 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/common/avatar_container.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/community/compatibility/animated_heart.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
 
-class CompatibilityResultCard extends ConsumerWidget {
+class CompatibilityResultCard extends ConsumerStatefulWidget {
   const CompatibilityResultCard({
     super.key,
     required this.compatibility,
@@ -18,7 +19,14 @@ class CompatibilityResultCard extends ConsumerWidget {
   final CompatibilityModel compatibility;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CompatibilityResultCard> createState() =>
+      _CompatibilityResultCardState();
+}
+
+class _CompatibilityResultCardState
+    extends ConsumerState<CompatibilityResultCard> {
+  @override
+  Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -37,15 +45,15 @@ class CompatibilityResultCard extends ConsumerWidget {
       ),
       child: Column(
         children: [
-          if (compatibility.compatibilityScore != null) ...[
-            _buildScoreSection(compatibility.compatibilityScore!),
+          if (widget.compatibility.compatibilityScore != null) ...[
+            _buildScoreSection(widget.compatibility.compatibilityScore!),
           ],
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                _buildStatusBadge(compatibility.status),
+                _buildStatusBadge(widget.compatibility.status),
               ],
             ),
           ),
@@ -55,7 +63,7 @@ class CompatibilityResultCard extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ProfileImageContainer(
-                  avatarUrl: compatibility.artist.image ?? '',
+                  avatarUrl: widget.compatibility.artist.image ?? '',
                   width: 70,
                   height: 70,
                   borderRadius: 10,
@@ -95,9 +103,9 @@ class CompatibilityResultCard extends ConsumerWidget {
                   child: _buildProfileInfo(
                     AxisDirection.left,
                     getLocaleTextFromJson(
-                      compatibility.artist.name,
+                      widget.compatibility.artist.name,
                     ),
-                    compatibility.artist.birthDate,
+                    widget.compatibility.artist.birthDate,
                     null,
                   ),
                 ),
@@ -108,8 +116,8 @@ class CompatibilityResultCard extends ConsumerWidget {
                     ref.read(userInfoProvider
                             .select((value) => value.value?.nickname)) ??
                         '',
-                    compatibility.birthDate,
-                    compatibility.birthTime,
+                    widget.compatibility.birthDate,
+                    widget.compatibility.birthTime,
                   ),
                 ),
               ],
@@ -240,10 +248,11 @@ class CompatibilityResultCard extends ConsumerWidget {
 
   String _getStatusText(CompatibilityStatus status) {
     return switch (status) {
-      CompatibilityStatus.completed => '완료',
-      CompatibilityStatus.pending => '분석중',
-      CompatibilityStatus.error => '오류',
-      CompatibilityStatus.input => '입력중',
+      CompatibilityStatus.completed =>
+        S.of(context).compatibility_status_completed,
+      CompatibilityStatus.pending => S.of(context).compatibility_status_pending,
+      CompatibilityStatus.error => S.of(context).compatibility_status_error,
+      CompatibilityStatus.input => S.of(context).compatibility_status_input,
     };
   }
 
@@ -255,9 +264,9 @@ class CompatibilityResultCard extends ConsumerWidget {
   }
 
   String _getScoreMessage(int score) {
-    if (score >= 90) return '최고의 궁합이에요! ✨';
-    if (score >= 80) return '아주 좋은 궁합이에요! 💫';
-    if (score >= 70) return '좋은 궁합이에요! 🌟';
-    return '잘 맞는 부분을 찾아보세요 😊';
+    if (score >= 90) return S.of(context).compatibility_result_90;
+    if (score >= 80) return S.of(context).compatibility_result_80;
+    if (score >= 70) return S.of(context).compatibility_result_70;
+    return S.of(context).compatibility_result_low;
   }
 }
