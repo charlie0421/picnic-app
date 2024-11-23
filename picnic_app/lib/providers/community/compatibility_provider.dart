@@ -37,7 +37,7 @@ class Compatibility extends _$Compatibility {
       final userId = supabase.auth.currentUser?.id;
       if (userId == null) throw Exception('User not authenticated');
 
-// 기존 데이터 조회
+      // 기존 데이터 조회
       final existingResponse = await _findExistingCompatibility(
         userId: userId,
         artistId: artist.id,
@@ -48,7 +48,7 @@ class Compatibility extends _$Compatibility {
 
       logger.i('Existing compatibility: $existingResponse');
 
-// 기존 데이터가 있는 경우 복사
+      // 기존 데이터가 있는 경우 복사
       if (existingResponse != null) {
         final compatibility = await _copyExistingCompatibility(
           existingResponse: existingResponse,
@@ -61,7 +61,7 @@ class Compatibility extends _$Compatibility {
         return compatibility;
       }
 
-// 새로운 데이터 생성
+      // 새로운 데이터 생성
       final compatibility = await _createNewCompatibility(
         userId: userId,
         artist: artist,
@@ -139,33 +139,28 @@ class Compatibility extends _$Compatibility {
       'user_birth_date': birthDate.toIso8601String(),
       'user_birth_time': birthTime,
       'gender': gender,
-      'status': 'completed',
-      'compatibility_score': existingResponse['compatibility_score'],
-      'compatibility_summary': existingResponse['compatibility_summary'],
-      'details': existingResponse['details'],
-      'tips': existingResponse['tips'],
+      'status': 'pending',
+      'compatibility_score': null,
+      'compatibility_summary': null,
+      'details': null,
+      'tips': null,
       'error_message': null,
-      'completed_at': DateTime.now().toIso8601String(),
       'is_paid': existingResponse['is_paid'],
     };
 
-    logger.i('Copying existing compatibility data: $compatibilityData');
+    logger
+        .i('Creating new compatibility with existing data: $compatibilityData');
     final response =
         await supabase.from(_table).insert(compatibilityData).select().single();
-
-// i18n 데이터 조회 및 복사
-    final i18nData = await _getI18nData(existingResponse['id']);
-    if (i18nData.isNotEmpty) {
-      await _copyI18nData(response['id'], i18nData);
-    }
 
     final compatibility = CompatibilityModel.fromJson({
       ...response,
       'artist': artist.toJson(),
-      'i18n': i18nData,
     });
 
     state = compatibility;
+    _processInBackground(compatibility);
+
     return compatibility;
   }
 
@@ -314,6 +309,7 @@ class Compatibility extends _$Compatibility {
               .eq('compatibility_id', id)
               .eq('language', lang)
               .not('tips', 'is', null)
+              .limit(1)
               .maybeSingle();
 
           // 모든 데이터 병합
@@ -486,6 +482,11 @@ class Compatibility extends _$Compatibility {
             'status': 'error',
             'error_message': 'Failed after $_maxRetries attempts',
           }).eq('id', initial.id);
+
+          state = state?.copyWith(
+            status: CompatibilityStatus.error,
+            errorMessage: 'Failed after $_maxRetries attempts',
+          );
           return;
         }
 
