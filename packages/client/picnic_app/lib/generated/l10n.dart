@@ -3400,120 +3400,120 @@ class S {
     );
   }
 
-  /// `자시|(23:30-01:29)|🐀`
+  /// `Hour of the Rat|(23:30-01:29)|🐀`
   String get compatibility_time_slot1 {
     return Intl.message(
-      '자시|(23:30-01:29)|🐀',
+      'Hour of the Rat|(23:30-01:29)|🐀',
       name: 'compatibility_time_slot1',
       desc: '',
       args: [],
     );
   }
 
-  /// `축시|(01:30-03:29)|🐂`
+  /// `Hour of the Ox|(01:30-03:29)|🐂`
   String get compatibility_time_slot2 {
     return Intl.message(
-      '축시|(01:30-03:29)|🐂',
+      'Hour of the Ox|(01:30-03:29)|🐂',
       name: 'compatibility_time_slot2',
       desc: '',
       args: [],
     );
   }
 
-  /// `인시|(03:30-05:29)|🐅`
+  /// `Hour of the Tiger|(03:30-05:29)|🐅`
   String get compatibility_time_slot3 {
     return Intl.message(
-      '인시|(03:30-05:29)|🐅',
+      'Hour of the Tiger|(03:30-05:29)|🐅',
       name: 'compatibility_time_slot3',
       desc: '',
       args: [],
     );
   }
 
-  /// `묘시|(05:30-07:29)|🐇`
+  /// `Hour of the Rabbit|(05:30-07:29)|🐇`
   String get compatibility_time_slot4 {
     return Intl.message(
-      '묘시|(05:30-07:29)|🐇',
+      'Hour of the Rabbit|(05:30-07:29)|🐇',
       name: 'compatibility_time_slot4',
       desc: '',
       args: [],
     );
   }
 
-  /// `진시|(07:30-09:29)|🐉`
+  /// `Hour of the Dragon|(07:30-09:29)|🐉`
   String get compatibility_time_slot5 {
     return Intl.message(
-      '진시|(07:30-09:29)|🐉',
+      'Hour of the Dragon|(07:30-09:29)|🐉',
       name: 'compatibility_time_slot5',
       desc: '',
       args: [],
     );
   }
 
-  /// `사시|(09:30-11:29)|🐍`
+  /// `Hour of the Snake|(09:30-11:29)|🐍`
   String get compatibility_time_slot6 {
     return Intl.message(
-      '사시|(09:30-11:29)|🐍',
+      'Hour of the Snake|(09:30-11:29)|🐍',
       name: 'compatibility_time_slot6',
       desc: '',
       args: [],
     );
   }
 
-  /// `오시|(11:30-13:29)|🐎`
+  /// `Hour of the Horse|(11:30-13:29)|🐎`
   String get compatibility_time_slot7 {
     return Intl.message(
-      '오시|(11:30-13:29)|🐎',
+      'Hour of the Horse|(11:30-13:29)|🐎',
       name: 'compatibility_time_slot7',
       desc: '',
       args: [],
     );
   }
 
-  /// `미시|(13:30-15:29)|🐑`
+  /// `Hour of the Sheep|(13:30-15:29)|🐑`
   String get compatibility_time_slot8 {
     return Intl.message(
-      '미시|(13:30-15:29)|🐑',
+      'Hour of the Sheep|(13:30-15:29)|🐑',
       name: 'compatibility_time_slot8',
       desc: '',
       args: [],
     );
   }
 
-  /// `신시|(15:30-17:29)|🐒`
+  /// `Hour of the Monkey|(15:30-17:29)|🐒`
   String get compatibility_time_slot9 {
     return Intl.message(
-      '신시|(15:30-17:29)|🐒',
+      'Hour of the Monkey|(15:30-17:29)|🐒',
       name: 'compatibility_time_slot9',
       desc: '',
       args: [],
     );
   }
 
-  /// `유시|(17:30-19:29)|🐔`
+  /// `Hour of the Rooster|(17:30-19:29)|🐔`
   String get compatibility_time_slot10 {
     return Intl.message(
-      '유시|(17:30-19:29)|🐔',
+      'Hour of the Rooster|(17:30-19:29)|🐔',
       name: 'compatibility_time_slot10',
       desc: '',
       args: [],
     );
   }
 
-  /// `술시|(19:30-21:29)|🐕`
+  /// `Hour of the Dog|(19:30-21:29)|🐕`
   String get compatibility_time_slot11 {
     return Intl.message(
-      '술시|(19:30-21:29)|🐕',
+      'Hour of the Dog|(19:30-21:29)|🐕',
       name: 'compatibility_time_slot11',
       desc: '',
       args: [],
     );
   }
 
-  /// `해시|(21:30-23:29)|🐖`
+  /// `Hour of the Pig|(21:30-23:29)|🐖`
   String get compatibility_time_slot12 {
     return Intl.message(
-      '해시|(21:30-23:29)|🐖',
+      'Hour of the Pig|(21:30-23:29)|🐖',
       name: 'compatibility_time_slot12',
       desc: '',
       args: [],
@@ -3545,6 +3545,306 @@ class S {
     return Intl.message(
       'Compatibility',
       name: 'compatibility_page_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Analyzing compatibility.`
+  String get compatibility_analyzing {
+    return Intl.message(
+      'Analyzing compatibility.',
+      name: 'compatibility_analyzing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `seconds`
+  String get seconds {
+    return Intl.message(
+      'seconds',
+      name: 'seconds',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please wait a moment.`
+  String get compatibility_waiting_message {
+    return Intl.message(
+      'Please wait a moment.',
+      name: 'compatibility_waiting_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `If you leave the screen, you'll need to do the analysis again.`
+  String get compatibility_warning_exit {
+    return Intl.message(
+      'If you leave the screen, you\'ll need to do the analysis again.',
+      name: 'compatibility_warning_exit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Analyzing`
+  String get compatibility_status_pending {
+    return Intl.message(
+      'Analyzing',
+      name: 'compatibility_status_pending',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Done`
+  String get compatibility_status_completed {
+    return Intl.message(
+      'Done',
+      name: 'compatibility_status_completed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Typing`
+  String get compatibility_status_input {
+    return Intl.message(
+      'Typing',
+      name: 'compatibility_status_input',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `오류`
+  String get compatibility_status_error {
+    return Intl.message(
+      '오류',
+      name: 'compatibility_status_error',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `최고의 궁합이에요! ✨`
+  String get compatibility_result_90 {
+    return Intl.message(
+      '최고의 궁합이에요! ✨',
+      name: 'compatibility_result_90',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `아주 좋은 궁합이에요! 💫`
+  String get compatibility_result_80 {
+    return Intl.message(
+      '아주 좋은 궁합이에요! 💫',
+      name: 'compatibility_result_80',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `좋은 궁합이에요! 🌟`
+  String get compatibility_result_70 {
+    return Intl.message(
+      '좋은 궁합이에요! 🌟',
+      name: 'compatibility_result_70',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `잘 맞는 부분을 찾아보세요 😊`
+  String get compatibility_result_low {
+    return Intl.message(
+      '잘 맞는 부분을 찾아보세요 😊',
+      name: 'compatibility_result_low',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Compatibility data with the same conditions already exists.`
+  String get compatibility_duplicate_data_message {
+    return Intl.message(
+      'Compatibility data with the same conditions already exists.',
+      name: 'compatibility_duplicate_data_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Birth time`
+  String get compatibility_birthtime {
+    return Intl.message(
+      'Birth time',
+      name: 'compatibility_birthtime',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Date of birth`
+  String get compatibility_birthday {
+    return Intl.message(
+      'Date of birth',
+      name: 'compatibility_birthday',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Compatibility data that already exists`
+  String get compatibility_duplicate_data_title {
+    return Intl.message(
+      'Compatibility data that already exists',
+      name: 'compatibility_duplicate_data_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Gender`
+  String get compatibility_gender {
+    return Intl.message(
+      'Gender',
+      name: 'compatibility_gender',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Check out new matches`
+  String get compatibility_new_compatibility {
+    return Intl.message(
+      'Check out new matches',
+      name: 'compatibility_new_compatibility',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Start analyzing compatibility.`
+  String get compatibility_snackbar_start {
+    return Intl.message(
+      'Start analyzing compatibility.',
+      name: 'compatibility_snackbar_start',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `An error occurred.`
+  String get compatibility_snackbar_error {
+    return Intl.message(
+      'An error occurred.',
+      name: 'compatibility_snackbar_error',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Optional`
+  String get optional {
+    return Intl.message(
+      'Optional',
+      name: 'optional',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Male`
+  String get compatibility_gender_male {
+    return Intl.message(
+      'Male',
+      name: 'compatibility_gender_male',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Give your consent to save your profile.`
+  String get compatibility_snackbar_need_profile_save_agree {
+    return Intl.message(
+      'Give your consent to save your profile.',
+      name: 'compatibility_snackbar_need_profile_save_agree',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Female`
+  String get compatibility_gender_female {
+    return Intl.message(
+      'Female',
+      name: 'compatibility_gender_female',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please select a gender.`
+  String get compatibility_snackbar_need_gender {
+    return Intl.message(
+      'Please select a gender.',
+      name: 'compatibility_snackbar_need_gender',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter your date of birth.`
+  String get compatibility_snackbar_need_birthday {
+    return Intl.message(
+      'Please enter your date of birth.',
+      name: 'compatibility_snackbar_need_birthday',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter your birth time.`
+  String get compatibility_snackbar_need_birthtime {
+    return Intl.message(
+      'Please enter your birth time.',
+      name: 'compatibility_snackbar_need_birthtime',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Don't know`
+  String get compatibility_time_slot_unknown {
+    return Intl.message(
+      'Don\'t know',
+      name: 'compatibility_time_slot_unknown',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Start compatibility analysis`
+  String get compatibility_analyze_start {
+    return Intl.message(
+      'Start compatibility analysis',
+      name: 'compatibility_analyze_start',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Want to see a new pairing?`
+  String get compatibility_new_compatibility_ask {
+    return Intl.message(
+      'Want to see a new pairing?',
+      name: 'compatibility_new_compatibility_ask',
       desc: '',
       args: [],
     );

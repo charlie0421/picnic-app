@@ -83,7 +83,53 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("검색 결과"),
         "compatibility_agree_checkbox": MessageLookupByLibrary.simpleMessage(
             "성별, 생일 정보를 프로필에 저장하는 것에 동의합니다."),
+        "compatibility_analyze_start":
+            MessageLookupByLibrary.simpleMessage("궁합 분석 시작"),
+        "compatibility_analyzing":
+            MessageLookupByLibrary.simpleMessage("궁합을 분석하고 있습니다."),
+        "compatibility_birthday": MessageLookupByLibrary.simpleMessage("생년월일"),
+        "compatibility_birthtime": MessageLookupByLibrary.simpleMessage("출생시간"),
+        "compatibility_duplicate_data_message":
+            MessageLookupByLibrary.simpleMessage("동일한 조건의 궁합 데이터가 이미 존재합니다."),
+        "compatibility_duplicate_data_title":
+            MessageLookupByLibrary.simpleMessage("이미 존재하는 궁합 데이터"),
+        "compatibility_gender": MessageLookupByLibrary.simpleMessage("성별"),
+        "compatibility_gender_female":
+            MessageLookupByLibrary.simpleMessage("여성"),
+        "compatibility_gender_male": MessageLookupByLibrary.simpleMessage("남성"),
+        "compatibility_new_compatibility":
+            MessageLookupByLibrary.simpleMessage("새로운 궁합 확인하기"),
+        "compatibility_new_compatibility_ask":
+            MessageLookupByLibrary.simpleMessage("새로운 궁합을 보시겠습니까?"),
         "compatibility_page_title": MessageLookupByLibrary.simpleMessage("궁합"),
+        "compatibility_result_70":
+            MessageLookupByLibrary.simpleMessage("좋은 궁합이에요! 🌟"),
+        "compatibility_result_80":
+            MessageLookupByLibrary.simpleMessage("아주 좋은 궁합이에요! 💫"),
+        "compatibility_result_90":
+            MessageLookupByLibrary.simpleMessage("최고의 궁합이에요! ✨"),
+        "compatibility_result_low":
+            MessageLookupByLibrary.simpleMessage("잘 맞는 부분을 찾아보세요 😊"),
+        "compatibility_snackbar_error":
+            MessageLookupByLibrary.simpleMessage("오류가 발생했습니다."),
+        "compatibility_snackbar_need_birthday":
+            MessageLookupByLibrary.simpleMessage("생년월일을 입력해주세요."),
+        "compatibility_snackbar_need_birthtime":
+            MessageLookupByLibrary.simpleMessage("출생시간을 입력해주세요."),
+        "compatibility_snackbar_need_gender":
+            MessageLookupByLibrary.simpleMessage("성별을 선택해주세요."),
+        "compatibility_snackbar_need_profile_save_agree":
+            MessageLookupByLibrary.simpleMessage("프로필 저장 동의를 해주세요."),
+        "compatibility_snackbar_start":
+            MessageLookupByLibrary.simpleMessage("궁합을 분석을 시작합니다."),
+        "compatibility_status_completed":
+            MessageLookupByLibrary.simpleMessage("완료"),
+        "compatibility_status_error":
+            MessageLookupByLibrary.simpleMessage("오류"),
+        "compatibility_status_input":
+            MessageLookupByLibrary.simpleMessage("입력중"),
+        "compatibility_status_pending":
+            MessageLookupByLibrary.simpleMessage("분석중"),
         "compatibility_time_slot1":
             MessageLookupByLibrary.simpleMessage("자시|(23:30-01:29)|🐀"),
         "compatibility_time_slot10":
@@ -108,6 +154,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("미시|(13:30-15:29)|🐑"),
         "compatibility_time_slot9":
             MessageLookupByLibrary.simpleMessage("신시|(15:30-17:29)|🐒"),
+        "compatibility_time_slot_unknown":
+            MessageLookupByLibrary.simpleMessage("모름"),
+        "compatibility_waiting_message":
+            MessageLookupByLibrary.simpleMessage("잠시만 기다려주세요."),
+        "compatibility_warning_exit":
+            MessageLookupByLibrary.simpleMessage("화면을 나가면 분석을 다시 해야 합니다."),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("취소"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("확인"),
         "dialog_caution": MessageLookupByLibrary.simpleMessage("🚫 경고 🚫"),
@@ -406,6 +458,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_vote": MessageLookupByLibrary.simpleMessage("투표"),
         "nickname_validation_error":
             MessageLookupByLibrary.simpleMessage("20자 이내, 특수문자 제외 가능합니다."),
+        "optional": MessageLookupByLibrary.simpleMessage("선택사항"),
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("마이페이지"),
         "page_title_myprofile": MessageLookupByLibrary.simpleMessage("나의 프로필"),
         "page_title_post_write": MessageLookupByLibrary.simpleMessage("게시물 작성"),
@@ -543,6 +596,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "replies": MessageLookupByLibrary.simpleMessage("댓글"),
         "reward": MessageLookupByLibrary.simpleMessage("리워드"),
         "save": MessageLookupByLibrary.simpleMessage("저장"),
+        "seconds": MessageLookupByLibrary.simpleMessage("초"),
         "share": MessageLookupByLibrary.simpleMessage("공유"),
         "share_image_fail": MessageLookupByLibrary.simpleMessage("이미지 공유 실패"),
         "share_image_success":

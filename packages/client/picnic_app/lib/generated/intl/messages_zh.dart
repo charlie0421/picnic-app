@@ -55,7 +55,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "candy_disappear_next_month":
             MessageLookupByLibrary.simpleMessage("过期的奖励星星糖果 😢"),
         "candy_usage_policy_contents":
-            MessageLookupByLibrary.simpleMessage("当月获得的奖励星糖将在下个月 15 日失效。"),
+            MessageLookupByLibrary.simpleMessage("当月获得的奖励星糖将于下月 15 日失效。"),
         "candy_usage_policy_contents2": MessageLookupByLibrary.simpleMessage(
             "使用 \"星星糖 \"时，即将过期的 \"星星糖 \"会被优先处理。"),
         "candy_usage_policy_guide":
@@ -79,32 +79,84 @@ class MessageLookup extends MessageLookupByLibrary {
         "common_text_search_result_label":
             MessageLookupByLibrary.simpleMessage("搜索结果"),
         "compatibility_agree_checkbox":
-            MessageLookupByLibrary.simpleMessage("我同意将我的性别和生日信息保存在我的个人资料中。"),
+            MessageLookupByLibrary.simpleMessage("我同意在个人档案中存储我的性别和生日信息。"),
+        "compatibility_analyze_start":
+            MessageLookupByLibrary.simpleMessage("开始兼容性分析"),
+        "compatibility_analyzing":
+            MessageLookupByLibrary.simpleMessage("分析兼容性。"),
+        "compatibility_birthday": MessageLookupByLibrary.simpleMessage("出生日期"),
+        "compatibility_birthtime": MessageLookupByLibrary.simpleMessage("出生时间"),
+        "compatibility_duplicate_data_message":
+            MessageLookupByLibrary.simpleMessage("相同条件的兼容性数据已经存在。"),
+        "compatibility_duplicate_data_title":
+            MessageLookupByLibrary.simpleMessage("现有兼容性数据"),
+        "compatibility_gender": MessageLookupByLibrary.simpleMessage("性别"),
+        "compatibility_gender_female":
+            MessageLookupByLibrary.simpleMessage("女性"),
+        "compatibility_gender_male": MessageLookupByLibrary.simpleMessage("男"),
+        "compatibility_new_compatibility":
+            MessageLookupByLibrary.simpleMessage("发现新的匹配对象"),
+        "compatibility_new_compatibility_ask":
+            MessageLookupByLibrary.simpleMessage("想看看新的配对吗？"),
         "compatibility_page_title": MessageLookupByLibrary.simpleMessage("兼容性"),
+        "compatibility_result_70":
+            MessageLookupByLibrary.simpleMessage("很般配！ 🌟"),
+        "compatibility_result_80":
+            MessageLookupByLibrary.simpleMessage("真是绝配！ 💫"),
+        "compatibility_result_90":
+            MessageLookupByLibrary.simpleMessage("这是有史以来最棒的比赛！ ✨"),
+        "compatibility_result_low":
+            MessageLookupByLibrary.simpleMessage("找到合适的 😊。"),
+        "compatibility_snackbar_error":
+            MessageLookupByLibrary.simpleMessage("出现错误。"),
+        "compatibility_snackbar_need_birthday":
+            MessageLookupByLibrary.simpleMessage("请输入您的出生日期。"),
+        "compatibility_snackbar_need_birthtime":
+            MessageLookupByLibrary.simpleMessage("请输入您的出生时间。"),
+        "compatibility_snackbar_need_gender":
+            MessageLookupByLibrary.simpleMessage("请选择您的性别。"),
+        "compatibility_snackbar_need_profile_save_agree":
+            MessageLookupByLibrary.simpleMessage("同意保存您的个人资料。"),
+        "compatibility_snackbar_start":
+            MessageLookupByLibrary.simpleMessage("开始分析兼容性。"),
+        "compatibility_status_completed":
+            MessageLookupByLibrary.simpleMessage("完成"),
+        "compatibility_status_error":
+            MessageLookupByLibrary.simpleMessage("错误"),
+        "compatibility_status_input":
+            MessageLookupByLibrary.simpleMessage("打字"),
+        "compatibility_status_pending":
+            MessageLookupByLibrary.simpleMessage("分析"),
         "compatibility_time_slot1":
-            MessageLookupByLibrary.simpleMessage("자시|(23:30-01:29)|🐀"),
+            MessageLookupByLibrary.simpleMessage("子时|(23:30-01:29)|🐀"),
         "compatibility_time_slot10":
-            MessageLookupByLibrary.simpleMessage("유시|(17:30-19:29)|🐔"),
+            MessageLookupByLibrary.simpleMessage("酉时|(17:30-19:29)|🐔"),
         "compatibility_time_slot11":
-            MessageLookupByLibrary.simpleMessage("술시|(19:30-21:29)|🐕"),
+            MessageLookupByLibrary.simpleMessage("戌时|(19:30-21:29)|🐕"),
         "compatibility_time_slot12":
-            MessageLookupByLibrary.simpleMessage("해시|(21:30-23:29)|🐖"),
+            MessageLookupByLibrary.simpleMessage("亥时|(21:30-23:29)|🐖"),
         "compatibility_time_slot2":
-            MessageLookupByLibrary.simpleMessage("축시|(01:30-03:29)|🐂"),
+            MessageLookupByLibrary.simpleMessage("丑时|(01:30-03:29)|🐂"),
         "compatibility_time_slot3":
-            MessageLookupByLibrary.simpleMessage("인시|(03:30-05:29)|🐅"),
+            MessageLookupByLibrary.simpleMessage("寅时|(03:30-05:29)|🐅"),
         "compatibility_time_slot4":
-            MessageLookupByLibrary.simpleMessage("묘시|(05:30-07:29)|🐇"),
+            MessageLookupByLibrary.simpleMessage("卯时|(05:30-07:29)|🐇"),
         "compatibility_time_slot5":
-            MessageLookupByLibrary.simpleMessage("진시|(07:30-09:29)|🐉"),
+            MessageLookupByLibrary.simpleMessage("辰时|(07:30-09:29)|🐉"),
         "compatibility_time_slot6":
-            MessageLookupByLibrary.simpleMessage("사시|(09:30-11:29)|🐍"),
+            MessageLookupByLibrary.simpleMessage("巳时|(09:30-11:29)|🐍"),
         "compatibility_time_slot7":
-            MessageLookupByLibrary.simpleMessage("오시|(11:30-13:29)|🐎"),
+            MessageLookupByLibrary.simpleMessage("午时|(11:30-13:29)|🐎"),
         "compatibility_time_slot8":
-            MessageLookupByLibrary.simpleMessage("미시|(13:30-15:29)|🐑"),
+            MessageLookupByLibrary.simpleMessage("未时|(13:30-15:29)|🐑"),
         "compatibility_time_slot9":
-            MessageLookupByLibrary.simpleMessage("신시|(15:30-17:29)|🐒"),
+            MessageLookupByLibrary.simpleMessage("申时|(15:30-17:29)|🐒"),
+        "compatibility_time_slot_unknown":
+            MessageLookupByLibrary.simpleMessage("不知道"),
+        "compatibility_waiting_message":
+            MessageLookupByLibrary.simpleMessage("请稍候。"),
+        "compatibility_warning_exit":
+            MessageLookupByLibrary.simpleMessage("如果离开屏幕，则需要重新进行分析。"),
         "dialog_button_cancel": MessageLookupByLibrary.simpleMessage("取消"),
         "dialog_button_ok": MessageLookupByLibrary.simpleMessage("确认"),
         "dialog_caution": MessageLookupByLibrary.simpleMessage("警告 🚫"),
@@ -129,7 +181,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("购买完成。"),
         "dialog_title_ads_exhausted":
             MessageLookupByLibrary.simpleMessage("所有广告已用尽"),
-        "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("投票失败"),
+        "dialog_title_vote_fail": MessageLookupByLibrary.simpleMessage("表决失败"),
         "dialog_will_delete_star_candy":
             MessageLookupByLibrary.simpleMessage("将被删除的星星糖果"),
         "dialog_withdraw_button_cancel":
@@ -199,7 +251,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("成为第一个发表评论的人！"),
         "label_bonus": MessageLookupByLibrary.simpleMessage("奖金"),
-        "label_button_agreement": MessageLookupByLibrary.simpleMessage("接受"),
+        "label_button_agreement": MessageLookupByLibrary.simpleMessage("同意"),
         "label_button_close": MessageLookupByLibrary.simpleMessage("關閉"),
         "label_button_disagreement":
             MessageLookupByLibrary.simpleMessage("不同意"),
@@ -259,7 +311,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("星星糖投票历史"),
         "label_mypage_withdrawal": MessageLookupByLibrary.simpleMessage("退出"),
         "label_no_ads": MessageLookupByLibrary.simpleMessage("无广告"),
-        "label_no_celeb": MessageLookupByLibrary.simpleMessage("您还没有收藏任何艺术家！"),
+        "label_no_celeb":
+            MessageLookupByLibrary.simpleMessage("您还没有将任何艺术家加入书签！"),
         "label_pic_image_cropping":
             MessageLookupByLibrary.simpleMessage("裁剪图像"),
         "label_pic_pic_initializing_camera":
@@ -373,6 +426,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_vote": MessageLookupByLibrary.simpleMessage("投票"),
         "nickname_validation_error":
             MessageLookupByLibrary.simpleMessage("20 个字符或更少，不包括特殊字符。"),
+        "optional": MessageLookupByLibrary.simpleMessage("可选"),
         "page_title_mypage": MessageLookupByLibrary.simpleMessage("我的页面"),
         "page_title_myprofile": MessageLookupByLibrary.simpleMessage("我的简介"),
         "page_title_post_write": MessageLookupByLibrary.simpleMessage("创建一个职位"),
@@ -497,6 +551,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "replies": MessageLookupByLibrary.simpleMessage("评论"),
         "reward": MessageLookupByLibrary.simpleMessage("奖励"),
         "save": MessageLookupByLibrary.simpleMessage("节省"),
+        "seconds": MessageLookupByLibrary.simpleMessage("秒钟"),
         "share": MessageLookupByLibrary.simpleMessage("分享"),
         "share_image_fail": MessageLookupByLibrary.simpleMessage("图像共享失败"),
         "share_image_success": MessageLookupByLibrary.simpleMessage("成功共享图像"),
@@ -513,7 +568,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_comming_soon_pic_chart2": MessageLookupByLibrary.simpleMessage(
             "饼图是 Peeknick 独有的新图表，可反映每日、每周和每月的分数。\nPiknick 反映每日、每周和每月得分的新图表。"),
         "text_comming_soon_pic_chart3":
-            MessageLookupByLibrary.simpleMessage("实时反映您的\n艺人的品牌声誉！"),
+            MessageLookupByLibrary.simpleMessage("实时查看您的品牌声誉\n实时反映艺术家的品牌声誉！"),
         "text_comming_soon_pic_chart_title":
             MessageLookupByLibrary.simpleMessage("什么是饼图？"),
         "text_community_board_search":

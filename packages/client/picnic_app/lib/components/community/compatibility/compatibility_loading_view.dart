@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/ui/style.dart';
 import 'dart:async';
 
 import 'package:picnic_app/util/ui.dart';
@@ -21,7 +23,6 @@ class _CompatibilityLoadingViewState
   BannerAd? _bottomBannerAd;
   bool _isTopBannerLoaded = false;
   bool _isBottomBannerLoaded = false;
-  int _remainingSeconds = 30;
   Timer? _timer;
 
   @override
@@ -103,7 +104,7 @@ class _CompatibilityLoadingViewState
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(12),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -115,18 +116,19 @@ class _CompatibilityLoadingViewState
                   child: AdWidget(ad: _topBannerAd!),
                 )
               : SizedBox(height: AdSize.largeBanner.height.toDouble()),
-          const SizedBox(height: 32),
+          const SizedBox(height: 8),
           SizedBox(
-            width: 48,
-            height: 48,
+            width: 24,
+            height: 24,
             child: CircularProgressIndicator(
               value: _seconds / _totalSeconds,
-              strokeWidth: 4,
+              strokeWidth: 8,
+              color: AppColors.primary500,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 8),
           Text(
-            '궁합을 분석하고 있습니다\n($_seconds초)',
+            '${S.of(context).compatibility_analyzing}\n($_seconds${S.of(context).seconds})',
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 16,
@@ -134,23 +136,23 @@ class _CompatibilityLoadingViewState
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            '잠시만 기다려주세요',
+          Text(
+            S.of(context).compatibility_waiting_message,
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey,
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            '화면을 나가면 분석을 다시 해야 합니다',
+          Text(
+            S.of(context).compatibility_warning_exit,
             style: TextStyle(
               fontSize: 12,
               color: Colors.red,
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 8),
           (_isBottomBannerLoaded && _bottomBannerAd != null)
               ? Container(
                   alignment: Alignment.center,

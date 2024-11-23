@@ -16,6 +16,8 @@ import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/vote_share_util.dart';
 
+final _loadingProvider = StateProvider.autoDispose<bool>((ref) => false);
+
 class CompatibilityResultPage extends ConsumerStatefulWidget {
   const CompatibilityResultPage({
     super.key,
@@ -32,21 +34,53 @@ class CompatibilityResultPage extends ConsumerStatefulWidget {
 class _CompatibilityResultPageState
     extends ConsumerState<CompatibilityResultPage> {
   final GlobalKey _printKey = GlobalKey();
-  bool _isInitialized = false;
+  String? _currentLocale;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeData();
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    final newLocale = Intl.getCurrentLocale();
+    if (_currentLocale != newLocale) {
+      _currentLocale = newLocale;
+      _refreshData();
+    }
     _updateNavigation();
+  }
 
-    // 최초 한 번만 초기화
-    if (!_isInitialized) {
-      _isInitialized = true;
-      // 다음 프레임에서 provider 초기화
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        ref.read(compatibilityProvider.notifier).state = widget.compatibility;
-      });
+  Future<void> _initializeData() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(_loadingProvider.notifier).state = true;
+      ref.read(compatibilityProvider.notifier).state = widget.compatibility;
+      _refreshData();
+    });
+  }
+
+  Future<void> _refreshData() async {
+    if (!mounted) return;
+
+    // 이미 로딩 중이면 스킵
+    if (ref.read(_loadingProvider)) return;
+
+    final compatibility = ref.read(compatibilityProvider);
+    if (compatibility == null) return;
+
+    if (compatibility.isCompleted && compatibility.localizedResults == null) {
+      ref.read(_loadingProvider.notifier).state = true;
+
+      try {
+        await ref.read(compatibilityProvider.notifier).refresh();
+      } finally {
+        if (mounted) {
+          ref.read(_loadingProvider.notifier).state = false;
+        }
+      }
     }
   }
 
@@ -66,38 +100,10 @@ class _CompatibilityResultPageState
   @override
   Widget build(BuildContext context) {
     final compatibility = ref.watch(compatibilityProvider);
+    final isLoading = ref.watch(_loadingProvider);
 
-    // 초기화 전이거나 데이터가 없는 경우
-    if (!_isInitialized || compatibility == null) {
-      return Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            RepaintBoundary(
-              key: _printKey,
-              child: Container(
-                color: AppColors.grey00,
-                child: Column(
-                  children: [
-                    CompatibilityResultCard(
-                      compatibility: widget.compatibility,
-                    ),
-                    const CompatibilityLoadingView(),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // i18n 데이터가 없는 경우 새로고침
-    if (compatibility.isCompleted && compatibility.localizedResults == null) {
-      Future.microtask(() {
-        if (!mounted) return;
-        ref.read(compatibilityProvider.notifier).refresh();
-      });
+    if (compatibility == null) {
+      return const Center(child: CircularProgressIndicator());
     }
 
     return SingleChildScrollView(
@@ -114,7 +120,8 @@ class _CompatibilityResultPageState
                     CompatibilityResultCard(
                       compatibility: compatibility,
                     ),
-                    if (compatibility.status == CompatibilityStatus.pending)
+                    if (compatibility.status == CompatibilityStatus.pending ||
+                        isLoading)
                       const CompatibilityLoadingView()
                     else if (compatibility.status == CompatibilityStatus.error)
                       CompatibilityErrorView(
@@ -122,16 +129,20 @@ class _CompatibilityResultPageState
                             compatibility.errorMessage ?? '알 수 없는 오류가 발생했습니다.',
                       )
                     else if (compatibility.status ==
-                        CompatibilityStatus.completed)
+                            CompatibilityStatus.completed &&
+                        !isLoading &&
+                        compatibility.localizedResults != null)
                       CompatibilityResultView(
                         compatibility: compatibility,
-                        language: Intl.getCurrentLocale(),
+                        language: _currentLocale ?? Intl.getCurrentLocale(),
                       ),
                   ],
                 ),
               ),
             ),
-            if (compatibility.isCompleted) ...[
+            if (compatibility.isCompleted &&
+                !isLoading &&
+                compatibility.localizedResults != null) ...[
               VoteCardInfoFooter(
                 saveButtonText: S.of(context).vote_result_save_button,
                 shareButtonText: S.of(context).vote_result_share_button,

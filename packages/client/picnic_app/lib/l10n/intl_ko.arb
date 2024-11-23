@@ -62,6 +62,40 @@
     "@common_text_no_search_result": {},
     "common_text_search_error": "검색 중 오류가 발생했습니다.",
     "@common_text_search_error": {},
+    "compatibility_birthday": "생년월일",
+    "@compatibility_birthday": {},
+    "compatibility_birthtime": "출생시간",
+    "@compatibility_birthtime": {},
+    "compatibility_gender": "성별",
+    "@compatibility_gender": {},
+    "compatibility_duplicate_data_title": "이미 존재하는 궁합 데이터",
+    "@compatibility_duplicate_data_title": {},
+    "compatibility_duplicate_data_message": "동일한 조건의 궁합 데이터가 이미 존재합니다.",
+    "@compatibility_duplicate_data_message": {},
+    "compatibility_new_compatibility_ask": "새로운 궁합을 보시겠습니까?",
+    "@compatibility_new_compatibility_ask": {},
+    "compatibility_new_compatibility": "새로운 궁합 확인하기",
+    "@compatibility_new_compatibility": {},
+    "compatibility_analyze_start": "궁합 분석 시작",
+    "@compatibility_analyze_start": {},
+    "compatibility_snackbar_start": "궁합을 분석을 시작합니다.",
+    "@compatibility_snackbar_start": {},
+    "compatibility_snackbar_error": "오류가 발생했습니다.",
+    "@compatibility_snackbar_error": {},
+    "compatibility_snackbar_need_birthday": "생년월일을 입력해주세요.",
+    "@compatibility_snackbar_need_birthday": {},
+    "compatibility_snackbar_need_birthtime": "출생시간을 입력해주세요.",
+    "@compatibility_snackbar_need_birthtime": {},
+    "compatibility_snackbar_need_gender": "성별을 선택해주세요.",
+    "@compatibility_snackbar_need_gender": {},
+    "compatibility_snackbar_need_profile_save_agree": "프로필 저장 동의를 해주세요.",
+    "@compatibility_snackbar_need_profile_save_agree": {},
+    "compatibility_gender_male": "남성",
+    "@compatibility_gender_male": {},
+    "compatibility_gender_female": "여성",
+    "@compatibility_gender_female": {},
+    "optional": "선택사항",
+    "@optional": {},
     "common_text_search_recent_label": "최근 검색어",
     "@common_text_search_recent_label": {},
     "common_text_search_result_label": "검색 결과",
@@ -395,6 +429,9 @@
     "@label_pic_image_cropping": {
         "translationTimestamp": "2024-07-21T11:18:53.669108"
     },
+    "seconds": "초",
+    "@seconds": {
+    },
     "label_pic_pic_initializing_camera": "카메라 초기화중...",
     "@label_pic_pic_initializing_camera": {
         "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -406,6 +443,30 @@
     "label_pic_pic_synthesizing_image": "이미지 합성중...",
     "@label_pic_pic_synthesizing_image": {
         "translationTimestamp": "2024-07-21T11:18:53.669108"
+    },
+    "compatibility_status_completed": "완료",
+    "@compatibility_status_completed": {
+    },
+    "compatibility_status_pending": "분석중",
+    "@compatibility_pstatus_ending": {
+    },
+    "compatibility_status_error": "오류",
+    "@compatibility_status_error": {
+    },
+    "compatibility_status_input": "입력중",
+    "@compatibility_status_input": {
+    },
+    "compatibility_result_90": "최고의 궁합이에요! ✨",
+    "@compatibility_result_90": {
+    },
+    "compatibility_result_80": "아주 좋은 궁합이에요! \uD83D\uDCAB",
+    "@compatibility_result_80": {
+    },
+    "compatibility_result_70": "좋은 궁합이에요! \uD83C\uDF1F",
+    "@compatibility_result_70": {
+    },
+    "compatibility_result_low": "잘 맞는 부분을 찾아보세요 \uD83D\uDE0A",
+    "@compatibility_result_low": {
     },
     "label_read_more_comment": "댓글 더보기",
     "@label_read_more_comment": {
@@ -874,6 +935,12 @@
     "@post_my_written_reply": {},
     "post_my_compatibilities": "나의 궁합",
     "@post_my_compatibilities": {},
+    "compatibility_analyzing": "궁합을 분석하고 있습니다.",
+    "@compatibility_analyzing": {},
+    "compatibility_waiting_message": "잠시만 기다려주세요.",
+    "@compatibility_waiting_message": {},
+    "compatibility_warning_exit": "화면을 나가면 분석을 다시 해야 합니다.",
+    "@compatibility_warning_exit": {},
     "post_my_written_scrap": "내 스크랩",
     "@post_my_written_scrap": {},
     "post_no_comment": "댓글이 없습니다.",
@@ -956,6 +1023,9 @@
     "text_bonus": "보너스",
     "@text_bonus": {
         "translationTimestamp": "2024-07-21T11:18:53.669108"
+    },
+    "compatibility_time_slot_unknown": "모름",
+    "@compatibility_time_slot_unknown": {
     },
     "compatibility_time_slot1": "자시|(23:30-01:29)|🐀",
     "@compatibility_time_slot1": {

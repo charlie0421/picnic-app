@@ -15,6 +15,7 @@ import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/logger.dart';
 
 class CompatibilityInputPage extends ConsumerStatefulWidget {
@@ -38,9 +39,9 @@ class _CompatibilityInputScreenState
   bool _agreedToSaveProfile = false;
   List<String>? _timeSlots;
 
-  static const genderOptions = [
-    {'value': 'male', 'label': '남성'},
-    {'value': 'female', 'label': '여성'},
+  static List<Map<String, dynamic>> genderOptions = [
+    {'value': 'male', 'label': Intl.message('compatibility_gender_male')},
+    {'value': 'female', 'label': Intl.message('compatibility_gender_female')},
   ];
 
   @override
@@ -135,21 +136,25 @@ class _CompatibilityInputScreenState
   Future<void> _submit() async {
     if (_birthDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('생년월일을 선택해주세요')),
+        SnackBar(
+            content: Text(S.of(context).compatibility_snackbar_need_birthday)),
       );
       return;
     }
 
     if (_gender == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('성별을 선택해주세요')),
+        SnackBar(
+            content: Text(S.of(context).compatibility_snackbar_need_gender)),
       );
       return;
     }
 
     if (!_agreedToSaveProfile) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('프로필 정보 저장에 동의해주세요')),
+        SnackBar(
+            content: Text(
+                S.of(context).compatibility_snackbar_need_profile_save_agree)),
       );
       return;
     }
@@ -185,7 +190,7 @@ class _CompatibilityInputScreenState
                 borderRadius: BorderRadius.circular(16),
               ),
               title: Text(
-                '이미 존재하는 궁합 데이터',
+                S.of(context).compatibility_duplicate_data_title,
                 style: getTextStyle(AppTypo.title18B, AppColors.grey900),
               ),
               content: Column(
@@ -193,26 +198,26 @@ class _CompatibilityInputScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '동일한 조건의 궁합 데이터가 이미 존재합니다:',
+                    S.of(context).compatibility_duplicate_data_message,
                     style: getTextStyle(AppTypo.body14R, AppColors.grey900),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '• 생년월일: ${DateFormat('yyyy년 MM월 dd일').format(_birthDate!)}',
+                    '• ${S.of(context).compatibility_birthday}: ${formatDateTimeYYYYMMDD(_birthDate!)}',
                     style: getTextStyle(AppTypo.body14R, AppColors.grey700),
                   ),
                   if (_birthTime != null)
                     Text(
-                      '• 태어난 시간: ${_timeSlots![int.parse(_birthTime!) - 1].split('|')[0]}',
+                      '• ${S.of(context).compatibility_birthday}: ${_timeSlots![int.parse(_birthTime!) - 1].split('|')[0]}',
                       style: getTextStyle(AppTypo.body14R, AppColors.grey700),
                     ),
                   Text(
-                    '• 성별: ${_gender == 'male' ? '남성' : '여성'}',
+                    '• ${S.of(context).compatibility_gender}: ${_gender == 'male' ? S.of(context).compatibility_gender_male : S.of(context).compatibility_gender_female}',
                     style: getTextStyle(AppTypo.body14R, AppColors.grey700),
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    '새로운 궁합을 보시겠습니까?',
+                    S.of(context).compatibility_new_compatibility_ask,
                     style: getTextStyle(AppTypo.body14M, AppColors.grey900),
                   ),
                 ],
@@ -220,7 +225,7 @@ class _CompatibilityInputScreenState
               actions: <Widget>[
                 TextButton(
                   child: Text(
-                    '취소',
+                    S.of(context).button_cancel,
                     style: getTextStyle(AppTypo.body14M, AppColors.grey500),
                   ),
                   onPressed: () => Navigator.of(context).pop(false),
@@ -233,7 +238,7 @@ class _CompatibilityInputScreenState
                     ),
                   ),
                   child: Text(
-                    '새로 보기',
+                    S.of(context).compatibility_analyze_start,
                     style: getTextStyle(AppTypo.body14M, AppColors.grey00),
                   ),
                   onPressed: () => Navigator.of(context).pop(true),
@@ -252,7 +257,7 @@ class _CompatibilityInputScreenState
       // Show loading indicator
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('궁합을 분석하고 있습니다...')),
+          SnackBar(content: Text(S.of(context).compatibility_snackbar_start)),
         );
       }
 
@@ -287,7 +292,7 @@ class _CompatibilityInputScreenState
       logger.e('Error in submit', error: e, stackTrace: s);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('오류가 발생했습니다: $e')),
+          SnackBar(content: Text(S.of(context).compatibility_snackbar_error)),
         );
       }
     }
@@ -334,7 +339,7 @@ class _CompatibilityInputScreenState
                             color: AppColors.primary500),
                         const SizedBox(width: 8),
                         Text(
-                          '성별',
+                          S.of(context).compatibility_gender,
                           style:
                               getTextStyle(AppTypo.body14B, AppColors.grey900),
                         ),
@@ -397,7 +402,7 @@ class _CompatibilityInputScreenState
                               color: AppColors.primary500),
                           const SizedBox(width: 8),
                           Text(
-                            '생년월일',
+                            S.of(context).compatibility_birthday,
                             style: getTextStyle(
                                 AppTypo.body14B, AppColors.grey900),
                           ),
@@ -406,8 +411,8 @@ class _CompatibilityInputScreenState
                       const SizedBox(height: 8),
                       Text(
                         _birthDate == null
-                            ? '날짜를 선택해주세요'
-                            : '${_birthDate!.year}년 ${_birthDate!.month}월 ${_birthDate!.day}일',
+                            ? S.of(context).compatibility_snackbar_need_birthday
+                            : formatDateTimeYYYYMMDD(_birthDate!),
                         style: getTextStyle(
                           AppTypo.body14B,
                           _birthDate == null
@@ -440,7 +445,7 @@ class _CompatibilityInputScreenState
                             color: AppColors.primary500),
                         const SizedBox(width: 8),
                         Text(
-                          '태어난 시간 (선택사항)',
+                          '${S.of(context).compatibility_birthtime}(${S.of(context).optional})',
                           style:
                               getTextStyle(AppTypo.body14R, AppColors.grey900),
                         ),
@@ -461,14 +466,14 @@ class _CompatibilityInputScreenState
                       value: _birthTime,
                       // This will now use the loaded birth time
                       hint: Text(
-                        '시간을 선택해주세요',
+                        S.of(context).compatibility_snackbar_need_birthtime,
                         style: getTextStyle(AppTypo.body14M, AppColors.grey500),
                       ),
                       items: [
                         DropdownMenuItem(
                           value: null,
                           child: Text(
-                            '모름',
+                            S.of(context).compatibility_time_slot_unknown,
                             style: getTextStyle(
                                 AppTypo.body14M, AppColors.grey900),
                           ),
@@ -543,7 +548,7 @@ class _CompatibilityInputScreenState
                     : AppColors.grey300,
               ),
               child: Text(
-                '궁합 보기',
+                S.of(context).compatibility_analyze_start,
                 style: getTextStyle(AppTypo.body16B, AppColors.grey00),
               ),
             ),
