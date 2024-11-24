@@ -84,6 +84,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Recent searches"),
         "common_text_search_result_label":
             MessageLookupByLibrary.simpleMessage("Search results"),
+        "compatibility_activities_title": MessageLookupByLibrary.simpleMessage(
+            "Activities you can do together"),
         "compatibility_agree_checkbox": MessageLookupByLibrary.simpleMessage(
             "I agree to store my gender and birthday information in my profile."),
         "compatibility_analyze_start": MessageLookupByLibrary.simpleMessage(
@@ -94,6 +96,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Date of birth"),
         "compatibility_birthtime":
             MessageLookupByLibrary.simpleMessage("Birth time"),
+        "compatibility_couple_style":
+            MessageLookupByLibrary.simpleMessage("Couple styles"),
         "compatibility_duplicate_data_message":
             MessageLookupByLibrary.simpleMessage(
                 "Compatibility data with the same conditions already exists."),
@@ -102,23 +106,27 @@ class MessageLookup extends MessageLookupByLibrary {
                 "Compatibility data that already exists"),
         "compatibility_gender": MessageLookupByLibrary.simpleMessage("Gender"),
         "compatibility_gender_female":
-            MessageLookupByLibrary.simpleMessage("Female"),
+            MessageLookupByLibrary.simpleMessage("여성"),
         "compatibility_gender_male":
             MessageLookupByLibrary.simpleMessage("Male"),
+        "compatibility_idol_style":
+            MessageLookupByLibrary.simpleMessage("Idol Styles"),
         "compatibility_new_compatibility":
             MessageLookupByLibrary.simpleMessage("Check out new matches"),
         "compatibility_new_compatibility_ask":
             MessageLookupByLibrary.simpleMessage("Want to see a new pairing?"),
         "compatibility_page_title":
             MessageLookupByLibrary.simpleMessage("Compatibility"),
-        "compatibility_result_70":
-            MessageLookupByLibrary.simpleMessage("좋은 궁합이에요! 🌟"),
-        "compatibility_result_80":
-            MessageLookupByLibrary.simpleMessage("아주 좋은 궁합이에요! 💫"),
-        "compatibility_result_90":
-            MessageLookupByLibrary.simpleMessage("최고의 궁합이에요! ✨"),
+        "compatibility_result_70": MessageLookupByLibrary.simpleMessage(
+            "It\'s a good compatibility! 🌟"),
+        "compatibility_result_80": MessageLookupByLibrary.simpleMessage(
+            "It\'s a great compatibility! 💫"),
+        "compatibility_result_90": MessageLookupByLibrary.simpleMessage(
+            "It\'s a super great compatibility! ✨"),
         "compatibility_result_low":
-            MessageLookupByLibrary.simpleMessage("잘 맞는 부분을 찾아보세요 😊"),
+            MessageLookupByLibrary.simpleMessage("Find the right fit 😊"),
+        "compatibility_result_not_found":
+            MessageLookupByLibrary.simpleMessage("Not found compatibility 😔"),
         "compatibility_snackbar_error":
             MessageLookupByLibrary.simpleMessage("An error occurred."),
         "compatibility_snackbar_need_birthday":
@@ -142,6 +150,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Typing"),
         "compatibility_status_pending":
             MessageLookupByLibrary.simpleMessage("Analyzing"),
+        "compatibility_style_title":
+            MessageLookupByLibrary.simpleMessage("Compatibility styles"),
+        "compatibility_summary_title":
+            MessageLookupByLibrary.simpleMessage("Compatibility summary"),
         "compatibility_time_slot1": MessageLookupByLibrary.simpleMessage(
             "Hour of the Rat|(23:30-01:29)|🐀"),
         "compatibility_time_slot10": MessageLookupByLibrary.simpleMessage(
@@ -168,6 +180,10 @@ class MessageLookup extends MessageLookupByLibrary {
             "Hour of the Monkey|(15:30-17:29)|🐒"),
         "compatibility_time_slot_unknown":
             MessageLookupByLibrary.simpleMessage("Don\'t know"),
+        "compatibility_tips_title":
+            MessageLookupByLibrary.simpleMessage("Compatibility tips"),
+        "compatibility_user_style":
+            MessageLookupByLibrary.simpleMessage("User Styles"),
         "compatibility_waiting_message":
             MessageLookupByLibrary.simpleMessage("Please wait a moment."),
         "compatibility_warning_exit": MessageLookupByLibrary.simpleMessage(
@@ -483,7 +499,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "mypage_subscription":
             MessageLookupByLibrary.simpleMessage("Subscription information"),
         "nav_ads": MessageLookupByLibrary.simpleMessage("Ads"),
-        "nav_board": MessageLookupByLibrary.simpleMessage("Bulletin boards"),
+        "nav_board": MessageLookupByLibrary.simpleMessage("Boards"),
         "nav_gallery": MessageLookupByLibrary.simpleMessage("Gallery"),
         "nav_home": MessageLookupByLibrary.simpleMessage("홈"),
         "nav_library": MessageLookupByLibrary.simpleMessage("Libraries"),
@@ -737,11 +753,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "update_required_title":
             MessageLookupByLibrary.simpleMessage("An update is required."),
         "views": MessageLookupByLibrary.simpleMessage("Views"),
-        "vote_result_save_button":
-            MessageLookupByLibrary.simpleMessage("Save the results"),
+        "vote_result_save_button": MessageLookupByLibrary.simpleMessage("Save"),
         "vote_result_share_button":
-            MessageLookupByLibrary.simpleMessage("Share your results"),
-        "vote_share_message": MessageLookupByLibrary.simpleMessage("Voted!"),
+            MessageLookupByLibrary.simpleMessage("Share"),
         "voting_share_benefit_text": MessageLookupByLibrary.simpleMessage(
             "Get 1 bonus star candy for every 100 votes and share!")
       };

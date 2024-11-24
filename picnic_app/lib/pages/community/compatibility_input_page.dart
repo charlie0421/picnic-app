@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_app/components/community/compatibility/compatibility_info.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_result_card.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/navigation.dart';
@@ -38,8 +37,9 @@ class _CompatibilityInputScreenState
   String? _gender;
   bool _agreedToSaveProfile = false;
   List<String>? _timeSlots;
+  bool _isLoading = false;
 
-  static List<Map<String, dynamic>> genderOptions = [
+  static List<Map<String, String>> genderOptions = [
     {'value': 'male', 'label': Intl.message('compatibility_gender_male')},
     {'value': 'female', 'label': Intl.message('compatibility_gender_female')},
   ];
@@ -48,21 +48,29 @@ class _CompatibilityInputScreenState
   void initState() {
     super.initState();
     _loadUserProfile();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-          showPortal: true,
-          showTopMenu: true,
-          topRightMenu: TopRightType.board,
-          showBottomNavigation: false,
-          pageTitle: S.of(context).compatibility_page_title);
-    });
+    _updateNavigation();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Move the time slots initialization here
+    _initTimeSlots();
+  }
+
+  void _updateNavigation() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+            showPortal: true,
+            showTopMenu: true,
+            topRightMenu: TopRightType.board,
+            showBottomNavigation: false,
+            pageTitle: S.of(context).compatibility_page_title,
+          );
+    });
+  }
+
+  void _initTimeSlots() {
     _timeSlots = [
       S.of(context).compatibility_time_slot1,
       S.of(context).compatibility_time_slot2,
@@ -84,12 +92,11 @@ class _CompatibilityInputScreenState
       final userProfileAsync = ref.read(userInfoProvider);
       userProfileAsync.when(
         data: (userProfile) {
-          if (userProfile != null) {
+          if (userProfile != null && mounted) {
             setState(() {
               _birthDate = userProfile.birthDate;
               _gender = userProfile.gender;
-              _birthTime =
-                  userProfile.birthTime; // Load birth time from profile
+              _birthTime = userProfile.birthTime;
             });
           }
         },
@@ -108,7 +115,7 @@ class _CompatibilityInputScreenState
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _birthDate ?? DateTime.now(),
-      firstDate: DateTime(1990),
+      firstDate: DateTime(1900),
       lastDate: DateTime.now(),
       locale: const Locale('ko', 'KR'),
       builder: (context, child) {
@@ -126,7 +133,7 @@ class _CompatibilityInputScreenState
       },
     );
 
-    if (picked != null) {
+    if (picked != null && mounted) {
       setState(() {
         _birthDate = picked;
       });
@@ -134,56 +141,99 @@ class _CompatibilityInputScreenState
   }
 
   Future<void> _submit() async {
-    if (_birthDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(S.of(context).compatibility_snackbar_need_birthday)),
-      );
+    if (_isLoading) return;
+
+    if (_birthDate == null || _gender == null || !_agreedToSaveProfile) {
+      _showValidationError();
       return;
     }
 
-    if (_gender == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(S.of(context).compatibility_snackbar_need_gender)),
-      );
-      return;
-    }
-
-    if (!_agreedToSaveProfile) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                S.of(context).compatibility_snackbar_need_profile_save_agree)),
-      );
-      return;
-    }
+    setState(() {
+      _isLoading = true;
+    });
 
     try {
-      // 중복 데이터 확인을 위한 쿼리 빌더
-      var query = supabase
-          .from('compatibility_results')
-          .select()
-          .eq('user_id', supabase.auth.currentUser!.id)
-          .eq('artist_id', widget.artist.id)
-          .eq('user_birth_date', _birthDate!.toIso8601String())
-          .eq('gender', _gender!);
+      final existingCompatibility = await _checkExistingCompatibility();
 
-      // birth_time이 null인 경우와 아닌 경우를 구분하여 처리
-      if (_birthTime == null) {
-        query = query.isFilter('user_birth_time', null);
-      } else {
-        query = query.eq('user_birth_time', _birthTime!);
+      if (existingCompatibility != null) {
+        if (!mounted) return;
+        final shouldProceed = await _showDuplicateDialog(existingCompatibility);
+
+        if (!shouldProceed) {
+          setState(() {
+            _isLoading = false;
+          });
+          return;
+        }
       }
 
-      final existingResult = await query.select();
+      if (!mounted) return;
+      _showLoadingMessage();
 
-      if (existingResult.isNotEmpty) {
-        // 중복된 데이터가 있는 경우 확인 다이얼로그 표시
-        if (!mounted) return;
+      await _saveUserProfile();
 
-        final shouldProceed = await showDialog<bool>(
+      final compatibility = await _createCompatibility();
+      if (compatibility == null || !mounted) {
+        _showErrorMessage();
+        return;
+      }
+
+      _navigateToResult(compatibility);
+    } catch (e, s) {
+      logger.e('Error in submit', error: e, stackTrace: s);
+      if (mounted) {
+        _showErrorMessage();
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<CompatibilityModel?> _checkExistingCompatibility() async {
+    var query = supabase
+        .from('compatibility_results')
+        .select('''
+          id,
+          user_id,
+          artist_id,
+          user_birth_date,
+          user_birth_time,
+          gender,
+          status,
+          error_message,
+          compatibility_score,
+          created_at,
+          completed_at,
+          is_paid
+        ''')
+        .eq('user_id', supabase.auth.currentUser!.id)
+        .eq('artist_id', widget.artist.id)
+        .eq('user_birth_date', _birthDate!.toIso8601String())
+        .eq('gender', _gender!);
+    query = _birthTime == null
+        ? query.isFilter('user_birth_time', null)
+        : query.eq('user_birth_time', _birthTime!);
+
+    final result = await query.select();
+
+    if (result.isEmpty) return null;
+
+    return CompatibilityModel.fromJson({
+      ...result.first,
+      'artist': widget.artist.toJson(),
+    });
+  }
+
+  Future<bool> _showDuplicateDialog(CompatibilityModel existing) async {
+    if (!mounted) return false;
+
+    return await showDialog<bool>(
           context: context,
+          barrierDismissible: false,
           builder: (BuildContext context) {
             return AlertDialog(
               shape: RoundedRectangleBorder(
@@ -208,7 +258,7 @@ class _CompatibilityInputScreenState
                   ),
                   if (_birthTime != null)
                     Text(
-                      '• ${S.of(context).compatibility_birthday}: ${_timeSlots![int.parse(_birthTime!) - 1].split('|')[0]}',
+                      '• ${S.of(context).compatibility_birthtime}: ${_timeSlots![int.parse(_birthTime!) - 1].split('|')[0]}',
                       style: getTextStyle(AppTypo.body14R, AppColors.grey700),
                     ),
                   Text(
@@ -222,13 +272,13 @@ class _CompatibilityInputScreenState
                   ),
                 ],
               ),
-              actions: <Widget>[
+              actions: [
                 TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
                   child: Text(
                     S.of(context).button_cancel,
                     style: getTextStyle(AppTypo.body14M, AppColors.grey500),
                   ),
-                  onPressed: () => Navigator.of(context).pop(false),
                 ),
                 FilledButton(
                   style: FilledButton.styleFrom(
@@ -237,65 +287,73 @@ class _CompatibilityInputScreenState
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
+                  onPressed: () => Navigator.of(context).pop(true),
                   child: Text(
                     S.of(context).compatibility_analyze_start,
                     style: getTextStyle(AppTypo.body14M, AppColors.grey00),
                   ),
-                  onPressed: () => Navigator.of(context).pop(true),
                 ),
               ],
               actionsPadding: const EdgeInsets.all(16),
             );
           },
+        ) ??
+        false;
+  }
+
+  void _showLoadingMessage() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+          content: Text(S.of(context).compatibility_snackbar_start),
+          duration: const Duration(seconds: 1)),
+    );
+  }
+
+  Future<void> _saveUserProfile() async {
+    await ref.read(userInfoProvider.notifier).updateProfile(
+          gender: _gender,
+          birthDate: _birthDate,
+          birthTime: _birthTime,
         );
+  }
 
-        if (shouldProceed != true) {
-          return;
-        }
-      }
-
-      // Show loading indicator
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.of(context).compatibility_snackbar_start)),
+  Future<CompatibilityModel?> _createCompatibility() async {
+    return await ref.read(compatibilityProvider.notifier).createCompatibility(
+          artist: widget.artist,
+          birthDate: _birthDate!,
+          gender: _gender!,
+          birthTime: _birthTime,
         );
-      }
+  }
 
-      // 프로필 정보 저장
-      await ref.read(userInfoProvider.notifier).updateProfile(
-            gender: _gender,
-            birthDate: _birthDate,
-            birthTime: _birthTime,
-          );
-
-      logger.i('Starting compatibility analysis');
-
-      // 궁합 분석 시작
-      final compatibility =
-          await ref.read(compatibilityProvider.notifier).createCompatibility(
-                userId: supabase.auth.currentUser!.id,
-                artist: widget.artist,
-                birthDate: _birthDate!,
-                birthTime: _birthTime,
-                gender: _gender!,
-              );
-
-      if (mounted) {
-        // 결과 페이지로 이동
-        ref.read(navigationInfoProvider.notifier).setCurrentPage(
-              CompatibilityResultPage(
-                compatibility: compatibility,
-              ),
-            );
-      }
-    } catch (e, s) {
-      logger.e('Error in submit', error: e, stackTrace: s);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.of(context).compatibility_snackbar_error)),
+  void _navigateToResult(CompatibilityModel compatibility) {
+    ref.read(navigationInfoProvider.notifier).setCurrentPage(
+          CompatibilityResultPage(
+            compatibility: compatibility,
+          ),
         );
-      }
+  }
+
+  void _showValidationError() {
+    String message;
+    if (_birthDate == null) {
+      message = S.of(context).compatibility_snackbar_need_birthday;
+    } else if (_gender == null) {
+      message = S.of(context).compatibility_snackbar_need_gender;
+    } else {
+      message = S.of(context).compatibility_snackbar_need_profile_save_agree;
     }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+  void _showErrorMessage() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(S.of(context).compatibility_snackbar_error)),
+    );
   }
 
   @override
@@ -305,24 +363,17 @@ class _CompatibilityInputScreenState
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            // 프로필 이미지와 이름
             CompatibilityResultCard(
-                compatibility: CompatibilityModel(
-              userId: supabase.auth.currentUser!.id,
-              artist: widget.artist,
-              birthDate: widget.artist.birth_date!,
-              status: CompatibilityStatus.input,
-            ))
-            // CompatibilityInfo(
-            //   artist: widget.artist,
-            //   ref: ref,
-            //   birthDate: _birthDate,
-            //   birthTime: _birthTime,
-            // ),
-            ,
+              compatibility: CompatibilityModel(
+                userId: supabase.auth.currentUser!.id,
+                artist: widget.artist,
+                birthDate: widget.artist.birthDate!,
+                status: CompatibilityStatus.input,
+              ),
+            ),
             const SizedBox(height: 8),
 
-            // 성별 선택
+            // Gender Selection
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
@@ -382,7 +433,7 @@ class _CompatibilityInputScreenState
 
             const SizedBox(height: 8),
 
-            // 생년월일 선택
+            // Birth Date Selection
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
@@ -411,7 +462,7 @@ class _CompatibilityInputScreenState
                       const SizedBox(height: 8),
                       Text(
                         _birthDate == null
-                            ? S.of(context).compatibility_snackbar_need_birthday
+                            ? S.of(context).compatibility_birthday
                             : formatDateTimeYYYYMMDD(_birthDate!),
                         style: getTextStyle(
                           AppTypo.body14B,
@@ -428,7 +479,7 @@ class _CompatibilityInputScreenState
 
             const SizedBox(height: 8),
 
-            // 시간 선택
+            // Birth Time Selection
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
@@ -461,12 +512,13 @@ class _CompatibilityInputScreenState
                           ),
                         ),
                         contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                       ),
                       value: _birthTime,
-                      // This will now use the loaded birth time
                       hint: Text(
-                        S.of(context).compatibility_snackbar_need_birthtime,
+                        S.of(context).compatibility_birthday,
                         style: getTextStyle(AppTypo.body14M, AppColors.grey500),
                       ),
                       items: [
@@ -475,30 +527,43 @@ class _CompatibilityInputScreenState
                           child: Text(
                             S.of(context).compatibility_time_slot_unknown,
                             style: getTextStyle(
-                                AppTypo.body14M, AppColors.grey900),
+                              AppTypo.body14M,
+                              AppColors.grey900,
+                            ),
                           ),
                         ),
                         ...?_timeSlots?.asMap().entries.map(
                           (entry) {
                             final index = entry.key;
                             final time = entry.value;
-                            final text = time.split('|')[0];
-                            final textTime = time.split('|')[1];
-                            final icon = time.split('|').last;
+                            final parts = time.split('|');
+                            final text = parts[0];
+                            final textTime = parts[1];
+                            final icon = parts.length > 2 ? parts[2] : '';
 
                             return DropdownMenuItem(
                               value: (index + 1).toString(),
                               child: Row(
                                 children: [
-                                  Text(icon),
-                                  Text(' '),
+                                  if (icon.isNotEmpty) ...[
+                                    Text(icon),
+                                    const SizedBox(width: 4),
+                                  ],
                                   Text(
                                     text,
                                     style: getTextStyle(
-                                        AppTypo.body14M, AppColors.grey900),
+                                      AppTypo.body14M,
+                                      AppColors.grey900,
+                                    ),
                                   ),
-                                  Text(' '),
-                                  Text(textTime),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    textTime,
+                                    style: getTextStyle(
+                                      AppTypo.body14R,
+                                      AppColors.grey600,
+                                    ),
+                                  ),
                                 ],
                               ),
                             );
@@ -516,9 +581,9 @@ class _CompatibilityInputScreenState
               ),
             ),
 
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
 
-            // 동의 체크박스
+            // Agreement Checkbox
             CheckboxListTile(
               value: _agreedToSaveProfile,
               activeColor: AppColors.primary500,
@@ -535,22 +600,35 @@ class _CompatibilityInputScreenState
               contentPadding: EdgeInsets.zero,
             ),
 
+            const SizedBox(height: 24),
+
             // Submit Button
             FilledButton(
-              onPressed: _agreedToSaveProfile ? _submit : null,
+              onPressed: _isLoading ? null : _submit,
               style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(56),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
-                backgroundColor: _agreedToSaveProfile
-                    ? AppColors.primary500
-                    : AppColors.grey300,
+                backgroundColor: _isLoading || !_agreedToSaveProfile
+                    ? AppColors.grey300
+                    : AppColors.primary500,
               ),
-              child: Text(
-                S.of(context).compatibility_analyze_start,
-                style: getTextStyle(AppTypo.body16B, AppColors.grey00),
-              ),
+              child: _isLoading
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppColors.grey500,
+                        ),
+                      ),
+                    )
+                  : Text(
+                      S.of(context).compatibility_analyze_start,
+                      style: getTextStyle(AppTypo.body16B, AppColors.grey00),
+                    ),
             ),
 
             const SizedBox(height: 24),

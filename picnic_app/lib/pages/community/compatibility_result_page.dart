@@ -16,8 +16,6 @@ import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/vote_share_util.dart';
 
-final _loadingProvider = StateProvider.autoDispose<bool>((ref) => false);
-
 class CompatibilityResultPage extends ConsumerStatefulWidget {
   const CompatibilityResultPage({
     super.key,
@@ -35,11 +33,14 @@ class _CompatibilityResultPageState
     extends ConsumerState<CompatibilityResultPage> {
   final GlobalKey _printKey = GlobalKey();
   String? _currentLocale;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _initializeData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeData();
+    });
   }
 
   @override
@@ -48,45 +49,57 @@ class _CompatibilityResultPageState
     final newLocale = Intl.getCurrentLocale();
     if (_currentLocale != newLocale) {
       _currentLocale = newLocale;
-      _refreshData();
+      if (_isInitialized) {
+        _refreshData();
+      }
     }
     _updateNavigation();
   }
 
   Future<void> _initializeData() async {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      ref.read(_loadingProvider.notifier).state = true;
-      ref.read(compatibilityProvider.notifier).state = widget.compatibility;
-      _refreshData();
-    });
+    if (!mounted) return;
+
+    try {
+      // 초기 데이터 설정
+      await ref
+          .read(compatibilityProvider.notifier)
+          .setCompatibility(widget.compatibility);
+
+      // compatibility가 pending 상태일 때만 loading 상태로 설정
+      if (widget.compatibility.isPending) {
+        ref.read(compatibilityLoadingProvider.notifier).state = true;
+      }
+
+      setState(() {
+        _isInitialized = true;
+      });
+
+      // completed 상태면 데이터 새로고침
+      if (widget.compatibility.isCompleted) {
+        await _refreshData();
+      }
+    } catch (e, stack) {
+      logger.e('Error initializing data', error: e, stackTrace: stack);
+    }
   }
 
   Future<void> _refreshData() async {
     if (!mounted) return;
 
-    // 이미 로딩 중이면 스킵
-    if (ref.read(_loadingProvider)) return;
-
-    final compatibility = ref.read(compatibilityProvider);
-    if (compatibility == null) return;
-
-    if (compatibility.isCompleted && compatibility.localizedResults == null) {
-      ref.read(_loadingProvider.notifier).state = true;
-
-      try {
-        await ref.read(compatibilityProvider.notifier).refresh();
-      } finally {
-        if (mounted) {
-          ref.read(_loadingProvider.notifier).state = false;
-        }
-      }
+    try {
+      await ref
+          .read(compatibilityProvider.notifier)
+          .loadCompatibility(widget.compatibility.id);
+    } catch (e, stack) {
+      logger.e('Error refreshing compatibility data',
+          error: e, stackTrace: stack);
     }
   }
 
   void _updateNavigation() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+    if (!mounted) return;
+
+    Future(() {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
             showPortal: true,
             showTopMenu: true,
@@ -99,71 +112,108 @@ class _CompatibilityResultPageState
 
   @override
   Widget build(BuildContext context) {
-    final compatibility = ref.watch(compatibilityProvider);
-    final isLoading = ref.watch(_loadingProvider);
+    final compatibilityState = ref.watch(compatibilityProvider);
 
-    if (compatibility == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    return compatibilityState.when(
+      data: (compatibility) {
+        if (compatibility == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-    return SingleChildScrollView(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            RepaintBoundary(
-              key: _printKey,
-              child: Container(
-                color: AppColors.grey00,
-                child: Column(
-                  children: [
-                    CompatibilityResultCard(
-                      compatibility: compatibility,
+        return SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                RepaintBoundary(
+                  key: _printKey,
+                  child: Container(
+                    color: AppColors.grey00,
+                    child: Column(
+                      children: [
+                        CompatibilityResultCard(
+                          compatibility: compatibility,
+                        ),
+                        if (!_isInitialized) ...[
+                          const Center(child: CircularProgressIndicator()),
+                        ] else if (compatibility.isPending) ...[
+                          const CompatibilityLoadingView(),
+                        ] else if (compatibility.hasError) ...[
+                          CompatibilityErrorView(
+                            error: compatibility.errorMessage ??
+                                S.of(context).error_unknown,
+                          ),
+                        ] else if (compatibility.isCompleted) ...[
+                          CompatibilityResultView(
+                            compatibility: compatibility,
+                            language: _currentLocale ?? Intl.getCurrentLocale(),
+                          ),
+                        ],
+                      ],
                     ),
-                    if (compatibility.status == CompatibilityStatus.pending ||
-                        isLoading)
-                      const CompatibilityLoadingView()
-                    else if (compatibility.status == CompatibilityStatus.error)
-                      CompatibilityErrorView(
-                        error:
-                            compatibility.errorMessage ?? '알 수 없는 오류가 발생했습니다.',
-                      )
-                    else if (compatibility.status ==
-                            CompatibilityStatus.completed &&
-                        !isLoading &&
-                        compatibility.localizedResults != null)
-                      CompatibilityResultView(
-                        compatibility: compatibility,
-                        language: _currentLocale ?? Intl.getCurrentLocale(),
-                      ),
-                  ],
+                  ),
                 ),
-              ),
+                if (compatibility.isCompleted &&
+                    compatibility.localizedResults != null) ...[
+                  const SizedBox(height: 16),
+                  VoteCardInfoFooter(
+                    saveButtonText: S.of(context).vote_result_save_button,
+                    shareButtonText: S.of(context).vote_result_share_button,
+                    onSave: () => _handleSave(compatibility),
+                    onShare: () => _handleShare(compatibility),
+                  ),
+                ],
+              ],
             ),
-            if (compatibility.isCompleted &&
-                !isLoading &&
-                compatibility.localizedResults != null) ...[
-              VoteCardInfoFooter(
-                saveButtonText: S.of(context).vote_result_save_button,
-                shareButtonText: S.of(context).vote_result_share_button,
-                onSave: () => VoteShareUtils.captureAndSaveImage(
-                  _printKey,
-                  context,
-                  onStart: () {},
-                  onComplete: () {},
-                ),
-                onShare: () => VoteShareUtils.shareToTwitter(
-                  _printKey,
-                  title: getLocaleTextFromJson(compatibility.artist.name),
-                  context,
-                  onStart: () {},
-                  onComplete: () {},
-                ),
-              ),
-            ],
+          ),
+        );
+      },
+      loading: () => const Center(
+        child: CircularProgressIndicator(),
+      ),
+      error: (error, stack) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              S.of(context).compatibility_status_error,
+              style: getTextStyle(AppTypo.body14M, AppColors.point500),
+            ),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: _refreshData,
+              child: Text(S.of(context).label_retry),
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  Future<Future<bool>> _handleSave(CompatibilityModel compatibility) async {
+    return VoteShareUtils.captureAndSaveImage(
+      _printKey,
+      context,
+      onStart: () {
+        if (!mounted) return;
+      },
+      onComplete: () {
+        if (!mounted) return;
+      },
+    );
+  }
+
+  Future<Future<bool>> _handleShare(CompatibilityModel compatibility) async {
+    return VoteShareUtils.shareToTwitter(
+      _printKey,
+      title: getLocaleTextFromJson(compatibility.artist.name),
+      context,
+      onStart: () {
+        if (!mounted) return;
+      },
+      onComplete: () {
+        if (!mounted) return;
+      },
     );
   }
 }

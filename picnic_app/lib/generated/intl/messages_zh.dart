@@ -78,6 +78,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("最近的搜索"),
         "common_text_search_result_label":
             MessageLookupByLibrary.simpleMessage("搜索结果"),
+        "compatibility_activities_title":
+            MessageLookupByLibrary.simpleMessage("你们可以一起开展的活动"),
         "compatibility_agree_checkbox":
             MessageLookupByLibrary.simpleMessage("我同意在个人档案中存储我的性别和生日信息。"),
         "compatibility_analyze_start":
@@ -86,14 +88,18 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("分析兼容性。"),
         "compatibility_birthday": MessageLookupByLibrary.simpleMessage("出生日期"),
         "compatibility_birthtime": MessageLookupByLibrary.simpleMessage("出生时间"),
+        "compatibility_couple_style":
+            MessageLookupByLibrary.simpleMessage("情侣款式"),
         "compatibility_duplicate_data_message":
-            MessageLookupByLibrary.simpleMessage("相同条件的兼容性数据已经存在。"),
+            MessageLookupByLibrary.simpleMessage("相同条件下的兼容性数据已经存在。"),
         "compatibility_duplicate_data_title":
             MessageLookupByLibrary.simpleMessage("现有兼容性数据"),
         "compatibility_gender": MessageLookupByLibrary.simpleMessage("性别"),
         "compatibility_gender_female":
             MessageLookupByLibrary.simpleMessage("女性"),
         "compatibility_gender_male": MessageLookupByLibrary.simpleMessage("男"),
+        "compatibility_idol_style":
+            MessageLookupByLibrary.simpleMessage("偶像风格"),
         "compatibility_new_compatibility":
             MessageLookupByLibrary.simpleMessage("发现新的匹配对象"),
         "compatibility_new_compatibility_ask":
@@ -107,6 +113,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("这是有史以来最棒的比赛！ ✨"),
         "compatibility_result_low":
             MessageLookupByLibrary.simpleMessage("找到合适的 😊。"),
+        "compatibility_result_not_found":
+            MessageLookupByLibrary.simpleMessage("我们不相容 😔"),
         "compatibility_snackbar_error":
             MessageLookupByLibrary.simpleMessage("出现错误。"),
         "compatibility_snackbar_need_birthday":
@@ -127,32 +135,40 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("打字"),
         "compatibility_status_pending":
             MessageLookupByLibrary.simpleMessage("分析"),
+        "compatibility_style_title":
+            MessageLookupByLibrary.simpleMessage("兼容性样式"),
+        "compatibility_summary_title":
+            MessageLookupByLibrary.simpleMessage("兼容性概述"),
         "compatibility_time_slot1":
-            MessageLookupByLibrary.simpleMessage("子时|(23:30-01:29)|🐀"),
+            MessageLookupByLibrary.simpleMessage("자시|(23:30-01:29)|🐀"),
         "compatibility_time_slot10":
-            MessageLookupByLibrary.simpleMessage("酉时|(17:30-19:29)|🐔"),
+            MessageLookupByLibrary.simpleMessage("유시|(17:30-19:29)|🐔"),
         "compatibility_time_slot11":
-            MessageLookupByLibrary.simpleMessage("戌时|(19:30-21:29)|🐕"),
+            MessageLookupByLibrary.simpleMessage("술시|(19:30-21:29)|🐕"),
         "compatibility_time_slot12":
-            MessageLookupByLibrary.simpleMessage("亥时|(21:30-23:29)|🐖"),
+            MessageLookupByLibrary.simpleMessage("哈希|(21:30-23:29)|🐖"),
         "compatibility_time_slot2":
-            MessageLookupByLibrary.simpleMessage("丑时|(01:30-03:29)|🐂"),
+            MessageLookupByLibrary.simpleMessage("축시|(01:30-03:29)|🐂"),
         "compatibility_time_slot3":
-            MessageLookupByLibrary.simpleMessage("寅时|(03:30-05:29)|🐅"),
+            MessageLookupByLibrary.simpleMessage("인시|(03:30-05:29)|🐅"),
         "compatibility_time_slot4":
-            MessageLookupByLibrary.simpleMessage("卯时|(05:30-07:29)|🐇"),
+            MessageLookupByLibrary.simpleMessage("묘시|(05:30-07:29)|🐇"),
         "compatibility_time_slot5":
-            MessageLookupByLibrary.simpleMessage("辰时|(07:30-09:29)|🐉"),
+            MessageLookupByLibrary.simpleMessage("진시|(07:30-09:29)|🐉"),
         "compatibility_time_slot6":
-            MessageLookupByLibrary.simpleMessage("巳时|(09:30-11:29)|🐍"),
+            MessageLookupByLibrary.simpleMessage("사시|(09:30-11:29)|🐍"),
         "compatibility_time_slot7":
-            MessageLookupByLibrary.simpleMessage("午时|(11:30-13:29)|🐎"),
+            MessageLookupByLibrary.simpleMessage("오시|(11:30-13:29)|🐎"),
         "compatibility_time_slot8":
-            MessageLookupByLibrary.simpleMessage("未时|(13:30-15:29)|🐑"),
+            MessageLookupByLibrary.simpleMessage("미시|(13:30-15:29)|🐑"),
         "compatibility_time_slot9":
-            MessageLookupByLibrary.simpleMessage("申时|(15:30-17:29)|🐒"),
+            MessageLookupByLibrary.simpleMessage("신시|(15:30-17:29)|🐒"),
         "compatibility_time_slot_unknown":
             MessageLookupByLibrary.simpleMessage("不知道"),
+        "compatibility_tips_title":
+            MessageLookupByLibrary.simpleMessage("兼容性提示"),
+        "compatibility_user_style":
+            MessageLookupByLibrary.simpleMessage("用户风格"),
         "compatibility_waiting_message":
             MessageLookupByLibrary.simpleMessage("请稍候。"),
         "compatibility_warning_exit":
@@ -620,7 +636,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "vote_result_save_button": MessageLookupByLibrary.simpleMessage("保存结果"),
         "vote_result_share_button":
             MessageLookupByLibrary.simpleMessage("分享您的成果"),
-        "vote_share_message": MessageLookupByLibrary.simpleMessage("投了赞成票！"),
         "voting_share_benefit_text":
             MessageLookupByLibrary.simpleMessage("每 100 次投票和分享可获得 1 个奖励星星糖果！")
       };

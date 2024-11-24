@@ -1,10 +1,13 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/providers/community/compatibility_provider.dart';
+import 'package:picnic_app/providers/config_service.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'dart:async';
-
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class CompatibilityLoadingView extends ConsumerStatefulWidget {
@@ -32,18 +35,30 @@ class _CompatibilityLoadingViewState
     _startTimer();
   }
 
-  void _loadAds() {
+  void _loadAds() async {
+    final configService = ref.read(configServiceProvider);
+
+    final adTopUnitId = isAndroid()
+        ? await configService
+            .getConfig('ADMOB_ANDROID_COMPATIBILITY_LOADING_TOP')
+        : await configService.getConfig('ADMOB_IOS_COMPATIBILITY_LOADING_TOP');
+    final adBottomUnitId = isAndroid()
+        ? await configService
+            .getConfig('ADMOB_ANDROID_COMPATIBILITY_LOADING_BOTTOM')
+        : await configService
+            .getConfig('ADMOB_IOS_COMPATIBILITY_LOADING_BOTTOM');
+
     _topBannerAd = BannerAd(
-      adUnitId: isAndroid()
-          ? 'ca-app-pub-3940256099942544/6300978111'
-          : 'ca-app-pub-3940256099942544/2934735716',
+      adUnitId: adTopUnitId!,
       size: AdSize.largeBanner,
       request: const AdRequest(),
       listener: BannerAdListener(
         onAdLoaded: (_) {
-          setState(() {
-            _isTopBannerLoaded = true;
-          });
+          if (mounted) {
+            setState(() {
+              _isTopBannerLoaded = true;
+            });
+          }
         },
         onAdFailedToLoad: (ad, error) {
           ad.dispose();
@@ -52,16 +67,16 @@ class _CompatibilityLoadingViewState
     )..load();
 
     _bottomBannerAd = BannerAd(
-      adUnitId: isAndroid()
-          ? 'ca-app-pub-3940256099942544/6300978111'
-          : 'ca-app-pub-3940256099942544/2934735716',
+      adUnitId: adBottomUnitId!,
       size: AdSize.largeBanner,
       request: const AdRequest(),
       listener: BannerAdListener(
         onAdLoaded: (_) {
-          setState(() {
-            _isBottomBannerLoaded = true;
-          });
+          if (mounted) {
+            setState(() {
+              _isBottomBannerLoaded = true;
+            });
+          }
         },
         onAdFailedToLoad: (ad, error) {
           ad.dispose();
@@ -79,9 +94,7 @@ class _CompatibilityLoadingViewState
   }
 
   void _startTimer() {
-    // 기존 타이머가 있다면 취소
     _timer?.cancel();
-
     _timer = Timer.periodic(
       const Duration(seconds: 1),
       (timer) {
@@ -90,77 +103,90 @@ class _CompatibilityLoadingViewState
           return;
         }
 
-        if (_seconds > 0) {
-          setState(() {
+        setState(() {
+          if (_seconds > 0) {
             _seconds--;
-          });
-        } else {
-          timer.cancel();
-        }
+          } else {
+            timer.cancel();
+          }
+        });
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    logger.i('CompatibilityLoadingView build');
+
+    final isLoading = ref.watch(compatibilityLoadingProvider);
+
+    // 로딩이 끝났으면 빈 위젯 반환
+    if (!isLoading) {
+      return const SizedBox.shrink();
+    }
+
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          (_isTopBannerLoaded && _topBannerAd != null)
-              ? Container(
-                  alignment: Alignment.center,
-                  width: _topBannerAd!.size.width.toDouble(),
-                  height: _topBannerAd!.size.height.toDouble(),
-                  child: AdWidget(ad: _topBannerAd!),
-                )
-              : SizedBox(height: AdSize.largeBanner.height.toDouble()),
-          const SizedBox(height: 8),
+          if (_isTopBannerLoaded && _topBannerAd != null)
+            Container(
+              alignment: Alignment.center,
+              width: _topBannerAd!.size.width.toDouble(),
+              height: _topBannerAd!.size.height.toDouble(),
+              child: AdWidget(ad: _topBannerAd!),
+            )
+          else
+            SizedBox(height: AdSize.largeBanner.height.toDouble()),
+          const SizedBox(height: 24),
           SizedBox(
-            width: 24,
-            height: 24,
+            width: 48,
+            height: 48,
             child: CircularProgressIndicator(
               value: _seconds / _totalSeconds,
-              strokeWidth: 8,
+              strokeWidth: 4,
+              backgroundColor: AppColors.grey200,
               color: AppColors.primary500,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           Text(
             '${S.of(context).compatibility_analyzing}\n($_seconds${S.of(context).seconds})',
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+            style: getTextStyle(
+              AppTypo.title18B,
+              AppColors.grey900,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Text(
             S.of(context).compatibility_waiting_message,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            S.of(context).compatibility_warning_exit,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.red,
-              fontWeight: FontWeight.w500,
+            textAlign: TextAlign.center,
+            style: getTextStyle(
+              AppTypo.body14R,
+              AppColors.grey600,
             ),
           ),
           const SizedBox(height: 8),
-          (_isBottomBannerLoaded && _bottomBannerAd != null)
-              ? Container(
-                  alignment: Alignment.center,
-                  width: _bottomBannerAd!.size.width.toDouble(),
-                  height: _bottomBannerAd!.size.height.toDouble(),
-                  child: AdWidget(ad: _bottomBannerAd!),
-                )
-              : SizedBox(height: AdSize.largeBanner.height.toDouble()),
+          Text(
+            S.of(context).compatibility_warning_exit,
+            textAlign: TextAlign.center,
+            style: getTextStyle(
+              AppTypo.body14M,
+              AppColors.point900,
+            ),
+          ),
+          const SizedBox(height: 24),
+          if (_isBottomBannerLoaded && _bottomBannerAd != null)
+            Container(
+              alignment: Alignment.center,
+              width: _bottomBannerAd!.size.width.toDouble(),
+              height: _bottomBannerAd!.size.height.toDouble(),
+              child: AdWidget(ad: _bottomBannerAd!),
+            )
+          else
+            SizedBox(height: AdSize.largeBanner.height.toDouble()),
         ],
       ),
     );

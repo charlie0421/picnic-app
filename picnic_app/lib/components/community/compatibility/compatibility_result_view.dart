@@ -1,220 +1,265 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:picnic_app/components/community/compatibility/compatibility_error.dart';
+import 'package:picnic_app/components/community/compatibility/compatibility_loading_view.dart';
+import 'package:picnic_app/components/community/compatibility/compatibility_result_card.dart';
+import 'package:picnic_app/components/community/compatibility/compatibility_result_view.dart';
+import 'package:picnic_app/components/community/compatibility/compatibility_tip_card.dart';
+import 'package:picnic_app/components/vote/list/vote_info_card_footer.dart';
+import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
-import 'package:picnic_app/models/vote/artist.dart';
+import 'package:picnic_app/providers/community/compatibility_provider.dart';
+import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
+import 'package:picnic_app/util/vote_share_util.dart';
 
-class CompatibilityResultView extends StatelessWidget {
+class CompatibilityResultView extends ConsumerWidget {
   const CompatibilityResultView({
     super.key,
     required this.compatibility,
-    this.language = 'ko',
+    required this.language,
   });
 
   final CompatibilityModel compatibility;
   final String language;
 
   @override
-  Widget build(BuildContext context) {
-    // 한국어 데이터 처리 - 기본 데이터를 우선 사용
-    final LocalizedCompatibility currentResult = language == 'ko'
-        ? LocalizedCompatibility(
-            language: 'ko',
-            compatibilitySummary: compatibility.compatibilitySummary ?? '',
-            details: compatibility.details,
-            tips: compatibility.tips ?? [],
-          )
-        : compatibility.getLocalizedResult(language) ??
-            LocalizedCompatibility(
-              language: language,
-              compatibilitySummary: compatibility.compatibilitySummary ?? '',
-              details: compatibility.details,
-              tips: compatibility.tips ?? [],
-            );
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (compatibility.localizedResults?.isEmpty ?? true) {
+      return Center(
+        child: Text(
+          S.of(context).compatibility_result_not_found,
+          style: getTextStyle(AppTypo.body14R, AppColors.grey500),
+        ),
+      );
+    }
 
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          if (currentResult.compatibilitySummary.isNotEmpty)
-            Card(
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(24),
-                child: Text(
-                  currentResult.compatibilitySummary,
-                  textAlign: TextAlign.center,
-                  style: getTextStyle(AppTypo.body16M, AppColors.grey900),
-                ),
-              ),
+    final localizedResult = compatibility.getLocalizedResult(language) ??
+        compatibility.localizedResults?.values.firstOrNull;
+
+    if (localizedResult == null) {
+      return Center(
+        child: Text(
+          S.of(context).compatibility_result_not_found,
+          style: getTextStyle(AppTypo.body14R, AppColors.grey500),
+        ),
+      );
+    }
+
+    final style = localizedResult.details?.style;
+    final activities = localizedResult.details?.activities;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Summary Section
+        if (localizedResult.compatibilitySummary.isNotEmpty) ...[
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-
-          // 스타일 분석
-          if (currentResult.details?.style != null) ...[
-            _buildSection(
-              title: '스타일 분석',
-              icon: Icons.style,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildDetailItem(
-                    _getLocalizedArtistName(compatibility.artist),
-                    currentResult.details!.style.idolStyle,
+                  Row(
+                    children: [
+                      const Icon(Icons.menu_book_outlined,
+                          color: AppColors.primary500),
+                      const SizedBox(width: 8),
+                      Text(
+                        S.of(context).compatibility_summary_title,
+                        style: getTextStyle(AppTypo.body14B, AppColors.grey900),
+                      ),
+                    ],
                   ),
-                  const Divider(height: 24),
-                  _buildDetailItem(
-                    '당신의 스타일',
-                    currentResult.details!.style.userStyle,
-                  ),
-                  const Divider(height: 24),
-                  _buildDetailItem(
-                    '커플 스타일 제안',
-                    currentResult.details!.style.coupleStyle,
+                  const SizedBox(height: 12),
+                  Text(
+                    localizedResult.compatibilitySummary,
+                    style: getTextStyle(AppTypo.body14R, AppColors.grey900),
                   ),
                 ],
               ),
             ),
-          ],
+          ),
+          const SizedBox(height: 12),
+        ],
 
-          const SizedBox(height: 16),
-
-          // 추천 활동
-          if (currentResult.details?.activities != null) ...[
-            _buildSection(
-              title: '추천 활동',
-              icon: Icons.local_activity,
+        // Style Section
+        if (style != null) ...[
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ...currentResult.details!.activities.recommended.map(
-                    (activity) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(
-                            Icons.check_circle_outline,
-                            size: 20,
-                            color: AppColors.primary500,
+                  Row(
+                    children: [
+                      const Icon(Icons.style_outlined,
+                          color: AppColors.primary500),
+                      const SizedBox(width: 8),
+                      Text(
+                        S.of(context).compatibility_style_title,
+                        style: getTextStyle(AppTypo.body14B, AppColors.grey900),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  _buildStyleItem(
+                    context,
+                    S.of(context).compatibility_idol_style,
+                    style.idolStyle,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildStyleItem(
+                    context,
+                    S.of(context).compatibility_user_style,
+                    style.userStyle,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildStyleItem(
+                    context,
+                    S.of(context).compatibility_couple_style,
+                    style.coupleStyle,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+
+        // Activities Section
+        if (activities != null) ...[
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.local_activity_outlined,
+                          color: AppColors.primary500),
+                      const SizedBox(width: 8),
+                      Text(
+                        S.of(context).compatibility_activities_title,
+                        style: getTextStyle(AppTypo.body14B, AppColors.grey900),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    activities.description,
+                    style: getTextStyle(AppTypo.body14R, AppColors.grey900),
+                  ),
+                  if (activities.recommended.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: activities.recommended.map((activity) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              activity,
-                              style: getTextStyle(
-                                  AppTypo.body14M, AppColors.grey900),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary500,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Text(
+                            activity,
+                            style: getTextStyle(
+                              AppTypo.body14M,
+                              AppColors.grey00,
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  if (currentResult
-                      .details!.activities.description.isNotEmpty) ...[
-                    const Divider(height: 24),
-                    Text(
-                      currentResult.details!.activities.description,
-                      style: getTextStyle(AppTypo.body14M, AppColors.grey900),
+                        );
+                      }).toList(),
                     ),
                   ],
                 ],
               ),
             ),
-          ],
+          ),
+          const SizedBox(height: 12),
+        ],
 
-          const SizedBox(height: 16),
-
-          // 궁합 높이기 팁
-          if (currentResult.tips?.isNotEmpty ?? false) ...[
-            _buildSection(
-              title: '궁합 높이기 팁',
-              icon: Icons.tips_and_updates,
+        // Tips Section
+        if (localizedResult.tips.isNotEmpty) ...[
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
               child: Column(
-                children: currentResult.tips!
-                    .map(
-                      (tip) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(
-                              Icons.lightbulb_outline,
-                              size: 20,
-                              color: AppColors.primary500,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                tip,
-                                style: getTextStyle(
-                                    AppTypo.body14M, AppColors.grey900),
-                              ),
-                            ),
-                          ],
-                        ),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.lightbulb_outline,
+                          color: AppColors.primary500),
+                      const SizedBox(width: 8),
+                      Text(
+                        S.of(context).compatibility_tips_title,
+                        style: getTextStyle(AppTypo.body14B, AppColors.grey900),
                       ),
-                    )
-                    .toList(),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: localizedResult.tips.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 8),
+                    itemBuilder: (context, index) {
+                      return CompatibilityTipCard(
+                        tip: localizedResult.tips[index],
+                        index: index + 1,
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSection({
-    required String title,
-    required IconData icon,
-    required Widget child,
-  }) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: AppColors.primary500),
-                const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: getTextStyle(AppTypo.body16B, AppColors.grey900),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            child,
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDetailItem(String title, String content) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: getTextStyle(AppTypo.body14B, AppColors.grey900),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          content,
-          style: getTextStyle(AppTypo.body14M, AppColors.grey900),
-        ),
       ],
     );
   }
 
-  Color _getScoreColor(int score) {
-    if (score >= 90) return AppColors.primary500;
-    if (score >= 80) return const Color(0xFFFF9500);
-    if (score >= 70) return const Color(0xFF34C759);
-    return AppColors.grey600;
-  }
-
-  String _getLocalizedArtistName(ArtistModel artist) {
-    final name = artist.name['ko'] ?? '';
-    return '${name}님의 스타일';
+  Widget _buildStyleItem(BuildContext context, String label, String content) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          content,
+          style: getTextStyle(AppTypo.body14R, AppColors.grey900),
+        ),
+      ],
+    );
   }
 }

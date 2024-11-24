@@ -187,74 +187,96 @@ async function generateNewResults(compatibility): Promise<CompatibilityResult> {
 
 async function generateAndStoreTranslations(supabaseClient, compatibility_id, result: CompatibilityResult) {
     try {
+        // 먼저 기존 번역 데이터 모두 삭제
+        const { error: deleteError } = await supabaseClient
+            .from('compatibility_results_i18n')
+            .delete()
+            .eq('compatibility_id', compatibility_id);
+
+        if (deleteError) {
+            console.error('Error deleting existing translations:', deleteError);
+            throw deleteError;
+        }
+
+        // 각 언어별로 새로운 번역 생성 및 저장
         for (const targetLang of SUPPORTED_LANGUAGES) {
-            if (targetLang === 'ko') continue
+            try {
+                let translatedResult;
 
-            // details 객체의 각 필드 번역
-            const translatedDetails = {
-                style: {
-                    idol_style: await translateText(result.details.style.idol_style, targetLang),
-                    user_style: await translateText(result.details.style.user_style, targetLang),
-                    couple_style: await translateText(result.details.style.couple_style, targetLang)
-                },
-                activities: {
-                    recommended: await Promise.all(
-                        result.details.activities.recommended.map(activity =>
-                            translateText(activity, targetLang)
-                        )
-                    ),
-                    description: await translateText(result.details.activities.description, targetLang)
+                if (targetLang === 'ko') {
+                    // 한국어 원본 데이터
+                    translatedResult = {
+                        compatibility_id,
+                        language: targetLang,
+                        compatibility_score: result.compatibility_score,
+                        compatibility_summary: result.compatibility_summary,
+                        details: {
+                            style: {
+                                idol_style: result.details.style.idol_style,
+                                user_style: result.details.style.user_style,
+                                couple_style: result.details.style.couple_style
+                            },
+                            activities: {
+                                recommended: result.details.activities.recommended,
+                                description: result.details.activities.description
+                            }
+                        },
+                        tips: result.tips,
+                    };
+                } else {
+                    // 다른 언어 번역
+                    const translatedDetails = {
+                        style: {
+                            idol_style: await translateText(result.details.style.idol_style, targetLang),
+                            user_style: await translateText(result.details.style.user_style, targetLang),
+                            couple_style: await translateText(result.details.style.couple_style, targetLang)
+                        },
+                        activities: {
+                            recommended: await Promise.all(
+                                result.details.activities.recommended.map(activity =>
+                                    translateText(activity, targetLang)
+                                )
+                            ),
+                            description: await translateText(result.details.activities.description, targetLang)
+                        }
+                    };
+
+                    const translatedTips = await Promise.all(
+                        result.tips.map(tip => translateText(tip, targetLang))
+                    );
+
+                    translatedResult = {
+                        compatibility_id,
+                        language: targetLang,
+                        compatibility_score: result.compatibility_score,
+                        compatibility_summary: await translateText(
+                            result.compatibility_summary,
+                            targetLang
+                        ),
+                        details: translatedDetails,
+                        tips: translatedTips,
+                    };
                 }
-            };
 
-            // tips 번역
-            const translatedTips = await Promise.all(
-                result.tips.map(tip => translateText(tip, targetLang))
-            );
-
-            // 기존 데이터 확인
-            const { data: existingData } = await supabaseClient
-                .from('compatibility_results_i18n')
-                .select()
-                .eq('compatibility_id', compatibility_id)
-                .eq('language', targetLang)
-                .maybeSingle();
-
-            const translatedResult = {
-                compatibility_id,
-                language: targetLang,
-                compatibility_score: result.compatibility_score,
-                compatibility_summary: await translateText(
-                    result.compatibility_summary,
-                    targetLang
-                ),
-                details: translatedDetails,
-                tips: translatedTips,
-                updated_at: new Date().toISOString()
-            };
-
-            if (existingData) {
-                // UPDATE
-                const { error } = await supabaseClient
+                // 새로운 번역 데이터 삽입
+                const { error: insertError } = await supabaseClient
                     .from('compatibility_results_i18n')
-                    .update(translatedResult)
-                    .eq('compatibility_id', compatibility_id)
-                    .eq('language', targetLang);
+                    .insert({
+                        ...translatedResult,
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    });
 
-                if (error) {
-                    console.error('Translation update error:', error);
-                    throw error;
+                if (insertError) {
+                    throw insertError;
                 }
-            } else {
-                // INSERT
-                const { error } = await supabaseClient
-                    .from('compatibility_results_i18n')
-                    .insert(translatedResult);
 
-                if (error) {
-                    console.error('Translation insert error:', error);
-                    throw error;
-                }
+                console.log(`Successfully saved ${targetLang} translation`);
+
+            } catch (langError) {
+                console.error(`Error processing ${targetLang} translation:`, langError);
+                // 개별 언어 처리 실패 시 다음 언어로 계속 진행
+                continue;
             }
         }
     } catch (error) {
@@ -265,23 +287,37 @@ async function generateAndStoreTranslations(supabaseClient, compatibility_id, re
 
 async function updateCompatibilityResults(supabaseClient, compatibility_id, result: CompatibilityResult) {
     try {
+        const updateData = {
+            compatibility_score: result.compatibility_score,
+            compatibility_summary: result.compatibility_summary,
+            details: {
+                style: {
+                    idol_style: result.details.style.idol_style,
+                    user_style: result.details.style.user_style,
+                    couple_style: result.details.style.couple_style
+                },
+                activities: {
+                    recommended: result.details.activities.recommended,
+                    description: result.details.activities.description
+                }
+            },
+            tips: result.tips,
+            status: 'completed',
+            completed_at: new Date().toISOString(),
+            error_message: null
+        };
+
         const { error } = await supabaseClient
             .from('compatibility_results')
-            .update({
-                compatibility_score: result.compatibility_score,
-                compatibility_summary: result.compatibility_summary,
-                details: result.details,
-                tips: result.tips, // 배열로 직접 저장
-                status: 'completed',
-                completed_at: new Date().toISOString(),
-                error_message: null
-            })
-            .eq('id', compatibility_id)
+            .update(updateData)
+            .eq('id', compatibility_id);
 
         if (error) {
             console.error('Main table update error:', error);
             throw error;
         }
+
+        console.log('Successfully updated main compatibility result');
     } catch (error) {
         console.error('Error in updateCompatibilityResults:', error);
         throw error;
