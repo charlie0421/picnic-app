@@ -1,1523 +1,1555 @@
 {
-    "@@locale": "zh",
-    "label_time_ago_day": "{day}일 전",
-    "@label_time_ago_day": {
-        "manualTranslation": true
-    },
-    "label_time_ago_hour": "{hour}小时前",
-    "@label_time_ago_hour": {
-        "manualTranslation": true
-    },
-    "label_time_ago_minute": "{minute}分钟前",
-    "@label_time_ago_minute": {
-        "manualTranslation": true
-    },
-    "text_achievement": "🎉 到目前为止，您已达到 ${count} 目标！ 🎉",
-    "@text_achievement": {
-        "manualTranslation": true
-    },
-    "text_star_candy_with_bonus": "{num1} +{num1}奖金",
-    "@text_star_candy_with_bonus": {
-        "manualTranslation": true
-    },
-    "text_vote_rank": "第{rank}名",
-    "@text_vote_rank": {
-        "manualTranslation": true
-    },
-    "post_replying_comment": "回复 {nickname}...",
-    "@post_replying_comment": {
-        "manualTranslation": true
-    },
-    "update_recommend_text": "新版本({version})发布。",
-    "@update_recommend_text": {
-        "manualTranslation": true
-    },
-    "update_required_text": "您需要更新到新版本({version})",
-    "@update_required_text": {
-        "manualTranslation": true
-    },
-    "anonymous": "匿名",
-    "@anonymous": {
-        "manualTranslation": false
-    },
-    "button_cancel": "取消",
-    "@button_cancel": {
-        "manualTranslation": false
-    },
-    "anonymous_mode": "匿名模式",
-    "@anonymous_mode": {
-        "manualTranslation": false
-    },
-    "app_name": "野餐",
-    "@app_name": {
-        "manualTranslation": false
-    },
-    "ads_available_time": "广告可用性",
-    "@ads_available_time": {
-        "manualTranslation": false
-    },
-    "button_complete": "完成",
-    "@button_complete": {
-        "manualTranslation": false
-    },
-    "button_ok": "确认",
-    "@button_ok": {
-        "manualTranslation": false
-    },
-    "button_login": "登录",
-    "@button_login": {
-        "manualTranslation": false
-    },
-    "button_pic_pic_save": "节省",
-    "@button_pic_pic_save": {
-        "manualTranslation": false
-    },
-    "candy_disappear_next_month": "过期的奖励星星糖果 😢",
-    "@candy_disappear_next_month": {
-        "manualTranslation": false
-    },
-    "candy_usage_policy_contents": "当月获得的奖励星糖将于下月 15 日失效。",
-    "@candy_usage_policy_contents": {
-        "manualTranslation": false
-    },
-    "candy_usage_policy_guide": "*奖金将在获得奖金的次月消失！",
-    "@candy_usage_policy_guide": {
-        "manualTranslation": false
-    },
-    "candy_usage_policy_contents2": "使用 \"星星糖 \"时，即将过期的 \"星星糖 \"会被优先处理。",
-    "@candy_usage_policy_contents2": {
-        "manualTranslation": false
-    },
-    "candy_usage_policy_title": "星糖使用政策",
-    "@candy_usage_policy_title": {
-        "manualTranslation": false
-    },
-    "candy_usage_policy_guide_button": "了解更多",
-    "@candy_usage_policy_guide_button": {
-        "manualTranslation": false
-    },
-    "common_all": "全部",
-    "@common_all": {
-        "manualTranslation": false
-    },
-    "common_retry_label": "再试一次",
-    "@common_retry_label": {
-        "manualTranslation": false
-    },
-    "common_fail": "失败",
-    "@common_fail": {
-        "manualTranslation": false
-    },
-    "common_success": "成功",
-    "@common_success": {
-        "manualTranslation": false
-    },
-    "common_text_no_data": "无数据。",
-    "@common_text_no_data": {
-        "manualTranslation": false
-    },
-    "common_text_no_search_result": "未找到搜索结果。",
-    "@common_text_no_search_result": {
-        "manualTranslation": false
-    },
-    "common_text_search_result_label": "搜索结果",
-    "@common_text_search_result_label": {
-        "manualTranslation": false
-    },
-    "common_text_search_error": "搜索过程中出现错误。",
-    "@common_text_search_error": {
-        "manualTranslation": false
-    },
-    "common_text_search_recent_label": "最近的搜索",
-    "@common_text_search_recent_label": {
-        "manualTranslation": false
-    },
-    "dialog_button_cancel": "取消",
-    "@dialog_button_cancel": {
-        "manualTranslation": false
-    },
-    "dialog_button_ok": "确认",
-    "@dialog_button_ok": {
-        "manualTranslation": false
-    },
-    "error_loading_page": "加载页面时出现错误。",
-    "@error_loading_page": {
-        "manualTranslation": false
-    },
-    "dialog_content_ads_exhausted": "所有广告已用尽。请稍后再试。",
-    "@dialog_content_ads_exhausted": {
-        "manualTranslation": false
-    },
-    "dialog_content_ads_loading": "广告正在加载。",
-    "@dialog_content_ads_loading": {
-        "manualTranslation": false
-    },
-    "dialog_content_ads_retrying": "广告正在重新加载。请稍后再试。",
-    "@dialog_content_ads_retrying": {
-        "manualTranslation": false
-    },
-    "dialog_content_login_required": "需要登录",
-    "@dialog_content_login_required": {
-        "manualTranslation": false
-    },
-    "dialog_message_purchase_canceled": "您的购买已被取消。",
-    "@dialog_message_purchase_canceled": {
-        "manualTranslation": false
-    },
-    "dialog_message_can_resignup": "如果您现在离开，何时可以重新加入",
-    "@dialog_message_can_resignup": {
-        "manualTranslation": false
-    },
-    "dialog_message_purchase_failed": "您的购买出现错误，请稍后再试。",
-    "@dialog_message_purchase_failed": {
-        "manualTranslation": false
-    },
-    "dialog_message_purchase_success": "您的购买已成功完成。",
-    "@dialog_message_purchase_success": {
-        "manualTranslation": false
-    },
-    "dialog_purchases_fail": "购买失败。",
-    "@dialog_purchases_fail": {
-        "manualTranslation": false
-    },
-    "dialog_title_ads_exhausted": "所有广告已用尽",
-    "@dialog_title_ads_exhausted": {
-        "manualTranslation": false
-    },
-    "dialog_purchases_success": "购买完成。",
-    "@dialog_purchases_success": {
-        "manualTranslation": false
-    },
-    "dialog_title_vote_fail": "表决失败",
-    "@dialog_title_vote_fail": {
-        "manualTranslation": false
-    },
-    "dialog_will_delete_star_candy": "将被删除的星星糖果",
-    "@dialog_will_delete_star_candy": {
-        "manualTranslation": false
-    },
-    "dialog_withdraw_button_ok": "退订",
-    "@dialog_withdraw_button_ok": {
-        "manualTranslation": false
-    },
-    "dialog_withdraw_button_cancel": "让我再想一想",
-    "@dialog_withdraw_button_cancel": {
-        "manualTranslation": false
-    },
-    "dialog_withdraw_error": "取消订阅时发生错误。",
-    "@dialog_withdraw_error": {
-        "manualTranslation": false
-    },
-    "dialog_withdraw_message": "如果您取消会员资格，您的星星糖果和账户信息将被立即删除，重新加入时将无法恢复您的现有信息和数据。",
-    "@dialog_withdraw_message": {
-        "manualTranslation": false
-    },
-    "dialog_withdraw_success": "取款已成功处理。",
-    "@dialog_withdraw_success": {
-        "manualTranslation": false
-    },
-    "dialog_withdraw_title": "您确定要取消订阅吗？",
-    "@dialog_withdraw_title": {
-        "manualTranslation": false
-    },
-    "error_message_no_user": "会员信息不存在。",
-    "@error_message_no_user": {
-        "manualTranslation": false
-    },
-    "error_message_login_failed": "登录时发生错误。",
-    "@error_message_login_failed": {
-        "manualTranslation": false
-    },
-    "error_message_withdrawal": "已取消订阅的会员。",
-    "@error_message_withdrawal": {
-        "manualTranslation": false
-    },
-    "hint_library_add": "专辑名称",
-    "@hint_library_add": {
-        "manualTranslation": false
-    },
-    "image_save_success": "图像已保存。",
-    "@image_save_success": {
-        "manualTranslation": false
-    },
-    "hint_nickname_input": "请输入昵称。",
-    "@hint_nickname_input": {
-        "manualTranslation": false
-    },
-    "label_ads_exceeded": "您已用尽每个 ID 可观看的广告数量。",
-    "@label_ads_exceeded": {
-        "manualTranslation": false
-    },
-    "error_title": "错误",
-    "@error_title": {
-        "manualTranslation": false
-    },
-    "label_agreement_terms": "接受使用条款",
-    "@label_agreement_terms": {
-        "manualTranslation": false
-    },
-    "label_agreement_privacy": "同意收集和使用个人信息",
-    "@label_agreement_privacy": {
-        "manualTranslation": false
-    },
-    "label_ads_next_available_time": "下一则广告何时发布。",
-    "@label_ads_next_available_time": {
-        "manualTranslation": false
-    },
-    "label_album_add": "添加新相册",
-    "@label_album_add": {
-        "manualTranslation": false
-    },
-    "label_button_agreement": "同意",
-    "@label_button_agreement": {
-        "manualTranslation": false
-    },
-    "label_button_close": "關閉",
-    "@label_button_close": {
-        "manualTranslation": false
-    },
-    "label_bonus": "奖金",
-    "@label_bonus": {
-        "manualTranslation": false
-    },
-    "label_article_comment_empty": "成为第一个发表评论的人！",
-    "@label_article_comment_empty": {
-        "manualTranslation": false
-    },
-    "label_button_recharge": "充电",
-    "@label_button_recharge": {
-        "manualTranslation": false
-    },
-    "label_button_disagreement": "不同意",
-    "@label_button_disagreement": {
-        "manualTranslation": false
-    },
-    "label_button_save_vote_paper": "存储您的选票",
-    "@label_button_save_vote_paper": {
-        "manualTranslation": false
-    },
-    "label_button_share": "分享",
-    "@label_button_share": {
-        "manualTranslation": false
-    },
-    "label_button_vote": "投票",
-    "@label_button_vote": {
-        "manualTranslation": false
-    },
-    "label_celeb_gallery": "艺术家画廊",
-    "@label_celeb_gallery": {
-        "manualTranslation": false
-    },
-    "label_celeb_ask_to_you": "艺术家问你",
-    "@label_celeb_ask_to_you": {
-        "manualTranslation": false
-    },
-    "label_celeb_recommend": "艺术家精选",
-    "@label_celeb_recommend": {
-        "manualTranslation": false
-    },
-    "label_button_watch_and_charge": "查看广告并收取费用",
-    "@label_button_watch_and_charge": {
-        "manualTranslation": false
-    },
-    "label_checkbox_entire_use": "充分利用",
-    "@label_checkbox_entire_use": {
-        "manualTranslation": false
-    },
-    "label_dropdown_recent": "最新",
-    "@label_dropdown_recent": {
-        "manualTranslation": false
-    },
-    "label_current_language": "当前语言",
-    "@label_current_language": {
-        "manualTranslation": false
-    },
-    "label_draw_image": "赢取随机图片的机会",
-    "@label_draw_image": {
-        "manualTranslation": false
-    },
-    "label_dropdown_oldest": "最老",
-    "@label_dropdown_oldest": {
-        "manualTranslation": false
-    },
-    "label_find_celeb": "寻找更多艺术家",
-    "@label_find_celeb": {
-        "manualTranslation": false
-    },
-    "label_gallery_tab_article": "文章",
-    "@label_gallery_tab_article": {
-        "manualTranslation": false
-    },
-    "label_gallery_tab_chat": "聊天",
-    "@label_gallery_tab_chat": {
-        "manualTranslation": false
-    },
-    "label_input_input": "输入",
-    "@label_input_input": {
-        "manualTranslation": false
-    },
-    "label_hint_comment": "发表评论。",
-    "@label_hint_comment": {
-        "manualTranslation": false
-    },
-    "label_last_provider": "最近",
-    "@label_last_provider": {
-        "manualTranslation": false
-    },
-    "label_library_save": "保存图书馆",
-    "@label_library_save": {
-        "manualTranslation": false
-    },
-    "label_library_tab_ai_photo": "人工智能照片",
-    "@label_library_tab_ai_photo": {
-        "manualTranslation": false
-    },
-    "label_library_tab_pic": "PIC",
-    "@label_library_tab_pic": {
-        "manualTranslation": true
-    },
-    "label_library_tab_library": "图书馆",
-    "@label_library_tab_library": {
-        "manualTranslation": false
-    },
-    "exception_auth_message_common_unknown": "登录过程中出现未知错误。\n请稍后再试。",
-    "@exception_auth_message_common_unknown": {
-        "manualTranslation": false
-    },
-    "exception_auth_message_common_cancel": "您的登录已被取消。",
-    "@exception_auth_message_common_cancel": {
-        "manualTranslation": false
-    },
-    "exception_auth_message_common_unsupported_provider": "不支持该登录方法",
-    "@exception_auth_message_common_unsupported_provider": {
-        "manualTranslation": false
-    },
-    "exception_auth_message_common_invalid_token": "验证令牌无效。\n请重试。",
-    "@exception_auth_message_common_invalid_token": {
-        "manualTranslation": false
-    },
-    "exception_auth_message_common_network": "检查网络连接。",
-    "@exception_auth_message_common_network": {
-        "manualTranslation": false
-    },
-    "exception_auth_message_google_google_play_service": "Google Play 服务出现错误。\n请更新 Google Play 服务或重启设备。",
-    "@exception_auth_message_google_google_play_service": {
-        "manualTranslation": false
-    },
-    "exception_auth_message_kakao_not_supported": "我无法使用 KakaoTalk 应用程序登录。\n请尝试使用您的 Kakao 帐户登录。",
-    "@exception_auth_message_kakao_not_supported": {
-        "manualTranslation": false
-    },
-    "exception_auth_message_apple_sign_in_failed": "Apple 登录失败。\n请重试。",
-    "@exception_auth_message_apple_sign_in_failed": {
-        "manualTranslation": false
-    },
-    "label_loading_ads": "加载广告",
-    "@label_loading_ads": {
-        "manualTranslation": false
-    },
-    "exception_auth_message_apple_invalid_response": "我们收到来自 Apple 服务器的无效响应。\n请重试。",
-    "@exception_auth_message_apple_invalid_response": {
-        "manualTranslation": false
-    },
-    "label_moveto_celeb_gallery": "前往艺术家画廊",
-    "@label_moveto_celeb_gallery": {
-        "manualTranslation": false
-    },
-    "label_loading_ads_fail": "广告无法加载",
-    "@label_loading_ads_fail": {
-        "manualTranslation": false
-    },
-    "label_mypage_customer_center": "帮助中心",
-    "@label_mypage_customer_center": {
-        "manualTranslation": false
-    },
-    "label_mypage_charge_history": "收费",
-    "@label_mypage_charge_history": {
-        "manualTranslation": false
-    },
-    "label_mypage_logout": "退出",
-    "@label_mypage_logout": {
-        "manualTranslation": false
-    },
-    "label_mypage_membership_history": "会员历史",
-    "@label_mypage_membership_history": {
-        "manualTranslation": false
-    },
-    "label_mypage_notice": "公告",
-    "@label_mypage_notice": {
-        "manualTranslation": false
-    },
-    "label_mypage_my_artist": "我的艺术家",
-    "@label_mypage_my_artist": {
-        "manualTranslation": false
-    },
-    "label_mypage_picnic_id": "同上。",
-    "@label_mypage_picnic_id": {
-        "manualTranslation": false
-    },
-    "label_mypage_no_artist": "注册 MyArtist。",
-    "@label_mypage_no_artist": {
-        "manualTranslation": false
-    },
-    "label_mypage_setting": "设置",
-    "@label_mypage_setting": {
-        "manualTranslation": false
-    },
-    "label_mypage_privacy_policy": "隐私政策",
-    "@label_mypage_privacy_policy": {
-        "manualTranslation": false
-    },
-    "label_mypage_should_login": "请登录",
-    "@label_mypage_should_login": {
-        "manualTranslation": false
-    },
-    "label_mypage_vote_history": "星星糖投票历史",
-    "@label_mypage_vote_history": {
-        "manualTranslation": false
-    },
-    "label_mypage_terms_of_use": "条款和条件",
-    "@label_mypage_terms_of_use": {
-        "manualTranslation": false
-    },
-    "label_no_ads": "无广告",
-    "@label_no_ads": {
-        "manualTranslation": false
-    },
-    "label_mypage_withdrawal": "退出",
-    "@label_mypage_withdrawal": {
-        "manualTranslation": false
-    },
-    "label_pic_image_cropping": "裁剪图像",
-    "@label_pic_image_cropping": {
-        "manualTranslation": false
-    },
-    "label_no_celeb": "您还没有将任何艺术家加入书签！",
-    "@label_no_celeb": {
-        "manualTranslation": false
-    },
-    "label_pic_pic_initializing_camera": "初始化摄像机...",
-    "@label_pic_pic_initializing_camera": {
-        "manualTranslation": false
-    },
-    "label_pic_pic_save_gallery": "保存到图库",
-    "@label_pic_pic_save_gallery": {
-        "manualTranslation": false
-    },
-    "label_read_more_comment": "更多评论",
-    "@label_read_more_comment": {
-        "manualTranslation": false
-    },
-    "label_pic_pic_synthesizing_image": "合成图像...",
-    "@label_pic_pic_synthesizing_image": {
-        "manualTranslation": false
-    },
-    "label_retry": "再试一次",
-    "@label_retry": {
-        "manualTranslation": false
-    },
-    "label_reply": "答复",
-    "@label_reply": {
-        "manualTranslation": false
-    },
-    "label_screen_title_agreement": "接受条款",
-    "@label_screen_title_agreement": {
-        "manualTranslation": false
-    },
-    "label_setting_alarm": "通知",
-    "@label_setting_alarm": {
-        "manualTranslation": false
-    },
-    "label_setting_appinfo": "关于应用程序",
-    "@label_setting_appinfo": {
-        "manualTranslation": false
-    },
-    "label_setting_current_version": "当前版本",
-    "@label_setting_current_version": {
-        "manualTranslation": false
-    },
-    "label_setting_event_alarm": "活动通知",
-    "@label_setting_event_alarm": {
-        "manualTranslation": false
-    },
-    "label_setting_language": "语言设置",
-    "@label_setting_language": {
-        "manualTranslation": false
-    },
-    "label_setting_event_alarm_desc": "了解各种活动和事件。",
-    "@label_setting_event_alarm_desc": {
-        "manualTranslation": false
-    },
-    "label_setting_push_alarm": "推送通知",
-    "@label_setting_push_alarm": {
-        "manualTranslation": false
-    },
-    "label_setting_recent_version": "最新版本",
-    "@label_setting_recent_version": {
-        "manualTranslation": false
-    },
-    "label_setting_recent_version_up_to_date": "最新版本",
-    "@label_setting_recent_version_up_to_date": {
-        "manualTranslation": false
-    },
-    "label_setting_remove_cache_complete": "完成",
-    "@label_setting_remove_cache_complete": {
-        "manualTranslation": false
-    },
-    "label_setting_remove_cache": "删除高速缓冲存储器",
-    "@label_setting_remove_cache": {
-        "manualTranslation": false
-    },
-    "label_setting_storage": "管理存储",
-    "@label_setting_storage": {
-        "manualTranslation": false
-    },
-    "label_setting_update": "更新",
-    "@label_setting_update": {
-        "manualTranslation": false
-    },
-    "label_star_candy_pouch": "星形糖果袋",
-    "@label_star_candy_pouch": {
-        "manualTranslation": false
-    },
-    "label_tab_buy_star_candy": "购买星星糖",
-    "@label_tab_buy_star_candy": {
-        "manualTranslation": false
-    },
-    "label_tab_free_charge_station": "免费充电站",
-    "@label_tab_free_charge_station": {
-        "manualTranslation": false
-    },
-    "label_tab_my_artist": "我的艺术家",
-    "@label_tab_my_artist": {
-        "manualTranslation": false
-    },
-    "label_tab_search_my_artist": "查找我的艺术家",
-    "@label_tab_search_my_artist": {
-        "manualTranslation": false
-    },
-    "label_tabbar_picchart_daily": "每日图表",
-    "@label_tabbar_picchart_daily": {
-        "manualTranslation": false
-    },
-    "label_tabbar_picchart_monthly": "月度图表",
-    "@label_tabbar_picchart_monthly": {
-        "manualTranslation": false
-    },
-    "label_tabbar_picchart_weekly": "每周图表",
-    "@label_tabbar_picchart_weekly": {
-        "manualTranslation": false
-    },
-    "label_tabbar_vote_active": "进行中",
-    "@label_tabbar_vote_active": {
-        "manualTranslation": false
-    },
-    "label_tabbar_vote_end": "退出",
-    "@label_tabbar_vote_end": {
-        "manualTranslation": false
-    },
-    "label_tabbar_vote_upcoming": "即将推出",
-    "@label_tabbar_vote_upcoming": {
-        "manualTranslation": false
-    },
-    "label_time_ago_right_now": "就在刚才",
-    "@label_time_ago_right_now": {
-        "manualTranslation": false
-    },
-    "label_title_comment": "评论",
-    "@label_title_comment": {
-        "manualTranslation": false
-    },
-    "label_vote_end": "投票结束",
-    "@label_vote_end": {
-        "manualTranslation": false
-    },
-    "label_title_report": "提交报告",
-    "@label_title_report": {
-        "manualTranslation": false
-    },
-    "reward": "奖励",
-    "@reward": {
-        "manualTranslation": false
-    },
-    "label_vote_reward_list": "奖励清单",
-    "@label_vote_reward_list": {
-        "manualTranslation": false
-    },
-    "achieve": "成就",
-    "@achieve": {
-        "manualTranslation": false
-    },
-    "post_flagged": "包含不当内容",
-    "@post_flagged": {
-        "manualTranslation": false
-    },
-    "dialog_caution": "警告 🚫",
-    "@dialog_caution": {
-        "manualTranslation": false
-    },
-    "label_vote_screen_title": "投票",
-    "@label_vote_screen_title": {
-        "manualTranslation": false
-    },
-    "label_vote_tab_birthday": "生日投票",
-    "@label_vote_tab_birthday": {
-        "manualTranslation": false
-    },
-    "block_user_label": "阻止用户",
-    "@block_user_label": {
-        "manualTranslation": false
-    },
-    "label_vote_tab_pic": "事先知情同意投票",
-    "@label_vote_tab_pic": {
-        "manualTranslation": false
-    },
-    "label_vote_upcoming": "直到投票开始",
-    "@label_vote_upcoming": {
-        "manualTranslation": false
-    },
-    "label_vote_vote_gather": "收集选票",
-    "@label_vote_vote_gather": {
-        "manualTranslation": false
-    },
-    "label_watch_ads": "查看广告",
-    "@label_watch_ads": {
-        "manualTranslation": false
-    },
-    "lable_my_celeb": "我的艺术家",
-    "@lable_my_celeb": {
-        "manualTranslation": false
-    },
-    "post_not_found": "未找到帖子。",
-    "@post_not_found": {
-        "manualTranslation": false
-    },
-    "message_agreement_success": "你已经接受了条款。",
-    "@message_agreement_success": {
-        "manualTranslation": false
-    },
-    "error_delete_post": "删除帖子时出现错误。",
-    "@error_delete_post": {
-        "manualTranslation": false
-    },
-    "error_content_parse": "解析内容时发生错误。",
-    "@error_content_parse": {
-        "manualTranslation": false
-    },
-    "error_network_connection": "检查网络连接。",
-    "@error_network_connection": {
-        "manualTranslation": false
-    },
-    "error_request_timeout": "请求超时。",
-    "@error_request_timeout": {
-        "manualTranslation": false
-    },
-    "error_invalid_data": "数据无效。",
-    "@error_invalid_data": {
-        "manualTranslation": false
-    },
-    "error_unknown": "出现未知错误。",
-    "@error_unknown": {
-        "manualTranslation": false
-    },
-    "error_action_failed": "执行操作时发生错误。",
-    "@error_action_failed": {
-        "manualTranslation": false
-    },
-    "error_loading_more_comments": "加载评论时出现错误。",
-    "@error_loading_more_comments": {
-        "manualTranslation": false
-    },
-    "comments": "评论",
-    "@comments": {
-        "manualTranslation": false
-    },
-    "message_error_occurred": "出现错误。",
-    "@message_error_occurred": {
-        "manualTranslation": false
-    },
-    "message_noitem_vote_active": "目前没有正在进行的投票。",
-    "@message_noitem_vote_active": {
-        "manualTranslation": false
-    },
-    "message_noitem_vote_end": "目前没有已结束的投票。",
-    "@message_noitem_vote_end": {
-        "manualTranslation": false
-    },
-    "message_noitem_vote_upcoming": "目前没有即将进行的投票。",
-    "@message_noitem_vote_upcoming": {
-        "manualTranslation": false
-    },
-    "message_pic_pic_save_fail": "保存图像失败。",
-    "@message_pic_pic_save_fail": {
-        "manualTranslation": false
-    },
-    "message_pic_pic_save_success": "图像已保存。",
-    "@message_pic_pic_save_success": {
-        "manualTranslation": false
-    },
-    "message_report_confirm": "你想报告吗？",
-    "@message_report_confirm": {
-        "manualTranslation": false
-    },
-    "message_report_ok": "报告已完成。",
-    "@message_report_ok": {
-        "manualTranslation": false
-    },
-    "message_setting_remove_cache": "缓存清除完毕",
-    "@message_setting_remove_cache": {
-        "manualTranslation": false
-    },
-    "message_vote_is_ended": "投票结束",
-    "@message_vote_is_ended": {
-        "manualTranslation": false
-    },
-    "message_update_nickname_fail": "昵称更改失败。\n请选择其他昵称。",
-    "@message_update_nickname_fail": {
-        "manualTranslation": false
-    },
-    "message_update_nickname_success": "您的昵称已成功更改。",
-    "@message_update_nickname_success": {
-        "manualTranslation": false
-    },
-    "message_vote_is_upcoming": "即将进行投票",
-    "@message_vote_is_upcoming": {
-        "manualTranslation": false
-    },
-    "mypage_comment": "管理评论",
-    "@mypage_comment": {
-        "manualTranslation": false
-    },
-    "mypage_purchases": "我的采购",
-    "@mypage_purchases": {
-        "manualTranslation": false
-    },
-    "mypage_setting": "设置",
-    "@mypage_setting": {
-        "manualTranslation": false
-    },
-    "mypage_language": "语言设置",
-    "@mypage_language": {
-        "manualTranslation": false
-    },
-    "mypage_subscription": "订阅",
-    "@mypage_subscription": {
-        "manualTranslation": false
-    },
-    "nav_board": "公告栏",
-    "@nav_board": {
-        "manualTranslation": false
-    },
-    "nav_ads": "广告",
-    "@nav_ads": {
-        "manualTranslation": false
-    },
-    "nav_home": "首页",
-    "@nav_home": {
-        "manualTranslation": false
-    },
-    "nav_gallery": "画廊",
-    "@nav_gallery": {
-        "manualTranslation": false
-    },
-    "nav_library": "图书馆",
-    "@nav_library": {
-        "manualTranslation": false
-    },
-    "nav_media": "媒体",
-    "@nav_media": {
-        "manualTranslation": false
-    },
-    "nav_picchart": "PIC 图表",
-    "@nav_picchart": {
-        "manualTranslation": false
-    },
-    "nav_purchases": "购买",
-    "@nav_purchases": {
-        "manualTranslation": false
-    },
-    "nav_my": "我的",
-    "@nav_my": {
-        "manualTranslation": false
-    },
-    "nav_setting": "设置",
-    "@nav_setting": {
-        "manualTranslation": false
-    },
-    "nav_store": "商店",
-    "@nav_store": {
-        "manualTranslation": false
-    },
-    "nav_subscription": "订阅",
-    "@nav_subscription": {
-        "manualTranslation": false
-    },
-    "nav_vote": "投票",
-    "@nav_vote": {
-        "manualTranslation": false
-    },
-    "page_title_mypage": "我的页面",
-    "@page_title_mypage": {
-        "manualTranslation": false
-    },
-    "nickname_validation_error": "20 个字符或更少，不包括特殊字符。",
-    "@nickname_validation_error": {
-        "manualTranslation": false
-    },
-    "page_title_myprofile": "我的简介",
-    "@page_title_myprofile": {
-        "manualTranslation": false
-    },
-    "page_title_post_write": "创建一个职位",
-    "@page_title_post_write": {
-        "manualTranslation": false
-    },
-    "page_title_setting": "首选项",
-    "@page_title_setting": {
-        "manualTranslation": false
-    },
-    "page_title_privacy": "隐私政策",
-    "@page_title_privacy": {
-        "manualTranslation": false
-    },
-    "page_title_terms_of_use": "条款和条件",
-    "@page_title_terms_of_use": {
-        "manualTranslation": false
-    },
-    "page_title_vote_detail": "投票",
-    "@page_title_vote_detail": {
-        "manualTranslation": false
-    },
-    "page_title_vote_gather": "收集选票",
-    "@page_title_vote_gather": {
-        "manualTranslation": false
-    },
-    "popup_label_delete": "删除",
-    "@popup_label_delete": {
-        "manualTranslation": false
-    },
-    "post_anonymous": "匿名张贴",
-    "@post_anonymous": {
-        "manualTranslation": false
-    },
-    "post_ask_go_to_temporary_save_list": "想进入草稿列表吗？",
-    "@post_ask_go_to_temporary_save_list": {
-        "manualTranslation": false
-    },
-    "post_board_already_exist": "一个已经存在的董事会。",
-    "@post_board_already_exist": {
-        "manualTranslation": false
-    },
-    "post_board_create_request_complete": "您的开设留言板申请已完成。",
-    "@post_board_create_request_complete": {
-        "manualTranslation": false
-    },
-    "post_board_create_request_condition": "*每个 ID 只能申请一个未成年人板。",
-    "@post_board_create_request_condition": {
-        "manualTranslation": false
-    },
-    "post_board_create_request_label": "申请开设一个板块",
-    "@post_board_create_request_label": {
-        "manualTranslation": false
-    },
-    "post_board_request_label": "公开申请",
-    "@post_board_request_label": {
-        "manualTranslation": false
-    },
-    "post_board_create_request_reviewing": "审查开设留言板的申请",
-    "@post_board_create_request_reviewing": {
-        "manualTranslation": false
-    },
-    "post_comment_action_translate": "翻译",
-    "@post_comment_action_translate": {
-        "manualTranslation": false
-    },
-    "post_cannot_open_youtube": "我打不开 Youtube。",
-    "@post_cannot_open_youtube": {
-        "manualTranslation": false
-    },
-    "post_comment_action_show_translation": "查看翻译",
-    "@post_comment_action_show_translation": {
-        "manualTranslation": false
-    },
-    "post_comment_action_show_original": "查看原文",
-    "@post_comment_action_show_original": {
-        "manualTranslation": false
-    },
-    "post_comment_content_more": "更多信息",
-    "@post_comment_content_more": {
-        "manualTranslation": false
-    },
-    "post_comment_deleted_comment": "此评论已被删除。",
-    "@post_comment_deleted_comment": {
-        "manualTranslation": false
-    },
-    "post_comment_delete_fail": "评论删除失败。",
-    "@post_comment_delete_fail": {
-        "manualTranslation": false
-    },
-    "post_comment_delete_confirm": "您确定要删除评论吗？",
-    "@post_comment_delete_confirm": {
-        "manualTranslation": false
-    },
-    "post_comment_like_processing_fail": "处理失败。",
-    "@post_comment_like_processing_fail": {
-        "manualTranslation": false
-    },
-    "post_comment_reported_comment": "报告评论。",
-    "@post_comment_reported_comment": {
-        "manualTranslation": false
-    },
-    "post_comment_registered_comment": "您的评论已被注册。",
-    "@post_comment_registered_comment": {
-        "manualTranslation": false
-    },
-    "post_comment_register_fail": "评论注册失败。",
-    "@post_comment_register_fail": {
-        "manualTranslation": false
-    },
-    "post_comment_loading_fail": "评论加载失败。",
-    "@post_comment_loading_fail": {
-        "manualTranslation": false
-    },
-    "post_comment_translate_complete": "翻译工作已经完成。",
-    "@post_comment_translate_complete": {
-        "manualTranslation": false
-    },
-    "post_comment_translate_fail": "翻译失败。",
-    "@post_comment_translate_fail": {
-        "manualTranslation": false
-    },
-    "post_comment_write_label": "写评论",
-    "@post_comment_write_label": {
-        "manualTranslation": false
-    },
-    "post_comment_translated": "已翻译",
-    "@post_comment_translated": {
-        "manualTranslation": false
-    },
-    "post_content_placeholder": "请输入内容。",
-    "@post_content_placeholder": {
-        "manualTranslation": false
-    },
-    "post_delete_scrap_confirm": "您想删除废料吗？",
-    "@post_delete_scrap_confirm": {
-        "manualTranslation": false
-    },
-    "post_delete_scrap_title": "删除废料",
-    "@post_delete_scrap_title": {
-        "manualTranslation": false
-    },
-    "post_go_to_boards": "转到留言板",
-    "@post_go_to_boards": {
-        "manualTranslation": false
-    },
-    "post_header_publish": "出版",
-    "@post_header_publish": {
-        "manualTranslation": false
-    },
-    "post_header_temporary_save": "草稿",
-    "@post_header_temporary_save": {
-        "manualTranslation": false
-    },
-    "post_hint_title": "请输入标题。",
-    "@post_hint_title": {
-        "manualTranslation": false
-    },
-    "post_hyperlink": "超链接",
-    "@post_hyperlink": {
-        "manualTranslation": false
-    },
-    "post_insert_link": "插入链接",
-    "@post_insert_link": {
-        "manualTranslation": false
-    },
-    "post_loading_post_fail": "帖子加载失败。",
-    "@post_loading_post_fail": {
-        "manualTranslation": false
-    },
-    "post_minor_board_create_request_message": "* 请求开设留言板的信息。",
-    "@post_minor_board_create_request_message": {
-        "manualTranslation": false
-    },
-    "post_minor_board_condition": "请输入至少 5 个字符但不超过 20 个字符的描述。",
-    "@post_minor_board_condition": {
-        "manualTranslation": false
-    },
-    "post_minor_board_create_request_message_condition": "请在请求开设留言板的信息中输入至少 10 个字符。",
-    "@post_minor_board_create_request_message_condition": {
-        "manualTranslation": false
-    },
-    "post_minor_board_create_request_message_input": "请输入请求打开留言板的信息。",
-    "@post_minor_board_create_request_message_input": {
-        "manualTranslation": false
-    },
-    "post_minor_board_description": "小公告栏说明",
-    "@post_minor_board_description": {
-        "manualTranslation": false
-    },
-    "post_minor_board_description_input": "请为您的未成年人板输入描述。",
-    "@post_minor_board_description_input": {
-        "manualTranslation": false
-    },
-    "post_minor_board_name": "小板名称",
-    "@post_minor_board_name": {
-        "manualTranslation": false
-    },
-    "post_minor_board_name_input": "请输入未成年人板的名称。",
-    "@post_minor_board_name_input": {
-        "manualTranslation": false
-    },
-    "post_my_written_post": "我撰写的文章",
-    "@post_my_written_post": {
-        "manualTranslation": false
-    },
-    "post_my_written_reply": "您写的评论",
-    "@post_my_written_reply": {
-        "manualTranslation": false
-    },
-    "post_my_written_scrap": "我的废品",
-    "@post_my_written_scrap": {
-        "manualTranslation": false
-    },
-    "post_no_comment": "无评论。",
-    "@post_no_comment": {
-        "manualTranslation": false
-    },
-    "post_report_reason_1": "不雅帖子",
-    "@post_report_reason_1": {
-        "manualTranslation": false
-    },
-    "post_report_reason_2": "性别歧视和种族主义帖子",
-    "@post_report_reason_2": {
-        "manualTranslation": false
-    },
-    "post_report_reason_3": "包含冒犯性亵渎语言的帖子",
-    "@post_report_reason_3": {
-        "manualTranslation": false
-    },
-    "post_report_reason_4": "广告/促销职位",
-    "@post_report_reason_4": {
-        "manualTranslation": false
-    },
-    "post_report_reason_5": "其他",
-    "@post_report_reason_5": {
-        "manualTranslation": false
-    },
-    "post_report_other_input": "请输入任何其他原因。",
-    "@post_report_other_input": {
-        "manualTranslation": false
-    },
-    "post_report_reason_input": "请选择报告原因。",
-    "@post_report_reason_input": {
-        "manualTranslation": false
-    },
-    "post_report_success": "报告已完成。",
-    "@post_report_success": {
-        "manualTranslation": false
-    },
-    "post_report_fail": "报告失败。",
-    "@post_report_fail": {
-        "manualTranslation": false
-    },
-    "post_report_reason_label": "报告原因",
-    "@post_report_reason_label": {
-        "manualTranslation": false
-    },
-    "post_report_label": "提交报告",
-    "@post_report_label": {
-        "manualTranslation": false
-    },
-    "post_temporary_save_complete": "草案完成。",
-    "@post_temporary_save_complete": {
-        "manualTranslation": false
-    },
-    "post_title_placeholder": "请输入标题。",
-    "@post_title_placeholder": {
-        "manualTranslation": false
-    },
-    "post_write_board_post": "创建一个职位",
-    "@post_write_board_post": {
-        "manualTranslation": false
-    },
-    "post_youtube_link": "YouTube 链接",
-    "@post_youtube_link": {
-        "manualTranslation": false
-    },
-    "post_write_post_recommend_write": "请写一篇文章。",
-    "@post_write_post_recommend_write": {
-        "manualTranslation": false
-    },
-    "replies": "评论",
-    "@replies": {
-        "manualTranslation": false
-    },
-    "share_image_fail": "图像共享失败",
-    "@share_image_fail": {
-        "manualTranslation": false
-    },
-    "share_image_success": "成功共享图像",
-    "@share_image_success": {
-        "manualTranslation": false
-    },
-    "share_no_twitter": "X 应用程序丢失。",
-    "@share_no_twitter": {
-        "manualTranslation": false
-    },
-    "share_twitter": "在 Twitter 上分享",
-    "@share_twitter": {
-        "manualTranslation": false
-    },
-    "text_ads_random": "查看广告并收集随机图片。",
-    "@text_ads_random": {
-        "manualTranslation": false
-    },
-    "text_bonus": "奖金",
-    "@text_bonus": {
-        "manualTranslation": false
-    },
-    "text_bookmark_failed": "取消书签失败",
-    "@text_bookmark_failed": {
-        "manualTranslation": false
-    },
-    "text_bookmark_over_5": "您最多可以拥有五个书签",
-    "@text_bookmark_over_5": {
-        "manualTranslation": false
-    },
-    "text_comming_soon_pic_chart1": "欢迎访问 Pik Charts！\n2024 年 11 月再见！",
-    "@text_comming_soon_pic_chart1": {
-        "manualTranslation": false
-    },
-    "text_comming_soon_pic_chart3": "实时查看您的品牌声誉\n实时反映艺术家的品牌声誉！",
-    "@text_comming_soon_pic_chart3": {
-        "manualTranslation": false
-    },
-    "text_comming_soon_pic_chart_title": "什么是饼图？",
-    "@text_comming_soon_pic_chart_title": {
-        "manualTranslation": false
-    },
-    "text_comming_soon_pic_chart2": "饼图是 Peeknick 独有的新图表，可反映每日、每周和每月的分数。\nPiknick 反映每日、每周和每月得分的新图表。",
-    "@text_comming_soon_pic_chart2": {
-        "manualTranslation": false
-    },
-    "text_community_board_search": "搜索艺术家板",
-    "@text_community_board_search": {
-        "manualTranslation": false
-    },
-    "text_community_post_search": "搜索",
-    "@text_community_post_search": {
-        "manualTranslation": false
-    },
-    "text_copied_address": "地址已复制。",
-    "@text_copied_address": {
-        "manualTranslation": false
-    },
-    "text_dialog_ad_dismissed": "广告中途停止。",
-    "@text_dialog_ad_dismissed": {
-        "manualTranslation": false
-    },
-    "text_dialog_ad_failed_to_show": "加载广告失败",
-    "@text_dialog_ad_failed_to_show": {
-        "manualTranslation": false
-    },
-    "text_dialog_star_candy_received": "已颁发星形糖果。",
-    "@text_dialog_star_candy_received": {
-        "manualTranslation": false
-    },
-    "text_hint_search": "搜索艺术家",
-    "@text_hint_search": {
-        "manualTranslation": false
-    },
-    "text_draw_image": "来自整个画廊的 1 张图片已确认收藏",
-    "@text_draw_image": {
-        "manualTranslation": false
-    },
-    "text_dialog_vote_amount_should_not_zero": "票数不能为零。",
-    "@text_dialog_vote_amount_should_not_zero": {
-        "manualTranslation": false
-    },
-    "text_moveto_celeb_gallery": "访问所选艺术家的主页。",
-    "@text_moveto_celeb_gallery": {
-        "manualTranslation": false
-    },
-    "text_need_recharge": "需要充电。",
-    "@text_need_recharge": {
-        "manualTranslation": false
-    },
-    "text_no_artist": "没有艺术家",
-    "@text_no_artist": {
-        "manualTranslation": false
-    },
-    "text_no_search_result": "没有搜索结果。",
-    "@text_no_search_result": {
-        "manualTranslation": false
-    },
-    "text_star_candy": "星形糖果",
-    "@text_star_candy": {
-        "manualTranslation": false
-    },
-    "text_this_time_vote": "这次投票",
-    "@text_this_time_vote": {
-        "manualTranslation": false
-    },
-    "text_purchase_vat_included": "*价格包含增值税。",
-    "@text_purchase_vat_included": {
-        "manualTranslation": false
-    },
-    "text_vote_complete": "投票结束",
-    "@text_vote_complete": {
-        "manualTranslation": false
-    },
-    "text_vote_rank_in_reward": "奖励排名",
-    "@text_vote_rank_in_reward": {
-        "manualTranslation": false
-    },
-    "text_vote_where_is_my_bias": "我的最爱呢？",
-    "@text_vote_where_is_my_bias": {
-        "manualTranslation": false
-    },
-    "title_dialog_library_add": "添加新相册",
-    "@title_dialog_library_add": {
-        "manualTranslation": false
-    },
-    "title_dialog_success": "成功",
-    "@title_dialog_success": {
-        "manualTranslation": false
-    },
-    "title_select_language": "选择语言",
-    "@title_select_language": {
-        "manualTranslation": false
-    },
-    "purchase_web_message": "这是为无法使用应用程序付款的用户提供的付款窗口。\n 请事先复制随机数字 ID。\n 复制后，点击下面的按钮进行支付。",
-    "@purchase_web_message": {
-        "manualTranslation": false
-    },
-    "update_button": "更新",
-    "@update_button": {
-        "manualTranslation": false
-    },
-    "toast_max_five_celeb": "您最多可以添加五位自己的艺术家。",
-    "@toast_max_five_celeb": {
-        "manualTranslation": false
-    },
-    "update_cannot_open_appstore": "我无法打开应用程序商店。",
-    "@update_cannot_open_appstore": {
-        "manualTranslation": false
-    },
-    "update_required_title": "需要更新。",
-    "@update_required_title": {
-        "manualTranslation": false
-    },
-    "views": "意见",
-    "@views": {
-        "manualTranslation": false
-    },
-    "voting_share_benefit_text": "每 100 次投票和分享可获得 1 个奖励星星糖果！",
-    "@voting_share_benefit_text": {
-        "manualTranslation": false
-    },
-    "bonus_candy_awarded": "已颁发星形糖果。",
-    "@bonus_candy_awarded": {
-        "manualTranslation": false
-    },
-    "vote_share_message": "投了赞成票！",
-    "@vote_share_message": {
-        "manualTranslation": false
-    },
-    "vote_result_save_button": "保存结果",
-    "@vote_result_save_button": {
-        "manualTranslation": false
-    },
-    "vote_result_share_button": "分享您的成果",
-    "@vote_result_share_button": {
-        "manualTranslation": false
-    },
-    "save": "节省",
-    "@save": {
-        "manualTranslation": false
-    },
-    "share": "分享",
-    "@share": {
-        "manualTranslation": false
-    },
-    "compatibility_time_slot1": "子时|(23:30-01:29)|🐀",
-    "@compatibility_time_slot1": {
-        "manualTranslation": true
-    },
-    "compatibility_time_slot2": "丑时|(01:30-03:29)|🐂",
-    "@compatibility_time_slot2": {
-        "manualTranslation": true
-    },
-    "compatibility_time_slot3": "寅时|(03:30-05:29)|🐅",
-    "@compatibility_time_slot3": {
-        "manualTranslation": true
-    },
-    "compatibility_time_slot4": "卯时|(05:30-07:29)|🐇",
-    "@compatibility_time_slot4": {
-        "manualTranslation": true
-    },
-    "compatibility_time_slot5": "辰时|(07:30-09:29)|🐉",
-    "@compatibility_time_slot5": {
-        "manualTranslation": true
-    },
-    "compatibility_time_slot6": "巳时|(09:30-11:29)|🐍",
-    "@compatibility_time_slot6": {
-        "manualTranslation": true
-    },
-    "compatibility_time_slot7": "午时|(11:30-13:29)|🐎",
-    "@compatibility_time_slot7": {
-        "manualTranslation": true
-    },
-    "compatibility_time_slot8": "未时|(13:30-15:29)|🐑",
-    "@compatibility_time_slot8": {
-        "manualTranslation": true
-    },
-    "compatibility_time_slot9": "申时|(15:30-17:29)|🐒",
-    "@compatibility_time_slot9": {
-        "manualTranslation": true
-    },
-    "compatibility_time_slot10": "酉时|(17:30-19:29)|🐔",
-    "@compatibility_time_slot10": {
-        "manualTranslation": true
-    },
-    "compatibility_time_slot11": "戌时|(19:30-21:29)|🐕",
-    "@compatibility_time_slot11": {
-        "manualTranslation": true
-    },
-    "compatibility_time_slot12": "亥时|(21:30-23:29)|🐖",
-    "@compatibility_time_slot12": {
-        "manualTranslation": true
-    },
-    "compatibility_agree_checkbox": "我同意在个人档案中存储我的性别和生日信息。",
-    "@compatibility_agree_checkbox": {
-        "manualTranslation": false
-    },
-    "post_my_compatibilities": "我的兼容性",
-    "@post_my_compatibilities": {
-        "manualTranslation": false
-    },
-    "compatibility_page_title": "兼容性",
-    "@compatibility_page_title": {
-        "manualTranslation": false
-    },
-    "seconds": "秒钟",
-    "@seconds": {
-        "manualTranslation": false
-    },
-    "compatibility_analyzing": "分析兼容性。",
-    "@compatibility_analyzing": {
-        "manualTranslation": false
-    },
-    "compatibility_waiting_message": "请稍候。",
-    "@compatibility_waiting_message": {
-        "manualTranslation": false
-    },
-    "compatibility_warning_exit": "如果离开屏幕，则需要重新进行分析。",
-    "@compatibility_warning_exit": {
-        "manualTranslation": false
-    },
-    "compatibility_status_pending": "分析",
-    "@compatibility_status_pending": {
-        "manualTranslation": false
-    },
-    "compatibility_status_completed": "完成",
-    "@compatibility_status_completed": {
-        "manualTranslation": false
-    },
-    "compatibility_status_input": "打字",
-    "@compatibility_status_input": {
-        "manualTranslation": false
-    },
-    "compatibility_status_error": "错误",
-    "@compatibility_status_error": {
-        "manualTranslation": false
-    },
-    "compatibility_result_70": "很般配！ 🌟",
-    "@compatibility_result_70": {
-        "manualTranslation": false
-    },
-    "compatibility_result_low": "找到合适的 😊。",
-    "@compatibility_result_low": {
-        "manualTranslation": false
-    },
-    "compatibility_result_80": "真是绝配！ 💫",
-    "@compatibility_result_80": {
-        "manualTranslation": false
-    },
-    "compatibility_result_90": "这是有史以来最棒的比赛！ ✨",
-    "@compatibility_result_90": {
-        "manualTranslation": false
-    },
-    "compatibility_birthtime": "出生时间",
-    "@compatibility_birthtime": {
-        "manualTranslation": false
-    },
-    "compatibility_gender": "性别",
-    "@compatibility_gender": {
-        "manualTranslation": false
-    },
-    "compatibility_duplicate_data_title": "现有兼容性数据",
-    "@compatibility_duplicate_data_title": {
-        "manualTranslation": false
-    },
-    "compatibility_birthday": "出生日期",
-    "@compatibility_birthday": {
-        "manualTranslation": false
-    },
-    "compatibility_duplicate_data_message": "相同条件的兼容性数据已经存在。",
-    "@compatibility_duplicate_data_message": {
-        "manualTranslation": false
-    },
-    "compatibility_new_compatibility": "发现新的匹配对象",
-    "@compatibility_new_compatibility": {
-        "manualTranslation": false
-    },
-    "compatibility_snackbar_error": "出现错误。",
-    "@compatibility_snackbar_error": {
-        "manualTranslation": false
-    },
-    "compatibility_snackbar_start": "开始分析兼容性。",
-    "@compatibility_snackbar_start": {
-        "manualTranslation": false
-    },
-    "optional": "可选",
-    "@optional": {
-        "manualTranslation": false
-    },
-    "compatibility_gender_male": "男",
-    "@compatibility_gender_male": {
-        "manualTranslation": false
-    },
-    "compatibility_gender_female": "女性",
-    "@compatibility_gender_female": {
-        "manualTranslation": false
-    },
-    "compatibility_snackbar_need_profile_save_agree": "同意保存您的个人资料。",
-    "@compatibility_snackbar_need_profile_save_agree": {
-        "manualTranslation": false
-    },
-    "compatibility_snackbar_need_gender": "请选择您的性别。",
-    "@compatibility_snackbar_need_gender": {
-        "manualTranslation": false
-    },
-    "compatibility_snackbar_need_birthday": "请输入您的出生日期。",
-    "@compatibility_snackbar_need_birthday": {
-        "manualTranslation": false
-    },
-    "compatibility_snackbar_need_birthtime": "请输入您的出生时间。",
-    "@compatibility_snackbar_need_birthtime": {
-        "manualTranslation": false
-    },
-    "compatibility_time_slot_unknown": "不知道",
-    "@compatibility_time_slot_unknown": {
-        "manualTranslation": false
-    },
-    "compatibility_analyze_start": "开始兼容性分析",
-    "@compatibility_analyze_start": {
-        "manualTranslation": false
-    },
-    "compatibility_new_compatibility_ask": "想看看新的配对吗？",
-    "@compatibility_new_compatibility_ask": {
-        "manualTranslation": false
-    }
+  "@@locale": "zh",
+  "achieve": "成就",
+  "@achieve": {
+    "manualTranslation": false
+  },
+  "ads_available_time": "广告可用性",
+  "@ads_available_time": {
+    "manualTranslation": false
+  },
+  "anonymous": "匿名",
+  "@anonymous": {
+    "manualTranslation": false
+  },
+  "anonymous_mode": "匿名模式",
+  "@anonymous_mode": {
+    "manualTranslation": false
+  },
+  "app_name": "野餐",
+  "@app_name": {
+    "manualTranslation": false
+  },
+  "block_user_label": "阻止用户",
+  "@block_user_label": {
+    "manualTranslation": false
+  },
+  "bonus_candy_awarded": "已颁发星形糖果。",
+  "@bonus_candy_awarded": {
+    "manualTranslation": false
+  },
+  "button_cancel": "取消",
+  "@button_cancel": {
+    "manualTranslation": false
+  },
+  "button_complete": "完成",
+  "@button_complete": {
+    "manualTranslation": false
+  },
+  "button_login": "登录",
+  "@button_login": {
+    "manualTranslation": false
+  },
+  "button_ok": "确认",
+  "@button_ok": {
+    "manualTranslation": false
+  },
+  "button_pic_pic_save": "节省",
+  "@button_pic_pic_save": {
+    "manualTranslation": false
+  },
+  "candy_disappear_next_month": "过期的奖励星星糖果 😢",
+  "@candy_disappear_next_month": {
+    "manualTranslation": false
+  },
+  "candy_usage_policy_contents": "当月获得的奖励星糖将于下月 15 日失效。",
+  "@candy_usage_policy_contents": {
+    "manualTranslation": false
+  },
+  "candy_usage_policy_contents2": "使用 \"星星糖 \"时，即将过期的 \"星星糖 \"会被优先处理。",
+  "@candy_usage_policy_contents2": {
+    "manualTranslation": false
+  },
+  "candy_usage_policy_guide": "*奖金将在获得奖金的次月消失！",
+  "@candy_usage_policy_guide": {
+    "manualTranslation": false
+  },
+  "candy_usage_policy_guide_button": "了解更多",
+  "@candy_usage_policy_guide_button": {
+    "manualTranslation": false
+  },
+  "candy_usage_policy_title": "星糖使用政策",
+  "@candy_usage_policy_title": {
+    "manualTranslation": false
+  },
+  "comments": "评论",
+  "@comments": {
+    "manualTranslation": false
+  },
+  "common_all": "全部",
+  "@common_all": {
+    "manualTranslation": false
+  },
+  "common_fail": "失败",
+  "@common_fail": {
+    "manualTranslation": false
+  },
+  "common_retry_label": "再试一次",
+  "@common_retry_label": {
+    "manualTranslation": false
+  },
+  "common_success": "成功",
+  "@common_success": {
+    "manualTranslation": false
+  },
+  "common_text_no_data": "无数据。",
+  "@common_text_no_data": {
+    "manualTranslation": false
+  },
+  "common_text_no_search_result": "未找到搜索结果。",
+  "@common_text_no_search_result": {
+    "manualTranslation": false
+  },
+  "common_text_search_error": "搜索过程中出现错误。",
+  "@common_text_search_error": {
+    "manualTranslation": false
+  },
+  "common_text_search_recent_label": "最近的搜索",
+  "@common_text_search_recent_label": {
+    "manualTranslation": false
+  },
+  "common_text_search_result_label": "搜索结果",
+  "@common_text_search_result_label": {
+    "manualTranslation": false
+  },
+  "compatibility_activities_title": "你们可以一起开展的活动",
+  "@compatibility_activities_title": {
+    "manualTranslation": false
+  },
+  "compatibility_agree_checkbox": "我同意在个人档案中存储我的性别和生日信息。",
+  "@compatibility_agree_checkbox": {
+    "manualTranslation": false
+  },
+  "compatibility_analyze_start": "开始兼容性分析",
+  "@compatibility_analyze_start": {
+    "manualTranslation": false
+  },
+  "compatibility_analyzing": "分析兼容性。",
+  "@compatibility_analyzing": {
+    "manualTranslation": false
+  },
+  "compatibility_birthday": "出生日期",
+  "@compatibility_birthday": {
+    "manualTranslation": false
+  },
+  "compatibility_birthtime": "出生时间",
+  "@compatibility_birthtime": {
+    "manualTranslation": false
+  },
+  "compatibility_couple_style": "情侣款式",
+  "@compatibility_couple_style": {
+    "manualTranslation": false
+  },
+  "compatibility_duplicate_data_message": "相同条件下的兼容性数据已经存在。",
+  "@compatibility_duplicate_data_message": {
+    "manualTranslation": false
+  },
+  "compatibility_duplicate_data_title": "现有兼容性数据",
+  "@compatibility_duplicate_data_title": {
+    "manualTranslation": false
+  },
+  "compatibility_gender": "性别",
+  "@compatibility_gender": {
+    "manualTranslation": false
+  },
+  "compatibility_gender_female": "女性",
+  "@compatibility_gender_female": {
+    "manualTranslation": false
+  },
+  "compatibility_gender_male": "男",
+  "@compatibility_gender_male": {
+    "manualTranslation": false
+  },
+  "compatibility_idol_style": "偶像风格",
+  "@compatibility_idol_style": {
+    "manualTranslation": false
+  },
+  "compatibility_new_compatibility": "发现新的匹配对象",
+  "@compatibility_new_compatibility": {
+    "manualTranslation": false
+  },
+  "compatibility_new_compatibility_ask": "想看看新的配对吗？",
+  "@compatibility_new_compatibility_ask": {
+    "manualTranslation": false
+  },
+  "compatibility_page_title": "兼容性",
+  "@compatibility_page_title": {
+    "manualTranslation": false
+  },
+  "compatibility_result_70": "很般配！ 🌟",
+  "@compatibility_result_70": {
+    "manualTranslation": false
+  },
+  "compatibility_result_80": "真是绝配！ 💫",
+  "@compatibility_result_80": {
+    "manualTranslation": false
+  },
+  "compatibility_result_90": "这是有史以来最棒的比赛！ ✨",
+  "@compatibility_result_90": {
+    "manualTranslation": false
+  },
+  "compatibility_result_low": "找到合适的 😊。",
+  "@compatibility_result_low": {
+    "manualTranslation": false
+  },
+  "compatibility_result_not_found": "我们不相容 😔",
+  "@compatibility_result_not_found": {
+    "manualTranslation": false
+  },
+  "compatibility_snackbar_error": "出现错误。",
+  "@compatibility_snackbar_error": {
+    "manualTranslation": false
+  },
+  "compatibility_snackbar_need_birthday": "请输入您的出生日期。",
+  "@compatibility_snackbar_need_birthday": {
+    "manualTranslation": false
+  },
+  "compatibility_snackbar_need_birthtime": "请输入您的出生时间。",
+  "@compatibility_snackbar_need_birthtime": {
+    "manualTranslation": false
+  },
+  "compatibility_snackbar_need_gender": "请选择您的性别。",
+  "@compatibility_snackbar_need_gender": {
+    "manualTranslation": false
+  },
+  "compatibility_snackbar_need_profile_save_agree": "同意保存您的个人资料。",
+  "@compatibility_snackbar_need_profile_save_agree": {
+    "manualTranslation": false
+  },
+  "compatibility_snackbar_start": "开始分析兼容性。",
+  "@compatibility_snackbar_start": {
+    "manualTranslation": false
+  },
+  "compatibility_status_completed": "完成",
+  "@compatibility_status_completed": {
+    "manualTranslation": false
+  },
+  "compatibility_status_error": "错误",
+  "@compatibility_status_error": {
+    "manualTranslation": false
+  },
+  "compatibility_status_input": "打字",
+  "@compatibility_status_input": {
+    "manualTranslation": false
+  },
+  "compatibility_status_pending": "分析",
+  "@compatibility_status_pending": {
+    "manualTranslation": false
+  },
+  "compatibility_style_title": "兼容性样式",
+  "@compatibility_style_title": {
+    "manualTranslation": false
+  },
+  "compatibility_summary_title": "兼容性概述",
+  "@compatibility_summary_title": {
+    "manualTranslation": false
+  },
+  "compatibility_time_slot1": "자시|(23:30-01:29)|🐀",
+  "@compatibility_time_slot1": {
+    "manualTranslation": true
+  },
+  "compatibility_time_slot10": "유시|(17:30-19:29)|🐔",
+  "@compatibility_time_slot10": {
+    "manualTranslation": true
+  },
+  "compatibility_time_slot11": "술시|(19:30-21:29)|🐕",
+  "@compatibility_time_slot11": {
+    "manualTranslation": true
+  },
+  "compatibility_time_slot12": "哈希|(21:30-23:29)|🐖",
+  "@compatibility_time_slot12": {
+    "manualTranslation": false
+  },
+  "compatibility_time_slot2": "축시|(01:30-03:29)|🐂",
+  "@compatibility_time_slot2": {
+    "manualTranslation": true
+  },
+  "compatibility_time_slot3": "인시|(03:30-05:29)|🐅",
+  "@compatibility_time_slot3": {
+    "manualTranslation": true
+  },
+  "compatibility_time_slot4": "묘시|(05:30-07:29)|🐇",
+  "@compatibility_time_slot4": {
+    "manualTranslation": true
+  },
+  "compatibility_time_slot5": "진시|(07:30-09:29)|🐉",
+  "@compatibility_time_slot5": {
+    "manualTranslation": true
+  },
+  "compatibility_time_slot6": "사시|(09:30-11:29)|🐍",
+  "@compatibility_time_slot6": {
+    "manualTranslation": true
+  },
+  "compatibility_time_slot7": "오시|(11:30-13:29)|🐎",
+  "@compatibility_time_slot7": {
+    "manualTranslation": true
+  },
+  "compatibility_time_slot8": "미시|(13:30-15:29)|🐑",
+  "@compatibility_time_slot8": {
+    "manualTranslation": true
+  },
+  "compatibility_time_slot9": "신시|(15:30-17:29)|🐒",
+  "@compatibility_time_slot9": {
+    "manualTranslation": true
+  },
+  "compatibility_time_slot_unknown": "不知道",
+  "@compatibility_time_slot_unknown": {
+    "manualTranslation": false
+  },
+  "compatibility_tips_title": "兼容性提示",
+  "@compatibility_tips_title": {
+    "manualTranslation": false
+  },
+  "compatibility_user_style": "用户风格",
+  "@compatibility_user_style": {
+    "manualTranslation": false
+  },
+  "compatibility_waiting_message": "请稍候。",
+  "@compatibility_waiting_message": {
+    "manualTranslation": false
+  },
+  "compatibility_warning_exit": "如果离开屏幕，则需要重新进行分析。",
+  "@compatibility_warning_exit": {
+    "manualTranslation": false
+  },
+  "dialog_button_cancel": "取消",
+  "@dialog_button_cancel": {
+    "manualTranslation": false
+  },
+  "dialog_button_ok": "确认",
+  "@dialog_button_ok": {
+    "manualTranslation": false
+  },
+  "dialog_caution": "警告 🚫",
+  "@dialog_caution": {
+    "manualTranslation": false
+  },
+  "dialog_content_ads_exhausted": "所有广告已用尽。请稍后再试。",
+  "@dialog_content_ads_exhausted": {
+    "manualTranslation": false
+  },
+  "dialog_content_ads_loading": "广告正在加载。",
+  "@dialog_content_ads_loading": {
+    "manualTranslation": false
+  },
+  "dialog_content_ads_retrying": "广告正在重新加载。请稍后再试。",
+  "@dialog_content_ads_retrying": {
+    "manualTranslation": false
+  },
+  "dialog_content_login_required": "需要登录",
+  "@dialog_content_login_required": {
+    "manualTranslation": false
+  },
+  "dialog_message_can_resignup": "如果您现在离开，何时可以重新加入",
+  "@dialog_message_can_resignup": {
+    "manualTranslation": false
+  },
+  "dialog_message_purchase_canceled": "您的购买已被取消。",
+  "@dialog_message_purchase_canceled": {
+    "manualTranslation": false
+  },
+  "dialog_message_purchase_failed": "您的购买出现错误，请稍后再试。",
+  "@dialog_message_purchase_failed": {
+    "manualTranslation": false
+  },
+  "dialog_message_purchase_success": "您的购买已成功完成。",
+  "@dialog_message_purchase_success": {
+    "manualTranslation": false
+  },
+  "dialog_purchases_fail": "购买失败。",
+  "@dialog_purchases_fail": {
+    "manualTranslation": false
+  },
+  "dialog_purchases_success": "购买完成。",
+  "@dialog_purchases_success": {
+    "manualTranslation": false
+  },
+  "dialog_title_ads_exhausted": "所有广告已用尽",
+  "@dialog_title_ads_exhausted": {
+    "manualTranslation": false
+  },
+  "dialog_title_vote_fail": "表决失败",
+  "@dialog_title_vote_fail": {
+    "manualTranslation": false
+  },
+  "dialog_will_delete_star_candy": "将被删除的星星糖果",
+  "@dialog_will_delete_star_candy": {
+    "manualTranslation": false
+  },
+  "dialog_withdraw_button_cancel": "让我再想一想",
+  "@dialog_withdraw_button_cancel": {
+    "manualTranslation": false
+  },
+  "dialog_withdraw_button_ok": "退订",
+  "@dialog_withdraw_button_ok": {
+    "manualTranslation": false
+  },
+  "dialog_withdraw_error": "取消订阅时发生错误。",
+  "@dialog_withdraw_error": {
+    "manualTranslation": false
+  },
+  "dialog_withdraw_message": "如果您取消会员资格，您的星星糖果和账户信息将被立即删除，重新加入时将无法恢复您的现有信息和数据。",
+  "@dialog_withdraw_message": {
+    "manualTranslation": false
+  },
+  "dialog_withdraw_success": "取款已成功处理。",
+  "@dialog_withdraw_success": {
+    "manualTranslation": false
+  },
+  "dialog_withdraw_title": "您确定要取消订阅吗？",
+  "@dialog_withdraw_title": {
+    "manualTranslation": false
+  },
+  "error_action_failed": "执行操作时发生错误。",
+  "@error_action_failed": {
+    "manualTranslation": false
+  },
+  "error_content_parse": "解析内容时发生错误。",
+  "@error_content_parse": {
+    "manualTranslation": false
+  },
+  "error_delete_post": "删除帖子时出现错误。",
+  "@error_delete_post": {
+    "manualTranslation": false
+  },
+  "error_invalid_data": "数据无效。",
+  "@error_invalid_data": {
+    "manualTranslation": false
+  },
+  "error_loading_more_comments": "加载评论时出现错误。",
+  "@error_loading_more_comments": {
+    "manualTranslation": false
+  },
+  "error_loading_page": "加载页面时出现错误。",
+  "@error_loading_page": {
+    "manualTranslation": false
+  },
+  "error_message_login_failed": "登录时发生错误。",
+  "@error_message_login_failed": {
+    "manualTranslation": false
+  },
+  "error_message_no_user": "会员信息不存在。",
+  "@error_message_no_user": {
+    "manualTranslation": false
+  },
+  "error_message_withdrawal": "已取消订阅的会员。",
+  "@error_message_withdrawal": {
+    "manualTranslation": false
+  },
+  "error_network_connection": "检查网络连接。",
+  "@error_network_connection": {
+    "manualTranslation": false
+  },
+  "error_request_timeout": "请求超时。",
+  "@error_request_timeout": {
+    "manualTranslation": false
+  },
+  "error_title": "错误",
+  "@error_title": {
+    "manualTranslation": false
+  },
+  "error_unknown": "出现未知错误。",
+  "@error_unknown": {
+    "manualTranslation": false
+  },
+  "exception_auth_message_apple_invalid_response": "我们收到来自 Apple 服务器的无效响应。\n请重试。",
+  "@exception_auth_message_apple_invalid_response": {
+    "manualTranslation": false
+  },
+  "exception_auth_message_apple_sign_in_failed": "Apple 登录失败。\n请重试。",
+  "@exception_auth_message_apple_sign_in_failed": {
+    "manualTranslation": false
+  },
+  "exception_auth_message_common_cancel": "您的登录已被取消。",
+  "@exception_auth_message_common_cancel": {
+    "manualTranslation": false
+  },
+  "exception_auth_message_common_invalid_token": "验证令牌无效。\n请重试。",
+  "@exception_auth_message_common_invalid_token": {
+    "manualTranslation": false
+  },
+  "exception_auth_message_common_network": "检查网络连接。",
+  "@exception_auth_message_common_network": {
+    "manualTranslation": false
+  },
+  "exception_auth_message_common_unknown": "登录过程中出现未知错误。\n请稍后再试。",
+  "@exception_auth_message_common_unknown": {
+    "manualTranslation": false
+  },
+  "exception_auth_message_common_unsupported_provider": "不支持该登录方法",
+  "@exception_auth_message_common_unsupported_provider": {
+    "manualTranslation": false
+  },
+  "exception_auth_message_google_google_play_service": "Google Play 服务出现错误。\n请更新 Google Play 服务或重启设备。",
+  "@exception_auth_message_google_google_play_service": {
+    "manualTranslation": false
+  },
+  "exception_auth_message_kakao_not_supported": "我无法使用 KakaoTalk 应用程序登录。\n请尝试使用您的 Kakao 帐户登录。",
+  "@exception_auth_message_kakao_not_supported": {
+    "manualTranslation": false
+  },
+  "hint_library_add": "专辑名称",
+  "@hint_library_add": {
+    "manualTranslation": false
+  },
+  "hint_nickname_input": "请输入昵称。",
+  "@hint_nickname_input": {
+    "manualTranslation": false
+  },
+  "image_save_success": "图像已保存。",
+  "@image_save_success": {
+    "manualTranslation": false
+  },
+  "label_ads_exceeded": "您已用尽每个 ID 可观看的广告数量。",
+  "@label_ads_exceeded": {
+    "manualTranslation": false
+  },
+  "label_ads_next_available_time": "下一则广告何时发布。",
+  "@label_ads_next_available_time": {
+    "manualTranslation": false
+  },
+  "label_agreement_privacy": "同意收集和使用个人信息",
+  "@label_agreement_privacy": {
+    "manualTranslation": false
+  },
+  "label_agreement_terms": "接受使用条款",
+  "@label_agreement_terms": {
+    "manualTranslation": false
+  },
+  "label_album_add": "添加新相册",
+  "@label_album_add": {
+    "manualTranslation": false
+  },
+  "label_article_comment_empty": "成为第一个发表评论的人！",
+  "@label_article_comment_empty": {
+    "manualTranslation": false
+  },
+  "label_bonus": "奖金",
+  "@label_bonus": {
+    "manualTranslation": false
+  },
+  "label_button_agreement": "同意",
+  "@label_button_agreement": {
+    "manualTranslation": false
+  },
+  "label_button_close": "關閉",
+  "@label_button_close": {
+    "manualTranslation": false
+  },
+  "label_button_disagreement": "不同意",
+  "@label_button_disagreement": {
+    "manualTranslation": false
+  },
+  "label_button_recharge": "充电",
+  "@label_button_recharge": {
+    "manualTranslation": false
+  },
+  "label_button_save_vote_paper": "存储您的选票",
+  "@label_button_save_vote_paper": {
+    "manualTranslation": false
+  },
+  "label_button_share": "分享",
+  "@label_button_share": {
+    "manualTranslation": false
+  },
+  "label_button_vote": "投票",
+  "@label_button_vote": {
+    "manualTranslation": false
+  },
+  "label_button_watch_and_charge": "查看广告并收取费用",
+  "@label_button_watch_and_charge": {
+    "manualTranslation": false
+  },
+  "label_celeb_ask_to_you": "艺术家问你",
+  "@label_celeb_ask_to_you": {
+    "manualTranslation": false
+  },
+  "label_celeb_gallery": "艺术家画廊",
+  "@label_celeb_gallery": {
+    "manualTranslation": false
+  },
+  "label_celeb_recommend": "艺术家精选",
+  "@label_celeb_recommend": {
+    "manualTranslation": false
+  },
+  "label_checkbox_entire_use": "充分利用",
+  "@label_checkbox_entire_use": {
+    "manualTranslation": false
+  },
+  "label_current_language": "当前语言",
+  "@label_current_language": {
+    "manualTranslation": false
+  },
+  "label_draw_image": "赢取随机图片的机会",
+  "@label_draw_image": {
+    "manualTranslation": false
+  },
+  "label_dropdown_oldest": "最老",
+  "@label_dropdown_oldest": {
+    "manualTranslation": false
+  },
+  "label_dropdown_recent": "最新",
+  "@label_dropdown_recent": {
+    "manualTranslation": false
+  },
+  "label_find_celeb": "寻找更多艺术家",
+  "@label_find_celeb": {
+    "manualTranslation": false
+  },
+  "label_gallery_tab_article": "文章",
+  "@label_gallery_tab_article": {
+    "manualTranslation": false
+  },
+  "label_gallery_tab_chat": "聊天",
+  "@label_gallery_tab_chat": {
+    "manualTranslation": false
+  },
+  "label_hint_comment": "发表评论。",
+  "@label_hint_comment": {
+    "manualTranslation": false
+  },
+  "label_input_input": "输入",
+  "@label_input_input": {
+    "manualTranslation": false
+  },
+  "label_last_provider": "最近",
+  "@label_last_provider": {
+    "manualTranslation": false
+  },
+  "label_library_save": "保存图书馆",
+  "@label_library_save": {
+    "manualTranslation": false
+  },
+  "label_library_tab_ai_photo": "人工智能照片",
+  "@label_library_tab_ai_photo": {
+    "manualTranslation": false
+  },
+  "label_library_tab_library": "图书馆",
+  "@label_library_tab_library": {
+    "manualTranslation": false
+  },
+  "label_library_tab_pic": "PIC",
+  "@label_library_tab_pic": {
+    "manualTranslation": true
+  },
+  "label_loading_ads": "加载广告",
+  "@label_loading_ads": {
+    "manualTranslation": false
+  },
+  "label_loading_ads_fail": "广告无法加载",
+  "@label_loading_ads_fail": {
+    "manualTranslation": false
+  },
+  "label_moveto_celeb_gallery": "前往艺术家画廊",
+  "@label_moveto_celeb_gallery": {
+    "manualTranslation": false
+  },
+  "label_mypage_charge_history": "收费",
+  "@label_mypage_charge_history": {
+    "manualTranslation": false
+  },
+  "label_mypage_customer_center": "帮助中心",
+  "@label_mypage_customer_center": {
+    "manualTranslation": false
+  },
+  "label_mypage_logout": "退出",
+  "@label_mypage_logout": {
+    "manualTranslation": false
+  },
+  "label_mypage_membership_history": "会员历史",
+  "@label_mypage_membership_history": {
+    "manualTranslation": false
+  },
+  "label_mypage_my_artist": "我的艺术家",
+  "@label_mypage_my_artist": {
+    "manualTranslation": false
+  },
+  "label_mypage_no_artist": "注册 MyArtist。",
+  "@label_mypage_no_artist": {
+    "manualTranslation": false
+  },
+  "label_mypage_notice": "公告",
+  "@label_mypage_notice": {
+    "manualTranslation": false
+  },
+  "label_mypage_picnic_id": "同上。",
+  "@label_mypage_picnic_id": {
+    "manualTranslation": false
+  },
+  "label_mypage_privacy_policy": "隐私政策",
+  "@label_mypage_privacy_policy": {
+    "manualTranslation": false
+  },
+  "label_mypage_setting": "设置",
+  "@label_mypage_setting": {
+    "manualTranslation": false
+  },
+  "label_mypage_should_login": "请登录",
+  "@label_mypage_should_login": {
+    "manualTranslation": false
+  },
+  "label_mypage_terms_of_use": "条款和条件",
+  "@label_mypage_terms_of_use": {
+    "manualTranslation": false
+  },
+  "label_mypage_vote_history": "星星糖投票历史",
+  "@label_mypage_vote_history": {
+    "manualTranslation": false
+  },
+  "label_mypage_withdrawal": "退出",
+  "@label_mypage_withdrawal": {
+    "manualTranslation": false
+  },
+  "label_no_ads": "无广告",
+  "@label_no_ads": {
+    "manualTranslation": false
+  },
+  "label_no_celeb": "您还没有将任何艺术家加入书签！",
+  "@label_no_celeb": {
+    "manualTranslation": false
+  },
+  "label_pic_image_cropping": "裁剪图像",
+  "@label_pic_image_cropping": {
+    "manualTranslation": false
+  },
+  "label_pic_pic_initializing_camera": "初始化摄像机...",
+  "@label_pic_pic_initializing_camera": {
+    "manualTranslation": false
+  },
+  "label_pic_pic_save_gallery": "保存到图库",
+  "@label_pic_pic_save_gallery": {
+    "manualTranslation": false
+  },
+  "label_pic_pic_synthesizing_image": "合成图像...",
+  "@label_pic_pic_synthesizing_image": {
+    "manualTranslation": false
+  },
+  "label_read_more_comment": "更多评论",
+  "@label_read_more_comment": {
+    "manualTranslation": false
+  },
+  "label_reply": "答复",
+  "@label_reply": {
+    "manualTranslation": false
+  },
+  "label_retry": "再试一次",
+  "@label_retry": {
+    "manualTranslation": false
+  },
+  "label_screen_title_agreement": "接受条款",
+  "@label_screen_title_agreement": {
+    "manualTranslation": false
+  },
+  "label_setting_alarm": "通知",
+  "@label_setting_alarm": {
+    "manualTranslation": false
+  },
+  "label_setting_appinfo": "关于应用程序",
+  "@label_setting_appinfo": {
+    "manualTranslation": false
+  },
+  "label_setting_current_version": "当前版本",
+  "@label_setting_current_version": {
+    "manualTranslation": false
+  },
+  "label_setting_event_alarm": "活动通知",
+  "@label_setting_event_alarm": {
+    "manualTranslation": false
+  },
+  "label_setting_event_alarm_desc": "了解各种活动和事件。",
+  "@label_setting_event_alarm_desc": {
+    "manualTranslation": false
+  },
+  "label_setting_language": "语言设置",
+  "@label_setting_language": {
+    "manualTranslation": false
+  },
+  "label_setting_push_alarm": "推送通知",
+  "@label_setting_push_alarm": {
+    "manualTranslation": false
+  },
+  "label_setting_recent_version": "最新版本",
+  "@label_setting_recent_version": {
+    "manualTranslation": false
+  },
+  "label_setting_recent_version_up_to_date": "最新版本",
+  "@label_setting_recent_version_up_to_date": {
+    "manualTranslation": false
+  },
+  "label_setting_remove_cache": "删除高速缓冲存储器",
+  "@label_setting_remove_cache": {
+    "manualTranslation": false
+  },
+  "label_setting_remove_cache_complete": "完成",
+  "@label_setting_remove_cache_complete": {
+    "manualTranslation": false
+  },
+  "label_setting_storage": "管理存储",
+  "@label_setting_storage": {
+    "manualTranslation": false
+  },
+  "label_setting_update": "更新",
+  "@label_setting_update": {
+    "manualTranslation": false
+  },
+  "label_star_candy_pouch": "星形糖果袋",
+  "@label_star_candy_pouch": {
+    "manualTranslation": false
+  },
+  "label_tab_buy_star_candy": "购买星星糖",
+  "@label_tab_buy_star_candy": {
+    "manualTranslation": false
+  },
+  "label_tab_free_charge_station": "免费充电站",
+  "@label_tab_free_charge_station": {
+    "manualTranslation": false
+  },
+  "label_tab_my_artist": "我的艺术家",
+  "@label_tab_my_artist": {
+    "manualTranslation": false
+  },
+  "label_tab_search_my_artist": "查找我的艺术家",
+  "@label_tab_search_my_artist": {
+    "manualTranslation": false
+  },
+  "label_tabbar_picchart_daily": "每日图表",
+  "@label_tabbar_picchart_daily": {
+    "manualTranslation": false
+  },
+  "label_tabbar_picchart_monthly": "月度图表",
+  "@label_tabbar_picchart_monthly": {
+    "manualTranslation": false
+  },
+  "label_tabbar_picchart_weekly": "每周图表",
+  "@label_tabbar_picchart_weekly": {
+    "manualTranslation": false
+  },
+  "label_tabbar_vote_active": "进行中",
+  "@label_tabbar_vote_active": {
+    "manualTranslation": false
+  },
+  "label_tabbar_vote_end": "退出",
+  "@label_tabbar_vote_end": {
+    "manualTranslation": false
+  },
+  "label_tabbar_vote_upcoming": "即将推出",
+  "@label_tabbar_vote_upcoming": {
+    "manualTranslation": false
+  },
+  "label_time_ago_day": "{day}일 전",
+  "@label_time_ago_day": {
+    "manualTranslation": true
+  },
+  "label_time_ago_hour": "{hour}小时前",
+  "@label_time_ago_hour": {
+    "manualTranslation": true
+  },
+  "label_time_ago_minute": "{minute}分钟前",
+  "@label_time_ago_minute": {
+    "manualTranslation": true
+  },
+  "label_time_ago_right_now": "就在刚才",
+  "@label_time_ago_right_now": {
+    "manualTranslation": false
+  },
+  "label_title_comment": "评论",
+  "@label_title_comment": {
+    "manualTranslation": false
+  },
+  "label_title_report": "提交报告",
+  "@label_title_report": {
+    "manualTranslation": false
+  },
+  "label_vote_end": "投票结束",
+  "@label_vote_end": {
+    "manualTranslation": false
+  },
+  "label_vote_reward_list": "奖励清单",
+  "@label_vote_reward_list": {
+    "manualTranslation": false
+  },
+  "label_vote_screen_title": "投票",
+  "@label_vote_screen_title": {
+    "manualTranslation": false
+  },
+  "label_vote_tab_birthday": "生日投票",
+  "@label_vote_tab_birthday": {
+    "manualTranslation": false
+  },
+  "label_vote_tab_pic": "事先知情同意投票",
+  "@label_vote_tab_pic": {
+    "manualTranslation": false
+  },
+  "label_vote_upcoming": "直到投票开始",
+  "@label_vote_upcoming": {
+    "manualTranslation": false
+  },
+  "label_vote_vote_gather": "收集选票",
+  "@label_vote_vote_gather": {
+    "manualTranslation": false
+  },
+  "label_watch_ads": "查看广告",
+  "@label_watch_ads": {
+    "manualTranslation": false
+  },
+  "lable_my_celeb": "我的艺术家",
+  "@lable_my_celeb": {
+    "manualTranslation": false
+  },
+  "message_agreement_success": "你已经接受了条款。",
+  "@message_agreement_success": {
+    "manualTranslation": false
+  },
+  "message_error_occurred": "出现错误。",
+  "@message_error_occurred": {
+    "manualTranslation": false
+  },
+  "message_noitem_vote_active": "目前没有正在进行的投票。",
+  "@message_noitem_vote_active": {
+    "manualTranslation": false
+  },
+  "message_noitem_vote_end": "目前没有已结束的投票。",
+  "@message_noitem_vote_end": {
+    "manualTranslation": false
+  },
+  "message_noitem_vote_upcoming": "目前没有即将进行的投票。",
+  "@message_noitem_vote_upcoming": {
+    "manualTranslation": false
+  },
+  "message_pic_pic_save_fail": "保存图像失败。",
+  "@message_pic_pic_save_fail": {
+    "manualTranslation": false
+  },
+  "message_pic_pic_save_success": "图像已保存。",
+  "@message_pic_pic_save_success": {
+    "manualTranslation": false
+  },
+  "message_report_confirm": "你想报告吗？",
+  "@message_report_confirm": {
+    "manualTranslation": false
+  },
+  "message_report_ok": "报告已完成。",
+  "@message_report_ok": {
+    "manualTranslation": false
+  },
+  "message_setting_remove_cache": "缓存清除完毕",
+  "@message_setting_remove_cache": {
+    "manualTranslation": false
+  },
+  "message_update_nickname_fail": "昵称更改失败。\n请选择其他昵称。",
+  "@message_update_nickname_fail": {
+    "manualTranslation": false
+  },
+  "message_update_nickname_success": "您的昵称已成功更改。",
+  "@message_update_nickname_success": {
+    "manualTranslation": false
+  },
+  "message_vote_is_ended": "投票结束",
+  "@message_vote_is_ended": {
+    "manualTranslation": false
+  },
+  "message_vote_is_upcoming": "即将进行投票",
+  "@message_vote_is_upcoming": {
+    "manualTranslation": false
+  },
+  "mypage_comment": "管理评论",
+  "@mypage_comment": {
+    "manualTranslation": false
+  },
+  "mypage_language": "语言设置",
+  "@mypage_language": {
+    "manualTranslation": false
+  },
+  "mypage_purchases": "我的采购",
+  "@mypage_purchases": {
+    "manualTranslation": false
+  },
+  "mypage_setting": "设置",
+  "@mypage_setting": {
+    "manualTranslation": false
+  },
+  "mypage_subscription": "订阅",
+  "@mypage_subscription": {
+    "manualTranslation": false
+  },
+  "nav_ads": "广告",
+  "@nav_ads": {
+    "manualTranslation": false
+  },
+  "nav_board": "公告栏",
+  "@nav_board": {
+    "manualTranslation": false
+  },
+  "nav_gallery": "画廊",
+  "@nav_gallery": {
+    "manualTranslation": false
+  },
+  "nav_home": "首页",
+  "@nav_home": {
+    "manualTranslation": false
+  },
+  "nav_library": "图书馆",
+  "@nav_library": {
+    "manualTranslation": false
+  },
+  "nav_media": "媒体",
+  "@nav_media": {
+    "manualTranslation": false
+  },
+  "nav_my": "我的",
+  "@nav_my": {
+    "manualTranslation": false
+  },
+  "nav_picchart": "PIC 图表",
+  "@nav_picchart": {
+    "manualTranslation": false
+  },
+  "nav_purchases": "购买",
+  "@nav_purchases": {
+    "manualTranslation": false
+  },
+  "nav_setting": "设置",
+  "@nav_setting": {
+    "manualTranslation": false
+  },
+  "nav_store": "商店",
+  "@nav_store": {
+    "manualTranslation": false
+  },
+  "nav_subscription": "订阅",
+  "@nav_subscription": {
+    "manualTranslation": false
+  },
+  "nav_vote": "投票",
+  "@nav_vote": {
+    "manualTranslation": false
+  },
+  "nickname_validation_error": "20 个字符或更少，不包括特殊字符。",
+  "@nickname_validation_error": {
+    "manualTranslation": false
+  },
+  "optional": "可选",
+  "@optional": {
+    "manualTranslation": false
+  },
+  "page_title_mypage": "我的页面",
+  "@page_title_mypage": {
+    "manualTranslation": false
+  },
+  "page_title_myprofile": "我的简介",
+  "@page_title_myprofile": {
+    "manualTranslation": false
+  },
+  "page_title_post_write": "创建一个职位",
+  "@page_title_post_write": {
+    "manualTranslation": false
+  },
+  "page_title_privacy": "隐私政策",
+  "@page_title_privacy": {
+    "manualTranslation": false
+  },
+  "page_title_setting": "首选项",
+  "@page_title_setting": {
+    "manualTranslation": false
+  },
+  "page_title_terms_of_use": "条款和条件",
+  "@page_title_terms_of_use": {
+    "manualTranslation": false
+  },
+  "page_title_vote_detail": "投票",
+  "@page_title_vote_detail": {
+    "manualTranslation": false
+  },
+  "page_title_vote_gather": "收集选票",
+  "@page_title_vote_gather": {
+    "manualTranslation": false
+  },
+  "popup_label_delete": "删除",
+  "@popup_label_delete": {
+    "manualTranslation": false
+  },
+  "post_anonymous": "匿名张贴",
+  "@post_anonymous": {
+    "manualTranslation": false
+  },
+  "post_ask_go_to_temporary_save_list": "想进入草稿列表吗？",
+  "@post_ask_go_to_temporary_save_list": {
+    "manualTranslation": false
+  },
+  "post_board_already_exist": "一个已经存在的董事会。",
+  "@post_board_already_exist": {
+    "manualTranslation": false
+  },
+  "post_board_create_request_complete": "您的开设留言板申请已完成。",
+  "@post_board_create_request_complete": {
+    "manualTranslation": false
+  },
+  "post_board_create_request_condition": "*每个 ID 只能申请一个未成年人板。",
+  "@post_board_create_request_condition": {
+    "manualTranslation": false
+  },
+  "post_board_create_request_label": "申请开设一个板块",
+  "@post_board_create_request_label": {
+    "manualTranslation": false
+  },
+  "post_board_create_request_reviewing": "审查开设留言板的申请",
+  "@post_board_create_request_reviewing": {
+    "manualTranslation": false
+  },
+  "post_board_request_label": "公开申请",
+  "@post_board_request_label": {
+    "manualTranslation": false
+  },
+  "post_cannot_open_youtube": "我打不开 Youtube。",
+  "@post_cannot_open_youtube": {
+    "manualTranslation": false
+  },
+  "post_comment_action_show_original": "查看原文",
+  "@post_comment_action_show_original": {
+    "manualTranslation": false
+  },
+  "post_comment_action_show_translation": "查看翻译",
+  "@post_comment_action_show_translation": {
+    "manualTranslation": false
+  },
+  "post_comment_action_translate": "翻译",
+  "@post_comment_action_translate": {
+    "manualTranslation": false
+  },
+  "post_comment_content_more": "更多信息",
+  "@post_comment_content_more": {
+    "manualTranslation": false
+  },
+  "post_comment_delete_confirm": "您确定要删除评论吗？",
+  "@post_comment_delete_confirm": {
+    "manualTranslation": false
+  },
+  "post_comment_delete_fail": "评论删除失败。",
+  "@post_comment_delete_fail": {
+    "manualTranslation": false
+  },
+  "post_comment_deleted_comment": "此评论已被删除。",
+  "@post_comment_deleted_comment": {
+    "manualTranslation": false
+  },
+  "post_comment_like_processing_fail": "处理失败。",
+  "@post_comment_like_processing_fail": {
+    "manualTranslation": false
+  },
+  "post_comment_loading_fail": "评论加载失败。",
+  "@post_comment_loading_fail": {
+    "manualTranslation": false
+  },
+  "post_comment_register_fail": "评论注册失败。",
+  "@post_comment_register_fail": {
+    "manualTranslation": false
+  },
+  "post_comment_registered_comment": "您的评论已被注册。",
+  "@post_comment_registered_comment": {
+    "manualTranslation": false
+  },
+  "post_comment_reported_comment": "报告评论。",
+  "@post_comment_reported_comment": {
+    "manualTranslation": false
+  },
+  "post_comment_translate_complete": "翻译工作已经完成。",
+  "@post_comment_translate_complete": {
+    "manualTranslation": false
+  },
+  "post_comment_translate_fail": "翻译失败。",
+  "@post_comment_translate_fail": {
+    "manualTranslation": false
+  },
+  "post_comment_translated": "已翻译",
+  "@post_comment_translated": {
+    "manualTranslation": false
+  },
+  "post_comment_write_label": "写评论",
+  "@post_comment_write_label": {
+    "manualTranslation": false
+  },
+  "post_content_placeholder": "请输入内容。",
+  "@post_content_placeholder": {
+    "manualTranslation": false
+  },
+  "post_delete_scrap_confirm": "您想删除废料吗？",
+  "@post_delete_scrap_confirm": {
+    "manualTranslation": false
+  },
+  "post_delete_scrap_title": "删除废料",
+  "@post_delete_scrap_title": {
+    "manualTranslation": false
+  },
+  "post_flagged": "包含不当内容",
+  "@post_flagged": {
+    "manualTranslation": false
+  },
+  "post_go_to_boards": "转到留言板",
+  "@post_go_to_boards": {
+    "manualTranslation": false
+  },
+  "post_header_publish": "出版",
+  "@post_header_publish": {
+    "manualTranslation": false
+  },
+  "post_header_temporary_save": "草稿",
+  "@post_header_temporary_save": {
+    "manualTranslation": false
+  },
+  "post_hint_title": "请输入标题。",
+  "@post_hint_title": {
+    "manualTranslation": false
+  },
+  "post_hyperlink": "超链接",
+  "@post_hyperlink": {
+    "manualTranslation": false
+  },
+  "post_insert_link": "插入链接",
+  "@post_insert_link": {
+    "manualTranslation": false
+  },
+  "post_loading_post_fail": "帖子加载失败。",
+  "@post_loading_post_fail": {
+    "manualTranslation": false
+  },
+  "post_minor_board_condition": "请输入至少 5 个字符但不超过 20 个字符的描述。",
+  "@post_minor_board_condition": {
+    "manualTranslation": false
+  },
+  "post_minor_board_create_request_message": "* 请求开设留言板的信息。",
+  "@post_minor_board_create_request_message": {
+    "manualTranslation": false
+  },
+  "post_minor_board_create_request_message_condition": "请在请求开设留言板的信息中输入至少 10 个字符。",
+  "@post_minor_board_create_request_message_condition": {
+    "manualTranslation": false
+  },
+  "post_minor_board_create_request_message_input": "请输入请求打开留言板的信息。",
+  "@post_minor_board_create_request_message_input": {
+    "manualTranslation": false
+  },
+  "post_minor_board_description": "小公告栏说明",
+  "@post_minor_board_description": {
+    "manualTranslation": false
+  },
+  "post_minor_board_description_input": "请为您的未成年人板输入描述。",
+  "@post_minor_board_description_input": {
+    "manualTranslation": false
+  },
+  "post_minor_board_name": "小板名称",
+  "@post_minor_board_name": {
+    "manualTranslation": false
+  },
+  "post_minor_board_name_input": "请输入未成年人板的名称。",
+  "@post_minor_board_name_input": {
+    "manualTranslation": false
+  },
+  "post_my_compatibilities": "我的兼容性",
+  "@post_my_compatibilities": {
+    "manualTranslation": false
+  },
+  "post_my_written_post": "我撰写的文章",
+  "@post_my_written_post": {
+    "manualTranslation": false
+  },
+  "post_my_written_reply": "您写的评论",
+  "@post_my_written_reply": {
+    "manualTranslation": false
+  },
+  "post_my_written_scrap": "我的废品",
+  "@post_my_written_scrap": {
+    "manualTranslation": false
+  },
+  "post_no_comment": "无评论。",
+  "@post_no_comment": {
+    "manualTranslation": false
+  },
+  "post_not_found": "未找到帖子。",
+  "@post_not_found": {
+    "manualTranslation": false
+  },
+  "post_replying_comment": "回复 {nickname}...",
+  "@post_replying_comment": {
+    "manualTranslation": true
+  },
+  "post_report_fail": "报告失败。",
+  "@post_report_fail": {
+    "manualTranslation": false
+  },
+  "post_report_label": "提交报告",
+  "@post_report_label": {
+    "manualTranslation": false
+  },
+  "post_report_other_input": "请输入任何其他原因。",
+  "@post_report_other_input": {
+    "manualTranslation": false
+  },
+  "post_report_reason_1": "不雅帖子",
+  "@post_report_reason_1": {
+    "manualTranslation": false
+  },
+  "post_report_reason_2": "性别歧视和种族主义帖子",
+  "@post_report_reason_2": {
+    "manualTranslation": false
+  },
+  "post_report_reason_3": "包含冒犯性亵渎语言的帖子",
+  "@post_report_reason_3": {
+    "manualTranslation": false
+  },
+  "post_report_reason_4": "广告/促销职位",
+  "@post_report_reason_4": {
+    "manualTranslation": false
+  },
+  "post_report_reason_5": "其他",
+  "@post_report_reason_5": {
+    "manualTranslation": false
+  },
+  "post_report_reason_input": "请选择报告原因。",
+  "@post_report_reason_input": {
+    "manualTranslation": false
+  },
+  "post_report_reason_label": "报告原因",
+  "@post_report_reason_label": {
+    "manualTranslation": false
+  },
+  "post_report_success": "报告已完成。",
+  "@post_report_success": {
+    "manualTranslation": false
+  },
+  "post_temporary_save_complete": "草案完成。",
+  "@post_temporary_save_complete": {
+    "manualTranslation": false
+  },
+  "post_title_placeholder": "请输入标题。",
+  "@post_title_placeholder": {
+    "manualTranslation": false
+  },
+  "post_write_board_post": "创建一个职位",
+  "@post_write_board_post": {
+    "manualTranslation": false
+  },
+  "post_write_post_recommend_write": "请写一篇文章。",
+  "@post_write_post_recommend_write": {
+    "manualTranslation": false
+  },
+  "post_youtube_link": "YouTube 链接",
+  "@post_youtube_link": {
+    "manualTranslation": false
+  },
+  "purchase_web_message": "这是为无法使用应用程序付款的用户提供的付款窗口。\n 请事先复制随机数字 ID。\n 复制后，点击下面的按钮进行支付。",
+  "@purchase_web_message": {
+    "manualTranslation": false
+  },
+  "replies": "评论",
+  "@replies": {
+    "manualTranslation": false
+  },
+  "reward": "奖励",
+  "@reward": {
+    "manualTranslation": false
+  },
+  "save": "节省",
+  "@save": {
+    "manualTranslation": false
+  },
+  "seconds": "秒钟",
+  "@seconds": {
+    "manualTranslation": false
+  },
+  "share": "分享",
+  "@share": {
+    "manualTranslation": false
+  },
+  "share_image_fail": "图像共享失败",
+  "@share_image_fail": {
+    "manualTranslation": false
+  },
+  "share_image_success": "成功共享图像",
+  "@share_image_success": {
+    "manualTranslation": false
+  },
+  "share_no_twitter": "X 应用程序丢失。",
+  "@share_no_twitter": {
+    "manualTranslation": false
+  },
+  "share_twitter": "在 Twitter 上分享",
+  "@share_twitter": {
+    "manualTranslation": false
+  },
+  "text_achievement": "🎉 到目前为止，您已达到 ${count} 目标！ 🎉",
+  "@text_achievement": {
+    "manualTranslation": true
+  },
+  "text_ads_random": "查看广告并收集随机图片。",
+  "@text_ads_random": {
+    "manualTranslation": false
+  },
+  "text_bonus": "奖金",
+  "@text_bonus": {
+    "manualTranslation": false
+  },
+  "text_bookmark_failed": "取消书签失败",
+  "@text_bookmark_failed": {
+    "manualTranslation": false
+  },
+  "text_bookmark_over_5": "您最多可以拥有五个书签",
+  "@text_bookmark_over_5": {
+    "manualTranslation": false
+  },
+  "text_comming_soon_pic_chart1": "欢迎访问 Pik Charts！\n2024 年 11 月再见！",
+  "@text_comming_soon_pic_chart1": {
+    "manualTranslation": false
+  },
+  "text_comming_soon_pic_chart2": "饼图是 Peeknick 独有的新图表，可反映每日、每周和每月的分数。\nPiknick 反映每日、每周和每月得分的新图表。",
+  "@text_comming_soon_pic_chart2": {
+    "manualTranslation": false
+  },
+  "text_comming_soon_pic_chart3": "实时查看您的品牌声誉\n实时反映艺术家的品牌声誉！",
+  "@text_comming_soon_pic_chart3": {
+    "manualTranslation": false
+  },
+  "text_comming_soon_pic_chart_title": "什么是饼图？",
+  "@text_comming_soon_pic_chart_title": {
+    "manualTranslation": false
+  },
+  "text_community_board_search": "搜索艺术家板",
+  "@text_community_board_search": {
+    "manualTranslation": false
+  },
+  "text_community_post_search": "搜索",
+  "@text_community_post_search": {
+    "manualTranslation": false
+  },
+  "text_copied_address": "地址已复制。",
+  "@text_copied_address": {
+    "manualTranslation": false
+  },
+  "text_dialog_ad_dismissed": "广告中途停止。",
+  "@text_dialog_ad_dismissed": {
+    "manualTranslation": false
+  },
+  "text_dialog_ad_failed_to_show": "加载广告失败",
+  "@text_dialog_ad_failed_to_show": {
+    "manualTranslation": false
+  },
+  "text_dialog_star_candy_received": "已颁发星形糖果。",
+  "@text_dialog_star_candy_received": {
+    "manualTranslation": false
+  },
+  "text_dialog_vote_amount_should_not_zero": "票数不能为零。",
+  "@text_dialog_vote_amount_should_not_zero": {
+    "manualTranslation": false
+  },
+  "text_draw_image": "来自整个画廊的 1 张图片已确认收藏",
+  "@text_draw_image": {
+    "manualTranslation": false
+  },
+  "text_hint_search": "搜索艺术家",
+  "@text_hint_search": {
+    "manualTranslation": false
+  },
+  "text_moveto_celeb_gallery": "访问所选艺术家的主页。",
+  "@text_moveto_celeb_gallery": {
+    "manualTranslation": false
+  },
+  "text_need_recharge": "需要充电。",
+  "@text_need_recharge": {
+    "manualTranslation": false
+  },
+  "text_no_artist": "没有艺术家",
+  "@text_no_artist": {
+    "manualTranslation": false
+  },
+  "text_no_search_result": "没有搜索结果。",
+  "@text_no_search_result": {
+    "manualTranslation": false
+  },
+  "text_purchase_vat_included": "*价格包含增值税。",
+  "@text_purchase_vat_included": {
+    "manualTranslation": false
+  },
+  "text_star_candy": "星形糖果",
+  "@text_star_candy": {
+    "manualTranslation": false
+  },
+  "text_star_candy_with_bonus": "{num1} +{num1}奖金",
+  "@text_star_candy_with_bonus": {
+    "manualTranslation": true
+  },
+  "text_this_time_vote": "这次投票",
+  "@text_this_time_vote": {
+    "manualTranslation": false
+  },
+  "text_vote_complete": "投票结束",
+  "@text_vote_complete": {
+    "manualTranslation": false
+  },
+  "text_vote_rank": "第{rank}名",
+  "@text_vote_rank": {
+    "manualTranslation": true
+  },
+  "text_vote_rank_in_reward": "奖励排名",
+  "@text_vote_rank_in_reward": {
+    "manualTranslation": false
+  },
+  "text_vote_where_is_my_bias": "我的最爱呢？",
+  "@text_vote_where_is_my_bias": {
+    "manualTranslation": false
+  },
+  "title_dialog_library_add": "添加新相册",
+  "@title_dialog_library_add": {
+    "manualTranslation": false
+  },
+  "title_dialog_success": "成功",
+  "@title_dialog_success": {
+    "manualTranslation": false
+  },
+  "title_select_language": "选择语言",
+  "@title_select_language": {
+    "manualTranslation": false
+  },
+  "toast_max_five_celeb": "您最多可以添加五位自己的艺术家。",
+  "@toast_max_five_celeb": {
+    "manualTranslation": false
+  },
+  "update_button": "更新",
+  "@update_button": {
+    "manualTranslation": false
+  },
+  "update_cannot_open_appstore": "我无法打开应用程序商店。",
+  "@update_cannot_open_appstore": {
+    "manualTranslation": false
+  },
+  "update_recommend_text": "新版本({version})发布。",
+  "@update_recommend_text": {
+    "manualTranslation": true
+  },
+  "update_required_text": "您需要更新到新版本({version})",
+  "@update_required_text": {
+    "manualTranslation": true
+  },
+  "update_required_title": "需要更新。",
+  "@update_required_title": {
+    "manualTranslation": false
+  },
+  "views": "意见",
+  "@views": {
+    "manualTranslation": false
+  },
+  "vote_result_save_button": "保存结果",
+  "@vote_result_save_button": {
+    "manualTranslation": false
+  },
+  "vote_result_share_button": "分享您的成果",
+  "@vote_result_share_button": {
+    "manualTranslation": false
+  },
+  "vote_share_message": "投了赞成票！",
+  "@vote_share_message": {
+    "manualTranslation": false
+  },
+  "voting_share_benefit_text": "每 100 次投票和分享可获得 1 个奖励星星糖果！",
+  "@voting_share_benefit_text": {
+    "manualTranslation": false
+  }
 }

@@ -50,6 +50,16 @@ class S {
     return Localizations.of<S>(context, S);
   }
 
+  /// `Achievement`
+  String get achieve {
+    return Intl.message(
+      'Achievement',
+      name: 'achieve',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Ad availability`
   String get ads_available_time {
     return Intl.message(
@@ -85,6 +95,26 @@ class S {
     return Intl.message(
       'Picnic',
       name: 'app_name',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Blocking users`
+  String get block_user_label {
+    return Intl.message(
+      'Blocking users',
+      name: 'block_user_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Star candy has been awarded.`
+  String get bonus_candy_awarded {
+    return Intl.message(
+      'Star candy has been awarded.',
+      name: 'bonus_candy_awarded',
       desc: '',
       args: [],
     );
@@ -200,6 +230,16 @@ class S {
     );
   }
 
+  /// `Comments`
+  String get comments {
+    return Intl.message(
+      'Comments',
+      name: 'comments',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `All`
   String get common_all {
     return Intl.message(
@@ -290,6 +330,386 @@ class S {
     );
   }
 
+  /// `Activities you can do together`
+  String get compatibility_activities_title {
+    return Intl.message(
+      'Activities you can do together',
+      name: 'compatibility_activities_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `I agree to store my gender and birthday information in my profile.`
+  String get compatibility_agree_checkbox {
+    return Intl.message(
+      'I agree to store my gender and birthday information in my profile.',
+      name: 'compatibility_agree_checkbox',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Start compatibility analysis`
+  String get compatibility_analyze_start {
+    return Intl.message(
+      'Start compatibility analysis',
+      name: 'compatibility_analyze_start',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Analyzing compatibility.`
+  String get compatibility_analyzing {
+    return Intl.message(
+      'Analyzing compatibility.',
+      name: 'compatibility_analyzing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Date of birth`
+  String get compatibility_birthday {
+    return Intl.message(
+      'Date of birth',
+      name: 'compatibility_birthday',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Birth time`
+  String get compatibility_birthtime {
+    return Intl.message(
+      'Birth time',
+      name: 'compatibility_birthtime',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couple styles`
+  String get compatibility_couple_style {
+    return Intl.message(
+      'Couple styles',
+      name: 'compatibility_couple_style',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Compatibility data with the same conditions already exists.`
+  String get compatibility_duplicate_data_message {
+    return Intl.message(
+      'Compatibility data with the same conditions already exists.',
+      name: 'compatibility_duplicate_data_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Compatibility data that already exists`
+  String get compatibility_duplicate_data_title {
+    return Intl.message(
+      'Compatibility data that already exists',
+      name: 'compatibility_duplicate_data_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Gender`
+  String get compatibility_gender {
+    return Intl.message(
+      'Gender',
+      name: 'compatibility_gender',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `여성`
+  String get compatibility_gender_female {
+    return Intl.message(
+      '여성',
+      name: 'compatibility_gender_female',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Male`
+  String get compatibility_gender_male {
+    return Intl.message(
+      'Male',
+      name: 'compatibility_gender_male',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Idol Styles`
+  String get compatibility_idol_style {
+    return Intl.message(
+      'Idol Styles',
+      name: 'compatibility_idol_style',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Check out new matches`
+  String get compatibility_new_compatibility {
+    return Intl.message(
+      'Check out new matches',
+      name: 'compatibility_new_compatibility',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Want to see a new pairing?`
+  String get compatibility_new_compatibility_ask {
+    return Intl.message(
+      'Want to see a new pairing?',
+      name: 'compatibility_new_compatibility_ask',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Compatibility`
+  String get compatibility_page_title {
+    return Intl.message(
+      'Compatibility',
+      name: 'compatibility_page_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `It's a good compatibility! 🌟`
+  String get compatibility_result_70 {
+    return Intl.message(
+      'It\'s a good compatibility! 🌟',
+      name: 'compatibility_result_70',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `It's a great compatibility! 💫`
+  String get compatibility_result_80 {
+    return Intl.message(
+      'It\'s a great compatibility! 💫',
+      name: 'compatibility_result_80',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `It's a super great compatibility! ✨`
+  String get compatibility_result_90 {
+    return Intl.message(
+      'It\'s a super great compatibility! ✨',
+      name: 'compatibility_result_90',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Find the right fit 😊`
+  String get compatibility_result_low {
+    return Intl.message(
+      'Find the right fit 😊',
+      name: 'compatibility_result_low',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not found compatibility 😔`
+  String get compatibility_result_not_found {
+    return Intl.message(
+      'Not found compatibility 😔',
+      name: 'compatibility_result_not_found',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `An error occurred.`
+  String get compatibility_snackbar_error {
+    return Intl.message(
+      'An error occurred.',
+      name: 'compatibility_snackbar_error',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter your date of birth.`
+  String get compatibility_snackbar_need_birthday {
+    return Intl.message(
+      'Please enter your date of birth.',
+      name: 'compatibility_snackbar_need_birthday',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter your birth time.`
+  String get compatibility_snackbar_need_birthtime {
+    return Intl.message(
+      'Please enter your birth time.',
+      name: 'compatibility_snackbar_need_birthtime',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please select a gender.`
+  String get compatibility_snackbar_need_gender {
+    return Intl.message(
+      'Please select a gender.',
+      name: 'compatibility_snackbar_need_gender',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Give your consent to save your profile.`
+  String get compatibility_snackbar_need_profile_save_agree {
+    return Intl.message(
+      'Give your consent to save your profile.',
+      name: 'compatibility_snackbar_need_profile_save_agree',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Start analyzing compatibility.`
+  String get compatibility_snackbar_start {
+    return Intl.message(
+      'Start analyzing compatibility.',
+      name: 'compatibility_snackbar_start',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Done`
+  String get compatibility_status_completed {
+    return Intl.message(
+      'Done',
+      name: 'compatibility_status_completed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `오류`
+  String get compatibility_status_error {
+    return Intl.message(
+      '오류',
+      name: 'compatibility_status_error',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Typing`
+  String get compatibility_status_input {
+    return Intl.message(
+      'Typing',
+      name: 'compatibility_status_input',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Analyzing`
+  String get compatibility_status_pending {
+    return Intl.message(
+      'Analyzing',
+      name: 'compatibility_status_pending',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Compatibility styles`
+  String get compatibility_style_title {
+    return Intl.message(
+      'Compatibility styles',
+      name: 'compatibility_style_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Compatibility summary`
+  String get compatibility_summary_title {
+    return Intl.message(
+      'Compatibility summary',
+      name: 'compatibility_summary_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Don't know`
+  String get compatibility_time_slot_unknown {
+    return Intl.message(
+      'Don\'t know',
+      name: 'compatibility_time_slot_unknown',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Compatibility tips`
+  String get compatibility_tips_title {
+    return Intl.message(
+      'Compatibility tips',
+      name: 'compatibility_tips_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `User Styles`
+  String get compatibility_user_style {
+    return Intl.message(
+      'User Styles',
+      name: 'compatibility_user_style',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please wait a moment.`
+  String get compatibility_waiting_message {
+    return Intl.message(
+      'Please wait a moment.',
+      name: 'compatibility_waiting_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `If you leave the screen, you'll need to do the analysis again.`
+  String get compatibility_warning_exit {
+    return Intl.message(
+      'If you leave the screen, you\'ll need to do the analysis again.',
+      name: 'compatibility_warning_exit',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Cancel`
   String get dialog_button_cancel {
     return Intl.message(
@@ -305,6 +725,16 @@ class S {
     return Intl.message(
       'Confirm',
       name: 'dialog_button_ok',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `🚫 경고 🚫`
+  String get dialog_caution {
+    return Intl.message(
+      '🚫 경고 🚫',
+      name: 'dialog_caution',
       desc: '',
       args: [],
     );
@@ -500,6 +930,66 @@ class S {
     );
   }
 
+  /// `An error occurred while performing the operation.`
+  String get error_action_failed {
+    return Intl.message(
+      'An error occurred while performing the operation.',
+      name: 'error_action_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `An error occurred while parsing the content.`
+  String get error_content_parse {
+    return Intl.message(
+      'An error occurred while parsing the content.',
+      name: 'error_content_parse',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `An error occurred while deleting the post.`
+  String get error_delete_post {
+    return Intl.message(
+      'An error occurred while deleting the post.',
+      name: 'error_delete_post',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Invalid data.`
+  String get error_invalid_data {
+    return Intl.message(
+      'Invalid data.',
+      name: 'error_invalid_data',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `There was an error loading the comment.`
+  String get error_loading_more_comments {
+    return Intl.message(
+      'There was an error loading the comment.',
+      name: 'error_loading_more_comments',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `An error occurred while loading the page.`
+  String get error_loading_page {
+    return Intl.message(
+      'An error occurred while loading the page.',
+      name: 'error_loading_page',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `An error occurred during login.`
   String get error_message_login_failed {
     return Intl.message(
@@ -530,11 +1020,131 @@ class S {
     );
   }
 
+  /// `Check your network connection.`
+  String get error_network_connection {
+    return Intl.message(
+      'Check your network connection.',
+      name: 'error_network_connection',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The request timed out.`
+  String get error_request_timeout {
+    return Intl.message(
+      'The request timed out.',
+      name: 'error_request_timeout',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Errors`
   String get error_title {
     return Intl.message(
       'Errors',
       name: 'error_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `An unknown error occurred.`
+  String get error_unknown {
+    return Intl.message(
+      'An unknown error occurred.',
+      name: 'error_unknown',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `We received an invalid response from the Apple server.\nPlease try again.`
+  String get exception_auth_message_apple_invalid_response {
+    return Intl.message(
+      'We received an invalid response from the Apple server.\nPlease try again.',
+      name: 'exception_auth_message_apple_invalid_response',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Apple sign-in failed.\nPlease try again.`
+  String get exception_auth_message_apple_sign_in_failed {
+    return Intl.message(
+      'Apple sign-in failed.\nPlease try again.',
+      name: 'exception_auth_message_apple_sign_in_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your login has been canceled.`
+  String get exception_auth_message_common_cancel {
+    return Intl.message(
+      'Your login has been canceled.',
+      name: 'exception_auth_message_common_cancel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The authentication token is invalid.\nPlease try again.`
+  String get exception_auth_message_common_invalid_token {
+    return Intl.message(
+      'The authentication token is invalid.\nPlease try again.',
+      name: 'exception_auth_message_common_invalid_token',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Check your network connection.`
+  String get exception_auth_message_common_network {
+    return Intl.message(
+      'Check your network connection.',
+      name: 'exception_auth_message_common_network',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `An unknown error occurred during login.\nPlease try again in a moment.`
+  String get exception_auth_message_common_unknown {
+    return Intl.message(
+      'An unknown error occurred during login.\nPlease try again in a moment.',
+      name: 'exception_auth_message_common_unknown',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This login method is not supported`
+  String get exception_auth_message_common_unsupported_provider {
+    return Intl.message(
+      'This login method is not supported',
+      name: 'exception_auth_message_common_unsupported_provider',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `A Google Play Services error has occurred.\nPlease update Google Play Services or restart your device.`
+  String get exception_auth_message_google_google_play_service {
+    return Intl.message(
+      'A Google Play Services error has occurred.\nPlease update Google Play Services or restart your device.',
+      name: 'exception_auth_message_google_google_play_service',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `I can't sign in with the KakaoTalk app.\nTry signing in with your Kakao account.`
+  String get exception_auth_message_kakao_not_supported {
+    return Intl.message(
+      'I can\'t sign in with the KakaoTalk app.\nTry signing in with your Kakao account.',
+      name: 'exception_auth_message_kakao_not_supported',
       desc: '',
       args: [],
     );
@@ -905,6 +1515,16 @@ class S {
     return Intl.message(
       'Loading ad',
       name: 'label_loading_ads',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ads fail to load`
+  String get label_loading_ads_fail {
+    return Intl.message(
+      'Ads fail to load',
+      name: 'label_loading_ads_fail',
       desc: '',
       args: [],
     );
@@ -1750,10 +2370,10 @@ class S {
     );
   }
 
-  /// `Bulletin boards`
+  /// `Boards`
   String get nav_board {
     return Intl.message(
-      'Bulletin boards',
+      'Boards',
       name: 'nav_board',
       desc: '',
       args: [],
@@ -1875,6 +2495,16 @@ class S {
     return Intl.message(
       '20 characters or less, excluding special characters.',
       name: 'nickname_validation_error',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Optional`
+  String get optional {
+    return Intl.message(
+      'Optional',
+      name: 'optional',
       desc: '',
       args: [],
     );
@@ -2060,6 +2690,26 @@ class S {
     );
   }
 
+  /// `View full text`
+  String get post_comment_action_show_original {
+    return Intl.message(
+      'View full text',
+      name: 'post_comment_action_show_original',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `View translations`
+  String get post_comment_action_show_translation {
+    return Intl.message(
+      'View translations',
+      name: 'post_comment_action_show_translation',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Translation`
   String get post_comment_action_translate {
     return Intl.message(
@@ -2230,6 +2880,16 @@ class S {
     );
   }
 
+  /// `Contains inappropriate content`
+  String get post_flagged {
+    return Intl.message(
+      'Contains inappropriate content',
+      name: 'post_flagged',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Go to the board`
   String get post_go_to_boards {
     return Intl.message(
@@ -2380,6 +3040,16 @@ class S {
     );
   }
 
+  /// `My compatibility`
+  String get post_my_compatibilities {
+    return Intl.message(
+      'My compatibility',
+      name: 'post_my_compatibilities',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Posts I've written`
   String get post_my_written_post {
     return Intl.message(
@@ -2415,6 +3085,56 @@ class S {
     return Intl.message(
       'No comments.',
       name: 'post_no_comment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No posts were found.`
+  String get post_not_found {
+    return Intl.message(
+      'No posts were found.',
+      name: 'post_not_found',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Replying to {nickname}...`
+  String post_replying_comment(Object nickname) {
+    return Intl.message(
+      'Replying to $nickname...',
+      name: 'post_replying_comment',
+      desc: '',
+      args: [nickname],
+    );
+  }
+
+  /// `The report failed.`
+  String get post_report_fail {
+    return Intl.message(
+      'The report failed.',
+      name: 'post_report_fail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Make a report`
+  String get post_report_label {
+    return Intl.message(
+      'Make a report',
+      name: 'post_report_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter any other reason.`
+  String get post_report_other_input {
+    return Intl.message(
+      'Please enter any other reason.',
+      name: 'post_report_other_input',
       desc: '',
       args: [],
     );
@@ -2470,6 +3190,36 @@ class S {
     );
   }
 
+  /// `Please select a reason for your report.`
+  String get post_report_reason_input {
+    return Intl.message(
+      'Please select a reason for your report.',
+      name: 'post_report_reason_input',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reasons for reporting`
+  String get post_report_reason_label {
+    return Intl.message(
+      'Reasons for reporting',
+      name: 'post_report_reason_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The report is complete.`
+  String get post_report_success {
+    return Intl.message(
+      'The report is complete.',
+      name: 'post_report_success',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Draft complete.`
   String get post_temporary_save_complete {
     return Intl.message(
@@ -2520,11 +3270,61 @@ class S {
     );
   }
 
+  /// `This is the payment window for those who can't pay with the app.\n Please copy the random ID in advance.\n After copying it, click the button below to proceed with the payment.`
+  String get purchase_web_message {
+    return Intl.message(
+      'This is the payment window for those who can\'t pay with the app.\n Please copy the random ID in advance.\n After copying it, click the button below to proceed with the payment.',
+      name: 'purchase_web_message',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Comments`
   String get replies {
     return Intl.message(
       'Comments',
       name: 'replies',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rewards`
+  String get reward {
+    return Intl.message(
+      'Rewards',
+      name: 'reward',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save`
+  String get save {
+    return Intl.message(
+      'Save',
+      name: 'save',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `seconds`
+  String get seconds {
+    return Intl.message(
+      'seconds',
+      name: 'seconds',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Share`
+  String get share {
+    return Intl.message(
+      'Share',
+      name: 'share',
       desc: '',
       args: [],
     );
@@ -2567,6 +3367,16 @@ class S {
       name: 'share_twitter',
       desc: '',
       args: [],
+    );
+  }
+
+  /// `🎉 You've reached ${count} goals so far! 🎉`
+  String text_achievement(Object count) {
+    return Intl.message(
+      '🎉 You\'ve reached \$$count goals so far! 🎉',
+      name: 'text_achievement',
+      desc: '',
+      args: [count],
     );
   }
 
@@ -2840,16 +3650,6 @@ class S {
     );
   }
 
-  /// `Replying to {nickname}...`
-  String post_replying_comment(Object nickname) {
-    return Intl.message(
-      'Replying to $nickname...',
-      name: 'post_replying_comment',
-      desc: '',
-      args: [nickname],
-    );
-  }
-
   /// `Rank in Rewards`
   String get text_vote_rank_in_reward {
     return Intl.message(
@@ -2970,431 +3770,21 @@ class S {
     );
   }
 
-  /// `Please enter any other reason.`
-  String get post_report_other_input {
-    return Intl.message(
-      'Please enter any other reason.',
-      name: 'post_report_other_input',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Please select a reason for your report.`
-  String get post_report_reason_input {
-    return Intl.message(
-      'Please select a reason for your report.',
-      name: 'post_report_reason_input',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `The report is complete.`
-  String get post_report_success {
-    return Intl.message(
-      'The report is complete.',
-      name: 'post_report_success',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `The report failed.`
-  String get post_report_fail {
-    return Intl.message(
-      'The report failed.',
-      name: 'post_report_fail',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Reasons for reporting`
-  String get post_report_reason_label {
-    return Intl.message(
-      'Reasons for reporting',
-      name: 'post_report_reason_label',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Make a report`
-  String get post_report_label {
-    return Intl.message(
-      'Make a report',
-      name: 'post_report_label',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `This is the payment window for those who can't pay with the app.\n Please copy the random ID in advance.\n After copying it, click the button below to proceed with the payment.`
-  String get purchase_web_message {
-    return Intl.message(
-      'This is the payment window for those who can\'t pay with the app.\n Please copy the random ID in advance.\n After copying it, click the button below to proceed with the payment.',
-      name: 'purchase_web_message',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Ads fail to load`
-  String get label_loading_ads_fail {
-    return Intl.message(
-      'Ads fail to load',
-      name: 'label_loading_ads_fail',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `View translations`
-  String get post_comment_action_show_translation {
-    return Intl.message(
-      'View translations',
-      name: 'post_comment_action_show_translation',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `View full text`
-  String get post_comment_action_show_original {
-    return Intl.message(
-      'View full text',
-      name: 'post_comment_action_show_original',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `🚫 경고 🚫`
-  String get dialog_caution {
-    return Intl.message(
-      '🚫 경고 🚫',
-      name: 'dialog_caution',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Contains inappropriate content`
-  String get post_flagged {
-    return Intl.message(
-      'Contains inappropriate content',
-      name: 'post_flagged',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Blocking users`
-  String get block_user_label {
-    return Intl.message(
-      'Blocking users',
-      name: 'block_user_label',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `The authentication token is invalid.\nPlease try again.`
-  String get exception_auth_message_common_invalid_token {
-    return Intl.message(
-      'The authentication token is invalid.\nPlease try again.',
-      name: 'exception_auth_message_common_invalid_token',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Your login has been canceled.`
-  String get exception_auth_message_common_cancel {
-    return Intl.message(
-      'Your login has been canceled.',
-      name: 'exception_auth_message_common_cancel',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `An unknown error occurred during login.\nPlease try again in a moment.`
-  String get exception_auth_message_common_unknown {
-    return Intl.message(
-      'An unknown error occurred during login.\nPlease try again in a moment.',
-      name: 'exception_auth_message_common_unknown',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Check your network connection.`
-  String get exception_auth_message_common_network {
-    return Intl.message(
-      'Check your network connection.',
-      name: 'exception_auth_message_common_network',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `This login method is not supported`
-  String get exception_auth_message_common_unsupported_provider {
-    return Intl.message(
-      'This login method is not supported',
-      name: 'exception_auth_message_common_unsupported_provider',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `A Google Play Services error has occurred.\nPlease update Google Play Services or restart your device.`
-  String get exception_auth_message_google_google_play_service {
-    return Intl.message(
-      'A Google Play Services error has occurred.\nPlease update Google Play Services or restart your device.',
-      name: 'exception_auth_message_google_google_play_service',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `🎉 You've reached ${count} goals so far! 🎉`
-  String text_achievement(Object count) {
-    return Intl.message(
-      '🎉 You\'ve reached \$$count goals so far! 🎉',
-      name: 'text_achievement',
-      desc: '',
-      args: [count],
-    );
-  }
-
-  /// `Apple sign-in failed.\nPlease try again.`
-  String get exception_auth_message_apple_sign_in_failed {
-    return Intl.message(
-      'Apple sign-in failed.\nPlease try again.',
-      name: 'exception_auth_message_apple_sign_in_failed',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `I can't sign in with the KakaoTalk app.\nTry signing in with your Kakao account.`
-  String get exception_auth_message_kakao_not_supported {
-    return Intl.message(
-      'I can\'t sign in with the KakaoTalk app.\nTry signing in with your Kakao account.',
-      name: 'exception_auth_message_kakao_not_supported',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `We received an invalid response from the Apple server.\nPlease try again.`
-  String get exception_auth_message_apple_invalid_response {
-    return Intl.message(
-      'We received an invalid response from the Apple server.\nPlease try again.',
-      name: 'exception_auth_message_apple_invalid_response',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `An error occurred while parsing the content.`
-  String get error_content_parse {
-    return Intl.message(
-      'An error occurred while parsing the content.',
-      name: 'error_content_parse',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `No posts were found.`
-  String get post_not_found {
-    return Intl.message(
-      'No posts were found.',
-      name: 'post_not_found',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `An error occurred while deleting the post.`
-  String get error_delete_post {
-    return Intl.message(
-      'An error occurred while deleting the post.',
-      name: 'error_delete_post',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Check your network connection.`
-  String get error_network_connection {
-    return Intl.message(
-      'Check your network connection.',
-      name: 'error_network_connection',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `The request timed out.`
-  String get error_request_timeout {
-    return Intl.message(
-      'The request timed out.',
-      name: 'error_request_timeout',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Invalid data.`
-  String get error_invalid_data {
-    return Intl.message(
-      'Invalid data.',
-      name: 'error_invalid_data',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `An unknown error occurred.`
-  String get error_unknown {
-    return Intl.message(
-      'An unknown error occurred.',
-      name: 'error_unknown',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `There was an error loading the comment.`
-  String get error_loading_more_comments {
-    return Intl.message(
-      'There was an error loading the comment.',
-      name: 'error_loading_more_comments',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `An error occurred while performing the operation.`
-  String get error_action_failed {
-    return Intl.message(
-      'An error occurred while performing the operation.',
-      name: 'error_action_failed',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Comments`
-  String get comments {
-    return Intl.message(
-      'Comments',
-      name: 'comments',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `An error occurred while loading the page.`
-  String get error_loading_page {
-    return Intl.message(
-      'An error occurred while loading the page.',
-      name: 'error_loading_page',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Achievement`
-  String get achieve {
-    return Intl.message(
-      'Achievement',
-      name: 'achieve',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Rewards`
-  String get reward {
-    return Intl.message(
-      'Rewards',
-      name: 'reward',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Get 1 bonus star candy for every 100 votes and share!`
-  String get voting_share_benefit_text {
-    return Intl.message(
-      'Get 1 bonus star candy for every 100 votes and share!',
-      name: 'voting_share_benefit_text',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Star candy has been awarded.`
-  String get bonus_candy_awarded {
-    return Intl.message(
-      'Star candy has been awarded.',
-      name: 'bonus_candy_awarded',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Voted!`
-  String get vote_share_message {
-    return Intl.message(
-      'Voted!',
-      name: 'vote_share_message',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Save the results`
+  /// `Save`
   String get vote_result_save_button {
     return Intl.message(
-      'Save the results',
+      'Save',
       name: 'vote_result_save_button',
       desc: '',
       args: [],
     );
   }
 
-  /// `Share your results`
+  /// `Share`
   String get vote_result_share_button {
     return Intl.message(
-      'Share your results',
-      name: 'vote_result_share_button',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Save`
-  String get save {
-    return Intl.message(
-      'Save',
-      name: 'save',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Share`
-  String get share {
-    return Intl.message(
       'Share',
-      name: 'share',
+      name: 'vote_result_share_button',
       desc: '',
       args: [],
     );
@@ -3520,331 +3910,11 @@ class S {
     );
   }
 
-  /// `I agree to store my gender and birthday information in my profile.`
-  String get compatibility_agree_checkbox {
+  /// `Get 1 bonus star candy for every 100 votes and share!`
+  String get voting_share_benefit_text {
     return Intl.message(
-      'I agree to store my gender and birthday information in my profile.',
-      name: 'compatibility_agree_checkbox',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `My compatibility`
-  String get post_my_compatibilities {
-    return Intl.message(
-      'My compatibility',
-      name: 'post_my_compatibilities',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Compatibility`
-  String get compatibility_page_title {
-    return Intl.message(
-      'Compatibility',
-      name: 'compatibility_page_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Analyzing compatibility.`
-  String get compatibility_analyzing {
-    return Intl.message(
-      'Analyzing compatibility.',
-      name: 'compatibility_analyzing',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `seconds`
-  String get seconds {
-    return Intl.message(
-      'seconds',
-      name: 'seconds',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Please wait a moment.`
-  String get compatibility_waiting_message {
-    return Intl.message(
-      'Please wait a moment.',
-      name: 'compatibility_waiting_message',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `If you leave the screen, you'll need to do the analysis again.`
-  String get compatibility_warning_exit {
-    return Intl.message(
-      'If you leave the screen, you\'ll need to do the analysis again.',
-      name: 'compatibility_warning_exit',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Analyzing`
-  String get compatibility_status_pending {
-    return Intl.message(
-      'Analyzing',
-      name: 'compatibility_status_pending',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Done`
-  String get compatibility_status_completed {
-    return Intl.message(
-      'Done',
-      name: 'compatibility_status_completed',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Typing`
-  String get compatibility_status_input {
-    return Intl.message(
-      'Typing',
-      name: 'compatibility_status_input',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `오류`
-  String get compatibility_status_error {
-    return Intl.message(
-      '오류',
-      name: 'compatibility_status_error',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `최고의 궁합이에요! ✨`
-  String get compatibility_result_90 {
-    return Intl.message(
-      '최고의 궁합이에요! ✨',
-      name: 'compatibility_result_90',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `아주 좋은 궁합이에요! 💫`
-  String get compatibility_result_80 {
-    return Intl.message(
-      '아주 좋은 궁합이에요! 💫',
-      name: 'compatibility_result_80',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `좋은 궁합이에요! 🌟`
-  String get compatibility_result_70 {
-    return Intl.message(
-      '좋은 궁합이에요! 🌟',
-      name: 'compatibility_result_70',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `잘 맞는 부분을 찾아보세요 😊`
-  String get compatibility_result_low {
-    return Intl.message(
-      '잘 맞는 부분을 찾아보세요 😊',
-      name: 'compatibility_result_low',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Compatibility data with the same conditions already exists.`
-  String get compatibility_duplicate_data_message {
-    return Intl.message(
-      'Compatibility data with the same conditions already exists.',
-      name: 'compatibility_duplicate_data_message',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Birth time`
-  String get compatibility_birthtime {
-    return Intl.message(
-      'Birth time',
-      name: 'compatibility_birthtime',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Date of birth`
-  String get compatibility_birthday {
-    return Intl.message(
-      'Date of birth',
-      name: 'compatibility_birthday',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Compatibility data that already exists`
-  String get compatibility_duplicate_data_title {
-    return Intl.message(
-      'Compatibility data that already exists',
-      name: 'compatibility_duplicate_data_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Gender`
-  String get compatibility_gender {
-    return Intl.message(
-      'Gender',
-      name: 'compatibility_gender',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Check out new matches`
-  String get compatibility_new_compatibility {
-    return Intl.message(
-      'Check out new matches',
-      name: 'compatibility_new_compatibility',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Start analyzing compatibility.`
-  String get compatibility_snackbar_start {
-    return Intl.message(
-      'Start analyzing compatibility.',
-      name: 'compatibility_snackbar_start',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `An error occurred.`
-  String get compatibility_snackbar_error {
-    return Intl.message(
-      'An error occurred.',
-      name: 'compatibility_snackbar_error',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Optional`
-  String get optional {
-    return Intl.message(
-      'Optional',
-      name: 'optional',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Male`
-  String get compatibility_gender_male {
-    return Intl.message(
-      'Male',
-      name: 'compatibility_gender_male',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Give your consent to save your profile.`
-  String get compatibility_snackbar_need_profile_save_agree {
-    return Intl.message(
-      'Give your consent to save your profile.',
-      name: 'compatibility_snackbar_need_profile_save_agree',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Female`
-  String get compatibility_gender_female {
-    return Intl.message(
-      'Female',
-      name: 'compatibility_gender_female',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Please select a gender.`
-  String get compatibility_snackbar_need_gender {
-    return Intl.message(
-      'Please select a gender.',
-      name: 'compatibility_snackbar_need_gender',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Please enter your date of birth.`
-  String get compatibility_snackbar_need_birthday {
-    return Intl.message(
-      'Please enter your date of birth.',
-      name: 'compatibility_snackbar_need_birthday',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Please enter your birth time.`
-  String get compatibility_snackbar_need_birthtime {
-    return Intl.message(
-      'Please enter your birth time.',
-      name: 'compatibility_snackbar_need_birthtime',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Don't know`
-  String get compatibility_time_slot_unknown {
-    return Intl.message(
-      'Don\'t know',
-      name: 'compatibility_time_slot_unknown',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Start compatibility analysis`
-  String get compatibility_analyze_start {
-    return Intl.message(
-      'Start compatibility analysis',
-      name: 'compatibility_analyze_start',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Want to see a new pairing?`
-  String get compatibility_new_compatibility_ask {
-    return Intl.message(
-      'Want to see a new pairing?',
-      name: 'compatibility_new_compatibility_ask',
+      'Get 1 bonus star candy for every 100 votes and share!',
+      name: 'voting_share_benefit_text',
       desc: '',
       args: [],
     );

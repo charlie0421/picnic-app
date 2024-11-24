@@ -147,8 +147,6 @@ class _CompatibilityHistoryPageState
 
                       final item = history.items[index];
 
-                      logger.i('item: $item');
-
                       return InkWell(
                           onTap: () {
                             ref

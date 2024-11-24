@@ -6,12 +6,12 @@ part of '../../../providers/community/compatibility_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$compatibilityHash() => r'745cfc3d28f252d24464231a9e1726abe9b78b73';
+String _$compatibilityHash() => r'f9d09a9a8c0c671cbc5a716a0a97db42990f267c';
 
 /// See also [Compatibility].
 @ProviderFor(Compatibility)
 final compatibilityProvider =
-    NotifierProvider<Compatibility, CompatibilityModel?>.internal(
+    NotifierProvider<Compatibility, AsyncValue<CompatibilityModel?>>.internal(
   Compatibility.new,
   name: r'compatibilityProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -21,6 +21,6 @@ final compatibilityProvider =
   allTransitiveDependencies: null,
 );
 
-typedef _$Compatibility = Notifier<CompatibilityModel?>;
+typedef _$Compatibility = Notifier<AsyncValue<CompatibilityModel?>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

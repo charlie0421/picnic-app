@@ -1,5 +1,9 @@
 {
     "@@locale": "en",
+    "achieve": "Achievement",
+    "@achieve": {
+        "manualTranslation": false
+    },
     "ads_available_time": "Ad availability",
     "@ads_available_time": {
         "manualTranslation": false
@@ -15,6 +19,14 @@
     "app_name": "Picnic",
     "@app_name": {
         "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "block_user_label": "Blocking users",
+    "@block_user_label": {
+        "manualTranslation": false
+    },
+    "bonus_candy_awarded": "Star candy has been awarded.",
+    "@bonus_candy_awarded": {
         "manualTranslation": false
     },
     "button_cancel": "Cancel",
@@ -44,7 +56,6 @@
     },
     "candy_disappear_next_month": "소멸 예정 보너스 별사탕 😢",
     "@candy_disappear_next_month": {
-        "manualTranslationKey": true,
         "manualTranslation": true
     },
     "candy_usage_policy_contents": "Bonus Star Candy earned in the current month will expire on the 15th of the following month.",
@@ -68,6 +79,10 @@
     "candy_usage_policy_title": "Stardust Usage Policy",
     "@candy_usage_policy_title": {
         "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "comments": "Comments",
+    "@comments": {
         "manualTranslation": false
     },
     "common_all": "All",
@@ -106,6 +121,158 @@
     "@common_text_search_result_label": {
         "manualTranslation": false
     },
+    "compatibility_activities_title": "Activities you can do together",
+    "@compatibility_activities_title": {
+        "manualTranslation": false
+    },
+    "compatibility_agree_checkbox": "I agree to store my gender and birthday information in my profile.",
+    "@compatibility_agree_checkbox": {
+        "manualTranslation": false
+    },
+    "compatibility_analyze_start": "Start compatibility analysis",
+    "@compatibility_analyze_start": {
+        "manualTranslation": false
+    },
+    "compatibility_analyzing": "Analyzing compatibility.",
+    "@compatibility_analyzing": {
+        "manualTranslation": false
+    },
+    "compatibility_birthday": "Date of birth",
+    "@compatibility_birthday": {
+        "manualTranslation": false
+    },
+    "compatibility_birthtime": "Birth time",
+    "@compatibility_birthtime": {
+        "manualTranslation": false
+    },
+    "compatibility_couple_style": "Couple styles",
+    "@compatibility_couple_style": {
+        "manualTranslation": false
+    },
+    "compatibility_duplicate_data_message": "Compatibility data with the same conditions already exists.",
+    "@compatibility_duplicate_data_message": {
+        "manualTranslation": false
+    },
+    "compatibility_duplicate_data_title": "Compatibility data that already exists",
+    "@compatibility_duplicate_data_title": {
+        "manualTranslation": false
+    },
+    "compatibility_gender": "Gender",
+    "@compatibility_gender": {
+        "manualTranslation": false
+    },
+    "compatibility_gender_female": "여성",
+    "@compatibility_gender_female": {
+        "manualTranslation": true
+    },
+    "compatibility_gender_male": "Male",
+    "@compatibility_gender_male": {
+        "manualTranslation": false
+    },
+    "compatibility_idol_style": "Idol Styles",
+    "@compatibility_idol_style": {
+        "manualTranslation": false
+    },
+    "compatibility_new_compatibility": "Check out new matches",
+    "@compatibility_new_compatibility": {
+        "manualTranslation": false
+    },
+    "compatibility_new_compatibility_ask": "Want to see a new pairing?",
+    "@compatibility_new_compatibility_ask": {
+        "manualTranslation": false
+    },
+    "compatibility_page_title": "Compatibility",
+    "@compatibility_page_title": {
+        "manualTranslation": false
+    },
+    "compatibility_result_70": "It's a good compatibility! 🌟",
+    "@compatibility_result_70": {
+        "manualTranslation": true
+    },
+    "compatibility_result_80": "It's a great compatibility! 💫",
+    "@compatibility_result_80": {
+        "manualTranslation": true
+    },
+    "compatibility_result_90": "It's a super great compatibility! ✨",
+    "@compatibility_result_90": {
+        "manualTranslation": true
+    },
+    "compatibility_result_low": "Find the right fit 😊",
+    "@compatibility_result_low": {
+        "manualTranslation": true
+    },
+    "compatibility_result_not_found": "Not found compatibility 😔",
+    "@compatibility_result_not_found": {
+        "manualTranslation": true
+    },
+    "compatibility_snackbar_error": "An error occurred.",
+    "@compatibility_snackbar_error": {
+        "manualTranslation": false
+    },
+    "compatibility_snackbar_need_birthday": "Please enter your date of birth.",
+    "@compatibility_snackbar_need_birthday": {
+        "manualTranslation": false
+    },
+    "compatibility_snackbar_need_birthtime": "Please enter your birth time.",
+    "@compatibility_snackbar_need_birthtime": {
+        "manualTranslation": false
+    },
+    "compatibility_snackbar_need_gender": "Please select a gender.",
+    "@compatibility_snackbar_need_gender": {
+        "manualTranslation": false
+    },
+    "compatibility_snackbar_need_profile_save_agree": "Give your consent to save your profile.",
+    "@compatibility_snackbar_need_profile_save_agree": {
+        "manualTranslation": false
+    },
+    "compatibility_snackbar_start": "Start analyzing compatibility.",
+    "@compatibility_snackbar_start": {
+        "manualTranslation": false
+    },
+    "compatibility_status_completed": "Done",
+    "@compatibility_status_completed": {
+        "manualTranslation": false
+    },
+    "compatibility_status_error": "오류",
+    "@compatibility_status_error": {
+        "manualTranslation": true
+    },
+    "compatibility_status_input": "Typing",
+    "@compatibility_status_input": {
+        "manualTranslation": false
+    },
+    "compatibility_status_pending": "Analyzing",
+    "@compatibility_status_pending": {
+        "manualTranslation": false
+    },
+    "compatibility_style_title": "Compatibility styles",
+    "@compatibility_style_title": {
+        "manualTranslation": false
+    },
+    "compatibility_summary_title": "Compatibility summary",
+    "@compatibility_summary_title": {
+        "manualTranslation": false
+    },
+    "compatibility_time_slot_unknown": "Don't know",
+    "@compatibility_time_slot_unknown": {
+        "manualTranslation": false
+    },
+    "compatibility_tips_title": "Compatibility tips",
+    "@compatibility_tips_title": {
+        "manualTranslation": false
+    },
+    "compatibility_user_style": "User Styles",
+    "@compatibility_user_style": {
+        "manualTranslation": false
+    },
+    "compatibility_waiting_message": "Please wait a moment.",
+    "@compatibility_waiting_message": {
+        "manualTranslation": false
+    },
+    "compatibility_warning_exit": "If you leave the screen, you'll need to do the analysis again.",
+    "@compatibility_warning_exit": {
+        "manualTranslation": false
+    },
     "dialog_button_cancel": "Cancel",
     "@dialog_button_cancel": {
         "translationTimestamp": "2024-07-21T11:18:53.669108",
@@ -115,6 +282,10 @@
     "@dialog_button_ok": {
         "translationTimestamp": "2024-07-21T11:18:53.669108",
         "manualTranslation": false
+    },
+    "dialog_caution": "🚫 경고 🚫",
+    "@dialog_caution": {
+        "manualTranslation": true
     },
     "dialog_content_ads_exhausted": "All ads have been exhausted. Please try again next time.",
     "@dialog_content_ads_exhausted": {
@@ -206,6 +377,30 @@
         "translationTimestamp": "2024-07-21T11:18:53.669108",
         "manualTranslation": false
     },
+    "error_action_failed": "An error occurred while performing the operation.",
+    "@error_action_failed": {
+        "manualTranslation": false
+    },
+    "error_content_parse": "An error occurred while parsing the content.",
+    "@error_content_parse": {
+        "manualTranslation": false
+    },
+    "error_delete_post": "An error occurred while deleting the post.",
+    "@error_delete_post": {
+        "manualTranslation": false
+    },
+    "error_invalid_data": "Invalid data.",
+    "@error_invalid_data": {
+        "manualTranslation": false
+    },
+    "error_loading_more_comments": "There was an error loading the comment.",
+    "@error_loading_more_comments": {
+        "manualTranslation": false
+    },
+    "error_loading_page": "An error occurred while loading the page.",
+    "@error_loading_page": {
+        "manualTranslation": false
+    },
     "error_message_login_failed": "An error occurred during login.",
     "@error_message_login_failed": {
         "translationTimestamp": "2024-07-21T11:18:53.669108",
@@ -221,9 +416,57 @@
         "translationTimestamp": "2024-07-21T11:18:53.669108",
         "manualTranslation": false
     },
+    "error_network_connection": "Check your network connection.",
+    "@error_network_connection": {
+        "manualTranslation": false
+    },
+    "error_request_timeout": "The request timed out.",
+    "@error_request_timeout": {
+        "manualTranslation": false
+    },
     "error_title": "Errors",
     "@error_title": {
         "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "error_unknown": "An unknown error occurred.",
+    "@error_unknown": {
+        "manualTranslation": false
+    },
+    "exception_auth_message_apple_invalid_response": "We received an invalid response from the Apple server.\nPlease try again.",
+    "@exception_auth_message_apple_invalid_response": {
+        "manualTranslation": false
+    },
+    "exception_auth_message_apple_sign_in_failed": "Apple sign-in failed.\nPlease try again.",
+    "@exception_auth_message_apple_sign_in_failed": {
+        "manualTranslation": false
+    },
+    "exception_auth_message_common_cancel": "Your login has been canceled.",
+    "@exception_auth_message_common_cancel": {
+        "manualTranslation": false
+    },
+    "exception_auth_message_common_invalid_token": "The authentication token is invalid.\nPlease try again.",
+    "@exception_auth_message_common_invalid_token": {
+        "manualTranslation": false
+    },
+    "exception_auth_message_common_network": "Check your network connection.",
+    "@exception_auth_message_common_network": {
+        "manualTranslation": false
+    },
+    "exception_auth_message_common_unknown": "An unknown error occurred during login.\nPlease try again in a moment.",
+    "@exception_auth_message_common_unknown": {
+        "manualTranslation": false
+    },
+    "exception_auth_message_common_unsupported_provider": "This login method is not supported",
+    "@exception_auth_message_common_unsupported_provider": {
+        "manualTranslation": false
+    },
+    "exception_auth_message_google_google_play_service": "A Google Play Services error has occurred.\nPlease update Google Play Services or restart your device.",
+    "@exception_auth_message_google_google_play_service": {
+        "manualTranslation": false
+    },
+    "exception_auth_message_kakao_not_supported": "I can't sign in with the KakaoTalk app.\nTry signing in with your Kakao account.",
+    "@exception_auth_message_kakao_not_supported": {
         "manualTranslation": false
     },
     "hint_library_add": "Album name",
@@ -406,6 +649,10 @@
     "label_loading_ads": "Loading ad",
     "@label_loading_ads": {
         "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_loading_ads_fail": "Ads fail to load",
+    "@label_loading_ads_fail": {
         "manualTranslation": false
     },
     "label_moveto_celeb_gallery": "Go to the Artist Gallery",
@@ -815,10 +1062,10 @@
         "translationTimestamp": "2024-07-21T11:18:53.669108",
         "manualTranslation": false
     },
-    "nav_board": "Bulletin boards",
+    "nav_board": "Boards",
     "@nav_board": {
         "translationTimestamp": "2024-07-21T11:18:53.669108",
-        "manualTranslation": false
+        "manualTranslation": true
     },
     "nav_gallery": "Gallery",
     "@nav_gallery": {
@@ -878,6 +1125,10 @@
     "nickname_validation_error": "20 characters or less, excluding special characters.",
     "@nickname_validation_error": {
         "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "optional": "Optional",
+    "@optional": {
         "manualTranslation": false
     },
     "page_title_mypage": "My Page",
@@ -959,6 +1210,14 @@
     "@post_cannot_open_youtube": {
         "manualTranslation": false
     },
+    "post_comment_action_show_original": "View full text",
+    "@post_comment_action_show_original": {
+        "manualTranslation": false
+    },
+    "post_comment_action_show_translation": "View translations",
+    "@post_comment_action_show_translation": {
+        "manualTranslation": false
+    },
     "post_comment_action_translate": "Translation",
     "@post_comment_action_translate": {
         "manualTranslation": false
@@ -1027,6 +1286,10 @@
     "@post_delete_scrap_title": {
         "manualTranslation": false
     },
+    "post_flagged": "Contains inappropriate content",
+    "@post_flagged": {
+        "manualTranslation": false
+    },
     "post_go_to_boards": "Go to the board",
     "@post_go_to_boards": {
         "manualTranslation": false
@@ -1087,6 +1350,10 @@
     "@post_minor_board_name_input": {
         "manualTranslation": false
     },
+    "post_my_compatibilities": "My compatibility",
+    "@post_my_compatibilities": {
+        "manualTranslation": false
+    },
     "post_my_written_post": "Posts I've written",
     "@post_my_written_post": {
         "manualTranslation": false
@@ -1101,6 +1368,26 @@
     },
     "post_no_comment": "No comments.",
     "@post_no_comment": {
+        "manualTranslation": false
+    },
+    "post_not_found": "No posts were found.",
+    "@post_not_found": {
+        "manualTranslation": false
+    },
+    "post_replying_comment": "Replying to {nickname}...",
+    "@post_replying_comment": {
+        "manualTranslation": true
+    },
+    "post_report_fail": "The report failed.",
+    "@post_report_fail": {
+        "manualTranslation": false
+    },
+    "post_report_label": "Make a report",
+    "@post_report_label": {
+        "manualTranslation": false
+    },
+    "post_report_other_input": "Please enter any other reason.",
+    "@post_report_other_input": {
         "manualTranslation": false
     },
     "post_report_reason_1": "Unsavory posts",
@@ -1123,6 +1410,18 @@
     "@post_report_reason_5": {
         "manualTranslation": false
     },
+    "post_report_reason_input": "Please select a reason for your report.",
+    "@post_report_reason_input": {
+        "manualTranslation": false
+    },
+    "post_report_reason_label": "Reasons for reporting",
+    "@post_report_reason_label": {
+        "manualTranslation": false
+    },
+    "post_report_success": "The report is complete.",
+    "@post_report_success": {
+        "manualTranslation": false
+    },
     "post_temporary_save_complete": "Draft complete.",
     "@post_temporary_save_complete": {
         "manualTranslation": false
@@ -1143,8 +1442,28 @@
     "@post_youtube_link": {
         "manualTranslation": false
     },
+    "purchase_web_message": "This is the payment window for those who can't pay with the app.\n Please copy the random ID in advance.\n After copying it, click the button below to proceed with the payment.",
+    "@purchase_web_message": {
+        "manualTranslation": false
+    },
     "replies": "Comments",
     "@replies": {
+        "manualTranslation": false
+    },
+    "reward": "Rewards",
+    "@reward": {
+        "manualTranslation": false
+    },
+    "save": "Save",
+    "@save": {
+        "manualTranslation": false
+    },
+    "seconds": "seconds",
+    "@seconds": {
+        "manualTranslation": false
+    },
+    "share": "Share",
+    "@share": {
         "manualTranslation": false
     },
     "share_image_fail": "Image sharing failed",
@@ -1166,6 +1485,10 @@
     "@share_twitter": {
         "translationTimestamp": "2024-07-21T11:18:53.669108",
         "manualTranslation": false
+    },
+    "text_achievement": "🎉 You've reached ${count} goals so far! 🎉",
+    "@text_achievement": {
+        "manualTranslation": true
     },
     "text_ads_random": "Viewing ads and collecting random images.",
     "@text_ads_random": {
@@ -1295,10 +1618,6 @@
         "translationTimestamp": "2024-07-21T11:18:53.669108",
         "manualTranslation": true
     },
-    "post_replying_comment": "Replying to {nickname}...",
-    "@post_replying_comment": {
-        "manualTranslation": true
-    },
     "text_vote_rank_in_reward": "Rank in Rewards",
     "@text_vote_rank_in_reward": {
         "translationTimestamp": "2024-07-21T11:18:53.669108",
@@ -1353,176 +1672,12 @@
     "@views": {
         "manualTranslation": false
     },
-    "post_report_other_input": "Please enter any other reason.",
-    "@post_report_other_input": {
-        "manualTranslation": false
-    },
-    "post_report_reason_input": "Please select a reason for your report.",
-    "@post_report_reason_input": {
-        "manualTranslation": false
-    },
-    "post_report_success": "The report is complete.",
-    "@post_report_success": {
-        "manualTranslation": false
-    },
-    "post_report_fail": "The report failed.",
-    "@post_report_fail": {
-        "manualTranslation": false
-    },
-    "post_report_reason_label": "Reasons for reporting",
-    "@post_report_reason_label": {
-        "manualTranslation": false
-    },
-    "post_report_label": "Make a report",
-    "@post_report_label": {
-        "manualTranslation": false
-    },
-    "purchase_web_message": "This is the payment window for those who can't pay with the app.\n Please copy the random ID in advance.\n After copying it, click the button below to proceed with the payment.",
-    "@purchase_web_message": {
-        "manualTranslation": false
-    },
-    "label_loading_ads_fail": "Ads fail to load",
-    "@label_loading_ads_fail": {
-        "manualTranslation": false
-    },
-    "post_comment_action_show_translation": "View translations",
-    "@post_comment_action_show_translation": {
-        "manualTranslation": false
-    },
-    "post_comment_action_show_original": "View full text",
-    "@post_comment_action_show_original": {
-        "manualTranslation": false
-    },
-    "dialog_caution": "🚫 경고 🚫",
-    "@dialog_caution": {
-        "manualTranslation": true
-    },
-    "post_flagged": "Contains inappropriate content",
-    "@post_flagged": {
-        "manualTranslation": false
-    },
-    "block_user_label": "Blocking users",
-    "@block_user_label": {
-        "manualTranslation": false
-    },
-    "exception_auth_message_common_invalid_token": "The authentication token is invalid.\nPlease try again.",
-    "@exception_auth_message_common_invalid_token": {
-        "manualTranslation": false
-    },
-    "exception_auth_message_common_cancel": "Your login has been canceled.",
-    "@exception_auth_message_common_cancel": {
-        "manualTranslation": false
-    },
-    "exception_auth_message_common_unknown": "An unknown error occurred during login.\nPlease try again in a moment.",
-    "@exception_auth_message_common_unknown": {
-        "manualTranslation": false
-    },
-    "exception_auth_message_common_network": "Check your network connection.",
-    "@exception_auth_message_common_network": {
-        "manualTranslation": false
-    },
-    "exception_auth_message_common_unsupported_provider": "This login method is not supported",
-    "@exception_auth_message_common_unsupported_provider": {
-        "manualTranslation": false
-    },
-    "exception_auth_message_google_google_play_service": "A Google Play Services error has occurred.\nPlease update Google Play Services or restart your device.",
-    "@exception_auth_message_google_google_play_service": {
-        "manualTranslation": false
-    },
-    "text_achievement": "🎉 You've reached ${count} goals so far! 🎉",
-    "@text_achievement": {
-        "manualTranslation": true
-    },
-    "exception_auth_message_apple_sign_in_failed": "Apple sign-in failed.\nPlease try again.",
-    "@exception_auth_message_apple_sign_in_failed": {
-        "manualTranslation": false
-    },
-    "exception_auth_message_kakao_not_supported": "I can't sign in with the KakaoTalk app.\nTry signing in with your Kakao account.",
-    "@exception_auth_message_kakao_not_supported": {
-        "manualTranslation": false
-    },
-    "exception_auth_message_apple_invalid_response": "We received an invalid response from the Apple server.\nPlease try again.",
-    "@exception_auth_message_apple_invalid_response": {
-        "manualTranslation": false
-    },
-    "error_content_parse": "An error occurred while parsing the content.",
-    "@error_content_parse": {
-        "manualTranslation": false
-    },
-    "post_not_found": "No posts were found.",
-    "@post_not_found": {
-        "manualTranslation": false
-    },
-    "error_delete_post": "An error occurred while deleting the post.",
-    "@error_delete_post": {
-        "manualTranslation": false
-    },
-    "error_network_connection": "Check your network connection.",
-    "@error_network_connection": {
-        "manualTranslation": false
-    },
-    "error_request_timeout": "The request timed out.",
-    "@error_request_timeout": {
-        "manualTranslation": false
-    },
-    "error_invalid_data": "Invalid data.",
-    "@error_invalid_data": {
-        "manualTranslation": false
-    },
-    "error_unknown": "An unknown error occurred.",
-    "@error_unknown": {
-        "manualTranslation": false
-    },
-    "error_loading_more_comments": "There was an error loading the comment.",
-    "@error_loading_more_comments": {
-        "manualTranslation": false
-    },
-    "error_action_failed": "An error occurred while performing the operation.",
-    "@error_action_failed": {
-        "manualTranslation": false
-    },
-    "comments": "Comments",
-    "@comments": {
-        "manualTranslation": false
-    },
-    "error_loading_page": "An error occurred while loading the page.",
-    "@error_loading_page": {
-        "manualTranslation": false
-    },
-    "achieve": "Achievement",
-    "@achieve": {
-        "manualTranslation": false
-    },
-    "reward": "Rewards",
-    "@reward": {
-        "manualTranslation": false
-    },
-    "voting_share_benefit_text": "Get 1 bonus star candy for every 100 votes and share!",
-    "@voting_share_benefit_text": {
-        "manualTranslation": false
-    },
-    "bonus_candy_awarded": "Star candy has been awarded.",
-    "@bonus_candy_awarded": {
-        "manualTranslation": false
-    },
-    "vote_share_message": "Voted!",
-    "@vote_share_message": {
-        "manualTranslation": false
-    },
-    "vote_result_save_button": "Save the results",
+    "vote_result_save_button": "Save",
     "@vote_result_save_button": {
         "manualTranslation": false
     },
-    "vote_result_share_button": "Share your results",
+    "vote_result_share_button": "Share",
     "@vote_result_share_button": {
-        "manualTranslation": false
-    },
-    "save": "Save",
-    "@save": {
-        "manualTranslation": false
-    },
-    "share": "Share",
-    "@share": {
         "manualTranslation": false
     },
     "compatibility_time_slot1": "Hour of the Rat|(23:30-01:29)|🐀",
@@ -1573,136 +1728,8 @@
     "@compatibility_time_slot12": {
         "manualTranslation": true
     },
-    "compatibility_agree_checkbox": "I agree to store my gender and birthday information in my profile.",
-    "@compatibility_agree_checkbox": {
-        "manualTranslation": false
-    },
-    "post_my_compatibilities": "My compatibility",
-    "@post_my_compatibilities": {
-        "manualTranslation": false
-    },
-    "compatibility_page_title": "Compatibility",
-    "@compatibility_page_title": {
-        "manualTranslation": false
-    },
-    "compatibility_analyzing": "Analyzing compatibility.",
-    "@compatibility_analyzing": {
-        "manualTranslation": false
-    },
-    "seconds": "seconds",
-    "@seconds": {
-        "manualTranslation": false
-    },
-    "compatibility_waiting_message": "Please wait a moment.",
-    "@compatibility_waiting_message": {
-        "manualTranslation": false
-    },
-    "compatibility_warning_exit": "If you leave the screen, you'll need to do the analysis again.",
-    "@compatibility_warning_exit": {
-        "manualTranslation": false
-    },
-    "compatibility_status_pending": "Analyzing",
-    "@compatibility_status_pending": {
-        "manualTranslation": false
-    },
-    "compatibility_status_completed": "Done",
-    "@compatibility_status_completed": {
-        "manualTranslation": false
-    },
-    "compatibility_status_input": "Typing",
-    "@compatibility_status_input": {
-        "manualTranslation": false
-    },
-    "compatibility_status_error": "오류",
-    "@compatibility_status_error": {
-        "manualTranslation": true
-    },
-    "compatibility_result_90": "최고의 궁합이에요! ✨",
-    "@compatibility_result_90": {
-        "manualTranslation": false
-    },
-    "compatibility_result_80": "아주 좋은 궁합이에요! 💫",
-    "@compatibility_result_80": {
-        "manualTranslation": false
-    },
-    "compatibility_result_70": "좋은 궁합이에요! 🌟",
-    "@compatibility_result_70": {
-        "manualTranslation": false
-    },
-    "compatibility_result_low": "잘 맞는 부분을 찾아보세요 😊",
-    "@compatibility_result_low": {
-        "manualTranslation": true
-    },
-    "compatibility_duplicate_data_message": "Compatibility data with the same conditions already exists.",
-    "@compatibility_duplicate_data_message": {
-        "manualTranslation": false
-    },
-    "compatibility_birthtime": "Birth time",
-    "@compatibility_birthtime": {
-        "manualTranslation": false
-    },
-    "compatibility_birthday": "Date of birth",
-    "@compatibility_birthday": {
-        "manualTranslation": false
-    },
-    "compatibility_duplicate_data_title": "Compatibility data that already exists",
-    "@compatibility_duplicate_data_title": {
-        "manualTranslation": false
-    },
-    "compatibility_gender": "Gender",
-    "@compatibility_gender": {
-        "manualTranslation": false
-    },
-    "compatibility_new_compatibility": "Check out new matches",
-    "@compatibility_new_compatibility": {
-        "manualTranslation": false
-    },
-    "compatibility_snackbar_start": "Start analyzing compatibility.",
-    "@compatibility_snackbar_start": {
-        "manualTranslation": false
-    },
-    "compatibility_snackbar_error": "An error occurred.",
-    "@compatibility_snackbar_error": {
-        "manualTranslation": false
-    },
-    "optional": "Optional",
-    "@optional": {
-        "manualTranslation": false
-    },
-    "compatibility_gender_male": "Male",
-    "@compatibility_gender_male": {
-        "manualTranslation": false
-    },
-    "compatibility_snackbar_need_profile_save_agree": "Give your consent to save your profile.",
-    "@compatibility_snackbar_need_profile_save_agree": {
-        "manualTranslation": false
-    },
-    "compatibility_gender_female": "Female",
-    "@compatibility_gender_female": {
-        "manualTranslation": true
-    },
-    "compatibility_snackbar_need_gender": "Please select a gender.",
-    "@compatibility_snackbar_need_gender": {
-        "manualTranslation": false
-    },
-    "compatibility_snackbar_need_birthday": "Please enter your date of birth.",
-    "@compatibility_snackbar_need_birthday": {
-        "manualTranslation": false
-    },
-    "compatibility_snackbar_need_birthtime": "Please enter your birth time.",
-    "@compatibility_snackbar_need_birthtime": {
-        "manualTranslation": false
-    },
-    "compatibility_time_slot_unknown": "Don't know",
-    "@compatibility_time_slot_unknown": {
-        "manualTranslation": false
-    },
-    "compatibility_analyze_start": "Start compatibility analysis",
-    "@compatibility_analyze_start": {
-        "manualTranslation": false
-    },
-    "compatibility_new_compatibility_ask": "Want to see a new pairing?",
-    "@compatibility_new_compatibility_ask": {
+    "voting_share_benefit_text": "Get 1 bonus star candy for every 100 votes and share!",
+    "@voting_share_benefit_text": {
         "manualTranslation": false
     }
 }

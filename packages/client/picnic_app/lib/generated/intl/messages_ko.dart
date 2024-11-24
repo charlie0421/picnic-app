@@ -81,6 +81,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("최근 검색어"),
         "common_text_search_result_label":
             MessageLookupByLibrary.simpleMessage("검색 결과"),
+        "compatibility_activities_title":
+            MessageLookupByLibrary.simpleMessage("함께 할 수 있는 활동"),
         "compatibility_agree_checkbox": MessageLookupByLibrary.simpleMessage(
             "성별, 생일 정보를 프로필에 저장하는 것에 동의합니다."),
         "compatibility_analyze_start":
@@ -89,6 +91,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("궁합을 분석하고 있습니다."),
         "compatibility_birthday": MessageLookupByLibrary.simpleMessage("생년월일"),
         "compatibility_birthtime": MessageLookupByLibrary.simpleMessage("출생시간"),
+        "compatibility_couple_style":
+            MessageLookupByLibrary.simpleMessage("커플 스타일"),
         "compatibility_duplicate_data_message":
             MessageLookupByLibrary.simpleMessage("동일한 조건의 궁합 데이터가 이미 존재합니다."),
         "compatibility_duplicate_data_title":
@@ -97,6 +101,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "compatibility_gender_female":
             MessageLookupByLibrary.simpleMessage("여성"),
         "compatibility_gender_male": MessageLookupByLibrary.simpleMessage("남성"),
+        "compatibility_idol_style":
+            MessageLookupByLibrary.simpleMessage("아이돌 스타일"),
         "compatibility_new_compatibility":
             MessageLookupByLibrary.simpleMessage("새로운 궁합 확인하기"),
         "compatibility_new_compatibility_ask":
@@ -110,6 +116,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("최고의 궁합이에요! ✨"),
         "compatibility_result_low":
             MessageLookupByLibrary.simpleMessage("잘 맞는 부분을 찾아보세요 😊"),
+        "compatibility_result_not_found":
+            MessageLookupByLibrary.simpleMessage("궁합이 없어요 😔"),
         "compatibility_snackbar_error":
             MessageLookupByLibrary.simpleMessage("오류가 발생했습니다."),
         "compatibility_snackbar_need_birthday":
@@ -130,6 +138,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("입력중"),
         "compatibility_status_pending":
             MessageLookupByLibrary.simpleMessage("분석중"),
+        "compatibility_style_title":
+            MessageLookupByLibrary.simpleMessage("궁합 스타일"),
+        "compatibility_summary_title":
+            MessageLookupByLibrary.simpleMessage("궁합 요약"),
         "compatibility_time_slot1":
             MessageLookupByLibrary.simpleMessage("자시|(23:30-01:29)|🐀"),
         "compatibility_time_slot10":
@@ -156,6 +168,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("신시|(15:30-17:29)|🐒"),
         "compatibility_time_slot_unknown":
             MessageLookupByLibrary.simpleMessage("모름"),
+        "compatibility_tips_title":
+            MessageLookupByLibrary.simpleMessage("궁합 팁"),
+        "compatibility_user_style":
+            MessageLookupByLibrary.simpleMessage("사용자 스타일"),
         "compatibility_waiting_message":
             MessageLookupByLibrary.simpleMessage("잠시만 기다려주세요."),
         "compatibility_warning_exit":
@@ -672,7 +688,6 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("결과 저장"),
         "vote_result_share_button":
             MessageLookupByLibrary.simpleMessage("결과 공유"),
-        "vote_share_message": MessageLookupByLibrary.simpleMessage("투표 완료!"),
         "voting_share_benefit_text": MessageLookupByLibrary.simpleMessage(
             "100개 이상 투표 후 공유하면 100개당 1개 보너스 별사탕 지급!")
       };
