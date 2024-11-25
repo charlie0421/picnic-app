@@ -1,96 +1,56 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import OpenAI from 'https://esm.sh/openai'
+import {
+    createErrorResponse,
+    createSuccessResponse,
+    formatDate,
+    getSupabaseClient,
+    logError,
+} from '.././_shared/index.ts';
 
-// 환경변수 설정
-const DEEPL_API_KEY = Deno.env.get('DEEPL_API_KEY')
-const DEEPL_API_URL = 'https://api-free.deepl.com/v2/translate'
+import {
+    createChatCompletion,
+    SUPPORTED_LANGUAGES,
+    SupportedLanguage,
+    translateBatch,
+    translateText,
+} from '.././_shared/ai/index.ts';
 
-const openai = new OpenAI({
-    apiKey: Deno.env.get('OPENAI_COMPATIBILITY_API_KEY')
-})
-
-// 지원 언어 정의
-const SUPPORTED_LANGUAGES = ['ko', 'en', 'ja', 'zh'] as const
-type SupportedLanguage = typeof SUPPORTED_LANGUAGES[number]
-
-
-// 유틸리티 함수
-function formatDate(dateString: string): string {
-    const date = new Date(dateString)
-    return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`
+interface CompatibilityResult {
+    compatibility_score: number;
+    compatibility_summary: string;
+    details: {
+        style: {
+            idol_style: string;
+            user_style: string;
+            couple_style: string;
+        };
+        activities: {
+            recommended: string[];
+            description: string;
+        };
+    };
+    tips: string[];
 }
 
-async function translateText(text: string, targetLang: string): Promise<string> {
-    try {
-        const response = await fetch(DEEPL_API_URL, {
-            method: 'POST',
-            headers: {
-                'Authorization': `DeepL-Auth-Key ${DEEPL_API_KEY}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                text: [text],
-                target_lang: targetLang.toUpperCase(),
-                source_lang: 'KO'
-            })
-        })
-
-        if (!response.ok) {
-            throw new Error(`DeepL API error: ${response.statusText}`)
-        }
-
-        const data = await response.json()
-        return data.translations[0].text
-    } catch (error) {
-        console.error('Translation error:', error);
-        throw error;
-    }
+interface Compatibility {
+    id: string;
+    idol_birth_date: string;
+    user_birth_date: string;
+    user_birth_time: string | null;
+    gender: string;
+    artist_id: string;
+    artist: {
+        name: string;
+        // 기타 아티스트 관련 필드들...
+    };
 }
 
-// 메인 서버 함수
-serve(async (req) => {
+async function getOrGenerateResults(
+    supabase: ReturnType<typeof getSupabaseClient>,
+    currentCompatibility: Compatibility,
+): Promise<CompatibilityResult> {
     try {
-        const { compatibility_id } = await req.json()
-
-        const supabaseClient = createClient(
-            Deno.env.get('SUPABASE_URL') ?? '',
-            Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-        )
-
-        const { data: compatibility, error: fetchError } = await supabaseClient
-            .from('compatibility_results')
-            .select('*, artist:artist_id(*)')
-            .eq('id', compatibility_id)
-            .single()
-
-        if (fetchError || !compatibility) {
-            throw new Error('Compatibility record not found')
-        }
-
-        // 결과 생성 및 저장
-        const result = await getOrGenerateResults(supabaseClient, compatibility)
-        await updateCompatibilityResults(supabaseClient, compatibility_id, result)
-        await generateAndStoreTranslations(supabaseClient, compatibility_id, result)
-
-        return new Response(JSON.stringify({ success: true }), {
-            headers: { 'Content-Type': 'application/json' },
-        })
-    } catch (error) {
-        console.error('Error:', error)
-        return new Response(JSON.stringify({
-            error: error.message,
-            shouldRetry: true
-        }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' },
-        })
-    }
-})
-
-async function getOrGenerateResults(supabaseClient, currentCompatibility): Promise<CompatibilityResult> {
-    try {
-        const query = supabaseClient
+        // 동일한 조합의 기존 결과 검색
+        const query = supabase
             .from('compatibility_results')
             .select('compatibility_score, compatibility_summary, details, tips')
             .eq('artist_id', currentCompatibility.artist_id)
@@ -100,35 +60,42 @@ async function getOrGenerateResults(supabaseClient, currentCompatibility): Promi
             .eq('status', 'completed')
             .neq('id', currentCompatibility.id)
             .order('completed_at', { ascending: false })
-            .limit(1)
+            .limit(1);
 
         const { data: existingResults, error } = await (
             currentCompatibility.user_birth_time === null
                 ? query.is('user_birth_time', null)
                 : query.eq('user_birth_time', currentCompatibility.user_birth_time)
-        )
+        );
 
-        if (error) throw error
+        if (error) throw error;
 
+        // 기존 결과가 있으면 재사용
         if (existingResults?.length > 0) {
-            console.log('Reusing existing result')
-            return existingResults[0]
+            console.log('Reusing existing result');
+            return existingResults[0];
         }
 
-        console.log('Generating new result')
-        return await generateNewResults(currentCompatibility)
+        // 새로운 결과 생성
+        console.log('Generating new result');
+        return await generateNewResults(currentCompatibility);
     } catch (error) {
-        console.error('Error in getOrGenerateResults:', error)
-        throw error
+        logError(error, {
+            context: 'compatibility-result',
+            compatibility: currentCompatibility,
+        });
+        throw error;
     }
 }
 
-async function generateNewResults(compatibility): Promise<CompatibilityResult> {
-    try {
-        const prompt = `
+async function generateNewResults(compatibility: Compatibility): Promise<CompatibilityResult> {
+    const prompt = `
 궁합 분석 정보:
-- 생년월일: ${formatDate(compatibility.idol_birth_date)}
-- 사용자: ${formatDate(compatibility.user_birth_date)} ${compatibility.user_birth_time ? `(${compatibility.user_birth_time})` : ''}
+- 아이돌: ${compatibility.artist.name}
+- 아이돌 생년월일: ${formatDate(compatibility.idol_birth_date)}
+- 사용자 생년월일: ${formatDate(compatibility.user_birth_date)} ${
+        compatibility.user_birth_time ? `(${compatibility.user_birth_time})` : ''
+    }
 - 성별: ${compatibility.gender}
 - 태어난 시간: ${compatibility.user_birth_time || '미상'}
 
@@ -152,192 +119,161 @@ async function generateNewResults(compatibility): Promise<CompatibilityResult> {
     "궁합을 높이기 위한 팁 2",
     "패션 아이템 추천"
   ]
-}
+}`;
 
-- 응답은 반드시 유효한 JSON 형식이어야 합니다
-- compatibility_score는 0~100 사이의 정수여야 합니다. 그리고 85는 예제입니다.
-- compatibility_summary는 100자 이상 250자 이내여야 합니다
-- tips는 반드시 길이가 3인 문자열 배열이어야 하며, 마지막 팁은 패션 아이템 추천이어야 합니다
-- 결과는 K-POP 아이돌과 팬의 궁합을 분석하는 전문가의 관점에서 작성되어야 합니다
-- MZ 세대 여성의 말투로 작성해주세요`
-
-        const completion = await openai.chat.completions.create({
+    try {
+        const response = await createChatCompletion(prompt, {
             model: 'gpt-4o-mini',
-            response_format: { type: 'json_object' },
-            messages: [
-                {
-                    role: 'system',
-                    content: '당신은 K-POP 아이돌과 팬의 궁합을 분석하는 전문가입니다. 응답은 반드시 요청된 JSON 형식을 정확히 따라야 합니다.'
-                },
-                { role: 'user', content: prompt }
-            ],
-        })
+            responseFormat: 'json_object',
+            systemPrompt:
+                '당신은 K-POP 아이돌과 팬의 궁합을 분석하는 전문가입니다. MZ 세대 여성의 말투로 작성해주세요.',
+            temperature: 0.7,
+        });
 
-        const result = JSON.parse(completion.choices[0].message.content)
+        const result = JSON.parse(response) as CompatibilityResult;
+
         if (!Array.isArray(result.tips) || result.tips.length !== 3) {
-            throw new Error('Tips must be an array of exactly 3 strings')
+            throw new Error('Invalid tips format');
         }
 
-        return result
+        return result;
     } catch (error) {
-        console.error('Error in generateNewResults:', error)
-        throw error
+        logError(error, {
+            context: 'compatibility-generation',
+            compatibility,
+        });
+        throw error;
     }
 }
 
-async function generateAndStoreTranslations(supabaseClient, compatibility_id, result: CompatibilityResult) {
+async function updateCompatibilityResults(
+    supabase: ReturnType<typeof getSupabaseClient>,
+    compatibilityId: string,
+    result: CompatibilityResult,
+): Promise<void> {
     try {
-        // 먼저 기존 번역 데이터 모두 삭제
-        const { error: deleteError } = await supabaseClient
+        const { error } = await supabase
+            .from('compatibility_results')
+            .update({
+                ...result,
+                status: 'completed',
+                completed_at: new Date().toISOString(),
+                error_message: null,
+            })
+            .eq('id', compatibilityId);
+
+        if (error) throw error;
+    } catch (error) {
+        logError(error, {
+            context: 'update-compatibility',
+            compatibilityId,
+            result,
+        });
+        throw error;
+    }
+}
+
+async function generateAndStoreTranslations(
+    supabase: ReturnType<typeof getSupabaseClient>,
+    compatibilityId: string,
+    result: CompatibilityResult,
+): Promise<void> {
+    try {
+        // 기존 번역 삭제
+        await supabase
             .from('compatibility_results_i18n')
             .delete()
-            .eq('compatibility_id', compatibility_id);
+            .eq('compatibility_id', compatibilityId);
 
-        if (deleteError) {
-            console.error('Error deleting existing translations:', deleteError);
-            throw deleteError;
-        }
-
-        // 각 언어별로 새로운 번역 생성 및 저장
-        for (const targetLang of SUPPORTED_LANGUAGES) {
+        // 각 언어별 번역 생성 및 저장
+        for (const lang of SUPPORTED_LANGUAGES) {
             try {
-                let translatedResult;
+                const translatedResult = await translateCompatibilityResult(result, lang);
 
-                if (targetLang === 'ko') {
-                    // 한국어 원본 데이터
-                    translatedResult = {
-                        compatibility_id,
-                        language: targetLang,
-                        compatibility_score: result.compatibility_score,
-                        compatibility_summary: result.compatibility_summary,
-                        details: {
-                            style: {
-                                idol_style: result.details.style.idol_style,
-                                user_style: result.details.style.user_style,
-                                couple_style: result.details.style.couple_style
-                            },
-                            activities: {
-                                recommended: result.details.activities.recommended,
-                                description: result.details.activities.description
-                            }
-                        },
-                        tips: result.tips,
-                    };
-                } else {
-                    // 다른 언어 번역
-                    const translatedDetails = {
-                        style: {
-                            idol_style: await translateText(result.details.style.idol_style, targetLang),
-                            user_style: await translateText(result.details.style.user_style, targetLang),
-                            couple_style: await translateText(result.details.style.couple_style, targetLang)
-                        },
-                        activities: {
-                            recommended: await Promise.all(
-                                result.details.activities.recommended.map(activity =>
-                                    translateText(activity, targetLang)
-                                )
-                            ),
-                            description: await translateText(result.details.activities.description, targetLang)
-                        }
-                    };
-
-                    const translatedTips = await Promise.all(
-                        result.tips.map(tip => translateText(tip, targetLang))
-                    );
-
-                    translatedResult = {
-                        compatibility_id,
-                        language: targetLang,
-                        compatibility_score: result.compatibility_score,
-                        compatibility_summary: await translateText(
-                            result.compatibility_summary,
-                            targetLang
-                        ),
-                        details: translatedDetails,
-                        tips: translatedTips,
-                    };
-                }
-
-                // 새로운 번역 데이터 삽입
-                const { error: insertError } = await supabaseClient
+                await supabase
                     .from('compatibility_results_i18n')
                     .insert({
+                        compatibility_id: compatibilityId,
+                        language: lang,
                         ...translatedResult,
                         created_at: new Date().toISOString(),
-                        updated_at: new Date().toISOString()
+                        updated_at: new Date().toISOString(),
                     });
 
-                if (insertError) {
-                    throw insertError;
-                }
-
-                console.log(`Successfully saved ${targetLang} translation`);
-
+                console.log(`Successfully saved ${lang} translation`);
             } catch (langError) {
-                console.error(`Error processing ${targetLang} translation:`, langError);
+                logError(langError, {
+                    context: 'translation-processing',
+                    language: lang,
+                    compatibilityId,
+                });
                 // 개별 언어 처리 실패 시 다음 언어로 계속 진행
-                continue;
             }
         }
     } catch (error) {
-        console.error('Error in generateAndStoreTranslations:', error);
+        logError(error, {
+            context: 'translations',
+            compatibilityId,
+        });
         throw error;
     }
 }
 
-async function updateCompatibilityResults(supabaseClient, compatibility_id, result: CompatibilityResult) {
+async function translateCompatibilityResult(
+    result: CompatibilityResult,
+    targetLang: SupportedLanguage,
+): Promise<CompatibilityResult> {
+    if (targetLang === 'ko') return result;
+
+    const translatedDetails = {
+        style: {
+            idol_style: await translateText(result.details.style.idol_style, targetLang),
+            user_style: await translateText(result.details.style.user_style, targetLang),
+            couple_style: await translateText(result.details.style.couple_style, targetLang),
+        },
+        activities: {
+            recommended: await translateBatch(result.details.activities.recommended, targetLang),
+            description: await translateText(result.details.activities.description, targetLang),
+        },
+    };
+
+    return {
+        ...result,
+        compatibility_summary: await translateText(result.compatibility_summary, targetLang),
+        details: translatedDetails,
+        tips: await translateBatch(result.tips, targetLang),
+    };
+}
+
+Deno.serve(async (req) => {
     try {
-        const updateData = {
-            compatibility_score: result.compatibility_score,
-            compatibility_summary: result.compatibility_summary,
-            details: {
-                style: {
-                    idol_style: result.details.style.idol_style,
-                    user_style: result.details.style.user_style,
-                    couple_style: result.details.style.couple_style
-                },
-                activities: {
-                    recommended: result.details.activities.recommended,
-                    description: result.details.activities.description
-                }
-            },
-            tips: result.tips,
-            status: 'completed',
-            completed_at: new Date().toISOString(),
-            error_message: null
-        };
+        const { compatibility_id } = await req.json();
+        const supabase = getSupabaseClient();
 
-        const { error } = await supabaseClient
+        // 호환성 데이터 조회
+        const { data: compatibility, error: fetchError } = await supabase
             .from('compatibility_results')
-            .update(updateData)
-            .eq('id', compatibility_id);
+            .select('*, artist:artist_id(*)')
+            .eq('id', compatibility_id)
+            .single();
 
-        if (error) {
-            console.error('Main table update error:', error);
-            throw error;
+        if (fetchError || !compatibility) {
+            throw new Error('Compatibility record not found');
         }
 
-        console.log('Successfully updated main compatibility result');
-    } catch (error) {
-        console.error('Error in updateCompatibilityResults:', error);
-        throw error;
-    }
-}
+        // 결과 생성 및 저장
+        const result = await getOrGenerateResults(supabase, compatibility);
+        await updateCompatibilityResults(supabase, compatibility_id, result);
+        await generateAndStoreTranslations(supabase, compatibility_id, result);
 
-// 타입 정의 수정
-interface CompatibilityResult {
-    compatibility_score: number;
-    compatibility_summary: string;
-    details: {
-        style: {
-            idol_style: string;
-            user_style: string;
-            couple_style: string;
-        };
-        activities: {
-            recommended: string[];
-            description: string;
-        };
-    };
-    tips: string[];
-}
+        return createSuccessResponse({ success: true });
+    } catch (error) {
+        logError(error, { context: 'compatibility-main' });
+        return createErrorResponse(
+            error.message,
+            500,
+            'COMPATIBILITY_ERROR',
+            { shouldRetry: true },
+        );
+    }
+});
