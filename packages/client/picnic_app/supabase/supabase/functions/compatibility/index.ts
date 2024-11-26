@@ -6,13 +6,9 @@ import {
     logError,
 } from '.././_shared/index.ts';
 
-import {
-    createChatCompletion,
-    SUPPORTED_LANGUAGES,
-    SupportedLanguage,
-    translateBatch,
-    translateText,
-} from '.././_shared/ai/index.ts';
+import { createChatCompletion, translateBatch, translateText } from '.././_shared/ai/index.ts';
+
+import { SUPPORTED_LANGUAGES, SupportedLanguage } from '../_shared/types/openai.ts';
 
 interface CompatibilityResult {
     compatibility_score: number;

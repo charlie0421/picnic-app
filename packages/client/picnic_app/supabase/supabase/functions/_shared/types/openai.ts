@@ -1,3 +1,9 @@
+export interface TokenUsage {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+}
+
 export const SUPPORTED_LANGUAGES = ['ko', 'en', 'ja', 'zh'] as const;
 export type SupportedLanguage = typeof SUPPORTED_LANGUAGES[number];
 
@@ -16,4 +22,5 @@ export interface ChatCompletionOptions {
     temperature?: number;
     model?: string;
     responseFormat?: 'text' | 'json_object';
+    onTokenCount?: (totalTokens: number) => void;
 }

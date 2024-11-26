@@ -1,0 +1,241 @@
+import { getSupabaseClient } from '../database.ts';
+import { generateCompletion } from '../ai/completion.ts';
+import { translateBatch } from '../ai/deepl.ts';
+import { PromptService } from './prompt.ts';
+import type { Artist, FortuneTelling } from '../types/fortune.ts';
+import { SupportedLanguage } from '../types/openai.ts';
+
+export class FortuneService {
+    private supabase;
+    private promptService;
+
+    constructor() {
+        this.supabase = getSupabaseClient();
+        this.promptService = PromptService.getInstance();
+    }
+
+    async getOrGenerateFortune(artistId: number, year: number): Promise<FortuneTelling> {
+        const startTime = Date.now();
+
+        try {
+            // 기존 운세 확인
+            const { data: existingFortune, error: fetchError } = await this.supabase
+                .from('fortune_telling')
+                .select('*')
+                .eq('artist_id', artistId)
+                .eq('year', year)
+                .single();
+
+            console.log('Existing fortune:', existingFortune);
+
+            if (fetchError && fetchError.code !== 'PGRST116') {
+                throw fetchError;
+            }
+
+            if (existingFortune) {
+                return existingFortune;
+            }
+
+            console.log('Generating new fortune...');
+
+            // 아티스트 정보 조회
+            const { data: artist, error: artistError } = await this.supabase
+                .from('artist')
+                .select('name, yy, mm, dd, gender')
+                .eq('id', artistId)
+                .maybeSingle();
+
+            if (artistError || !artist) {
+                throw new Error('Artist not found');
+            }
+
+            // 새로운 운세 생성
+            const fortune = await this.generateNewFortune(
+                artistId,
+                artist.name['ko'],
+                artist.yy,
+                artist.mm,
+                artist.dd,
+                artist.gender,
+                year,
+            );
+
+            // 운세 저장
+            const { data: savedFortune, error: saveError } = await this.supabase
+                .from('fortune_telling')
+                .insert(fortune)
+                .select()
+                .single();
+
+            if (saveError) {
+                throw saveError;
+            }
+
+            const executionTime = Date.now() - startTime;
+            console.log(`Fortune generated in ${executionTime}ms`);
+
+            return savedFortune;
+        } catch (error) {
+            console.error('Error in getOrGenerateFortune:', error);
+            throw error;
+        }
+    }
+
+    async generateTranslations(
+        artistId: number,
+        year: number,
+        fortune: FortuneTelling,
+    ): Promise<void> {
+        const languages: SupportedLanguage[] = ['en', 'ja', 'zh'];
+
+        for (const lang of languages) {
+            try {
+                const translatedFortune = await this.translateFortune(fortune, lang);
+
+                await this.supabase
+                    .from('fortune_telling_i18n')
+                    .insert({
+                        ...translatedFortune,
+                        artist_id: artistId,
+                        year: year,
+                        language: lang,
+                    });
+
+                console.log(`Translation completed for ${lang}`);
+            } catch (error) {
+                console.error(`Error translating fortune to ${lang}:`, error);
+            }
+        }
+    }
+
+    private async translateSingle(text: string, language: SupportedLanguage): Promise<string> {
+        const translated = await translateBatch([text], language);
+        return translated[0] ?? text; // fallback to original text if translation fails
+    }
+
+    private async translateArray(texts: string[], language: SupportedLanguage): Promise<string[]> {
+        try {
+            const translated = await translateBatch(texts, language);
+            return translated.map((t, i) => t ?? texts[i]); // fallback to original texts
+        } catch (error) {
+            console.error('Translation error:', error);
+            return texts; // return original texts if translation fails
+        }
+    }
+
+    private async generateNewFortune(
+        artistId: number,
+        artistName: string,
+        artistYY: number,
+        artistMM: number,
+        artistDD: number,
+        artistGender: string,
+        year: number,
+    ): Promise<FortuneTelling> {
+        try {
+            // 프롬프트 조회
+            const prompt = await this.promptService.getActivePrompt('fortune_telling');
+
+            let tokenCount: number | undefined;
+
+            // 프롬프트 실행
+            const response = await generateCompletion(prompt.name, {
+                ...prompt.model_config,
+                onTokenCount: (totalTokens: number | undefined) => {
+                    tokenCount = totalTokens;
+                },
+                variables: {
+                    artist_name: artistName,
+                    artist_yy: artistYY.toString(),
+                    artist_mm: artistMM.toString(),
+                    artist_dd: artistDD.toString(),
+                    artist_gender: artistGender,
+                    year: year.toString(),
+                },
+            });
+
+            // 결과 파싱 및 검증
+            const result = JSON.parse(response.replaceAll('`', '').replace('json', ''));
+
+            if (!this.validateFortuneResult(result)) {
+                throw new Error('Invalid fortune result format');
+            }
+
+            // 프롬프트 사용 로깅
+            await this.promptService.logPromptUsage({
+                prompt_id: prompt.id,
+                variables: { artist_name: artistName, year },
+                response: result,
+                token_count: tokenCount,
+            });
+
+            // 운세 객체 생성
+            const fortune: FortuneTelling = {
+                artist_id: artistId,
+                year,
+                overall_luck: result.overall_luck,
+                monthly_fortunes: result.monthly_fortunes,
+                aspects: result.aspects,
+                lucky: result.lucky,
+                advice: result.advice,
+            };
+
+            return fortune;
+        } catch (error) {
+            console.error('Error generating fortune:', error);
+            throw error;
+        }
+    }
+
+    private validateFortuneResult(result: any): boolean {
+        return (
+            result &&
+            typeof result.overall_luck === 'string' &&
+            Array.isArray(result.monthly_fortunes) &&
+            result.monthly_fortunes.length === 12 &&
+            typeof result.aspects === 'object' &&
+            typeof result.lucky === 'object' &&
+            Array.isArray(result.advice) &&
+            result.advice.length === 3
+        );
+    }
+
+    private async translateFortune(
+        fortune: FortuneTelling,
+        language: SupportedLanguage,
+    ): Promise<FortuneTelling> {
+        const translatedMonthly = await Promise.all(
+            fortune.monthly_fortunes.map(async (monthly) => ({
+                month: monthly.month,
+                summary: await this.translateSingle(monthly.summary, language),
+                love: await this.translateSingle(monthly.love, language),
+                career: await this.translateSingle(monthly.career, language),
+                health: await this.translateSingle(monthly.health, language),
+            })),
+        );
+
+        const translatedAspects = {
+            career: await this.translateSingle(fortune.aspects.career, language),
+            love: await this.translateSingle(fortune.aspects.love, language),
+            health: await this.translateSingle(fortune.aspects.health, language),
+            relationships: await this.translateSingle(fortune.aspects.relationships, language),
+            finances: await this.translateSingle(fortune.aspects.finances, language),
+        };
+
+        const translatedLucky = {
+            colors: await this.translateArray(fortune.lucky.colors, language),
+            numbers: fortune.lucky.numbers,
+            days: await this.translateArray(fortune.lucky.days, language),
+            directions: await this.translateArray(fortune.lucky.directions, language),
+        };
+
+        return {
+            ...fortune,
+            overall_luck: await this.translateSingle(fortune.overall_luck, language),
+            monthly_fortunes: translatedMonthly,
+            aspects: translatedAspects,
+            lucky: translatedLucky,
+            advice: await this.translateArray(fortune.advice, language),
+        };
+    }
+}
