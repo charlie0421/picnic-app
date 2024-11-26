@@ -72,8 +72,9 @@ class _PostListPageState extends ConsumerState<PostListPage>
           }
         });
       }
+    } else {
+      _isInitialized = true;
     }
-    _isInitialized = true;
   }
 
   @override
@@ -83,9 +84,7 @@ class _PostListPageState extends ConsumerState<PostListPage>
     return ref.watch(boardsNotifierProvider(widget.artistId)).when(
           data: (boards) {
             if (boards == null || boards.isEmpty) {
-              return const Center(
-                child: Text('No boards available'),
-              );
+              return const Center(child: Text('No boards available'));
             }
 
             if (!_isInitialized) {
@@ -111,9 +110,7 @@ class _PostListPageState extends ConsumerState<PostListPage>
             return Column(
               children: [
                 _buildTabBar(boards, totalPages, showRequestButton),
-                Expanded(
-                  child: _buildPageView(boards, showRequestButton),
-                ),
+                Expanded(child: _buildPageView(boards, showRequestButton)),
               ],
             );
           },
@@ -143,9 +140,7 @@ class _PostListPageState extends ConsumerState<PostListPage>
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.cw),
       decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: AppColors.grey300, width: 1),
-        ),
+        border: Border(bottom: BorderSide(color: AppColors.grey300, width: 1)),
       ),
       height: 32,
       child: ListView.builder(
@@ -157,10 +152,9 @@ class _PostListPageState extends ConsumerState<PostListPage>
           } else if (index <= boards.length) {
             return _buildMenuItem(
                 getLocaleTextFromJson(boards[index - 1].name), index);
-          } else if (showRequestButton) {
+          } else {
             return _buildOpenRequestItem(totalPages - 1);
           }
-          return const SizedBox.shrink();
         },
       ),
     );
@@ -200,12 +194,10 @@ class _PostListPageState extends ConsumerState<PostListPage>
         decoration: _currentIndex == index
             ? const BoxDecoration(
                 border: Border(
-                  bottom: BorderSide(
-                    color: Colors.black,
-                    width: 3,
-                    strokeAlign: BorderSide.strokeAlignInside,
-                  ),
-                ),
+                    bottom: BorderSide(
+                        color: Colors.black,
+                        width: 3,
+                        strokeAlign: BorderSide.strokeAlignInside)),
               )
             : null,
         alignment: Alignment.center,
@@ -235,29 +227,23 @@ class _PostListPageState extends ConsumerState<PostListPage>
         decoration: _currentIndex == index
             ? const BoxDecoration(
                 border: Border(
-                  bottom: BorderSide(
-                    color: Colors.black,
-                    width: 3,
-                    strokeAlign: BorderSide.strokeAlignInside,
-                  ),
-                ),
+                    bottom: BorderSide(
+                        color: Colors.black,
+                        width: 3,
+                        strokeAlign: BorderSide.strokeAlignInside)),
               )
             : null,
         child: Row(
           children: [
-            Text(
-              S.of(context).post_board_request_label,
-              style: getTextStyle(AppTypo.caption12B, AppColors.grey700),
-            ),
+            Text(S.of(context).post_board_request_label,
+                style: getTextStyle(AppTypo.caption12B, AppColors.grey700)),
             const SizedBox(width: 4),
             SvgPicture.asset(
               'assets/icons/plus_style=fill.svg',
               width: 16,
               height: 16,
-              colorFilter: const ColorFilter.mode(
-                AppColors.grey700,
-                BlendMode.srcIn,
-              ),
+              colorFilter:
+                  const ColorFilter.mode(AppColors.grey700, BlendMode.srcIn),
             ),
           ],
         ),

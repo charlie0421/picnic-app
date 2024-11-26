@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:picnic_app/app.dart';
 import 'package:picnic_app/dialogs/fullscreen_dialog.dart';
 import 'package:picnic_app/models/community/fortune.dart';
+import 'package:picnic_app/ui/style.dart';
 
 import '../providers/community/fortune_provider.dart';
 
@@ -27,7 +28,6 @@ class FortunePage extends ConsumerWidget {
   const FortunePage({super.key, required this.artistId, required this.year});
 
   @override
-  @override
   Widget build(BuildContext context, WidgetRef ref) {
     final fortuneAsync = ref.watch(getFortuneProvider(
       artistId: artistId,
@@ -41,26 +41,24 @@ class FortunePage extends ConsumerWidget {
             valueColor: AlwaysStoppedAnimation<Color>(Colors.pink),
           ),
         ),
-        error: (error, stackTrace) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.error_outline,
+        error: (error, stackTrace) => Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.error_outline,
+              color: Colors.red,
+              size: 60,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '오류가 발생했습니다\n$error',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
                 color: Colors.red,
-                size: 60,
+                fontSize: 16,
               ),
-              const SizedBox(height: 16),
-              Text(
-                '오류가 발생했습니다\n$error',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.red,
-                  fontSize: 16,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
         data: (fortune) => Stack(
           children: [
@@ -70,39 +68,36 @@ class FortunePage extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   _buildHeaderSection(fortune),
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: DefaultTabController(
-                      length: 2,
-                      child: Column(
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.pink[50],
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: TabBar(
-                              labelColor: Colors.pink[400],
-                              unselectedLabelColor: Colors.grey[600],
-                              indicatorColor: Colors.pink[400],
-                              tabs: const [
-                                Tab(text: '종합운세'),
-                                Tab(text: '월별운세'),
-                              ],
-                            ),
+                  Divider(height: 1, color: AppColors.grey500),
+                  DefaultTabController(
+                    length: 2,
+                    child: Column(
+                      children: [
+                        Container(
+                          width: double.infinity, // 전체 너비를 사용하도록 설정
+                          decoration: BoxDecoration(
+                            color: Colors.pink[50],
                           ),
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height - 300,
-                            child: TabBarView(
-                              children: [
-                                _buildOverallFortune(fortune),
-                                _buildMonthlyFortune(fortune),
-                              ],
-                            ),
+                          child: TabBar(
+                            labelColor: Colors.pink[400],
+                            unselectedLabelColor: Colors.grey[600],
+                            indicatorColor: Colors.pink[400],
+                            tabs: const [
+                              Tab(text: '종합운세'),
+                              Tab(text: '월별운세'),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height - 300,
+                          child: TabBarView(
+                            children: [
+                              _buildOverallFortune(fortune),
+                              _buildMonthlyFortune(fortune),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -136,7 +131,7 @@ class FortunePage extends ConsumerWidget {
   Widget _buildHeaderSection(FortuneModel fortune) {
     return SizedBox(
       width: double.infinity,
-      height: 200,
+      height: 250,
       child: Stack(
         children: [
           Container(
@@ -154,12 +149,13 @@ class FortunePage extends ConsumerWidget {
             ),
           ),
           Positioned(
-            bottom: 0,
+            top: 50,
             left: 0,
             right: 0,
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               child: Column(
+                mainAxisSize: MainAxisSize.min, // 컨텐츠 크기에 맞추도록 설정
                 children: [
                   Text(
                     '${year}년 토정비결',
