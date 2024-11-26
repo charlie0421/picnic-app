@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:picnic_app/app.dart';
+import 'package:picnic_app/dialogs/fullscreen_dialog.dart';
 import 'package:picnic_app/models/community/fortune.dart';
 
 import '../providers/community/fortune_provider.dart';
@@ -13,16 +14,9 @@ class FortuneDialogConstants {
 
 showFortuneDialog(int artistId, int year) {
   final context = navigatorKey.currentContext;
-
-  return showGeneralDialog(
+  return showFullScreenDialog(
     context: context!,
-    barrierDismissible: true,
-    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    transitionDuration: FortuneDialogConstants.transitionDuration,
-    pageBuilder: (BuildContext buildContext, Animation<double> animation,
-        Animation<double> secondaryAnimation) {
-      return FortunePage(artistId: artistId, year: year);
-    },
+    builder: (context) => FortunePage(artistId: artistId, year: year),
   );
 }
 
@@ -40,109 +34,100 @@ class FortunePage extends ConsumerWidget {
       year: year,
     ));
 
-    return Dialog(
-      insetPadding: EdgeInsets.zero,
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(0),
-      ),
-      child: SizedBox(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
-        child: fortuneAsync.when(
-          loading: () => const Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.pink),
-            ),
+    return FullScreenDialog(
+      child: fortuneAsync.when(
+        loading: () => const Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.pink),
           ),
-          error: (error, stackTrace) => Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.error_outline,
-                  color: Colors.red,
-                  size: 60,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  '오류가 발생했습니다\n$error',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Colors.red,
-                    fontSize: 16,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          data: (fortune) => Stack(
+        ),
+        error: (error, stackTrace) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    _buildHeaderSection(fortune),
-                    const SizedBox(height: 16),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: DefaultTabController(
-                        length: 2,
-                        child: Column(
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.pink[50],
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: TabBar(
-                                labelColor: Colors.pink[400],
-                                unselectedLabelColor: Colors.grey[600],
-                                indicatorColor: Colors.pink[400],
-                                tabs: const [
-                                  Tab(text: '종합운세'),
-                                  Tab(text: '월별운세'),
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height - 300,
-                              child: TabBarView(
-                                children: [
-                                  _buildOverallFortune(fortune),
-                                  _buildMonthlyFortune(fortune),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              const Icon(
+                Icons.error_outline,
+                color: Colors.red,
+                size: 60,
               ),
-              Positioned(
-                top: 50,
-                right: 15,
-                child: GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
-                  child: Container(
-                    width: FortuneDialogConstants.closeButtonSize,
-                    height: FortuneDialogConstants.closeButtonSize,
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.5),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.close,
-                      color: Colors.white,
-                    ),
-                  ),
+              const SizedBox(height: 16),
+              Text(
+                '오류가 발생했습니다\n$error',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.red,
+                  fontSize: 16,
                 ),
               ),
             ],
           ),
+        ),
+        data: (fortune) => Stack(
+          children: [
+            SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  _buildHeaderSection(fortune),
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: DefaultTabController(
+                      length: 2,
+                      child: Column(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.pink[50],
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: TabBar(
+                              labelColor: Colors.pink[400],
+                              unselectedLabelColor: Colors.grey[600],
+                              indicatorColor: Colors.pink[400],
+                              tabs: const [
+                                Tab(text: '종합운세'),
+                                Tab(text: '월별운세'),
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height - 300,
+                            child: TabBarView(
+                              children: [
+                                _buildOverallFortune(fortune),
+                                _buildMonthlyFortune(fortune),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              top: 50,
+              right: 15,
+              child: GestureDetector(
+                onTap: () => Navigator.of(context).pop(),
+                child: Container(
+                  width: FortuneDialogConstants.closeButtonSize,
+                  height: FortuneDialogConstants.closeButtonSize,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.5),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

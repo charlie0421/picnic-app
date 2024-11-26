@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
+import 'package:picnic_app/dialogs/fullscreen_dialog.dart';
 import 'package:picnic_app/models/reward.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
@@ -21,15 +22,9 @@ class RewardDialogConstants {
 enum RewardType { overview, location, size_guide }
 
 showRewardDialog(BuildContext context, RewardModel data) {
-  return showGeneralDialog(
+  return showFullScreenDialog(
     context: context,
-    barrierDismissible: true,
-    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    transitionDuration: RewardDialogConstants.transitionDuration,
-    pageBuilder: (BuildContext buildContext, Animation<double> animation,
-        Animation<double> secondaryAnimation) {
-      return RewardDialog(data: data);
-    },
+    builder: (context) => RewardDialog(data: data),
   );
 }
 
@@ -45,57 +40,32 @@ class RewardDialog extends StatefulWidget {
 class _RewardDialogState extends State<RewardDialog> {
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      insetPadding: EdgeInsets.zero,
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(0.r),
-      ),
-      child: SizedBox(
-        width: getPlatformScreenSize(context).width,
-        height: getPlatformScreenSize(context).height,
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  _buildTopSection(),
-                  const SizedBox(height: 67),
-                  ...RewardType.values.map((type) {
-                    return Column(
-                      children: [
-                        RewardSection(
-                          type: type,
-                          data: widget.data,
-                        ),
-                        if (type != RewardType.values.last)
-                          const SizedBox(height: 68),
-                      ],
-                    );
-                  }),
-                ],
-              ),
+    return FullScreenDialog(
+      child: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                _buildTopSection(),
+                const SizedBox(height: 67),
+                ...RewardType.values.map((type) {
+                  return Column(
+                    children: [
+                      RewardSection(
+                        type: type,
+                        data: widget.data,
+                      ),
+                      if (type != RewardType.values.last)
+                        const SizedBox(height: 68),
+                    ],
+                  );
+                }),
+              ],
             ),
-            Positioned(
-              top: 50,
-              right: 15.cw,
-              child: GestureDetector(
-                onTap: () => Navigator.of(context).pop(),
-                child: SvgPicture.asset(
-                  'assets/icons/cancel_style=fill.svg',
-                  width: RewardDialogConstants.closeButtonSize,
-                  height: RewardDialogConstants.closeButtonSize,
-                  colorFilter: ColorFilter.mode(
-                    AppColors.grey200.withOpacity(0.8),
-                    BlendMode.srcIn,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
