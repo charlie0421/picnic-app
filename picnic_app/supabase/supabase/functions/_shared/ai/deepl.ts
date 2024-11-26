@@ -1,5 +1,5 @@
 import { logError } from '../utils.ts';
-import { SupportedLanguage, TranslationResult } from './types.ts';
+import { SupportedLanguage, TranslationResult } from '../types/openai.ts';
 
 let deeplApiKey: string | undefined = undefined;
 
