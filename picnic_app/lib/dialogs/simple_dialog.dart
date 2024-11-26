@@ -98,61 +98,63 @@ void showSimpleDialog({
                       ]
                     : null,
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (type == DialogType.error) ...[
-                    Icon(
-                      Icons.error_outline,
-                      color: AppColors.point900,
-                      size: 40,
-                    ),
-                    const SizedBox(height: 12),
-                  ],
-                  if (title != null)
-                    Text(
-                      title,
-                      style: getTextStyle(AppTypo.title18B, titleColor),
-                      textAlign: TextAlign.center,
-                    ),
-                  if (titleWidget != null) titleWidget,
-                  if (content != null) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      content,
-                      style: getTextStyle(AppTypo.body14R, contentColor),
-                      textAlign: TextAlign.center,
-                    )
-                  ],
-                  if (contentWidget != null) ...[
-                    const SizedBox(height: 12),
-                    contentWidget
-                  ],
-                  const SizedBox(height: 28),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (onCancel != null)
-                        buildDialogButton(
-                          context,
-                          S.of(context).dialog_button_cancel,
-                          type == DialogType.error
-                              ? AppColors.point900
-                              : AppColors.grey700,
-                          onCancel,
-                        ),
-                      if (onOk != null)
-                        buildDialogButton(
-                          context,
-                          S.of(context).dialog_button_ok,
-                          type == DialogType.error
-                              ? AppColors.point900
-                              : AppColors.primary500,
-                          onOk,
-                        ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (type == DialogType.error) ...[
+                      Icon(
+                        Icons.error_outline,
+                        color: AppColors.point900,
+                        size: 40,
+                      ),
+                      const SizedBox(height: 12),
                     ],
-                  ),
-                ],
+                    if (title != null)
+                      Text(
+                        title,
+                        style: getTextStyle(AppTypo.title18B, titleColor),
+                        textAlign: TextAlign.center,
+                      ),
+                    if (titleWidget != null) titleWidget,
+                    if (content != null) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        content,
+                        style: getTextStyle(AppTypo.body14R, contentColor),
+                        textAlign: TextAlign.center,
+                      )
+                    ],
+                    if (contentWidget != null) ...[
+                      const SizedBox(height: 12),
+                      contentWidget
+                    ],
+                    const SizedBox(height: 28),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (onCancel != null)
+                          buildDialogButton(
+                            context,
+                            S.of(context).dialog_button_cancel,
+                            type == DialogType.error
+                                ? AppColors.point900
+                                : AppColors.grey700,
+                            onCancel,
+                          ),
+                        if (onOk != null)
+                          buildDialogButton(
+                            context,
+                            S.of(context).dialog_button_ok,
+                            type == DialogType.error
+                                ? AppColors.point900
+                                : AppColors.primary500,
+                            onOk,
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
