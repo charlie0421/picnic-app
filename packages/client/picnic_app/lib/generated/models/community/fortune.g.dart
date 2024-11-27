@@ -13,7 +13,10 @@ _$FortuneModelImpl _$$FortuneModelImplFromJson(Map<String, dynamic> json) =>
       ($checkedConvert) {
         final val = _$FortuneModelImpl(
           id: $checkedConvert('id', (v) => v as String),
+          year: $checkedConvert('year', (v) => (v as num).toInt()),
           artistId: $checkedConvert('artist_id', (v) => (v as num).toInt()),
+          artist: $checkedConvert(
+              'artist', (v) => ArtistModel.fromJson(v as Map<String, dynamic>)),
           overallLuck: $checkedConvert('overall_luck', (v) => v as String),
           monthlyFortunes: $checkedConvert(
               'monthly_fortunes',
@@ -40,7 +43,9 @@ _$FortuneModelImpl _$$FortuneModelImplFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$$FortuneModelImplToJson(_$FortuneModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'year': instance.year,
       'artist_id': instance.artistId,
+      'artist': instance.artist.toJson(),
       'overall_luck': instance.overallLuck,
       'monthly_fortunes':
           instance.monthlyFortunes.map((e) => e.toJson()).toList(),
