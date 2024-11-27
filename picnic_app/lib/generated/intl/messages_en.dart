@@ -20,23 +20,25 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static String m0(day) => "${day} days ago";
+  static String m0(year) => "Horoscope of ${year}";
 
-  static String m1(hour) => "${hour} hours ago";
+  static String m1(day) => "${day} days ago";
 
-  static String m2(minute) => "${minute} minutes ago";
+  static String m2(hour) => "${hour} hours ago";
 
-  static String m3(nickname) => "Replying to ${nickname}...";
+  static String m3(minute) => "${minute} minutes ago";
 
-  static String m4(count) => "🎉 You\'ve reached \$${count} goals so far! 🎉";
+  static String m4(nickname) => "Replying to ${nickname}...";
 
-  static String m5(num1) => "${num1} + ${num1} Bonuses";
+  static String m5(count) => "🎉 You\'ve reached \$${count} goals so far! 🎉";
 
-  static String m6(rank) => "Rank ${rank}";
+  static String m6(num1) => "${num1} + ${num1} Bonuses";
 
-  static String m7(version) => "A new version (${version}) is available.";
+  static String m7(rank) => "Rank ${rank}";
 
-  static String m8(version) =>
+  static String m8(version) => "A new version (${version}) is available.";
+
+  static String m9(version) =>
       "You need to update to a new version (${version}).";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -117,16 +119,16 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Want to see a new pairing?"),
         "compatibility_page_title":
             MessageLookupByLibrary.simpleMessage("Compatibility"),
-        "compatibility_result_70": MessageLookupByLibrary.simpleMessage(
-            "It\'s a good compatibility! 🌟"),
-        "compatibility_result_80": MessageLookupByLibrary.simpleMessage(
-            "It\'s a great compatibility! 💫"),
-        "compatibility_result_90": MessageLookupByLibrary.simpleMessage(
-            "It\'s a super great compatibility! ✨"),
+        "compatibility_result_70":
+            MessageLookupByLibrary.simpleMessage("좋은 궁합이에요! 🌟"),
+        "compatibility_result_80":
+            MessageLookupByLibrary.simpleMessage("아주 좋은 궁합이에요! 💫"),
+        "compatibility_result_90":
+            MessageLookupByLibrary.simpleMessage("최고의 궁합이에요! ✨"),
         "compatibility_result_low":
-            MessageLookupByLibrary.simpleMessage("Find the right fit 😊"),
+            MessageLookupByLibrary.simpleMessage("잘 맞는 부분을 찾아보세요 😊"),
         "compatibility_result_not_found":
-            MessageLookupByLibrary.simpleMessage("Not found compatibility 😔"),
+            MessageLookupByLibrary.simpleMessage("궁합이 없어요 😔"),
         "compatibility_snackbar_error":
             MessageLookupByLibrary.simpleMessage("An error occurred."),
         "compatibility_snackbar_need_birthday":
@@ -154,30 +156,30 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Compatibility styles"),
         "compatibility_summary_title":
             MessageLookupByLibrary.simpleMessage("Compatibility summary"),
-        "compatibility_time_slot1": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Rat|(23:30-01:29)|🐀"),
-        "compatibility_time_slot10": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Rooster|(17:30-19:29)|🐔"),
-        "compatibility_time_slot11": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Dog|(19:30-21:29)|🐕"),
-        "compatibility_time_slot12": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Pig|(21:30-23:29)|🐖"),
-        "compatibility_time_slot2": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Ox|(01:30-03:29)|🐂"),
-        "compatibility_time_slot3": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Tiger|(03:30-05:29)|🐅"),
-        "compatibility_time_slot4": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Rabbit|(05:30-07:29)|🐇"),
-        "compatibility_time_slot5": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Dragon|(07:30-09:29)|🐉"),
-        "compatibility_time_slot6": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Snake|(09:30-11:29)|🐍"),
-        "compatibility_time_slot7": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Horse|(11:30-13:29)|🐎"),
-        "compatibility_time_slot8": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Sheep|(13:30-15:29)|🐑"),
-        "compatibility_time_slot9": MessageLookupByLibrary.simpleMessage(
-            "Hour of the Monkey|(15:30-17:29)|🐒"),
+        "compatibility_time_slot1":
+            MessageLookupByLibrary.simpleMessage("자시|(23:30-01:29)|🐀"),
+        "compatibility_time_slot10":
+            MessageLookupByLibrary.simpleMessage("유시|(17:30-19:29)|🐔"),
+        "compatibility_time_slot11":
+            MessageLookupByLibrary.simpleMessage("술시|(19:30-21:29)|🐕"),
+        "compatibility_time_slot12":
+            MessageLookupByLibrary.simpleMessage("해시|(21:30-23:29)|🐖"),
+        "compatibility_time_slot2":
+            MessageLookupByLibrary.simpleMessage("축시|(01:30-03:29)|🐂"),
+        "compatibility_time_slot3":
+            MessageLookupByLibrary.simpleMessage("인시|(03:30-05:29)|🐅"),
+        "compatibility_time_slot4":
+            MessageLookupByLibrary.simpleMessage("묘시|(05:30-07:29)|🐇"),
+        "compatibility_time_slot5":
+            MessageLookupByLibrary.simpleMessage("진시|(07:30-09:29)|🐉"),
+        "compatibility_time_slot6":
+            MessageLookupByLibrary.simpleMessage("사시|(09:30-11:29)|🐍"),
+        "compatibility_time_slot7":
+            MessageLookupByLibrary.simpleMessage("오시|(11:30-13:29)|🐎"),
+        "compatibility_time_slot8":
+            MessageLookupByLibrary.simpleMessage("미시|(13:30-15:29)|🐑"),
+        "compatibility_time_slot9":
+            MessageLookupByLibrary.simpleMessage("신시|(15:30-17:29)|🐒"),
         "compatibility_time_slot_unknown":
             MessageLookupByLibrary.simpleMessage("Don\'t know"),
         "compatibility_tips_title":
@@ -282,6 +284,54 @@ class MessageLookup extends MessageLookupByLibrary {
         "exception_auth_message_kakao_not_supported":
             MessageLookupByLibrary.simpleMessage(
                 "I can\'t sign in with the KakaoTalk app.\nTry signing in with your Kakao account."),
+        "fortune_advice": MessageLookupByLibrary.simpleMessage("Advice"),
+        "fortune_career":
+            MessageLookupByLibrary.simpleMessage("Business fortunes"),
+        "fortune_health": MessageLookupByLibrary.simpleMessage("Health clouds"),
+        "fortune_love": MessageLookupByLibrary.simpleMessage("Ae Jung Woon"),
+        "fortune_lucky_color":
+            MessageLookupByLibrary.simpleMessage("Lucky colors"),
+        "fortune_lucky_days":
+            MessageLookupByLibrary.simpleMessage("Lucky days of the week"),
+        "fortune_lucky_direction":
+            MessageLookupByLibrary.simpleMessage("Direction of Fortune"),
+        "fortune_lucky_keyword":
+            MessageLookupByLibrary.simpleMessage("Lucky keywords"),
+        "fortune_lucky_number":
+            MessageLookupByLibrary.simpleMessage("Lucky numbers"),
+        "fortune_money":
+            MessageLookupByLibrary.simpleMessage("Fortune Telling"),
+        "fortune_month1":
+            MessageLookupByLibrary.simpleMessage("Horoscopes for January"),
+        "fortune_month10":
+            MessageLookupByLibrary.simpleMessage("Horoscope for October"),
+        "fortune_month11":
+            MessageLookupByLibrary.simpleMessage("Horoscopes for November"),
+        "fortune_month12":
+            MessageLookupByLibrary.simpleMessage("Horoscopes for December"),
+        "fortune_month2":
+            MessageLookupByLibrary.simpleMessage("Horoscopes for February"),
+        "fortune_month3":
+            MessageLookupByLibrary.simpleMessage("Horoscopes for March"),
+        "fortune_month4":
+            MessageLookupByLibrary.simpleMessage("Horoscopes for April"),
+        "fortune_month5":
+            MessageLookupByLibrary.simpleMessage("Horoscopes for May"),
+        "fortune_month6":
+            MessageLookupByLibrary.simpleMessage("Horoscope for June"),
+        "fortune_month7":
+            MessageLookupByLibrary.simpleMessage("Horoscopes for July"),
+        "fortune_month8":
+            MessageLookupByLibrary.simpleMessage("Horoscope for August"),
+        "fortune_month9":
+            MessageLookupByLibrary.simpleMessage("Horoscopes for September"),
+        "fortune_monthly":
+            MessageLookupByLibrary.simpleMessage("Monthly Horoscopes"),
+        "fortune_relationship":
+            MessageLookupByLibrary.simpleMessage("Interpersonal"),
+        "fortune_title": m0,
+        "fortune_total_title":
+            MessageLookupByLibrary.simpleMessage("Comprehensive horoscopes"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("Album name"),
         "hint_nickname_input":
             MessageLookupByLibrary.simpleMessage("Please enter a nickname."),
@@ -437,9 +487,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_tabbar_vote_end": MessageLookupByLibrary.simpleMessage("Exit"),
         "label_tabbar_vote_upcoming":
             MessageLookupByLibrary.simpleMessage("Upcoming"),
-        "label_time_ago_day": m0,
-        "label_time_ago_hour": m1,
-        "label_time_ago_minute": m2,
+        "label_time_ago_day": m1,
+        "label_time_ago_hour": m2,
+        "label_time_ago_minute": m3,
         "label_time_ago_right_now":
             MessageLookupByLibrary.simpleMessage("Just a moment ago"),
         "label_title_comment": MessageLookupByLibrary.simpleMessage("Comments"),
@@ -499,7 +549,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "mypage_subscription":
             MessageLookupByLibrary.simpleMessage("Subscription information"),
         "nav_ads": MessageLookupByLibrary.simpleMessage("Ads"),
-        "nav_board": MessageLookupByLibrary.simpleMessage("Boards"),
+        "nav_board": MessageLookupByLibrary.simpleMessage("Bulletin boards"),
         "nav_gallery": MessageLookupByLibrary.simpleMessage("Gallery"),
         "nav_home": MessageLookupByLibrary.simpleMessage("홈"),
         "nav_library": MessageLookupByLibrary.simpleMessage("Libraries"),
@@ -636,7 +686,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "post_no_comment": MessageLookupByLibrary.simpleMessage("No comments."),
         "post_not_found":
             MessageLookupByLibrary.simpleMessage("No posts were found."),
-        "post_replying_comment": m3,
+        "post_replying_comment": m4,
         "post_report_fail":
             MessageLookupByLibrary.simpleMessage("The report failed."),
         "post_report_label":
@@ -683,7 +733,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("X app is missing."),
         "share_twitter":
             MessageLookupByLibrary.simpleMessage("Share on Twitter"),
-        "text_achievement": m4,
+        "text_achievement": m5,
         "text_ads_random": MessageLookupByLibrary.simpleMessage(
             "Viewing ads and collecting random images."),
         "text_bonus": MessageLookupByLibrary.simpleMessage("Bonuses"),
@@ -728,12 +778,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_purchase_vat_included":
             MessageLookupByLibrary.simpleMessage("*Price includes VAT."),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("Star Candy"),
-        "text_star_candy_with_bonus": m5,
+        "text_star_candy_with_bonus": m6,
         "text_this_time_vote":
             MessageLookupByLibrary.simpleMessage("This Vote"),
         "text_vote_complete":
             MessageLookupByLibrary.simpleMessage("Voting complete"),
-        "text_vote_rank": m6,
+        "text_vote_rank": m7,
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("Rank in Rewards"),
         "text_vote_where_is_my_bias":
@@ -748,14 +798,16 @@ class MessageLookup extends MessageLookupByLibrary {
         "update_button": MessageLookupByLibrary.simpleMessage("Update"),
         "update_cannot_open_appstore": MessageLookupByLibrary.simpleMessage(
             "I can\'t open the app store."),
-        "update_recommend_text": m7,
-        "update_required_text": m8,
+        "update_recommend_text": m8,
+        "update_required_text": m9,
         "update_required_title":
             MessageLookupByLibrary.simpleMessage("An update is required."),
         "views": MessageLookupByLibrary.simpleMessage("Views"),
-        "vote_result_save_button": MessageLookupByLibrary.simpleMessage("Save"),
+        "vote_result_save_button":
+            MessageLookupByLibrary.simpleMessage("Save the results"),
         "vote_result_share_button":
-            MessageLookupByLibrary.simpleMessage("Share"),
+            MessageLookupByLibrary.simpleMessage("Share your results"),
+        "vote_share_message": MessageLookupByLibrary.simpleMessage("Voted!"),
         "voting_share_benefit_text": MessageLookupByLibrary.simpleMessage(
             "Get 1 bonus star candy for every 100 votes and share!")
       };

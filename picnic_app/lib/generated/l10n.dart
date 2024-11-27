@@ -490,50 +490,50 @@ class S {
     );
   }
 
-  /// `It's a good compatibility! 🌟`
+  /// `좋은 궁합이에요! 🌟`
   String get compatibility_result_70 {
     return Intl.message(
-      'It\'s a good compatibility! 🌟',
+      '좋은 궁합이에요! 🌟',
       name: 'compatibility_result_70',
       desc: '',
       args: [],
     );
   }
 
-  /// `It's a great compatibility! 💫`
+  /// `아주 좋은 궁합이에요! 💫`
   String get compatibility_result_80 {
     return Intl.message(
-      'It\'s a great compatibility! 💫',
+      '아주 좋은 궁합이에요! 💫',
       name: 'compatibility_result_80',
       desc: '',
       args: [],
     );
   }
 
-  /// `It's a super great compatibility! ✨`
+  /// `최고의 궁합이에요! ✨`
   String get compatibility_result_90 {
     return Intl.message(
-      'It\'s a super great compatibility! ✨',
+      '최고의 궁합이에요! ✨',
       name: 'compatibility_result_90',
       desc: '',
       args: [],
     );
   }
 
-  /// `Find the right fit 😊`
+  /// `잘 맞는 부분을 찾아보세요 😊`
   String get compatibility_result_low {
     return Intl.message(
-      'Find the right fit 😊',
+      '잘 맞는 부분을 찾아보세요 😊',
       name: 'compatibility_result_low',
       desc: '',
       args: [],
     );
   }
 
-  /// `Not found compatibility 😔`
+  /// `궁합이 없어요 😔`
   String get compatibility_result_not_found {
     return Intl.message(
-      'Not found compatibility 😔',
+      '궁합이 없어요 😔',
       name: 'compatibility_result_not_found',
       desc: '',
       args: [],
@@ -2370,13 +2370,23 @@ class S {
     );
   }
 
-  /// `Boards`
+  /// `Bulletin boards`
   String get nav_board {
     return Intl.message(
-      'Boards',
+      'Bulletin boards',
       name: 'nav_board',
       desc: '',
       args: [],
+    );
+  }
+
+  /// `Horoscope of {year}`
+  String fortune_title(Object year) {
+    return Intl.message(
+      'Horoscope of $year',
+      name: 'fortune_title',
+      desc: '',
+      args: [year],
     );
   }
 
@@ -3770,140 +3780,140 @@ class S {
     );
   }
 
-  /// `Save`
+  /// `Save the results`
   String get vote_result_save_button {
     return Intl.message(
-      'Save',
+      'Save the results',
       name: 'vote_result_save_button',
       desc: '',
       args: [],
     );
   }
 
-  /// `Share`
+  /// `Share your results`
   String get vote_result_share_button {
     return Intl.message(
-      'Share',
+      'Share your results',
       name: 'vote_result_share_button',
       desc: '',
       args: [],
     );
   }
 
-  /// `Hour of the Rat|(23:30-01:29)|🐀`
+  /// `자시|(23:30-01:29)|🐀`
   String get compatibility_time_slot1 {
     return Intl.message(
-      'Hour of the Rat|(23:30-01:29)|🐀',
+      '자시|(23:30-01:29)|🐀',
       name: 'compatibility_time_slot1',
       desc: '',
       args: [],
     );
   }
 
-  /// `Hour of the Ox|(01:30-03:29)|🐂`
+  /// `축시|(01:30-03:29)|🐂`
   String get compatibility_time_slot2 {
     return Intl.message(
-      'Hour of the Ox|(01:30-03:29)|🐂',
+      '축시|(01:30-03:29)|🐂',
       name: 'compatibility_time_slot2',
       desc: '',
       args: [],
     );
   }
 
-  /// `Hour of the Tiger|(03:30-05:29)|🐅`
+  /// `인시|(03:30-05:29)|🐅`
   String get compatibility_time_slot3 {
     return Intl.message(
-      'Hour of the Tiger|(03:30-05:29)|🐅',
+      '인시|(03:30-05:29)|🐅',
       name: 'compatibility_time_slot3',
       desc: '',
       args: [],
     );
   }
 
-  /// `Hour of the Rabbit|(05:30-07:29)|🐇`
+  /// `묘시|(05:30-07:29)|🐇`
   String get compatibility_time_slot4 {
     return Intl.message(
-      'Hour of the Rabbit|(05:30-07:29)|🐇',
+      '묘시|(05:30-07:29)|🐇',
       name: 'compatibility_time_slot4',
       desc: '',
       args: [],
     );
   }
 
-  /// `Hour of the Dragon|(07:30-09:29)|🐉`
+  /// `진시|(07:30-09:29)|🐉`
   String get compatibility_time_slot5 {
     return Intl.message(
-      'Hour of the Dragon|(07:30-09:29)|🐉',
+      '진시|(07:30-09:29)|🐉',
       name: 'compatibility_time_slot5',
       desc: '',
       args: [],
     );
   }
 
-  /// `Hour of the Snake|(09:30-11:29)|🐍`
+  /// `사시|(09:30-11:29)|🐍`
   String get compatibility_time_slot6 {
     return Intl.message(
-      'Hour of the Snake|(09:30-11:29)|🐍',
+      '사시|(09:30-11:29)|🐍',
       name: 'compatibility_time_slot6',
       desc: '',
       args: [],
     );
   }
 
-  /// `Hour of the Horse|(11:30-13:29)|🐎`
+  /// `오시|(11:30-13:29)|🐎`
   String get compatibility_time_slot7 {
     return Intl.message(
-      'Hour of the Horse|(11:30-13:29)|🐎',
+      '오시|(11:30-13:29)|🐎',
       name: 'compatibility_time_slot7',
       desc: '',
       args: [],
     );
   }
 
-  /// `Hour of the Sheep|(13:30-15:29)|🐑`
+  /// `미시|(13:30-15:29)|🐑`
   String get compatibility_time_slot8 {
     return Intl.message(
-      'Hour of the Sheep|(13:30-15:29)|🐑',
+      '미시|(13:30-15:29)|🐑',
       name: 'compatibility_time_slot8',
       desc: '',
       args: [],
     );
   }
 
-  /// `Hour of the Monkey|(15:30-17:29)|🐒`
+  /// `신시|(15:30-17:29)|🐒`
   String get compatibility_time_slot9 {
     return Intl.message(
-      'Hour of the Monkey|(15:30-17:29)|🐒',
+      '신시|(15:30-17:29)|🐒',
       name: 'compatibility_time_slot9',
       desc: '',
       args: [],
     );
   }
 
-  /// `Hour of the Rooster|(17:30-19:29)|🐔`
+  /// `유시|(17:30-19:29)|🐔`
   String get compatibility_time_slot10 {
     return Intl.message(
-      'Hour of the Rooster|(17:30-19:29)|🐔',
+      '유시|(17:30-19:29)|🐔',
       name: 'compatibility_time_slot10',
       desc: '',
       args: [],
     );
   }
 
-  /// `Hour of the Dog|(19:30-21:29)|🐕`
+  /// `술시|(19:30-21:29)|🐕`
   String get compatibility_time_slot11 {
     return Intl.message(
-      'Hour of the Dog|(19:30-21:29)|🐕',
+      '술시|(19:30-21:29)|🐕',
       name: 'compatibility_time_slot11',
       desc: '',
       args: [],
     );
   }
 
-  /// `Hour of the Pig|(21:30-23:29)|🐖`
+  /// `해시|(21:30-23:29)|🐖`
   String get compatibility_time_slot12 {
     return Intl.message(
-      'Hour of the Pig|(21:30-23:29)|🐖',
+      '해시|(21:30-23:29)|🐖',
       name: 'compatibility_time_slot12',
       desc: '',
       args: [],
@@ -3915,6 +3925,266 @@ class S {
     return Intl.message(
       'Get 1 bonus star candy for every 100 votes and share!',
       name: 'voting_share_benefit_text',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Comprehensive horoscopes`
+  String get fortune_total_title {
+    return Intl.message(
+      'Comprehensive horoscopes',
+      name: 'fortune_total_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Monthly Horoscopes`
+  String get fortune_monthly {
+    return Intl.message(
+      'Monthly Horoscopes',
+      name: 'fortune_monthly',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ae Jung Woon`
+  String get fortune_love {
+    return Intl.message(
+      'Ae Jung Woon',
+      name: 'fortune_love',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Business fortunes`
+  String get fortune_career {
+    return Intl.message(
+      'Business fortunes',
+      name: 'fortune_career',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Health clouds`
+  String get fortune_health {
+    return Intl.message(
+      'Health clouds',
+      name: 'fortune_health',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fortune Telling`
+  String get fortune_money {
+    return Intl.message(
+      'Fortune Telling',
+      name: 'fortune_money',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Interpersonal`
+  String get fortune_relationship {
+    return Intl.message(
+      'Interpersonal',
+      name: 'fortune_relationship',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Lucky keywords`
+  String get fortune_lucky_keyword {
+    return Intl.message(
+      'Lucky keywords',
+      name: 'fortune_lucky_keyword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Lucky days of the week`
+  String get fortune_lucky_days {
+    return Intl.message(
+      'Lucky days of the week',
+      name: 'fortune_lucky_days',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Lucky colors`
+  String get fortune_lucky_color {
+    return Intl.message(
+      'Lucky colors',
+      name: 'fortune_lucky_color',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Lucky numbers`
+  String get fortune_lucky_number {
+    return Intl.message(
+      'Lucky numbers',
+      name: 'fortune_lucky_number',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Direction of Fortune`
+  String get fortune_lucky_direction {
+    return Intl.message(
+      'Direction of Fortune',
+      name: 'fortune_lucky_direction',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Advice`
+  String get fortune_advice {
+    return Intl.message(
+      'Advice',
+      name: 'fortune_advice',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Voted!`
+  String get vote_share_message {
+    return Intl.message(
+      'Voted!',
+      name: 'vote_share_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Horoscopes for January`
+  String get fortune_month1 {
+    return Intl.message(
+      'Horoscopes for January',
+      name: 'fortune_month1',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Horoscopes for February`
+  String get fortune_month2 {
+    return Intl.message(
+      'Horoscopes for February',
+      name: 'fortune_month2',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Horoscopes for March`
+  String get fortune_month3 {
+    return Intl.message(
+      'Horoscopes for March',
+      name: 'fortune_month3',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Horoscopes for April`
+  String get fortune_month4 {
+    return Intl.message(
+      'Horoscopes for April',
+      name: 'fortune_month4',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Horoscope for August`
+  String get fortune_month8 {
+    return Intl.message(
+      'Horoscope for August',
+      name: 'fortune_month8',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Horoscopes for July`
+  String get fortune_month7 {
+    return Intl.message(
+      'Horoscopes for July',
+      name: 'fortune_month7',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Horoscope for June`
+  String get fortune_month6 {
+    return Intl.message(
+      'Horoscope for June',
+      name: 'fortune_month6',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Horoscopes for May`
+  String get fortune_month5 {
+    return Intl.message(
+      'Horoscopes for May',
+      name: 'fortune_month5',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Horoscopes for September`
+  String get fortune_month9 {
+    return Intl.message(
+      'Horoscopes for September',
+      name: 'fortune_month9',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Horoscope for October`
+  String get fortune_month10 {
+    return Intl.message(
+      'Horoscope for October',
+      name: 'fortune_month10',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Horoscopes for November`
+  String get fortune_month11 {
+    return Intl.message(
+      'Horoscopes for November',
+      name: 'fortune_month11',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Horoscopes for December`
+  String get fortune_month12 {
+    return Intl.message(
+      'Horoscopes for December',
+      name: 'fortune_month12',
       desc: '',
       args: [],
     );

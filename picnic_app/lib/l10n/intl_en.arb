@@ -185,23 +185,23 @@
     "@compatibility_page_title": {
         "manualTranslation": false
     },
-    "compatibility_result_70": "It's a good compatibility! 🌟",
+    "compatibility_result_70": "좋은 궁합이에요! 🌟",
     "@compatibility_result_70": {
         "manualTranslation": true
     },
-    "compatibility_result_80": "It's a great compatibility! 💫",
+    "compatibility_result_80": "아주 좋은 궁합이에요! 💫",
     "@compatibility_result_80": {
         "manualTranslation": true
     },
-    "compatibility_result_90": "It's a super great compatibility! ✨",
+    "compatibility_result_90": "최고의 궁합이에요! ✨",
     "@compatibility_result_90": {
         "manualTranslation": true
     },
-    "compatibility_result_low": "Find the right fit 😊",
+    "compatibility_result_low": "잘 맞는 부분을 찾아보세요 😊",
     "@compatibility_result_low": {
         "manualTranslation": true
     },
-    "compatibility_result_not_found": "Not found compatibility 😔",
+    "compatibility_result_not_found": "궁합이 없어요 😔",
     "@compatibility_result_not_found": {
         "manualTranslation": true
     },
@@ -1062,9 +1062,13 @@
         "translationTimestamp": "2024-07-21T11:18:53.669108",
         "manualTranslation": false
     },
-    "nav_board": "Boards",
+    "nav_board": "Bulletin boards",
     "@nav_board": {
         "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "fortune_title": "Horoscope of {year}",
+    "@fortune_title": {
         "manualTranslation": true
     },
     "nav_gallery": "Gallery",
@@ -1672,64 +1676,168 @@
     "@views": {
         "manualTranslation": false
     },
-    "vote_result_save_button": "Save",
+    "vote_result_save_button": "Save the results",
     "@vote_result_save_button": {
         "manualTranslation": false
     },
-    "vote_result_share_button": "Share",
+    "vote_result_share_button": "Share your results",
     "@vote_result_share_button": {
         "manualTranslation": false
     },
-    "compatibility_time_slot1": "Hour of the Rat|(23:30-01:29)|🐀",
+    "compatibility_time_slot1": "자시|(23:30-01:29)|🐀",
     "@compatibility_time_slot1": {
         "manualTranslation": true
     },
-    "compatibility_time_slot2": "Hour of the Ox|(01:30-03:29)|🐂",
+    "compatibility_time_slot2": "축시|(01:30-03:29)|🐂",
     "@compatibility_time_slot2": {
         "manualTranslation": true
     },
-    "compatibility_time_slot3": "Hour of the Tiger|(03:30-05:29)|🐅",
+    "compatibility_time_slot3": "인시|(03:30-05:29)|🐅",
     "@compatibility_time_slot3": {
         "manualTranslation": true
     },
-    "compatibility_time_slot4": "Hour of the Rabbit|(05:30-07:29)|🐇",
+    "compatibility_time_slot4": "묘시|(05:30-07:29)|🐇",
     "@compatibility_time_slot4": {
         "manualTranslation": true
     },
-    "compatibility_time_slot5": "Hour of the Dragon|(07:30-09:29)|🐉",
+    "compatibility_time_slot5": "진시|(07:30-09:29)|🐉",
     "@compatibility_time_slot5": {
         "manualTranslation": true
     },
-    "compatibility_time_slot6": "Hour of the Snake|(09:30-11:29)|🐍",
+    "compatibility_time_slot6": "사시|(09:30-11:29)|🐍",
     "@compatibility_time_slot6": {
         "manualTranslation": true
     },
-    "compatibility_time_slot7": "Hour of the Horse|(11:30-13:29)|🐎",
+    "compatibility_time_slot7": "오시|(11:30-13:29)|🐎",
     "@compatibility_time_slot7": {
         "manualTranslation": true
     },
-    "compatibility_time_slot8": "Hour of the Sheep|(13:30-15:29)|🐑",
+    "compatibility_time_slot8": "미시|(13:30-15:29)|🐑",
     "@compatibility_time_slot8": {
         "manualTranslation": true
     },
-    "compatibility_time_slot9": "Hour of the Monkey|(15:30-17:29)|🐒",
+    "compatibility_time_slot9": "신시|(15:30-17:29)|🐒",
     "@compatibility_time_slot9": {
         "manualTranslation": true
     },
-    "compatibility_time_slot10": "Hour of the Rooster|(17:30-19:29)|🐔",
+    "compatibility_time_slot10": "유시|(17:30-19:29)|🐔",
     "@compatibility_time_slot10": {
         "manualTranslation": true
     },
-    "compatibility_time_slot11": "Hour of the Dog|(19:30-21:29)|🐕",
+    "compatibility_time_slot11": "술시|(19:30-21:29)|🐕",
     "@compatibility_time_slot11": {
         "manualTranslation": true
     },
-    "compatibility_time_slot12": "Hour of the Pig|(21:30-23:29)|🐖",
+    "compatibility_time_slot12": "해시|(21:30-23:29)|🐖",
     "@compatibility_time_slot12": {
         "manualTranslation": true
     },
     "voting_share_benefit_text": "Get 1 bonus star candy for every 100 votes and share!",
     "@voting_share_benefit_text": {
+        "manualTranslation": false
+    },
+    "fortune_total_title": "Comprehensive horoscopes",
+    "@fortune_total_title": {
+        "manualTranslation": false
+    },
+    "fortune_monthly": "Monthly Horoscopes",
+    "@fortune_monthly": {
+        "manualTranslation": false
+    },
+    "fortune_love": "Ae Jung Woon",
+    "@fortune_love": {
+        "manualTranslation": false
+    },
+    "fortune_career": "Business fortunes",
+    "@fortune_career": {
+        "manualTranslation": false
+    },
+    "fortune_health": "Health clouds",
+    "@fortune_health": {
+        "manualTranslation": false
+    },
+    "fortune_money": "Fortune Telling",
+    "@fortune_money": {
+        "manualTranslation": false
+    },
+    "fortune_relationship": "Interpersonal",
+    "@fortune_relationship": {
+        "manualTranslation": false
+    },
+    "fortune_lucky_keyword": "Lucky keywords",
+    "@fortune_lucky_keyword": {
+        "manualTranslation": false
+    },
+    "fortune_lucky_days": "Lucky days of the week",
+    "@fortune_lucky_days": {
+        "manualTranslation": false
+    },
+    "fortune_lucky_color": "Lucky colors",
+    "@fortune_lucky_color": {
+        "manualTranslation": false
+    },
+    "fortune_lucky_number": "Lucky numbers",
+    "@fortune_lucky_number": {
+        "manualTranslation": false
+    },
+    "fortune_lucky_direction": "Direction of Fortune",
+    "@fortune_lucky_direction": {
+        "manualTranslation": false
+    },
+    "fortune_advice": "Advice",
+    "@fortune_advice": {
+        "manualTranslation": false
+    },
+    "vote_share_message": "Voted!",
+    "@vote_share_message": {
+        "manualTranslation": false
+    },
+    "fortune_month1": "Horoscopes for January",
+    "@fortune_month1": {
+        "manualTranslation": false
+    },
+    "fortune_month2": "Horoscopes for February",
+    "@fortune_month2": {
+        "manualTranslation": false
+    },
+    "fortune_month3": "Horoscopes for March",
+    "@fortune_month3": {
+        "manualTranslation": false
+    },
+    "fortune_month4": "Horoscopes for April",
+    "@fortune_month4": {
+        "manualTranslation": false
+    },
+    "fortune_month8": "Horoscope for August",
+    "@fortune_month8": {
+        "manualTranslation": false
+    },
+    "fortune_month7": "Horoscopes for July",
+    "@fortune_month7": {
+        "manualTranslation": false
+    },
+    "fortune_month6": "Horoscope for June",
+    "@fortune_month6": {
+        "manualTranslation": false
+    },
+    "fortune_month5": "Horoscopes for May",
+    "@fortune_month5": {
+        "manualTranslation": false
+    },
+    "fortune_month9": "Horoscopes for September",
+    "@fortune_month9": {
+        "manualTranslation": false
+    },
+    "fortune_month10": "Horoscope for October",
+    "@fortune_month10": {
+        "manualTranslation": false
+    },
+    "fortune_month11": "Horoscopes for November",
+    "@fortune_month11": {
+        "manualTranslation": false
+    },
+    "fortune_month12": "Horoscopes for December",
+    "@fortune_month12": {
         "manualTranslation": false
     }
 }

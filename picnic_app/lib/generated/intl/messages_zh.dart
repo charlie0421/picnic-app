@@ -20,23 +20,25 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'zh';
 
-  static String m0(day) => "${day}일 전";
+  static String m0(year) => "${year} 年星座运势";
 
-  static String m1(hour) => "${hour}小时前";
+  static String m1(day) => "${day}일 전";
 
-  static String m2(minute) => "${minute}分钟前";
+  static String m2(hour) => "${hour}小时前";
 
-  static String m3(nickname) => "回复 ${nickname}...";
+  static String m3(minute) => "${minute}分钟前";
 
-  static String m4(count) => "🎉 到目前为止，您已达到 \$${count} 目标！ 🎉";
+  static String m4(nickname) => "回复 ${nickname}...";
 
-  static String m5(num1) => "${num1} +${num1}奖金";
+  static String m5(count) => "🎉 到目前为止，您已达到 \$${count} 目标！ 🎉";
 
-  static String m6(rank) => "第${rank}名";
+  static String m6(num1) => "${num1} +${num1}奖金";
 
-  static String m7(version) => "新版本(${version})发布。";
+  static String m7(rank) => "第${rank}名";
 
-  static String m8(version) => "您需要更新到新版本(${version})";
+  static String m8(version) => "新版本(${version})发布。";
+
+  static String m9(version) => "您需要更新到新版本(${version})";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -253,6 +255,32 @@ class MessageLookup extends MessageLookupByLibrary {
         "exception_auth_message_kakao_not_supported":
             MessageLookupByLibrary.simpleMessage(
                 "我无法使用 KakaoTalk 应用程序登录。\n请尝试使用您的 Kakao 帐户登录。"),
+        "fortune_advice": MessageLookupByLibrary.simpleMessage("建议"),
+        "fortune_career": MessageLookupByLibrary.simpleMessage("商业财富"),
+        "fortune_health": MessageLookupByLibrary.simpleMessage("健康云"),
+        "fortune_love": MessageLookupByLibrary.simpleMessage("애정운"),
+        "fortune_lucky_color": MessageLookupByLibrary.simpleMessage("幸运颜色"),
+        "fortune_lucky_days": MessageLookupByLibrary.simpleMessage("一周中的幸运日"),
+        "fortune_lucky_direction": MessageLookupByLibrary.simpleMessage("幸运方向"),
+        "fortune_lucky_keyword": MessageLookupByLibrary.simpleMessage("幸运关键词"),
+        "fortune_lucky_number": MessageLookupByLibrary.simpleMessage("幸运数字"),
+        "fortune_money": MessageLookupByLibrary.simpleMessage("财富"),
+        "fortune_month1": MessageLookupByLibrary.simpleMessage("一月份星座运势"),
+        "fortune_month10": MessageLookupByLibrary.simpleMessage("十月份运势"),
+        "fortune_month11": MessageLookupByLibrary.simpleMessage("十一月运势"),
+        "fortune_month12": MessageLookupByLibrary.simpleMessage("十二月运势"),
+        "fortune_month2": MessageLookupByLibrary.simpleMessage("二月运势"),
+        "fortune_month3": MessageLookupByLibrary.simpleMessage("三月运势"),
+        "fortune_month4": MessageLookupByLibrary.simpleMessage("四月运势"),
+        "fortune_month5": MessageLookupByLibrary.simpleMessage("五月运势"),
+        "fortune_month6": MessageLookupByLibrary.simpleMessage("六月运势"),
+        "fortune_month7": MessageLookupByLibrary.simpleMessage("七月运势"),
+        "fortune_month8": MessageLookupByLibrary.simpleMessage("八月星座运势"),
+        "fortune_month9": MessageLookupByLibrary.simpleMessage("九月运势"),
+        "fortune_monthly": MessageLookupByLibrary.simpleMessage("每月星座运势"),
+        "fortune_relationship": MessageLookupByLibrary.simpleMessage("人际关系"),
+        "fortune_title": m0,
+        "fortune_total_title": MessageLookupByLibrary.simpleMessage("综合星座运势"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("专辑名称"),
         "hint_nickname_input": MessageLookupByLibrary.simpleMessage("请输入昵称。"),
         "image_save_success": MessageLookupByLibrary.simpleMessage("图像已保存。"),
@@ -267,7 +295,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("成为第一个发表评论的人！"),
         "label_bonus": MessageLookupByLibrary.simpleMessage("奖金"),
-        "label_button_agreement": MessageLookupByLibrary.simpleMessage("同意"),
+        "label_button_agreement": MessageLookupByLibrary.simpleMessage("接受"),
         "label_button_close": MessageLookupByLibrary.simpleMessage("關閉"),
         "label_button_disagreement":
             MessageLookupByLibrary.simpleMessage("不同意"),
@@ -381,9 +409,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_tabbar_vote_end": MessageLookupByLibrary.simpleMessage("退出"),
         "label_tabbar_vote_upcoming":
             MessageLookupByLibrary.simpleMessage("即将推出"),
-        "label_time_ago_day": m0,
-        "label_time_ago_hour": m1,
-        "label_time_ago_minute": m2,
+        "label_time_ago_day": m1,
+        "label_time_ago_hour": m2,
+        "label_time_ago_minute": m3,
         "label_time_ago_right_now":
             MessageLookupByLibrary.simpleMessage("就在刚才"),
         "label_title_comment": MessageLookupByLibrary.simpleMessage("评论"),
@@ -506,7 +534,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("您想删除废料吗？"),
         "post_delete_scrap_title": MessageLookupByLibrary.simpleMessage("删除废料"),
         "post_flagged": MessageLookupByLibrary.simpleMessage("包含不当内容"),
-        "post_go_to_boards": MessageLookupByLibrary.simpleMessage("转到留言板"),
+        "post_go_to_boards": MessageLookupByLibrary.simpleMessage("前往留言板"),
         "post_header_publish": MessageLookupByLibrary.simpleMessage("出版"),
         "post_header_temporary_save":
             MessageLookupByLibrary.simpleMessage("草稿"),
@@ -537,7 +565,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "post_my_written_scrap": MessageLookupByLibrary.simpleMessage("我的废品"),
         "post_no_comment": MessageLookupByLibrary.simpleMessage("无评论。"),
         "post_not_found": MessageLookupByLibrary.simpleMessage("未找到帖子。"),
-        "post_replying_comment": m3,
+        "post_replying_comment": m4,
         "post_report_fail": MessageLookupByLibrary.simpleMessage("报告失败。"),
         "post_report_label": MessageLookupByLibrary.simpleMessage("提交报告"),
         "post_report_other_input":
@@ -573,7 +601,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "share_image_success": MessageLookupByLibrary.simpleMessage("成功共享图像"),
         "share_no_twitter": MessageLookupByLibrary.simpleMessage("X 应用程序丢失。"),
         "share_twitter": MessageLookupByLibrary.simpleMessage("在 Twitter 上分享"),
-        "text_achievement": m4,
+        "text_achievement": m5,
         "text_ads_random": MessageLookupByLibrary.simpleMessage("查看广告并收集随机图片。"),
         "text_bonus": MessageLookupByLibrary.simpleMessage("奖金"),
         "text_bookmark_failed": MessageLookupByLibrary.simpleMessage("取消书签失败"),
@@ -612,10 +640,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_purchase_vat_included":
             MessageLookupByLibrary.simpleMessage("*价格包含增值税。"),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("星形糖果"),
-        "text_star_candy_with_bonus": m5,
+        "text_star_candy_with_bonus": m6,
         "text_this_time_vote": MessageLookupByLibrary.simpleMessage("这次投票"),
         "text_vote_complete": MessageLookupByLibrary.simpleMessage("投票结束"),
-        "text_vote_rank": m6,
+        "text_vote_rank": m7,
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("奖励排名"),
         "text_vote_where_is_my_bias":
@@ -629,13 +657,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "update_button": MessageLookupByLibrary.simpleMessage("更新"),
         "update_cannot_open_appstore":
             MessageLookupByLibrary.simpleMessage("我无法打开应用程序商店。"),
-        "update_recommend_text": m7,
-        "update_required_text": m8,
+        "update_recommend_text": m8,
+        "update_required_text": m9,
         "update_required_title": MessageLookupByLibrary.simpleMessage("需要更新。"),
         "views": MessageLookupByLibrary.simpleMessage("意见"),
         "vote_result_save_button": MessageLookupByLibrary.simpleMessage("保存结果"),
         "vote_result_share_button":
             MessageLookupByLibrary.simpleMessage("分享您的成果"),
+        "vote_share_message": MessageLookupByLibrary.simpleMessage("投了赞成票！"),
         "voting_share_benefit_text":
             MessageLookupByLibrary.simpleMessage("每 100 次投票和分享可获得 1 个奖励星星糖果！")
       };
