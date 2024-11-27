@@ -5,6 +5,7 @@ import 'package:picnic_app/app.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
 import 'package:picnic_app/dialogs/fullscreen_dialog.dart';
+import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/community/fortune.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
@@ -86,9 +87,9 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                           labelColor: Colors.pink[400],
                           unselectedLabelColor: Colors.grey[600],
                           indicatorColor: Colors.pink[400],
-                          tabs: const [
-                            Tab(text: '종합운세'),
-                            Tab(text: '월별운세'),
+                          tabs: [
+                            Tab(text: S.of(context).fortune_total_title),
+                            Tab(text: S.of(context).fortune_monthly),
                           ],
                         ),
                         SizedBox(
@@ -142,11 +143,16 @@ class _FortunePageState extends ConsumerState<FortunePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildAspectSection('💝 애정운', fortune.aspects.love),
-          _buildAspectSection('💼 사업운', fortune.aspects.career),
-          _buildAspectSection('💪 건강운', fortune.aspects.health),
-          _buildAspectSection('💰 재물운', fortune.aspects.finances),
-          _buildAspectSection('👥 대인관계', fortune.aspects.relationships),
+          _buildAspectSection(
+              '💝 ${S.of(context).fortune_love}', fortune.aspects.love),
+          _buildAspectSection(
+              '💼 ${S.of(context).fortune_career}', fortune.aspects.career),
+          _buildAspectSection(
+              '💪 ${S.of(context).fortune_health}', fortune.aspects.health),
+          _buildAspectSection(
+              '💰 ${S.of(context).fortune_money}', fortune.aspects.finances),
+          _buildAspectSection('👥 ${S.of(context).fortune_relationship}',
+              fortune.aspects.relationships),
           const SizedBox(height: 20),
           _buildLuckySection(fortune),
           const SizedBox(height: 20),
@@ -169,7 +175,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
             margin: const EdgeInsets.only(bottom: 16),
             child: ExpansionTile(
               title: Text(
-                '${monthData.month}월의 운세',
+                getMonthName(monthData.month),
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               children: [
@@ -201,7 +207,6 @@ class _FortunePageState extends ConsumerState<FortunePage> {
     );
   }
 
-  // ... 나머지 helper 메서드들은 그대로 유지 ...
   Widget _buildHeaderSection(FortuneModel fortune) {
     return Container(
       margin: const EdgeInsets.all(16),
@@ -254,7 +259,9 @@ class _FortunePageState extends ConsumerState<FortunePage> {
               margin: EdgeInsets.symmetric(horizontal: 30.cw),
               child: VoteCommonTitle(
                 title:
-                    '${getLocaleTextFromJson(fortune.artist.name)} ${fortune.year}년 토정비결',
+                    '${getLocaleTextFromJson(fortune.artist.name)} ${Intl.message('fortune_title', args: [
+                      fortune.year.toString()
+                    ])}',
               ),
             ),
           ),
@@ -315,19 +322,22 @@ class _FortunePageState extends ConsumerState<FortunePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            '✨ 행운의 키워드',
+          Text(
+            '✨ ${S.of(context).fortune_lucky_keyword}',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 12),
-          _buildLuckyRow('행운의 요일', fortune.lucky.days.join(', ')),
-          _buildLuckyRow('행운의 색상', fortune.lucky.colors.join(', ')),
-          _buildLuckyRow('행운의 숫자',
+          _buildLuckyRow(
+              S.of(context).fortune_lucky_days, fortune.lucky.days.join(', ')),
+          _buildLuckyRow(S.of(context).fortune_lucky_color,
+              fortune.lucky.colors.join(', ')),
+          _buildLuckyRow(S.of(context).fortune_lucky_number,
               fortune.lucky.numbers.map((e) => e.toString()).join(', ')),
-          _buildLuckyRow('행운의 방향', fortune.lucky.directions.join(', ')),
+          _buildLuckyRow(S.of(context).fortune_lucky_direction,
+              fortune.lucky.directions.join(', ')),
         ],
       ),
     );
@@ -359,8 +369,8 @@ class _FortunePageState extends ConsumerState<FortunePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          '💡 조언',
+        Text(
+          '💡 ${S.of(context).fortune_advice}',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -384,5 +394,36 @@ class _FortunePageState extends ConsumerState<FortunePage> {
             )),
       ],
     );
+  }
+
+  String getMonthName(int month) {
+    switch (month) {
+      case 1:
+        return S.of(context).fortune_month1;
+      case 2:
+        return S.of(context).fortune_month2;
+      case 3:
+        return S.of(context).fortune_month3;
+      case 4:
+        return S.of(context).fortune_month4;
+      case 5:
+        return S.of(context).fortune_month5;
+      case 6:
+        return S.of(context).fortune_month6;
+      case 7:
+        return S.of(context).fortune_month7;
+      case 8:
+        return S.of(context).fortune_month8;
+      case 9:
+        return S.of(context).fortune_month9;
+      case 10:
+        return S.of(context).fortune_month10;
+      case 11:
+        return S.of(context).fortune_month11;
+      case 12:
+        return S.of(context).fortune_month12;
+      default:
+        return '';
+    }
   }
 }
