@@ -10,7 +10,6 @@ import 'package:picnic_app/models/community/fortune.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/ui.dart';
-
 import '../providers/community/fortune_provider.dart';
 
 class FortuneDialogConstants {
@@ -37,6 +36,8 @@ class FortunePage extends ConsumerStatefulWidget {
 }
 
 class _FortunePageState extends ConsumerState<FortunePage> {
+  bool showMonthly = false;
+
   @override
   Widget build(BuildContext context) {
     final fortuneAsync = ref.watch(getFortuneProvider(
@@ -48,91 +49,74 @@ class _FortunePageState extends ConsumerState<FortunePage> {
     return FullScreenDialog(
       child: fortuneAsync.when(
         loading: () => const Center(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.pink),
-          ),
-        ),
-        error: (error, stackTrace) => Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.error_outline,
-              color: Colors.red,
-              size: 60,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '오류가 발생했습니다\n$error',
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.red,
-                fontSize: 16,
-              ),
-            ),
-          ],
-        ),
-        data: (fortune) => Stack(
-          children: [
-            SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildTopSection(fortune),
-                  _buildHeaderSection(fortune),
-                  DefaultTabController(
-                    length: 2,
-                    child: Column(
-                      children: [
-                        TabBar(
-                          labelColor: Colors.pink[400],
-                          unselectedLabelColor: Colors.grey[600],
-                          indicatorColor: Colors.pink[400],
-                          tabs: [
-                            Tab(text: S.of(context).fortune_total_title),
-                            Tab(text: S.of(context).fortune_monthly),
-                          ],
-                        ),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height -
-                              400, // 상단 영역을 제외한 높이
-                          child: TabBarView(
-                            children: [
-                              SingleChildScrollView(
-                                child: _buildOverallFortune(fortune),
-                              ),
-                              SingleChildScrollView(
-                                child: _buildMonthlyFortune(fortune),
-                              ),
-                            ],
-                          ),
-                        ),
+            child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.pink))),
+        error: (error, stackTrace) => _buildError(error),
+        data: (fortune) => DefaultTabController(
+          length: 2,
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildTopSection(fortune),
+                    _buildHeaderSection(fortune),
+                    TabBar(
+                      labelColor: Colors.pink[400],
+                      unselectedLabelColor: Colors.grey[600],
+                      indicatorColor: Colors.pink[400],
+                      onTap: (index) =>
+                          setState(() => showMonthly = index == 1),
+                      tabs: [
+                        Tab(text: S.of(context).fortune_total_title),
+                        Tab(text: S.of(context).fortune_monthly),
                       ],
                     ),
-                  ),
-                ],
-              ),
-            ),
-            Positioned(
-              top: 50,
-              right: 15,
-              child: GestureDetector(
-                onTap: () => Navigator.of(context).pop(),
-                child: Container(
-                  width: FortuneDialogConstants.closeButtonSize,
-                  height: FortuneDialogConstants.closeButtonSize,
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.close,
-                    color: Colors.white,
-                  ),
+                    showMonthly
+                        ? _buildMonthlyFortune(fortune)
+                        : _buildOverallFortune(fortune),
+                  ],
                 ),
               ),
-            ),
-          ],
+              Positioned(
+                top: 50,
+                right: 15,
+                child: _buildCloseButton(),
+              ),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildError(dynamic error) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(Icons.error_outline, color: Colors.red, size: 60),
+        const SizedBox(height: 16),
+        Text(
+          '오류가 발생했습니다\n$error',
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: Colors.red, fontSize: 16),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCloseButton() {
+    return GestureDetector(
+      onTap: () => Navigator.of(context).pop(),
+      child: Container(
+        width: FortuneDialogConstants.closeButtonSize,
+        height: FortuneDialogConstants.closeButtonSize,
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.5),
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(Icons.close, color: Colors.white),
       ),
     );
   }
@@ -324,7 +308,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
         children: [
           Text(
             '✨ ${S.of(context).fortune_lucky_keyword}',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -371,7 +355,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
       children: [
         Text(
           '💡 ${S.of(context).fortune_advice}',
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
