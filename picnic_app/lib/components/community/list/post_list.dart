@@ -46,9 +46,10 @@ class _PostListState extends ConsumerState<PostList> {
               showRequireLoginDialog();
               return;
             }
+
             final fortune = await supabase
                 .from("fortune_telling")
-                .select()
+                .select('*, artist(*)')
                 .eq('artist_id', widget.id)
                 .maybeSingle();
 

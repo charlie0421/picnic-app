@@ -22,8 +22,12 @@ FortuneModel _$FortuneModelFromJson(Map<String, dynamic> json) {
 mixin _$FortuneModel {
   @JsonKey(name: 'id')
   String get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'year')
+  int get year => throw _privateConstructorUsedError;
   @JsonKey(name: 'artist_id')
   int get artistId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'artist')
+  ArtistModel get artist => throw _privateConstructorUsedError;
   @JsonKey(name: 'overall_luck')
   String get overallLuck => throw _privateConstructorUsedError;
   @JsonKey(name: 'monthly_fortunes')
@@ -54,7 +58,9 @@ abstract class $FortuneModelCopyWith<$Res> {
   @useResult
   $Res call(
       {@JsonKey(name: 'id') String id,
+      @JsonKey(name: 'year') int year,
       @JsonKey(name: 'artist_id') int artistId,
+      @JsonKey(name: 'artist') ArtistModel artist,
       @JsonKey(name: 'overall_luck') String overallLuck,
       @JsonKey(name: 'monthly_fortunes')
       List<MonthlyFortuneModel> monthlyFortunes,
@@ -62,6 +68,7 @@ abstract class $FortuneModelCopyWith<$Res> {
       @JsonKey(name: 'lucky') LuckyModel lucky,
       @JsonKey(name: 'advice') List<String> advice});
 
+  $ArtistModelCopyWith<$Res> get artist;
   $AspectModelCopyWith<$Res> get aspects;
   $LuckyModelCopyWith<$Res> get lucky;
 }
@@ -82,7 +89,9 @@ class _$FortuneModelCopyWithImpl<$Res, $Val extends FortuneModel>
   @override
   $Res call({
     Object? id = null,
+    Object? year = null,
     Object? artistId = null,
+    Object? artist = null,
     Object? overallLuck = null,
     Object? monthlyFortunes = null,
     Object? aspects = null,
@@ -94,10 +103,18 @@ class _$FortuneModelCopyWithImpl<$Res, $Val extends FortuneModel>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
+      year: null == year
+          ? _value.year
+          : year // ignore: cast_nullable_to_non_nullable
+              as int,
       artistId: null == artistId
           ? _value.artistId
           : artistId // ignore: cast_nullable_to_non_nullable
               as int,
+      artist: null == artist
+          ? _value.artist
+          : artist // ignore: cast_nullable_to_non_nullable
+              as ArtistModel,
       overallLuck: null == overallLuck
           ? _value.overallLuck
           : overallLuck // ignore: cast_nullable_to_non_nullable
@@ -119,6 +136,16 @@ class _$FortuneModelCopyWithImpl<$Res, $Val extends FortuneModel>
           : advice // ignore: cast_nullable_to_non_nullable
               as List<String>,
     ) as $Val);
+  }
+
+  /// Create a copy of FortuneModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $ArtistModelCopyWith<$Res> get artist {
+    return $ArtistModelCopyWith<$Res>(_value.artist, (value) {
+      return _then(_value.copyWith(artist: value) as $Val);
+    });
   }
 
   /// Create a copy of FortuneModel
@@ -152,7 +179,9 @@ abstract class _$$FortuneModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {@JsonKey(name: 'id') String id,
+      @JsonKey(name: 'year') int year,
       @JsonKey(name: 'artist_id') int artistId,
+      @JsonKey(name: 'artist') ArtistModel artist,
       @JsonKey(name: 'overall_luck') String overallLuck,
       @JsonKey(name: 'monthly_fortunes')
       List<MonthlyFortuneModel> monthlyFortunes,
@@ -160,6 +189,8 @@ abstract class _$$FortuneModelImplCopyWith<$Res>
       @JsonKey(name: 'lucky') LuckyModel lucky,
       @JsonKey(name: 'advice') List<String> advice});
 
+  @override
+  $ArtistModelCopyWith<$Res> get artist;
   @override
   $AspectModelCopyWith<$Res> get aspects;
   @override
@@ -180,7 +211,9 @@ class __$$FortuneModelImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
+    Object? year = null,
     Object? artistId = null,
+    Object? artist = null,
     Object? overallLuck = null,
     Object? monthlyFortunes = null,
     Object? aspects = null,
@@ -192,10 +225,18 @@ class __$$FortuneModelImplCopyWithImpl<$Res>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
+      year: null == year
+          ? _value.year
+          : year // ignore: cast_nullable_to_non_nullable
+              as int,
       artistId: null == artistId
           ? _value.artistId
           : artistId // ignore: cast_nullable_to_non_nullable
               as int,
+      artist: null == artist
+          ? _value.artist
+          : artist // ignore: cast_nullable_to_non_nullable
+              as ArtistModel,
       overallLuck: null == overallLuck
           ? _value.overallLuck
           : overallLuck // ignore: cast_nullable_to_non_nullable
@@ -225,7 +266,9 @@ class __$$FortuneModelImplCopyWithImpl<$Res>
 class _$FortuneModelImpl implements _FortuneModel {
   const _$FortuneModelImpl(
       {@JsonKey(name: 'id') required this.id,
+      @JsonKey(name: 'year') required this.year,
       @JsonKey(name: 'artist_id') required this.artistId,
+      @JsonKey(name: 'artist') required this.artist,
       @JsonKey(name: 'overall_luck') required this.overallLuck,
       @JsonKey(name: 'monthly_fortunes')
       required final List<MonthlyFortuneModel> monthlyFortunes,
@@ -242,8 +285,14 @@ class _$FortuneModelImpl implements _FortuneModel {
   @JsonKey(name: 'id')
   final String id;
   @override
+  @JsonKey(name: 'year')
+  final int year;
+  @override
   @JsonKey(name: 'artist_id')
   final int artistId;
+  @override
+  @JsonKey(name: 'artist')
+  final ArtistModel artist;
   @override
   @JsonKey(name: 'overall_luck')
   final String overallLuck;
@@ -273,7 +322,7 @@ class _$FortuneModelImpl implements _FortuneModel {
 
   @override
   String toString() {
-    return 'FortuneModel(id: $id, artistId: $artistId, overallLuck: $overallLuck, monthlyFortunes: $monthlyFortunes, aspects: $aspects, lucky: $lucky, advice: $advice)';
+    return 'FortuneModel(id: $id, year: $year, artistId: $artistId, artist: $artist, overallLuck: $overallLuck, monthlyFortunes: $monthlyFortunes, aspects: $aspects, lucky: $lucky, advice: $advice)';
   }
 
   @override
@@ -282,8 +331,10 @@ class _$FortuneModelImpl implements _FortuneModel {
         (other.runtimeType == runtimeType &&
             other is _$FortuneModelImpl &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.year, year) || other.year == year) &&
             (identical(other.artistId, artistId) ||
                 other.artistId == artistId) &&
+            (identical(other.artist, artist) || other.artist == artist) &&
             (identical(other.overallLuck, overallLuck) ||
                 other.overallLuck == overallLuck) &&
             const DeepCollectionEquality()
@@ -298,7 +349,9 @@ class _$FortuneModelImpl implements _FortuneModel {
   int get hashCode => Object.hash(
       runtimeType,
       id,
+      year,
       artistId,
+      artist,
       overallLuck,
       const DeepCollectionEquality().hash(_monthlyFortunes),
       aspects,
@@ -324,7 +377,9 @@ class _$FortuneModelImpl implements _FortuneModel {
 abstract class _FortuneModel implements FortuneModel {
   const factory _FortuneModel(
           {@JsonKey(name: 'id') required final String id,
+          @JsonKey(name: 'year') required final int year,
           @JsonKey(name: 'artist_id') required final int artistId,
+          @JsonKey(name: 'artist') required final ArtistModel artist,
           @JsonKey(name: 'overall_luck') required final String overallLuck,
           @JsonKey(name: 'monthly_fortunes')
           required final List<MonthlyFortuneModel> monthlyFortunes,
@@ -340,8 +395,14 @@ abstract class _FortuneModel implements FortuneModel {
   @JsonKey(name: 'id')
   String get id;
   @override
+  @JsonKey(name: 'year')
+  int get year;
+  @override
   @JsonKey(name: 'artist_id')
   int get artistId;
+  @override
+  @JsonKey(name: 'artist')
+  ArtistModel get artist;
   @override
   @JsonKey(name: 'overall_luck')
   String get overallLuck;

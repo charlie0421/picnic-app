@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:picnic_app/models/vote/artist.dart';
 
 part '../../generated/models/community/fortune.freezed.dart';
 
@@ -8,7 +9,9 @@ part '../../generated/models/community/fortune.g.dart';
 class FortuneModel with _$FortuneModel {
   const factory FortuneModel({
     @JsonKey(name: 'id') required String id,
+    @JsonKey(name: 'year') required int year,
     @JsonKey(name: 'artist_id') required int artistId,
+    @JsonKey(name: 'artist') required ArtistModel artist,
     @JsonKey(name: 'overall_luck') required String overallLuck,
     @JsonKey(name: 'monthly_fortunes')
     required List<MonthlyFortuneModel> monthlyFortunes,
