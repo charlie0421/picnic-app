@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/app.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
@@ -40,6 +41,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
     final fortuneAsync = ref.watch(getFortuneProvider(
       artistId: widget.artistId,
       year: widget.year,
+      language: Intl.getCurrentLocale(),
     ));
 
     return FullScreenDialog(
@@ -208,7 +210,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
       decoration: BoxDecoration(
         border: Border.all(
           color: AppColors.primary500,
-          width: 1,
+          width: 2,
         ),
         borderRadius: BorderRadius.circular(12),
       ),
@@ -252,7 +254,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
               margin: EdgeInsets.symmetric(horizontal: 30.cw),
               child: VoteCommonTitle(
                 title:
-                    '${getLocaleTextFromJson(fortune.artist.name)}${fortune.year}년 토정비결',
+                    '${getLocaleTextFromJson(fortune.artist.name)} ${fortune.year}년 토정비결',
               ),
             ),
           ),

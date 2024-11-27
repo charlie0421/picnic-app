@@ -14,7 +14,10 @@ export class FortuneService {
         this.promptService = PromptService.getInstance();
     }
 
-    async getOrGenerateFortune(artistId: number, year: number): Promise<FortuneTelling> {
+    async getOrGenerateFortune(
+        artistId: number,
+        year: number,
+    ): Promise<FortuneTelling> {
         const startTime = Date.now();
 
         try {
@@ -26,100 +29,135 @@ export class FortuneService {
                 .eq('year', year)
                 .single();
 
-            console.log('Existing fortune:', existingFortune);
-
             if (fetchError && fetchError.code !== 'PGRST116') {
                 throw fetchError;
             }
 
+            let fortune: FortuneTelling;
+
             if (existingFortune) {
-                return existingFortune;
-            }
+                fortune = existingFortune;
+                // i18n 테이블의 누락된 번역 데이터 확인 및 생성
+                await this.checkAndGenerateTranslations(fortune);
+            } else {
+                console.log('Generating new fortune...');
 
-            console.log('Generating new fortune...');
+                // 아티스트 정보 조회
+                const { data: artist, error: artistError } = await this.supabase
+                    .from('artist')
+                    .select('name, yy, mm, dd, gender')
+                    .eq('id', artistId)
+                    .maybeSingle();
 
-            // 아티스트 정보 조회
-            const { data: artist, error: artistError } = await this.supabase
-                .from('artist')
-                .select('name, yy, mm, dd, gender')
-                .eq('id', artistId)
-                .maybeSingle();
+                if (artistError || !artist) {
+                    throw new Error('Artist not found');
+                }
 
-            if (artistError || !artist) {
-                throw new Error('Artist not found');
-            }
+                // 새로운 운세 생성
+                fortune = await this.generateNewFortune(
+                    artistId,
+                    artist.name['ko'],
+                    artist.yy,
+                    artist.mm,
+                    artist.dd,
+                    artist.gender,
+                    year,
+                );
 
-            // 새로운 운세 생성
-            const fortune = await this.generateNewFortune(
-                artistId,
-                artist.name['ko'],
-                artist.yy,
-                artist.mm,
-                artist.dd,
-                artist.gender,
-                year,
-            );
+                // 운세 저장
+                const { data: savedFortune, error: saveError } = await this.supabase
+                    .from('fortune_telling')
+                    .insert(fortune)
+                    .select()
+                    .single();
 
-            // 운세 저장
-            const { data: savedFortune, error: saveError } = await this.supabase
-                .from('fortune_telling')
-                .insert(fortune)
-                .select()
-                .single();
+                if (saveError) {
+                    throw saveError;
+                }
 
-            if (saveError) {
-                throw saveError;
+                fortune = savedFortune;
+
+                // 새로운 운세의 번역 데이터 생성
+                await this.checkAndGenerateTranslations(fortune);
             }
 
             const executionTime = Date.now() - startTime;
-            console.log(`Fortune generated in ${executionTime}ms`);
+            console.log(`Fortune process completed in ${executionTime}ms`);
 
-            return savedFortune;
+            return fortune;
         } catch (error) {
             console.error('Error in getOrGenerateFortune:', error);
             throw error;
         }
     }
 
-    async generateTranslations(
-        artistId: number,
-        year: number,
-        fortune: FortuneTelling,
-    ): Promise<void> {
+    async getTranslatedFortune(
+        fortuneId: string,
+        language: SupportedLanguage,
+    ): Promise<FortuneTelling | null> {
+        if (language === 'ko') {
+            const { data: fortune } = await this.supabase
+                .from('fortune_telling')
+                .select('*')
+                .eq('id', fortuneId)
+                .single();
+            return fortune;
+        }
+
+        const { data: translation } = await this.supabase
+            .from('fortune_telling_i18n')
+            .select('*')
+            .eq('fortune_id', fortuneId)
+            .eq('language', language)
+            .single();
+
+        return translation;
+    }
+
+    private async checkAndGenerateTranslations(fortune: FortuneTelling): Promise<void> {
         const languages: SupportedLanguage[] = ['en', 'ja', 'zh'];
 
+        // 각 언어별로 번역 데이터 존재 여부 확인
         for (const lang of languages) {
             try {
-                const translatedFortune = await this.translateFortune(fortune, lang);
-
-                await this.supabase
+                const { data: existingTranslation } = await this.supabase
                     .from('fortune_telling_i18n')
-                    .insert({
-                        ...translatedFortune,
-                        artist_id: artistId,
-                        year: year,
-                        language: lang,
-                    });
+                    .select('id')
+                    .eq('fortune_id', fortune.id)
+                    .eq('language', lang)
+                    .single();
 
-                console.log(`Translation completed for ${lang}`);
+                if (!existingTranslation) {
+                    console.log(`Generating missing translation for language: ${lang}`);
+
+                    // 번역 생성
+                    const translatedFortune = await this.translateFortune(fortune, lang);
+
+                    // 번역 데이터 저장
+                    const { error: insertError } = await this.supabase
+                        .from('fortune_telling_i18n')
+                        .insert({
+                            fortune_id: fortune.id,
+                            artist_id: fortune.artist_id,
+                            year: fortune.year,
+                            language: lang,
+                            overall_luck: translatedFortune.overall_luck,
+                            monthly_fortunes: translatedFortune.monthly_fortunes,
+                            aspects: translatedFortune.aspects,
+                            lucky: translatedFortune.lucky,
+                            advice: translatedFortune.advice,
+                        });
+
+                    if (insertError) {
+                        throw insertError;
+                    }
+
+                    console.log(`Translation generated and saved for ${lang}`);
+                }
             } catch (error) {
-                console.error(`Error translating fortune to ${lang}:`, error);
+                console.error(`Error handling translation for ${lang}:`, error);
+                // 개별 언어 처리 실패 시 다음 언어 처리 계속 진행
             }
-        }
-    }
-
-    private async translateSingle(text: string, language: SupportedLanguage): Promise<string> {
-        const translated = await translateBatch([text], language);
-        return translated[0] ?? text; // fallback to original text if translation fails
-    }
-
-    private async translateArray(texts: string[], language: SupportedLanguage): Promise<string[]> {
-        try {
-            const translated = await translateBatch(texts, language);
-            return translated.map((t, i) => t ?? texts[i]); // fallback to original texts
-        } catch (error) {
-            console.error('Translation error:', error);
-            return texts; // return original texts if translation fails
         }
     }
 
@@ -171,6 +209,7 @@ export class FortuneService {
 
             // 운세 객체 생성
             const fortune: FortuneTelling = {
+                id: result.id,
                 artist_id: artistId,
                 year,
                 overall_luck: result.overall_luck,
@@ -187,23 +226,67 @@ export class FortuneService {
         }
     }
 
-    private validateFortuneResult(result: any): boolean {
-        return (
-            result &&
-            typeof result.overall_luck === 'string' &&
-            Array.isArray(result.monthly_fortunes) &&
-            result.monthly_fortunes.length === 12 &&
-            typeof result.aspects === 'object' &&
-            typeof result.lucky === 'object' &&
-            Array.isArray(result.advice) &&
-            result.advice.length === 3
-        );
+    private async generateTranslations(fortune: FortuneTelling): Promise<void> {
+        const languages: SupportedLanguage[] = ['en', 'ja', 'zh'];
+
+        console.log('Starting translations for fortune:', fortune.id);
+
+        for (const lang of languages) {
+            try {
+                // 기존 번역이 있는지 확인
+                const { data: existingTranslation, error: checkError } = await this.supabase
+                    .from('fortune_telling_i18n')
+                    .select('*')
+                    .eq('fortune_id', fortune.id)
+                    .eq('language', lang)
+                    .single();
+
+                if (!checkError && existingTranslation) {
+                    console.log(`Translation for ${lang} already exists`);
+                    continue;
+                }
+
+                console.log(`Generating translation for ${lang}...`);
+
+                // 번역 생성
+                const translatedFortune = await this.translateFortune(fortune, lang);
+
+                // 번역 데이터 준비
+                const translationData = {
+                    fortune_id: fortune.id,
+                    artist_id: fortune.artist_id,
+                    year: fortune.year,
+                    language: lang,
+                    overall_luck: translatedFortune.overall_luck,
+                    monthly_fortunes: translatedFortune.monthly_fortunes,
+                    aspects: translatedFortune.aspects,
+                    lucky: translatedFortune.lucky,
+                    advice: translatedFortune.advice,
+                };
+
+                // 번역 저장
+                const { error: saveError } = await this.supabase
+                    .from('fortune_telling_i18n')
+                    .insert(translationData);
+
+                if (saveError) {
+                    throw saveError;
+                }
+
+                console.log(`Translation completed for ${lang}`);
+            } catch (error) {
+                console.error(`Error generating translation for ${lang}:`, error);
+                // 개별 언어의 번역 실패는 다른 언어의 번역을 중단시키지 않음
+            }
+        }
+
+        console.log('All translations completed');
     }
 
     private async translateFortune(
         fortune: FortuneTelling,
         language: SupportedLanguage,
-    ): Promise<FortuneTelling> {
+    ): Promise<Omit<FortuneTelling, 'id' | 'created_at' | 'updated_at'>> {
         const translatedMonthly = await Promise.all(
             fortune.monthly_fortunes.map(async (monthly) => ({
                 month: monthly.month,
@@ -230,12 +313,41 @@ export class FortuneService {
         };
 
         return {
-            ...fortune,
+            artist_id: fortune.artist_id,
+            year: fortune.year,
             overall_luck: await this.translateSingle(fortune.overall_luck, language),
             monthly_fortunes: translatedMonthly,
             aspects: translatedAspects,
             lucky: translatedLucky,
             advice: await this.translateArray(fortune.advice, language),
         };
+    }
+
+    private async translateSingle(text: string, language: SupportedLanguage): Promise<string> {
+        const translated = await translateBatch([text], language);
+        return translated[0] ?? text;
+    }
+
+    private async translateArray(texts: string[], language: SupportedLanguage): Promise<string[]> {
+        try {
+            const translated = await translateBatch(texts, language);
+            return translated.map((t, i) => t ?? texts[i]);
+        } catch (error) {
+            console.error('Translation error:', error);
+            return texts;
+        }
+    }
+
+    private validateFortuneResult(result: any): boolean {
+        return (
+            result &&
+            typeof result.overall_luck === 'string' &&
+            Array.isArray(result.monthly_fortunes) &&
+            result.monthly_fortunes.length === 12 &&
+            typeof result.aspects === 'object' &&
+            typeof result.lucky === 'object' &&
+            Array.isArray(result.advice) &&
+            result.advice.length === 3
+        );
     }
 }
