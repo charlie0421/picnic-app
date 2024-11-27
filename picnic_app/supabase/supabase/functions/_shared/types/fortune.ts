@@ -1,5 +1,7 @@
+import { SupportedLanguage } from './openai.ts';
+
 export interface FortuneTelling {
-    id?: string;
+    id: string; // UUID
     artist_id: number;
     year: number;
     overall_luck: string;
@@ -9,6 +11,11 @@ export interface FortuneTelling {
     advice: string[];
     created_at?: string;
     updated_at?: string;
+}
+
+export interface FortuneTellingI18n extends FortuneTelling {
+    fortune_id: string; // 참조하는 fortune_telling의 UUID
+    language: SupportedLanguage;
 }
 
 export interface MonthlyFortune {

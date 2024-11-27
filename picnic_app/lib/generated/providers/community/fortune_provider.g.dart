@@ -6,7 +6,7 @@ part of '../../../providers/community/fortune_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$getFortuneHash() => r'38d0564fd6c305d8050875c336ae0446628f29c1';
+String _$getFortuneHash() => r'71cc218bef6e69eef1a28451bb6e61bb711a1d1d';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -42,10 +42,12 @@ class GetFortuneFamily extends Family<AsyncValue<FortuneModel>> {
   GetFortuneProvider call({
     required int artistId,
     required int year,
+    String language = 'ko',
   }) {
     return GetFortuneProvider(
       artistId: artistId,
       year: year,
+      language: language,
     );
   }
 
@@ -56,6 +58,7 @@ class GetFortuneFamily extends Family<AsyncValue<FortuneModel>> {
     return call(
       artistId: provider.artistId,
       year: provider.year,
+      language: provider.language,
     );
   }
 
@@ -80,11 +83,13 @@ class GetFortuneProvider extends AutoDisposeFutureProvider<FortuneModel> {
   GetFortuneProvider({
     required int artistId,
     required int year,
+    String language = 'ko',
   }) : this._internal(
           (ref) => getFortune(
             ref as GetFortuneRef,
             artistId: artistId,
             year: year,
+            language: language,
           ),
           from: getFortuneProvider,
           name: r'getFortuneProvider',
@@ -97,6 +102,7 @@ class GetFortuneProvider extends AutoDisposeFutureProvider<FortuneModel> {
               GetFortuneFamily._allTransitiveDependencies,
           artistId: artistId,
           year: year,
+          language: language,
         );
 
   GetFortuneProvider._internal(
@@ -108,10 +114,12 @@ class GetFortuneProvider extends AutoDisposeFutureProvider<FortuneModel> {
     required super.from,
     required this.artistId,
     required this.year,
+    required this.language,
   }) : super.internal();
 
   final int artistId;
   final int year;
+  final String language;
 
   @override
   Override overrideWith(
@@ -128,6 +136,7 @@ class GetFortuneProvider extends AutoDisposeFutureProvider<FortuneModel> {
         debugGetCreateSourceHash: null,
         artistId: artistId,
         year: year,
+        language: language,
       ),
     );
   }
@@ -141,7 +150,8 @@ class GetFortuneProvider extends AutoDisposeFutureProvider<FortuneModel> {
   bool operator ==(Object other) {
     return other is GetFortuneProvider &&
         other.artistId == artistId &&
-        other.year == year;
+        other.year == year &&
+        other.language == language;
   }
 
   @override
@@ -149,6 +159,7 @@ class GetFortuneProvider extends AutoDisposeFutureProvider<FortuneModel> {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, artistId.hashCode);
     hash = _SystemHash.combine(hash, year.hashCode);
+    hash = _SystemHash.combine(hash, language.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -162,6 +173,9 @@ mixin GetFortuneRef on AutoDisposeFutureProviderRef<FortuneModel> {
 
   /// The parameter `year` of this provider.
   int get year;
+
+  /// The parameter `language` of this provider.
+  String get language;
 }
 
 class _GetFortuneProviderElement
@@ -172,6 +186,8 @@ class _GetFortuneProviderElement
   int get artistId => (origin as GetFortuneProvider).artistId;
   @override
   int get year => (origin as GetFortuneProvider).year;
+  @override
+  String get language => (origin as GetFortuneProvider).language;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

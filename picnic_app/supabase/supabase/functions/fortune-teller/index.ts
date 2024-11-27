@@ -1,9 +1,10 @@
 import { FortuneService } from '../_shared/services/fortune.ts';
 import { createErrorResponse, createSuccessResponse } from '../_shared/response.ts';
+import { SupportedLanguage } from '../_shared/types/openai.ts';
 
 Deno.serve(async (req) => {
     try {
-        const { artist_id, year } = await req.json();
+        const { artist_id, year, language } = await req.json();
 
         if (!artist_id || !year) {
             return createErrorResponse(
@@ -21,17 +22,27 @@ Deno.serve(async (req) => {
             );
         }
 
+        // 언어 파라미터가 있는 경우 유효성 검사
+        if (language) {
+            const supportedLanguages: SupportedLanguage[] = ['ko', 'en', 'ja', 'zh'];
+            if (!supportedLanguages.includes(language as SupportedLanguage)) {
+                return createErrorResponse(
+                    '지원하지 않는 언어입니다.',
+                    400,
+                    'UNSUPPORTED_LANGUAGE',
+                );
+            }
+        }
+
         const fortuneService = new FortuneService();
 
-        // 운세 생성 또는 조회
+        // 먼저 운세 데이터를 가져오거나 생성 (이 과정에서 누락된 번역도 생성됨)
         const fortune = await fortuneService.getOrGenerateFortune(artist_id, year);
-        console.log('Fortune:', fortune);
 
-        // 번역 생성 (비동기로 처리)
-        fortuneService.generateTranslations(artist_id, year, fortune)
-            .catch((error) => console.error('Translation error:', error));
+        // 요청된 언어의 운세 데이터 조회
+        const translatedFortune = await fortuneService.getTranslatedFortune(fortune.id!, language);
 
-        return createSuccessResponse({ fortune });
+        return createSuccessResponse({ fortune: translatedFortune });
     } catch (error) {
         console.error('Fortune telling error:', error);
 
