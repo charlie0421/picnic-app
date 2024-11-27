@@ -98,7 +98,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
         const Icon(Icons.error_outline, color: Colors.red, size: 60),
         const SizedBox(height: 16),
         Text(
-          '오류가 발생했습니다\n$error',
+          S.of(context).message_error_occurred,
           textAlign: TextAlign.center,
           style: const TextStyle(color: Colors.red, fontSize: 16),
         ),
