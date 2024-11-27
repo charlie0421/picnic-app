@@ -270,7 +270,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "fortune_advice": MessageLookupByLibrary.simpleMessage("조언"),
         "fortune_career": MessageLookupByLibrary.simpleMessage("사업운"),
         "fortune_health": MessageLookupByLibrary.simpleMessage("건강운"),
-        "fortune_love": MessageLookupByLibrary.simpleMessage("애정운"),
+        "fortune_honor": MessageLookupByLibrary.simpleMessage("명예운"),
         "fortune_lucky_color": MessageLookupByLibrary.simpleMessage("행운의 색상"),
         "fortune_lucky_days": MessageLookupByLibrary.simpleMessage("행운의 요일"),
         "fortune_lucky_direction":

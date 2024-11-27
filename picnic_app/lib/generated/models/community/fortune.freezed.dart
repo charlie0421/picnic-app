@@ -435,8 +435,8 @@ MonthlyFortuneModel _$MonthlyFortuneModelFromJson(Map<String, dynamic> json) {
 mixin _$MonthlyFortuneModel {
   @JsonKey(name: 'month')
   int get month => throw _privateConstructorUsedError;
-  @JsonKey(name: 'love')
-  String get love => throw _privateConstructorUsedError;
+  @JsonKey(name: 'honor')
+  String get honor => throw _privateConstructorUsedError;
   @JsonKey(name: 'career')
   String get career => throw _privateConstructorUsedError;
   @JsonKey(name: 'health')
@@ -462,7 +462,7 @@ abstract class $MonthlyFortuneModelCopyWith<$Res> {
   @useResult
   $Res call(
       {@JsonKey(name: 'month') int month,
-      @JsonKey(name: 'love') String love,
+      @JsonKey(name: 'honor') String honor,
       @JsonKey(name: 'career') String career,
       @JsonKey(name: 'health') String health,
       @JsonKey(name: 'summary') String summary});
@@ -484,7 +484,7 @@ class _$MonthlyFortuneModelCopyWithImpl<$Res, $Val extends MonthlyFortuneModel>
   @override
   $Res call({
     Object? month = null,
-    Object? love = null,
+    Object? honor = null,
     Object? career = null,
     Object? health = null,
     Object? summary = null,
@@ -494,9 +494,9 @@ class _$MonthlyFortuneModelCopyWithImpl<$Res, $Val extends MonthlyFortuneModel>
           ? _value.month
           : month // ignore: cast_nullable_to_non_nullable
               as int,
-      love: null == love
-          ? _value.love
-          : love // ignore: cast_nullable_to_non_nullable
+      honor: null == honor
+          ? _value.honor
+          : honor // ignore: cast_nullable_to_non_nullable
               as String,
       career: null == career
           ? _value.career
@@ -524,7 +524,7 @@ abstract class _$$MonthlyFortuneModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {@JsonKey(name: 'month') int month,
-      @JsonKey(name: 'love') String love,
+      @JsonKey(name: 'honor') String honor,
       @JsonKey(name: 'career') String career,
       @JsonKey(name: 'health') String health,
       @JsonKey(name: 'summary') String summary});
@@ -544,7 +544,7 @@ class __$$MonthlyFortuneModelImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? month = null,
-    Object? love = null,
+    Object? honor = null,
     Object? career = null,
     Object? health = null,
     Object? summary = null,
@@ -554,9 +554,9 @@ class __$$MonthlyFortuneModelImplCopyWithImpl<$Res>
           ? _value.month
           : month // ignore: cast_nullable_to_non_nullable
               as int,
-      love: null == love
-          ? _value.love
-          : love // ignore: cast_nullable_to_non_nullable
+      honor: null == honor
+          ? _value.honor
+          : honor // ignore: cast_nullable_to_non_nullable
               as String,
       career: null == career
           ? _value.career
@@ -579,7 +579,7 @@ class __$$MonthlyFortuneModelImplCopyWithImpl<$Res>
 class _$MonthlyFortuneModelImpl implements _MonthlyFortuneModel {
   const _$MonthlyFortuneModelImpl(
       {@JsonKey(name: 'month') required this.month,
-      @JsonKey(name: 'love') required this.love,
+      @JsonKey(name: 'honor') required this.honor,
       @JsonKey(name: 'career') required this.career,
       @JsonKey(name: 'health') required this.health,
       @JsonKey(name: 'summary') required this.summary});
@@ -591,8 +591,8 @@ class _$MonthlyFortuneModelImpl implements _MonthlyFortuneModel {
   @JsonKey(name: 'month')
   final int month;
   @override
-  @JsonKey(name: 'love')
-  final String love;
+  @JsonKey(name: 'honor')
+  final String honor;
   @override
   @JsonKey(name: 'career')
   final String career;
@@ -605,7 +605,7 @@ class _$MonthlyFortuneModelImpl implements _MonthlyFortuneModel {
 
   @override
   String toString() {
-    return 'MonthlyFortuneModel(month: $month, love: $love, career: $career, health: $health, summary: $summary)';
+    return 'MonthlyFortuneModel(month: $month, honor: $honor, career: $career, health: $health, summary: $summary)';
   }
 
   @override
@@ -614,7 +614,7 @@ class _$MonthlyFortuneModelImpl implements _MonthlyFortuneModel {
         (other.runtimeType == runtimeType &&
             other is _$MonthlyFortuneModelImpl &&
             (identical(other.month, month) || other.month == month) &&
-            (identical(other.love, love) || other.love == love) &&
+            (identical(other.honor, honor) || other.honor == honor) &&
             (identical(other.career, career) || other.career == career) &&
             (identical(other.health, health) || other.health == health) &&
             (identical(other.summary, summary) || other.summary == summary));
@@ -623,7 +623,7 @@ class _$MonthlyFortuneModelImpl implements _MonthlyFortuneModel {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, month, love, career, health, summary);
+      Object.hash(runtimeType, month, honor, career, health, summary);
 
   /// Create a copy of MonthlyFortuneModel
   /// with the given fields replaced by the non-null parameter values.
@@ -645,7 +645,7 @@ class _$MonthlyFortuneModelImpl implements _MonthlyFortuneModel {
 abstract class _MonthlyFortuneModel implements MonthlyFortuneModel {
   const factory _MonthlyFortuneModel(
           {@JsonKey(name: 'month') required final int month,
-          @JsonKey(name: 'love') required final String love,
+          @JsonKey(name: 'honor') required final String honor,
           @JsonKey(name: 'career') required final String career,
           @JsonKey(name: 'health') required final String health,
           @JsonKey(name: 'summary') required final String summary}) =
@@ -658,8 +658,8 @@ abstract class _MonthlyFortuneModel implements MonthlyFortuneModel {
   @JsonKey(name: 'month')
   int get month;
   @override
-  @JsonKey(name: 'love')
-  String get love;
+  @JsonKey(name: 'honor')
+  String get honor;
   @override
   @JsonKey(name: 'career')
   String get career;
@@ -684,8 +684,8 @@ AspectModel _$AspectModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$AspectModel {
-  @JsonKey(name: 'love')
-  String get love => throw _privateConstructorUsedError;
+  @JsonKey(name: 'honor')
+  String get honor => throw _privateConstructorUsedError;
   @JsonKey(name: 'career')
   String get career => throw _privateConstructorUsedError;
   @JsonKey(name: 'health')
@@ -712,7 +712,7 @@ abstract class $AspectModelCopyWith<$Res> {
       _$AspectModelCopyWithImpl<$Res, AspectModel>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'love') String love,
+      {@JsonKey(name: 'honor') String honor,
       @JsonKey(name: 'career') String career,
       @JsonKey(name: 'health') String health,
       @JsonKey(name: 'finances') String finances,
@@ -734,16 +734,16 @@ class _$AspectModelCopyWithImpl<$Res, $Val extends AspectModel>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? love = null,
+    Object? honor = null,
     Object? career = null,
     Object? health = null,
     Object? finances = null,
     Object? relationships = null,
   }) {
     return _then(_value.copyWith(
-      love: null == love
-          ? _value.love
-          : love // ignore: cast_nullable_to_non_nullable
+      honor: null == honor
+          ? _value.honor
+          : honor // ignore: cast_nullable_to_non_nullable
               as String,
       career: null == career
           ? _value.career
@@ -774,7 +774,7 @@ abstract class _$$AspectModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'love') String love,
+      {@JsonKey(name: 'honor') String honor,
       @JsonKey(name: 'career') String career,
       @JsonKey(name: 'health') String health,
       @JsonKey(name: 'finances') String finances,
@@ -794,16 +794,16 @@ class __$$AspectModelImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? love = null,
+    Object? honor = null,
     Object? career = null,
     Object? health = null,
     Object? finances = null,
     Object? relationships = null,
   }) {
     return _then(_$AspectModelImpl(
-      love: null == love
-          ? _value.love
-          : love // ignore: cast_nullable_to_non_nullable
+      honor: null == honor
+          ? _value.honor
+          : honor // ignore: cast_nullable_to_non_nullable
               as String,
       career: null == career
           ? _value.career
@@ -829,7 +829,7 @@ class __$$AspectModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$AspectModelImpl implements _AspectModel {
   const _$AspectModelImpl(
-      {@JsonKey(name: 'love') required this.love,
+      {@JsonKey(name: 'honor') required this.honor,
       @JsonKey(name: 'career') required this.career,
       @JsonKey(name: 'health') required this.health,
       @JsonKey(name: 'finances') required this.finances,
@@ -839,8 +839,8 @@ class _$AspectModelImpl implements _AspectModel {
       _$$AspectModelImplFromJson(json);
 
   @override
-  @JsonKey(name: 'love')
-  final String love;
+  @JsonKey(name: 'honor')
+  final String honor;
   @override
   @JsonKey(name: 'career')
   final String career;
@@ -856,7 +856,7 @@ class _$AspectModelImpl implements _AspectModel {
 
   @override
   String toString() {
-    return 'AspectModel(love: $love, career: $career, health: $health, finances: $finances, relationships: $relationships)';
+    return 'AspectModel(honor: $honor, career: $career, health: $health, finances: $finances, relationships: $relationships)';
   }
 
   @override
@@ -864,7 +864,7 @@ class _$AspectModelImpl implements _AspectModel {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$AspectModelImpl &&
-            (identical(other.love, love) || other.love == love) &&
+            (identical(other.honor, honor) || other.honor == honor) &&
             (identical(other.career, career) || other.career == career) &&
             (identical(other.health, health) || other.health == health) &&
             (identical(other.finances, finances) ||
@@ -876,7 +876,7 @@ class _$AspectModelImpl implements _AspectModel {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, love, career, health, finances, relationships);
+      Object.hash(runtimeType, honor, career, health, finances, relationships);
 
   /// Create a copy of AspectModel
   /// with the given fields replaced by the non-null parameter values.
@@ -896,7 +896,7 @@ class _$AspectModelImpl implements _AspectModel {
 
 abstract class _AspectModel implements AspectModel {
   const factory _AspectModel(
-      {@JsonKey(name: 'love') required final String love,
+      {@JsonKey(name: 'honor') required final String honor,
       @JsonKey(name: 'career') required final String career,
       @JsonKey(name: 'health') required final String health,
       @JsonKey(name: 'finances') required final String finances,
@@ -907,8 +907,8 @@ abstract class _AspectModel implements AspectModel {
       _$AspectModelImpl.fromJson;
 
   @override
-  @JsonKey(name: 'love')
-  String get love;
+  @JsonKey(name: 'honor')
+  String get honor;
   @override
   @JsonKey(name: 'career')
   String get career;

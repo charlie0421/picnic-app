@@ -4189,6 +4189,16 @@ class S {
       args: [],
     );
   }
+
+  /// `명예운`
+  String get fortune_honor {
+    return Intl.message(
+      '명예운',
+      name: 'fortune_honor',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

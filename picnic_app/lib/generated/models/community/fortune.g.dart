@@ -62,7 +62,7 @@ _$MonthlyFortuneModelImpl _$$MonthlyFortuneModelImplFromJson(
       ($checkedConvert) {
         final val = _$MonthlyFortuneModelImpl(
           month: $checkedConvert('month', (v) => (v as num).toInt()),
-          love: $checkedConvert('love', (v) => v as String),
+          honor: $checkedConvert('honor', (v) => v as String),
           career: $checkedConvert('career', (v) => v as String),
           health: $checkedConvert('health', (v) => v as String),
           summary: $checkedConvert('summary', (v) => v as String),
@@ -75,7 +75,7 @@ Map<String, dynamic> _$$MonthlyFortuneModelImplToJson(
         _$MonthlyFortuneModelImpl instance) =>
     <String, dynamic>{
       'month': instance.month,
-      'love': instance.love,
+      'honor': instance.honor,
       'career': instance.career,
       'health': instance.health,
       'summary': instance.summary,
@@ -87,7 +87,7 @@ _$AspectModelImpl _$$AspectModelImplFromJson(Map<String, dynamic> json) =>
       json,
       ($checkedConvert) {
         final val = _$AspectModelImpl(
-          love: $checkedConvert('love', (v) => v as String),
+          honor: $checkedConvert('honor', (v) => v as String),
           career: $checkedConvert('career', (v) => v as String),
           health: $checkedConvert('health', (v) => v as String),
           finances: $checkedConvert('finances', (v) => v as String),
@@ -99,7 +99,7 @@ _$AspectModelImpl _$$AspectModelImplFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$$AspectModelImplToJson(_$AspectModelImpl instance) =>
     <String, dynamic>{
-      'love': instance.love,
+      'honor': instance.honor,
       'career': instance.career,
       'health': instance.health,
       'finances': instance.finances,
