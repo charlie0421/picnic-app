@@ -128,7 +128,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildAspectSection(
-              '💝 ${S.of(context).fortune_love}', fortune.aspects.love),
+              '💝 ${S.of(context).fortune_honor}', fortune.aspects.honor),
           _buildAspectSection(
               '💼 ${S.of(context).fortune_career}', fortune.aspects.career),
           _buildAspectSection(
@@ -177,7 +177,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      _buildMonthlyAspect('💝', monthData.love),
+                      _buildMonthlyAspect('💝', monthData.honor),
                       _buildMonthlyAspect('💼', monthData.career),
                       _buildMonthlyAspect('💪', monthData.health),
                     ],

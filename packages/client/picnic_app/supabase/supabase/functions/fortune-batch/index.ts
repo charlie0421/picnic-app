@@ -42,7 +42,7 @@ async function generateSingleFortune(artist_id: number, year: number) {
 }
 
 async function processBatchInBackground(artists: Artist[], year: number, batchLogId: number) {
-    const batchSize = 20;
+    const batchSize = 2;
     let processedCount = 0;
     let failedCount = 0;
 

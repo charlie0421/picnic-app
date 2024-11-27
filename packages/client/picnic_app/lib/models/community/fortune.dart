@@ -28,7 +28,7 @@ class FortuneModel with _$FortuneModel {
 class MonthlyFortuneModel with _$MonthlyFortuneModel {
   const factory MonthlyFortuneModel({
     @JsonKey(name: 'month') required int month,
-    @JsonKey(name: 'love') required String love,
+    @JsonKey(name: 'honor') required String honor,
     @JsonKey(name: 'career') required String career,
     @JsonKey(name: 'health') required String health,
     @JsonKey(name: 'summary') required String summary,
@@ -41,7 +41,7 @@ class MonthlyFortuneModel with _$MonthlyFortuneModel {
 @freezed
 class AspectModel with _$AspectModel {
   const factory AspectModel({
-    @JsonKey(name: 'love') required String love,
+    @JsonKey(name: 'honor') required String honor,
     @JsonKey(name: 'career') required String career,
     @JsonKey(name: 'health') required String health,
     @JsonKey(name: 'finances') required String finances,

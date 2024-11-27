@@ -288,6 +288,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "fortune_career":
             MessageLookupByLibrary.simpleMessage("Business fortunes"),
         "fortune_health": MessageLookupByLibrary.simpleMessage("Health clouds"),
+        "fortune_honor": MessageLookupByLibrary.simpleMessage("명예운"),
         "fortune_love": MessageLookupByLibrary.simpleMessage("Ae Jung Woon"),
         "fortune_lucky_color":
             MessageLookupByLibrary.simpleMessage("Lucky colors"),
