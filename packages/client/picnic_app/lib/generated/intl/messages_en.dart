@@ -20,7 +20,7 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static String m0(year) => "Horoscope of ${year}";
+  static String m0(year) => "Fortune of ${year}";
 
   static String m1(day) => "${day} days ago";
 
@@ -285,10 +285,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage(
                 "I can\'t sign in with the KakaoTalk app.\nTry signing in with your Kakao account."),
         "fortune_advice": MessageLookupByLibrary.simpleMessage("Advice"),
+        "fortune_button_title":
+            MessageLookupByLibrary.simpleMessage("My Artist’s Fortune teller"),
         "fortune_career":
             MessageLookupByLibrary.simpleMessage("Business fortunes"),
         "fortune_health": MessageLookupByLibrary.simpleMessage("Health clouds"),
-        "fortune_honor": MessageLookupByLibrary.simpleMessage("명예운"),
+        "fortune_honor": MessageLookupByLibrary.simpleMessage("Honor"),
         "fortune_love": MessageLookupByLibrary.simpleMessage("Ae Jung Woon"),
         "fortune_lucky_color":
             MessageLookupByLibrary.simpleMessage("Lucky colors"),
@@ -303,36 +305,36 @@ class MessageLookup extends MessageLookupByLibrary {
         "fortune_money":
             MessageLookupByLibrary.simpleMessage("Fortune Telling"),
         "fortune_month1":
-            MessageLookupByLibrary.simpleMessage("Horoscopes for January"),
+            MessageLookupByLibrary.simpleMessage("Fortune for January"),
         "fortune_month10":
-            MessageLookupByLibrary.simpleMessage("Horoscope for October"),
+            MessageLookupByLibrary.simpleMessage("Fortune for October"),
         "fortune_month11":
-            MessageLookupByLibrary.simpleMessage("Horoscopes for November"),
+            MessageLookupByLibrary.simpleMessage("Fortune for November"),
         "fortune_month12":
-            MessageLookupByLibrary.simpleMessage("Horoscopes for December"),
+            MessageLookupByLibrary.simpleMessage("Fortune for December"),
         "fortune_month2":
-            MessageLookupByLibrary.simpleMessage("Horoscopes for February"),
+            MessageLookupByLibrary.simpleMessage("Fortune for February"),
         "fortune_month3":
-            MessageLookupByLibrary.simpleMessage("Horoscopes for March"),
+            MessageLookupByLibrary.simpleMessage("Fortune for March"),
         "fortune_month4":
-            MessageLookupByLibrary.simpleMessage("Horoscopes for April"),
+            MessageLookupByLibrary.simpleMessage("Fortune for April"),
         "fortune_month5":
-            MessageLookupByLibrary.simpleMessage("Horoscopes for May"),
+            MessageLookupByLibrary.simpleMessage("Fortune for May"),
         "fortune_month6":
-            MessageLookupByLibrary.simpleMessage("Horoscope for June"),
+            MessageLookupByLibrary.simpleMessage("Fortune for June"),
         "fortune_month7":
-            MessageLookupByLibrary.simpleMessage("Horoscopes for July"),
+            MessageLookupByLibrary.simpleMessage("Fortune for July"),
         "fortune_month8":
-            MessageLookupByLibrary.simpleMessage("Horoscope for August"),
+            MessageLookupByLibrary.simpleMessage("Fortune for August"),
         "fortune_month9":
-            MessageLookupByLibrary.simpleMessage("Horoscopes for September"),
+            MessageLookupByLibrary.simpleMessage("Fortune for September"),
         "fortune_monthly":
-            MessageLookupByLibrary.simpleMessage("Monthly Horoscopes"),
+            MessageLookupByLibrary.simpleMessage("Monthly Fortune"),
         "fortune_relationship":
             MessageLookupByLibrary.simpleMessage("Interpersonal"),
         "fortune_title": m0,
         "fortune_total_title":
-            MessageLookupByLibrary.simpleMessage("Comprehensive horoscopes"),
+            MessageLookupByLibrary.simpleMessage("Comprehensive Fortune"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("Album name"),
         "hint_nickname_input":
             MessageLookupByLibrary.simpleMessage("Please enter a nickname."),

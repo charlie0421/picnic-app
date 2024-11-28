@@ -91,7 +91,7 @@ class _PostListState extends ConsumerState<PostList> {
             ),
             child: Center(
               child: Text(
-                '2025년 운세 보기',
+                S.of(context).fortune_button_title,
                 style: getTextStyle(AppTypo.body14B, AppColors.grey00).copyWith(
                   letterSpacing: 0.5,
                 ),

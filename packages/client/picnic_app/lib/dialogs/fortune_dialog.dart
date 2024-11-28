@@ -57,6 +57,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
           child: Stack(
             children: [
               SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -81,13 +82,56 @@ class _FortunePageState extends ConsumerState<FortunePage> {
               ),
               Positioned(
                 top: 50,
-                right: 15,
+                right: 15.cw,
                 child: _buildCloseButton(),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTopSection(FortuneModel fortune) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return Stack(
+      alignment: Alignment.topCenter,
+      children: [
+        SizedBox(
+          width: screenWidth,
+          height: screenWidth,
+          child: ShaderMask(
+            shaderCallback: (rect) => const LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Colors.black, Colors.transparent],
+              stops: [0.7, 1],
+            ).createShader(rect),
+            blendMode: BlendMode.dstIn,
+            child: PicnicCachedNetworkImage(
+              imageUrl: fortune.artist.image ?? '',
+              fit: BoxFit.cover,
+              width: screenWidth.round(),
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: 20,
+          left: 0,
+          right: 0,
+          child: Container(
+            height: 48,
+            margin: EdgeInsets.symmetric(horizontal: 30.cw),
+            child: VoteCommonTitle(
+              title:
+                  '${getLocaleTextFromJson(fortune.artist.name)} ${Intl.message('fortune_title', args: [
+                    fortune.year.toString()
+                  ])}',
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -207,49 +251,6 @@ class _FortunePageState extends ConsumerState<FortunePage> {
         fortune.overallLuck,
         style: getTextStyle(AppTypo.body14B, AppColors.grey900),
         textAlign: TextAlign.center,
-      ),
-    );
-  }
-
-  Widget _buildTopSection(FortuneModel fortune) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.width,
-      child: Stack(
-        children: [
-          SizedBox.expand(
-            child: ShaderMask(
-              shaderCallback: (rect) => const LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Colors.black, Colors.transparent],
-                stops: [0.7, 1],
-              ).createShader(rect),
-              blendMode: BlendMode.dstIn,
-              child: PicnicCachedNetworkImage(
-                imageUrl: fortune.artist.image ?? '',
-                fit: BoxFit.cover,
-                width: MediaQuery.of(context).size.width.toInt(),
-                height: MediaQuery.of(context).size.width.toInt(),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 20,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: 48,
-              margin: EdgeInsets.symmetric(horizontal: 30.cw),
-              child: VoteCommonTitle(
-                title:
-                    '${getLocaleTextFromJson(fortune.artist.name)} ${Intl.message('fortune_title', args: [
-                      fortune.year.toString()
-                    ])}',
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

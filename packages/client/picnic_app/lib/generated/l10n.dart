@@ -2380,10 +2380,20 @@ class S {
     );
   }
 
-  /// `Horoscope of {year}`
+  /// `My Artist’s Fortune teller`
+  String get fortune_button_title {
+    return Intl.message(
+      'My Artist’s Fortune teller',
+      name: 'fortune_button_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fortune of {year}`
   String fortune_title(Object year) {
     return Intl.message(
-      'Horoscope of $year',
+      'Fortune of $year',
       name: 'fortune_title',
       desc: '',
       args: [year],
@@ -3930,20 +3940,20 @@ class S {
     );
   }
 
-  /// `Comprehensive horoscopes`
+  /// `Comprehensive Fortune`
   String get fortune_total_title {
     return Intl.message(
-      'Comprehensive horoscopes',
+      'Comprehensive Fortune',
       name: 'fortune_total_title',
       desc: '',
       args: [],
     );
   }
 
-  /// `Monthly Horoscopes`
+  /// `Monthly Fortune`
   String get fortune_monthly {
     return Intl.message(
-      'Monthly Horoscopes',
+      'Monthly Fortune',
       name: 'fortune_monthly',
       desc: '',
       args: [],
@@ -4070,130 +4080,130 @@ class S {
     );
   }
 
-  /// `Horoscopes for January`
+  /// `Fortune for January`
   String get fortune_month1 {
     return Intl.message(
-      'Horoscopes for January',
+      'Fortune for January',
       name: 'fortune_month1',
       desc: '',
       args: [],
     );
   }
 
-  /// `Horoscopes for February`
+  /// `Fortune for February`
   String get fortune_month2 {
     return Intl.message(
-      'Horoscopes for February',
+      'Fortune for February',
       name: 'fortune_month2',
       desc: '',
       args: [],
     );
   }
 
-  /// `Horoscopes for March`
+  /// `Fortune for March`
   String get fortune_month3 {
     return Intl.message(
-      'Horoscopes for March',
+      'Fortune for March',
       name: 'fortune_month3',
       desc: '',
       args: [],
     );
   }
 
-  /// `Horoscopes for April`
+  /// `Fortune for April`
   String get fortune_month4 {
     return Intl.message(
-      'Horoscopes for April',
+      'Fortune for April',
       name: 'fortune_month4',
       desc: '',
       args: [],
     );
   }
 
-  /// `Horoscope for August`
+  /// `Fortune for August`
   String get fortune_month8 {
     return Intl.message(
-      'Horoscope for August',
+      'Fortune for August',
       name: 'fortune_month8',
       desc: '',
       args: [],
     );
   }
 
-  /// `Horoscopes for July`
+  /// `Fortune for July`
   String get fortune_month7 {
     return Intl.message(
-      'Horoscopes for July',
+      'Fortune for July',
       name: 'fortune_month7',
       desc: '',
       args: [],
     );
   }
 
-  /// `Horoscope for June`
+  /// `Fortune for June`
   String get fortune_month6 {
     return Intl.message(
-      'Horoscope for June',
+      'Fortune for June',
       name: 'fortune_month6',
       desc: '',
       args: [],
     );
   }
 
-  /// `Horoscopes for May`
+  /// `Fortune for May`
   String get fortune_month5 {
     return Intl.message(
-      'Horoscopes for May',
+      'Fortune for May',
       name: 'fortune_month5',
       desc: '',
       args: [],
     );
   }
 
-  /// `Horoscopes for September`
+  /// `Fortune for September`
   String get fortune_month9 {
     return Intl.message(
-      'Horoscopes for September',
+      'Fortune for September',
       name: 'fortune_month9',
       desc: '',
       args: [],
     );
   }
 
-  /// `Horoscope for October`
+  /// `Fortune for October`
   String get fortune_month10 {
     return Intl.message(
-      'Horoscope for October',
+      'Fortune for October',
       name: 'fortune_month10',
       desc: '',
       args: [],
     );
   }
 
-  /// `Horoscopes for November`
+  /// `Fortune for November`
   String get fortune_month11 {
     return Intl.message(
-      'Horoscopes for November',
+      'Fortune for November',
       name: 'fortune_month11',
       desc: '',
       args: [],
     );
   }
 
-  /// `Horoscopes for December`
+  /// `Fortune for December`
   String get fortune_month12 {
     return Intl.message(
-      'Horoscopes for December',
+      'Fortune for December',
       name: 'fortune_month12',
       desc: '',
       args: [],
     );
   }
 
-  /// `명예운`
+  /// `Honor`
   String get fortune_honor {
     return Intl.message(
-      '명예운',
+      'Honor',
       name: 'fortune_honor',
       desc: '',
       args: [],
