@@ -25,7 +25,7 @@ Future<T?> showFullScreenDialog<T>({
 }
 
 // 전체화면 다이얼로그 위젯
-class FullScreenDialog extends StatelessWidget {
+class FullScreenDialog extends StatefulWidget {
   final Widget child;
   final Widget? closeButton;
   final Color? closeButtonColor;
@@ -42,47 +42,53 @@ class FullScreenDialog extends StatelessWidget {
   });
 
   @override
+  State<FullScreenDialog> createState() => _FullScreenDialogState();
+}
+
+class _FullScreenDialogState extends State<FullScreenDialog> {
+  @override
   Widget build(BuildContext context) {
     return Dialog(
       insetPadding: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
-        borderRadius: borderRadius ?? BorderRadius.circular(0),
+        borderRadius: widget.borderRadius ?? BorderRadius.circular(0),
       ),
       child: SizedBox(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         child: Stack(
           children: [
-            child,
-            if (closeButton != null)
+            widget.child,
+            if (widget.closeButton != null)
               Positioned(
                 top: 50,
                 right: 15,
-                child: closeButton!,
+                child: widget.closeButton!,
               )
             else
               Positioned(
                 top: 50,
                 right: 15,
-                child: GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
-                  child: Container(
-                    width: FullScreenDialogConstants.closeButtonSize,
-                    height: FullScreenDialogConstants.closeButtonSize,
-                    decoration: BoxDecoration(
-                      color: closeButtonColor ?? Colors.black.withOpacity(0.5),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.close,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+                child: _buildCloseButton(),
               ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildCloseButton() {
+    return GestureDetector(
+      onTap: () => Navigator.of(context).pop(),
+      child: Container(
+        width: FullScreenDialogConstants.closeButtonSize,
+        height: FullScreenDialogConstants.closeButtonSize,
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.5),
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(Icons.close, color: Colors.white),
       ),
     );
   }

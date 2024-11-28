@@ -41,31 +41,27 @@ class _RewardDialogState extends State<RewardDialog> {
   @override
   Widget build(BuildContext context) {
     return FullScreenDialog(
-      child: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                _buildTopSection(),
-                const SizedBox(height: 67),
-                ...RewardType.values.map((type) {
-                  return Column(
-                    children: [
-                      RewardSection(
-                        type: type,
-                        data: widget.data,
-                      ),
-                      if (type != RewardType.values.last)
-                        const SizedBox(height: 68),
-                    ],
-                  );
-                }),
-              ],
-            ),
-          ),
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            _buildTopSection(),
+            const SizedBox(height: 67),
+            ...RewardType.values.map((type) {
+              return Column(
+                children: [
+                  RewardSection(
+                    type: type,
+                    data: widget.data,
+                  ),
+                  if (type != RewardType.values.last)
+                    const SizedBox(height: 68),
+                ],
+              );
+            }),
+          ],
+        ),
       ),
     );
   }
