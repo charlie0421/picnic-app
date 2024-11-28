@@ -89,7 +89,6 @@ class _RewardDialogState extends State<RewardDialog> {
                 imageUrl: widget.data.thumbnail ?? '',
                 fit: BoxFit.cover,
                 width: MediaQuery.of(context).size.width.toInt(),
-                height: MediaQuery.of(context).size.width.toInt(),
               ),
             ),
           ),
