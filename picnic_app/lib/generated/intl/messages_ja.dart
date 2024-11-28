@@ -264,9 +264,11 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage(
                 "カカオトークのアプリでログインできません。\nカカオアカウントでログインを試みます。"),
         "fortune_advice": MessageLookupByLibrary.simpleMessage("アドバイス"),
+        "fortune_button_title":
+            MessageLookupByLibrary.simpleMessage("私のアーティスト占い師"),
         "fortune_career": MessageLookupByLibrary.simpleMessage("ビジネス運"),
         "fortune_health": MessageLookupByLibrary.simpleMessage("健康運"),
-        "fortune_honor": MessageLookupByLibrary.simpleMessage("명예운"),
+        "fortune_honor": MessageLookupByLibrary.simpleMessage("名誉"),
         "fortune_love": MessageLookupByLibrary.simpleMessage("愛情運"),
         "fortune_lucky_color": MessageLookupByLibrary.simpleMessage("ラッキーカラー"),
         "fortune_lucky_days": MessageLookupByLibrary.simpleMessage("ラッキー曜日"),

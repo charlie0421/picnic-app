@@ -256,9 +256,11 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage(
                 "我无法使用 KakaoTalk 应用程序登录。\n请尝试使用您的 Kakao 帐户登录。"),
         "fortune_advice": MessageLookupByLibrary.simpleMessage("建议"),
+        "fortune_button_title":
+            MessageLookupByLibrary.simpleMessage("我的艺术家占卜师"),
         "fortune_career": MessageLookupByLibrary.simpleMessage("商业财富"),
         "fortune_health": MessageLookupByLibrary.simpleMessage("健康云"),
-        "fortune_honor": MessageLookupByLibrary.simpleMessage("명예운"),
+        "fortune_honor": MessageLookupByLibrary.simpleMessage("荣誉"),
         "fortune_love": MessageLookupByLibrary.simpleMessage("애정운"),
         "fortune_lucky_color": MessageLookupByLibrary.simpleMessage("幸运颜色"),
         "fortune_lucky_days": MessageLookupByLibrary.simpleMessage("一周中的幸运日"),

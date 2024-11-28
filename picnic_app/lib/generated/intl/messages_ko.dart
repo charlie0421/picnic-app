@@ -20,7 +20,7 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ko';
 
-  static String m0(year) => "${year}년 토정비결";
+  static String m0(year) => "${year}년 마이 아티스트 운세";
 
   static String m1(day) => "${day}일 전";
 
@@ -268,6 +268,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage(
                 "카카오톡 앱으로 로그인할 수 없습니다. \n카카오 계정으로 로그인을 시도합니다."),
         "fortune_advice": MessageLookupByLibrary.simpleMessage("조언"),
+        "fortune_button_title":
+            MessageLookupByLibrary.simpleMessage("마이 아티스트 운세"),
         "fortune_career": MessageLookupByLibrary.simpleMessage("사업운"),
         "fortune_health": MessageLookupByLibrary.simpleMessage("건강운"),
         "fortune_honor": MessageLookupByLibrary.simpleMessage("명예운"),
