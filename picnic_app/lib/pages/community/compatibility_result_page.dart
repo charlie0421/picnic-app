@@ -206,7 +206,7 @@ class _CompatibilityResultPageState
   Future<Future<bool>> _handleShare(CompatibilityModel compatibility) async {
     return VoteShareUtils.shareToTwitter(
       _printKey,
-      title: getLocaleTextFromJson(compatibility.artist.name),
+      message: getLocaleTextFromJson(compatibility.artist.name),
       context,
       onStart: () {
         if (!mounted) return;

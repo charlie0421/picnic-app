@@ -97,7 +97,7 @@ class VoteShareUtils {
   static Future<bool> shareToTwitter(
     GlobalKey key,
     BuildContext context, {
-    required String title,
+    required String message,
     VoidCallback? onStart,
     VoidCallback? onComplete,
   }) async {
@@ -112,7 +112,7 @@ class VoteShareUtils {
       final path = await saveImageToTemp(image);
       if (path == null) return false;
 
-      final shareMessage = '''$title 투표 결과
+      final shareMessage = '''$message 투표 결과
 #Picnic #Vote #PicnicApp''';
 
       final result = Platform.isIOS

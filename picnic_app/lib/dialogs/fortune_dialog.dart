@@ -4,18 +4,15 @@ import 'package:intl/intl.dart';
 import 'package:picnic_app/app.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
+import 'package:picnic_app/components/vote/list/vote_info_card_footer.dart';
 import 'package:picnic_app/dialogs/fullscreen_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/community/fortune.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/ui.dart';
+import 'package:picnic_app/util/vote_share_util.dart';
 import '../providers/community/fortune_provider.dart';
-
-class FortuneDialogConstants {
-  static const double closeButtonSize = 48;
-  static const Duration transitionDuration = Duration(milliseconds: 300);
-}
 
 showFortuneDialog(int artistId, int year) {
   final context = navigatorKey.currentContext;
@@ -37,6 +34,8 @@ class FortunePage extends ConsumerStatefulWidget {
 
 class _FortunePageState extends ConsumerState<FortunePage> {
   bool showMonthly = false;
+  final GlobalKey _globalKey = GlobalKey();
+  bool _isSaving = false;
 
   @override
   Widget build(BuildContext context) {
@@ -54,38 +53,55 @@ class _FortunePageState extends ConsumerState<FortunePage> {
         error: (error, stackTrace) => _buildError(error),
         data: (fortune) => DefaultTabController(
           length: 2,
-          child: Stack(
-            children: [
-              SingleChildScrollView(
-                physics: const ClampingScrollPhysics(),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _buildTopSection(fortune),
-                    _buildHeaderSection(fortune),
-                    TabBar(
-                      labelColor: Colors.pink[400],
-                      unselectedLabelColor: Colors.grey[600],
-                      indicatorColor: Colors.pink[400],
-                      onTap: (index) =>
-                          setState(() => showMonthly = index == 1),
-                      tabs: [
-                        Tab(text: S.of(context).fortune_total_title),
-                        Tab(text: S.of(context).fortune_monthly),
-                      ],
-                    ),
-                    showMonthly
-                        ? _buildMonthlyFortune(fortune)
-                        : _buildOverallFortune(fortune),
+          child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildTopSection(fortune),
+                _buildHeaderSection(fortune),
+                TabBar(
+                  labelColor: Colors.pink[400],
+                  unselectedLabelColor: Colors.grey[600],
+                  indicatorColor: Colors.pink[400],
+                  onTap: (index) => setState(() => showMonthly = index == 1),
+                  tabs: [
+                    Tab(text: S.of(context).fortune_total_title),
+                    Tab(text: S.of(context).fortune_monthly),
                   ],
                 ),
-              ),
-              Positioned(
-                top: 50,
-                right: 15.cw,
-                child: _buildCloseButton(),
-              ),
-            ],
+                showMonthly
+                    ? _buildMonthlyFortune(fortune)
+                    : _buildOverallFortune(fortune),
+                VoteCardInfoFooter(
+                  saveButtonText: S.of(context).button_pic_pic_save,
+                  shareButtonText: S.of(context).label_button_share,
+                  onSave: () {
+                    if (_isSaving) return;
+                    VoteShareUtils.captureAndSaveImage(
+                      _globalKey,
+                      context,
+                      onStart: () => setState(() => _isSaving = true),
+                      onComplete: () => setState(() => _isSaving = false),
+                    );
+                  },
+                  onShare: () {
+                    if (_isSaving) return;
+                    VoteShareUtils.shareToTwitter(
+                      _globalKey,
+                      context,
+                      message:
+                          '${getLocaleTextFromJson(fortune.artist.name)} ${Intl.message('fortune_title', args: [
+                            fortune.year.toString()
+                          ])}',
+                      onStart: () => setState(() => _isSaving = true),
+                      onComplete: () => setState(() => _isSaving = false),
+                    );
+                  },
+                ),
+                SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
       ),
@@ -154,8 +170,8 @@ class _FortunePageState extends ConsumerState<FortunePage> {
     return GestureDetector(
       onTap: () => Navigator.of(context).pop(),
       child: Container(
-        width: FortuneDialogConstants.closeButtonSize,
-        height: FortuneDialogConstants.closeButtonSize,
+        width: FullScreenDialogConstants.closeButtonSize,
+        height: FullScreenDialogConstants.closeButtonSize,
         decoration: BoxDecoration(
           color: Colors.black.withOpacity(0.5),
           shape: BoxShape.circle,

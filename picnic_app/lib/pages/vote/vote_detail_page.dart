@@ -311,7 +311,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   VoteShareUtils.shareToTwitter(
                     _globalKey,
                     context,
-                    title: getLocaleTextFromJson(voteModel.title),
+                    message: getLocaleTextFromJson(voteModel.title),
                     onStart: () => setState(() => _isSaving = true),
                     onComplete: () => setState(() => _isSaving = false),
                   );

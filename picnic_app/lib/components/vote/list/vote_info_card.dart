@@ -235,7 +235,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
     await VoteShareUtils.shareToTwitter(
       _globalKey,
       context,
-      title: getLocaleTextFromJson(widget.vote.title),
+      message: getLocaleTextFromJson(widget.vote.title),
       onStart: () => setState(() => _isSaving = true),
       onComplete: () => setState(() => _isSaving = false),
     );
