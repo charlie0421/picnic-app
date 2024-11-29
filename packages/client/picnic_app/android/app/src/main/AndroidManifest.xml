@@ -70,8 +70,20 @@
                 android:name="com.google.android.gms.ads.APPLICATION_ID"
                 android:value="ca-app-pub-1539304887624918~5060975477"/>
 
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="io.iconcasting.picnic.app.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
+
     <queries>
+        <package android:name="com.twitter.android" />
+
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>

@@ -34,7 +34,10 @@ class ShareUtils {
       if (byteData == null) return null;
 
       final pngBytes = byteData.buffer.asUint8List();
-      final directory = await getApplicationDocumentsDirectory();
+      // 외부 캐시 디렉토리 사용
+      final directory = await getExternalStorageDirectory();
+      if (directory == null) return null;
+
       final path = '${directory.path}/vote_result.png';
       final file = File(path);
       await file.writeAsBytes(pngBytes);
@@ -103,6 +106,7 @@ class ShareUtils {
     VoidCallback? onStart,
     VoidCallback? onComplete,
   }) async {
+    logger.i('shareToTwitter');
     try {
       if (onStart != null) onStart();
 
@@ -114,16 +118,21 @@ class ShareUtils {
       final path = await saveImageToTemp(image);
       if (path == null) return false;
 
-      final shareMessage = '''$message $hashtag''';
+      final shareMessage = '$message $hashtag';
+
+      logger.i('shareMessage: $shareMessage');
 
       final result = Platform.isIOS
           ? await _appinioSocialShare.iOS.shareToTwitter(shareMessage, path)
           : await _appinioSocialShare.android
               .shareToTwitter(shareMessage, path);
 
+      logger.i('result: $result');
+
       await File(path).delete();
 
       if (result == 'ERROR_APP_NOT_AVAILABLE') {
+        logger.e('Twitter 앱이 설치되어 있지 않습니다.');
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

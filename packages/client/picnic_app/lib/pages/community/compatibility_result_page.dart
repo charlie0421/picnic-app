@@ -204,6 +204,7 @@ class _CompatibilityResultPageState
   }
 
   Future<Future<bool>> _handleShare(CompatibilityModel compatibility) async {
+    logger.i('Share to Twitter');
     return ShareUtils.shareToTwitter(
       _printKey,
       message: getLocaleTextFromJson(compatibility.artist.name),

@@ -53,8 +53,8 @@ class ShareSection extends StatelessWidget {
               backgroundColor: AppColors.primary500,
               shadowColor: AppColors.primary500,
               padding: EdgeInsets.zero,
-              minimumSize: Size(buttonWidth ?? 104.cw, buttonHeight ?? 32),
-              maximumSize: Size(buttonWidth ?? 104.cw, buttonHeight ?? 32),
+              minimumSize: Size(buttonWidth ?? 120.cw, buttonHeight ?? 32),
+              maximumSize: Size(buttonWidth ?? 120.cw, buttonHeight ?? 32),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
