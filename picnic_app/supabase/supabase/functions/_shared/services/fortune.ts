@@ -291,7 +291,7 @@ export class FortuneService {
             fortune.monthly_fortunes.map(async (monthly) => ({
                 month: monthly.month,
                 summary: await this.translateSingle(monthly.summary, language),
-                love: await this.translateSingle(monthly.love, language),
+                honor: await this.translateSingle(monthly.honor, language),
                 career: await this.translateSingle(monthly.career, language),
                 health: await this.translateSingle(monthly.health, language),
             })),
@@ -299,7 +299,7 @@ export class FortuneService {
 
         const translatedAspects = {
             career: await this.translateSingle(fortune.aspects.career, language),
-            love: await this.translateSingle(fortune.aspects.love, language),
+            honor: await this.translateSingle(fortune.aspects.honor, language),
             health: await this.translateSingle(fortune.aspects.health, language),
             relationships: await this.translateSingle(fortune.aspects.relationships, language),
             finances: await this.translateSingle(fortune.aspects.finances, language),

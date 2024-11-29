@@ -21,14 +21,14 @@ export interface FortuneTellingI18n extends FortuneTelling {
 export interface MonthlyFortune {
     month: number;
     summary: string;
-    love: string;
+    honor: string;
     career: string;
     health: string;
 }
 
 export interface Aspects {
     career: string;
-    love: string;
+    honor: string;
     health: string;
     relationships: string;
     finances: string;
