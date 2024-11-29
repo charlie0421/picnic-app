@@ -156,7 +156,7 @@ class _CompatibilityResultPageState
                 if (compatibility.isCompleted &&
                     compatibility.localizedResults != null) ...[
                   const SizedBox(height: 16),
-                  VoteCardInfoFooter(
+                  ShareSection(
                     saveButtonText: S.of(context).vote_result_save_button,
                     shareButtonText: S.of(context).vote_result_share_button,
                     onSave: () => _handleSave(compatibility),
@@ -191,7 +191,7 @@ class _CompatibilityResultPageState
   }
 
   Future<Future<bool>> _handleSave(CompatibilityModel compatibility) async {
-    return VoteShareUtils.captureAndSaveImage(
+    return ShareUtils.captureAndSaveImage(
       _printKey,
       context,
       onStart: () {
@@ -204,9 +204,11 @@ class _CompatibilityResultPageState
   }
 
   Future<Future<bool>> _handleShare(CompatibilityModel compatibility) async {
-    return VoteShareUtils.shareToTwitter(
+    return ShareUtils.shareToTwitter(
       _printKey,
       message: getLocaleTextFromJson(compatibility.artist.name),
+      hashtag:
+          '#Picnic #Vote #PicnicApp #${S.of(context).compatibility_page_title}',
       context,
       onStart: () {
         if (!mounted) return;

@@ -46,61 +46,68 @@ class _FortunePageState extends ConsumerState<FortunePage> {
     ));
 
     return FullScreenDialog(
-      child: fortuneAsync.when(
-        loading: () => const Center(
-            child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.pink))),
-        error: (error, stackTrace) => _buildError(error),
-        data: (fortune) => DefaultTabController(
-          length: 2,
-          child: SingleChildScrollView(
-            physics: const ClampingScrollPhysics(),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildTopSection(fortune),
-                _buildHeaderSection(fortune),
-                TabBar(
-                  labelColor: Colors.pink[400],
-                  unselectedLabelColor: Colors.grey[600],
-                  indicatorColor: Colors.pink[400],
-                  onTap: (index) => setState(() => showMonthly = index == 1),
-                  tabs: [
-                    Tab(text: S.of(context).fortune_total_title),
-                    Tab(text: S.of(context).fortune_monthly),
-                  ],
-                ),
-                showMonthly
-                    ? _buildMonthlyFortune(fortune)
-                    : _buildOverallFortune(fortune),
-                VoteCardInfoFooter(
-                  saveButtonText: S.of(context).button_pic_pic_save,
-                  shareButtonText: S.of(context).label_button_share,
-                  onSave: () {
-                    if (_isSaving) return;
-                    VoteShareUtils.captureAndSaveImage(
-                      _globalKey,
-                      context,
-                      onStart: () => setState(() => _isSaving = true),
-                      onComplete: () => setState(() => _isSaving = false),
-                    );
-                  },
-                  onShare: () {
-                    if (_isSaving) return;
-                    VoteShareUtils.shareToTwitter(
-                      _globalKey,
-                      context,
-                      message:
-                          '${getLocaleTextFromJson(fortune.artist.name)} ${Intl.message('fortune_title', args: [
-                            fortune.year.toString()
-                          ])}',
-                      onStart: () => setState(() => _isSaving = true),
-                      onComplete: () => setState(() => _isSaving = false),
-                    );
-                  },
-                ),
-                SizedBox(height: 24),
-              ],
+      child: RepaintBoundary(
+        key: _globalKey,
+        child: fortuneAsync.when(
+          loading: () => const Center(
+              child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.pink))),
+          error: (error, stackTrace) => _buildError(error),
+          data: (fortune) => DefaultTabController(
+            length: 2,
+            child: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildTopSection(fortune),
+                  _buildHeaderSection(fortune),
+                  TabBar(
+                    labelColor: Colors.pink[400],
+                    unselectedLabelColor: Colors.grey[600],
+                    indicatorColor: Colors.pink[400],
+                    onTap: (index) => setState(() => showMonthly = index == 1),
+                    tabs: [
+                      Tab(text: S.of(context).fortune_total_title),
+                      Tab(text: S.of(context).fortune_monthly),
+                    ],
+                  ),
+                  showMonthly
+                      ? _buildMonthlyFortune(fortune)
+                      : _buildOverallFortune(fortune),
+                  ShareSection(
+                    saveButtonText: S.of(context).button_pic_pic_save,
+                    shareButtonText: S.of(context).label_button_share,
+                    onSave: () {
+                      if (_isSaving) return;
+                      ShareUtils.captureAndSaveImage(
+                        _globalKey,
+                        context,
+                        onStart: () => setState(() => _isSaving = true),
+                        onComplete: () => setState(() => _isSaving = false),
+                      );
+                    },
+                    onShare: () {
+                      if (_isSaving) return;
+                      ShareUtils.shareToTwitter(
+                        _globalKey,
+                        context,
+                        message:
+                            '${getLocaleTextFromJson(fortune.artist.name)} ${Intl.message('fortune_title', args: [
+                              fortune.year.toString()
+                            ]).trim()}',
+                        hashtag:
+                            '#Picnic #Fortune #PicnicApp #${getLocaleTextFromJson(fortune.artist.name)} #${Intl.message('fortune_title', args: [
+                              fortune.year.toString()
+                            ]).trim()}',
+                        onStart: () => setState(() => _isSaving = true),
+                        onComplete: () => setState(() => _isSaving = false),
+                      );
+                    },
+                  ),
+                  SizedBox(height: 24),
+                ],
+              ),
             ),
           ),
         ),
