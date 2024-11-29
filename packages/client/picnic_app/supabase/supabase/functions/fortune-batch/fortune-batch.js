@@ -10,7 +10,7 @@ const {Pool} = pg;
 dotenv.config();
 
 const FORTUNE_EDGE_URL = 'https://api.picnic.fan/functions/v1/fortune-teller';
-const BATCH_SIZE = 20;
+const BATCH_SIZE = 10;
 const DELAY_MS = 1000;
 const RESULTS_DIR = './results';
 const LOG_FILE = path.join(RESULTS_DIR, 'fortune_batch_log.json');
