@@ -6,9 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:picnic_app/app.dart';
 import 'package:picnic_app/util/logger.dart';
 
-class VoteShareUtils {
+class ShareUtils {
   static final AppinioSocialShare _appinioSocialShare = AppinioSocialShare();
 
   /// 위젯을 이미지로 캡처
@@ -67,14 +68,14 @@ class VoteShareUtils {
       final result = await ImageGallerySaverPlus.saveFile(path);
       await File(path).delete();
 
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            duration: Duration(milliseconds: 300),
-            content: Text('이미지가 성공적으로 저장되었습니다.'),
-          ),
-        );
-      }
+      logger.i('navigatorKey.currentContext!: ${navigatorKey.currentContext!}');
+
+      ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
+        const SnackBar(
+          duration: Duration(milliseconds: 300),
+          content: Text('이미지가 성공적으로 저장되었습니다.'),
+        ),
+      );
 
       return true;
     } catch (e) {
@@ -98,6 +99,7 @@ class VoteShareUtils {
     GlobalKey key,
     BuildContext context, {
     required String message,
+    required String hashtag,
     VoidCallback? onStart,
     VoidCallback? onComplete,
   }) async {
@@ -112,8 +114,7 @@ class VoteShareUtils {
       final path = await saveImageToTemp(image);
       if (path == null) return false;
 
-      final shareMessage = '''$message 투표 결과
-#Picnic #Vote #PicnicApp''';
+      final shareMessage = '''$message $hashtag''';
 
       final result = Platform.isIOS
           ? await _appinioSocialShare.iOS.shareToTwitter(shareMessage, path)

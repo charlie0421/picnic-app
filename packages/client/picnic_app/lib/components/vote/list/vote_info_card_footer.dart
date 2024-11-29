@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
 
-class VoteCardInfoFooter extends StatelessWidget {
+class ShareSection extends StatelessWidget {
   final VoidCallback onSave;
   final VoidCallback onShare;
   final String saveButtonText;
@@ -11,7 +11,7 @@ class VoteCardInfoFooter extends StatelessWidget {
   final double? buttonWidth;
   final double? buttonHeight;
 
-  const VoteCardInfoFooter({
+  const ShareSection({
     super.key,
     required this.onSave,
     required this.onShare,

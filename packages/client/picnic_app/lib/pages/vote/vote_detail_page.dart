@@ -294,12 +294,12 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         if (isEnded && !_isSaving)
           Column(
             children: [
-              VoteCardInfoFooter(
+              ShareSection(
                 saveButtonText: S.of(context).vote_result_save_button,
                 shareButtonText: S.of(context).vote_result_share_button,
                 onSave: () {
                   if (_isSaving) return;
-                  VoteShareUtils.captureAndSaveImage(
+                  ShareUtils.captureAndSaveImage(
                     _globalKey,
                     context,
                     onStart: () => setState(() => _isSaving = true),
@@ -308,10 +308,12 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 },
                 onShare: () {
                   if (_isSaving) return;
-                  VoteShareUtils.shareToTwitter(
+                  ShareUtils.shareToTwitter(
                     _globalKey,
                     context,
                     message: getLocaleTextFromJson(voteModel.title),
+                    hashtag:
+                        '#Picnic #Vote #PicnicApp #${getLocaleTextFromJson(voteModel.title).trim()}',
                     onStart: () => setState(() => _isSaving = true),
                     onComplete: () => setState(() => _isSaving = false),
                   );
