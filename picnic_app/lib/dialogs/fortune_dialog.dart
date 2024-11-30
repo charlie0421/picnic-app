@@ -4,7 +4,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/app.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
-import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_footer.dart';
 import 'package:picnic_app/dialogs/fullscreen_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
@@ -30,13 +29,28 @@ class FortunePage extends ConsumerStatefulWidget {
   const FortunePage({super.key, required this.artistId, required this.year});
 
   @override
-  _FortunePageState createState() => _FortunePageState();
+  ConsumerState createState() => _FortunePageState();
 }
 
 class _FortunePageState extends ConsumerState<FortunePage> {
   bool showMonthly = false;
   final GlobalKey _globalKey = GlobalKey();
   bool _isSaving = false;
+
+  // ExpansionTile Controllers
+  final overallController = ExpansionTileController();
+  final luckyController = ExpansionTileController();
+  final adviceController = ExpansionTileController();
+  final Map<int, ExpansionTileController> monthControllers = {};
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize monthly controllers
+    for (int i = 1; i <= 12; i++) {
+      monthControllers[i] = ExpansionTileController();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,8 +99,8 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                       ? _buildMonthlyFortune(fortune)
                       : _buildOverallFortune(fortune),
                   ShareSection(
-                    saveButtonText: S.of(context).button_pic_pic_save,
-                    shareButtonText: S.of(context).label_button_share,
+                    saveButtonText: S.of(context).save,
+                    shareButtonText: S.of(context).share,
                     onSave: () {
                       if (_isSaving) return;
                       ShareUtils.captureAndSaveImage(
@@ -114,12 +128,190 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                       );
                     },
                   ),
-                  SizedBox(height: 24),
+                  SizedBox(height: 48),
                 ],
               ),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildOverallFortune(FortuneModel fortune) {
+    return Container(
+      margin: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Card(
+            elevation: 2,
+            child: ExpansionTile(
+              controller: overallController,
+              initiallyExpanded: true,
+              shape: const Border(),
+              collapsedShape: const Border(),
+              title: Text(
+                '🔮 ${S.of(context).fortune_total_title}',
+                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+              ),
+              children: [
+                InkWell(
+                  onTap: () => overallController.collapse(),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildAspectSection('💝 ${S.of(context).fortune_honor}',
+                            fortune.aspects.honor),
+                        _buildAspectSection(
+                            '💼 ${S.of(context).fortune_career}',
+                            fortune.aspects.career),
+                        _buildAspectSection(
+                            '💪 ${S.of(context).fortune_health}',
+                            fortune.aspects.health),
+                        _buildAspectSection('💰 ${S.of(context).fortune_money}',
+                            fortune.aspects.finances),
+                        _buildAspectSection(
+                            '👥 ${S.of(context).fortune_relationship}',
+                            fortune.aspects.relationships),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Card(
+            elevation: 2,
+            child: ExpansionTile(
+              controller: luckyController,
+              initiallyExpanded: false,
+              shape: const Border(),
+              collapsedShape: const Border(),
+              title: Text(
+                '✨ ${S.of(context).fortune_lucky_keyword}',
+                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+              ),
+              children: [
+                InkWell(
+                  onTap: () => luckyController.collapse(),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        _buildLuckyRow(S.of(context).fortune_lucky_days,
+                            fortune.lucky.days.join(', ')),
+                        _buildLuckyRow(S.of(context).fortune_lucky_color,
+                            fortune.lucky.colors.join(', ')),
+                        _buildLuckyRow(
+                            S.of(context).fortune_lucky_number,
+                            fortune.lucky.numbers
+                                .map((e) => e.toString())
+                                .join(', ')),
+                        _buildLuckyRow(S.of(context).fortune_lucky_direction,
+                            fortune.lucky.directions.join(', ')),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Card(
+            elevation: 2,
+            child: ExpansionTile(
+              controller: adviceController,
+              initiallyExpanded: false,
+              shape: const Border(),
+              collapsedShape: const Border(),
+              title: Text(
+                '💡 ${S.of(context).fortune_advice}',
+                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+              ),
+              children: [
+                InkWell(
+                  onTap: () => adviceController.collapse(),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: fortune.advice
+                          .map((advice) => Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '• ',
+                                    style: getTextStyle(
+                                        AppTypo.caption12B, AppColors.grey900),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      advice,
+                                      style: getTextStyle(AppTypo.caption12B,
+                                          AppColors.grey900),
+                                    ),
+                                  ),
+                                ],
+                              ))
+                          .toList(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMonthlyFortune(FortuneModel fortune) {
+    final sortedMonthlyFortunes = List.of(fortune.monthlyFortunes)
+      ..sort((a, b) => a.month.compareTo(b.month));
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: sortedMonthlyFortunes.map((monthData) {
+          return Card(
+            elevation: 2,
+            child: ExpansionTile(
+              controller: monthControllers[monthData.month],
+              initiallyExpanded: false,
+              shape: const Border(),
+              collapsedShape: const Border(),
+              title: Text(
+                getMonthName(monthData.month),
+                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+              ),
+              children: [
+                InkWell(
+                  onTap: () => monthControllers[monthData.month]?.collapse(),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          monthData.summary,
+                          style: getTextStyle(
+                              AppTypo.caption12B, AppColors.point900),
+                        ),
+                        const SizedBox(height: 12),
+                        _buildMonthlyAspect('💝', monthData.honor),
+                        _buildMonthlyAspect('💼', monthData.career),
+                        _buildMonthlyAspect('💪', monthData.health),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
       ),
     );
   }
@@ -162,8 +354,13 @@ class _FortunePageState extends ConsumerState<FortunePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SvgPicture.asset('assets/icons/play_style=fill.svg',
-                      width: 16.cw, height: 16, color: AppColors.primary500),
+                  SvgPicture.asset(
+                    'assets/icons/play_style=fill.svg',
+                    width: 16.cw,
+                    height: 16,
+                    colorFilter:
+                        ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
+                  ),
                   SizedBox(width: 8),
                   Text(
                     getLocaleTextFromJson(fortune.artist.name),
@@ -173,8 +370,15 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                   SizedBox(width: 8),
                   Transform.rotate(
                     angle: 3.14,
-                    child: SvgPicture.asset('assets/icons/play_style=fill.svg',
-                        width: 16.cw, height: 16, color: AppColors.primary500),
+                    child: SvgPicture.asset(
+                      'assets/icons/play_style=fill.svg',
+                      width: 16.cw,
+                      height: 16,
+                      colorFilter: ColorFilter.mode(
+                        AppColors.primary500,
+                        BlendMode.srcIn,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -182,106 +386,6 @@ class _FortunePageState extends ConsumerState<FortunePage> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildError(dynamic error) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(Icons.error_outline, color: Colors.red, size: 60),
-        const SizedBox(height: 16),
-        Text(
-          S.of(context).message_error_occurred,
-          textAlign: TextAlign.center,
-          style: const TextStyle(color: Colors.red, fontSize: 16),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildOverallFortune(FortuneModel fortune) {
-    return Container(
-      margin: const EdgeInsets.only(top: 24, left: 28, right: 28, bottom: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Card(
-            elevation: 2,
-            child: Container(
-              child: ExpansionTile(
-                initiallyExpanded: true,
-                shape: const Border(),
-                collapsedShape: const Border(),
-                title: Text(S.of(context).fortune_total_title,
-                    style: getTextStyle(AppTypo.body16B, AppColors.grey900)),
-                children: [
-                  _buildAspectSection('💝 ${S.of(context).fortune_honor}',
-                      fortune.aspects.honor),
-                  _buildAspectSection('💼 ${S.of(context).fortune_career}',
-                      fortune.aspects.career),
-                  _buildAspectSection('💪 ${S.of(context).fortune_health}',
-                      fortune.aspects.health),
-                  _buildAspectSection('💰 ${S.of(context).fortune_money}',
-                      fortune.aspects.finances),
-                  _buildAspectSection(
-                      '👥 ${S.of(context).fortune_relationship}',
-                      fortune.aspects.relationships),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Card(
-            elevation: 2,
-            child: _buildLuckySection(fortune),
-          ),
-          const SizedBox(height: 20),
-          Card(elevation: 2, child: _buildAdviceSection(fortune)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMonthlyFortune(FortuneModel fortune) {
-    final sortedMonthlyFortunes = List.of(fortune.monthlyFortunes)
-      ..sort((a, b) => a.month.compareTo(b.month));
-
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: sortedMonthlyFortunes.map((monthData) {
-          return Card(
-            elevation: 2,
-            margin: const EdgeInsets.only(bottom: 16),
-            child: ExpansionTile(
-              shape: const Border(), // 펼쳤을 때 테두리 제거
-              collapsedShape: const Border(), // 접혔을 때 테두리 제거
-              title: Text(getMonthName(monthData.month),
-                  style: getTextStyle(AppTypo.body16B, AppColors.grey900)),
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        monthData.summary,
-                        style: getTextStyle(
-                            AppTypo.caption12B, AppColors.point900),
-                      ),
-                      const SizedBox(height: 12),
-                      _buildMonthlyAspect('💝', monthData.honor),
-                      _buildMonthlyAspect('💼', monthData.career),
-                      _buildMonthlyAspect('💪', monthData.health),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
     );
   }
 
@@ -301,33 +405,52 @@ class _FortunePageState extends ConsumerState<FortunePage> {
           Positioned(
             top: 10,
             left: 0,
-            child: SvgPicture.asset('assets/icons/fortune/quote_open.svg',
-                width: 20,
-                colorFilter:
-                    ColorFilter.mode(AppColors.grey900, BlendMode.srcIn)),
+            child: SvgPicture.asset(
+              'assets/icons/fortune/quote_open.svg',
+              width: 20,
+              colorFilter: ColorFilter.mode(AppColors.grey900, BlendMode.srcIn),
+            ),
           ),
           Positioned(
             bottom: 10,
             right: 0,
-            child: SvgPicture.asset('assets/icons/fortune/quote_close.svg',
-                width: 20,
-                colorFilter:
-                    ColorFilter.mode(AppColors.grey900, BlendMode.srcIn)),
+            child: SvgPicture.asset(
+              'assets/icons/fortune/quote_close.svg',
+              width: 20,
+              colorFilter: ColorFilter.mode(AppColors.grey900, BlendMode.srcIn),
+            ),
           ),
         ],
       ),
     );
   }
 
+  Widget _buildError(dynamic error) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(Icons.error_outline, color: Colors.red, size: 60),
+        const SizedBox(height: 16),
+        Text(
+          S.of(context).message_error_occurred,
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: Colors.red, fontSize: 16),
+        ),
+      ],
+    );
+  }
+
   Widget _buildAspectSection(String title, String content) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.only(left: 16, bottom: 16),
+      padding: const EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style: getTextStyle(AppTypo.caption12B, AppColors.grey900)),
+          Text(
+            title,
+            style: getTextStyle(AppTypo.caption12B, AppColors.grey900),
+          ),
           const SizedBox(height: 4),
           Text(
             content,
@@ -357,32 +480,9 @@ class _FortunePageState extends ConsumerState<FortunePage> {
     );
   }
 
-  Widget _buildLuckySection(FortuneModel fortune) {
-    return ExpansionTile(
-      initiallyExpanded: true,
-      // 이 부분을 추가
-      shape: const Border(),
-      // 펼쳤을 때 테두리 제거
-      collapsedShape: const Border(),
-      // 접혔을 때 테두리 제거
-      title: Text('✨ ${S.of(context).fortune_lucky_keyword}',
-          style: getTextStyle(AppTypo.body16B, AppColors.grey900)),
-      children: [
-        _buildLuckyRow(
-            S.of(context).fortune_lucky_days, fortune.lucky.days.join(', ')),
-        _buildLuckyRow(
-            S.of(context).fortune_lucky_color, fortune.lucky.colors.join(', ')),
-        _buildLuckyRow(S.of(context).fortune_lucky_number,
-            fortune.lucky.numbers.map((e) => e.toString()).join(', ')),
-        _buildLuckyRow(S.of(context).fortune_lucky_direction,
-            fortune.lucky.directions.join(', ')),
-      ],
-    );
-  }
-
   Widget _buildLuckyRow(String title, String content) {
     return Padding(
-      padding: const EdgeInsets.only(left: 16, bottom: 8),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
           SizedBox(
@@ -400,40 +500,6 @@ class _FortunePageState extends ConsumerState<FortunePage> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildAdviceSection(FortuneModel fortune) {
-    return ExpansionTile(
-      shape: const Border(),
-      // 펼쳤을 때 테두리 제거
-      collapsedShape: const Border(),
-      // 접혔을 때 테두리 제거
-      initiallyExpanded: true,
-      // 이 부분을 추가
-      title: Text('💡 ${S.of(context).fortune_advice}',
-          style: getTextStyle(AppTypo.body16B, AppColors.grey900)),
-      children: [
-        ...fortune.advice.map((advice) => Padding(
-              padding: const EdgeInsets.only(left: 16, bottom: 8),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '• ',
-                    style: getTextStyle(AppTypo.caption12B, AppColors.grey900),
-                  ),
-                  Expanded(
-                    child: Text(
-                      advice,
-                      style:
-                          getTextStyle(AppTypo.caption12B, AppColors.grey900),
-                    ),
-                  ),
-                ],
-              ),
-            )),
-      ],
     );
   }
 
