@@ -130,6 +130,7 @@ flutter:
         - assets/icons/bottom/
         - assets/icons/store/
         - assets/icons/post/
+        - assets/icons/fortune/
         - assets/mockup/
         - assets/mockup/my/
         - assets/mockup/gallery/

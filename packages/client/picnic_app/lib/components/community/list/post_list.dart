@@ -10,11 +10,15 @@ import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/community/fortune.dart';
 import 'package:picnic_app/models/community/post.dart';
+import 'package:picnic_app/pages/community/compatibility_list_page.dart';
 import 'package:picnic_app/pages/community/post_write_page.dart';
 import 'package:picnic_app/providers/community/post_provider.dart';
+import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
@@ -34,71 +38,84 @@ class PostList extends ConsumerStatefulWidget {
 class _PostListState extends ConsumerState<PostList> {
   @override
   Widget build(BuildContext context) {
+    final navigationInfoNotifier = ref.read(navigationInfoProvider.notifier);
     final postListAsyncValue = widget.type == PostListType.artist
         ? ref.watch(postsByArtistProvider(widget.id as int, 10, 1))
         : ref.watch(postsByBoardProvider(widget.id as String, 10, 1));
+    final isAdmin =
+        ref.watch(userInfoProvider.select((value) => value.value?.isAdmin));
+
+    final currentArtist = ref.watch(
+        communityStateInfoProvider.select((value) => value.currentArtist));
 
     return Column(
       children: [
-        GestureDetector(
-          onTap: () async {
-            if (!supabase.isLogged) {
-              showRequireLoginDialog();
-              return;
-            }
+        if (isAdmin ?? false) ...[
+          GestureDetector(
+            onTap: () async {
+              if (!supabase.isLogged) {
+                showRequireLoginDialog();
+                return;
+              }
 
-            final fortune = await supabase
-                .from("fortune_telling")
-                .select('*, artist(*)')
-                .eq('artist_id', widget.id)
-                .maybeSingle();
+              final fortune = await supabase
+                  .from("fortune_telling")
+                  .select('*, artist(*)')
+                  .eq('artist_id', widget.id)
+                  .maybeSingle();
 
-            if (fortune == null) {
-              showSimpleDialog(
-                content: '아직 토정비결이 없습니다.',
-                onOk: () {
-                  Navigator.of(context).pop();
-                },
-              );
-              return;
-            }
+              if (fortune == null) {
+                showSimpleDialog(
+                  content: '아직 토정비결이 없습니다.',
+                  onOk: () {
+                    Navigator.of(context).pop();
+                  },
+                );
+                return;
+              }
 
-            final fortuneModel = FortuneModel.fromJson(fortune);
-            logger.d(fortuneModel);
+              final fortuneModel = FortuneModel.fromJson(fortune);
+              logger.d(fortuneModel);
 
-            showFortuneDialog(widget.id as int, 2025);
-          },
-          child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 8),
-            height: 40,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [
-                  AppColors.point900,
-                  AppColors.point500,
-                ],
-              ),
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.point500.withOpacity(0.3),
-                  offset: const Offset(0, 2),
-                  blurRadius: 4,
-                ),
-              ],
-            ),
-            child: Center(
-              child: Text(
-                S.of(context).fortune_button_title,
-                style: getTextStyle(AppTypo.body14B, AppColors.grey00).copyWith(
-                  letterSpacing: 0.5,
-                ),
-              ),
+              showFortuneDialog(widget.id as int, 2025);
+            },
+            child: Container(
+              height: 40,
+              padding: EdgeInsets.symmetric(horizontal: 16.cw),
+              alignment: Alignment.centerLeft,
+              child: Text(S.of(context).fortune_button_title,
+                  style: getTextStyle(AppTypo.body14B, AppColors.primary500)),
             ),
           ),
-        ),
+          Divider(
+            height: 1,
+            thickness: 1,
+            color: AppColors.grey300,
+          ),
+          GestureDetector(
+            onTap: () {
+              if (supabase.isLogged) {
+                navigationInfoNotifier.setCurrentPage(
+                    CompatibilityHistoryPage(artistId: currentArtist?.id));
+              } else {
+                showRequireLoginDialog();
+              }
+            },
+            child: Container(
+              height: 40,
+              padding: EdgeInsets.symmetric(horizontal: 16.cw),
+              alignment: Alignment.centerLeft,
+              child: Text(
+                  '${getLocaleTextFromJson(currentArtist!.name)}와 나의 궁합 맞추기',
+                  style: getTextStyle(AppTypo.body14B, AppColors.primary500)),
+            ),
+          ),
+          Divider(
+            height: 1,
+            thickness: 1,
+            color: AppColors.grey300,
+          ),
+        ],
         Expanded(
           child: postListAsyncValue.when(
             data: (data) {

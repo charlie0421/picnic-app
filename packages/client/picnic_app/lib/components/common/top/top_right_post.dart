@@ -37,23 +37,6 @@ class _TopRightPostState extends ConsumerState<TopRightPost> {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        if (isAdmin == true)
-          GestureDetector(
-            onTap: () {
-              if (supabase.isLogged) {
-                navigationInfoNotifier.setCurrentPage(
-                    CompatibilityHistoryPage(artistId: currentArtist?.id));
-              } else {
-                showRequireLoginDialog();
-              }
-            },
-            child: PulsingHeart(
-              size: 24.0,
-              color: Colors.red,
-              duration: const Duration(milliseconds: 3000),
-            ),
-          ),
-        SizedBox(width: 12),
         GestureDetector(
           onTap: () {
             if (supabase.isLogged) {
