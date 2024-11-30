@@ -34,7 +34,8 @@ class FortunePage extends ConsumerStatefulWidget {
 
 class _FortunePageState extends ConsumerState<FortunePage> {
   bool showMonthly = false;
-  final GlobalKey _globalKey = GlobalKey();
+  final GlobalKey _saveKey = GlobalKey();
+  final GlobalKey _shareKey = GlobalKey();
   bool _isSaving = false;
 
   // ExpansionTile Controllers
@@ -42,6 +43,10 @@ class _FortunePageState extends ConsumerState<FortunePage> {
   final luckyController = ExpansionTileController();
   final adviceController = ExpansionTileController();
   final Map<int, ExpansionTileController> monthControllers = {};
+  bool _wasOverallExpanded = false;
+  bool _wasLuckyExpanded = false;
+  bool _wasAdviceExpanded = false;
+  final Map<int, bool> _wasMonthExpanded = {};
 
   @override
   void initState() {
@@ -52,6 +57,77 @@ class _FortunePageState extends ConsumerState<FortunePage> {
     }
   }
 
+  // ExpansionTile 상태 저장 메서드
+  void _saveExpansionStates() {
+    _wasOverallExpanded = overallController.isExpanded;
+    _wasLuckyExpanded = luckyController.isExpanded;
+    _wasAdviceExpanded = adviceController.isExpanded;
+    for (int i = 1; i <= 12; i++) {
+      _wasMonthExpanded[i] = monthControllers[i]?.isExpanded ?? false;
+    }
+  }
+
+  // 모든 ExpansionTile 펼치기
+  void _expandAll() {
+    overallController.expand();
+    luckyController.expand();
+    adviceController.expand();
+    monthControllers.forEach((_, controller) => controller.expand());
+  }
+
+  // ExpansionTile 상태 복원
+  void _restoreExpansionStates() {
+    if (_wasOverallExpanded) {
+      overallController.expand();
+    } else {
+      overallController.collapse();
+    }
+    if (_wasLuckyExpanded) {
+      luckyController.expand();
+    } else {
+      luckyController.collapse();
+    }
+    if (_wasAdviceExpanded) {
+      adviceController.expand();
+    } else {
+      adviceController.collapse();
+    }
+    monthControllers.forEach((month, controller) {
+      if (_wasMonthExpanded[month] ?? false) {
+        controller.expand();
+      } else {
+        controller.collapse();
+      }
+    });
+  }
+
+  // 캡처 및 저장 메서드
+  Future<void> _captureAndSave() async {
+    if (_isSaving) return;
+
+    setState(() => _isSaving = true);
+
+    // 현재 상태 저장
+    _saveExpansionStates();
+
+    // 모든 ExpansionTile 펼치기
+    _expandAll();
+
+    // 상태 변경이 UI에 반영되도록 대기
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    // 이미지 캡처 및 저장
+    await ShareUtils.captureAndSaveImage(
+      _saveKey,
+      onStart: () {}, // 이미 _isSaving이 true로 설정되어 있으므로 비워둠
+      onComplete: () {
+        // 원래 상태로 복원
+        _restoreExpansionStates();
+        setState(() => _isSaving = false);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final fortuneAsync = ref.watch(getFortuneProvider(
@@ -60,9 +136,9 @@ class _FortunePageState extends ConsumerState<FortunePage> {
       language: Intl.getCurrentLocale(),
     ));
 
-    return FullScreenDialog(
-      child: RepaintBoundary(
-        key: _globalKey,
+    return RepaintBoundary(
+      key: _saveKey,
+      child: FullScreenDialog(
         child: fortuneAsync.when(
           loading: () => const Center(
               child: CircularProgressIndicator(
@@ -101,19 +177,11 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                   ShareSection(
                     saveButtonText: S.of(context).save,
                     shareButtonText: S.of(context).share,
-                    onSave: () {
-                      if (_isSaving) return;
-                      ShareUtils.captureAndSaveImage(
-                        _globalKey,
-                        context,
-                        onStart: () => setState(() => _isSaving = true),
-                        onComplete: () => setState(() => _isSaving = false),
-                      );
-                    },
+                    onSave: _captureAndSave,
                     onShare: () {
                       if (_isSaving) return;
                       ShareUtils.shareToTwitter(
-                        _globalKey,
+                        _shareKey,
                         context,
                         message:
                             '${getLocaleTextFromJson(fortune.artist.name)} ${Intl.message('fortune_title', args: [
@@ -319,73 +387,77 @@ class _FortunePageState extends ConsumerState<FortunePage> {
   Widget _buildTopSection(FortuneModel fortune) {
     final screenWidth = MediaQuery.of(context).size.width;
 
-    return Stack(
-      alignment: Alignment.topCenter,
-      children: [
-        SizedBox(
-          width: screenWidth,
-          height: screenWidth,
-          child: ShaderMask(
-            shaderCallback: (rect) => const LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Colors.black, Colors.transparent],
-              stops: [0.7, 1],
-            ).createShader(rect),
-            blendMode: BlendMode.dstIn,
-            child: PicnicCachedNetworkImage(
-              imageUrl: fortune.artist.image ?? '',
-              fit: BoxFit.cover,
-              width: (screenWidth * 1.1).toInt(),
+    return RepaintBoundary(
+      key: _shareKey,
+      child: Stack(
+        alignment: Alignment.topCenter,
+        children: [
+          SizedBox(
+            width: screenWidth,
+            height: screenWidth,
+            child: ShaderMask(
+              shaderCallback: (rect) => const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Colors.black, Colors.transparent],
+                stops: [0.7, 1],
+              ).createShader(rect),
+              blendMode: BlendMode.dstIn,
+              child: PicnicCachedNetworkImage(
+                imageUrl: fortune.artist.image ?? '',
+                fit: BoxFit.cover,
+                width: (screenWidth * 1.1).toInt(),
+              ),
             ),
           ),
-        ),
-        Positioned(
-          bottom: 20,
-          left: 0,
-          right: 0,
-          child: Column(
-            children: [
-              SvgPicture.asset(
-                'assets/icons/fortune/fortune_teller_title.svg',
-                width: 283.cw,
-              ),
-              SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SvgPicture.asset(
-                    'assets/icons/play_style=fill.svg',
-                    width: 16.cw,
-                    height: 16,
-                    colorFilter:
-                        ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    getLocaleTextFromJson(fortune.artist.name),
-                    style: getTextStyle(AppTypo.title18B, AppColors.primary500)
-                        .copyWith(fontSize: 20),
-                  ),
-                  SizedBox(width: 8),
-                  Transform.rotate(
-                    angle: 3.14,
-                    child: SvgPicture.asset(
+          Positioned(
+            bottom: 20,
+            left: 0,
+            right: 0,
+            child: Column(
+              children: [
+                SvgPicture.asset(
+                  'assets/icons/fortune/fortune_teller_title.svg',
+                  width: 283.cw,
+                ),
+                SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset(
                       'assets/icons/play_style=fill.svg',
                       width: 16.cw,
                       height: 16,
                       colorFilter: ColorFilter.mode(
-                        AppColors.primary500,
-                        BlendMode.srcIn,
+                          AppColors.primary500, BlendMode.srcIn),
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      getLocaleTextFromJson(fortune.artist.name),
+                      style:
+                          getTextStyle(AppTypo.title18B, AppColors.primary500)
+                              .copyWith(fontSize: 20),
+                    ),
+                    SizedBox(width: 8),
+                    Transform.rotate(
+                      angle: 3.14,
+                      child: SvgPicture.asset(
+                        'assets/icons/play_style=fill.svg',
+                        width: 16.cw,
+                        height: 16,
+                        colorFilter: ColorFilter.mode(
+                          AppColors.primary500,
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

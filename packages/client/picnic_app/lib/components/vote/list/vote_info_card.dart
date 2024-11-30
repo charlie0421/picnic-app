@@ -225,7 +225,6 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   void _handleSaveImage() async {
     await ShareUtils.captureAndSaveImage(
       _globalKey,
-      context,
       onStart: () => setState(() => _isSaving = true),
       onComplete: () => setState(() => _isSaving = false),
     );

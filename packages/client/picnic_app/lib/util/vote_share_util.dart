@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:picnic_app/app.dart';
+import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/util/logger.dart';
 
 class ShareUtils {
@@ -34,9 +34,12 @@ class ShareUtils {
       if (byteData == null) return null;
 
       final pngBytes = byteData.buffer.asUint8List();
-      // 외부 캐시 디렉토리 사용
-      final directory = await getExternalStorageDirectory();
-      if (directory == null) return null;
+      final Directory directory;
+      if (Platform.isAndroid) {
+        directory = (await getExternalStorageDirectory())!;
+      } else {
+        directory = await getTemporaryDirectory();
+      }
 
       final path = '${directory.path}/vote_result.png';
       final file = File(path);
@@ -51,8 +54,7 @@ class ShareUtils {
 
   /// 이미지 캡처 및 저장
   static Future<bool> captureAndSaveImage(
-    GlobalKey key,
-    BuildContext context, {
+    GlobalKey saveKey, {
     VoidCallback? onStart,
     VoidCallback? onComplete,
   }) async {
@@ -62,35 +64,30 @@ class ShareUtils {
       // 렌더링 대기
       await Future.delayed(const Duration(milliseconds: 500));
 
-      final image = await captureWidget(key);
+      final image = await captureWidget(saveKey);
       if (image == null) return false;
 
       final path = await saveImageToTemp(image);
       if (path == null) return false;
 
-      final result = await ImageGallerySaverPlus.saveFile(path);
+      await ImageGallerySaverPlus.saveFile(path);
       await File(path).delete();
 
-      logger.i('navigatorKey.currentContext!: ${navigatorKey.currentContext!}');
-
-      ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-        const SnackBar(
-          duration: Duration(milliseconds: 300),
-          content: Text('이미지가 성공적으로 저장되었습니다.'),
-        ),
+      showSimpleDialog(
+        title: '이미지 저장',
+        content: '이미지가 성공적으로 저장되었습니다.',
       );
 
       return true;
     } catch (e) {
       logger.e('Failed to capture and save image: $e');
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            duration: Duration(milliseconds: 300),
-            content: Text('이미지 저장에 실패했습니다.'),
-          ),
-        );
-      }
+      showSimpleDialog(
+        type: DialogType.error,
+        title: '이미지 저장',
+        content: '이미지 저장에 실패했습니다.',
+      );
+      showSimpleDialog(
+          type: DialogType.error, title: '이미지 저장', content: '이미지 저장에 실패했습니다');
       return false;
     } finally {
       if (onComplete != null) onComplete();
@@ -133,27 +130,22 @@ class ShareUtils {
 
       if (result == 'ERROR_APP_NOT_AVAILABLE') {
         logger.e('Twitter 앱이 설치되어 있지 않습니다.');
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Twitter 앱이 설치되어 있지 않습니다.'),
-            ),
-          );
-        }
+        showSimpleDialog(
+          type: DialogType.error,
+          title: 'X 공유',
+          content: 'Twitter 앱이 설치되어 있지 않습니다.',
+        );
         return false;
       }
 
       return result == 'SUCCESS';
     } catch (e) {
       logger.e('Failed to share to Twitter: $e');
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            duration: Duration(milliseconds: 300),
-            content: Text('공유에 실패했습니다.'),
-          ),
-        );
-      }
+      showSimpleDialog(
+        type: DialogType.error,
+        title: 'X 공유',
+        content: '공유에 실패했습니다.',
+      );
       return false;
     } finally {
       if (onComplete != null) onComplete();
