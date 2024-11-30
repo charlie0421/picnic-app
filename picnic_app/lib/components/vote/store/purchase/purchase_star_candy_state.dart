@@ -15,7 +15,6 @@ import 'package:picnic_app/components/vote/store/purchase/store_list_tile.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
-import 'package:picnic_app/providers/config_service.dart';
 import 'package:picnic_app/providers/product_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
@@ -222,7 +221,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
     return serverProductsAsyncValue.when(
       loading: () => _buildShimmer(),
       error: (error, stackTrace) =>
-          ErrorView(context, error: error, stackTrace: stackTrace),
+          buildErrorView(context, error: error, stackTrace: stackTrace),
       data: (serverProducts) {
         return storeProductsAsyncValue.when(
           loading: () => _buildShimmer(),

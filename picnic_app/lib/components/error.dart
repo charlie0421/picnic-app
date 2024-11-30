@@ -3,7 +3,7 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-Widget ErrorView(final BuildContext context,
+Widget buildErrorView(final BuildContext context,
     {void Function()? retryFunction,
     required Object? error,
     required StackTrace? stackTrace}) {

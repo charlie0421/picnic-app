@@ -14,7 +14,7 @@ class OverlayNotification extends StatefulWidget {
   });
 
   @override
-  _OverlayNotificationState createState() => _OverlayNotificationState();
+  State<OverlayNotification> createState() => _OverlayNotificationState();
 }
 
 class _OverlayNotificationState extends State<OverlayNotification>

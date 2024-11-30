@@ -53,7 +53,7 @@ class _TermsPageState extends ConsumerState<TermsPage>
         );
       },
       loading: () => buildLoadingOverlay(),
-      error: (error, stack) => ErrorView(
+      error: (error, stack) => buildErrorView(
         context,
         error: error,
         stackTrace: stack,

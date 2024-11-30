@@ -1,8 +1,8 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/community/compatibility_provider.dart';
 import 'package:picnic_app/providers/config_service.dart';

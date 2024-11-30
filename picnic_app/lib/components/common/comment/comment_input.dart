@@ -171,8 +171,6 @@ class _CommentInputState extends ConsumerState<CommentInput> {
 
       final checkResult = await checkContent(_textEditingController.text);
       final isFlagged = checkResult['flagged'] as bool? ?? false;
-      final categories =
-          checkResult['categories'] as Map<String, dynamic>? ?? {};
 
       if (isFlagged) {
         OverlayLoadingProgress.stop();

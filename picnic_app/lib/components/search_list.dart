@@ -68,7 +68,7 @@ class _SearchListState extends ConsumerState<SearchList> {
             },
             loading: () => buildLoadingOverlay(),
             error: (error, stackTrace) =>
-                ErrorView(context, error: error, stackTrace: stackTrace),
+                buildErrorView(context, error: error, stackTrace: stackTrace),
           ),
         ],
       ),

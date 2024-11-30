@@ -15,7 +15,7 @@ class StarCandyInfoText extends ConsumerStatefulWidget {
   });
 
   @override
-  _StarCandyInfoTextState createState() => _StarCandyInfoTextState();
+  ConsumerState<StarCandyInfoText> createState() => _StarCandyInfoTextState();
 }
 
 class _StarCandyInfoTextState extends ConsumerState<StarCandyInfoText> {
@@ -47,32 +47,30 @@ class _StarCandyInfoTextState extends ConsumerState<StarCandyInfoText> {
       firstPart = numberFormatter.format(starCandy);
       secondPart = ' +${numberFormatter.format(starCandyBonus)} 奖金';
     }
-    return Container(
-      child: Row(
-        mainAxisAlignment: widget.alignment,
-        children: [
-          Image.asset(
-            'assets/icons/store/star_100.png',
-            width: 48.cw,
-            height: 48,
-          ),
-          Text.rich(
-            TextSpan(
-              children: [
+    return Row(
+      mainAxisAlignment: widget.alignment,
+      children: [
+        Image.asset(
+          'assets/icons/store/star_100.png',
+          width: 48.cw,
+          height: 48,
+        ),
+        Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: firstPart,
+                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+              ),
+              if (starCandyBonus > 0)
                 TextSpan(
-                  text: firstPart,
-                  style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+                  text: secondPart,
+                  style: getTextStyle(AppTypo.body16B, AppColors.primary500),
                 ),
-                if (starCandyBonus > 0)
-                  TextSpan(
-                    text: secondPart,
-                    style: getTextStyle(AppTypo.body16B, AppColors.primary500),
-                  ),
-              ],
-            ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

@@ -217,7 +217,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 );
               },
               loading: () => _buildLoadingShimmer(),
-              error: (error, stackTrace) => ErrorView(context,
+              error: (error, stackTrace) => buildErrorView(context,
                   error: error.toString(), stackTrace: stackTrace),
             ),
       ),
@@ -425,7 +425,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
               },
               loading: () => SliverToBoxAdapter(child: _buildLoadingShimmer()),
               error: (error, stackTrace) => SliverToBoxAdapter(
-                child: ErrorView(context,
+                child: buildErrorView(context,
                     error: error.toString(), stackTrace: stackTrace),
               ),
             );

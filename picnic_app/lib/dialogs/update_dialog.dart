@@ -15,7 +15,7 @@ class UpdateDialog extends ConsumerStatefulWidget {
   const UpdateDialog({super.key, required this.child});
 
   @override
-  _UpdateDialogState createState() => _UpdateDialogState();
+  ConsumerState<UpdateDialog> createState() => _UpdateDialogState();
 }
 
 class _UpdateDialogState extends ConsumerState<UpdateDialog> {

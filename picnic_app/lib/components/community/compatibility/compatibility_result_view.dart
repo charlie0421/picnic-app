@@ -1,21 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
-import 'package:picnic_app/components/community/compatibility/compatibility_error.dart';
-import 'package:picnic_app/components/community/compatibility/compatibility_loading_view.dart';
-import 'package:picnic_app/components/community/compatibility/compatibility_result_card.dart';
-import 'package:picnic_app/components/community/compatibility/compatibility_result_view.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_tip_card.dart';
-import 'package:picnic_app/components/vote/list/vote_info_card_footer.dart';
 import 'package:picnic_app/generated/l10n.dart';
-import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
-import 'package:picnic_app/providers/community/compatibility_provider.dart';
-import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util/i18n.dart';
-import 'package:picnic_app/util/logger.dart';
-import 'package:picnic_app/util/vote_share_util.dart';
 
 class CompatibilityResultView extends ConsumerWidget {
   const CompatibilityResultView({

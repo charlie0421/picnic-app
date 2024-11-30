@@ -57,7 +57,7 @@ class _ArticleListState extends ConsumerState<ArticleList> {
         scrollDirection: Axis.vertical,
         builderDelegate: PagedChildBuilderDelegate<ArticleModel>(
             firstPageErrorIndicatorBuilder: (context) {
-              return ErrorView(context,
+              return buildErrorView(context,
                   error: _pagingController.error.toString(),
                   retryFunction: () => _pagingController.refresh(),
                   stackTrace: null);

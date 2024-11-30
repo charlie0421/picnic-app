@@ -75,7 +75,7 @@ class _CompatibilityInfoState extends State<CompatibilityInfo> {
                 child: Column(
                   children: [
                     Text(
-                      getLocaleTextFromJson(widget.artist.name) ?? '',
+                      getLocaleTextFromJson(widget.artist.name),
                       textAlign: TextAlign.center,
                       style: getTextStyle(AppTypo.body14M, AppColors.grey900),
                     ),

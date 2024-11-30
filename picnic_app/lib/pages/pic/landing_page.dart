@@ -32,7 +32,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
           }).toList();
           return _dataView(myCelebList, celebList);
         },
-        error: (error, stackTrace) => ErrorView(context,
+        error: (error, stackTrace) => buildErrorView(context,
             error: asyncCelebListState.error, stackTrace: stackTrace),
         loading: () => buildLoadingOverlay());
   }

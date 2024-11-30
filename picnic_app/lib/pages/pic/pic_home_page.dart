@@ -140,7 +140,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
         },
         loading: () => buildLoadingOverlay(),
         error: (error, stackTrace) {
-          return ErrorView(
+          return buildErrorView(
             context,
             error: error,
             stackTrace: stackTrace,
@@ -180,7 +180,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
     return asyncCelebGalleryListState.when(
         data: (data) => _buildGalleryList(data),
         error: (error, stackTrace) {
-          return ErrorView(
+          return buildErrorView(
             context,
             error: error,
             stackTrace: stackTrace,
@@ -379,7 +379,7 @@ class _CelebDropDownState extends ConsumerState<CelebDropDown> {
                     },
                     loading: () => [buildLoadingOverlay()],
                     error: (error, stackTrace) => [
-                          ErrorView(
+                          buildErrorView(
                             context,
                             retryFunction: () {
                               ref.refresh(asyncMyCelebListProvider);

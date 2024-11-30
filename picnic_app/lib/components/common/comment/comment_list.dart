@@ -263,7 +263,7 @@ class _CommentListState extends ConsumerState<CommentList> {
             child: CircularProgressIndicator(),
           ),
         ),
-        firstPageErrorIndicatorBuilder: (context) => ErrorView(
+        firstPageErrorIndicatorBuilder: (context) => buildErrorView(
           context,
           error: _pagingController.error,
           retryFunction: _refreshComments,

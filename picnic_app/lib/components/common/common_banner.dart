@@ -175,8 +175,8 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
           ],
         ),
       ),
-      error: (error, stackTrace) =>
-          ErrorView(context, error: error.toString(), stackTrace: stackTrace),
+      error: (error, stackTrace) => buildErrorView(context,
+          error: error.toString(), stackTrace: stackTrace),
     );
   }
 }

@@ -78,7 +78,8 @@ class StoreProducts extends _$StoreProducts {
           await inAppPurchase.queryProductDetails(productIds);
 
       if (response.notFoundIDs.isNotEmpty) {
-        print('Some product IDs were not recognized: ${response.notFoundIDs}');
+        logger
+            .i('Some product IDs were not recognized: ${response.notFoundIDs}');
       }
 
       if (response.productDetails.isEmpty) {

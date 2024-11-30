@@ -400,7 +400,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
               );
             },
             loading: () => _buildLoadingShimmer(),
-            error: (error, stackTrace) => ErrorView(context,
+            error: (error, stackTrace) => buildErrorView(context,
                 error: error.toString(), stackTrace: stackTrace));
   }
 
@@ -452,7 +452,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
           );
         },
         loading: () => _buildLoadingShimmer(),
-        error: (error, stackTrace) => ErrorView(context,
+        error: (error, stackTrace) => buildErrorView(context,
             error: error.toString(), stackTrace: stackTrace));
   }
 

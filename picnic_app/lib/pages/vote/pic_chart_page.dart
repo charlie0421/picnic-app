@@ -78,7 +78,8 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
                           SvgPicture.asset('assets/icons/play_style=fill.svg',
                               width: 16.cw,
                               height: 16,
-                              color: AppColors.primary500),
+                              colorFilter: ColorFilter.mode(
+                                  AppColors.primary500, BlendMode.srcIn)),
                           Text(
                             'COMING SOON',
                             style: getTextStyle(
@@ -93,7 +94,8 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
                                 'assets/icons/play_style=fill.svg',
                                 width: 16.cw,
                                 height: 16,
-                                color: AppColors.primary500),
+                                colorFilter: ColorFilter.mode(
+                                    AppColors.primary500, BlendMode.srcIn)),
                           ),
                         ],
                       ),

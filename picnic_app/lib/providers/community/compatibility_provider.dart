@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/models/vote/artist.dart';
@@ -208,16 +208,6 @@ class Compatibility extends _$Compatibility {
       logger.e('Error fetching i18n data', error: e);
       return [];
     }
-  }
-
-  bool _shouldRetry(dynamic error) {
-    final errorMsg = error.toString().toLowerCase();
-    return errorMsg.contains('connection closed') ||
-        errorMsg.contains('network error') ||
-        errorMsg.contains('content size exceeds') ||
-        errorMsg.contains('encoding') ||
-        errorMsg.contains('socket') ||
-        errorMsg.contains('timeout');
   }
 
   Future<void> refresh() async {

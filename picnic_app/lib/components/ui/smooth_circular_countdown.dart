@@ -15,7 +15,7 @@ class SmoothCircularCountdown extends StatefulWidget {
   });
 
   @override
-  _SmoothCircularCountdownState createState() =>
+  State<SmoothCircularCountdown> createState() =>
       _SmoothCircularCountdownState();
 }
 

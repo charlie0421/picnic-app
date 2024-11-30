@@ -200,11 +200,6 @@ class RewardedAds extends _$RewardedAds {
     // _scheduleRetry(index);
   }
 
-  void _scheduleRetry(int index) {
-    // logger.i('scheduleRetry: $index');
-    Future.delayed(const Duration(seconds: 5), () => loadAd(index));
-  }
-
   void _updateAdState(int index,
       {RewardedAd? ad, bool? isShowing, bool? isLoading}) {
     state = state.copyWith(
