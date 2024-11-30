@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/app.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
@@ -63,9 +64,17 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                   _buildTopSection(fortune),
                   _buildHeaderSection(fortune),
                   TabBar(
-                    labelColor: Colors.pink[400],
-                    unselectedLabelColor: Colors.grey[600],
-                    indicatorColor: Colors.pink[400],
+                    labelColor: AppColors.grey900,
+                    labelStyle:
+                        getTextStyle(AppTypo.body14B, AppColors.grey900),
+                    unselectedLabelStyle:
+                        getTextStyle(AppTypo.body14R, AppColors.grey600),
+                    unselectedLabelColor: AppColors.grey600,
+                    indicatorColor: AppColors.grey900,
+                    indicatorWeight: 3,
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    indicatorPadding:
+                        const EdgeInsets.symmetric(horizontal: 16),
                     onTap: (index) => setState(() => showMonthly = index == 1),
                     tabs: [
                       Tab(text: S.of(context).fortune_total_title),
@@ -135,7 +144,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
             child: PicnicCachedNetworkImage(
               imageUrl: fortune.artist.image ?? '',
               fit: BoxFit.cover,
-              width: screenWidth.round(),
+              width: (screenWidth * 1.1).toInt(),
             ),
           ),
         ),
@@ -143,15 +152,33 @@ class _FortunePageState extends ConsumerState<FortunePage> {
           bottom: 20,
           left: 0,
           right: 0,
-          child: Container(
-            height: 48,
-            margin: EdgeInsets.symmetric(horizontal: 30.cw),
-            child: VoteCommonTitle(
-              title:
-                  '${getLocaleTextFromJson(fortune.artist.name)} ${Intl.message('fortune_title', args: [
-                    fortune.year.toString()
-                  ])}',
-            ),
+          child: Column(
+            children: [
+              SvgPicture.asset(
+                'assets/icons/fortune/fortune_teller_title.svg',
+                width: 283.cw,
+              ),
+              SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset('assets/icons/play_style=fill.svg',
+                      width: 16.cw, height: 16, color: AppColors.primary500),
+                  SizedBox(width: 8),
+                  Text(
+                    getLocaleTextFromJson(fortune.artist.name),
+                    style: getTextStyle(AppTypo.title18B, AppColors.primary500)
+                        .copyWith(fontSize: 20),
+                  ),
+                  SizedBox(width: 8),
+                  Transform.rotate(
+                    angle: 3.14,
+                    child: SvgPicture.asset('assets/icons/play_style=fill.svg',
+                        width: 16.cw, height: 16, color: AppColors.primary500),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ],
@@ -173,41 +200,44 @@ class _FortunePageState extends ConsumerState<FortunePage> {
     );
   }
 
-  Widget _buildCloseButton() {
-    return GestureDetector(
-      onTap: () => Navigator.of(context).pop(),
-      child: Container(
-        width: FullScreenDialogConstants.closeButtonSize,
-        height: FullScreenDialogConstants.closeButtonSize,
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.5),
-          shape: BoxShape.circle,
-        ),
-        child: const Icon(Icons.close, color: Colors.white),
-      ),
-    );
-  }
-
   Widget _buildOverallFortune(FortuneModel fortune) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
+    return Container(
+      margin: const EdgeInsets.only(top: 24, left: 28, right: 28, bottom: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildAspectSection(
-              '💝 ${S.of(context).fortune_honor}', fortune.aspects.honor),
-          _buildAspectSection(
-              '💼 ${S.of(context).fortune_career}', fortune.aspects.career),
-          _buildAspectSection(
-              '💪 ${S.of(context).fortune_health}', fortune.aspects.health),
-          _buildAspectSection(
-              '💰 ${S.of(context).fortune_money}', fortune.aspects.finances),
-          _buildAspectSection('👥 ${S.of(context).fortune_relationship}',
-              fortune.aspects.relationships),
+          Card(
+            elevation: 2,
+            child: Container(
+              child: ExpansionTile(
+                initiallyExpanded: true,
+                shape: const Border(),
+                collapsedShape: const Border(),
+                title: Text(S.of(context).fortune_total_title,
+                    style: getTextStyle(AppTypo.body16B, AppColors.grey900)),
+                children: [
+                  _buildAspectSection('💝 ${S.of(context).fortune_honor}',
+                      fortune.aspects.honor),
+                  _buildAspectSection('💼 ${S.of(context).fortune_career}',
+                      fortune.aspects.career),
+                  _buildAspectSection('💪 ${S.of(context).fortune_health}',
+                      fortune.aspects.health),
+                  _buildAspectSection('💰 ${S.of(context).fortune_money}',
+                      fortune.aspects.finances),
+                  _buildAspectSection(
+                      '👥 ${S.of(context).fortune_relationship}',
+                      fortune.aspects.relationships),
+                ],
+              ),
+            ),
+          ),
           const SizedBox(height: 20),
-          _buildLuckySection(fortune),
+          Card(
+            elevation: 2,
+            child: _buildLuckySection(fortune),
+          ),
           const SizedBox(height: 20),
-          _buildAdviceSection(fortune),
+          Card(elevation: 2, child: _buildAdviceSection(fortune)),
         ],
       ),
     );
@@ -225,23 +255,20 @@ class _FortunePageState extends ConsumerState<FortunePage> {
             elevation: 2,
             margin: const EdgeInsets.only(bottom: 16),
             child: ExpansionTile(
-              title: Text(
-                getMonthName(monthData.month),
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
+              shape: const Border(), // 펼쳤을 때 테두리 제거
+              collapsedShape: const Border(), // 접혔을 때 테두리 제거
+              title: Text(getMonthName(monthData.month),
+                  style: getTextStyle(AppTypo.body16B, AppColors.grey900)),
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.only(left: 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         monthData.summary,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.pink[900],
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: getTextStyle(
+                            AppTypo.caption12B, AppColors.point900),
                       ),
                       const SizedBox(height: 12),
                       _buildMonthlyAspect('💝', monthData.honor),
@@ -260,41 +287,51 @@ class _FortunePageState extends ConsumerState<FortunePage> {
 
   Widget _buildHeaderSection(FortuneModel fortune) {
     return Container(
-      margin: const EdgeInsets.all(16),
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: AppColors.primary500,
-          width: 2,
-        ),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        fortune.overallLuck,
-        style: getTextStyle(AppTypo.body14B, AppColors.grey900),
-        textAlign: TextAlign.center,
+      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
+      child: Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 0),
+            child: Text(
+              fortune.overallLuck,
+              style: getTextStyle(AppTypo.body14R, AppColors.grey900),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Positioned(
+            top: 10,
+            left: 0,
+            child: SvgPicture.asset('assets/icons/fortune/quote_open.svg',
+                width: 20,
+                colorFilter:
+                    ColorFilter.mode(AppColors.grey900, BlendMode.srcIn)),
+          ),
+          Positioned(
+            bottom: 10,
+            right: 0,
+            child: SvgPicture.asset('assets/icons/fortune/quote_close.svg',
+                width: 20,
+                colorFilter:
+                    ColorFilter.mode(AppColors.grey900, BlendMode.srcIn)),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildAspectSection(String title, String content) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.only(left: 16, bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
+          Text(title,
+              style: getTextStyle(AppTypo.caption12B, AppColors.grey900)),
+          const SizedBox(height: 4),
           Text(
             content,
-            style: const TextStyle(fontSize: 16),
+            style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
           ),
         ],
       ),
@@ -312,7 +349,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
           Expanded(
             child: Text(
               content,
-              style: const TextStyle(fontSize: 16),
+              style: getTextStyle(AppTypo.caption12B, AppColors.grey900),
             ),
           ),
         ],
@@ -321,52 +358,45 @@ class _FortunePageState extends ConsumerState<FortunePage> {
   }
 
   Widget _buildLuckySection(FortuneModel fortune) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.pink[50],
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '✨ ${S.of(context).fortune_lucky_keyword}',
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 12),
-          _buildLuckyRow(
-              S.of(context).fortune_lucky_days, fortune.lucky.days.join(', ')),
-          _buildLuckyRow(S.of(context).fortune_lucky_color,
-              fortune.lucky.colors.join(', ')),
-          _buildLuckyRow(S.of(context).fortune_lucky_number,
-              fortune.lucky.numbers.map((e) => e.toString()).join(', ')),
-          _buildLuckyRow(S.of(context).fortune_lucky_direction,
-              fortune.lucky.directions.join(', ')),
-        ],
-      ),
+    return ExpansionTile(
+      initiallyExpanded: true,
+      // 이 부분을 추가
+      shape: const Border(),
+      // 펼쳤을 때 테두리 제거
+      collapsedShape: const Border(),
+      // 접혔을 때 테두리 제거
+      title: Text('✨ ${S.of(context).fortune_lucky_keyword}',
+          style: getTextStyle(AppTypo.body16B, AppColors.grey900)),
+      children: [
+        _buildLuckyRow(
+            S.of(context).fortune_lucky_days, fortune.lucky.days.join(', ')),
+        _buildLuckyRow(
+            S.of(context).fortune_lucky_color, fortune.lucky.colors.join(', ')),
+        _buildLuckyRow(S.of(context).fortune_lucky_number,
+            fortune.lucky.numbers.map((e) => e.toString()).join(', ')),
+        _buildLuckyRow(S.of(context).fortune_lucky_direction,
+            fortune.lucky.directions.join(', ')),
+      ],
     );
   }
 
   Widget _buildLuckyRow(String title, String content) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(left: 16, bottom: 8),
       child: Row(
         children: [
           SizedBox(
             width: 100,
             child: Text(
               title,
-              style: const TextStyle(
-                fontWeight: FontWeight.w500,
-              ),
+              style: getTextStyle(AppTypo.caption12B, AppColors.grey900),
             ),
           ),
           Expanded(
-            child: Text(content),
+            child: Text(
+              content,
+              style: getTextStyle(AppTypo.caption12B, AppColors.grey900),
+            ),
           ),
         ],
       ),
@@ -374,27 +404,30 @@ class _FortunePageState extends ConsumerState<FortunePage> {
   }
 
   Widget _buildAdviceSection(FortuneModel fortune) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return ExpansionTile(
+      shape: const Border(),
+      // 펼쳤을 때 테두리 제거
+      collapsedShape: const Border(),
+      // 접혔을 때 테두리 제거
+      initiallyExpanded: true,
+      // 이 부분을 추가
+      title: Text('💡 ${S.of(context).fortune_advice}',
+          style: getTextStyle(AppTypo.body16B, AppColors.grey900)),
       children: [
-        Text(
-          '💡 ${S.of(context).fortune_advice}',
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 12),
         ...fortune.advice.map((advice) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.only(left: 16, bottom: 8),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('• ', style: TextStyle(fontSize: 16)),
+                  Text(
+                    '• ',
+                    style: getTextStyle(AppTypo.caption12B, AppColors.grey900),
+                  ),
                   Expanded(
                     child: Text(
                       advice,
-                      style: const TextStyle(fontSize: 16),
+                      style:
+                          getTextStyle(AppTypo.caption12B, AppColors.grey900),
                     ),
                   ),
                 ],

@@ -67,9 +67,10 @@ class _RewardDialogState extends State<RewardDialog> {
   }
 
   Widget _buildTopSection() {
+    final screenWidth = MediaQuery.of(context).size.width;
     return SizedBox(
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.width,
+      width: screenWidth,
+      height: screenWidth,
       child: Stack(
         children: [
           SizedBox.expand(
@@ -84,7 +85,7 @@ class _RewardDialogState extends State<RewardDialog> {
               child: PicnicCachedNetworkImage(
                 imageUrl: widget.data.thumbnail ?? '',
                 fit: BoxFit.cover,
-                width: MediaQuery.of(context).size.width.toInt(),
+                width: (screenWidth * 1.1).toInt(),
               ),
             ),
           ),
