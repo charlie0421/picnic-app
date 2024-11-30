@@ -193,7 +193,6 @@ class _CompatibilityResultPageState
   Future<Future<bool>> _handleSave(CompatibilityModel compatibility) async {
     return ShareUtils.captureAndSaveImage(
       _printKey,
-      context,
       onStart: () {
         if (!mounted) return;
       },

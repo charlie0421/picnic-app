@@ -301,7 +301,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   if (_isSaving) return;
                   ShareUtils.captureAndSaveImage(
                     _globalKey,
-                    context,
                     onStart: () => setState(() => _isSaving = true),
                     onComplete: () => setState(() => _isSaving = false),
                   );
