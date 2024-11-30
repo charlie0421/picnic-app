@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
-import 'package:picnic_app/components/vote/store/purchase/analytics_service.dart';
 import 'package:picnic_app/components/vote/store/purchase/purchase_star_candy_web.dart';
 import 'package:picnic_app/components/vote/store/purchase/store_list_tile.dart';
 import 'package:picnic_app/generated/l10n.dart';
@@ -16,8 +15,6 @@ import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
-  final AnalyticsService _analyticsService = AnalyticsService();
-
   @override
   void initState() {
     super.initState();
@@ -79,7 +76,7 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
     return serverProductsAsyncValue.when(
       loading: () => _buildShimmer(),
       error: (error, stackTrace) =>
-          ErrorView(context, error: error, stackTrace: stackTrace),
+          buildErrorView(context, error: error, stackTrace: stackTrace),
       data: (serverProducts) => _buildProductList(serverProducts),
     );
   }

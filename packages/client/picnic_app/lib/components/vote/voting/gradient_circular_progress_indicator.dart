@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+
 const Duration _duration = Duration(milliseconds: 1000);
 
 class GradientCircularProgressIndicator extends StatefulWidget {
@@ -15,7 +15,7 @@ class GradientCircularProgressIndicator extends StatefulWidget {
   });
 
   @override
-  _GradientCircularProgressIndicatorState createState() =>
+  State<GradientCircularProgressIndicator> createState() =>
       _GradientCircularProgressIndicatorState();
 }
 

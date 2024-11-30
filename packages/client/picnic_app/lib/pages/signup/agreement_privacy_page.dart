@@ -43,7 +43,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
     return asyncPolicyState.when(
         data: (data) => _buildPrivacy(data),
         error: (error, stackTrace) =>
-            ErrorView(context, error: error, stackTrace: stackTrace),
+            buildErrorView(context, error: error, stackTrace: stackTrace),
         loading: () => buildLoadingOverlay());
   }
 

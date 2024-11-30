@@ -13,7 +13,7 @@ class LargePopupWidget extends StatelessWidget {
   final Widget? closeButton;
   final Color? backgroundColor;
   final double? width;
-  final showCloseButton;
+  final bool showCloseButton;
 
   const LargePopupWidget({
     super.key,

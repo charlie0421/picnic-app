@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/common/avatar_container.dart';
-import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/community/compatibility/animated_heart.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/community/compatibility.dart';

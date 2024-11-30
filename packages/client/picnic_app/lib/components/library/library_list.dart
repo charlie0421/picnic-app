@@ -90,7 +90,7 @@ class _LibraryListState extends ConsumerState<AlbumList> {
                 ],
               ),
             ),
-        error: (error, stackTrace) => ErrorView(context,
+        error: (error, stackTrace) => buildErrorView(context,
             error: error, stackTrace: stackTrace, retryFunction: () {}),
         loading: () => const LoadingView());
   }

@@ -94,9 +94,9 @@ class MenuItem extends ConsumerWidget {
   final String title;
   final String assetPath;
   final int index;
-  bool? needLogin;
+  final bool? needLogin;
 
-  MenuItem({
+  const MenuItem({
     super.key,
     required this.title,
     required this.assetPath,

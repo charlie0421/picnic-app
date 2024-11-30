@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/ui/s3_uploader.dart';
 import 'package:picnic_app/config/environment.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:universal_io/io.dart';
 
@@ -45,7 +46,7 @@ class LocalImageEmbedBuilder extends EmbedBuilder {
             ),
           );
         } else if (snapshot.hasError) {
-          print('Error in FutureBuilder: ${snapshot.error}');
+          logger.i('Error in FutureBuilder: ${snapshot.error}');
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -59,7 +60,7 @@ class LocalImageEmbedBuilder extends EmbedBuilder {
             ),
           );
         } else if (snapshot.hasData) {
-          print('Network URL received: ${snapshot.data}');
+          logger.i('Network URL received: ${snapshot.data}');
           return Image.network(
             snapshot.data!,
             loadingBuilder: (context, child, loadingProgress) {
@@ -74,7 +75,7 @@ class LocalImageEmbedBuilder extends EmbedBuilder {
               );
             },
             errorBuilder: (context, error, stackTrace) {
-              print('Error loading image: $error');
+              logger.i('Error loading image: $error');
               return Text('Error loading image: $error');
             },
           );
@@ -99,7 +100,8 @@ class LocalImageEmbedBuilder extends EmbedBuilder {
           'post/image',
           bytes,
           (progress) {
-            print('Upload progress: ${(progress * 100).toStringAsFixed(2)}%');
+            logger
+                .i('Upload progress: ${(progress * 100).toStringAsFixed(2)}%');
           },
         );
 
@@ -119,7 +121,8 @@ class LocalImageEmbedBuilder extends EmbedBuilder {
           file,
           (progress) {
             streamController.add(progress);
-            print('Upload progress: ${(progress * 100).toStringAsFixed(2)}%');
+            logger
+                .i('Upload progress: ${(progress * 100).toStringAsFixed(2)}%');
           },
         );
 
@@ -128,7 +131,7 @@ class LocalImageEmbedBuilder extends EmbedBuilder {
         return mediaUrl;
       }
     } catch (e) {
-      print('Error uploading image: $e');
+      logger.i('Error uploading image: $e');
       rethrow;
     }
   }

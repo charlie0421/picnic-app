@@ -1,5 +1,5 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/app.dart';
@@ -10,8 +10,10 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/community/fortune.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:picnic_app/util/vote_share_util.dart';
+
 import '../providers/community/fortune_provider.dart';
 
 showFortuneDialog(int artistId, int year) {
@@ -33,7 +35,7 @@ class FortunePage extends ConsumerStatefulWidget {
 }
 
 class _FortunePageState extends ConsumerState<FortunePage> {
-  bool showMonthly = false;
+  bool _showMonthly = false;
   final GlobalKey _saveKey = GlobalKey();
   final GlobalKey _shareKey = GlobalKey();
   bool _isSaving = false;
@@ -59,73 +61,98 @@ class _FortunePageState extends ConsumerState<FortunePage> {
 
   // ExpansionTile 상태 저장 메서드
   void _saveExpansionStates() {
-    _wasOverallExpanded = overallController.isExpanded;
-    _wasLuckyExpanded = luckyController.isExpanded;
-    _wasAdviceExpanded = adviceController.isExpanded;
-    for (int i = 1; i <= 12; i++) {
-      _wasMonthExpanded[i] = monthControllers[i]?.isExpanded ?? false;
+    try {
+      if (_showMonthly) {
+        for (int i = 1; i <= 12; i++) {
+          _wasMonthExpanded[i] = monthControllers[i]?.isExpanded ?? false;
+        }
+      } else {
+        _wasOverallExpanded = overallController.isExpanded;
+        _wasLuckyExpanded = luckyController.isExpanded;
+        _wasAdviceExpanded = adviceController.isExpanded;
+      }
+    } catch (e, s) {
+      logger.e('Error while saving expansion states $e', stackTrace: s);
     }
   }
 
   // 모든 ExpansionTile 펼치기
   void _expandAll() {
-    overallController.expand();
-    luckyController.expand();
-    adviceController.expand();
-    monthControllers.forEach((_, controller) => controller.expand());
+    try {
+      if (_showMonthly) {
+        monthControllers.forEach((_, controller) => controller.expand());
+      } else {
+        overallController.expand();
+        luckyController.expand();
+        adviceController.expand();
+      }
+    } catch (e, s) {
+      logger.e('Error while expanding all $e', stackTrace: s);
+    }
   }
 
   // ExpansionTile 상태 복원
   void _restoreExpansionStates() {
-    if (_wasOverallExpanded) {
-      overallController.expand();
-    } else {
-      overallController.collapse();
-    }
-    if (_wasLuckyExpanded) {
-      luckyController.expand();
-    } else {
-      luckyController.collapse();
-    }
-    if (_wasAdviceExpanded) {
-      adviceController.expand();
-    } else {
-      adviceController.collapse();
-    }
-    monthControllers.forEach((month, controller) {
-      if (_wasMonthExpanded[month] ?? false) {
-        controller.expand();
+    try {
+      if (_showMonthly) {
+        monthControllers.forEach((month, controller) {
+          if (_wasMonthExpanded[month] ?? false) {
+            controller.expand();
+          } else {
+            controller.collapse();
+          }
+        });
       } else {
-        controller.collapse();
+        if (_wasOverallExpanded) {
+          overallController.expand();
+        } else {
+          overallController.collapse();
+        }
+        if (_wasLuckyExpanded) {
+          luckyController.expand();
+        } else {
+          luckyController.collapse();
+        }
+        if (_wasAdviceExpanded) {
+          adviceController.expand();
+        } else {
+          adviceController.collapse();
+        }
       }
-    });
+    } catch (e, s) {
+      logger.e('Error while restoring expansion states $e', stackTrace: s);
+    }
   }
 
   // 캡처 및 저장 메서드
   Future<void> _captureAndSave() async {
-    if (_isSaving) return;
+    try {
+      if (_isSaving) return;
 
-    setState(() => _isSaving = true);
+      setState(() => _isSaving = true);
 
-    // 현재 상태 저장
-    _saveExpansionStates();
+      // 현재 상태 저장
+      _saveExpansionStates();
 
-    // 모든 ExpansionTile 펼치기
-    _expandAll();
+      // 모든 ExpansionTile 펼치기
+      _expandAll();
 
-    // 상태 변경이 UI에 반영되도록 대기
-    await Future.delayed(const Duration(milliseconds: 100));
+      // 상태 변경이 UI에 반영되도록 대기
+      await Future.delayed(const Duration(milliseconds: 100));
 
-    // 이미지 캡처 및 저장
-    await ShareUtils.captureAndSaveImage(
-      _saveKey,
-      onStart: () {}, // 이미 _isSaving이 true로 설정되어 있으므로 비워둠
-      onComplete: () {
-        // 원래 상태로 복원
-        _restoreExpansionStates();
-        setState(() => _isSaving = false);
-      },
-    );
+      // 이미지 캡처 및 저장
+      await ShareUtils.captureAndSaveImage(
+        _saveKey,
+        onStart: () {}, // 이미 _isSaving이 true로 설정되어 있으므로 비워둠
+        onComplete: () {
+          // 원래 상태로 복원
+          _restoreExpansionStates();
+          setState(() => _isSaving = false);
+        },
+      );
+    } catch (e, s) {
+      logger.e('Error while capturing and saving $e', stackTrace: s);
+    }
   }
 
   @override
@@ -165,13 +192,13 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                     indicatorSize: TabBarIndicatorSize.tab,
                     indicatorPadding:
                         const EdgeInsets.symmetric(horizontal: 16),
-                    onTap: (index) => setState(() => showMonthly = index == 1),
+                    onTap: (index) => setState(() => _showMonthly = index == 1),
                     tabs: [
                       Tab(text: S.of(context).fortune_total_title),
                       Tab(text: S.of(context).fortune_monthly),
                     ],
                   ),
-                  showMonthly
+                  _showMonthly
                       ? _buildMonthlyFortune(fortune)
                       : _buildOverallFortune(fortune),
                   ShareSection(

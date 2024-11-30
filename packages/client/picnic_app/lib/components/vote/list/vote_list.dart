@@ -51,7 +51,7 @@ class _VoteListState extends ConsumerState<VoteList> {
         physics: const AlwaysScrollableScrollPhysics(),
         pageController: _pageController,
         builderDelegate: PagedChildBuilderDelegate<VoteModel>(
-          firstPageErrorIndicatorBuilder: (context) => ErrorView(
+          firstPageErrorIndicatorBuilder: (context) => buildErrorView(
             context,
             error: _pagingController.error.toString(),
             retryFunction: () => _pagingController.refresh(),
@@ -83,7 +83,7 @@ class _VoteListState extends ConsumerState<VoteList> {
       pagingController: _pagingController,
       scrollDirection: Axis.vertical,
       builderDelegate: PagedChildBuilderDelegate<VoteModel>(
-        firstPageErrorIndicatorBuilder: (context) => ErrorView(
+        firstPageErrorIndicatorBuilder: (context) => buildErrorView(
           context,
           error: _pagingController.error.toString(),
           retryFunction: () => _pagingController.refresh(),

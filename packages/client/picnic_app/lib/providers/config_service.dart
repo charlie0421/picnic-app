@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -41,6 +42,6 @@ class ConfigService {
 }
 
 @Riverpod(keepAlive: true)
-ConfigService configService(ConfigServiceRef ref) {
+ConfigService configService(Ref ref) {
   return ConfigService(supabase);
 }

@@ -14,7 +14,7 @@ class CountdownTimer extends StatefulWidget {
       {super.key, required this.endTime, required this.status, this.onRefresh});
 
   @override
-  _CountdownTimerState createState() => _CountdownTimerState();
+  State<CountdownTimer> createState() => _CountdownTimerState();
 }
 
 class _CountdownTimerState extends State<CountdownTimer> {

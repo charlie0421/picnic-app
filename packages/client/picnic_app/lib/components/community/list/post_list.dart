@@ -216,7 +216,7 @@ class _PostListState extends ConsumerState<PostList> {
                     );
             },
             error: (err, stack) =>
-                ErrorView(context, error: err, stackTrace: stack),
+                buildErrorView(context, error: err, stackTrace: stack),
             loading: () => buildLoadingOverlay(),
           ),
         ),

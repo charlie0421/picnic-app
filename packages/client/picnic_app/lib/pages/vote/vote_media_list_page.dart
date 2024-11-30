@@ -53,7 +53,7 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
         ),
         firstPageErrorIndicatorBuilder: (context) {
           return SliverToBoxAdapter(
-            child: ErrorView(
+            child: buildErrorView(
               context,
               error: _pagingController.error.toString(),
               retryFunction: () => _pagingController.refresh(),

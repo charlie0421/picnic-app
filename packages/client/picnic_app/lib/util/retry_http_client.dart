@@ -142,7 +142,7 @@ class RetryHttpClient extends http.BaseClient {
       return response;
     } catch (e) {
       if (e is TimeoutException) {
-        throw e;
+        rethrow;
       }
       throw ClientException('Failed to send request: $e', request.url);
     }

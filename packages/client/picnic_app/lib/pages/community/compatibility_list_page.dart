@@ -1,21 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_result_card.dart';
 import 'package:picnic_app/generated/l10n.dart';
-import 'package:picnic_app/models/common/community_navigation.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/pages/community/compatibility_input_page.dart';
 import 'package:picnic_app/pages/community/compatibility_result_page.dart';
 import 'package:picnic_app/providers/community/compatibility_history_provider.dart';
-import 'package:picnic_app/providers/community/compatibility_provider.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
-import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class CompatibilityHistoryPage extends ConsumerStatefulWidget {

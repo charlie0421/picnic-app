@@ -10,7 +10,8 @@ class PicnicAnimatedSwitcher extends ConsumerStatefulWidget {
   const PicnicAnimatedSwitcher({super.key});
 
   @override
-  _PicnicAnimatedSwitcherState createState() => _PicnicAnimatedSwitcherState();
+  ConsumerState<PicnicAnimatedSwitcher> createState() =>
+      _PicnicAnimatedSwitcherState();
 }
 
 class _PicnicAnimatedSwitcherState
@@ -21,7 +22,6 @@ class _PicnicAnimatedSwitcherState
   @override
   void initState() {
     super.initState();
-    // _loadGifBytes();
   }
 
   void _triggerAnimation() {

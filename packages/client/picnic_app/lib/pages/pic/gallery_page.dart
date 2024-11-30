@@ -31,7 +31,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
         return _buildData(galleryList);
       },
       loading: () => buildLoadingOverlay(),
-      error: (error, stackTrace) => ErrorView(
+      error: (error, stackTrace) => buildErrorView(
         context,
         error: error,
         stackTrace: stackTrace,

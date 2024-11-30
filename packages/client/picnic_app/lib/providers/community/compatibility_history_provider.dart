@@ -1,9 +1,6 @@
 import 'package:picnic_app/models/community/compatibility.dart';
-import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/supabase_options.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 part '../../generated/providers/community/compatibility_history_provider.g.dart';
 

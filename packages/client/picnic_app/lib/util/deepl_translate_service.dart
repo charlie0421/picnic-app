@@ -6,7 +6,6 @@ class DeepLTranslationService {
   final bool debugMode;
   static const int _maxAttempts = 3;
   static const Duration _retryDelay = Duration(seconds: 1);
-  static const Duration _defaultDelay = Duration(milliseconds: 500);
 
   final Map<String, RegExp> _languageRegexMap = {
     'EN': RegExp(r'^[a-zA-Z0-9\s\p{P}]+$', unicode: true),

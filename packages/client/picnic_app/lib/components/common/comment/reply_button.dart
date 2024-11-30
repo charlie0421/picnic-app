@@ -46,23 +46,21 @@ class ReplyButtonState extends ConsumerState<ReplyButton> {
     return GestureDetector(
       onTap: _handleButton,
       behavior: HitTestBehavior.opaque,
-      child: Container(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SvgPicture.asset(
-              'assets/icons/reply_style=fill.svg',
-              width: 20,
-              height: 20,
-              colorFilter: ColorFilter.mode(
-                  isReplied ? AppColors.primary500 : AppColors.grey300,
-                  BlendMode.srcIn),
-            ),
-            SizedBox(width: 4.cw),
-            Text(formatNumberWithComma(replies),
-                style: getTextStyle(AppTypo.body14M, AppColors.grey900))
-          ],
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SvgPicture.asset(
+            'assets/icons/reply_style=fill.svg',
+            width: 20,
+            height: 20,
+            colorFilter: ColorFilter.mode(
+                isReplied ? AppColors.primary500 : AppColors.grey300,
+                BlendMode.srcIn),
+          ),
+          SizedBox(width: 4.cw),
+          Text(formatNumberWithComma(replies),
+              style: getTextStyle(AppTypo.body14M, AppColors.grey900))
+        ],
       ),
     );
   }

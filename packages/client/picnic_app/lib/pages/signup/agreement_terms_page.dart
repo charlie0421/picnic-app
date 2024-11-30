@@ -38,7 +38,7 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
     return asyncPolicyState.when(
         data: (PolicyModel data) => _buildTerms(data),
         error: (error, stackTrace) =>
-            ErrorView(context, error: error, stackTrace: stackTrace),
+            buildErrorView(context, error: error, stackTrace: stackTrace),
         loading: () => buildLoadingOverlay());
   }
 

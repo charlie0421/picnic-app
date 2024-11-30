@@ -96,7 +96,6 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
 
     // null safety 처리 추가
     final isFlagged = checkResult['flagged'] as bool? ?? false;
-    final categories = checkResult['categories'] as Map<String, dynamic>? ?? {};
 
     if (isFlagged) {
       OverlayLoadingProgress.stop();

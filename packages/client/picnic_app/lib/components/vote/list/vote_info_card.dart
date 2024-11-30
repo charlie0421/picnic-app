@@ -465,7 +465,6 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
                 return Text('Error: ${snapshot.error}');
               }
               if (snapshot.hasData) {
-                final voteAchieves = snapshot.data as List<VoteAchieve>;
                 return SlideTransition(
                   position: _offsetAnimation,
                   child: Row(

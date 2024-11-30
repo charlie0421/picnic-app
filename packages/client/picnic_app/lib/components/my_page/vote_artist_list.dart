@@ -51,15 +51,15 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
   Future<void> _fetchPage(int pageKey) async {
     try {
       final bookmarkedArtists =
-      await ref.read(asyncBookmarkedArtistsProvider.future);
+          await ref.read(asyncBookmarkedArtistsProvider.future);
       final bookmarkedArtistIds = bookmarkedArtists.map((a) => a.id).toSet();
 
       final newItems =
-      await ref.read(asyncVoteArtistListProvider.notifier).fetchArtists(
-        page: pageKey,
-        query: _textEditingController.text,
-        language: Intl.getCurrentLocale(),
-      );
+          await ref.read(asyncVoteArtistListProvider.notifier).fetchArtists(
+                page: pageKey,
+                query: _textEditingController.text,
+                language: Intl.getCurrentLocale(),
+              );
       final filteredItems = newItems
           .where((artist) => !bookmarkedArtistIds.contains(artist.id))
           .toList();
@@ -105,9 +105,7 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
           child: CommonSearchBox(
             focusNode: _focusNode,
             textEditingController: _textEditingController,
-            hintText: S
-                .of(context)
-                .text_hint_search,
+            hintText: S.of(context).text_hint_search,
           ),
         ),
         Expanded(child: _buildArtistList()),
@@ -134,15 +132,15 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
           barrierDismissible: false, color: AppColors.primary500);
       final success = isBookmarked
           ? await ref
-          .read(asyncVoteArtistListProvider.notifier)
-          .unBookmarkArtist(
-        artistId: artistId,
-        bookmarkedArtistsRef:
-        ref.read(asyncBookmarkedArtistsProvider.notifier),
-      )
+              .read(asyncVoteArtistListProvider.notifier)
+              .unBookmarkArtist(
+                artistId: artistId,
+                bookmarkedArtistsRef:
+                    ref.read(asyncBookmarkedArtistsProvider.notifier),
+              )
           : await ref
-          .read(asyncVoteArtistListProvider.notifier)
-          .bookmarkArtist(artistId: artistId);
+              .read(asyncVoteArtistListProvider.notifier)
+              .bookmarkArtist(artistId: artistId);
 
       if (!mounted) return;
 
@@ -158,12 +156,8 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
         if (mounted) {
           showSimpleDialog(
             content: isBookmarked
-                ? S
-                .of(context)
-                .text_bookmark_failed
-                : S
-                .of(context)
-                .text_bookmark_over_5,
+                ? S.of(context).text_bookmark_failed
+                : S.of(context).text_bookmark_over_5,
           );
         }
       }
@@ -181,7 +175,7 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
     return Consumer(builder: (context, ref, child) {
       final artistsAsyncValue = ref.watch(asyncVoteArtistListProvider);
       final bookmarkedArtistsAsyncValue =
-      ref.watch(asyncBookmarkedArtistsProvider);
+          ref.watch(asyncBookmarkedArtistsProvider);
       return artistsAsyncValue.when(
         data: (artists) {
           return bookmarkedArtistsAsyncValue.when(
@@ -191,7 +185,7 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
                 slivers: [
                   SliverList(
                     delegate: SliverChildBuilderDelegate(
-                          (context, index) =>
+                      (context, index) =>
                           _buildArtistItem(bookmarkedArtists[index]),
                       childCount: bookmarkedArtists.length,
                     ),
@@ -205,20 +199,18 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
                         itemBuilder: (context, item, index) =>
                             _buildArtistItem(item),
                         firstPageErrorIndicatorBuilder: (context) =>
-                            ErrorView(
-                              context,
-                              error: _pagingController.error.toString(),
-                              retryFunction: _pagingController.refresh,
-                              stackTrace: _pagingController.error.stackTrace,
-                            ),
+                            buildErrorView(
+                          context,
+                          error: _pagingController.error.toString(),
+                          retryFunction: _pagingController.refresh,
+                          stackTrace: _pagingController.error.stackTrace,
+                        ),
                         firstPageProgressIndicatorBuilder: (context) =>
                             SizedBox(
                                 height: 200, child: _buildShimmerLoading()),
                         noItemsFoundIndicatorBuilder: (context) =>
                             NoItemContainer(
-                                message: S
-                                    .of(context)
-                                    .text_no_artist),
+                                message: S.of(context).text_no_artist),
                       ),
                     ),
                   ),
@@ -226,13 +218,13 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
               );
             },
             loading: _buildShimmerLoading,
-            error: (error, stack) =>
-                ErrorView(context, error: error.toString(), stackTrace: stack),
+            error: (error, stack) => buildErrorView(context,
+                error: error.toString(), stackTrace: stack),
           );
         },
         loading: _buildShimmerLoading,
         error: (error, s) =>
-            ErrorView(context, error: error.toString(), stackTrace: s),
+            buildErrorView(context, error: error.toString(), stackTrace: s),
       );
     });
   }
@@ -359,8 +351,8 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
     );
   }
 
-  List<TextSpan> _buildHighlightedTextSpans(String text, String query,
-      AppTypo typo, Color color) {
+  List<TextSpan> _buildHighlightedTextSpans(
+      String text, String query, AppTypo typo, Color color) {
     query = query.trim();
     if (query.isEmpty) {
       return [TextSpan(text: text, style: getTextStyle(typo, color))];
@@ -385,7 +377,7 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
       spans.add(TextSpan(
         text: text.substring(index, index + query.length),
         style:
-        getTextStyle(typo, color).copyWith(backgroundColor: Colors.yellow),
+            getTextStyle(typo, color).copyWith(backgroundColor: Colors.yellow),
       ));
       startIndex = index + query.length;
     }

@@ -19,7 +19,7 @@ class PostHomeList extends ConsumerStatefulWidget {
   const PostHomeList({super.key});
 
   @override
-  _PostHomeListState createState() => _PostHomeListState();
+  ConsumerState<PostHomeList> createState() => _PostHomeListState();
 }
 
 class _PostHomeListState extends ConsumerState<PostHomeList> {
@@ -121,7 +121,7 @@ class _PostHomeListState extends ConsumerState<PostHomeList> {
             ],
           ),
           error: (err, stack) =>
-              ErrorView(context, error: err, stackTrace: stack),
+              buildErrorView(context, error: err, stackTrace: stack),
           loading: () => buildLoadingOverlay(),
         ),
       ],

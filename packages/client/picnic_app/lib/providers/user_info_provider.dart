@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
@@ -161,7 +162,7 @@ class UserInfo extends _$UserInfo {
 }
 
 @riverpod
-Future<bool> setAgreement(AgreementRef ref) async {
+Future<bool> setAgreement(Ref ref) async {
   logger.i('Setting user agreement');
   try {
     await supabase.from('user_agreement').upsert({
@@ -181,7 +182,7 @@ Future<bool> setAgreement(AgreementRef ref) async {
 }
 
 @riverpod
-Future<bool> agreement(AgreementRef ref) async {
+Future<bool> agreement(Ref ref) async {
   logger.i('Creating user agreement');
   try {
     await supabase.from('user_agreement').insert({
@@ -201,7 +202,7 @@ Future<bool> agreement(AgreementRef ref) async {
 }
 
 @riverpod
-Future<List<Map<String, dynamic>?>?> expireBonus(ExpireBonusRef ref) async {
+Future<List<Map<String, dynamic>?>?> expireBonus(Ref ref) async {
   logger.i('Calculating expire bonus');
   try {
     final response = await supabase.rpc('get_expiring_bonus_prediction');

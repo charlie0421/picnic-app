@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/models/pic/article.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/logger.dart';
@@ -8,7 +9,7 @@ part '../generated/providers/article_list_provider.g.dart';
 
 @riverpod
 Future<List<ArticleModel>?> fetchArticleList(
-  FetchArticleListRef ref, {
+  Ref ref, {
   required int page,
   required int galleryId,
   required int limit,

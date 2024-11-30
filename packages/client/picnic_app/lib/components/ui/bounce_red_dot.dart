@@ -6,7 +6,7 @@ class BounceRedDot extends StatefulWidget {
   const BounceRedDot({super.key});
 
   @override
-  _BounceRedDot createState() => _BounceRedDot();
+  State<BounceRedDot> createState() => _BounceRedDot();
 }
 
 class _BounceRedDot extends State<BounceRedDot>

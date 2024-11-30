@@ -227,7 +227,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
               ),
             ),
           ),
-          error: (error, stackTrace) => ErrorView(context,
+          error: (error, stackTrace) => buildErrorView(context,
               error: error.toString(), stackTrace: stackTrace),
         ),
       ],
