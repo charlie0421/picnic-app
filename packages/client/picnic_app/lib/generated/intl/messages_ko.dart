@@ -489,6 +489,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("종료된 투표입니다"),
         "message_vote_is_upcoming":
             MessageLookupByLibrary.simpleMessage("예정된 투표입니다"),
+        "my_info": MessageLookupByLibrary.simpleMessage("나의 정보"),
         "mypage_comment": MessageLookupByLibrary.simpleMessage("댓글관리"),
         "mypage_language": MessageLookupByLibrary.simpleMessage("언어설정"),
         "mypage_purchases": MessageLookupByLibrary.simpleMessage("내 구매"),

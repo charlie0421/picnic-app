@@ -110,7 +110,7 @@ class MessageLookup extends MessageLookupByLibrary {
                 "Compatibility data that already exists"),
         "compatibility_gender": MessageLookupByLibrary.simpleMessage("Gender"),
         "compatibility_gender_female":
-            MessageLookupByLibrary.simpleMessage("여성"),
+            MessageLookupByLibrary.simpleMessage("Female"),
         "compatibility_gender_male":
             MessageLookupByLibrary.simpleMessage("Male"),
         "compatibility_idol_style":
@@ -158,30 +158,30 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Compatibility styles"),
         "compatibility_summary_title":
             MessageLookupByLibrary.simpleMessage("Compatibility summary"),
-        "compatibility_time_slot1":
-            MessageLookupByLibrary.simpleMessage("자시|(23:30-01:29)|🐀"),
-        "compatibility_time_slot10":
-            MessageLookupByLibrary.simpleMessage("유시|(17:30-19:29)|🐔"),
-        "compatibility_time_slot11":
-            MessageLookupByLibrary.simpleMessage("술시|(19:30-21:29)|🐕"),
-        "compatibility_time_slot12":
-            MessageLookupByLibrary.simpleMessage("해시|(21:30-23:29)|🐖"),
-        "compatibility_time_slot2":
-            MessageLookupByLibrary.simpleMessage("축시|(01:30-03:29)|🐂"),
-        "compatibility_time_slot3":
-            MessageLookupByLibrary.simpleMessage("인시|(03:30-05:29)|🐅"),
-        "compatibility_time_slot4":
-            MessageLookupByLibrary.simpleMessage("묘시|(05:30-07:29)|🐇"),
-        "compatibility_time_slot5":
-            MessageLookupByLibrary.simpleMessage("진시|(07:30-09:29)|🐉"),
-        "compatibility_time_slot6":
-            MessageLookupByLibrary.simpleMessage("사시|(09:30-11:29)|🐍"),
-        "compatibility_time_slot7":
-            MessageLookupByLibrary.simpleMessage("오시|(11:30-13:29)|🐎"),
-        "compatibility_time_slot8":
-            MessageLookupByLibrary.simpleMessage("미시|(13:30-15:29)|🐑"),
-        "compatibility_time_slot9":
-            MessageLookupByLibrary.simpleMessage("신시|(15:30-17:29)|🐒"),
+        "compatibility_time_slot1": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Rat|(23:30-01:29)|🐀"),
+        "compatibility_time_slot10": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Rooster|(17:30-19:29)|🐔"),
+        "compatibility_time_slot11": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Dog|(19:30-21:29)|🐕"),
+        "compatibility_time_slot12": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Boar|(21:30-23:29)|🐖"),
+        "compatibility_time_slot2": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Ox|(01:30-03:29)|🐂"),
+        "compatibility_time_slot3": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Tiger|(03:30-05:29)|🐅"),
+        "compatibility_time_slot4": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Rabbit|(05:30-07:29)|🐇"),
+        "compatibility_time_slot5": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Dragon|(07:30-09:29)|🐉"),
+        "compatibility_time_slot6": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Snake|(09:30-11:29)|🐍"),
+        "compatibility_time_slot7": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Horse|(11:30-13:29)|🐎"),
+        "compatibility_time_slot8": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Sheep|(13:30-15:29)|🐑"),
+        "compatibility_time_slot9": MessageLookupByLibrary.simpleMessage(
+            "Hour of the Monkey|(15:30-17:29)|🐒"),
         "compatibility_time_slot_unknown":
             MessageLookupByLibrary.simpleMessage("Don\'t know"),
         "compatibility_tips_title":
@@ -543,6 +543,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Poll closed"),
         "message_vote_is_upcoming":
             MessageLookupByLibrary.simpleMessage("This is an upcoming vote"),
+        "my_info": MessageLookupByLibrary.simpleMessage("My Information"),
         "mypage_comment":
             MessageLookupByLibrary.simpleMessage("Manage comments"),
         "mypage_language":
@@ -553,9 +554,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "mypage_subscription":
             MessageLookupByLibrary.simpleMessage("Subscription information"),
         "nav_ads": MessageLookupByLibrary.simpleMessage("Ads"),
-        "nav_board": MessageLookupByLibrary.simpleMessage("Bulletin boards"),
+        "nav_board": MessageLookupByLibrary.simpleMessage("Boards"),
         "nav_gallery": MessageLookupByLibrary.simpleMessage("Gallery"),
-        "nav_home": MessageLookupByLibrary.simpleMessage("홈"),
+        "nav_home": MessageLookupByLibrary.simpleMessage("Home"),
         "nav_library": MessageLookupByLibrary.simpleMessage("Libraries"),
         "nav_media": MessageLookupByLibrary.simpleMessage("Media"),
         "nav_my": MessageLookupByLibrary.simpleMessage("My"),

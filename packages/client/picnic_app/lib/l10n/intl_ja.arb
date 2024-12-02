@@ -244,53 +244,53 @@
     "@compatibility_summary_title": {
         "manualTranslation": false
     },
-    "compatibility_time_slot1": "ジャッシー|(23:30-01:29)｜🐀さん",
+    "compatibility_time_slot1": "子の刻(ね)|(23:30-01:29)|🐀",
     "@compatibility_time_slot1": {
-        "manualTranslation": false
+        "manualTranslation": true
     },
-    "compatibility_time_slot10": "ゆーし|(17:30-19:29)｜🐔｜｜🐔｜🐔",
-    "@compatibility_time_slot10": {
-        "manualTranslation": false
-    },
-    "compatibility_time_slot11": "スルシ|(19:30～21:29)｜🐕｜🐕",
-    "@compatibility_time_slot11": {
-        "manualTranslation": false
-    },
-    "compatibility_time_slot12": "ハッシュ|(21:30-23:29)｜🐖｜🐖",
-    "@compatibility_time_slot12": {
-        "manualTranslation": false
-    },
-    "compatibility_time_slot2": "祝詞|(01:30-03:29)｜🐂｜🐂",
+    "compatibility_time_slot2": "丑の刻(うし)|(01:30-03:29)|🐂",
     "@compatibility_time_slot2": {
-        "manualTranslation": false
+        "manualTranslation": true
     },
-    "compatibility_time_slot3": "インシー|(03:30-05:29)|🐅｜🐅",
+    "compatibility_time_slot3": "寅の刻(とら)|(03:30-05:29)|🐅",
     "@compatibility_time_slot3": {
-        "manualTranslation": false
+        "manualTranslation": true
     },
-    "compatibility_time_slot4": "ミョシ|(05:30-07:29)｜🐇｜🐇",
+    "compatibility_time_slot4": "卯の刻(う)|(05:30-07:29)|🐇",
     "@compatibility_time_slot4": {
-        "manualTranslation": false
+        "manualTranslation": true
     },
-    "compatibility_time_slot5": "ジンシ|(07:30-09:29)|🐉｜🐉",
+    "compatibility_time_slot5": "辰の刻(たつ)|(07:30-09:29)|🐉",
     "@compatibility_time_slot5": {
-        "manualTranslation": false
+        "manualTranslation": true
     },
-    "compatibility_time_slot6": "サシ|(09:30-11:29)｜🐍｜🐍",
+    "compatibility_time_slot6": "巳の刻(み)|(09:30-11:29)|🐍",
     "@compatibility_time_slot6": {
-        "manualTranslation": false
+        "manualTranslation": true
     },
-    "compatibility_time_slot7": "丑三つ時|(11:30-13:29)｜🐎｜🐎",
+    "compatibility_time_slot7": "午の刻(うま)|(11:30-13:29)|🐎",
     "@compatibility_time_slot7": {
-        "manualTranslation": false
+        "manualTranslation": true
     },
-    "compatibility_time_slot8": "ミッシー|(13:30-15:29)｜🐑｜🐑",
+    "compatibility_time_slot8": "未の刻(ひつじ)|(13:30-15:29)|🐑",
     "@compatibility_time_slot8": {
-        "manualTranslation": false
+        "manualTranslation": true
     },
-    "compatibility_time_slot9": "シンシ|(15:30-17:29)｜🐒｜🐒",
+    "compatibility_time_slot9": "申の刻(さる)|(15:30-17:29)|🐒",
     "@compatibility_time_slot9": {
-        "manualTranslation": false
+        "manualTranslation": true
+    },
+    "compatibility_time_slot10": "酉の刻(とり)|(17:30-19:29)|🐔",
+    "@compatibility_time_slot10": {
+        "manualTranslation": true
+    },
+    "compatibility_time_slot11": "戌の刻(いぬ)|(19:30-21:29)|🐕",
+    "@compatibility_time_slot11": {
+        "manualTranslation": true
+    },
+    "compatibility_time_slot12": "亥の刻(い)|(21:30-23:29)|🐖",
+    "@compatibility_time_slot12": {
+        "manualTranslation": true
     },
     "compatibility_time_slot_unknown": "不明",
     "@compatibility_time_slot_unknown": {
@@ -983,6 +983,10 @@
     "nav_gallery": "ギャラリー",
     "@nav_gallery": {
         "manualTranslation": false
+    },
+    "my_info": "私の情報",
+    "@my_info": {
+        "manualTranslation": true
     },
     "nav_home": "ホーム",
     "@nav_home": {

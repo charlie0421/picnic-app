@@ -50,18 +50,17 @@ class _CompatibilityInputScreenState
   void initState() {
     super.initState();
     _loadUserProfile();
-    _updateNavigation();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _updateNavigation();
     _initTimeSlots();
   }
 
   void _updateNavigation() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
       ref.read(navigationInfoProvider.notifier).settingNavigation(
             showPortal: true,
             showTopMenu: true,
@@ -391,7 +390,7 @@ class _CompatibilityInputScreenState
             const SizedBox(height: 8),
             Divider(),
             StrokedText(
-              text: '나의 정보',
+              text: S.of(context).my_info,
               textStyle: getTextStyle(AppTypo.title18B, AppColors.grey00),
               strokeWidth: 2,
             ),
@@ -420,7 +419,7 @@ class _CompatibilityInputScreenState
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.only(left: 16, top: 8, bottom: 8),
+                    padding: const EdgeInsets.only(left: 8, top: 8, bottom: 8),
                     alignment: Alignment.centerLeft,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -440,21 +439,21 @@ class _CompatibilityInputScreenState
                             GestureDetector(
                               onTap: () {
                                 setState(() {
-                                  _gender = 'female';
+                                  _gender = genderOptions[1]['value'];
                                 });
                               },
                               child: Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
-                                  color: _gender == 'female'
+                                  color: _gender == genderOptions[1]['value']
                                       ? AppColors.primary500
                                       : AppColors.grey300,
                                 ),
-                                width: 46,
+                                width: 60,
                                 height: 19,
                                 child: Center(
                                   child: Text(
-                                    '여자',
+                                    S.of(context).compatibility_gender_female,
                                     style: getTextStyle(
                                         AppTypo.caption10SB, AppColors.grey00),
                                   ),
@@ -465,21 +464,21 @@ class _CompatibilityInputScreenState
                             GestureDetector(
                               onTap: () {
                                 setState(() {
-                                  _gender = 'male';
+                                  _gender = genderOptions[0]['value'];
                                 });
                               },
                               child: Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
-                                  color: _gender == 'male'
+                                  color: _gender == genderOptions[0]['value']
                                       ? AppColors.primary500
                                       : AppColors.grey300,
                                 ),
-                                width: 46,
+                                width: 60,
                                 height: 19,
                                 child: Center(
                                   child: Text(
-                                    '남자',
+                                    S.of(context).compatibility_gender_male,
                                     style: getTextStyle(
                                         AppTypo.caption10SB, AppColors.grey00),
                                   ),
@@ -523,7 +522,7 @@ class _CompatibilityInputScreenState
                     borderRadius: BorderRadius.circular(16),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                          horizontal: 8, vertical: 8),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -538,7 +537,9 @@ class _CompatibilityInputScreenState
                           const SizedBox(height: 12),
                           Container(
                             height: 26,
-                            width: 280,
+                            constraints: BoxConstraints(
+                              maxWidth: 260,
+                            ),
                             alignment: Alignment.centerLeft,
                             padding: const EdgeInsets.symmetric(horizontal: 8),
                             decoration: BoxDecoration(
@@ -594,7 +595,7 @@ class _CompatibilityInputScreenState
                   Container(
                     alignment: Alignment.centerLeft,
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -621,9 +622,11 @@ class _CompatibilityInputScreenState
                         ),
                         SizedBox(height: 12),
                         Center(
-                          child: SizedBox(
+                          child: Container(
                             height: 26,
-                            width: 280,
+                            constraints: BoxConstraints(
+                              maxWidth: 260,
+                            ),
                             child: DropdownButtonFormField<String>(
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
@@ -646,7 +649,7 @@ class _CompatibilityInputScreenState
                                         .of(context)
                                         .compatibility_time_slot_unknown,
                                     style: getTextStyle(
-                                      AppTypo.caption12M,
+                                      AppTypo.caption10SB,
                                       AppColors.grey900,
                                     ),
                                   ),
@@ -662,31 +665,16 @@ class _CompatibilityInputScreenState
                                         parts.length > 2 ? parts[2] : '';
 
                                     return DropdownMenuItem(
-                                      value: (index + 1).toString(),
-                                      child: Row(
-                                        children: [
-                                          if (icon.isNotEmpty) ...[
-                                            Text(icon),
-                                            const SizedBox(width: 4),
-                                          ],
-                                          Text(
-                                            text,
-                                            style: getTextStyle(
-                                              AppTypo.caption12M,
-                                              AppColors.grey900,
-                                            ),
+                                        value: (index + 1).toString(),
+                                        child: Text(
+                                          '${icon.isNotEmpty ? '$icon ' : ''}$text $textTime',
+                                          style: getTextStyle(
+                                            AppTypo.caption10SB,
+                                            AppColors.grey900,
                                           ),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            textTime,
-                                            style: getTextStyle(
-                                              AppTypo.caption12M,
-                                              AppColors.grey600,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ));
                                   },
                                 ),
                               ],
