@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/common/avatar_container.dart';
+import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/community/compatibility/animated_heart.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
@@ -10,6 +11,7 @@ import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class CompatibilityInfo extends StatefulWidget {
   const CompatibilityInfo({
@@ -53,16 +55,14 @@ class _CompatibilityInfoState extends State<CompatibilityInfo> {
                         topLeft: Radius.circular(16),
                         bottomLeft: Radius.circular(16))
                     : BorderRadius.only(topLeft: Radius.circular(16)),
-                child: ProfileImageContainer(
-                  avatarUrl: widget.artist.image ?? '',
-                  width: 150,
-                  height: 150,
-                  borderRadius: 0,
+                child: PicnicCachedNetworkImage(
+                  imageUrl: widget.artist.image ?? '',
+                  width: 150.cw,
+                  height: 150.cw,
                 ),
               ),
               SizedBox(width: 16),
               Column(
-                  mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -71,7 +71,6 @@ class _CompatibilityInfoState extends State<CompatibilityInfo> {
                       textAlign: TextAlign.center,
                       style: getTextStyle(AppTypo.body16B, AppColors.grey900),
                     ),
-                    SizedBox(height: 4),
                     Row(
                       children: [
                         Text(

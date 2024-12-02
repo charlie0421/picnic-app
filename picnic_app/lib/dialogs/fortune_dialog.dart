@@ -433,7 +433,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
               child: PicnicCachedNetworkImage(
                 imageUrl: fortune.artist.image ?? '',
                 fit: BoxFit.cover,
-                width: (screenWidth * 1.1).toInt(),
+                width: (screenWidth * 1.1),
               ),
             ),
           ),

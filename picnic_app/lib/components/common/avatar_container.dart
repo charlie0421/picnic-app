@@ -29,7 +29,6 @@ class ProfileImageContainer extends StatelessWidget {
       alignment: Alignment.center,
       decoration: (borderRadius != null)
           ? BoxDecoration(
-              color: AppColors.primary500,
               borderRadius: BorderRadius.circular(borderRadius!),
               border: border != null
                   ? Border.all(
@@ -68,8 +67,8 @@ class ProfileImageContainer extends StatelessWidget {
 
     return PicnicCachedNetworkImage(
       imageUrl: avatarUrl!,
-      width: width?.toInt(),
-      height: height?.toInt(),
+      width: width,
+      height: height,
       fit: BoxFit.cover,
     );
   }

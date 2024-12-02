@@ -418,7 +418,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                   width: width,
                   child: PicnicCachedNetworkImage(
                     imageUrl: voteModel.mainImage!,
-                    width: width.toInt(),
+                    width: width,
                     memCacheWidth: width.toInt(),
                   ),
                 ),

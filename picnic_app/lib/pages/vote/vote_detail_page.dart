@@ -233,7 +233,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             width: width,
             child: PicnicCachedNetworkImage(
               imageUrl: voteModel.mainImage!,
-              width: width.toInt(),
+              width: width,
               memCacheWidth: width.toInt(),
             ),
           ),

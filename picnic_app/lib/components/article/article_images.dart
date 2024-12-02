@@ -193,7 +193,7 @@ class _FullScreenImageViewerState extends ConsumerState<FullScreenImageViewer>
                     child: PicnicCachedNetworkImage(
                       imageUrl: widget.imageUrl,
                       fit: BoxFit.cover,
-                      width: getPlatformScreenSize(context).width.toInt(),
+                      width: getPlatformScreenSize(context).width,
                       // imageBuilder: (context, imageProvider) {
                       //   return Image(
                       //     image: imageProvider,
