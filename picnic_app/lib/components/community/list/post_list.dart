@@ -51,7 +51,7 @@ class _PostListState extends ConsumerState<PostList> {
     return Column(
       children: [
         if (isAdmin ?? false) ...[
-          GestureDetector(
+          InkWell(
             onTap: () async {
               if (!supabase.isLogged) {
                 showRequireLoginDialog();
@@ -92,7 +92,7 @@ class _PostListState extends ConsumerState<PostList> {
             thickness: 1,
             color: AppColors.grey300,
           ),
-          GestureDetector(
+          InkWell(
             onTap: () {
               if (supabase.isLogged) {
                 navigationInfoNotifier.setCurrentPage(
