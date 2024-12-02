@@ -165,10 +165,10 @@ class AnimatedCompatibilityBar extends StatefulWidget {
   final String message;
 
   const AnimatedCompatibilityBar({
-    Key? key,
+    super.key,
     required this.score,
     required this.message,
-  }) : super(key: key);
+  });
 
   @override
   State<AnimatedCompatibilityBar> createState() =>
@@ -227,6 +227,12 @@ class _AnimatedCompatibilityBarState extends State<AnimatedCompatibilityBar>
                 child: Container(
                   decoration: BoxDecoration(
                     color: _getScoreColor(widget.score),
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.mint500,
+                        AppColors.primary500,
+                      ],
+                    ),
                     borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(16),
                     ),
