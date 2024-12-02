@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_error.dart';
+import 'package:picnic_app/components/community/compatibility/compatibility_info.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_loading_view.dart';
-import 'package:picnic_app/components/community/compatibility/compatibility_result_card.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_result_view.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_footer.dart';
 import 'package:picnic_app/generated/l10n.dart';
@@ -123,34 +123,42 @@ class _CompatibilityResultPageState
         return SingleChildScrollView(
           child: Container(
             padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [AppColors.primary500, AppColors.mint500],
+              ),
+            ),
             child: Column(
               children: [
                 RepaintBoundary(
                   key: _printKey,
-                  child: Container(
-                    color: AppColors.grey00,
-                    child: Column(
-                      children: [
-                        CompatibilityResultCard(
-                          compatibility: compatibility,
+                  child: Column(
+                    children: [
+                      CompatibilityInfo(
+                        artist: compatibility.artist,
+                        ref: ref,
+                        birthDate: compatibility.birthDate,
+                        birthTime: compatibility.birthTime,
+                        compatibility: compatibility,
+                      ),
+                      if (!_isInitialized) ...[
+                        const Center(child: CircularProgressIndicator()),
+                      ] else if (compatibility.isPending) ...[
+                        const CompatibilityLoadingView(),
+                      ] else if (compatibility.hasError) ...[
+                        CompatibilityErrorView(
+                          error: compatibility.errorMessage ??
+                              S.of(context).error_unknown,
                         ),
-                        if (!_isInitialized) ...[
-                          const Center(child: CircularProgressIndicator()),
-                        ] else if (compatibility.isPending) ...[
-                          const CompatibilityLoadingView(),
-                        ] else if (compatibility.hasError) ...[
-                          CompatibilityErrorView(
-                            error: compatibility.errorMessage ??
-                                S.of(context).error_unknown,
-                          ),
-                        ] else if (compatibility.isCompleted) ...[
-                          CompatibilityResultView(
-                            compatibility: compatibility,
-                            language: _currentLocale ?? Intl.getCurrentLocale(),
-                          ),
-                        ],
+                      ] else if (compatibility.isCompleted) ...[
+                        CompatibilityResultView(
+                          compatibility: compatibility,
+                          language: _currentLocale ?? Intl.getCurrentLocale(),
+                        ),
                       ],
-                    ),
+                    ],
                   ),
                 ),
                 if (compatibility.isCompleted &&

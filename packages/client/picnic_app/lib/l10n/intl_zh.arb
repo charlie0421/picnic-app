@@ -1564,10 +1564,6 @@
     "@fortune_monthly": {
         "manualTranslation": true
     },
-    "fortune_love": "애정운",
-    "@fortune_love": {
-        "manualTranslation": true
-    },
     "fortune_career": "商业财富",
     "@fortune_career": {
         "manualTranslation": true
@@ -1662,6 +1658,10 @@
     },
     "fortune_honor": "荣誉",
     "@fortune_honor": {
+        "manualTranslation": true
+    },
+    "compatibility_birthtime_subtitle": "提高准确性",
+    "@compatibility_birthtime_subtitle": {
         "manualTranslation": true
     }
 }

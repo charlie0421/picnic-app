@@ -88,11 +88,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "compatibility_agree_checkbox": MessageLookupByLibrary.simpleMessage(
             "성별, 생일 정보를 프로필에 저장하는 것에 동의합니다."),
         "compatibility_analyze_start":
-            MessageLookupByLibrary.simpleMessage("궁합 분석 시작"),
+            MessageLookupByLibrary.simpleMessage("궁합 분석"),
         "compatibility_analyzing":
             MessageLookupByLibrary.simpleMessage("궁합을 분석하고 있습니다."),
         "compatibility_birthday": MessageLookupByLibrary.simpleMessage("생년월일"),
-        "compatibility_birthtime": MessageLookupByLibrary.simpleMessage("출생시간"),
+        "compatibility_birthtime":
+            MessageLookupByLibrary.simpleMessage("태어난 시간"),
+        "compatibility_birthtime_subtitle":
+            MessageLookupByLibrary.simpleMessage("정확도가 올라가요!"),
         "compatibility_couple_style":
             MessageLookupByLibrary.simpleMessage("커플 스타일"),
         "compatibility_duplicate_data_message":
@@ -109,7 +112,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("새로운 궁합 확인하기"),
         "compatibility_new_compatibility_ask":
             MessageLookupByLibrary.simpleMessage("새로운 궁합을 보시겠습니까?"),
-        "compatibility_page_title": MessageLookupByLibrary.simpleMessage("궁합"),
+        "compatibility_page_title":
+            MessageLookupByLibrary.simpleMessage("아티스트 궁합보기"),
         "compatibility_result_70":
             MessageLookupByLibrary.simpleMessage("좋은 궁합이에요! 🌟"),
         "compatibility_result_80":

@@ -98,6 +98,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Date of birth"),
         "compatibility_birthtime":
             MessageLookupByLibrary.simpleMessage("Birth time"),
+        "compatibility_birthtime_subtitle":
+            MessageLookupByLibrary.simpleMessage("Increase accuracy!"),
         "compatibility_couple_style":
             MessageLookupByLibrary.simpleMessage("Couple styles"),
         "compatibility_duplicate_data_message":
@@ -291,7 +293,6 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Business fortunes"),
         "fortune_health": MessageLookupByLibrary.simpleMessage("Health clouds"),
         "fortune_honor": MessageLookupByLibrary.simpleMessage("Honor"),
-        "fortune_love": MessageLookupByLibrary.simpleMessage("Ae Jung Woon"),
         "fortune_lucky_color":
             MessageLookupByLibrary.simpleMessage("Lucky colors"),
         "fortune_lucky_days":

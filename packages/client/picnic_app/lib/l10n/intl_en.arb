@@ -1748,10 +1748,6 @@
     "@fortune_monthly": {
         "manualTranslation": false
     },
-    "fortune_love": "Ae Jung Woon",
-    "@fortune_love": {
-        "manualTranslation": false
-    },
     "fortune_career": "Business fortunes",
     "@fortune_career": {
         "manualTranslation": false
@@ -1846,6 +1842,10 @@
     },
     "fortune_honor": "Honor",
     "@fortune_honor": {
+        "manualTranslation": true
+    },
+    "compatibility_birthtime_subtitle": "Increase accuracy!",
+    "@compatibility_birthtime_subtitle": {
         "manualTranslation": true
     }
 }
