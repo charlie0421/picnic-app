@@ -10,8 +10,8 @@ import 'package:universal_platform/universal_platform.dart';
 
 class PicnicCachedNetworkImage extends StatefulWidget {
   final String imageUrl;
-  final int? width;
-  final int? height;
+  final double? width;
+  final double? height;
   final BoxFit? fit;
   final bool useScreenUtil;
   final int? memCacheWidth;

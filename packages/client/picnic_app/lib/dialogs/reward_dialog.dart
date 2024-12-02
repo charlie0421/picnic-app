@@ -83,7 +83,7 @@ class _RewardDialogState extends State<RewardDialog> {
               child: PicnicCachedNetworkImage(
                 imageUrl: widget.data.thumbnail ?? '',
                 fit: BoxFit.cover,
-                width: (screenWidth * 1.1).toInt(),
+                width: (screenWidth * 1.1),
               ),
             ),
           ),
@@ -262,8 +262,8 @@ class RewardSection extends StatelessWidget {
                   BorderRadius.circular(RewardDialogConstants.imageRadius),
               child: PicnicCachedNetworkImage(
                 imageUrl: image,
-                width: imageSize.toInt(),
-                height: imageSize.toInt(),
+                width: imageSize,
+                height: imageSize,
                 fit: BoxFit.cover,
               ),
             ),
