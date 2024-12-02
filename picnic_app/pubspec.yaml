@@ -123,6 +123,7 @@ flutter:
         - assets/images/
         - assets/images/login/
         - assets/images/vote/
+        - assets/images/fortune/
         - assets/icons/
         - assets/icons/login/
         - assets/icons/vote/

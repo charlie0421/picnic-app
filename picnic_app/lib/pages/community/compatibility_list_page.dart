@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_info.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/navigation.dart';
@@ -103,112 +105,137 @@ class _CompatibilityHistoryPageState
             colors: [AppColors.primary500, AppColors.mint500],
           ),
         ),
-        child: Stack(
-          children: [
-            // Empty state or List
-            history.items.isEmpty && !history.isLoading
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          '첫 궁합을 확인해보세요! 🌟',
-                          style:
-                              getTextStyle(AppTypo.body16B, AppColors.grey900),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '당신과 잘 맞는 아티스트를 찾아보세요',
-                          style:
-                              getTextStyle(AppTypo.body14R, AppColors.grey600),
-                        ),
-                      ],
+        child: history.items.isEmpty && !history.isLoading
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/images/fortune/no_item_${Intl.getCurrentLocale()}.svg',
                     ),
-                  )
-                : ListView.separated(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
-                    itemCount:
-                        history.items.length + (history.isLoading ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (index == history.items.length) {
-                        return const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: CircularProgressIndicator(),
+                    SizedBox(height: 64),
+                    ElevatedButton(
+                      onPressed: _onNewCompatibilityTap,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 48, vertical: 16),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            S.of(context).compatibility_new_compatibility,
+                            style: getTextStyle(AppTypo.body16B, Colors.white),
                           ),
-                        );
-                      }
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              )
+            : Stack(
+                children: [
+                  Column(
+                    children: [
+                      SizedBox(height: 24),
+                      SvgPicture.asset(
+                        'assets/images/fortune/title_${Intl.getCurrentLocale()}.svg',
+                        fit: BoxFit.cover,
+                      ),
+                      SizedBox(height: 24),
+                      Expanded(
+                        child: ListView.separated(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+                          itemCount: history.items.length +
+                              (history.isLoading ? 1 : 0),
+                          itemBuilder: (context, index) {
+                            if (index == history.items.length) {
+                              return const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            }
 
-                      final item = history.items[index];
+                            final item = history.items[index];
 
-                      return InkWell(
-                          onTap: () {
-                            ref
-                                .read(navigationInfoProvider.notifier)
-                                .setCurrentPage(
-                                  CompatibilityResultPage(compatibility: item),
-                                );
+                            return InkWell(
+                                onTap: () {
+                                  ref
+                                      .read(navigationInfoProvider.notifier)
+                                      .setCurrentPage(
+                                        CompatibilityResultPage(
+                                            compatibility: item),
+                                      );
+                                },
+                                child: CompatibilityInfo(
+                                  artist: item.artist,
+                                  ref: ref,
+                                  birthDate: item.birthDate,
+                                  birthTime: item.birthTime,
+                                  gender: item.gender,
+                                  compatibility: item,
+                                ));
                           },
-                          child: CompatibilityInfo(
-                            artist: item.artist,
-                            ref: ref,
-                            birthDate: item.birthDate,
-                            birthTime: item.birthTime,
-                            gender: item.gender,
-                            compatibility: item,
-                          ));
-                    },
-                    separatorBuilder: (BuildContext context, int index) {
-                      return Center(
-                        child: Container(
-                          height: 3,
-                          width: 48,
-                          margin: const EdgeInsets.symmetric(vertical: 32),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            color: AppColors.primary500,
-                          ),
+                          separatorBuilder: (BuildContext context, int index) {
+                            return Center(
+                              child: Container(
+                                height: 3,
+                                width: 48,
+                                margin:
+                                    const EdgeInsets.symmetric(vertical: 32),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  color: AppColors.primary500,
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
-            if (widget.artistId != null)
-              Positioned(
-                bottom: 24,
-                left: 24,
-                right: 24,
-                child: Container(
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary500.withOpacity(0.2),
-                        blurRadius: 15,
-                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
-                  child: ElevatedButton(
-                    onPressed: _onNewCompatibilityTap,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.add_circle_outline, size: 20),
-                        const SizedBox(width: 8),
-                        Text(
-                          S.of(context).compatibility_new_compatibility,
-                          style: getTextStyle(AppTypo.body16B, Colors.white),
+                  Positioned(
+                    bottom: 24,
+                    left: 24,
+                    right: 24,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary500.withOpacity(0.2),
+                            blurRadius: 15,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: ElevatedButton(
+                        onPressed: _onNewCompatibilityTap,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 48, vertical: 16),
                         ),
-                      ],
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.add_circle_outline, size: 20),
+                            const SizedBox(width: 8),
+                            Text(
+                              S.of(context).compatibility_new_compatibility,
+                              style:
+                                  getTextStyle(AppTypo.body16B, Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                ),
+                  )
+                ],
               ),
-          ],
-        ),
       ),
     );
   }

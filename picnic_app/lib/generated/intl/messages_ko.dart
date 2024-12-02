@@ -109,7 +109,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "compatibility_idol_style":
             MessageLookupByLibrary.simpleMessage("아이돌 스타일"),
         "compatibility_new_compatibility":
-            MessageLookupByLibrary.simpleMessage("새로운 궁합 확인하기"),
+            MessageLookupByLibrary.simpleMessage("새로운 궁합 보기"),
         "compatibility_new_compatibility_ask":
             MessageLookupByLibrary.simpleMessage("새로운 궁합을 보시겠습니까?"),
         "compatibility_page_title":
