@@ -101,7 +101,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "compatibility_gender": MessageLookupByLibrary.simpleMessage("性别"),
         "compatibility_gender_female":
             MessageLookupByLibrary.simpleMessage("女性"),
-        "compatibility_gender_male": MessageLookupByLibrary.simpleMessage("男"),
+        "compatibility_gender_male": MessageLookupByLibrary.simpleMessage("男性"),
         "compatibility_idol_style":
             MessageLookupByLibrary.simpleMessage("偶像风格"),
         "compatibility_new_compatibility":
@@ -144,29 +144,29 @@ class MessageLookup extends MessageLookupByLibrary {
         "compatibility_summary_title":
             MessageLookupByLibrary.simpleMessage("兼容性概述"),
         "compatibility_time_slot1":
-            MessageLookupByLibrary.simpleMessage("자시|(23:30-01:29)|🐀"),
+            MessageLookupByLibrary.simpleMessage("子时(zǐshí)|(23:30-01:29)|🐀"),
         "compatibility_time_slot10":
-            MessageLookupByLibrary.simpleMessage("유시|(17:30-19:29)|🐔"),
+            MessageLookupByLibrary.simpleMessage("酉时(yǒushí)|(17:30-19:29)|🐔"),
         "compatibility_time_slot11":
-            MessageLookupByLibrary.simpleMessage("술시|(19:30-21:29)|🐕"),
+            MessageLookupByLibrary.simpleMessage("戌时(xūshí)|(19:30-21:29)|🐕"),
         "compatibility_time_slot12":
-            MessageLookupByLibrary.simpleMessage("哈希|(21:30-23:29)|🐖"),
-        "compatibility_time_slot2":
-            MessageLookupByLibrary.simpleMessage("축시|(01:30-03:29)|🐂"),
+            MessageLookupByLibrary.simpleMessage("亥时(hàishí)|(21:30-23:29)|🐖"),
+        "compatibility_time_slot2": MessageLookupByLibrary.simpleMessage(
+            "丑时(chǒushí)|(01:30-03:29)|🐂"),
         "compatibility_time_slot3":
-            MessageLookupByLibrary.simpleMessage("인시|(03:30-05:29)|🐅"),
+            MessageLookupByLibrary.simpleMessage("寅时(yínshí)|(03:30-05:29)|🐅"),
         "compatibility_time_slot4":
-            MessageLookupByLibrary.simpleMessage("묘시|(05:30-07:29)|🐇"),
-        "compatibility_time_slot5":
-            MessageLookupByLibrary.simpleMessage("진시|(07:30-09:29)|🐉"),
+            MessageLookupByLibrary.simpleMessage("卯时(mǎoshí)|(05:30-07:29)|🐇"),
+        "compatibility_time_slot5": MessageLookupByLibrary.simpleMessage(
+            "辰时(chénshí)|(07:30-09:29)|🐉"),
         "compatibility_time_slot6":
-            MessageLookupByLibrary.simpleMessage("사시|(09:30-11:29)|🐍"),
+            MessageLookupByLibrary.simpleMessage("巳时(sìshí)|(09:30-11:29)|🐍"),
         "compatibility_time_slot7":
-            MessageLookupByLibrary.simpleMessage("오시|(11:30-13:29)|🐎"),
+            MessageLookupByLibrary.simpleMessage("午时(wǔshí)|(11:30-13:29)|🐎"),
         "compatibility_time_slot8":
-            MessageLookupByLibrary.simpleMessage("미시|(13:30-15:29)|🐑"),
-        "compatibility_time_slot9":
-            MessageLookupByLibrary.simpleMessage("신시|(15:30-17:29)|🐒"),
+            MessageLookupByLibrary.simpleMessage("未时(wèishí)|(13:30-15:29)|🐑"),
+        "compatibility_time_slot9": MessageLookupByLibrary.simpleMessage(
+            "申时(shēnshí)|(15:30-17:29)|🐒"),
         "compatibility_time_slot_unknown":
             MessageLookupByLibrary.simpleMessage("不知道"),
         "compatibility_tips_title":
@@ -454,6 +454,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "message_vote_is_ended": MessageLookupByLibrary.simpleMessage("投票结束"),
         "message_vote_is_upcoming":
             MessageLookupByLibrary.simpleMessage("即将进行投票"),
+        "my_info": MessageLookupByLibrary.simpleMessage("我的信息"),
         "mypage_comment": MessageLookupByLibrary.simpleMessage("管理评论"),
         "mypage_language": MessageLookupByLibrary.simpleMessage("语言设置"),
         "mypage_purchases": MessageLookupByLibrary.simpleMessage("我的采购"),

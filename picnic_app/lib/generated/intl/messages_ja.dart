@@ -146,29 +146,29 @@ class MessageLookup extends MessageLookupByLibrary {
         "compatibility_summary_title":
             MessageLookupByLibrary.simpleMessage("相性の概要"),
         "compatibility_time_slot1":
-            MessageLookupByLibrary.simpleMessage("ジャッシー|(23:30-01:29)｜🐀さん"),
+            MessageLookupByLibrary.simpleMessage("子の刻(ね)|(23:30-01:29)|🐀"),
         "compatibility_time_slot10":
-            MessageLookupByLibrary.simpleMessage("ゆーし|(17:30-19:29)｜🐔｜｜🐔｜🐔"),
+            MessageLookupByLibrary.simpleMessage("酉の刻(とり)|(17:30-19:29)|🐔"),
         "compatibility_time_slot11":
-            MessageLookupByLibrary.simpleMessage("スルシ|(19:30～21:29)｜🐕｜🐕"),
+            MessageLookupByLibrary.simpleMessage("戌の刻(いぬ)|(19:30-21:29)|🐕"),
         "compatibility_time_slot12":
-            MessageLookupByLibrary.simpleMessage("ハッシュ|(21:30-23:29)｜🐖｜🐖"),
+            MessageLookupByLibrary.simpleMessage("亥の刻(い)|(21:30-23:29)|🐖"),
         "compatibility_time_slot2":
-            MessageLookupByLibrary.simpleMessage("祝詞|(01:30-03:29)｜🐂｜🐂"),
+            MessageLookupByLibrary.simpleMessage("丑の刻(うし)|(01:30-03:29)|🐂"),
         "compatibility_time_slot3":
-            MessageLookupByLibrary.simpleMessage("インシー|(03:30-05:29)|🐅｜🐅"),
+            MessageLookupByLibrary.simpleMessage("寅の刻(とら)|(03:30-05:29)|🐅"),
         "compatibility_time_slot4":
-            MessageLookupByLibrary.simpleMessage("ミョシ|(05:30-07:29)｜🐇｜🐇"),
+            MessageLookupByLibrary.simpleMessage("卯の刻(う)|(05:30-07:29)|🐇"),
         "compatibility_time_slot5":
-            MessageLookupByLibrary.simpleMessage("ジンシ|(07:30-09:29)|🐉｜🐉"),
+            MessageLookupByLibrary.simpleMessage("辰の刻(たつ)|(07:30-09:29)|🐉"),
         "compatibility_time_slot6":
-            MessageLookupByLibrary.simpleMessage("サシ|(09:30-11:29)｜🐍｜🐍"),
+            MessageLookupByLibrary.simpleMessage("巳の刻(み)|(09:30-11:29)|🐍"),
         "compatibility_time_slot7":
-            MessageLookupByLibrary.simpleMessage("丑三つ時|(11:30-13:29)｜🐎｜🐎"),
+            MessageLookupByLibrary.simpleMessage("午の刻(うま)|(11:30-13:29)|🐎"),
         "compatibility_time_slot8":
-            MessageLookupByLibrary.simpleMessage("ミッシー|(13:30-15:29)｜🐑｜🐑"),
+            MessageLookupByLibrary.simpleMessage("未の刻(ひつじ)|(13:30-15:29)|🐑"),
         "compatibility_time_slot9":
-            MessageLookupByLibrary.simpleMessage("シンシ|(15:30-17:29)｜🐒｜🐒"),
+            MessageLookupByLibrary.simpleMessage("申の刻(さる)|(15:30-17:29)|🐒"),
         "compatibility_time_slot_unknown":
             MessageLookupByLibrary.simpleMessage("不明"),
         "compatibility_tips_title":
@@ -483,6 +483,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("投票は終了しました"),
         "message_vote_is_upcoming":
             MessageLookupByLibrary.simpleMessage("予定されている投票です"),
+        "my_info": MessageLookupByLibrary.simpleMessage("私の情報"),
         "mypage_comment": MessageLookupByLibrary.simpleMessage("コメント管理"),
         "mypage_language": MessageLookupByLibrary.simpleMessage("言語設定"),
         "mypage_purchases": MessageLookupByLibrary.simpleMessage("私の購入"),
