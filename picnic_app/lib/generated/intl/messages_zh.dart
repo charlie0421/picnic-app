@@ -90,6 +90,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("分析兼容性。"),
         "compatibility_birthday": MessageLookupByLibrary.simpleMessage("出生日期"),
         "compatibility_birthtime": MessageLookupByLibrary.simpleMessage("出生时间"),
+        "compatibility_birthtime_subtitle":
+            MessageLookupByLibrary.simpleMessage("提高准确性"),
         "compatibility_couple_style":
             MessageLookupByLibrary.simpleMessage("情侣款式"),
         "compatibility_duplicate_data_message":
@@ -261,7 +263,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "fortune_career": MessageLookupByLibrary.simpleMessage("商业财富"),
         "fortune_health": MessageLookupByLibrary.simpleMessage("健康云"),
         "fortune_honor": MessageLookupByLibrary.simpleMessage("荣誉"),
-        "fortune_love": MessageLookupByLibrary.simpleMessage("애정운"),
         "fortune_lucky_color": MessageLookupByLibrary.simpleMessage("幸运颜色"),
         "fortune_lucky_days": MessageLookupByLibrary.simpleMessage("一周中的幸运日"),
         "fortune_lucky_direction": MessageLookupByLibrary.simpleMessage("幸运方向"),

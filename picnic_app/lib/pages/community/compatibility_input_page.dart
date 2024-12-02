@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_app/components/community/compatibility/compatibility_result_card.dart';
+import 'package:picnic_app/components/common/underlined_text.dart';
+import 'package:picnic_app/components/community/compatibility/compatibility_info.dart';
+import 'package:picnic_app/components/stroked_text.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
@@ -155,7 +159,8 @@ class _CompatibilityInputScreenState
 
       if (existingCompatibility != null) {
         if (!mounted) return;
-        final shouldProceed = await _showDuplicateDialog(existingCompatibility);
+        final shouldProceed =
+            await _showCompatibilityDuplicateDialog(existingCompatibility);
 
         if (!shouldProceed) {
           setState(() {
@@ -226,7 +231,8 @@ class _CompatibilityInputScreenState
     });
   }
 
-  Future<bool> _showDuplicateDialog(CompatibilityModel existing) async {
+  Future<bool> _showCompatibilityDuplicateDialog(
+      CompatibilityModel existing) async {
     if (!mounted) return false;
 
     return await showDialog<bool>(
@@ -358,228 +364,348 @@ class _CompatibilityInputScreenState
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Container(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.primary500.withOpacity(0.8),
+              AppColors.mint500.withOpacity(0.8)
+            ],
+          ),
+        ),
         child: Column(
           children: [
-            CompatibilityResultCard(
-              compatibility: CompatibilityModel(
-                userId: supabase.auth.currentUser!.id,
-                artist: widget.artist,
-                birthDate: widget.artist.birthDate!,
-                status: CompatibilityStatus.input,
-              ),
+            StrokedText(
+              text: S.of(context).label_mypage_my_artist,
+              textStyle: getTextStyle(AppTypo.title18B, AppColors.grey00),
+              strokeWidth: 3,
+            ),
+            const SizedBox(height: 12),
+            CompatibilityInfo(
+              artist: widget.artist,
+              ref: ref,
+              compatibility: null,
             ),
             const SizedBox(height: 8),
-
-            // Gender Selection
+            Divider(),
+            StrokedText(
+              text: '나의 정보',
+              textStyle: getTextStyle(AppTypo.title18B, AppColors.grey00),
+              strokeWidth: 2,
+            ),
+            SizedBox(height: 8),
             Card(
               elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.person_outline,
-                            color: AppColors.primary500),
-                        const SizedBox(width: 8),
-                        Text(
-                          S.of(context).compatibility_gender,
-                          style:
-                              getTextStyle(AppTypo.body14B, AppColors.grey900),
-                        ),
-                      ],
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 75,
+                    height: 75,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        bottomLeft: Radius.circular(12),
+                      ),
+                      color: AppColors.primary500,
                     ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: genderOptions
-                          .map((option) => Expanded(
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 4),
-                                  child: FilledButton(
-                                    onPressed: () => setState(
-                                        () => _gender = option['value']),
-                                    style: FilledButton.styleFrom(
-                                      backgroundColor:
-                                          _gender == option['value']
-                                              ? AppColors.primary500
-                                              : AppColors.grey300,
-                                    ),
-                                    child: Text(
-                                      option['label']!,
-                                      style: getTextStyle(
-                                        AppTypo.body14B,
-                                        _gender == option['value']
-                                            ? AppColors.grey00
-                                            : AppColors.grey900,
-                                      ),
-                                    ),
+                    child: Center(
+                      child: SvgPicture.asset(
+                        'assets/icons/fortune/heart.svg',
+                        width: 36,
+                        height: 33,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.only(left: 16, top: 8, bottom: 8),
+                    alignment: Alignment.centerLeft,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        UnderlinedText(
+                          text: S.of(context).compatibility_gender,
+                          textStyle:
+                              getTextStyle(AppTypo.body14B, AppColors.grey900),
+                          underlineColor: AppColors.primary500,
+                          underlineHeight: 2,
+                          underlineGap: 4,
+                        ),
+                        SizedBox(height: 16),
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _gender = 'female';
+                                });
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: _gender == 'female'
+                                      ? AppColors.primary500
+                                      : AppColors.grey300,
+                                ),
+                                width: 46,
+                                height: 19,
+                                child: Center(
+                                  child: Text(
+                                    '여자',
+                                    style: getTextStyle(
+                                        AppTypo.caption10SB, AppColors.grey00),
                                   ),
                                 ),
-                              ))
-                          .toList(),
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _gender = 'male';
+                                });
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: _gender == 'male'
+                                      ? AppColors.primary500
+                                      : AppColors.grey300,
+                                ),
+                                width: 46,
+                                height: 19,
+                                child: Center(
+                                  child: Text(
+                                    '남자',
+                                    style: getTextStyle(
+                                        AppTypo.caption10SB, AppColors.grey00),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-
             const SizedBox(height: 8),
-
-            // Birth Date Selection
             Card(
               elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: InkWell(
-                onTap: _selectDate,
-                borderRadius: BorderRadius.circular(16),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 75,
+                    height: 75,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        bottomLeft: Radius.circular(12),
+                      ),
+                      color: AppColors.primary500,
+                    ),
+                    child: Center(
+                      child: SvgPicture.asset(
+                        'assets/icons/fortune/calendar.svg',
+                        width: 36,
+                        height: 33,
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: _selectDate,
+                    borderRadius: BorderRadius.circular(16),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(Icons.calendar_today,
-                              color: AppColors.primary500),
-                          const SizedBox(width: 8),
-                          Text(
-                            S.of(context).compatibility_birthday,
-                            style: getTextStyle(
+                          UnderlinedText(
+                            text: S.of(context).compatibility_birthday,
+                            textStyle: getTextStyle(
                                 AppTypo.body14B, AppColors.grey900),
+                            underlineColor: AppColors.primary500,
+                            underlineHeight: 2,
+                            underlineGap: 4,
+                          ),
+                          const SizedBox(height: 12),
+                          Container(
+                            height: 26,
+                            width: 280,
+                            alignment: Alignment.centerLeft,
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: AppColors.grey900,
+                                width: 1,
+                              ),
+                            ),
+                            child: Text(
+                              _birthDate == null
+                                  ? S.of(context).compatibility_birthday
+                                  : formatDateTimeYYYYMMDD(_birthDate!),
+                              style: getTextStyle(
+                                AppTypo.caption12M,
+                                _birthDate == null
+                                    ? AppColors.grey500
+                                    : AppColors.grey900,
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        _birthDate == null
-                            ? S.of(context).compatibility_birthday
-                            : formatDateTimeYYYYMMDD(_birthDate!),
-                        style: getTextStyle(
-                          AppTypo.body14B,
-                          _birthDate == null
-                              ? AppColors.grey500
-                              : AppColors.grey900,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
-
             const SizedBox(height: 8),
-
-            // Birth Time Selection
             Card(
               elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.access_time,
-                            color: AppColors.primary500),
-                        const SizedBox(width: 8),
-                        Text(
-                          '${S.of(context).compatibility_birthtime}(${S.of(context).optional})',
-                          style:
-                              getTextStyle(AppTypo.body14R, AppColors.grey900),
-                        ),
-                      ],
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 75,
+                    height: 75,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        bottomLeft: Radius.circular(12),
+                      ),
+                      color: AppColors.primary500,
                     ),
-                    const SizedBox(height: 8),
-                    DropdownButtonFormField<String>(
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(
-                            color: AppColors.grey300,
-                          ),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
+                    child: Center(
+                      child: SvgPicture.asset(
+                        'assets/icons/fortune/time.svg',
+                        width: 36,
+                        height: 33,
                       ),
-                      value: _birthTime,
-                      hint: Text(
-                        S.of(context).compatibility_birthday,
-                        style: getTextStyle(AppTypo.body14M, AppColors.grey500),
-                      ),
-                      items: [
-                        DropdownMenuItem(
-                          value: null,
-                          child: Text(
-                            S.of(context).compatibility_time_slot_unknown,
-                            style: getTextStyle(
-                              AppTypo.body14M,
-                              AppColors.grey900,
+                    ),
+                  ),
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            UnderlinedText(
+                              textStyle: getTextStyle(
+                                  AppTypo.body14B, AppColors.grey900),
+                              text: S.of(context).compatibility_birthtime,
+                              underlineColor: AppColors.primary500,
+                              underlineHeight: 2,
+                              underlineGap: 4,
                             ),
-                          ),
+                            SizedBox(width: 8),
+                            Text(
+                              S.of(context).compatibility_birthtime_subtitle,
+                              style: getTextStyle(
+                                AppTypo.caption10SB,
+                                AppColors.point900,
+                              ),
+                            ),
+                          ],
                         ),
-                        ...?_timeSlots?.asMap().entries.map(
-                          (entry) {
-                            final index = entry.key;
-                            final time = entry.value;
-                            final parts = time.split('|');
-                            final text = parts[0];
-                            final textTime = parts[1];
-                            final icon = parts.length > 2 ? parts[2] : '';
-
-                            return DropdownMenuItem(
-                              value: (index + 1).toString(),
-                              child: Row(
-                                children: [
-                                  if (icon.isNotEmpty) ...[
-                                    Text(icon),
-                                    const SizedBox(width: 4),
-                                  ],
-                                  Text(
-                                    text,
+                        SizedBox(height: 12),
+                        Center(
+                          child: SizedBox(
+                            height: 26,
+                            width: 280,
+                            child: DropdownButtonFormField<String>(
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(
+                                    color: AppColors.grey900,
+                                    width: 0.1,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                ),
+                              ),
+                              value: _birthTime,
+                              items: [
+                                DropdownMenuItem(
+                                  value: null,
+                                  child: Text(
+                                    S
+                                        .of(context)
+                                        .compatibility_time_slot_unknown,
                                     style: getTextStyle(
-                                      AppTypo.body14M,
+                                      AppTypo.caption12M,
                                       AppColors.grey900,
                                     ),
                                   ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    textTime,
-                                    style: getTextStyle(
-                                      AppTypo.body14R,
-                                      AppColors.grey600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
+                                ),
+                                ...?_timeSlots?.asMap().entries.map(
+                                  (entry) {
+                                    final index = entry.key;
+                                    final time = entry.value;
+                                    final parts = time.split('|');
+                                    final text = parts[0];
+                                    final textTime = parts[1];
+                                    final icon =
+                                        parts.length > 2 ? parts[2] : '';
+
+                                    return DropdownMenuItem(
+                                      value: (index + 1).toString(),
+                                      child: Row(
+                                        children: [
+                                          if (icon.isNotEmpty) ...[
+                                            Text(icon),
+                                            const SizedBox(width: 4),
+                                          ],
+                                          Text(
+                                            text,
+                                            style: getTextStyle(
+                                              AppTypo.caption12M,
+                                              AppColors.grey900,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            textTime,
+                                            style: getTextStyle(
+                                              AppTypo.caption12M,
+                                              AppColors.grey600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                              onChanged: (value) {
+                                setState(() {
+                                  _birthTime = value;
+                                });
+                              },
+                            ),
+                          ),
                         ),
                       ],
-                      onChanged: (value) {
-                        setState(() {
-                          _birthTime = value;
-                        });
-                      },
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
 
-            const SizedBox(height: 16),
+            Divider(),
 
             // Agreement Checkbox
             CheckboxListTile(
@@ -592,7 +718,7 @@ class _CompatibilityInputScreenState
               },
               title: Text(
                 S.of(context).compatibility_agree_checkbox,
-                style: getTextStyle(AppTypo.caption12R, AppColors.grey500),
+                style: getTextStyle(AppTypo.caption12M, AppColors.grey900),
               ),
               controlAffinity: ListTileControlAffinity.leading,
               contentPadding: EdgeInsets.zero,
@@ -601,13 +727,10 @@ class _CompatibilityInputScreenState
             const SizedBox(height: 24),
 
             // Submit Button
-            FilledButton(
+            ElevatedButton(
               onPressed: _isLoading ? null : _submit,
-              style: FilledButton.styleFrom(
+              style: ElevatedButton.styleFrom(
                 minimumSize: const Size.fromHeight(56),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
                 backgroundColor: _isLoading || !_agreedToSaveProfile
                     ? AppColors.grey300
                     : AppColors.primary500,
@@ -623,14 +746,52 @@ class _CompatibilityInputScreenState
                         ),
                       ),
                     )
-                  : Text(
-                      S.of(context).compatibility_analyze_start,
-                      style: getTextStyle(AppTypo.body16B, AppColors.grey00),
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Center(
+                          child: SvgPicture.asset(
+                            'assets/icons/fortune/heart.svg',
+                            width: 16,
+                            height: 16,
+                            colorFilter: ColorFilter.mode(
+                              AppColors.grey00,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          S.of(context).compatibility_analyze_start,
+                          style:
+                              getTextStyle(AppTypo.body16B, AppColors.grey00),
+                        ),
+                      ],
                     ),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 48),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class Divider extends StatelessWidget {
+  const Divider({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        height: 3,
+        width: 48,
+        margin: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: AppColors.grey00,
         ),
       ),
     );

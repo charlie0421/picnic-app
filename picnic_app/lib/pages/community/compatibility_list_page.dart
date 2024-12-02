@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_app/components/community/compatibility/compatibility_result_card.dart';
+import 'package:picnic_app/components/community/compatibility/compatibility_info.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
@@ -100,7 +100,7 @@ class _CompatibilityHistoryPageState
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFFFFF5F9), Colors.white],
+            colors: [AppColors.primary500, AppColors.mint500],
           ),
         ),
         child: Stack(
@@ -150,12 +150,27 @@ class _CompatibilityHistoryPageState
                                   CompatibilityResultPage(compatibility: item),
                                 );
                           },
-                          child: CompatibilityResultCard(
+                          child: CompatibilityInfo(
+                            artist: item.artist,
+                            ref: ref,
+                            birthDate: item.birthDate,
+                            birthTime: item.birthTime,
+                            gender: item.gender,
                             compatibility: item,
                           ));
                     },
                     separatorBuilder: (BuildContext context, int index) {
-                      return const SizedBox(height: 16);
+                      return Center(
+                        child: Container(
+                          height: 3,
+                          width: 48,
+                          margin: const EdgeInsets.symmetric(vertical: 32),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            color: AppColors.primary500,
+                          ),
+                        ),
+                      );
                     },
                   ),
             if (widget.artistId != null)

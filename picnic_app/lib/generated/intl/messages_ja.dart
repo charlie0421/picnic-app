@@ -92,6 +92,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("相性を分析しています。"),
         "compatibility_birthday": MessageLookupByLibrary.simpleMessage("生年月日"),
         "compatibility_birthtime": MessageLookupByLibrary.simpleMessage("出生時間"),
+        "compatibility_birthtime_subtitle":
+            MessageLookupByLibrary.simpleMessage("精度が上がります！"),
         "compatibility_couple_style":
             MessageLookupByLibrary.simpleMessage("カップルスタイル"),
         "compatibility_duplicate_data_message":
@@ -269,7 +271,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "fortune_career": MessageLookupByLibrary.simpleMessage("ビジネス運"),
         "fortune_health": MessageLookupByLibrary.simpleMessage("健康運"),
         "fortune_honor": MessageLookupByLibrary.simpleMessage("名誉"),
-        "fortune_love": MessageLookupByLibrary.simpleMessage("愛情運"),
         "fortune_lucky_color": MessageLookupByLibrary.simpleMessage("ラッキーカラー"),
         "fortune_lucky_days": MessageLookupByLibrary.simpleMessage("ラッキー曜日"),
         "fortune_lucky_direction":

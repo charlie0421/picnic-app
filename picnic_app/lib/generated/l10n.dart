@@ -3960,16 +3960,6 @@ class S {
     );
   }
 
-  /// `Ae Jung Woon`
-  String get fortune_love {
-    return Intl.message(
-      'Ae Jung Woon',
-      name: 'fortune_love',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Business fortunes`
   String get fortune_career {
     return Intl.message(
@@ -4205,6 +4195,16 @@ class S {
     return Intl.message(
       'Honor',
       name: 'fortune_honor',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Increase accuracy!`
+  String get compatibility_birthtime_subtitle {
+    return Intl.message(
+      'Increase accuracy!',
+      name: 'compatibility_birthtime_subtitle',
       desc: '',
       args: [],
     );
