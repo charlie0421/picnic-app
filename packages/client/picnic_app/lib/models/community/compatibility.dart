@@ -89,6 +89,7 @@ class CompatibilityModel with _$CompatibilityModel {
     DateTime? completedAt,
     @JsonKey(name: 'i18n', fromJson: _parseI18nResults)
     Map<String, LocalizedCompatibility>? localizedResults,
+    @JsonKey(name: 'is_ads') bool? isAds,
   }) = _CompatibilityModel;
 
   factory CompatibilityModel.fromJson(Map<String, dynamic> json) =>

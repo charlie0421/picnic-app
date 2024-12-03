@@ -7,8 +7,9 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/pages/community/compatibility_input_page.dart';
+import 'package:picnic_app/pages/community/compatibility_loading_page.dart';
 import 'package:picnic_app/pages/community/compatibility_result_page.dart';
-import 'package:picnic_app/providers/community/compatibility_history_provider.dart';
+import 'package:picnic_app/providers/community/compatibility_list_provider.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -61,34 +62,6 @@ class _CompatibilityHistoryPageState
     ref.read(navigationInfoProvider.notifier).setCurrentPage(
           CompatibilityInputPage(artist: currentArtist!),
         );
-  }
-
-  Widget _buildAnalysisTimeInfo(CompatibilityModel item) {
-    if (item.hasError) {
-      return Text(
-        '분석 실패',
-        style: getTextStyle(AppTypo.caption12R, AppColors.point900),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (item.createdAt != null) ...[
-          Text(
-            '분석: ${formatDateTimeYYYYMMDDHHM(item.createdAt!)}',
-            style: getTextStyle(AppTypo.caption12R, AppColors.grey500),
-          ),
-          const SizedBox(height: 2),
-        ],
-        if (item.isPending && item.createdAt != null) ...[
-          Text(
-            '${timeago.format(item.createdAt!, locale: 'ko')}부터 분석 중',
-            style: getTextStyle(AppTypo.caption12R, AppColors.grey500),
-          ),
-        ],
-      ],
-    );
   }
 
   @override
@@ -162,23 +135,38 @@ class _CompatibilityHistoryPageState
 
                             final item = history.items[index];
 
-                            return InkWell(
-                                onTap: () {
-                                  ref
-                                      .read(navigationInfoProvider.notifier)
-                                      .setCurrentPage(
-                                        CompatibilityResultPage(
-                                            compatibility: item),
-                                      );
-                                },
-                                child: CompatibilityInfo(
-                                  artist: item.artist,
-                                  ref: ref,
-                                  birthDate: item.birthDate,
-                                  birthTime: item.birthTime,
-                                  gender: item.gender,
-                                  compatibility: item,
-                                ));
+                            return Column(
+                              children: [
+                                InkWell(
+                                    onTap: () {
+                                      item.status ==
+                                                  CompatibilityStatus
+                                                      .completed &&
+                                              item.isAds == true
+                                          ? ref
+                                              .read(navigationInfoProvider
+                                                  .notifier)
+                                              .setCurrentPage(
+                                                  CompatibilityResultPage(
+                                                      compatibility: item))
+                                          : ref
+                                              .read(navigationInfoProvider
+                                                  .notifier)
+                                              .setCurrentPage(
+                                                CompatibilityLoadingPage(
+                                                    compatibility: item),
+                                              );
+                                    },
+                                    child: CompatibilityInfo(
+                                      artist: item.artist,
+                                      ref: ref,
+                                      birthDate: item.birthDate,
+                                      birthTime: item.birthTime,
+                                      gender: item.gender,
+                                      compatibility: item,
+                                    )),
+                              ],
+                            );
                           },
                           separatorBuilder: (BuildContext context, int index) {
                             return Center(

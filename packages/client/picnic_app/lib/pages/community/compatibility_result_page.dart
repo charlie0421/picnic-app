@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_error.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_info.dart';
-import 'package:picnic_app/components/community/compatibility/compatibility_loading_view.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_result_view.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_footer.dart';
 import 'package:picnic_app/generated/l10n.dart';
@@ -97,15 +96,13 @@ class _CompatibilityResultPageState
   }
 
   void _updateNavigation() {
-    if (!mounted) return;
-
     Future(() {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
             showPortal: true,
             showTopMenu: true,
             topRightMenu: TopRightType.board,
             showBottomNavigation: false,
-            pageTitle: S.of(context).compatibility_page_title,
+            pageTitle: Intl.message('compatibility_page_title'),
           );
     });
   }
@@ -143,21 +140,17 @@ class _CompatibilityResultPageState
                         birthTime: compatibility.birthTime,
                         compatibility: compatibility,
                       ),
-                      if (!_isInitialized) ...[
-                        const Center(child: CircularProgressIndicator()),
-                      ] else if (compatibility.isPending) ...[
-                        const CompatibilityLoadingView(),
-                      ] else if (compatibility.hasError) ...[
+                      if (!_isInitialized)
+                        const Center(child: CircularProgressIndicator())
+                      else if (compatibility.hasError)
                         CompatibilityErrorView(
                           error: compatibility.errorMessage ??
                               S.of(context).error_unknown,
-                        ),
-                      ] else if (compatibility.isCompleted) ...[
+                        )
+                      else if (compatibility.isCompleted)
                         CompatibilityResultView(
                           compatibility: compatibility,
-                          language: _currentLocale ?? Intl.getCurrentLocale(),
-                        ),
-                      ],
+                        )
                     ],
                   ),
                 ),

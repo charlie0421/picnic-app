@@ -6,7 +6,7 @@ part of '../../providers/user_info_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$setAgreementHash() => r'f5ea7908e415543bec42922eeb5b3ded5c41a1ff';
+String _$setAgreementHash() => r'5f5acc3d185f4fbdb0cc5792f40ee9162dbb0c5d';
 
 /// See also [setAgreement].
 @ProviderFor(setAgreement)
@@ -22,7 +22,7 @@ final setAgreementProvider = AutoDisposeFutureProvider<bool>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef SetAgreementRef = AutoDisposeFutureProviderRef<bool>;
-String _$agreementHash() => r'26a35964df24d6a274cd694cdababfc29ca7954d';
+String _$agreementHash() => r'8627f3bfab6c71d04b324d8f46d18149b4ad58f5';
 
 /// See also [agreement].
 @ProviderFor(agreement)
@@ -38,7 +38,7 @@ final agreementProvider = AutoDisposeFutureProvider<bool>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AgreementRef = AutoDisposeFutureProviderRef<bool>;
-String _$expireBonusHash() => r'82bc57f8cd8c126e2c6ea34bcc534accc2e67c56';
+String _$expireBonusHash() => r'e12174725f2a41af9098a049f2c5779245b9394d';
 
 /// See also [expireBonus].
 @ProviderFor(expireBonus)

@@ -49,12 +49,13 @@ class _CompatibilityInfoState extends State<CompatibilityInfo> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               ClipRRect(
-                borderRadius: widget.compatibility?.status !=
-                        CompatibilityStatus.completed
-                    ? BorderRadius.only(
+                borderRadius: widget.compatibility?.status ==
+                            CompatibilityStatus.completed &&
+                        widget.compatibility?.isAds == true
+                    ? BorderRadius.only(topLeft: Radius.circular(16))
+                    : BorderRadius.only(
                         topLeft: Radius.circular(16),
-                        bottomLeft: Radius.circular(16))
-                    : BorderRadius.only(topLeft: Radius.circular(16)),
+                        bottomLeft: Radius.circular(16)),
                 child: PicnicCachedNetworkImage(
                   imageUrl: widget.artist.image ?? '',
                   width: 150.cw,
@@ -140,7 +141,8 @@ class _CompatibilityInfoState extends State<CompatibilityInfo> {
                   ]),
             ],
           ),
-          if (widget.compatibility?.status == CompatibilityStatus.completed)
+          if (widget.compatibility?.status == CompatibilityStatus.completed &&
+              widget.compatibility?.isAds == true)
             AnimatedCompatibilityBar(
               score: widget.compatibility!.compatibilityScore ?? 0,
               message: _getScoreMessage(

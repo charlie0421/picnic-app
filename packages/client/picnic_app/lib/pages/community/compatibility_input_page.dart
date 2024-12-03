@@ -10,6 +10,7 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/models/vote/artist.dart';
+import 'package:picnic_app/pages/community/compatibility_loading_page.dart';
 import 'package:picnic_app/pages/community/compatibility_result_page.dart';
 import 'package:picnic_app/providers/community/compatibility_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -331,7 +332,7 @@ class _CompatibilityInputScreenState
 
   void _navigateToResult(CompatibilityModel compatibility) {
     ref.read(navigationInfoProvider.notifier).setCurrentPage(
-          CompatibilityResultPage(
+          CompatibilityLoadingPage(
             compatibility: compatibility,
           ),
         );
