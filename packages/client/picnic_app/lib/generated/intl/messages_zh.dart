@@ -81,7 +81,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "common_text_search_result_label":
             MessageLookupByLibrary.simpleMessage("搜索结果"),
         "compatibility_activities_title":
-            MessageLookupByLibrary.simpleMessage("你们可以一起开展的活动"),
+            MessageLookupByLibrary.simpleMessage("建议开展的活动"),
         "compatibility_agree_checkbox":
             MessageLookupByLibrary.simpleMessage("我同意在个人档案中存储我的性别和生日信息。"),
         "compatibility_analyze_start":

@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_app/components/common/underlined_text.dart';
+import 'package:picnic_app/components/common/underlined_widget.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_tip_card.dart';
+import 'package:picnic_app/components/community/compatibility/fortune_divider.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/ui/style.dart';
 
 class CompatibilityResultView extends ConsumerWidget {
-  const CompatibilityResultView({
+  CompatibilityResultView({
     super.key,
     required this.compatibility,
   });
 
   final CompatibilityModel compatibility;
+  final styleController = ExpansionTileController();
+  final activityController = ExpansionTileController();
+  final tipController = ExpansionTileController();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -45,84 +52,78 @@ class CompatibilityResultView extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Summary Section
-        if (localizedResult.compatibilitySummary.isNotEmpty) ...[
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.menu_book_outlined,
-                          color: AppColors.primary500),
-                      const SizedBox(width: 8),
-                      Text(
-                        S.of(context).compatibility_summary_title,
-                        style: getTextStyle(AppTypo.body14B, AppColors.grey900),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    localizedResult.compatibilitySummary,
-                    style: getTextStyle(AppTypo.body14R, AppColors.grey900),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-        ],
+        SizedBox(
+          height: 36,
+        ),
+        _buildHeaderSection(localizedResult),
+        FortuneDivider(color: AppColors.grey00),
 
-        // Style Section
         if (style != null) ...[
           Card(
             elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.style_outlined,
-                          color: AppColors.primary500),
-                      const SizedBox(width: 8),
-                      Text(
-                        S.of(context).compatibility_style_title,
-                        style: getTextStyle(AppTypo.body14B, AppColors.grey900),
+            child: ExpansionTile(
+              controller: styleController,
+              initiallyExpanded: true,
+              shape: const Border(),
+              collapsedShape: const Border(),
+              title: SizedBox(
+                height: 28,
+                child: Row(
+                  children: [
+                    UnderlinedWidget(
+                      underlineGap: 2,
+                      child: SvgPicture.asset(
+                        'assets/images/fortune/fortune_style.svg',
+                        width: 24,
+                        colorFilter: ColorFilter.mode(
+                          AppColors.primary500,
+                          BlendMode.srcIn,
+                        ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  _buildStyleItem(
-                    context,
-                    S.of(context).compatibility_idol_style,
-                    style.idolStyle,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildStyleItem(
-                    context,
-                    S.of(context).compatibility_user_style,
-                    style.userStyle,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildStyleItem(
-                    context,
-                    S.of(context).compatibility_couple_style,
-                    style.coupleStyle,
-                  ),
-                ],
+                    ),
+                    UnderlinedText(
+                      text: ' ${S.of(context).compatibility_style_title}',
+                      textStyle:
+                          getTextStyle(AppTypo.body16B, AppColors.grey900),
+                      underlineGap: 1.5,
+                    ),
+                  ],
+                ),
               ),
+              children: [
+                InkWell(
+                  onTap: () => styleController.collapse(),
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      bottom: 16,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildStyleItem(
+                          context,
+                          S.of(context).compatibility_idol_style,
+                          style.idolStyle,
+                        ),
+                        const SizedBox(height: 12),
+                        _buildStyleItem(
+                          context,
+                          S.of(context).compatibility_user_style,
+                          style.userStyle,
+                        ),
+                        const SizedBox(height: 12),
+                        _buildStyleItem(
+                          context,
+                          S.of(context).compatibility_couple_style,
+                          style.coupleStyle,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 12),
@@ -132,61 +133,71 @@ class CompatibilityResultView extends ConsumerWidget {
         if (activities != null) ...[
           Card(
             elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            child: ExpansionTile(
+              controller: activityController,
+              initiallyExpanded: true,
+              shape: const Border(),
+              collapsedShape: const Border(),
+              title: Row(
                 children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.local_activity_outlined,
-                          color: AppColors.primary500),
-                      const SizedBox(width: 8),
-                      Text(
-                        S.of(context).compatibility_activities_title,
-                        style: getTextStyle(AppTypo.body14B, AppColors.grey900),
+                  UnderlinedWidget(
+                    underlineGap: 2,
+                    child: SvgPicture.asset(
+                      'assets/images/fortune/fortune_activities.svg',
+                      width: 24,
+                      colorFilter: ColorFilter.mode(
+                        AppColors.primary500,
+                        BlendMode.srcIn,
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    activities.description,
-                    style: getTextStyle(AppTypo.body14R, AppColors.grey900),
-                  ),
-                  if (activities.recommended.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: activities.recommended.map((activity) {
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary500,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Text(
-                            activity,
-                            style: getTextStyle(
-                              AppTypo.body14M,
-                              AppColors.grey00,
-                            ),
-                          ),
-                        );
-                      }).toList(),
                     ),
-                  ],
+                  ),
+                  UnderlinedText(
+                    text: ' ${S.of(context).compatibility_activities_title}',
+                    textStyle: getTextStyle(AppTypo.body16B, AppColors.grey900),
+                    underlineGap: 1.5,
+                  ),
                 ],
               ),
+              children: [
+                InkWell(
+                  onTap: () => activityController.collapse(),
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      bottom: 16,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: activities.recommended.length,
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 4),
+                          itemBuilder: (context, index) {
+                            return Text('✔️ ${activities.recommended[index]}',
+                                style: getTextStyle(
+                                  AppTypo.caption12B,
+                                  AppColors.grey900,
+                                ));
+                          },
+                        ),
+                        Text(
+                          activities.description.trim(),
+                          style: getTextStyle(
+                              AppTypo.caption12R, AppColors.grey900),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              ],
             ),
           ),
-          const SizedBox(height: 12),
         ],
 
         // Tips Section
@@ -196,38 +207,61 @@ class CompatibilityResultView extends ConsumerWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            child: ExpansionTile(
+              controller: tipController,
+              initiallyExpanded: true,
+              shape: const Border(),
+              collapsedShape: const Border(),
+              title: Row(
                 children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.lightbulb_outline,
-                          color: AppColors.primary500),
-                      const SizedBox(width: 8),
-                      Text(
-                        S.of(context).compatibility_tips_title,
-                        style: getTextStyle(AppTypo.body14B, AppColors.grey900),
+                  UnderlinedWidget(
+                    underlineGap: 2,
+                    child: SvgPicture.asset(
+                      'assets/images/fortune/fortune_tips.svg',
+                      width: 24,
+                      colorFilter: ColorFilter.mode(
+                        AppColors.primary500,
+                        BlendMode.srcIn,
                       ),
-                    ],
+                    ),
                   ),
-                  const SizedBox(height: 12),
-                  ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: localizedResult.tips.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 8),
-                    itemBuilder: (context, index) {
-                      return CompatibilityTipCard(
-                        tip: localizedResult.tips[index],
-                        index: index + 1,
-                      );
-                    },
+                  UnderlinedText(
+                    text: ' ${S.of(context).compatibility_tips_title}',
+                    textStyle: getTextStyle(AppTypo.body16B, AppColors.grey900),
+                    underlineGap: 1.5,
                   ),
                 ],
               ),
+              children: [
+                InkWell(
+                  onTap: () => tipController.collapse(),
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: localizedResult.tips.length,
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 12),
+                          itemBuilder: (context, index) {
+                            return Text('✔️ ${localizedResult.tips[index]}',
+                                style: getTextStyle(
+                                  AppTypo.caption12B,
+                                  AppColors.grey900,
+                                ));
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -241,14 +275,53 @@ class CompatibilityResultView extends ConsumerWidget {
       children: [
         Text(
           label,
-          style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
+          style: getTextStyle(AppTypo.caption12B, AppColors.grey900),
         ),
         const SizedBox(height: 4),
         Text(
           content,
-          style: getTextStyle(AppTypo.body14R, AppColors.grey900),
+          style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
         ),
       ],
+    );
+  }
+
+  Widget _buildHeaderSection(LocalizedCompatibility localizedResult) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
+      child: Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 0),
+            constraints: const BoxConstraints(minHeight: 60),
+            child: Center(
+              child: Text(
+                localizedResult.compatibilitySummary,
+                style: getTextStyle(AppTypo.body14R, AppColors.grey00),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          Positioned(
+            top: 10,
+            left: 0,
+            child: SvgPicture.asset(
+              'assets/icons/fortune/quote_open.svg',
+              width: 20,
+              colorFilter: ColorFilter.mode(AppColors.grey00, BlendMode.srcIn),
+            ),
+          ),
+          Positioned(
+            bottom: 10,
+            right: 0,
+            child: SvgPicture.asset(
+              'assets/icons/fortune/quote_close.svg',
+              width: 20,
+              colorFilter: ColorFilter.mode(AppColors.grey00, BlendMode.srcIn),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part '../../generated/providers/community/compatibility_list_provider.g.dart';
@@ -72,6 +73,8 @@ class CompatibilityList extends _$CompatibilityList {
 
     final response =
         await query.order('created_at', ascending: false).range(from, to);
+
+    response.map((data) => logger.d('data: ${data['is_ads']}'));
 
     return (response as List)
         .map((data) => CompatibilityModel.fromJson(data))

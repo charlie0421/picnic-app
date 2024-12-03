@@ -11,9 +11,10 @@ import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
-class CompatibilityInfo extends StatefulWidget {
+class CompatibilityInfo extends StatelessWidget {
   const CompatibilityInfo({
     super.key,
     required this.artist,
@@ -32,11 +33,6 @@ class CompatibilityInfo extends StatefulWidget {
   final CompatibilityModel? compatibility;
 
   @override
-  State<CompatibilityInfo> createState() => _CompatibilityInfoState();
-}
-
-class _CompatibilityInfoState extends State<CompatibilityInfo> {
-  @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -49,15 +45,15 @@ class _CompatibilityInfoState extends State<CompatibilityInfo> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               ClipRRect(
-                borderRadius: widget.compatibility?.status ==
-                            CompatibilityStatus.completed &&
-                        widget.compatibility?.isAds == true
-                    ? BorderRadius.only(topLeft: Radius.circular(16))
-                    : BorderRadius.only(
-                        topLeft: Radius.circular(16),
-                        bottomLeft: Radius.circular(16)),
+                borderRadius:
+                    compatibility?.status == CompatibilityStatus.completed &&
+                            compatibility?.isAds == true
+                        ? BorderRadius.only(topLeft: Radius.circular(16))
+                        : BorderRadius.only(
+                            topLeft: Radius.circular(16),
+                            bottomLeft: Radius.circular(16)),
                 child: PicnicCachedNetworkImage(
-                  imageUrl: widget.artist.image ?? '',
+                  imageUrl: artist.image ?? '',
                   width: 150.cw,
                   height: 150.cw,
                 ),
@@ -68,7 +64,7 @@ class _CompatibilityInfoState extends State<CompatibilityInfo> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      getLocaleTextFromJson(widget.artist.name),
+                      getLocaleTextFromJson(artist.name),
                       textAlign: TextAlign.center,
                       style: getTextStyle(AppTypo.body16B, AppColors.grey900),
                     ),
@@ -76,7 +72,7 @@ class _CompatibilityInfoState extends State<CompatibilityInfo> {
                       children: [
                         Text(
                           formatDateTimeYYYYMMDD(
-                              widget.artist.birthDate ?? DateTime.now()),
+                              artist.birthDate ?? DateTime.now()),
                           textAlign: TextAlign.center,
                           style: getTextStyle(
                               AppTypo.caption12M, AppColors.grey600),
@@ -85,7 +81,7 @@ class _CompatibilityInfoState extends State<CompatibilityInfo> {
                             style: getTextStyle(
                                 AppTypo.caption12B, AppColors.grey900)),
                         Text(
-                          widget.artist.gender! == 'male' ? '🧑' : '👩',
+                          artist.gender! == 'male' ? '🧑' : '👩',
                           textAlign: TextAlign.center,
                           style: getTextStyle(
                               AppTypo.caption12M, AppColors.grey900),
@@ -93,10 +89,10 @@ class _CompatibilityInfoState extends State<CompatibilityInfo> {
                       ],
                     ),
                     SizedBox(height: 4),
-                    if (widget.birthDate != null) ...[
+                    if (birthDate != null) ...[
                       SizedBox(height: 18),
                       Text(
-                        widget.ref.read(userInfoProvider
+                        ref.read(userInfoProvider
                                 .select((value) => value.value?.nickname)) ??
                             '',
                         textAlign: TextAlign.center,
@@ -106,31 +102,31 @@ class _CompatibilityInfoState extends State<CompatibilityInfo> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        if (widget.birthDate != null) ...[
+                        if (birthDate != null) ...[
                           Text(
-                            formatDateTimeYYYYMMDD(widget.birthDate!),
+                            formatDateTimeYYYYMMDD(birthDate!),
                             textAlign: TextAlign.center,
                             style: getTextStyle(
                                 AppTypo.caption12M, AppColors.grey600),
                           )
                         ],
-                        if (widget.gender != null) ...[
+                        if (gender != null) ...[
                           Text(' · ',
                               style: getTextStyle(
                                   AppTypo.caption12B, AppColors.grey900)),
                           Text(
-                            widget.gender! == 'male' ? '🧑' : '👩',
+                            gender! == 'male' ? '🧑' : '👩',
                             textAlign: TextAlign.center,
                             style: getTextStyle(
                                 AppTypo.caption12M, AppColors.grey900),
                           )
                         ],
-                        if (widget.birthTime != null) ...[
+                        if (birthTime != null) ...[
                           Text(' · ',
                               style: getTextStyle(
                                   AppTypo.caption12B, AppColors.grey900)),
                           Text(
-                            convertKoreanTraditionalTime(widget.birthTime),
+                            convertKoreanTraditionalTime(birthTime),
                             textAlign: TextAlign.center,
                             style: getTextStyle(
                                 AppTypo.caption12M, AppColors.grey900),
@@ -141,19 +137,19 @@ class _CompatibilityInfoState extends State<CompatibilityInfo> {
                   ]),
             ],
           ),
-          if (widget.compatibility?.status == CompatibilityStatus.completed &&
-              widget.compatibility?.isAds == true)
+          if (compatibility?.status == CompatibilityStatus.completed &&
+              compatibility?.isAds == true)
             AnimatedCompatibilityBar(
-              score: widget.compatibility!.compatibilityScore ?? 0,
+              score: compatibility!.compatibilityScore ?? 0,
               message: _getScoreMessage(
-                  widget.compatibility!.compatibilityScore ?? 0),
+                  context, compatibility!.compatibilityScore ?? 0),
             ),
         ],
       ),
     );
   }
 
-  String _getScoreMessage(int score) {
+  String _getScoreMessage(BuildContext context, int score) {
     if (score >= 90) return S.of(context).compatibility_result_90;
     if (score >= 80) return S.of(context).compatibility_result_80;
     if (score >= 70) return S.of(context).compatibility_result_70;

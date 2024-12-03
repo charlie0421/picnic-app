@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/underlined_text.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_info.dart';
+import 'package:picnic_app/components/community/compatibility/fortune_divider.dart';
 import 'package:picnic_app/components/stroked_text.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/navigation.dart';
@@ -389,7 +390,7 @@ class _CompatibilityInputScreenState
               compatibility: null,
             ),
             const SizedBox(height: 8),
-            Divider(),
+            FortuneDivider(color: AppColors.grey00),
             StrokedText(
               text: S.of(context).my_info,
               textStyle: getTextStyle(AppTypo.title18B, AppColors.grey00),
@@ -694,7 +695,7 @@ class _CompatibilityInputScreenState
               ),
             ),
 
-            Divider(),
+            FortuneDivider(color: AppColors.grey00),
 
             // Agreement Checkbox
             CheckboxListTile(
@@ -762,25 +763,6 @@ class _CompatibilityInputScreenState
 
             const SizedBox(height: 48),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class Divider extends StatelessWidget {
-  const Divider({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        height: 3,
-        width: 48,
-        margin: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          color: AppColors.grey00,
         ),
       ),
     );

@@ -121,9 +121,9 @@
     "@common_text_search_result_label": {
         "manualTranslation": false
     },
-    "compatibility_activities_title": "Activities you can do together",
+    "compatibility_activities_title": "Suggested activities",
     "@compatibility_activities_title": {
-        "manualTranslation": false
+        "manualTranslation": true
     },
     "compatibility_agree_checkbox": "I agree to store my gender and birthday information in my profile.",
     "@compatibility_agree_checkbox": {
