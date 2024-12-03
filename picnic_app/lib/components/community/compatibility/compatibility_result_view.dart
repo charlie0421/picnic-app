@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_tip_card.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
@@ -9,14 +10,14 @@ class CompatibilityResultView extends ConsumerWidget {
   const CompatibilityResultView({
     super.key,
     required this.compatibility,
-    required this.language,
   });
 
   final CompatibilityModel compatibility;
-  final String language;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    String language = Intl.getCurrentLocale();
+
     if (compatibility.localizedResults?.isEmpty ?? true) {
       return Center(
         child: Text(

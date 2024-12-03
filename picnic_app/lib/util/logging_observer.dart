@@ -33,7 +33,9 @@ class LoggingObserver extends ProviderObserver {
 
   void detectChanges(Object oldObj, Object newObj) {
     if (oldObj.runtimeType.toString().contains('Impl') ||
-        newObj.runtimeType.toString().contains('Impl')) {
+        newObj.runtimeType.toString().contains('Impl') ||
+        oldObj.runtimeType.toString().contains('bool') ||
+        newObj.runtimeType.toString().contains('bool')) {
       return;
     }
 

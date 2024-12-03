@@ -245,6 +245,8 @@ mixin _$CompatibilityModel {
   @JsonKey(name: 'i18n', fromJson: _parseI18nResults)
   Map<String, LocalizedCompatibility>? get localizedResults =>
       throw _privateConstructorUsedError;
+  @JsonKey(name: 'is_ads')
+  bool? get isAds => throw _privateConstructorUsedError;
 
   /// Serializes this CompatibilityModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -279,7 +281,8 @@ abstract class $CompatibilityModelCopyWith<$Res> {
       DateTime? createdAt,
       DateTime? completedAt,
       @JsonKey(name: 'i18n', fromJson: _parseI18nResults)
-      Map<String, LocalizedCompatibility>? localizedResults});
+      Map<String, LocalizedCompatibility>? localizedResults,
+      @JsonKey(name: 'is_ads') bool? isAds});
 
   $ArtistModelCopyWith<$Res> get artist;
   $DetailsCopyWith<$Res>? get details;
@@ -316,6 +319,7 @@ class _$CompatibilityModelCopyWithImpl<$Res, $Val extends CompatibilityModel>
     Object? createdAt = freezed,
     Object? completedAt = freezed,
     Object? localizedResults = freezed,
+    Object? isAds = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -382,6 +386,10 @@ class _$CompatibilityModelCopyWithImpl<$Res, $Val extends CompatibilityModel>
           ? _value.localizedResults
           : localizedResults // ignore: cast_nullable_to_non_nullable
               as Map<String, LocalizedCompatibility>?,
+      isAds: freezed == isAds
+          ? _value.isAds
+          : isAds // ignore: cast_nullable_to_non_nullable
+              as bool?,
     ) as $Val);
   }
 
@@ -435,7 +443,8 @@ abstract class _$$CompatibilityModelImplCopyWith<$Res>
       DateTime? createdAt,
       DateTime? completedAt,
       @JsonKey(name: 'i18n', fromJson: _parseI18nResults)
-      Map<String, LocalizedCompatibility>? localizedResults});
+      Map<String, LocalizedCompatibility>? localizedResults,
+      @JsonKey(name: 'is_ads') bool? isAds});
 
   @override
   $ArtistModelCopyWith<$Res> get artist;
@@ -472,6 +481,7 @@ class __$$CompatibilityModelImplCopyWithImpl<$Res>
     Object? createdAt = freezed,
     Object? completedAt = freezed,
     Object? localizedResults = freezed,
+    Object? isAds = freezed,
   }) {
     return _then(_$CompatibilityModelImpl(
       id: null == id
@@ -538,6 +548,10 @@ class __$$CompatibilityModelImplCopyWithImpl<$Res>
           ? _value._localizedResults
           : localizedResults // ignore: cast_nullable_to_non_nullable
               as Map<String, LocalizedCompatibility>?,
+      isAds: freezed == isAds
+          ? _value.isAds
+          : isAds // ignore: cast_nullable_to_non_nullable
+              as bool?,
     ));
   }
 }
@@ -562,7 +576,8 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
       this.createdAt,
       this.completedAt,
       @JsonKey(name: 'i18n', fromJson: _parseI18nResults)
-      final Map<String, LocalizedCompatibility>? localizedResults})
+      final Map<String, LocalizedCompatibility>? localizedResults,
+      @JsonKey(name: 'is_ads') this.isAds})
       : _tips = tips,
         _localizedResults = localizedResults,
         super._();
@@ -626,8 +641,12 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
   }
 
   @override
+  @JsonKey(name: 'is_ads')
+  final bool? isAds;
+
+  @override
   String toString() {
-    return 'CompatibilityModel(id: $id, userId: $userId, artist: $artist, birthDate: $birthDate, birthTime: $birthTime, status: $status, gender: $gender, errorMessage: $errorMessage, isLoading: $isLoading, compatibilityScore: $compatibilityScore, compatibilitySummary: $compatibilitySummary, details: $details, tips: $tips, createdAt: $createdAt, completedAt: $completedAt, localizedResults: $localizedResults)';
+    return 'CompatibilityModel(id: $id, userId: $userId, artist: $artist, birthDate: $birthDate, birthTime: $birthTime, status: $status, gender: $gender, errorMessage: $errorMessage, isLoading: $isLoading, compatibilityScore: $compatibilityScore, compatibilitySummary: $compatibilitySummary, details: $details, tips: $tips, createdAt: $createdAt, completedAt: $completedAt, localizedResults: $localizedResults, isAds: $isAds)';
   }
 
   @override
@@ -659,7 +678,8 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
             (identical(other.completedAt, completedAt) ||
                 other.completedAt == completedAt) &&
             const DeepCollectionEquality()
-                .equals(other._localizedResults, _localizedResults));
+                .equals(other._localizedResults, _localizedResults) &&
+            (identical(other.isAds, isAds) || other.isAds == isAds));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -681,7 +701,8 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
       const DeepCollectionEquality().hash(_tips),
       createdAt,
       completedAt,
-      const DeepCollectionEquality().hash(_localizedResults));
+      const DeepCollectionEquality().hash(_localizedResults),
+      isAds);
 
   /// Create a copy of CompatibilityModel
   /// with the given fields replaced by the non-null parameter values.
@@ -702,25 +723,25 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
 
 abstract class _CompatibilityModel extends CompatibilityModel {
   const factory _CompatibilityModel(
-          {final String id,
-          required final String userId,
-          required final ArtistModel artist,
-          @JsonKey(name: 'user_birth_date') required final DateTime birthDate,
-          @JsonKey(name: 'user_birth_time') final String? birthTime,
-          final CompatibilityStatus status,
-          final String? gender,
-          final String? errorMessage,
-          final bool? isLoading,
-          @JsonKey(name: 'compatibility_score') final int? compatibilityScore,
-          @JsonKey(name: 'compatibility_summary')
-          final String? compatibilitySummary,
-          final Details? details,
-          final List<String>? tips,
-          final DateTime? createdAt,
-          final DateTime? completedAt,
-          @JsonKey(name: 'i18n', fromJson: _parseI18nResults)
-          final Map<String, LocalizedCompatibility>? localizedResults}) =
-      _$CompatibilityModelImpl;
+      {final String id,
+      required final String userId,
+      required final ArtistModel artist,
+      @JsonKey(name: 'user_birth_date') required final DateTime birthDate,
+      @JsonKey(name: 'user_birth_time') final String? birthTime,
+      final CompatibilityStatus status,
+      final String? gender,
+      final String? errorMessage,
+      final bool? isLoading,
+      @JsonKey(name: 'compatibility_score') final int? compatibilityScore,
+      @JsonKey(name: 'compatibility_summary')
+      final String? compatibilitySummary,
+      final Details? details,
+      final List<String>? tips,
+      final DateTime? createdAt,
+      final DateTime? completedAt,
+      @JsonKey(name: 'i18n', fromJson: _parseI18nResults)
+      final Map<String, LocalizedCompatibility>? localizedResults,
+      @JsonKey(name: 'is_ads') final bool? isAds}) = _$CompatibilityModelImpl;
   const _CompatibilityModel._() : super._();
 
   factory _CompatibilityModel.fromJson(Map<String, dynamic> json) =
@@ -763,6 +784,9 @@ abstract class _CompatibilityModel extends CompatibilityModel {
   @override
   @JsonKey(name: 'i18n', fromJson: _parseI18nResults)
   Map<String, LocalizedCompatibility>? get localizedResults;
+  @override
+  @JsonKey(name: 'is_ads')
+  bool? get isAds;
 
   /// Create a copy of CompatibilityModel
   /// with the given fields replaced by the non-null parameter values.

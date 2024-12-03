@@ -2,7 +2,7 @@ import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part '../../generated/providers/community/compatibility_history_provider.g.dart';
+part '../../generated/providers/community/compatibility_list_provider.g.dart';
 
 @riverpod
 class CompatibilityList extends _$CompatibilityList {
