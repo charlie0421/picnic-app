@@ -112,9 +112,9 @@
     "@common_text_search_result_label": {
         "manualTranslation": false
     },
-    "compatibility_activities_title": "一緒にできるアクティビティ",
+    "compatibility_activities_title": "おすすめアクティビティ",
     "@compatibility_activities_title": {
-        "manualTranslation": false
+        "manualTranslation": true
     },
     "compatibility_agree_checkbox": "性別、誕生日情報をプロフィールに保存することに同意します。",
     "@compatibility_agree_checkbox": {

@@ -110,6 +110,7 @@ class Compatibility extends _$Compatibility {
           created_at,
           completed_at,
           is_paid,
+          is_ads,
           artist:artist(*)
         ''').eq('id', id).maybeSingle().timeout(_defaultTimeout);
 

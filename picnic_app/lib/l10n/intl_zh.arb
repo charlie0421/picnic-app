@@ -112,9 +112,9 @@
     "@common_text_search_result_label": {
         "manualTranslation": false
     },
-    "compatibility_activities_title": "你们可以一起开展的活动",
+    "compatibility_activities_title": "建议开展的活动",
     "@compatibility_activities_title": {
-        "manualTranslation": false
+        "manualTranslation": true
     },
     "compatibility_agree_checkbox": "我同意在个人档案中存储我的性别和生日信息。",
     "@compatibility_agree_checkbox": {

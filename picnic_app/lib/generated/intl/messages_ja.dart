@@ -83,7 +83,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "common_text_search_result_label":
             MessageLookupByLibrary.simpleMessage("検索結果"),
         "compatibility_activities_title":
-            MessageLookupByLibrary.simpleMessage("一緒にできるアクティビティ"),
+            MessageLookupByLibrary.simpleMessage("おすすめアクティビティ"),
         "compatibility_agree_checkbox": MessageLookupByLibrary.simpleMessage(
             "性別、誕生日情報をプロフィールに保存することに同意します。"),
         "compatibility_analyze_start":

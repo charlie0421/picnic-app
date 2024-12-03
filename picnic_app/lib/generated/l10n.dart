@@ -330,10 +330,10 @@ class S {
     );
   }
 
-  /// `Activities you can do together`
+  /// `Suggested activities`
   String get compatibility_activities_title {
     return Intl.message(
-      'Activities you can do together',
+      'Suggested activities',
       name: 'compatibility_activities_title',
       desc: '',
       args: [],

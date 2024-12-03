@@ -74,8 +74,10 @@
     "@common_text_search_recent_label": {},
     "common_text_search_result_label": "검색 결과",
     "@common_text_search_result_label": {},
-    "compatibility_activities_title": "함께 할 수 있는 활동",
-    "@compatibility_activities_title": {},
+    "compatibility_activities_title": "추천활동",
+    "@compatibility_activities_title": {
+        "manualTranslation": true
+    },
     "compatibility_agree_checkbox": "성별, 생일 정보를 프로필에 저장하는 것에 동의합니다.",
     "@compatibility_agree_checkbox": {},
     "compatibility_analyze_start": "궁합 분석",

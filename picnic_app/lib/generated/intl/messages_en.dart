@@ -86,8 +86,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Recent searches"),
         "common_text_search_result_label":
             MessageLookupByLibrary.simpleMessage("Search results"),
-        "compatibility_activities_title": MessageLookupByLibrary.simpleMessage(
-            "Activities you can do together"),
+        "compatibility_activities_title":
+            MessageLookupByLibrary.simpleMessage("Suggested activities"),
         "compatibility_agree_checkbox": MessageLookupByLibrary.simpleMessage(
             "I agree to store my gender and birthday information in my profile."),
         "compatibility_analyze_start": MessageLookupByLibrary.simpleMessage(

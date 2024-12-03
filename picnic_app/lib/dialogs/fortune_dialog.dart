@@ -124,28 +124,22 @@ class _FortunePageState extends ConsumerState<FortunePage> {
     }
   }
 
-  // 캡처 및 저장 메서드
   Future<void> _captureAndSave() async {
     try {
       if (_isSaving) return;
 
       setState(() => _isSaving = true);
 
-      // 현재 상태 저장
       _saveExpansionStates();
 
-      // 모든 ExpansionTile 펼치기
       _expandAll();
 
-      // 상태 변경이 UI에 반영되도록 대기
       await Future.delayed(const Duration(milliseconds: 100));
 
-      // 이미지 캡처 및 저장
       await ShareUtils.captureAndSaveImage(
         _saveKey,
-        onStart: () {}, // 이미 _isSaving이 true로 설정되어 있으므로 비워둠
+        onStart: () {},
         onComplete: () {
-          // 원래 상태로 복원
           _restoreExpansionStates();
           setState(() => _isSaving = false);
         },
