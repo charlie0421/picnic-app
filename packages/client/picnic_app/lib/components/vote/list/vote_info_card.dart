@@ -7,7 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_achieve.dart';
-import 'package:picnic_app/components/vote/list/vote_info_card_footer.dart';
+import 'package:picnic_app/components/common/share_section.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_header.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_vertical.dart';
 import 'package:picnic_app/generated/l10n.dart';
@@ -366,8 +366,8 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
                 ),
               if (!_isSaving && (!_isAdLoading || !_isBannerLoaded))
                 ShareSection(
-                  saveButtonText: S.of(context).vote_result_save_button,
-                  shareButtonText: S.of(context).vote_result_share_button,
+                  saveButtonText: S.of(context).save,
+                  shareButtonText: S.of(context).share,
                   onSave: _handleSaveImage,
                   onShare: _handleShareToTwitter,
                 ),

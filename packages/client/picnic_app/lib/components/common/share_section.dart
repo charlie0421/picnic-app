@@ -37,13 +37,24 @@ class ShareSection extends StatelessWidget {
               minimumSize: Size(buttonWidth ?? 104.cw, buttonHeight ?? 32),
               maximumSize: Size(buttonWidth ?? 104.cw, buttonHeight ?? 32),
             ),
-            child: Text(
-              saveButtonText,
-              style: getTextStyle(
-                AppTypo.body14B,
-                AppColors.grey00,
-              ),
-              textAlign: TextAlign.center,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  saveButtonText,
+                  style: getTextStyle(
+                    AppTypo.body14B,
+                    AppColors.grey00,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(width: 4.cw),
+                SvgPicture.asset(
+                  'assets/icons/save_gallery.svg',
+                  width: 16.cw,
+                  height: 16,
+                ),
+              ],
             ),
           ),
           SizedBox(width: 16.cw),
