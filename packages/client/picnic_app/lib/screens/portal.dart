@@ -70,7 +70,11 @@ class _PortalState extends ConsumerState<Portal> {
                                     height: 36,
                                     borderRadius: 8.r,
                                   ))
-                              : const DefaultAvatar(),
+                              : GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () =>
+                                      Scaffold.of(context).openDrawer(),
+                                  child: const DefaultAvatar()),
                           error: (error, stackTrace) => const Icon(Icons.error),
                           loading: () => SizedBox(
                             width: 36,
