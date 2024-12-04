@@ -648,7 +648,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "アプリ決済ができない方のための決済画面です。\n あらかじめ乱数IDをコピーしてください。\n コピー後、下のボタンを押して支払いを行ってください。"),
         "replies": MessageLookupByLibrary.simpleMessage("コメント"),
         "reward": MessageLookupByLibrary.simpleMessage("リワード"),
-        "save": MessageLookupByLibrary.simpleMessage("ストレージ"),
+        "save": MessageLookupByLibrary.simpleMessage("保存"),
         "seconds": MessageLookupByLibrary.simpleMessage("蝋燭"),
         "share": MessageLookupByLibrary.simpleMessage("共有"),
         "share_image_fail": MessageLookupByLibrary.simpleMessage("画像共有に失敗"),

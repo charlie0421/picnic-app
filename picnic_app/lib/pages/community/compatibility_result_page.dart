@@ -10,7 +10,7 @@ import 'package:picnic_app/components/common/underlined_widget.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_error.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_info.dart';
 import 'package:picnic_app/components/community/compatibility/fortune_divider.dart';
-import 'package:picnic_app/components/vote/list/vote_info_card_footer.dart';
+import 'package:picnic_app/components/common/share_section.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/navigation.dart';
@@ -602,8 +602,8 @@ class _CompatibilityResultPageState
                     compatibility.localizedResults != null) ...[
                   const SizedBox(height: 16),
                   ShareSection(
-                    saveButtonText: S.of(context).vote_result_save_button,
-                    shareButtonText: S.of(context).vote_result_share_button,
+                    saveButtonText: S.of(context).save,
+                    shareButtonText: S.of(context).share,
                     onSave: () => _handleSave(compatibility),
                     onShare: () => _handleShare(compatibility),
                   ),

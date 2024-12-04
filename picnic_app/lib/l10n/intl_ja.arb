@@ -1352,7 +1352,7 @@
     "@reward": {
         "manualTranslation": false
     },
-    "save": "ストレージ",
+    "save": "保存",
     "@save": {
         "manualTranslation": false
     },

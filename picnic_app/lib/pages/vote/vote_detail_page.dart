@@ -11,7 +11,7 @@ import 'package:picnic_app/components/common/common_search_box.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
-import 'package:picnic_app/components/vote/list/vote_info_card_footer.dart';
+import 'package:picnic_app/components/common/share_section.dart';
 import 'package:picnic_app/components/vote/voting/voting_dialog.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/dialogs/reward_dialog.dart';
@@ -295,8 +295,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
           Column(
             children: [
               ShareSection(
-                saveButtonText: S.of(context).vote_result_save_button,
-                shareButtonText: S.of(context).vote_result_share_button,
+                saveButtonText: S.of(context).save,
+                shareButtonText: S.of(context).share,
                 onSave: () {
                   if (_isSaving) return;
                   ShareUtils.captureAndSaveImage(

@@ -607,7 +607,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "这是为无法使用应用程序付款的用户提供的付款窗口。\n 请事先复制随机数字 ID。\n 复制后，点击下面的按钮进行支付。"),
         "replies": MessageLookupByLibrary.simpleMessage("评论"),
         "reward": MessageLookupByLibrary.simpleMessage("奖励"),
-        "save": MessageLookupByLibrary.simpleMessage("节省"),
+        "save": MessageLookupByLibrary.simpleMessage("保存"),
         "seconds": MessageLookupByLibrary.simpleMessage("秒钟"),
         "share": MessageLookupByLibrary.simpleMessage("分享"),
         "share_image_fail": MessageLookupByLibrary.simpleMessage("图像共享失败"),
