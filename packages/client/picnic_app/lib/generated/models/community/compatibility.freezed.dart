@@ -247,6 +247,8 @@ mixin _$CompatibilityModel {
       throw _privateConstructorUsedError;
   @JsonKey(name: 'is_ads')
   bool? get isAds => throw _privateConstructorUsedError;
+  @JsonKey(name: 'is_paid')
+  bool? get isPaid => throw _privateConstructorUsedError;
 
   /// Serializes this CompatibilityModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -282,7 +284,8 @@ abstract class $CompatibilityModelCopyWith<$Res> {
       DateTime? completedAt,
       @JsonKey(name: 'i18n', fromJson: _parseI18nResults)
       Map<String, LocalizedCompatibility>? localizedResults,
-      @JsonKey(name: 'is_ads') bool? isAds});
+      @JsonKey(name: 'is_ads') bool? isAds,
+      @JsonKey(name: 'is_paid') bool? isPaid});
 
   $ArtistModelCopyWith<$Res> get artist;
   $DetailsCopyWith<$Res>? get details;
@@ -320,6 +323,7 @@ class _$CompatibilityModelCopyWithImpl<$Res, $Val extends CompatibilityModel>
     Object? completedAt = freezed,
     Object? localizedResults = freezed,
     Object? isAds = freezed,
+    Object? isPaid = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -390,6 +394,10 @@ class _$CompatibilityModelCopyWithImpl<$Res, $Val extends CompatibilityModel>
           ? _value.isAds
           : isAds // ignore: cast_nullable_to_non_nullable
               as bool?,
+      isPaid: freezed == isPaid
+          ? _value.isPaid
+          : isPaid // ignore: cast_nullable_to_non_nullable
+              as bool?,
     ) as $Val);
   }
 
@@ -444,7 +452,8 @@ abstract class _$$CompatibilityModelImplCopyWith<$Res>
       DateTime? completedAt,
       @JsonKey(name: 'i18n', fromJson: _parseI18nResults)
       Map<String, LocalizedCompatibility>? localizedResults,
-      @JsonKey(name: 'is_ads') bool? isAds});
+      @JsonKey(name: 'is_ads') bool? isAds,
+      @JsonKey(name: 'is_paid') bool? isPaid});
 
   @override
   $ArtistModelCopyWith<$Res> get artist;
@@ -482,6 +491,7 @@ class __$$CompatibilityModelImplCopyWithImpl<$Res>
     Object? completedAt = freezed,
     Object? localizedResults = freezed,
     Object? isAds = freezed,
+    Object? isPaid = freezed,
   }) {
     return _then(_$CompatibilityModelImpl(
       id: null == id
@@ -552,6 +562,10 @@ class __$$CompatibilityModelImplCopyWithImpl<$Res>
           ? _value.isAds
           : isAds // ignore: cast_nullable_to_non_nullable
               as bool?,
+      isPaid: freezed == isPaid
+          ? _value.isPaid
+          : isPaid // ignore: cast_nullable_to_non_nullable
+              as bool?,
     ));
   }
 }
@@ -577,7 +591,8 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
       this.completedAt,
       @JsonKey(name: 'i18n', fromJson: _parseI18nResults)
       final Map<String, LocalizedCompatibility>? localizedResults,
-      @JsonKey(name: 'is_ads') this.isAds})
+      @JsonKey(name: 'is_ads') this.isAds,
+      @JsonKey(name: 'is_paid') this.isPaid})
       : _tips = tips,
         _localizedResults = localizedResults,
         super._();
@@ -643,10 +658,13 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
   @override
   @JsonKey(name: 'is_ads')
   final bool? isAds;
+  @override
+  @JsonKey(name: 'is_paid')
+  final bool? isPaid;
 
   @override
   String toString() {
-    return 'CompatibilityModel(id: $id, userId: $userId, artist: $artist, birthDate: $birthDate, birthTime: $birthTime, status: $status, gender: $gender, errorMessage: $errorMessage, isLoading: $isLoading, compatibilityScore: $compatibilityScore, compatibilitySummary: $compatibilitySummary, details: $details, tips: $tips, createdAt: $createdAt, completedAt: $completedAt, localizedResults: $localizedResults, isAds: $isAds)';
+    return 'CompatibilityModel(id: $id, userId: $userId, artist: $artist, birthDate: $birthDate, birthTime: $birthTime, status: $status, gender: $gender, errorMessage: $errorMessage, isLoading: $isLoading, compatibilityScore: $compatibilityScore, compatibilitySummary: $compatibilitySummary, details: $details, tips: $tips, createdAt: $createdAt, completedAt: $completedAt, localizedResults: $localizedResults, isAds: $isAds, isPaid: $isPaid)';
   }
 
   @override
@@ -679,7 +697,8 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
                 other.completedAt == completedAt) &&
             const DeepCollectionEquality()
                 .equals(other._localizedResults, _localizedResults) &&
-            (identical(other.isAds, isAds) || other.isAds == isAds));
+            (identical(other.isAds, isAds) || other.isAds == isAds) &&
+            (identical(other.isPaid, isPaid) || other.isPaid == isPaid));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -702,7 +721,8 @@ class _$CompatibilityModelImpl extends _CompatibilityModel {
       createdAt,
       completedAt,
       const DeepCollectionEquality().hash(_localizedResults),
-      isAds);
+      isAds,
+      isPaid);
 
   /// Create a copy of CompatibilityModel
   /// with the given fields replaced by the non-null parameter values.
@@ -741,7 +761,8 @@ abstract class _CompatibilityModel extends CompatibilityModel {
       final DateTime? completedAt,
       @JsonKey(name: 'i18n', fromJson: _parseI18nResults)
       final Map<String, LocalizedCompatibility>? localizedResults,
-      @JsonKey(name: 'is_ads') final bool? isAds}) = _$CompatibilityModelImpl;
+      @JsonKey(name: 'is_ads') final bool? isAds,
+      @JsonKey(name: 'is_paid') final bool? isPaid}) = _$CompatibilityModelImpl;
   const _CompatibilityModel._() : super._();
 
   factory _CompatibilityModel.fromJson(Map<String, dynamic> json) =
@@ -787,6 +808,9 @@ abstract class _CompatibilityModel extends CompatibilityModel {
   @override
   @JsonKey(name: 'is_ads')
   bool? get isAds;
+  @override
+  @JsonKey(name: 'is_paid')
+  bool? get isPaid;
 
   /// Create a copy of CompatibilityModel
   /// with the given fields replaced by the non-null parameter values.

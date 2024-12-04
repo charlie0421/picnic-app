@@ -1667,5 +1667,21 @@
     "compatibility_birthtime_subtitle": "精度が上がります！",
     "@compatibility_birthtime_subtitle": {
         "manualTranslation": true
+    },
+    "fortune_purchase_by_star_candy": "スターキャンディで確認",
+    "@fortune_purchase_by_star_candy": {
+        "manualTranslation": true
+    },
+    "fortune_purchase_by_one_click": "すぐに支払い",
+    "@fortune_purchase_by_one_click": {
+        "manualTranslation": true
+    },
+    "fortune_lack_of_star_candy_title": "スターキャンディが不足しています。ショップ画面に移動します。",
+    "@fortune_lack_of_star_candy_title": {
+        "manualTranslation": true
+    },
+    "fortune_lack_of_star_candy_message": "リワードスターキャンディはここでは使えません。\uD83D\uDE25",
+    "@fortune_lack_of_star_candy_message": {
+        "manualTranslation": true
     }
 }

@@ -271,6 +271,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "fortune_career": MessageLookupByLibrary.simpleMessage("ビジネス運"),
         "fortune_health": MessageLookupByLibrary.simpleMessage("健康運"),
         "fortune_honor": MessageLookupByLibrary.simpleMessage("名誉"),
+        "fortune_lack_of_star_candy_message":
+            MessageLookupByLibrary.simpleMessage("リワードスターキャンディはここでは使えません。😥"),
+        "fortune_lack_of_star_candy_title":
+            MessageLookupByLibrary.simpleMessage(
+                "スターキャンディが不足しています。ショップ画面に移動します。"),
         "fortune_lucky_color": MessageLookupByLibrary.simpleMessage("ラッキーカラー"),
         "fortune_lucky_days": MessageLookupByLibrary.simpleMessage("ラッキー曜日"),
         "fortune_lucky_direction":
@@ -293,6 +298,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "fortune_month8": MessageLookupByLibrary.simpleMessage("8月の運勢"),
         "fortune_month9": MessageLookupByLibrary.simpleMessage("9月の運勢"),
         "fortune_monthly": MessageLookupByLibrary.simpleMessage("月別占い"),
+        "fortune_purchase_by_one_click":
+            MessageLookupByLibrary.simpleMessage("すぐに支払い"),
+        "fortune_purchase_by_star_candy":
+            MessageLookupByLibrary.simpleMessage("スターキャンディで確認"),
         "fortune_relationship": MessageLookupByLibrary.simpleMessage("対人関係"),
         "fortune_title": m0,
         "fortune_total_title": MessageLookupByLibrary.simpleMessage("総合占い"),

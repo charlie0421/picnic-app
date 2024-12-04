@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:bubble_box/bubble_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -8,6 +11,7 @@ import 'package:picnic_app/components/community/compatibility/compatibility_erro
 import 'package:picnic_app/components/community/compatibility/compatibility_info.dart';
 import 'package:picnic_app/components/community/compatibility/fortune_divider.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_footer.dart';
+import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
@@ -16,6 +20,7 @@ import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
+import 'package:picnic_app/util/ui.dart';
 import 'package:picnic_app/util/vote_share_util.dart';
 
 class CompatibilityResultPage extends ConsumerStatefulWidget {
@@ -179,6 +184,7 @@ class _CompatibilityResultPageState
 
     final style = localizedResult.details?.style;
     final activities = localizedResult.details?.activities;
+    final tips = localizedResult.tips;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,210 +192,352 @@ class _CompatibilityResultPageState
         SizedBox(height: 36),
         _buildHeaderSection(localizedResult),
         FortuneDivider(color: AppColors.grey00),
-        if (style != null) ...[
-          Card(
-            elevation: 2,
-            child: ExpansionTile(
-              controller: styleController,
-              initiallyExpanded: true,
-              shape: const Border(),
-              collapsedShape: const Border(),
-              title: SizedBox(
-                height: 28,
-                child: Row(
-                  children: [
-                    UnderlinedWidget(
-                      underlineGap: 2,
-                      child: SvgPicture.asset(
-                        'assets/images/fortune/fortune_style.svg',
-                        width: 24,
-                        colorFilter: ColorFilter.mode(
-                          AppColors.primary500,
-                          BlendMode.srcIn,
-                        ),
-                      ),
-                    ),
-                    UnderlinedText(
-                      text: ' ${S.of(context).compatibility_style_title}',
-                      textStyle:
-                          getTextStyle(AppTypo.body16B, AppColors.grey900),
-                      underlineGap: 1.5,
-                    ),
-                  ],
-                ),
-              ),
-              children: [
-                InkWell(
-                  onTap: () => styleController.collapse(),
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      left: 16,
-                      right: 16,
-                      bottom: 16,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildStyleItem(
-                          context,
-                          S.of(context).compatibility_idol_style,
-                          style.idolStyle,
-                        ),
-                        const SizedBox(height: 12),
-                        _buildStyleItem(
-                          context,
-                          S.of(context).compatibility_user_style,
-                          style.userStyle,
-                        ),
-                        const SizedBox(height: 12),
-                        _buildStyleItem(
-                          context,
-                          S.of(context).compatibility_couple_style,
-                          style.coupleStyle,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-        ],
-        if (activities != null) ...[
-          Card(
-            elevation: 2,
-            child: ExpansionTile(
-              controller: activityController,
-              initiallyExpanded: true,
-              shape: const Border(),
-              collapsedShape: const Border(),
-              title: Row(
+        if (!(compatibility.isPaid ?? false))
+          Stack(
+            children: [
+              Column(
                 children: [
-                  UnderlinedWidget(
-                    underlineGap: 2,
-                    child: SvgPicture.asset(
-                      'assets/images/fortune/fortune_activities.svg',
-                      width: 24,
-                      colorFilter: ColorFilter.mode(
-                        AppColors.primary500,
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                  ),
-                  UnderlinedText(
-                    text: ' ${S.of(context).compatibility_activities_title}',
-                    textStyle: getTextStyle(AppTypo.body16B, AppColors.grey900),
-                    underlineGap: 1.5,
-                  ),
+                  if (style != null) _buildStyleSection(style),
+                  SizedBox(height: 36),
+                  if (activities != null) _buildActivitiesSection(activities),
+                  SizedBox(height: 36),
+                  if (tips.isNotEmpty) _buildTipsSection(tips),
+                  SizedBox(height: 36),
                 ],
               ),
-              children: [
-                InkWell(
-                  onTap: () => activityController.collapse(),
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      left: 16,
-                      right: 16,
-                      bottom: 16,
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: activities.recommended.length,
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(height: 4),
-                          itemBuilder: (context, index) {
-                            return Text('✔️ ${activities.recommended[index]}',
-                                style: getTextStyle(
-                                  AppTypo.caption12B,
-                                  AppColors.grey900,
-                                ));
-                          },
+              Positioned.fill(
+                child: ClipRect(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          children: [
+                            SizedBox(height: 32),
+                            BubbleBox(
+                                backgroundColor: AppColors.grey00,
+                                elevation: 2,
+                                shape: BubbleShapeBorder(
+                                  border: BubbleBoxBorder(
+                                    color: AppColors.grey300,
+                                    width: 1.5,
+                                    style: BubbleBoxBorderStyle.solid,
+                                  ),
+                                  radius: const BorderRadius.all(
+                                    Radius.circular(10),
+                                  ),
+                                  position: const BubblePosition.center(0),
+                                  direction: BubbleDirection.bottom,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 0,
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      'assets/icons/store/star_100.png',
+                                      width: 36,
+                                    ),
+                                    Text(
+                                      '100',
+                                      style: getTextStyle(
+                                        AppTypo.body16B,
+                                        AppColors.grey900,
+                                      ),
+                                    ),
+                                  ],
+                                )),
+                            SizedBox(height: 8),
+                            Container(
+                              constraints: BoxConstraints(
+                                minWidth: 240,
+                              ),
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  showSimpleDialog(
+                                    title: S
+                                        .of(context)
+                                        .fortune_lack_of_star_candy_title,
+                                    content: S
+                                        .of(context)
+                                        .fortune_lack_of_star_candy_message,
+                                    onOk: () {
+                                      // Add payment logic here
+                                    },
+                                  );
+                                  // Add payment logic here
+                                },
+                                child: Text(S
+                                    .of(context)
+                                    .fortune_purchase_by_star_candy),
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                            Container(
+                              constraints: BoxConstraints(
+                                minWidth: 240,
+                              ),
+                              child: ElevatedButton(
+                                style: ButtonStyle(
+                                    padding: WidgetStateProperty.all(
+                                        EdgeInsets.symmetric(
+                                            horizontal: 32.cw, vertical: 0)),
+                                    backgroundColor: WidgetStateProperty.all(
+                                        AppColors.mint500),
+                                    foregroundColor: WidgetStateProperty.all(
+                                        AppColors.grey900),
+                                    shape: WidgetStateProperty.all(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                        side: BorderSide(
+                                            color: AppColors.primary500,
+                                            width: 1,
+                                            style: BorderStyle.solid),
+                                      ),
+                                    ),
+                                    textStyle: WidgetStateProperty.all(
+                                      getTextStyle(
+                                        AppTypo.caption12B,
+                                        AppColors.grey00,
+                                      ),
+                                    ),
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap),
+                                onPressed: () {
+                                  // Add payment logic here
+                                },
+                                child: Text(
+                                    S.of(context).fortune_purchase_by_one_click,
+                                    style: TextStyle(color: AppColors.grey900)),
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          activities.description.trim(),
-                          style: getTextStyle(
-                              AppTypo.caption12R, AppColors.grey900),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-        ],
-        if (localizedResult.tips.isNotEmpty) ...[
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: ExpansionTile(
-              controller: tipController,
-              initiallyExpanded: true,
-              shape: const Border(),
-              collapsedShape: const Border(),
-              title: Row(
-                children: [
-                  UnderlinedWidget(
-                    underlineGap: 2,
-                    child: SvgPicture.asset(
-                      'assets/images/fortune/fortune_tips.svg',
-                      width: 24,
-                      colorFilter: ColorFilter.mode(
-                        AppColors.primary500,
-                        BlendMode.srcIn,
                       ),
                     ),
                   ),
-                  UnderlinedText(
-                    text: ' ${S.of(context).compatibility_tips_title}',
-                    textStyle: getTextStyle(AppTypo.body16B, AppColors.grey900),
-                    underlineGap: 1.5,
-                  ),
-                ],
-              ),
-              children: [
-                InkWell(
-                  onTap: () => tipController.collapse(),
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      left: 16,
-                      right: 16,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: localizedResult.tips.length,
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(height: 12),
-                          itemBuilder: (context, index) {
-                            return Text('✔️ ${localizedResult.tips[index]}',
-                                style: getTextStyle(
-                                  AppTypo.caption12B,
-                                  AppColors.grey900,
-                                ));
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
                 ),
-              ],
-            ),
-          ),
+              ),
+            ],
+          )
+        else ...[
+          if (style != null) _buildStyleSection(style),
+          SizedBox(height: 36),
+          if (activities != null) _buildActivitiesSection(activities),
+          SizedBox(height: 36),
+          if (tips.isNotEmpty) _buildTipsSection(tips),
+          SizedBox(height: 36),
         ],
       ],
+    );
+  }
+
+  Widget _buildStyleSection(StyleDetails style) {
+    return Card(
+      elevation: 2,
+      child: ExpansionTile(
+        controller: styleController,
+        initiallyExpanded: true,
+        shape: const Border(),
+        collapsedShape: const Border(),
+        title: SizedBox(
+          height: 28,
+          child: Row(
+            children: [
+              UnderlinedWidget(
+                underlineGap: 2,
+                child: SvgPicture.asset(
+                  'assets/images/fortune/fortune_style.svg',
+                  width: 24,
+                  colorFilter: ColorFilter.mode(
+                    AppColors.primary500,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
+              UnderlinedText(
+                text: ' ${S.of(context).compatibility_style_title}',
+                textStyle: getTextStyle(AppTypo.body16B, AppColors.grey900),
+                underlineGap: 1.5,
+              ),
+            ],
+          ),
+        ),
+        children: [
+          InkWell(
+            onTap: () => styleController.collapse(),
+            child: Padding(
+              padding: const EdgeInsets.only(
+                left: 16,
+                right: 16,
+                bottom: 16,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildStyleItem(
+                    context,
+                    S.of(context).compatibility_idol_style,
+                    style.idolStyle,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildStyleItem(
+                    context,
+                    S.of(context).compatibility_user_style,
+                    style.userStyle,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildStyleItem(
+                    context,
+                    S.of(context).compatibility_couple_style,
+                    style.coupleStyle,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActivitiesSection(ActivitiesDetails activities) {
+    return Card(
+      elevation: 2,
+      child: ExpansionTile(
+        controller: activityController,
+        initiallyExpanded: true,
+        shape: const Border(),
+        collapsedShape: const Border(),
+        title: Row(
+          children: [
+            UnderlinedWidget(
+              underlineGap: 2,
+              child: SvgPicture.asset(
+                'assets/images/fortune/fortune_activities.svg',
+                width: 24,
+                colorFilter: ColorFilter.mode(
+                  AppColors.primary500,
+                  BlendMode.srcIn,
+                ),
+              ),
+            ),
+            UnderlinedText(
+              text: ' ${S.of(context).compatibility_activities_title}',
+              textStyle: getTextStyle(AppTypo.body16B, AppColors.grey900),
+              underlineGap: 1.5,
+            ),
+          ],
+        ),
+        children: [
+          InkWell(
+            onTap: () => activityController.collapse(),
+            child: Padding(
+              padding: const EdgeInsets.only(
+                left: 16,
+                right: 16,
+                bottom: 16,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: activities.recommended.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 4),
+                    itemBuilder: (context, index) {
+                      return Text('✔️ ${activities.recommended[index]}',
+                          style: getTextStyle(
+                            AppTypo.caption12B,
+                            AppColors.grey900,
+                          ));
+                    },
+                  ),
+                  Text(
+                    activities.description.trim(),
+                    style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
+                  ),
+                ],
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTipsSection(List<String> tips) {
+    return Card(
+      elevation: 2,
+      child: ExpansionTile(
+        controller: tipController,
+        initiallyExpanded: true,
+        shape: const Border(),
+        collapsedShape: const Border(),
+        title: Row(
+          children: [
+            UnderlinedWidget(
+              underlineGap: 2,
+              child: SvgPicture.asset(
+                'assets/images/fortune/fortune_tips.svg',
+                width: 24,
+                colorFilter: ColorFilter.mode(
+                  AppColors.primary500,
+                  BlendMode.srcIn,
+                ),
+              ),
+            ),
+            UnderlinedText(
+              text: ' ${S.of(context).compatibility_tips_title}',
+              textStyle: getTextStyle(AppTypo.body16B, AppColors.grey900),
+              underlineGap: 1.5,
+            ),
+          ],
+        ),
+        children: [
+          InkWell(
+            onTap: () => tipController.collapse(),
+            child: Padding(
+              padding: const EdgeInsets.only(
+                left: 16,
+                right: 16,
+                bottom: 16,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: tips.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      return Text('✔️ ${tips[index]}',
+                          style: getTextStyle(
+                            AppTypo.caption12B,
+                            AppColors.grey900,
+                          ));
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

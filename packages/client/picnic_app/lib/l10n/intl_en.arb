@@ -173,7 +173,7 @@
     "@compatibility_idol_style": {
         "manualTranslation": false
     },
-    "compatibility_new_compatibility": "Check out new matches",
+    "compatibility_new_compatibility": "Calculate New Goong-Hap",
     "@compatibility_new_compatibility": {
         "manualTranslation": false
     },
@@ -1850,6 +1850,22 @@
     },
     "compatibility_birthtime_subtitle": "Increase accuracy!",
     "@compatibility_birthtime_subtitle": {
+        "manualTranslation": true
+    },
+    "fortune_purchase_by_star_candy": "Check with Star Candy",
+    "@fortune_purchase_by_star_candy": {
+        "manualTranslation": true
+    },
+    "fortune_purchase_by_one_click": "Pay Now",
+    "@fortune_purchase_by_one_click": {
+        "manualTranslation": true
+    },
+    "fortune_lack_of_star_candy_title": "You don't have enough Star Candy. Moving to the shop screen.",
+    "@fortune_lack_of_star_candy_title": {
+        "manualTranslation": true
+    },
+    "fortune_lack_of_star_candy_message": "Reward Star Candies cannot be used here. \uD83D\uDE25",
+    "@fortune_lack_of_star_candy_message": {
         "manualTranslation": true
     }
 }

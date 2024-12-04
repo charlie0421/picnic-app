@@ -75,6 +75,7 @@ _$CompatibilityModelImpl _$$CompatibilityModelImplFromJson(
           localizedResults:
               $checkedConvert('i18n', (v) => _parseI18nResults(v)),
           isAds: $checkedConvert('is_ads', (v) => v as bool?),
+          isPaid: $checkedConvert('is_paid', (v) => v as bool?),
         );
         return val;
       },
@@ -89,7 +90,8 @@ _$CompatibilityModelImpl _$$CompatibilityModelImplFromJson(
         'createdAt': 'created_at',
         'completedAt': 'completed_at',
         'localizedResults': 'i18n',
-        'isAds': 'is_ads'
+        'isAds': 'is_ads',
+        'isPaid': 'is_paid'
       },
     );
 
@@ -113,6 +115,7 @@ Map<String, dynamic> _$$CompatibilityModelImplToJson(
       'completed_at': instance.completedAt?.toIso8601String(),
       'i18n': instance.localizedResults?.map((k, e) => MapEntry(k, e.toJson())),
       'is_ads': instance.isAds,
+      'is_paid': instance.isPaid,
     };
 
 const _$CompatibilityStatusEnumMap = {

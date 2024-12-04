@@ -14,6 +14,7 @@ import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
+import 'package:picnic_app/util/ui.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class CompatibilityHistoryPage extends ConsumerStatefulWidget {
@@ -109,80 +110,74 @@ class _CompatibilityHistoryPageState
               )
             : Stack(
                 children: [
-                  Column(
+                  ListView(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 80),
                     children: [
-                      SizedBox(height: 24),
                       SvgPicture.asset(
                         'assets/images/fortune/title_${Intl.getCurrentLocale()}.svg',
-                        fit: BoxFit.cover,
+                        fit: BoxFit.fitHeight,
+                        height: 48,
                       ),
                       SizedBox(height: 24),
-                      Expanded(
-                        child: ListView.separated(
-                          controller: _scrollController,
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
-                          itemCount: history.items.length +
-                              (history.isLoading ? 1 : 0),
-                          itemBuilder: (context, index) {
-                            if (index == history.items.length) {
-                              return const Center(
-                                child: Padding(
-                                  padding: EdgeInsets.all(16.0),
-                                  child: CircularProgressIndicator(),
-                                ),
-                              );
-                            }
-
-                            final item = history.items[index];
-
-                            return Column(
-                              children: [
-                                InkWell(
-                                    onTap: () {
-                                      item.status ==
-                                                  CompatibilityStatus
-                                                      .completed &&
-                                              item.isAds == true
-                                          ? ref
-                                              .read(navigationInfoProvider
-                                                  .notifier)
-                                              .setCurrentPage(
-                                                  CompatibilityResultPage(
-                                                      compatibility: item))
-                                          : ref
-                                              .read(navigationInfoProvider
-                                                  .notifier)
-                                              .setCurrentPage(
-                                                CompatibilityLoadingPage(
-                                                    compatibility: item),
-                                              );
-                                    },
-                                    child: CompatibilityInfo(
-                                      artist: item.artist,
-                                      ref: ref,
-                                      birthDate: item.birthDate,
-                                      birthTime: item.birthTime,
-                                      gender: item.gender,
-                                      compatibility: item,
-                                    )),
-                              ],
-                            );
-                          },
-                          separatorBuilder: (BuildContext context, int index) {
-                            return Center(
-                              child: Container(
-                                height: 3,
-                                width: 48,
-                                margin:
-                                    const EdgeInsets.symmetric(vertical: 32),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  color: AppColors.primary500,
-                                ),
+                      ...List.generate(
+                        history.items.length + (history.isLoading ? 1 : 0),
+                        (index) {
+                          if (index == history.items.length) {
+                            return const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: CircularProgressIndicator(),
                               ),
                             );
-                          },
-                        ),
+                          }
+
+                          final item = history.items[index];
+
+                          return Column(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  item.status ==
+                                              CompatibilityStatus.completed &&
+                                          item.isAds == true
+                                      ? ref
+                                          .read(navigationInfoProvider.notifier)
+                                          .setCurrentPage(
+                                              CompatibilityResultPage(
+                                                  compatibility: item))
+                                      : ref
+                                          .read(navigationInfoProvider.notifier)
+                                          .setCurrentPage(
+                                            CompatibilityLoadingPage(
+                                                compatibility: item),
+                                          );
+                                },
+                                child: CompatibilityInfo(
+                                  artist: item.artist,
+                                  ref: ref,
+                                  birthDate: item.birthDate,
+                                  birthTime: item.birthTime,
+                                  gender: item.gender,
+                                  compatibility: item,
+                                ),
+                              ),
+                              if (index < history.items.length - 1)
+                                Center(
+                                  child: Container(
+                                    height: 3,
+                                    width: 48,
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 32),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      color: AppColors.primary500,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          );
+                        },
                       ),
                     ],
                   ),

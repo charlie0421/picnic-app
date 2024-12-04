@@ -460,10 +460,10 @@ class S {
     );
   }
 
-  /// `Check out new matches`
+  /// `Calculate New Goong-Hap`
   String get compatibility_new_compatibility {
     return Intl.message(
-      'Check out new matches',
+      'Calculate New Goong-Hap',
       name: 'compatibility_new_compatibility',
       desc: '',
       args: [],
@@ -4215,6 +4215,46 @@ class S {
     return Intl.message(
       'Increase accuracy!',
       name: 'compatibility_birthtime_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Check with Star Candy`
+  String get fortune_purchase_by_star_candy {
+    return Intl.message(
+      'Check with Star Candy',
+      name: 'fortune_purchase_by_star_candy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pay Now`
+  String get fortune_purchase_by_one_click {
+    return Intl.message(
+      'Pay Now',
+      name: 'fortune_purchase_by_one_click',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You don't have enough Star Candy. Moving to the shop screen.`
+  String get fortune_lack_of_star_candy_title {
+    return Intl.message(
+      'You don\'t have enough Star Candy. Moving to the shop screen.',
+      name: 'fortune_lack_of_star_candy_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reward Star Candies cannot be used here. 😥`
+  String get fortune_lack_of_star_candy_message {
+    return Intl.message(
+      'Reward Star Candies cannot be used here. 😥',
+      name: 'fortune_lack_of_star_candy_message',
       desc: '',
       args: [],
     );
