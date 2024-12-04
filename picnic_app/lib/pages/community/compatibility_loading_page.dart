@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_error.dart';
@@ -80,7 +81,9 @@ class _CompatibilityLoadingPageState
 
       if (widget.compatibility.isPending ||
           widget.compatibility.isAds == false) {
-        ref.read(compatibilityLoadingProvider.notifier).state = true;
+        ref
+            .read(compatibilityLoadingProvider.notifier)
+            .state = true;
         _loadAds();
         _startTimer();
       }
@@ -94,13 +97,13 @@ class _CompatibilityLoadingPageState
 
     final adTopUnitId = isAndroid()
         ? await configService
-            .getConfig('ADMOB_ANDROID_COMPATIBILITY_LOADING_TOP')
+        .getConfig('ADMOB_ANDROID_COMPATIBILITY_LOADING_TOP')
         : await configService.getConfig('ADMOB_IOS_COMPATIBILITY_LOADING_TOP');
     final adBottomUnitId = isAndroid()
         ? await configService
-            .getConfig('ADMOB_ANDROID_COMPATIBILITY_LOADING_BOTTOM')
+        .getConfig('ADMOB_ANDROID_COMPATIBILITY_LOADING_BOTTOM')
         : await configService
-            .getConfig('ADMOB_IOS_COMPATIBILITY_LOADING_BOTTOM');
+        .getConfig('ADMOB_IOS_COMPATIBILITY_LOADING_BOTTOM');
 
     if (adTopUnitId != null) {
       _topBannerAd = BannerAd(
@@ -119,7 +122,8 @@ class _CompatibilityLoadingPageState
             ad.dispose();
           },
         ),
-      )..load();
+      )
+        ..load();
     }
 
     if (adBottomUnitId != null) {
@@ -139,7 +143,8 @@ class _CompatibilityLoadingPageState
             ad.dispose();
           },
         ),
-      )..load();
+      )
+        ..load();
     }
   }
 
@@ -147,7 +152,7 @@ class _CompatibilityLoadingPageState
     _timer?.cancel();
     _timer = Timer.periodic(
       const Duration(seconds: 1),
-      (timer) {
+          (timer) {
         if (!mounted) {
           timer.cancel();
           return;
@@ -169,8 +174,8 @@ class _CompatibilityLoadingPageState
               ref
                   .read(navigationInfoProvider.notifier)
                   .setCurrentPage(CompatibilityResultPage(
-                    compatibility: widget.compatibility,
-                  ));
+                compatibility: widget.compatibility,
+              ));
             });
           }
         });
@@ -181,12 +186,12 @@ class _CompatibilityLoadingPageState
   void _updateNavigation() {
     Future(() {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
-            showPortal: true,
-            showTopMenu: true,
-            topRightMenu: TopRightType.board,
-            showBottomNavigation: false,
-            pageTitle: Intl.message('compatibility_page_title'),
-          );
+        showPortal: true,
+        showTopMenu: true,
+        topRightMenu: TopRightType.board,
+        showBottomNavigation: false,
+        pageTitle: Intl.message('compatibility_page_title'),
+      );
     });
   }
 
@@ -208,7 +213,9 @@ class _CompatibilityLoadingPageState
       _printKey,
       message: getLocaleTextFromJson(compatibility.artist.name),
       hashtag:
-          '#Picnic #Vote #PicnicApp #${S.of(context).compatibility_page_title}',
+      '#Picnic #Vote #PicnicApp #${S
+          .of(context)
+          .compatibility_page_title}',
       context,
       onStart: () {
         if (!mounted) return;
@@ -235,7 +242,11 @@ class _CompatibilityLoadingPageState
             borderRadius: BorderRadius.circular(32),
           ),
           child: Text(
-            '${S.of(context).compatibility_analyzing}($_seconds${S.of(context).seconds})',
+            '${S
+                .of(context)
+                .compatibility_analyzing}($_seconds${S
+                .of(context)
+                .seconds})',
             style: getTextStyle(
               AppTypo.body14B,
               AppColors.grey00,
@@ -254,7 +265,9 @@ class _CompatibilityLoadingPageState
           SizedBox(height: AdSize.largeBanner.height.toDouble()),
         const SizedBox(height: 16),
         Text(
-          S.of(context).compatibility_waiting_message,
+          S
+              .of(context)
+              .compatibility_waiting_message,
           textAlign: TextAlign.center,
           style: getTextStyle(
             AppTypo.caption12R,
@@ -263,7 +276,9 @@ class _CompatibilityLoadingPageState
         ),
         const SizedBox(height: 8),
         Text(
-          S.of(context).compatibility_warning_exit,
+          S
+              .of(context)
+              .compatibility_warning_exit,
           textAlign: TextAlign.center,
           style: getTextStyle(
             AppTypo.caption12R,
@@ -313,11 +328,14 @@ class _CompatibilityLoadingPageState
                   if (widget.compatibility.isPending ||
                       widget.compatibility.isAds == false)
                     _buildLoadingView()
-                  else if (widget.compatibility.hasError)
-                    CompatibilityErrorView(
-                      error: widget.compatibility.errorMessage ??
-                          S.of(context).error_unknown,
-                    )
+                  else
+                    if (widget.compatibility.hasError)
+                      CompatibilityErrorView(
+                        error: widget.compatibility.errorMessage ??
+                            S
+                                .of(context)
+                                .error_unknown,
+                      )
                 ],
               ),
             ),

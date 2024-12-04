@@ -263,6 +263,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "fortune_career": MessageLookupByLibrary.simpleMessage("商业财富"),
         "fortune_health": MessageLookupByLibrary.simpleMessage("健康云"),
         "fortune_honor": MessageLookupByLibrary.simpleMessage("荣誉"),
+        "fortune_lack_of_star_candy_message":
+            MessageLookupByLibrary.simpleMessage("奖励星星糖在此无法使用。😥"),
+        "fortune_lack_of_star_candy_title":
+            MessageLookupByLibrary.simpleMessage("你拥有的星糖不足。\n正在跳转到商店页面。"),
         "fortune_lucky_color": MessageLookupByLibrary.simpleMessage("幸运颜色"),
         "fortune_lucky_days": MessageLookupByLibrary.simpleMessage("一周中的幸运日"),
         "fortune_lucky_direction": MessageLookupByLibrary.simpleMessage("幸运方向"),
@@ -282,6 +286,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "fortune_month8": MessageLookupByLibrary.simpleMessage("八月星座运势"),
         "fortune_month9": MessageLookupByLibrary.simpleMessage("九月运势"),
         "fortune_monthly": MessageLookupByLibrary.simpleMessage("每月星座运势"),
+        "fortune_purchase_by_one_click":
+            MessageLookupByLibrary.simpleMessage("立即支付"),
+        "fortune_purchase_by_star_candy":
+            MessageLookupByLibrary.simpleMessage("使用星星糖确认"),
         "fortune_relationship": MessageLookupByLibrary.simpleMessage("人际关系"),
         "fortune_title": m0,
         "fortune_total_title": MessageLookupByLibrary.simpleMessage("综合星座运势"),

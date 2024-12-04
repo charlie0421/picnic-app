@@ -1667,5 +1667,21 @@
     "compatibility_birthtime_subtitle": "提高准确性",
     "@compatibility_birthtime_subtitle": {
         "manualTranslation": true
+    },
+    "fortune_purchase_by_star_candy": "使用星星糖确认",
+    "@fortune_purchase_by_star_candy": {
+        "manualTranslation": true
+    },
+    "fortune_purchase_by_one_click": "立即支付",
+    "@fortune_purchase_by_one_click": {
+        "manualTranslation": true
+    },
+    "fortune_lack_of_star_candy_title": "你拥有的星糖不足。\n正在跳转到商店页面。",
+    "@fortune_lack_of_star_candy_title": {
+        "manualTranslation": true
+    },
+    "fortune_lack_of_star_candy_message": "奖励星星糖在此无法使用。\uD83D\uDE25",
+    "@fortune_lack_of_star_candy_message": {
+        "manualTranslation": true
     }
 }

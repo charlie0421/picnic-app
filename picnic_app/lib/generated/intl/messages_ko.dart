@@ -277,6 +277,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "fortune_career": MessageLookupByLibrary.simpleMessage("사업운"),
         "fortune_health": MessageLookupByLibrary.simpleMessage("건강운"),
         "fortune_honor": MessageLookupByLibrary.simpleMessage("명예운"),
+        "fortune_lack_of_star_candy_message":
+            MessageLookupByLibrary.simpleMessage("리워드 별사탕은 이곳에 사용할 수 없어요. 😥."),
+        "fortune_lack_of_star_candy_title":
+            MessageLookupByLibrary.simpleMessage(
+                "가지고 있는 별사탕이 부족해요.\n상점 화면으로 이동합니다."),
         "fortune_lucky_color": MessageLookupByLibrary.simpleMessage("행운의 색상"),
         "fortune_lucky_days": MessageLookupByLibrary.simpleMessage("행운의 요일"),
         "fortune_lucky_direction":
@@ -297,6 +302,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "fortune_month8": MessageLookupByLibrary.simpleMessage("8월의 운세"),
         "fortune_month9": MessageLookupByLibrary.simpleMessage("9월의 운세"),
         "fortune_monthly": MessageLookupByLibrary.simpleMessage("월별운세"),
+        "fortune_purchase_by_one_click":
+            MessageLookupByLibrary.simpleMessage("원클릭으로 구매"),
+        "fortune_purchase_by_star_candy":
+            MessageLookupByLibrary.simpleMessage("별사탕으로 구매"),
         "fortune_relationship": MessageLookupByLibrary.simpleMessage("대인관계"),
         "fortune_title": m0,
         "fortune_total_title": MessageLookupByLibrary.simpleMessage("종합운세"),

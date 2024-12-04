@@ -78,6 +78,22 @@
     "@compatibility_activities_title": {
         "manualTranslation": true
     },
+    "fortune_purchase_by_star_candy": "별사탕으로 구매",
+    "@fortune_purchase_by_star_candy": {
+        "manualTranslation": true
+    },
+    "fortune_purchase_by_one_click": "원클릭으로 구매",
+    "@fortune_purchase_by_one_click": {
+        "manualTranslation": true
+    },
+    "fortune_lack_of_star_candy_title": "가지고 있는 별사탕이 부족해요.\n상점 화면으로 이동합니다.",
+    "@fortune_lack_of_star_candy_title": {
+        "manualTranslation": true
+    },
+    "fortune_lack_of_star_candy_message": "리워드 별사탕은 이곳에 사용할 수 없어요. \uD83D\uDE25.",
+    "@fortune_lack_of_star_candy_message": {
+        "manualTranslation": true
+    },
     "compatibility_agree_checkbox": "성별, 생일 정보를 프로필에 저장하는 것에 동의합니다.",
     "@compatibility_agree_checkbox": {},
     "compatibility_analyze_start": "궁합 분석",

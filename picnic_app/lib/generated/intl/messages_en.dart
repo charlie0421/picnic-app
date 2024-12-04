@@ -116,7 +116,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "compatibility_idol_style":
             MessageLookupByLibrary.simpleMessage("Idol Styles"),
         "compatibility_new_compatibility":
-            MessageLookupByLibrary.simpleMessage("Check out new matches"),
+            MessageLookupByLibrary.simpleMessage("Calculate New Goong-Hap"),
         "compatibility_new_compatibility_ask":
             MessageLookupByLibrary.simpleMessage("Want to see a new pairing?"),
         "compatibility_page_title":
@@ -293,6 +293,11 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Business fortunes"),
         "fortune_health": MessageLookupByLibrary.simpleMessage("Health clouds"),
         "fortune_honor": MessageLookupByLibrary.simpleMessage("Honor"),
+        "fortune_lack_of_star_candy_message":
+            MessageLookupByLibrary.simpleMessage(
+                "Reward Star Candies cannot be used here. 😥"),
+        "fortune_lack_of_star_candy_title": MessageLookupByLibrary.simpleMessage(
+            "You don\'t have enough Star Candy. Moving to the shop screen."),
         "fortune_lucky_color":
             MessageLookupByLibrary.simpleMessage("Lucky colors"),
         "fortune_lucky_days":
@@ -331,6 +336,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Fortune for September"),
         "fortune_monthly":
             MessageLookupByLibrary.simpleMessage("Monthly Fortune"),
+        "fortune_purchase_by_one_click":
+            MessageLookupByLibrary.simpleMessage("Pay Now"),
+        "fortune_purchase_by_star_candy":
+            MessageLookupByLibrary.simpleMessage("Check with Star Candy"),
         "fortune_relationship":
             MessageLookupByLibrary.simpleMessage("Interpersonal"),
         "fortune_title": m0,
