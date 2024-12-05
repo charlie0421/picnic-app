@@ -195,20 +195,29 @@ class _CompatibilityResultPageState
         if (!(compatibility?.isPaid ?? false))
           Stack(
             children: [
-              Column(
-                children: [
-                  if (style != null) _buildStyleSection(style),
-                  SizedBox(height: 36),
-                  if (activities != null) _buildActivitiesSection(activities),
-                  SizedBox(height: 36),
-                  if (tips.isNotEmpty) _buildTipsSection(tips),
-                  SizedBox(height: 36),
-                ],
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                child: Column(
+                  children: [
+                    if (style != null) _buildStyleSection(style),
+                    SizedBox(height: 36),
+                    if (activities != null) _buildActivitiesSection(activities),
+                    SizedBox(height: 36),
+                    if (tips.isNotEmpty) _buildTipsSection(tips),
+                    ShareSection(
+                      saveButtonText: S.of(context).save,
+                      shareButtonText: S.of(context).share,
+                      onSave: () => _handleSave(compatibility!),
+                      onShare: () => _handleShare(compatibility!),
+                    ),
+                  ],
+                ),
               ),
               Positioned.fill(
                 child: ClipRect(
                   child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.3),
@@ -335,6 +344,12 @@ class _CompatibilityResultPageState
           SizedBox(height: 36),
           if (tips.isNotEmpty) _buildTipsSection(tips),
           SizedBox(height: 36),
+          ShareSection(
+            saveButtonText: S.of(context).save,
+            shareButtonText: S.of(context).share,
+            onSave: () => _handleSave(compatibility!),
+            onShare: () => _handleShare(compatibility!),
+          ),
         ],
       ],
     );
@@ -598,16 +613,6 @@ class _CompatibilityResultPageState
                     ],
                   ),
                 ),
-                if (compatibility.isCompleted &&
-                    compatibility.localizedResults != null) ...[
-                  const SizedBox(height: 16),
-                  ShareSection(
-                    saveButtonText: S.of(context).save,
-                    shareButtonText: S.of(context).share,
-                    onSave: () => _handleSave(compatibility),
-                    onShare: () => _handleShare(compatibility),
-                  ),
-                ],
               ],
             ),
           ),
