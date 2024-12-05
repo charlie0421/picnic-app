@@ -63,7 +63,7 @@ class _CompatibilityResultPageState
     try {
       await ref
           .read(compatibilityProvider.notifier)
-          .setCompatibility(widget.compatibility);
+          .loadCompatibility(widget.compatibility.id);
 
       if (widget.compatibility.isPending) {
         ref.read(compatibilityLoadingProvider.notifier).state = true;
@@ -158,10 +158,10 @@ class _CompatibilityResultPageState
     );
   }
 
-  Widget _buildResultContent(CompatibilityModel compatibility) {
+  Widget _buildResultContent(String compatibilityId) {
+    final compatibility = ref.read(compatibilityProvider).value;
     String language = Intl.getCurrentLocale();
-
-    if (compatibility.localizedResults?.isEmpty ?? true) {
+    if (compatibility?.localizedResults?.isEmpty ?? true) {
       return Center(
         child: Text(
           S.of(context).compatibility_result_not_found,
@@ -170,8 +170,8 @@ class _CompatibilityResultPageState
       );
     }
 
-    final localizedResult = compatibility.getLocalizedResult(language) ??
-        compatibility.localizedResults?.values.firstOrNull;
+    final localizedResult = compatibility?.getLocalizedResult(language) ??
+        compatibility?.localizedResults?.values.firstOrNull;
 
     if (localizedResult == null) {
       return Center(
@@ -192,7 +192,7 @@ class _CompatibilityResultPageState
         SizedBox(height: 36),
         _buildHeaderSection(localizedResult),
         FortuneDivider(color: AppColors.grey00),
-        if (!(compatibility.isPaid ?? false))
+        if (!(compatibility?.isPaid ?? false))
           Stack(
             children: [
               Column(
@@ -208,7 +208,7 @@ class _CompatibilityResultPageState
               Positioned.fill(
                 child: ClipRect(
                   child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                    filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.3),
@@ -594,7 +594,7 @@ class _CompatibilityResultPageState
                               S.of(context).error_unknown,
                         )
                       else if (compatibility.isCompleted)
-                        _buildResultContent(compatibility)
+                        _buildResultContent(compatibility.id)
                     ],
                   ),
                 ),
