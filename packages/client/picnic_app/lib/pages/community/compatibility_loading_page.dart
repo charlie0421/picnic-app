@@ -43,6 +43,7 @@ class _CompatibilityLoadingPageState
 
   // Loading view state
   int _seconds = _totalSeconds;
+  bool _isLoadingStarted = false;
   BannerAd? _topBannerAd;
   BannerAd? _bottomBannerAd;
   bool _isTopBannerLoaded = false;
@@ -54,6 +55,15 @@ class _CompatibilityLoadingPageState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeData();
+      // 3초 후에 타이머 시작
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted) {
+          setState(() {
+            _isLoadingStarted = true;
+          });
+          _startTimer();
+        }
+      });
     });
   }
 
@@ -81,11 +91,8 @@ class _CompatibilityLoadingPageState
 
       if (widget.compatibility.isPending ||
           widget.compatibility.isAds == false) {
-        ref
-            .read(compatibilityLoadingProvider.notifier)
-            .state = true;
+        ref.read(compatibilityLoadingProvider.notifier).state = true;
         _loadAds();
-        _startTimer();
       }
     } catch (e, stack) {
       logger.e('Error initializing data', error: e, stackTrace: stack);
@@ -97,13 +104,13 @@ class _CompatibilityLoadingPageState
 
     final adTopUnitId = isAndroid()
         ? await configService
-        .getConfig('ADMOB_ANDROID_COMPATIBILITY_LOADING_TOP')
+            .getConfig('ADMOB_ANDROID_COMPATIBILITY_LOADING_TOP')
         : await configService.getConfig('ADMOB_IOS_COMPATIBILITY_LOADING_TOP');
     final adBottomUnitId = isAndroid()
         ? await configService
-        .getConfig('ADMOB_ANDROID_COMPATIBILITY_LOADING_BOTTOM')
+            .getConfig('ADMOB_ANDROID_COMPATIBILITY_LOADING_BOTTOM')
         : await configService
-        .getConfig('ADMOB_IOS_COMPATIBILITY_LOADING_BOTTOM');
+            .getConfig('ADMOB_IOS_COMPATIBILITY_LOADING_BOTTOM');
 
     if (adTopUnitId != null) {
       _topBannerAd = BannerAd(
@@ -122,8 +129,7 @@ class _CompatibilityLoadingPageState
             ad.dispose();
           },
         ),
-      )
-        ..load();
+      )..load();
     }
 
     if (adBottomUnitId != null) {
@@ -143,8 +149,7 @@ class _CompatibilityLoadingPageState
             ad.dispose();
           },
         ),
-      )
-        ..load();
+      )..load();
     }
   }
 
@@ -152,7 +157,7 @@ class _CompatibilityLoadingPageState
     _timer?.cancel();
     _timer = Timer.periodic(
       const Duration(seconds: 1),
-          (timer) {
+      (timer) {
         if (!mounted) {
           timer.cancel();
           return;
@@ -174,8 +179,8 @@ class _CompatibilityLoadingPageState
               ref
                   .read(navigationInfoProvider.notifier)
                   .setCurrentPage(CompatibilityResultPage(
-                compatibility: widget.compatibility,
-              ));
+                    compatibility: widget.compatibility,
+                  ));
             });
           }
         });
@@ -186,72 +191,68 @@ class _CompatibilityLoadingPageState
   void _updateNavigation() {
     Future(() {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
-        showPortal: true,
-        showTopMenu: true,
-        topRightMenu: TopRightType.board,
-        showBottomNavigation: false,
-        pageTitle: Intl.message('compatibility_page_title'),
-      );
+            showPortal: true,
+            showTopMenu: true,
+            topRightMenu: TopRightType.board,
+            showBottomNavigation: false,
+            pageTitle: Intl.message('compatibility_page_title'),
+          );
     });
   }
 
-  Future<Future<bool>> _handleSave(CompatibilityModel compatibility) async {
-    return ShareUtils.captureAndSaveImage(
-      _printKey,
-      onStart: () {
-        if (!mounted) return;
-      },
-      onComplete: () {
-        if (!mounted) return;
-      },
-    );
-  }
-
-  Future<Future<bool>> _handleShare(CompatibilityModel compatibility) async {
-    logger.i('Share to Twitter');
-    return ShareUtils.shareToTwitter(
-      _printKey,
-      message: getLocaleTextFromJson(compatibility.artist.name),
-      hashtag:
-      '#Picnic #Vote #PicnicApp #${S
-          .of(context)
-          .compatibility_page_title}',
-      context,
-      onStart: () {
-        if (!mounted) return;
-      },
-      onComplete: () {
-        if (!mounted) return;
-      },
-    );
-  }
-
   Widget _buildLoadingView() {
+    final progress = _isLoadingStarted ? _seconds / _totalSeconds : 1.0;
+
     return Column(
       children: [
         SizedBox(height: 24),
-        Container(
-          height: 48,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: [AppColors.mint500, AppColors.primary500],
-            ),
-            borderRadius: BorderRadius.circular(32),
-          ),
-          child: Text(
-            '${S
-                .of(context)
-                .compatibility_analyzing}($_seconds${S
-                .of(context)
-                .seconds})',
-            style: getTextStyle(
-              AppTypo.body14B,
-              AppColors.grey00,
-            ),
-          ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Container(
+              height: 48,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: AppColors.grey200,
+                borderRadius: BorderRadius.circular(32),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(32),
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 1000),
+                        curve: Curves.linear,
+                        transform: Matrix4.translationValues(
+                            -constraints.maxWidth * (1 - progress),
+                            // MediaQuery 대신 실제 Container 너비 사용
+                            0,
+                            0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                              colors: [AppColors.mint500, AppColors.primary500],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: Text(
+                        '${S.of(context).compatibility_analyzing}(${_isLoadingStarted ? _seconds : _totalSeconds}${S.of(context).seconds})',
+                        style: getTextStyle(
+                          AppTypo.body14B,
+                          AppColors.grey00,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
         SizedBox(height: 24),
         if (_isTopBannerLoaded && _topBannerAd != null)
@@ -265,9 +266,7 @@ class _CompatibilityLoadingPageState
           SizedBox(height: AdSize.largeBanner.height.toDouble()),
         const SizedBox(height: 16),
         Text(
-          S
-              .of(context)
-              .compatibility_waiting_message,
+          S.of(context).compatibility_waiting_message,
           textAlign: TextAlign.center,
           style: getTextStyle(
             AppTypo.caption12R,
@@ -276,9 +275,7 @@ class _CompatibilityLoadingPageState
         ),
         const SizedBox(height: 8),
         Text(
-          S
-              .of(context)
-              .compatibility_warning_exit,
+          S.of(context).compatibility_warning_exit,
           textAlign: TextAlign.center,
           style: getTextStyle(
             AppTypo.caption12R,
@@ -295,7 +292,7 @@ class _CompatibilityLoadingPageState
           )
         else
           SizedBox(height: AdSize.largeBanner.height.toDouble()),
-        SizedBox(height: 100),
+        SizedBox(height: 200),
       ],
     );
   }
@@ -328,14 +325,11 @@ class _CompatibilityLoadingPageState
                   if (widget.compatibility.isPending ||
                       widget.compatibility.isAds == false)
                     _buildLoadingView()
-                  else
-                    if (widget.compatibility.hasError)
-                      CompatibilityErrorView(
-                        error: widget.compatibility.errorMessage ??
-                            S
-                                .of(context)
-                                .error_unknown,
-                      )
+                  else if (widget.compatibility.hasError)
+                    CompatibilityErrorView(
+                      error: widget.compatibility.errorMessage ??
+                          S.of(context).error_unknown,
+                    )
                 ],
               ),
             ),
