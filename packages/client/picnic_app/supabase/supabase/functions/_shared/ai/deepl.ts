@@ -25,7 +25,7 @@ export async function translateText(
     sourceLang: SupportedLanguage = 'ko',
 ): Promise<string> {
     try {
-        const response = await fetch('https://api-free.deepl.com/v2/translate', {
+        const response = await fetch('https://api.deepl.com/v2/translate', {
             method: 'POST',
             headers: {
                 'Authorization': `DeepL-Auth-Key ${getDeepLApiKey()}`,
