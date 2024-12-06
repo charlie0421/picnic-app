@@ -87,9 +87,8 @@ class CompatibilityModel with _$CompatibilityModel {
     List<String>? tips,
     DateTime? createdAt,
     DateTime? completedAt,
-    @JsonKey(name: 'i18n', fromJson: _parseI18nResults) Map<
-        String,
-        LocalizedCompatibility>? localizedResults,
+    @JsonKey(name: 'i18n', fromJson: _parseI18nResults)
+    Map<String, LocalizedCompatibility>? localizedResults,
     @JsonKey(name: 'is_ads') bool? isAds,
     @JsonKey(name: 'is_paid') bool? isPaid,
   }) = _CompatibilityModel;
@@ -111,8 +110,8 @@ class CompatibilityModel with _$CompatibilityModel {
 class LocalizedCompatibility with _$LocalizedCompatibility {
   const factory LocalizedCompatibility({
     required String language,
-    @JsonKey(
-        name: 'compatibility_summary') required String compatibilitySummary,
+    @JsonKey(name: 'compatibility_summary')
+    required String compatibilitySummary,
     @JsonKey(name: 'details') Details? details,
     @Default([]) List<String> tips,
   }) = _LocalizedCompatibility;
