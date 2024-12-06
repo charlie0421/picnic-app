@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:bubble_box/bubble_box.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:intl/intl.dart';
+import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/common/share_section.dart';
 import 'package:picnic_app/components/common/underlined_text.dart';
 import 'package:picnic_app/components/common/underlined_widget.dart';
@@ -23,7 +25,9 @@ import 'package:picnic_app/pages/vote/store_page.dart';
 import 'package:picnic_app/providers/community/compatibility_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/product_provider.dart';
+import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/services/purchase_service.dart';
+import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
@@ -84,14 +88,35 @@ class _CompatibilityResultPageState
     }
   }
 
-  Future<void> _buyProduct(Map<String, dynamic> product) async {
+  Future<bool> _buyProduct(Map<String, dynamic> product) async {
     try {
-      await _purchaseService.initiatePurchase(
+      OverlayLoadingProgress.start(context);
+
+      // 구매 시도 결과 확인
+      final purchaseInitiated = await _purchaseService.initiatePurchase(
         product['id'],
+        onSuccess: () {
+          _openCompatibility(widget.compatibility.id);
+          _showSuccessDialog();
+        },
+        onError: (message) {
+          _showErrorDialog(message);
+        },
       );
+
+      // 구매 시도 실패시 에러 다이얼로그 표시
+      if (!purchaseInitiated) {
+        await _showErrorDialog(Intl.message('message_error_occurred'));
+        return false;
+      }
+
+      return true;
     } catch (e, s) {
       logger.e('Error buying product', error: e, stackTrace: s);
-      _showErrorDialog('Failed to initiate purchase');
+      await _showErrorDialog(Intl.message('message_error_occurred'));
+      return false;
+    } finally {
+      OverlayLoadingProgress.stop();
     }
   }
 
@@ -322,21 +347,10 @@ class _CompatibilityResultPageState
                                 minWidth: 240,
                               ),
                               child: ElevatedButton(
-                                onPressed: () {
-                                  showSimpleDialog(
-                                    title: S
-                                        .of(context)
-                                        .fortune_lack_of_star_candy_title,
-                                    content: S
-                                        .of(context)
-                                        .fortune_lack_of_star_candy_message,
-                                    onOk: () {
-                                      ref
-                                          .read(navigationInfoProvider.notifier)
-                                          .setCurrentPage(StorePage());
-                                      Navigator.of(context).pop();
-                                    },
-                                  );
+                                onPressed: () async {
+                                  OverlayLoadingProgress.start(context);
+                                  _openCompatibility(compatibilityId);
+                                  OverlayLoadingProgress.stop();
                                 },
                                 child: Text(S
                                     .of(context)
@@ -374,14 +388,22 @@ class _CompatibilityResultPageState
                                     ),
                                     tapTargetSize:
                                         MaterialTapTargetSize.shrinkWrap),
-                                onPressed: () {
+                                onPressed: () async {
+                                  OverlayLoadingProgress.start(context);
+
                                   final productDetail = ref
                                       .read(serverProductsProvider.notifier)
                                       .getProductDetailById('STAR100');
 
                                   logger.i('Buy product: $productDetail');
 
-                                  _buyProduct(productDetail!);
+                                  if (!await _buyProduct(productDetail!)) {
+                                    // 구매 시도 실패 또는 pending 상태
+                                    showSimpleDialog(
+                                        content: '구매가 진행 중입니다. 잠시만 기다려주세요.');
+                                    return;
+                                  }
+                                  OverlayLoadingProgress.stop();
                                 },
                                 child: Text(
                                     S.of(context).fortune_purchase_by_one_click,
@@ -413,6 +435,39 @@ class _CompatibilityResultPageState
         ],
       ],
     );
+  }
+
+  void _openCompatibility(String compatibilityId) async {
+    final userProfile =
+        await ref.read(userInfoProvider.notifier).getUserProfiles();
+
+    if (userProfile == null) {
+      showSimpleDialog(
+        content: Intl.message('message_error_occurred'),
+        onOk: () {
+          ref.read(navigationInfoProvider.notifier).setCurrentPage(StorePage());
+          Navigator.of(context).pop();
+        },
+      );
+    }
+
+    if ((userProfile!.starCandy ?? 0) < 100) {
+      showSimpleDialog(
+        title: Intl.message('fortune_lack_of_star_candy_title'),
+        content: Intl.message('fortune_lack_of_star_candy_message'),
+        onOk: () {
+          ref.read(navigationInfoProvider.notifier).setCurrentPage(StorePage());
+          Navigator.of(context).pop();
+        },
+      );
+    } else {
+      await supabase.functions.invoke('open-compatibility', body: {
+        'userId': userProfile.id,
+        'compatibilityId': compatibilityId,
+      });
+      await ref.read(userInfoProvider.notifier).getUserProfiles();
+      await _refreshData();
+    }
   }
 
   Widget _buildStyleSection(StyleDetails style) {

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:picnic_app/components/vote/store/purchase/analytics_service.dart';
 import 'package:picnic_app/components/vote/store/purchase/in_app_purchase_service.dart';
 import 'package:picnic_app/components/vote/store/purchase/receipt_verification_service.dart';
 import 'package:picnic_app/providers/product_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/logger.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class PurchaseService {
   PurchaseService({
@@ -15,12 +15,27 @@ class PurchaseService {
     required this.inAppPurchaseService,
     required this.receiptVerificationService,
     required this.analyticsService,
-  });
+  }) {
+    inAppPurchaseService.init(_handlePurchaseUpdate);
+  }
 
   final WidgetRef ref;
   final InAppPurchaseService inAppPurchaseService;
   final ReceiptVerificationService receiptVerificationService;
   final AnalyticsService analyticsService;
+
+  VoidCallback? _onSuccess;
+  Function(String)? _onError;
+
+  void _handlePurchaseUpdate(List<PurchaseDetails> purchaseDetailsList) {
+    for (final purchaseDetails in purchaseDetailsList) {
+      handlePurchase(
+        purchaseDetails,
+        _onSuccess ?? () {},
+        _onError ?? (_) {},
+      );
+    }
+  }
 
   Future<void> handlePurchase(
     PurchaseDetails purchaseDetails,
@@ -28,13 +43,18 @@ class PurchaseService {
     Function(String) onError,
   ) async {
     try {
+      logger.i(
+          'Processing purchase: ${purchaseDetails.productID} with status: ${purchaseDetails.status}');
+
       switch (purchaseDetails.status) {
         case PurchaseStatus.pending:
-          // Handle pending status
+          logger.i('Purchase is pending...');
           break;
+
         case PurchaseStatus.error:
           await _handlePurchaseError(purchaseDetails, onError);
           break;
+
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:
           await _handleSuccessfulPurchase(
@@ -43,10 +63,13 @@ class PurchaseService {
             onError,
           );
           break;
+
         case PurchaseStatus.canceled:
-          onError('Purchase was canceled');
-          break;
-        default:
+          logger
+              .i('Purchase was canceled by user: ${purchaseDetails.productID}');
+          onError('구매가 취소되었습니다.');
+          await analyticsService
+              .logPurchaseCancelEvent(purchaseDetails.productID);
           break;
       }
 
@@ -55,8 +78,7 @@ class PurchaseService {
       }
     } catch (e, s) {
       logger.e('Error handling purchase: $e', stackTrace: s);
-      onError('Failed to complete purchase');
-      rethrow;
+      onError('구매 처리 중 오류가 발생했습니다.');
     }
   }
 
@@ -64,8 +86,33 @@ class PurchaseService {
     PurchaseDetails purchaseDetails,
     Function(String) onError,
   ) async {
-    logger.e('Purchase error: ${purchaseDetails.error!.message}');
-    onError('Purchase failed');
+    final error = purchaseDetails.error;
+    logger.e('Purchase error: ${error?.message}, code: ${error?.code}');
+
+    String errorMessage = '구매 중 오류가 발생했습니다.';
+
+    if (error != null) {
+      switch (error.code) {
+        case 'payment_invalid':
+          errorMessage = '결제 정보가 유효하지 않습니다.';
+          break;
+        case 'payment_canceled':
+          errorMessage = '결제가 취소되었습니다.';
+          break;
+        case 'store_problem':
+          errorMessage = '스토어 연결에 문제가 있습니다.';
+          break;
+        default:
+          errorMessage = '구매 처리 중 오류가 발생했습니다: ${error.message}';
+      }
+    }
+
+    onError(errorMessage);
+    await analyticsService.logPurchaseErrorEvent(
+      productId: purchaseDetails.productID,
+      errorCode: error?.code ?? 'unknown',
+      errorMessage: error?.message ?? 'No error message',
+    );
   }
 
   Future<void> _handleSuccessfulPurchase(
@@ -74,7 +121,6 @@ class PurchaseService {
     Function(String) onError,
   ) async {
     try {
-      // Get store products from provider
       final storeProducts = await ref.read(storeProductsProvider.future);
       final environment = await receiptVerificationService.getEnvironment();
 
@@ -87,42 +133,50 @@ class PurchaseService {
 
       final productDetails = storeProducts.firstWhere(
         (product) => product.id == purchaseDetails.productID,
-        orElse: () => throw Exception('Product not found'),
+        orElse: () => throw Exception('구매한 상품을 찾을 수 없습니다'),
       );
-      await analyticsService.logPurchaseEvent(productDetails);
 
+      await analyticsService.logPurchaseEvent(productDetails);
       onSuccess();
+
+      logger.i('Purchase successfully completed: ${purchaseDetails.productID}');
     } catch (e, s) {
       logger.e('Error in handleSuccessfulPurchase: $e', stackTrace: s);
-      onError('Failed to verify purchase');
+      onError('구매 검증 중 오류가 발생했습니다');
       rethrow;
     }
   }
 
-  Future<void> initiatePurchase(String productId) async {
+  Future<bool> initiatePurchase(
+    String productId, {
+    required VoidCallback onSuccess,
+    required Function(String) onError,
+  }) async {
     try {
-      // Get products from providers
-      final storeProducts = await ref.read(storeProductsProvider.future);
+      _onSuccess = onSuccess;
+      _onError = onError;
 
+      final storeProducts = await ref.read(storeProductsProvider.future);
       final serverProduct = ref
           .read(serverProductsProvider.notifier)
           .getProductDetailById(productId);
 
       if (serverProduct == null) {
-        throw Exception('Product not found in server products');
+        throw Exception('서버에서 상품 정보를 찾을 수 없습니다');
       }
 
       final productDetails = storeProducts.firstWhere(
         (element) => isAndroid()
             ? element.id.toUpperCase() == serverProduct['id']
             : element.id == serverProduct['id'],
-        orElse: () => throw Exception('Product not found in store products'),
+        orElse: () => throw Exception('스토어에서 상품을 찾을 수 없습니다'),
       );
 
-      await inAppPurchaseService.buyConsumable(productDetails);
+      return await inAppPurchaseService.buyConsumable(productDetails);
     } catch (e, s) {
       logger.e('Error during buy button press: $e', stackTrace: s);
-      throw Exception('Failed to initiate purchase');
+      onError('구매 시작 중 오류가 발생했습니다');
+      return false;
     }
   }
 }
