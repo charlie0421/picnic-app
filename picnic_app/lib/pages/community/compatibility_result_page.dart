@@ -4,6 +4,7 @@ import 'package:bubble_box/bubble_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/underlined_text.dart';
 import 'package:picnic_app/components/common/underlined_widget.dart';
@@ -11,12 +12,18 @@ import 'package:picnic_app/components/community/compatibility/compatibility_erro
 import 'package:picnic_app/components/community/compatibility/compatibility_info.dart';
 import 'package:picnic_app/components/community/compatibility/fortune_divider.dart';
 import 'package:picnic_app/components/common/share_section.dart';
+import 'package:picnic_app/components/vote/store/purchase/analytics_service.dart';
+import 'package:picnic_app/components/vote/store/purchase/in_app_purchase_service.dart';
+import 'package:picnic_app/components/vote/store/purchase/receipt_verification_service.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
+import 'package:picnic_app/pages/vote/store_page.dart';
 import 'package:picnic_app/providers/community/compatibility_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/providers/product_provider.dart';
+import 'package:picnic_app/services/purchase_service.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
@@ -42,13 +49,58 @@ class _CompatibilityResultPageState
   final styleController = ExpansionTileController();
   final activityController = ExpansionTileController();
   final tipController = ExpansionTileController();
+  late final PurchaseService _purchaseService;
 
   @override
   void initState() {
     super.initState();
+    _purchaseService = PurchaseService(
+      ref: ref,
+      inAppPurchaseService: InAppPurchaseService(),
+      receiptVerificationService: ReceiptVerificationService(),
+      analyticsService: AnalyticsService(),
+    );
+    _purchaseService.inAppPurchaseService.init(_handlePurchaseUpdated);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeData();
     });
+  }
+
+  Future<void> _handlePurchaseUpdated(
+      List<PurchaseDetails> purchaseDetailsList) async {
+    for (final purchaseDetails in purchaseDetailsList) {
+      await _purchaseService.handlePurchase(
+        purchaseDetails,
+        () async {
+          // 구매 성공 시 처리
+          _showSuccessDialog();
+        },
+        (error) async {
+          // 에러 발생 시 처리
+          _showErrorDialog(error);
+        },
+      );
+    }
+  }
+
+  Future<void> _buyProduct(Map<String, dynamic> product) async {
+    try {
+      await _purchaseService.initiatePurchase(
+        product['id'],
+      );
+    } catch (e, s) {
+      logger.e('Error buying product', error: e, stackTrace: s);
+      _showErrorDialog('Failed to initiate purchase');
+    }
+  }
+
+  Future<void> _showErrorDialog(String message) async {
+    showSimpleDialog(content: message);
+  }
+
+  Future<void> _showSuccessDialog() async {
+    showSimpleDialog(content: S.of(context).dialog_message_purchase_success);
   }
 
   @override
@@ -279,10 +331,12 @@ class _CompatibilityResultPageState
                                         .of(context)
                                         .fortune_lack_of_star_candy_message,
                                     onOk: () {
-                                      // Add payment logic here
+                                      ref
+                                          .read(navigationInfoProvider.notifier)
+                                          .setCurrentPage(StorePage());
+                                      Navigator.of(context).pop();
                                     },
                                   );
-                                  // Add payment logic here
                                 },
                                 child: Text(S
                                     .of(context)
@@ -321,7 +375,13 @@ class _CompatibilityResultPageState
                                     tapTargetSize:
                                         MaterialTapTargetSize.shrinkWrap),
                                 onPressed: () {
-                                  // Add payment logic here
+                                  final productDetail = ref
+                                      .read(serverProductsProvider.notifier)
+                                      .getProductDetailById('STAR100');
+
+                                  logger.i('Buy product: $productDetail');
+
+                                  _buyProduct(productDetail!);
                                 },
                                 child: Text(
                                     S.of(context).fortune_purchase_by_one_click,

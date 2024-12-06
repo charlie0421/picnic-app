@@ -39,6 +39,13 @@ class ServerProducts extends _$ServerProducts {
       throw Exception('Error fetching products: $e');
     }
   }
+
+  Map<String, dynamic>? getProductDetailById(String id) {
+    return state.value?.firstWhere(
+      (product) => product['id'] == id,
+      orElse: () => throw Exception('Product not found'),
+    );
+  }
 }
 
 @Riverpod(keepAlive: true)
