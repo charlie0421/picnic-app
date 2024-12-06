@@ -4259,6 +4259,1016 @@ class S {
       args: [],
     );
   }
+
+  /// `The fan and the artist are strangers under different skies.`
+  String get poetic_0 {
+    return Intl.message(
+      'The fan and the artist are strangers under different skies.',
+      name: 'poetic_0',
+      desc: 'Score 0 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `The fan's aspirations and the artist's dreams diverge from the very beginning.`
+  String get poetic_1 {
+    return Intl.message(
+      'The fan\'s aspirations and the artist\'s dreams diverge from the very beginning.',
+      name: 'poetic_1',
+      desc: 'Score 1 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `The closer you approach, the more distant you feel, like stars.`
+  String get poetic_2 {
+    return Intl.message(
+      'The closer you approach, the more distant you feel, like stars.',
+      name: 'poetic_2',
+      desc: 'Score 2 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A fundamentally incompatible relationship where harmony is hard to find.`
+  String get poetic_3 {
+    return Intl.message(
+      'A fundamentally incompatible relationship where harmony is hard to find.',
+      name: 'poetic_3',
+      desc: 'Score 3 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A fleeting connection like the breeze, passing without staying.`
+  String get poetic_4 {
+    return Intl.message(
+      'A fleeting connection like the breeze, passing without staying.',
+      name: 'poetic_4',
+      desc: 'Score 4 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `An echo that cannot reach each other's hearts.`
+  String get poetic_5 {
+    return Intl.message(
+      'An echo that cannot reach each other\'s hearts.',
+      name: 'poetic_5',
+      desc: 'Score 5 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `Two souls separated by an insurmountable wall.`
+  String get poetic_6 {
+    return Intl.message(
+      'Two souls separated by an insurmountable wall.',
+      name: 'poetic_6',
+      desc: 'Score 6 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A desert-like connection devoid of empathy.`
+  String get poetic_7 {
+    return Intl.message(
+      'A desert-like connection devoid of empathy.',
+      name: 'poetic_7',
+      desc: 'Score 7 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A frustrating gaze towards a distant horizon.`
+  String get poetic_8 {
+    return Intl.message(
+      'A frustrating gaze towards a distant horizon.',
+      name: 'poetic_8',
+      desc: 'Score 8 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `Like foreigners speaking completely different languages.`
+  String get poetic_9 {
+    return Intl.message(
+      'Like foreigners speaking completely different languages.',
+      name: 'poetic_9',
+      desc: 'Score 9 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A journey full of clashes with no resolution in sight.`
+  String get poetic_10 {
+    return Intl.message(
+      'A journey full of clashes with no resolution in sight.',
+      name: 'poetic_10',
+      desc: 'Score 10 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `The closer the fan gets, the fainter the artist becomes.`
+  String get poetic_11 {
+    return Intl.message(
+      'The closer the fan gets, the fainter the artist becomes.',
+      name: 'poetic_11',
+      desc: 'Score 11 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `Hopes collide with reality, leaving only disappointment.`
+  String get poetic_12 {
+    return Intl.message(
+      'Hopes collide with reality, leaving only disappointment.',
+      name: 'poetic_12',
+      desc: 'Score 12 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A connection yearning for harmony but missing the mark.`
+  String get poetic_13 {
+    return Intl.message(
+      'A connection yearning for harmony but missing the mark.',
+      name: 'poetic_13',
+      desc: 'Score 13 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A river of fear separates the fan and the artist.`
+  String get poetic_14 {
+    return Intl.message(
+      'A river of fear separates the fan and the artist.',
+      name: 'poetic_14',
+      desc: 'Score 14 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `An unbalanced connection leaving a negative aftertaste.`
+  String get poetic_15 {
+    return Intl.message(
+      'An unbalanced connection leaving a negative aftertaste.',
+      name: 'poetic_15',
+      desc: 'Score 15 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A boundary that neither side can compromise on.`
+  String get poetic_16 {
+    return Intl.message(
+      'A boundary that neither side can compromise on.',
+      name: 'poetic_16',
+      desc: 'Score 16 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A blurry view where mutual understanding is clouded.`
+  String get poetic_17 {
+    return Intl.message(
+      'A blurry view where mutual understanding is clouded.',
+      name: 'poetic_17',
+      desc: 'Score 17 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `An emotional maze that's painful to navigate together.`
+  String get poetic_18 {
+    return Intl.message(
+      'An emotional maze that\'s painful to navigate together.',
+      name: 'poetic_18',
+      desc: 'Score 18 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A whirlpool of endless conflicts.`
+  String get poetic_19 {
+    return Intl.message(
+      'A whirlpool of endless conflicts.',
+      name: 'poetic_19',
+      desc: 'Score 19 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `Two streams flowing in opposite directions, never meeting.`
+  String get poetic_20 {
+    return Intl.message(
+      'Two streams flowing in opposite directions, never meeting.',
+      name: 'poetic_20',
+      desc: 'Score 20 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A cold space where hearts remain closed to each other.`
+  String get poetic_21 {
+    return Intl.message(
+      'A cold space where hearts remain closed to each other.',
+      name: 'poetic_21',
+      desc: 'Score 21 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A heavy atmosphere avoiding mutual recognition.`
+  String get poetic_22 {
+    return Intl.message(
+      'A heavy atmosphere avoiding mutual recognition.',
+      name: 'poetic_22',
+      desc: 'Score 22 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `An encounter that feels like a test rather than a connection.`
+  String get poetic_23 {
+    return Intl.message(
+      'An encounter that feels like a test rather than a connection.',
+      name: 'poetic_23',
+      desc: 'Score 23 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `Puzzle pieces that don't fit no matter how hard you try.`
+  String get poetic_24 {
+    return Intl.message(
+      'Puzzle pieces that don\'t fit no matter how hard you try.',
+      name: 'poetic_24',
+      desc: 'Score 24 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A hollow fandom offering no fulfillment despite efforts.`
+  String get poetic_25 {
+    return Intl.message(
+      'A hollow fandom offering no fulfillment despite efforts.',
+      name: 'poetic_25',
+      desc: 'Score 25 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A bond that finds peace only in separation.`
+  String get poetic_26 {
+    return Intl.message(
+      'A bond that finds peace only in separation.',
+      name: 'poetic_26',
+      desc: 'Score 26 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A relationship where the ending feels inevitable from the start.`
+  String get poetic_27 {
+    return Intl.message(
+      'A relationship where the ending feels inevitable from the start.',
+      name: 'poetic_27',
+      desc: 'Score 27 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A perspective focusing solely on each other's flaws.`
+  String get poetic_28 {
+    return Intl.message(
+      'A perspective focusing solely on each other\'s flaws.',
+      name: 'poetic_28',
+      desc: 'Score 28 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A sharp connection that hurts more the closer it gets.`
+  String get poetic_29 {
+    return Intl.message(
+      'A sharp connection that hurts more the closer it gets.',
+      name: 'poetic_29',
+      desc: 'Score 29 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A loop of misunderstandings outweighing attempts at understanding.`
+  String get poetic_30 {
+    return Intl.message(
+      'A loop of misunderstandings outweighing attempts at understanding.',
+      name: 'poetic_30',
+      desc: 'Score 30 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A devotion that feels heavier as closeness grows.`
+  String get poetic_31 {
+    return Intl.message(
+      'A devotion that feels heavier as closeness grows.',
+      name: 'poetic_31',
+      desc: 'Score 31 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `Two voids unable to fill each other's emptiness.`
+  String get poetic_32 {
+    return Intl.message(
+      'Two voids unable to fill each other\'s emptiness.',
+      name: 'poetic_32',
+      desc: 'Score 32 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `Steps walking separate paths that never align.`
+  String get poetic_33 {
+    return Intl.message(
+      'Steps walking separate paths that never align.',
+      name: 'poetic_33',
+      desc: 'Score 33 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A fragile connection trembling in the gap of misunderstanding.`
+  String get poetic_34 {
+    return Intl.message(
+      'A fragile connection trembling in the gap of misunderstanding.',
+      name: 'poetic_34',
+      desc: 'Score 34 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A bond emphasizing differences over common ground.`
+  String get poetic_35 {
+    return Intl.message(
+      'A bond emphasizing differences over common ground.',
+      name: 'poetic_35',
+      desc: 'Score 35 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A resonance that feels alien and never becomes familiar.`
+  String get poetic_36 {
+    return Intl.message(
+      'A resonance that feels alien and never becomes familiar.',
+      name: 'poetic_36',
+      desc: 'Score 36 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A discord that amplifies anxiety instead of reducing it.`
+  String get poetic_37 {
+    return Intl.message(
+      'A discord that amplifies anxiety instead of reducing it.',
+      name: 'poetic_37',
+      desc: 'Score 37 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A misaligned frequency, always out of tune.`
+  String get poetic_38 {
+    return Intl.message(
+      'A misaligned frequency, always out of tune.',
+      name: 'poetic_38',
+      desc: 'Score 38 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A connection surviving only with cautious distance.`
+  String get poetic_39 {
+    return Intl.message(
+      'A connection surviving only with cautious distance.',
+      name: 'poetic_39',
+      desc: 'Score 39 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A light connection with no depth or substance.`
+  String get poetic_40 {
+    return Intl.message(
+      'A light connection with no depth or substance.',
+      name: 'poetic_40',
+      desc: 'Score 40 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A relationship that works as friends but struggles as more.`
+  String get poetic_41 {
+    return Intl.message(
+      'A relationship that works as friends but struggles as more.',
+      name: 'poetic_41',
+      desc: 'Score 41 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A connection limited by shallow understanding.`
+  String get poetic_42 {
+    return Intl.message(
+      'A connection limited by shallow understanding.',
+      name: 'poetic_42',
+      desc: 'Score 42 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `An interaction lacking warmth or significant conflict.`
+  String get poetic_43 {
+    return Intl.message(
+      'An interaction lacking warmth or significant conflict.',
+      name: 'poetic_43',
+      desc: 'Score 43 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A bond requiring discomfort to grow closer.`
+  String get poetic_44 {
+    return Intl.message(
+      'A bond requiring discomfort to grow closer.',
+      name: 'poetic_44',
+      desc: 'Score 44 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A fragile connection that predicts friction with time.`
+  String get poetic_45 {
+    return Intl.message(
+      'A fragile connection that predicts friction with time.',
+      name: 'poetic_45',
+      desc: 'Score 45 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A shallow curiosity that never touches the heart.`
+  String get poetic_46 {
+    return Intl.message(
+      'A shallow curiosity that never touches the heart.',
+      name: 'poetic_46',
+      desc: 'Score 46 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A faint distance felt between fan and artist.`
+  String get poetic_47 {
+    return Intl.message(
+      'A faint distance felt between fan and artist.',
+      name: 'poetic_47',
+      desc: 'Score 47 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A half-open door revealing incomplete possibilities.`
+  String get poetic_48 {
+    return Intl.message(
+      'A half-open door revealing incomplete possibilities.',
+      name: 'poetic_48',
+      desc: 'Score 48 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `An imperfect connection but with hope for growth.`
+  String get poetic_49 {
+    return Intl.message(
+      'An imperfect connection but with hope for growth.',
+      name: 'poetic_49',
+      desc: 'Score 49 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A bond with potential for mutual support.`
+  String get poetic_50 {
+    return Intl.message(
+      'A bond with potential for mutual support.',
+      name: 'poetic_50',
+      desc: 'Score 50 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A balance achievable with patience and effort.`
+  String get poetic_51 {
+    return Intl.message(
+      'A balance achievable with patience and effort.',
+      name: 'poetic_51',
+      desc: 'Score 51 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A relationship offering lessons for both sides.`
+  String get poetic_52 {
+    return Intl.message(
+      'A relationship offering lessons for both sides.',
+      name: 'poetic_52',
+      desc: 'Score 52 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A faint spark of harmony beginning to show.`
+  String get poetic_53 {
+    return Intl.message(
+      'A faint spark of harmony beginning to show.',
+      name: 'poetic_53',
+      desc: 'Score 53 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A path toward deeper mutual understanding.`
+  String get poetic_54 {
+    return Intl.message(
+      'A path toward deeper mutual understanding.',
+      name: 'poetic_54',
+      desc: 'Score 54 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `Small actions leading to transformative connections.`
+  String get poetic_55 {
+    return Intl.message(
+      'Small actions leading to transformative connections.',
+      name: 'poetic_55',
+      desc: 'Score 55 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A seed of shared dreams waiting to grow.`
+  String get poetic_56 {
+    return Intl.message(
+      'A seed of shared dreams waiting to grow.',
+      name: 'poetic_56',
+      desc: 'Score 56 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A connection forming a stable collaboration.`
+  String get poetic_57 {
+    return Intl.message(
+      'A connection forming a stable collaboration.',
+      name: 'poetic_57',
+      desc: 'Score 57 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A relationship fostering positivity over time.`
+  String get poetic_58 {
+    return Intl.message(
+      'A relationship fostering positivity over time.',
+      name: 'poetic_58',
+      desc: 'Score 58 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A solid foundation for future harmony.`
+  String get poetic_59 {
+    return Intl.message(
+      'A solid foundation for future harmony.',
+      name: 'poetic_59',
+      desc: 'Score 59 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A bond embracing flaws to grow stronger.`
+  String get poetic_60 {
+    return Intl.message(
+      'A bond embracing flaws to grow stronger.',
+      name: 'poetic_60',
+      desc: 'Score 60 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `An emotionally stable and nurturing relationship.`
+  String get poetic_61 {
+    return Intl.message(
+      'An emotionally stable and nurturing relationship.',
+      name: 'poetic_61',
+      desc: 'Score 61 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A warm link empowering mutual growth.`
+  String get poetic_62 {
+    return Intl.message(
+      'A warm link empowering mutual growth.',
+      name: 'poetic_62',
+      desc: 'Score 62 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A connection dreaming of a brighter future together.`
+  String get poetic_63 {
+    return Intl.message(
+      'A connection dreaming of a brighter future together.',
+      name: 'poetic_63',
+      desc: 'Score 63 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A bond growing stronger through mutual encouragement.`
+  String get poetic_64 {
+    return Intl.message(
+      'A bond growing stronger through mutual encouragement.',
+      name: 'poetic_64',
+      desc: 'Score 64 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A rare connection where stability meets excitement.`
+  String get poetic_65 {
+    return Intl.message(
+      'A rare connection where stability meets excitement.',
+      name: 'poetic_65',
+      desc: 'Score 65 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A bond overcoming life’s challenges with resilience.`
+  String get poetic_66 {
+    return Intl.message(
+      'A bond overcoming life’s challenges with resilience.',
+      name: 'poetic_66',
+      desc: 'Score 66 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A respectful connection flourishing on mutual recognition.`
+  String get poetic_67 {
+    return Intl.message(
+      'A respectful connection flourishing on mutual recognition.',
+      name: 'poetic_67',
+      desc: 'Score 67 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A relationship transforming positively through connection.`
+  String get poetic_68 {
+    return Intl.message(
+      'A relationship transforming positively through connection.',
+      name: 'poetic_68',
+      desc: 'Score 68 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A natural flow blending seamlessly into each other’s lives.`
+  String get poetic_69 {
+    return Intl.message(
+      'A natural flow blending seamlessly into each other’s lives.',
+      name: 'poetic_69',
+      desc: 'Score 69 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A bond deepening with trust as its core.`
+  String get poetic_70 {
+    return Intl.message(
+      'A bond deepening with trust as its core.',
+      name: 'poetic_70',
+      desc: 'Score 70 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A relationship amplifying each other's strengths.`
+  String get poetic_71 {
+    return Intl.message(
+      'A relationship amplifying each other\'s strengths.',
+      name: 'poetic_71',
+      desc: 'Score 71 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A bright possibility for shared harmony.`
+  String get poetic_72 {
+    return Intl.message(
+      'A bright possibility for shared harmony.',
+      name: 'poetic_72',
+      desc: 'Score 72 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `An inspiring collaboration with mutual benefits.`
+  String get poetic_73 {
+    return Intl.message(
+      'An inspiring collaboration with mutual benefits.',
+      name: 'poetic_73',
+      desc: 'Score 73 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A partnership growing better with time.`
+  String get poetic_74 {
+    return Intl.message(
+      'A partnership growing better with time.',
+      name: 'poetic_74',
+      desc: 'Score 74 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A bond magnifying the best in each other.`
+  String get poetic_75 {
+    return Intl.message(
+      'A bond magnifying the best in each other.',
+      name: 'poetic_75',
+      desc: 'Score 75 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A connection moving toward perfection.`
+  String get poetic_76 {
+    return Intl.message(
+      'A connection moving toward perfection.',
+      name: 'poetic_76',
+      desc: 'Score 76 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A bond completing each other's shortcomings.`
+  String get poetic_77 {
+    return Intl.message(
+      'A bond completing each other\'s shortcomings.',
+      name: 'poetic_77',
+      desc: 'Score 77 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A relationship bringing warmth and security.`
+  String get poetic_78 {
+    return Intl.message(
+      'A relationship bringing warmth and security.',
+      name: 'poetic_78',
+      desc: 'Score 78 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A journey heading in the same direction as true partners.`
+  String get poetic_79 {
+    return Intl.message(
+      'A journey heading in the same direction as true partners.',
+      name: 'poetic_79',
+      desc: 'Score 79 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A relationship growing stronger through mutual trust.`
+  String get poetic_80 {
+    return Intl.message(
+      'A relationship growing stronger through mutual trust.',
+      name: 'poetic_80',
+      desc: 'Score 80 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A perfect balance of trust and care.`
+  String get poetic_81 {
+    return Intl.message(
+      'A perfect balance of trust and care.',
+      name: 'poetic_81',
+      desc: 'Score 81 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A connection becoming more joyful as it deepens.`
+  String get poetic_82 {
+    return Intl.message(
+      'A connection becoming more joyful as it deepens.',
+      name: 'poetic_82',
+      desc: 'Score 82 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A relationship offering stability and inspiration.`
+  String get poetic_83 {
+    return Intl.message(
+      'A relationship offering stability and inspiration.',
+      name: 'poetic_83',
+      desc: 'Score 83 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A pinnacle of harmony nearing perfection.`
+  String get poetic_84 {
+    return Intl.message(
+      'A pinnacle of harmony nearing perfection.',
+      name: 'poetic_84',
+      desc: 'Score 84 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A shared dream bringing unity and purpose.`
+  String get poetic_85 {
+    return Intl.message(
+      'A shared dream bringing unity and purpose.',
+      name: 'poetic_85',
+      desc: 'Score 85 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A connection perfectly aligned in every way.`
+  String get poetic_86 {
+    return Intl.message(
+      'A connection perfectly aligned in every way.',
+      name: 'poetic_86',
+      desc: 'Score 86 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A partnership radiating energy and synergy.`
+  String get poetic_87 {
+    return Intl.message(
+      'A partnership radiating energy and synergy.',
+      name: 'poetic_87',
+      desc: 'Score 87 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A relationship where both sides grow together.`
+  String get poetic_88 {
+    return Intl.message(
+      'A relationship where both sides grow together.',
+      name: 'poetic_88',
+      desc: 'Score 88 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A collaboration built on trust and understanding.`
+  String get poetic_89 {
+    return Intl.message(
+      'A collaboration built on trust and understanding.',
+      name: 'poetic_89',
+      desc: 'Score 89 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A connection filled with care and mutual respect.`
+  String get poetic_90 {
+    return Intl.message(
+      'A connection filled with care and mutual respect.',
+      name: 'poetic_90',
+      desc: 'Score 90 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A harmonious team achieving perfect unity.`
+  String get poetic_91 {
+    return Intl.message(
+      'A harmonious team achieving perfect unity.',
+      name: 'poetic_91',
+      desc: 'Score 91 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A uniquely beautiful connection between fan and artist.`
+  String get poetic_92 {
+    return Intl.message(
+      'A uniquely beautiful connection between fan and artist.',
+      name: 'poetic_92',
+      desc: 'Score 92 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A bond where every detail is understood and respected.`
+  String get poetic_93 {
+    return Intl.message(
+      'A bond where every detail is understood and respected.',
+      name: 'poetic_93',
+      desc: 'Score 93 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A belief that anything is possible together.`
+  String get poetic_94 {
+    return Intl.message(
+      'A belief that anything is possible together.',
+      name: 'poetic_94',
+      desc: 'Score 94 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `An eternal connection perfectly balanced.`
+  String get poetic_95 {
+    return Intl.message(
+      'An eternal connection perfectly balanced.',
+      name: 'poetic_95',
+      desc: 'Score 95 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A bond fulfilling every need with harmony.`
+  String get poetic_96 {
+    return Intl.message(
+      'A bond fulfilling every need with harmony.',
+      name: 'poetic_96',
+      desc: 'Score 96 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A one-of-a-kind, extraordinary relationship.`
+  String get poetic_97 {
+    return Intl.message(
+      'A one-of-a-kind, extraordinary relationship.',
+      name: 'poetic_97',
+      desc: 'Score 97 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `An extraordinary relationship in this world.`
+  String get poetic_98 {
+    return Intl.message(
+      'An extraordinary relationship in this world.',
+      name: 'poetic_98',
+      desc: 'Score 98 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `A bond where all it takes is to move forward while looking at each other.`
+  String get poetic_99 {
+    return Intl.message(
+      'A bond where all it takes is to move forward while looking at each other.',
+      name: 'poetic_99',
+      desc: 'Score 99 poetic relationship',
+      args: [],
+    );
+  }
+
+  /// `An ideal bond that can be concluded with the most beautiful communication.`
+  String get poetic_100 {
+    return Intl.message(
+      'An ideal bond that can be concluded with the most beautiful communication.',
+      name: 'poetic_100',
+      desc: 'Score 100 poetic relationship',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

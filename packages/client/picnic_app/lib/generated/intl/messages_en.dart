@@ -593,6 +593,208 @@ class MessageLookup extends MessageLookupByLibrary {
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("Vote"),
         "page_title_vote_gather":
             MessageLookupByLibrary.simpleMessage("Collecting votes"),
+        "poetic_0": MessageLookupByLibrary.simpleMessage(
+            "The fan and the artist are strangers under different skies."),
+        "poetic_1": MessageLookupByLibrary.simpleMessage(
+            "The fan\'s aspirations and the artist\'s dreams diverge from the very beginning."),
+        "poetic_10": MessageLookupByLibrary.simpleMessage(
+            "A journey full of clashes with no resolution in sight."),
+        "poetic_100": MessageLookupByLibrary.simpleMessage(
+            "An ideal bond that can be concluded with the most beautiful communication."),
+        "poetic_11": MessageLookupByLibrary.simpleMessage(
+            "The closer the fan gets, the fainter the artist becomes."),
+        "poetic_12": MessageLookupByLibrary.simpleMessage(
+            "Hopes collide with reality, leaving only disappointment."),
+        "poetic_13": MessageLookupByLibrary.simpleMessage(
+            "A connection yearning for harmony but missing the mark."),
+        "poetic_14": MessageLookupByLibrary.simpleMessage(
+            "A river of fear separates the fan and the artist."),
+        "poetic_15": MessageLookupByLibrary.simpleMessage(
+            "An unbalanced connection leaving a negative aftertaste."),
+        "poetic_16": MessageLookupByLibrary.simpleMessage(
+            "A boundary that neither side can compromise on."),
+        "poetic_17": MessageLookupByLibrary.simpleMessage(
+            "A blurry view where mutual understanding is clouded."),
+        "poetic_18": MessageLookupByLibrary.simpleMessage(
+            "An emotional maze that\'s painful to navigate together."),
+        "poetic_19": MessageLookupByLibrary.simpleMessage(
+            "A whirlpool of endless conflicts."),
+        "poetic_2": MessageLookupByLibrary.simpleMessage(
+            "The closer you approach, the more distant you feel, like stars."),
+        "poetic_20": MessageLookupByLibrary.simpleMessage(
+            "Two streams flowing in opposite directions, never meeting."),
+        "poetic_21": MessageLookupByLibrary.simpleMessage(
+            "A cold space where hearts remain closed to each other."),
+        "poetic_22": MessageLookupByLibrary.simpleMessage(
+            "A heavy atmosphere avoiding mutual recognition."),
+        "poetic_23": MessageLookupByLibrary.simpleMessage(
+            "An encounter that feels like a test rather than a connection."),
+        "poetic_24": MessageLookupByLibrary.simpleMessage(
+            "Puzzle pieces that don\'t fit no matter how hard you try."),
+        "poetic_25": MessageLookupByLibrary.simpleMessage(
+            "A hollow fandom offering no fulfillment despite efforts."),
+        "poetic_26": MessageLookupByLibrary.simpleMessage(
+            "A bond that finds peace only in separation."),
+        "poetic_27": MessageLookupByLibrary.simpleMessage(
+            "A relationship where the ending feels inevitable from the start."),
+        "poetic_28": MessageLookupByLibrary.simpleMessage(
+            "A perspective focusing solely on each other\'s flaws."),
+        "poetic_29": MessageLookupByLibrary.simpleMessage(
+            "A sharp connection that hurts more the closer it gets."),
+        "poetic_3": MessageLookupByLibrary.simpleMessage(
+            "A fundamentally incompatible relationship where harmony is hard to find."),
+        "poetic_30": MessageLookupByLibrary.simpleMessage(
+            "A loop of misunderstandings outweighing attempts at understanding."),
+        "poetic_31": MessageLookupByLibrary.simpleMessage(
+            "A devotion that feels heavier as closeness grows."),
+        "poetic_32": MessageLookupByLibrary.simpleMessage(
+            "Two voids unable to fill each other\'s emptiness."),
+        "poetic_33": MessageLookupByLibrary.simpleMessage(
+            "Steps walking separate paths that never align."),
+        "poetic_34": MessageLookupByLibrary.simpleMessage(
+            "A fragile connection trembling in the gap of misunderstanding."),
+        "poetic_35": MessageLookupByLibrary.simpleMessage(
+            "A bond emphasizing differences over common ground."),
+        "poetic_36": MessageLookupByLibrary.simpleMessage(
+            "A resonance that feels alien and never becomes familiar."),
+        "poetic_37": MessageLookupByLibrary.simpleMessage(
+            "A discord that amplifies anxiety instead of reducing it."),
+        "poetic_38": MessageLookupByLibrary.simpleMessage(
+            "A misaligned frequency, always out of tune."),
+        "poetic_39": MessageLookupByLibrary.simpleMessage(
+            "A connection surviving only with cautious distance."),
+        "poetic_4": MessageLookupByLibrary.simpleMessage(
+            "A fleeting connection like the breeze, passing without staying."),
+        "poetic_40": MessageLookupByLibrary.simpleMessage(
+            "A light connection with no depth or substance."),
+        "poetic_41": MessageLookupByLibrary.simpleMessage(
+            "A relationship that works as friends but struggles as more."),
+        "poetic_42": MessageLookupByLibrary.simpleMessage(
+            "A connection limited by shallow understanding."),
+        "poetic_43": MessageLookupByLibrary.simpleMessage(
+            "An interaction lacking warmth or significant conflict."),
+        "poetic_44": MessageLookupByLibrary.simpleMessage(
+            "A bond requiring discomfort to grow closer."),
+        "poetic_45": MessageLookupByLibrary.simpleMessage(
+            "A fragile connection that predicts friction with time."),
+        "poetic_46": MessageLookupByLibrary.simpleMessage(
+            "A shallow curiosity that never touches the heart."),
+        "poetic_47": MessageLookupByLibrary.simpleMessage(
+            "A faint distance felt between fan and artist."),
+        "poetic_48": MessageLookupByLibrary.simpleMessage(
+            "A half-open door revealing incomplete possibilities."),
+        "poetic_49": MessageLookupByLibrary.simpleMessage(
+            "An imperfect connection but with hope for growth."),
+        "poetic_5": MessageLookupByLibrary.simpleMessage(
+            "An echo that cannot reach each other\'s hearts."),
+        "poetic_50": MessageLookupByLibrary.simpleMessage(
+            "A bond with potential for mutual support."),
+        "poetic_51": MessageLookupByLibrary.simpleMessage(
+            "A balance achievable with patience and effort."),
+        "poetic_52": MessageLookupByLibrary.simpleMessage(
+            "A relationship offering lessons for both sides."),
+        "poetic_53": MessageLookupByLibrary.simpleMessage(
+            "A faint spark of harmony beginning to show."),
+        "poetic_54": MessageLookupByLibrary.simpleMessage(
+            "A path toward deeper mutual understanding."),
+        "poetic_55": MessageLookupByLibrary.simpleMessage(
+            "Small actions leading to transformative connections."),
+        "poetic_56": MessageLookupByLibrary.simpleMessage(
+            "A seed of shared dreams waiting to grow."),
+        "poetic_57": MessageLookupByLibrary.simpleMessage(
+            "A connection forming a stable collaboration."),
+        "poetic_58": MessageLookupByLibrary.simpleMessage(
+            "A relationship fostering positivity over time."),
+        "poetic_59": MessageLookupByLibrary.simpleMessage(
+            "A solid foundation for future harmony."),
+        "poetic_6": MessageLookupByLibrary.simpleMessage(
+            "Two souls separated by an insurmountable wall."),
+        "poetic_60": MessageLookupByLibrary.simpleMessage(
+            "A bond embracing flaws to grow stronger."),
+        "poetic_61": MessageLookupByLibrary.simpleMessage(
+            "An emotionally stable and nurturing relationship."),
+        "poetic_62": MessageLookupByLibrary.simpleMessage(
+            "A warm link empowering mutual growth."),
+        "poetic_63": MessageLookupByLibrary.simpleMessage(
+            "A connection dreaming of a brighter future together."),
+        "poetic_64": MessageLookupByLibrary.simpleMessage(
+            "A bond growing stronger through mutual encouragement."),
+        "poetic_65": MessageLookupByLibrary.simpleMessage(
+            "A rare connection where stability meets excitement."),
+        "poetic_66": MessageLookupByLibrary.simpleMessage(
+            "A bond overcoming life’s challenges with resilience."),
+        "poetic_67": MessageLookupByLibrary.simpleMessage(
+            "A respectful connection flourishing on mutual recognition."),
+        "poetic_68": MessageLookupByLibrary.simpleMessage(
+            "A relationship transforming positively through connection."),
+        "poetic_69": MessageLookupByLibrary.simpleMessage(
+            "A natural flow blending seamlessly into each other’s lives."),
+        "poetic_7": MessageLookupByLibrary.simpleMessage(
+            "A desert-like connection devoid of empathy."),
+        "poetic_70": MessageLookupByLibrary.simpleMessage(
+            "A bond deepening with trust as its core."),
+        "poetic_71": MessageLookupByLibrary.simpleMessage(
+            "A relationship amplifying each other\'s strengths."),
+        "poetic_72": MessageLookupByLibrary.simpleMessage(
+            "A bright possibility for shared harmony."),
+        "poetic_73": MessageLookupByLibrary.simpleMessage(
+            "An inspiring collaboration with mutual benefits."),
+        "poetic_74": MessageLookupByLibrary.simpleMessage(
+            "A partnership growing better with time."),
+        "poetic_75": MessageLookupByLibrary.simpleMessage(
+            "A bond magnifying the best in each other."),
+        "poetic_76": MessageLookupByLibrary.simpleMessage(
+            "A connection moving toward perfection."),
+        "poetic_77": MessageLookupByLibrary.simpleMessage(
+            "A bond completing each other\'s shortcomings."),
+        "poetic_78": MessageLookupByLibrary.simpleMessage(
+            "A relationship bringing warmth and security."),
+        "poetic_79": MessageLookupByLibrary.simpleMessage(
+            "A journey heading in the same direction as true partners."),
+        "poetic_8": MessageLookupByLibrary.simpleMessage(
+            "A frustrating gaze towards a distant horizon."),
+        "poetic_80": MessageLookupByLibrary.simpleMessage(
+            "A relationship growing stronger through mutual trust."),
+        "poetic_81": MessageLookupByLibrary.simpleMessage(
+            "A perfect balance of trust and care."),
+        "poetic_82": MessageLookupByLibrary.simpleMessage(
+            "A connection becoming more joyful as it deepens."),
+        "poetic_83": MessageLookupByLibrary.simpleMessage(
+            "A relationship offering stability and inspiration."),
+        "poetic_84": MessageLookupByLibrary.simpleMessage(
+            "A pinnacle of harmony nearing perfection."),
+        "poetic_85": MessageLookupByLibrary.simpleMessage(
+            "A shared dream bringing unity and purpose."),
+        "poetic_86": MessageLookupByLibrary.simpleMessage(
+            "A connection perfectly aligned in every way."),
+        "poetic_87": MessageLookupByLibrary.simpleMessage(
+            "A partnership radiating energy and synergy."),
+        "poetic_88": MessageLookupByLibrary.simpleMessage(
+            "A relationship where both sides grow together."),
+        "poetic_89": MessageLookupByLibrary.simpleMessage(
+            "A collaboration built on trust and understanding."),
+        "poetic_9": MessageLookupByLibrary.simpleMessage(
+            "Like foreigners speaking completely different languages."),
+        "poetic_90": MessageLookupByLibrary.simpleMessage(
+            "A connection filled with care and mutual respect."),
+        "poetic_91": MessageLookupByLibrary.simpleMessage(
+            "A harmonious team achieving perfect unity."),
+        "poetic_92": MessageLookupByLibrary.simpleMessage(
+            "A uniquely beautiful connection between fan and artist."),
+        "poetic_93": MessageLookupByLibrary.simpleMessage(
+            "A bond where every detail is understood and respected."),
+        "poetic_94": MessageLookupByLibrary.simpleMessage(
+            "A belief that anything is possible together."),
+        "poetic_95": MessageLookupByLibrary.simpleMessage(
+            "An eternal connection perfectly balanced."),
+        "poetic_96": MessageLookupByLibrary.simpleMessage(
+            "A bond fulfilling every need with harmony."),
+        "poetic_97": MessageLookupByLibrary.simpleMessage(
+            "A one-of-a-kind, extraordinary relationship."),
+        "poetic_98": MessageLookupByLibrary.simpleMessage(
+            "An extraordinary relationship in this world."),
+        "poetic_99": MessageLookupByLibrary.simpleMessage(
+            "A bond where all it takes is to move forward while looking at each other."),
         "popup_label_delete": MessageLookupByLibrary.simpleMessage("Delete"),
         "post_anonymous":
             MessageLookupByLibrary.simpleMessage("Anonymous posting"),
