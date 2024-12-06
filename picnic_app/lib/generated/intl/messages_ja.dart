@@ -524,6 +524,163 @@ class MessageLookup extends MessageLookupByLibrary {
         "page_title_vote_detail": MessageLookupByLibrary.simpleMessage("投票する"),
         "page_title_vote_gather":
             MessageLookupByLibrary.simpleMessage("投票集を見る"),
+        "poetic_0":
+            MessageLookupByLibrary.simpleMessage("ファンとアーティストは、別々の空の下で運命を紡ぐ旅人。"),
+        "poetic_1":
+            MessageLookupByLibrary.simpleMessage("ファンの夢とアーティストの希望が初めからすれ違う星々。"),
+        "poetic_10":
+            MessageLookupByLibrary.simpleMessage("解決の見えない衝突の渦中を進む長い旅。"),
+        "poetic_100":
+            MessageLookupByLibrary.simpleMessage("最も美しい対話で締めくくられる理想的な縁。"),
+        "poetic_11":
+            MessageLookupByLibrary.simpleMessage("近づくほどに、その姿が霞んでいく幻想。"),
+        "poetic_12":
+            MessageLookupByLibrary.simpleMessage("希望と現実がぶつかり合い、破片だけが残る夢。"),
+        "poetic_13":
+            MessageLookupByLibrary.simpleMessage("調和を願いながら、すれ違い続ける関係。"),
+        "poetic_14": MessageLookupByLibrary.simpleMessage("恐れの川が二人を隔てる深い溝。"),
+        "poetic_15":
+            MessageLookupByLibrary.simpleMessage("バランスを失った愛の旋律が心に影を落とす。"),
+        "poetic_16":
+            MessageLookupByLibrary.simpleMessage("誰も越えられない境界線が引かれた場所。"),
+        "poetic_17": MessageLookupByLibrary.simpleMessage("曖昧な視線が、理解の道を遮る。"),
+        "poetic_18":
+            MessageLookupByLibrary.simpleMessage("感情の迷路に迷い込み、出口を見失った二人。"),
+        "poetic_19":
+            MessageLookupByLibrary.simpleMessage("終わりのない衝突の嵐に巻き込まれた運命。"),
+        "poetic_2":
+            MessageLookupByLibrary.simpleMessage("近づくほど、星空の彼方へと遠ざかる二人。"),
+        "poetic_20":
+            MessageLookupByLibrary.simpleMessage("逆流する川のように、決して交わらない流れ。"),
+        "poetic_21": MessageLookupByLibrary.simpleMessage("冷たい空間に閉ざされた、心の扉。"),
+        "poetic_22":
+            MessageLookupByLibrary.simpleMessage("重く垂れ込める空気が、互いを拒む影を作る。"),
+        "poetic_23": MessageLookupByLibrary.simpleMessage(
+            "試練のように感じられる出会いが、真実の繋がりを遠ざける。"),
+        "poetic_24":
+            MessageLookupByLibrary.simpleMessage("欠けたピースが決して埋まらない、もどかしいパズル。"),
+        "poetic_25":
+            MessageLookupByLibrary.simpleMessage("どれだけ注いでも満たされない、空虚な愛の器。"),
+        "poetic_26":
+            MessageLookupByLibrary.simpleMessage("別離が平和をもたらす唯一の道である関係。"),
+        "poetic_27":
+            MessageLookupByLibrary.simpleMessage("始まりから終わりが見えている悲しい物語。"),
+        "poetic_28":
+            MessageLookupByLibrary.simpleMessage("互いの欠点だけが浮き彫りになる冷たい鏡。"),
+        "poetic_29": MessageLookupByLibrary.simpleMessage("近づくたびに鋭く傷つけ合う関係。"),
+        "poetic_3":
+            MessageLookupByLibrary.simpleMessage("調和を見つけるのが難しい、異なる旋律を奏でる関係。"),
+        "poetic_30":
+            MessageLookupByLibrary.simpleMessage("誤解が絡まり、理解への道を閉ざす迷宮。"),
+        "poetic_31":
+            MessageLookupByLibrary.simpleMessage("近づけば近づくほど、その絆が重たくなる。"),
+        "poetic_32": MessageLookupByLibrary.simpleMessage("空虚な心を埋められない、孤独な二人。"),
+        "poetic_33":
+            MessageLookupByLibrary.simpleMessage("交わることのない、別々の道を歩む足音。"),
+        "poetic_34": MessageLookupByLibrary.simpleMessage("誤解の谷間で揺れる、不安定な愛の糸。"),
+        "poetic_35":
+            MessageLookupByLibrary.simpleMessage("共通点ではなく違いが強調される儚い関係。"),
+        "poetic_36": MessageLookupByLibrary.simpleMessage("馴染むことのない、異質な響きの共鳴。"),
+        "poetic_37": MessageLookupByLibrary.simpleMessage("不協和音が心に不安を呼び覚ます。"),
+        "poetic_38": MessageLookupByLibrary.simpleMessage("調和を見つけられない、ずれた音色。"),
+        "poetic_39":
+            MessageLookupByLibrary.simpleMessage("慎重な距離を保つことでかろうじて成立する関係。"),
+        "poetic_4":
+            MessageLookupByLibrary.simpleMessage("そよ風のように儚く、美しさを残して過ぎ去る関係。"),
+        "poetic_40":
+            MessageLookupByLibrary.simpleMessage("浅く脆いが、心の奥まで届かない繋がり。"),
+        "poetic_41":
+            MessageLookupByLibrary.simpleMessage("友情としては温かいが、それ以上には踏み込めない絆。"),
+        "poetic_42": MessageLookupByLibrary.simpleMessage("浅い理解が、深い絆への道を妨げる。"),
+        "poetic_43": MessageLookupByLibrary.simpleMessage("温もりも対立も欠けた静かなやり取り。"),
+        "poetic_44": MessageLookupByLibrary.simpleMessage("近づくために痛みを伴う、切ない関係。"),
+        "poetic_45":
+            MessageLookupByLibrary.simpleMessage("時間とともに摩擦が深まる壊れやすい愛の糸。"),
+        "poetic_46": MessageLookupByLibrary.simpleMessage("心に触れることのない、浅い興味。"),
+        "poetic_47":
+            MessageLookupByLibrary.simpleMessage("ファンとアーティストの間に広がる微妙な距離感。"),
+        "poetic_48": MessageLookupByLibrary.simpleMessage("未完成の可能性を秘めた半開きの扉。"),
+        "poetic_49":
+            MessageLookupByLibrary.simpleMessage("完璧ではないが、未来への希望が灯る関係。"),
+        "poetic_5":
+            MessageLookupByLibrary.simpleMessage("共鳴することのない響きが、心に届かない。"),
+        "poetic_50": MessageLookupByLibrary.simpleMessage("お互いを支え合う可能性に満ちた絆。"),
+        "poetic_51":
+            MessageLookupByLibrary.simpleMessage("忍耐と努力が、バランスの取れた未来を築く。"),
+        "poetic_52": MessageLookupByLibrary.simpleMessage("双方に学びの機会を与える豊かな関係。"),
+        "poetic_53": MessageLookupByLibrary.simpleMessage("調和の光が、二人の道を照らし始める。"),
+        "poetic_54":
+            MessageLookupByLibrary.simpleMessage("深い理解への道筋が少しずつ見えてくる。"),
+        "poetic_55":
+            MessageLookupByLibrary.simpleMessage("小さな行動が、大きな変化をもたらす種となる。"),
+        "poetic_56": MessageLookupByLibrary.simpleMessage("共有された夢が根を張り始める瞬間。"),
+        "poetic_57": MessageLookupByLibrary.simpleMessage("安定した協力が形を成していく基盤。"),
+        "poetic_58":
+            MessageLookupByLibrary.simpleMessage("時間が絆を深め、ポジティブな変化を促す。"),
+        "poetic_59": MessageLookupByLibrary.simpleMessage("未来の調和を支える確固たる土台。"),
+        "poetic_6":
+            MessageLookupByLibrary.simpleMessage("越えられない壁に隔てられた孤独な魂たち。"),
+        "poetic_60":
+            MessageLookupByLibrary.simpleMessage("欠点を受け入れることで強くなる美しい関係。"),
+        "poetic_61":
+            MessageLookupByLibrary.simpleMessage("感情的な安定をもたらす穏やかな繋がり。"),
+        "poetic_62": MessageLookupByLibrary.simpleMessage("お互いの成長を支える、温かい絆。"),
+        "poetic_63": MessageLookupByLibrary.simpleMessage("共通の夢が、より良い未来を形作る。"),
+        "poetic_64":
+            MessageLookupByLibrary.simpleMessage("励まし合いながら成長していく美しい関係。"),
+        "poetic_65": MessageLookupByLibrary.simpleMessage("安定と情熱が共存する珍しい愛の形。"),
+        "poetic_66": MessageLookupByLibrary.simpleMessage("人生の試練を共に乗り越える強い絆。"),
+        "poetic_67": MessageLookupByLibrary.simpleMessage("相互理解が二人を育む、豊かな関係。"),
+        "poetic_68":
+            MessageLookupByLibrary.simpleMessage("繋がりが二人に新しい可能性をもたらす。"),
+        "poetic_69": MessageLookupByLibrary.simpleMessage("自然とお互いの生活に溶け込む愛。"),
+        "poetic_7":
+            MessageLookupByLibrary.simpleMessage("砂漠のように乾ききった共鳴を求める関係。"),
+        "poetic_70": MessageLookupByLibrary.simpleMessage("信頼を基盤として深まる穏やかな関係。"),
+        "poetic_71": MessageLookupByLibrary.simpleMessage("お互いの美点を引き出す、光輝く絆。"),
+        "poetic_72":
+            MessageLookupByLibrary.simpleMessage("共有された調和の未来に向けた明るい希望。"),
+        "poetic_73":
+            MessageLookupByLibrary.simpleMessage("互いに利益をもたらす、刺激的な協力関係。"),
+        "poetic_74":
+            MessageLookupByLibrary.simpleMessage("時間とともに成長し続けるパートナーシップ。"),
+        "poetic_75": MessageLookupByLibrary.simpleMessage("お互いを引き立て合う、美しい絆。"),
+        "poetic_76": MessageLookupByLibrary.simpleMessage("完璧に近づくための一歩。"),
+        "poetic_77": MessageLookupByLibrary.simpleMessage("お互いの欠けた部分を埋める関係。"),
+        "poetic_78": MessageLookupByLibrary.simpleMessage("温かさと安心感を提供する穏やかな絆。"),
+        "poetic_79": MessageLookupByLibrary.simpleMessage("同じ方向に進む真の仲間としての旅路。"),
+        "poetic_8":
+            MessageLookupByLibrary.simpleMessage("遥かなる地平線に目を向けるときの切なさ。"),
+        "poetic_80": MessageLookupByLibrary.simpleMessage("信頼が絆を深め、関係を育む。"),
+        "poetic_81": MessageLookupByLibrary.simpleMessage("信頼と配慮が絶妙に調和した愛の形。"),
+        "poetic_82":
+            MessageLookupByLibrary.simpleMessage("深まるたびに喜びをもたらす美しい関係。"),
+        "poetic_83": MessageLookupByLibrary.simpleMessage("安定とインスピレーションを与える絆。"),
+        "poetic_84": MessageLookupByLibrary.simpleMessage("完璧な調和に近づく愛の頂点。"),
+        "poetic_85": MessageLookupByLibrary.simpleMessage("共通の夢が、団結と目標を導く。"),
+        "poetic_86": MessageLookupByLibrary.simpleMessage("すべての面で調和した、美しい関係。"),
+        "poetic_87":
+            MessageLookupByLibrary.simpleMessage("エネルギーと相乗効果を生む、素晴らしいパートナー。"),
+        "poetic_88": MessageLookupByLibrary.simpleMessage("共に成長し、さらに充実する絆。"),
+        "poetic_89":
+            MessageLookupByLibrary.simpleMessage("信頼と理解を基盤とした、確かな協力関係。"),
+        "poetic_9":
+            MessageLookupByLibrary.simpleMessage("異なる言葉で詩を紡ぐ詩人たちのような出会い。"),
+        "poetic_90": MessageLookupByLibrary.simpleMessage("優しさと尊敬に満ちた繋がり。"),
+        "poetic_91":
+            MessageLookupByLibrary.simpleMessage("完璧な調和を実現する、素晴らしいチーム。"),
+        "poetic_92":
+            MessageLookupByLibrary.simpleMessage("ファンとアーティストの間にある唯一無二の愛。"),
+        "poetic_93":
+            MessageLookupByLibrary.simpleMessage("細部まで尊重され理解される、美しい絆。"),
+        "poetic_94":
+            MessageLookupByLibrary.simpleMessage("共に全てを成し遂げるという確固たる信念。"),
+        "poetic_95": MessageLookupByLibrary.simpleMessage("永遠に続く、調和の取れた愛。"),
+        "poetic_96": MessageLookupByLibrary.simpleMessage("お互いのすべてを満たす、美しい調和。"),
+        "poetic_97": MessageLookupByLibrary.simpleMessage("唯一無二で感動的な、特別な関係。"),
+        "poetic_98": MessageLookupByLibrary.simpleMessage("この世で唯一無二の特別な縁"),
+        "poetic_99": MessageLookupByLibrary.simpleMessage(
+            "お互いを見つめ合いながら、一歩前に進むだけで結ばれる縁。"),
         "popup_label_delete": MessageLookupByLibrary.simpleMessage("削除"),
         "post_anonymous": MessageLookupByLibrary.simpleMessage("匿名投稿"),
         "post_ask_go_to_temporary_save_list":

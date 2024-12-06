@@ -110,8 +110,7 @@ class CompatibilityModel with _$CompatibilityModel {
 class LocalizedCompatibility with _$LocalizedCompatibility {
   const factory LocalizedCompatibility({
     required String language,
-    @JsonKey(name: 'compatibility_summary')
-    required String compatibilitySummary,
+    @JsonKey(name: 'compatibility_score') required int compatibilityScore,
     @JsonKey(name: 'details') Details? details,
     @Default([]) List<String> tips,
   }) = _LocalizedCompatibility;

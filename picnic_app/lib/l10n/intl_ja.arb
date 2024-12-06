@@ -1683,5 +1683,510 @@
     "fortune_lack_of_star_candy_message": "リワードスターキャンディはここでは使えません。\uD83D\uDE25",
     "@fortune_lack_of_star_candy_message": {
         "manualTranslation": true
+    },
+    "poetic_0": "ファンとアーティストは、別々の空の下で運命を紡ぐ旅人。",
+    "@poetic_0": {
+        "manualTranslation": true,
+        "description": "Score 0 poetic relationship"
+    },
+    "poetic_1": "ファンの夢とアーティストの希望が初めからすれ違う星々。",
+    "@poetic_1": {
+        "manualTranslation": true,
+        "description": "Score 1 poetic relationship"
+    },
+    "poetic_2": "近づくほど、星空の彼方へと遠ざかる二人。",
+    "@poetic_2": {
+        "manualTranslation": true,
+        "description": "Score 2 poetic relationship"
+    },
+    "poetic_3": "調和を見つけるのが難しい、異なる旋律を奏でる関係。",
+    "@poetic_3": {
+        "manualTranslation": true,
+        "description": "Score 3 poetic relationship"
+    },
+    "poetic_4": "そよ風のように儚く、美しさを残して過ぎ去る関係。",
+    "@poetic_4": {
+        "manualTranslation": true,
+        "description": "Score 4 poetic relationship"
+    },
+    "poetic_5": "共鳴することのない響きが、心に届かない。",
+    "@poetic_5": {
+        "manualTranslation": true,
+        "description": "Score 5 poetic relationship"
+    },
+    "poetic_6": "越えられない壁に隔てられた孤独な魂たち。",
+    "@poetic_6": {
+        "manualTranslation": true,
+        "description": "Score 6 poetic relationship"
+    },
+    "poetic_7": "砂漠のように乾ききった共鳴を求める関係。",
+    "@poetic_7": {
+        "manualTranslation": true,
+        "description": "Score 7 poetic relationship"
+    },
+    "poetic_8": "遥かなる地平線に目を向けるときの切なさ。",
+    "@poetic_8": {
+        "manualTranslation": true,
+        "description": "Score 8 poetic relationship"
+    },
+    "poetic_9": "異なる言葉で詩を紡ぐ詩人たちのような出会い。",
+    "@poetic_9": {
+        "manualTranslation": true,
+        "description": "Score 9 poetic relationship"
+    },
+    "poetic_10": "解決の見えない衝突の渦中を進む長い旅。",
+    "@poetic_10": {
+        "manualTranslation": true,
+        "description": "Score 10 poetic relationship"
+    },
+    "poetic_11": "近づくほどに、その姿が霞んでいく幻想。",
+    "@poetic_11": {
+        "manualTranslation": true,
+        "description": "Score 11 poetic relationship"
+    },
+    "poetic_12": "希望と現実がぶつかり合い、破片だけが残る夢。",
+    "@poetic_12": {
+        "manualTranslation": true,
+        "description": "Score 12 poetic relationship"
+    },
+    "poetic_13": "調和を願いながら、すれ違い続ける関係。",
+    "@poetic_13": {
+        "manualTranslation": true,
+        "description": "Score 13 poetic relationship"
+    },
+    "poetic_14": "恐れの川が二人を隔てる深い溝。",
+    "@poetic_14": {
+        "manualTranslation": true,
+        "description": "Score 14 poetic relationship"
+    },
+    "poetic_15": "バランスを失った愛の旋律が心に影を落とす。",
+    "@poetic_15": {
+        "manualTranslation": true,
+        "description": "Score 15 poetic relationship"
+    },
+    "poetic_16": "誰も越えられない境界線が引かれた場所。",
+    "@poetic_16": {
+        "manualTranslation": true,
+        "description": "Score 16 poetic relationship"
+    },
+    "poetic_17": "曖昧な視線が、理解の道を遮る。",
+    "@poetic_17": {
+        "manualTranslation": true,
+        "description": "Score 17 poetic relationship"
+    },
+    "poetic_18": "感情の迷路に迷い込み、出口を見失った二人。",
+    "@poetic_18": {
+        "manualTranslation": true,
+        "description": "Score 18 poetic relationship"
+    },
+    "poetic_19": "終わりのない衝突の嵐に巻き込まれた運命。",
+    "@poetic_19": {
+        "manualTranslation": true,
+        "description": "Score 19 poetic relationship"
+    },
+    "poetic_20": "逆流する川のように、決して交わらない流れ。",
+    "@poetic_20": {
+        "manualTranslation": true,
+        "description": "Score 20 poetic relationship"
+    },
+    "poetic_21": "冷たい空間に閉ざされた、心の扉。",
+    "@poetic_21": {
+        "manualTranslation": true,
+        "description": "Score 21 poetic relationship"
+    },
+    "poetic_22": "重く垂れ込める空気が、互いを拒む影を作る。",
+    "@poetic_22": {
+        "manualTranslation": true,
+        "description": "Score 22 poetic relationship"
+    },
+    "poetic_23": "試練のように感じられる出会いが、真実の繋がりを遠ざける。",
+    "@poetic_23": {
+        "manualTranslation": true,
+        "description": "Score 23 poetic relationship"
+    },
+    "poetic_24": "欠けたピースが決して埋まらない、もどかしいパズル。",
+    "@poetic_24": {
+        "manualTranslation": true,
+        "description": "Score 24 poetic relationship"
+    },
+    "poetic_25": "どれだけ注いでも満たされない、空虚な愛の器。",
+    "@poetic_25": {
+        "manualTranslation": true,
+        "description": "Score 25 poetic relationship"
+    },
+    "poetic_26": "別離が平和をもたらす唯一の道である関係。",
+    "@poetic_26": {
+        "manualTranslation": true,
+        "description": "Score 26 poetic relationship"
+    },
+    "poetic_27": "始まりから終わりが見えている悲しい物語。",
+    "@poetic_27": {
+        "manualTranslation": true,
+        "description": "Score 27 poetic relationship"
+    },
+    "poetic_28": "互いの欠点だけが浮き彫りになる冷たい鏡。",
+    "@poetic_28": {
+        "manualTranslation": true,
+        "description": "Score 28 poetic relationship"
+    },
+    "poetic_29": "近づくたびに鋭く傷つけ合う関係。",
+    "@poetic_29": {
+        "manualTranslation": true,
+        "description": "Score 29 poetic relationship"
+    },
+    "poetic_30": "誤解が絡まり、理解への道を閉ざす迷宮。",
+    "@poetic_30": {
+        "manualTranslation": true,
+        "description": "Score 30 poetic relationship"
+    },
+    "poetic_31": "近づけば近づくほど、その絆が重たくなる。",
+    "@poetic_31": {
+        "manualTranslation": true,
+        "description": "Score 31 poetic relationship"
+    },
+    "poetic_32": "空虚な心を埋められない、孤独な二人。",
+    "@poetic_32": {
+        "manualTranslation": true,
+        "description": "Score 32 poetic relationship"
+    },
+    "poetic_33": "交わることのない、別々の道を歩む足音。",
+    "@poetic_33": {
+        "manualTranslation": true,
+        "description": "Score 33 poetic relationship"
+    },
+    "poetic_34": "誤解の谷間で揺れる、不安定な愛の糸。",
+    "@poetic_34": {
+        "manualTranslation": true,
+        "description": "Score 34 poetic relationship"
+    },
+    "poetic_35": "共通点ではなく違いが強調される儚い関係。",
+    "@poetic_35": {
+        "manualTranslation": true,
+        "description": "Score 35 poetic relationship"
+    },
+    "poetic_36": "馴染むことのない、異質な響きの共鳴。",
+    "@poetic_36": {
+        "manualTranslation": true,
+        "description": "Score 36 poetic relationship"
+    },
+    "poetic_37": "不協和音が心に不安を呼び覚ます。",
+    "@poetic_37": {
+        "manualTranslation": true,
+        "description": "Score 37 poetic relationship"
+    },
+    "poetic_38": "調和を見つけられない、ずれた音色。",
+    "@poetic_38": {
+        "manualTranslation": true,
+        "description": "Score 38 poetic relationship"
+    },
+    "poetic_39": "慎重な距離を保つことでかろうじて成立する関係。",
+    "@poetic_39": {
+        "manualTranslation": true,
+        "description": "Score 39 poetic relationship"
+    },
+    "poetic_40": "浅く脆いが、心の奥まで届かない繋がり。",
+    "@poetic_40": {
+        "manualTranslation": true,
+        "description": "Score 40 poetic relationship"
+    },
+    "poetic_41": "友情としては温かいが、それ以上には踏み込めない絆。",
+    "@poetic_41": {
+        "manualTranslation": true,
+        "description": "Score 41 poetic relationship"
+    },
+    "poetic_42": "浅い理解が、深い絆への道を妨げる。",
+    "@poetic_42": {
+        "manualTranslation": true,
+        "description": "Score 42 poetic relationship"
+    },
+    "poetic_43": "温もりも対立も欠けた静かなやり取り。",
+    "@poetic_43": {
+        "manualTranslation": true,
+        "description": "Score 43 poetic relationship"
+    },
+    "poetic_44": "近づくために痛みを伴う、切ない関係。",
+    "@poetic_44": {
+        "manualTranslation": true,
+        "description": "Score 44 poetic relationship"
+    },
+    "poetic_45": "時間とともに摩擦が深まる壊れやすい愛の糸。",
+    "@poetic_45": {
+        "manualTranslation": true,
+        "description": "Score 45 poetic relationship"
+    },
+    "poetic_46": "心に触れることのない、浅い興味。",
+    "@poetic_46": {
+        "manualTranslation": true,
+        "description": "Score 46 poetic relationship"
+    },
+    "poetic_47": "ファンとアーティストの間に広がる微妙な距離感。",
+    "@poetic_47": {
+        "manualTranslation": true,
+        "description": "Score 47 poetic relationship"
+    },
+    "poetic_48": "未完成の可能性を秘めた半開きの扉。",
+    "@poetic_48": {
+        "manualTranslation": true,
+        "description": "Score 48 poetic relationship"
+    },
+    "poetic_49": "完璧ではないが、未来への希望が灯る関係。",
+    "@poetic_49": {
+        "manualTranslation": true,
+        "description": "Score 49 poetic relationship"
+    },
+    "poetic_50": "お互いを支え合う可能性に満ちた絆。",
+    "@poetic_50": {
+        "manualTranslation": true,
+        "description": "Score 50 poetic relationship"
+    },
+    "poetic_51": "忍耐と努力が、バランスの取れた未来を築く。",
+    "@poetic_51": {
+        "manualTranslation": true,
+        "description": "Score 51 poetic relationship"
+    },
+    "poetic_52": "双方に学びの機会を与える豊かな関係。",
+    "@poetic_52": {
+        "manualTranslation": true,
+        "description": "Score 52 poetic relationship"
+    },
+    "poetic_53": "調和の光が、二人の道を照らし始める。",
+    "@poetic_53": {
+        "manualTranslation": true,
+        "description": "Score 53 poetic relationship"
+    },
+    "poetic_54": "深い理解への道筋が少しずつ見えてくる。",
+    "@poetic_54": {
+        "manualTranslation": true,
+        "description": "Score 54 poetic relationship"
+    },
+    "poetic_55": "小さな行動が、大きな変化をもたらす種となる。",
+    "@poetic_55": {
+        "manualTranslation": true,
+        "description": "Score 55 poetic relationship"
+    },
+    "poetic_56": "共有された夢が根を張り始める瞬間。",
+    "@poetic_56": {
+        "manualTranslation": true,
+        "description": "Score 56 poetic relationship"
+    },
+    "poetic_57": "安定した協力が形を成していく基盤。",
+    "@poetic_57": {
+        "manualTranslation": true,
+        "description": "Score 57 poetic relationship"
+    },
+    "poetic_58": "時間が絆を深め、ポジティブな変化を促す。",
+    "@poetic_58": {
+        "manualTranslation": true,
+        "description": "Score 58 poetic relationship"
+    },
+    "poetic_59": "未来の調和を支える確固たる土台。",
+    "@poetic_59": {
+        "manualTranslation": true,
+        "description": "Score 59 poetic relationship"
+    },
+    "poetic_60": "欠点を受け入れることで強くなる美しい関係。",
+    "@poetic_60": {
+        "manualTranslation": true,
+        "description": "Score 60 poetic relationship"
+    },
+    "poetic_61": "感情的な安定をもたらす穏やかな繋がり。",
+    "@poetic_61": {
+        "manualTranslation": true,
+        "description": "Score 61 poetic relationship"
+    },
+    "poetic_62": "お互いの成長を支える、温かい絆。",
+    "@poetic_62": {
+        "manualTranslation": true,
+        "description": "Score 62 poetic relationship"
+    },
+    "poetic_63": "共通の夢が、より良い未来を形作る。",
+    "@poetic_63": {
+        "manualTranslation": true,
+        "description": "Score 63 poetic relationship"
+    },
+    "poetic_64": "励まし合いながら成長していく美しい関係。",
+    "@poetic_64": {
+        "manualTranslation": true,
+        "description": "Score 64 poetic relationship"
+    },
+    "poetic_65": "安定と情熱が共存する珍しい愛の形。",
+    "@poetic_65": {
+        "manualTranslation": true,
+        "description": "Score 65 poetic relationship"
+    },
+    "poetic_66": "人生の試練を共に乗り越える強い絆。",
+    "@poetic_66": {
+        "manualTranslation": true,
+        "description": "Score 66 poetic relationship"
+    },
+    "poetic_67": "相互理解が二人を育む、豊かな関係。",
+    "@poetic_67": {
+        "manualTranslation": true,
+        "description": "Score 67 poetic relationship"
+    },
+    "poetic_68": "繋がりが二人に新しい可能性をもたらす。",
+    "@poetic_68": {
+        "manualTranslation": true,
+        "description": "Score 68 poetic relationship"
+    },
+    "poetic_69": "自然とお互いの生活に溶け込む愛。",
+    "@poetic_69": {
+        "manualTranslation": true,
+        "description": "Score 69 poetic relationship"
+    },
+    "poetic_70": "信頼を基盤として深まる穏やかな関係。",
+    "@poetic_70": {
+        "manualTranslation": true,
+        "description": "Score 70 poetic relationship"
+    },
+    "poetic_71": "お互いの美点を引き出す、光輝く絆。",
+    "@poetic_71": {
+        "manualTranslation": true,
+        "description": "Score 71 poetic relationship"
+    },
+    "poetic_72": "共有された調和の未来に向けた明るい希望。",
+    "@poetic_72": {
+        "manualTranslation": true,
+        "description": "Score 72 poetic relationship"
+    },
+    "poetic_73": "互いに利益をもたらす、刺激的な協力関係。",
+    "@poetic_73": {
+        "manualTranslation": true,
+        "description": "Score 73 poetic relationship"
+    },
+    "poetic_74": "時間とともに成長し続けるパートナーシップ。",
+    "@poetic_74": {
+        "manualTranslation": true,
+        "description": "Score 74 poetic relationship"
+    },
+    "poetic_75": "お互いを引き立て合う、美しい絆。",
+    "@poetic_75": {
+        "manualTranslation": true,
+        "description": "Score 75 poetic relationship"
+    },
+    "poetic_76": "完璧に近づくための一歩。",
+    "@poetic_76": {
+        "manualTranslation": true,
+        "description": "Score 76 poetic relationship"
+    },
+    "poetic_77": "お互いの欠けた部分を埋める関係。",
+    "@poetic_77": {
+        "manualTranslation": true,
+        "description": "Score 77 poetic relationship"
+    },
+    "poetic_78": "温かさと安心感を提供する穏やかな絆。",
+    "@poetic_78": {
+        "manualTranslation": true,
+        "description": "Score 78 poetic relationship"
+    },
+    "poetic_79": "同じ方向に進む真の仲間としての旅路。",
+    "@poetic_79": {
+        "manualTranslation": true,
+        "description": "Score 79 poetic relationship"
+    },
+    "poetic_80": "信頼が絆を深め、関係を育む。",
+    "@poetic_80": {
+        "manualTranslation": true,
+        "description": "Score 80 poetic relationship"
+    },
+    "poetic_81": "信頼と配慮が絶妙に調和した愛の形。",
+    "@poetic_81": {
+        "manualTranslation": true,
+        "description": "Score 81 poetic relationship"
+    },
+    "poetic_82": "深まるたびに喜びをもたらす美しい関係。",
+    "@poetic_82": {
+        "manualTranslation": true,
+        "description": "Score 82 poetic relationship"
+    },
+    "poetic_83": "安定とインスピレーションを与える絆。",
+    "@poetic_83": {
+        "manualTranslation": true,
+        "description": "Score 83 poetic relationship"
+    },
+    "poetic_84": "完璧な調和に近づく愛の頂点。",
+    "@poetic_84": {
+        "manualTranslation": true,
+        "description": "Score 84 poetic relationship"
+    },
+    "poetic_85": "共通の夢が、団結と目標を導く。",
+    "@poetic_85": {
+        "manualTranslation": true,
+        "description": "Score 85 poetic relationship"
+    },
+    "poetic_86": "すべての面で調和した、美しい関係。",
+    "@poetic_86": {
+        "manualTranslation": true,
+        "description": "Score 86 poetic relationship"
+    },
+    "poetic_87": "エネルギーと相乗効果を生む、素晴らしいパートナー。",
+    "@poetic_87": {
+        "manualTranslation": true,
+        "description": "Score 87 poetic relationship"
+    },
+    "poetic_88": "共に成長し、さらに充実する絆。",
+    "@poetic_88": {
+        "manualTranslation": true,
+        "description": "Score 88 poetic relationship"
+    },
+    "poetic_89": "信頼と理解を基盤とした、確かな協力関係。",
+    "@poetic_89": {
+        "manualTranslation": true,
+        "description": "Score 89 poetic relationship"
+    },
+    "poetic_90": "優しさと尊敬に満ちた繋がり。",
+    "@poetic_90": {
+        "manualTranslation": true,
+        "description": "Score 90 poetic relationship"
+    },
+    "poetic_91": "完璧な調和を実現する、素晴らしいチーム。",
+    "@poetic_91": {
+        "manualTranslation": true,
+        "description": "Score 91 poetic relationship"
+    },
+    "poetic_92": "ファンとアーティストの間にある唯一無二の愛。",
+    "@poetic_92": {
+        "manualTranslation": true,
+        "description": "Score 92 poetic relationship"
+    },
+    "poetic_93": "細部まで尊重され理解される、美しい絆。",
+    "@poetic_93": {
+        "manualTranslation": true,
+        "description": "Score 93 poetic relationship"
+    },
+    "poetic_94": "共に全てを成し遂げるという確固たる信念。",
+    "@poetic_94": {
+        "manualTranslation": true,
+        "description": "Score 94 poetic relationship"
+    },
+    "poetic_95": "永遠に続く、調和の取れた愛。",
+    "@poetic_95": {
+        "manualTranslation": true,
+        "description": "Score 95 poetic relationship"
+    },
+    "poetic_96": "お互いのすべてを満たす、美しい調和。",
+    "@poetic_96": {
+        "manualTranslation": true,
+        "description": "Score 96 poetic relationship"
+    },
+    "poetic_97": "唯一無二で感動的な、特別な関係。",
+    "@poetic_97": {
+        "manualTranslation": true,
+        "description": "Score 97 poetic relationship"
+    },
+    "poetic_98": "この世で唯一無二の特別な縁",
+    "@poetic_98": {
+        "manualTranslation": true,
+        "description": "Score 98 poetic relationship"
+    },
+    "poetic_99": "お互いを見つめ合いながら、一歩前に進むだけで結ばれる縁。",
+    "@poetic_99": {
+        "manualTranslation": true,
+        "description": "Score 99 poetic relationship"
+    },
+    "poetic_100": "最も美しい対話で締めくくられる理想的な縁。",
+    "@poetic_100": {
+        "manualTranslation": true,
+        "description": "Score 100 poetic relationship"
     }
 }

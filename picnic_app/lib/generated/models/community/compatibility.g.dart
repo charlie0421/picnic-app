@@ -133,8 +133,8 @@ _$LocalizedCompatibilityImpl _$$LocalizedCompatibilityImplFromJson(
       ($checkedConvert) {
         final val = _$LocalizedCompatibilityImpl(
           language: $checkedConvert('language', (v) => v as String),
-          compatibilitySummary:
-              $checkedConvert('compatibility_summary', (v) => v as String),
+          compatibilityScore:
+              $checkedConvert('compatibility_score', (v) => (v as num).toInt()),
           details: $checkedConvert(
               'details',
               (v) => v == null
@@ -148,14 +148,14 @@ _$LocalizedCompatibilityImpl _$$LocalizedCompatibilityImplFromJson(
         );
         return val;
       },
-      fieldKeyMap: const {'compatibilitySummary': 'compatibility_summary'},
+      fieldKeyMap: const {'compatibilityScore': 'compatibility_score'},
     );
 
 Map<String, dynamic> _$$LocalizedCompatibilityImplToJson(
         _$LocalizedCompatibilityImpl instance) =>
     <String, dynamic>{
       'language': instance.language,
-      'compatibility_summary': instance.compatibilitySummary,
+      'compatibility_score': instance.compatibilityScore,
       'details': instance.details?.toJson(),
       'tips': instance.tips,
     };

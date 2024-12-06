@@ -154,7 +154,7 @@ export class CompatibilityService {
                 },
             });
 
-            const result = JSON.parse(response) as CompatibilityResult;
+            const result = JSON.parse(response.replaceAll('`', '').replace('json', ''));
 
             if (!this.validateResult(result)) {
                 throw new Error('Invalid compatibility result format');

@@ -1683,5 +1683,510 @@
     "fortune_lack_of_star_candy_message": "奖励星星糖在此无法使用。\uD83D\uDE25",
     "@fortune_lack_of_star_candy_message": {
         "manualTranslation": true
+    },
+    "poetic_0": "粉丝与艺术家像生活在不同天空下的陌生人。",
+    "@poetic_0": {
+        "manualTranslation": true,
+        "description": "Score 0 poetic relationship"
+    },
+    "poetic_1": "从一开始，粉丝的渴望和艺术家的梦想就背道而驰。",
+    "@poetic_1": {
+        "manualTranslation": true,
+        "description": "Score 1 poetic relationship"
+    },
+    "poetic_2": "越接近他们的世界，反而像星星般遥远。",
+    "@poetic_2": {
+        "manualTranslation": true,
+        "description": "Score 2 poetic relationship"
+    },
+    "poetic_3": "一种难以调和的关系，注定寻找不到共同点。",
+    "@poetic_3": {
+        "manualTranslation": true,
+        "description": "Score 3 poetic relationship"
+    },
+    "poetic_4": "像一阵清风，关系来去无影踪。",
+    "@poetic_4": {
+        "manualTranslation": true,
+        "description": "Score 4 poetic relationship"
+    },
+    "poetic_5": "回声始终无法抵达彼此的心灵。",
+    "@poetic_5": {
+        "manualTranslation": true,
+        "description": "Score 5 poetic relationship"
+    },
+    "poetic_6": "两个灵魂被一道无法跨越的墙壁隔开。",
+    "@poetic_6": {
+        "manualTranslation": true,
+        "description": "Score 6 poetic relationship"
+    },
+    "poetic_7": "一个像沙漠般干涸的连接，毫无共鸣。",
+    "@poetic_7": {
+        "manualTranslation": true,
+        "description": "Score 7 poetic relationship"
+    },
+    "poetic_8": "凝视遥远的地平线，充满无奈。",
+    "@poetic_8": {
+        "manualTranslation": true,
+        "description": "Score 8 poetic relationship"
+    },
+    "poetic_9": "像在完全不同语言之间尝试对话的陌生人。",
+    "@poetic_9": {
+        "manualTranslation": true,
+        "description": "Score 9 poetic relationship"
+    },
+    "poetic_10": "这是一场充满冲突却找不到终点的旅程。",
+    "@poetic_10": {
+        "manualTranslation": true,
+        "description": "Score 10 poetic relationship"
+    },
+    "poetic_11": "距离越近，艺术家的形象就越模糊。",
+    "@poetic_11": {
+        "manualTranslation": true,
+        "description": "Score 11 poetic relationship"
+    },
+    "poetic_12": "希望撞上现实后，只留下残破的失望。",
+    "@poetic_12": {
+        "manualTranslation": true,
+        "description": "Score 12 poetic relationship"
+    },
+    "poetic_13": "一个向和谐靠近却总是失之交臂的关系。",
+    "@poetic_13": {
+        "manualTranslation": true,
+        "description": "Score 13 poetic relationship"
+    },
+    "poetic_14": "一条恐惧之河隔开了粉丝与艺术家。",
+    "@poetic_14": {
+        "manualTranslation": true,
+        "description": "Score 14 poetic relationship"
+    },
+    "poetic_15": "一种失衡的联系，留下令人不安的痕迹。",
+    "@poetic_15": {
+        "manualTranslation": true,
+        "description": "Score 15 poetic relationship"
+    },
+    "poetic_16": "彼此划定的边界，无法跨越或妥协。",
+    "@poetic_16": {
+        "manualTranslation": true,
+        "description": "Score 16 poetic relationship"
+    },
+    "poetic_17": "模糊的视角让相互理解显得遥不可及。",
+    "@poetic_17": {
+        "manualTranslation": true,
+        "description": "Score 17 poetic relationship"
+    },
+    "poetic_18": "情感迷宫让两人无法携手走出。",
+    "@poetic_18": {
+        "manualTranslation": true,
+        "description": "Score 18 poetic relationship"
+    },
+    "poetic_19": "像无休止的漩涡般，不断卷入冲突。",
+    "@poetic_19": {
+        "manualTranslation": true,
+        "description": "Score 19 poetic relationship"
+    },
+    "poetic_20": "像逆流的两条河，永远无法汇合。",
+    "@poetic_20": {
+        "manualTranslation": true,
+        "description": "Score 20 poetic relationship"
+    },
+    "poetic_21": "冷漠的空间中，彼此的心门紧闭。",
+    "@poetic_21": {
+        "manualTranslation": true,
+        "description": "Score 21 poetic relationship"
+    },
+    "poetic_22": "沉重的气氛阻止了相互的承认。",
+    "@poetic_22": {
+        "manualTranslation": true,
+        "description": "Score 22 poetic relationship"
+    },
+    "poetic_23": "一次更像是试探而非真正联系的相遇。",
+    "@poetic_23": {
+        "manualTranslation": true,
+        "description": "Score 23 poetic relationship"
+    },
+    "poetic_24": "拼图碎片似乎永远无法契合。",
+    "@poetic_24": {
+        "manualTranslation": true,
+        "description": "Score 24 poetic relationship"
+    },
+    "poetic_25": "一个空洞的粉丝关系，无论付出多少都得不到回报。",
+    "@poetic_25": {
+        "manualTranslation": true,
+        "description": "Score 25 poetic relationship"
+    },
+    "poetic_26": "只有分离才能找到安宁的关系。",
+    "@poetic_26": {
+        "manualTranslation": true,
+        "description": "Score 26 poetic relationship"
+    },
+    "poetic_27": "一个从一开始就注定走向尽头的关系。",
+    "@poetic_27": {
+        "manualTranslation": true,
+        "description": "Score 27 poetic relationship"
+    },
+    "poetic_28": "一个只专注于彼此缺陷的视角。",
+    "@poetic_28": {
+        "manualTranslation": true,
+        "description": "Score 28 poetic relationship"
+    },
+    "poetic_29": "越接近越受伤的锋利纽带。",
+    "@poetic_29": {
+        "manualTranslation": true,
+        "description": "Score 29 poetic relationship"
+    },
+    "poetic_30": "误解的循环压倒了沟通的努力。",
+    "@poetic_30": {
+        "manualTranslation": true,
+        "description": "Score 30 poetic relationship"
+    },
+    "poetic_31": "粉丝越靠近，这种关系就越沉重。",
+    "@poetic_31": {
+        "manualTranslation": true,
+        "description": "Score 31 poetic relationship"
+    },
+    "poetic_32": "两个无法弥补彼此空虚的存在。",
+    "@poetic_32": {
+        "manualTranslation": true,
+        "description": "Score 32 poetic relationship"
+    },
+    "poetic_33": "像走在完全不同道路上的两双脚步。",
+    "@poetic_33": {
+        "manualTranslation": true,
+        "description": "Score 33 poetic relationship"
+    },
+    "poetic_34": "一个在误解的裂缝中摇摇欲坠的联系。",
+    "@poetic_34": {
+        "manualTranslation": true,
+        "description": "Score 34 poetic relationship"
+    },
+    "poetic_35": "这种关系强调差异多于共同点。",
+    "@poetic_35": {
+        "manualTranslation": true,
+        "description": "Score 35 poetic relationship"
+    },
+    "poetic_36": "共鸣像陌生的音符，从未变得熟悉。",
+    "@poetic_36": {
+        "manualTranslation": true,
+        "description": "Score 36 poetic relationship"
+    },
+    "poetic_37": "这种不和谐只会带来更多的不安。",
+    "@poetic_37": {
+        "manualTranslation": true,
+        "description": "Score 37 poetic relationship"
+    },
+    "poetic_38": "错配的频率始终无法调和。",
+    "@poetic_38": {
+        "manualTranslation": true,
+        "description": "Score 38 poetic relationship"
+    },
+    "poetic_39": "只有保持谨慎的距离，才能让关系存活。",
+    "@poetic_39": {
+        "manualTranslation": true,
+        "description": "Score 39 poetic relationship"
+    },
+    "poetic_40": "一段轻浅的联系，但缺乏深度。",
+    "@poetic_40": {
+        "manualTranslation": true,
+        "description": "Score 40 poetic relationship"
+    },
+    "poetic_41": "作为朋友关系成立，但无法深入更远。",
+    "@poetic_41": {
+        "manualTranslation": true,
+        "description": "Score 41 poetic relationship"
+    },
+    "poetic_42": "一段被有限理解限制的关系。",
+    "@poetic_42": {
+        "manualTranslation": true,
+        "description": "Score 42 poetic relationship"
+    },
+    "poetic_43": "互动中既没有温暖，也没有激烈冲突。",
+    "@poetic_43": {
+        "manualTranslation": true,
+        "description": "Score 43 poetic relationship"
+    },
+    "poetic_44": "为了靠近必须忍受的种种不适。",
+    "@poetic_44": {
+        "manualTranslation": true,
+        "description": "Score 44 poetic relationship"
+    },
+    "poetic_45": "脆弱的联系随着时间推移冲突加剧。",
+    "@poetic_45": {
+        "manualTranslation": true,
+        "description": "Score 45 poetic relationship"
+    },
+    "poetic_46": "一种浅显的兴趣，无法触及核心。",
+    "@poetic_46": {
+        "manualTranslation": true,
+        "description": "Score 46 poetic relationship"
+    },
+    "poetic_47": "粉丝和艺术家之间隐约的距离感。",
+    "@poetic_47": {
+        "manualTranslation": true,
+        "description": "Score 47 poetic relationship"
+    },
+    "poetic_48": "一扇微微开启的门，充满未完成的可能性。",
+    "@poetic_48": {
+        "manualTranslation": true,
+        "description": "Score 48 poetic relationship"
+    },
+    "poetic_49": "一种不完美但充满成长希望的联系。",
+    "@poetic_49": {
+        "manualTranslation": true,
+        "description": "Score 49 poetic relationship"
+    },
+    "poetic_50": "一种关系，充满相互支持的潜力。",
+    "@poetic_50": {
+        "manualTranslation": true,
+        "description": "Score 50 poetic relationship"
+    },
+    "poetic_51": "通过耐心和努力，可以达成的平衡。",
+    "@poetic_51": {
+        "manualTranslation": true,
+        "description": "Score 51 poetic relationship"
+    },
+    "poetic_52": "这段联系为双方提供了成长的机会。",
+    "@poetic_52": {
+        "manualTranslation": true,
+        "description": "Score 52 poetic relationship"
+    },
+    "poetic_53": "初显的和谐光芒照亮了彼此的道路。",
+    "@poetic_53": {
+        "manualTranslation": true,
+        "description": "Score 53 poetic relationship"
+    },
+    "poetic_54": "通往深层理解的路径变得清晰。",
+    "@poetic_54": {
+        "manualTranslation": true,
+        "description": "Score 54 poetic relationship"
+    },
+    "poetic_55": "细微的行为却带来了重要的变化。",
+    "@poetic_55": {
+        "manualTranslation": true,
+        "description": "Score 55 poetic relationship"
+    },
+    "poetic_56": "共同梦想的种子开始生根发芽。",
+    "@poetic_56": {
+        "manualTranslation": true,
+        "description": "Score 56 poetic relationship"
+    },
+    "poetic_57": "稳定合作的基础逐渐成形。",
+    "@poetic_57": {
+        "manualTranslation": true,
+        "description": "Score 57 poetic relationship"
+    },
+    "poetic_58": "随着时间推移，关系变得更积极。",
+    "@poetic_58": {
+        "manualTranslation": true,
+        "description": "Score 58 poetic relationship"
+    },
+    "poetic_59": "未来和谐的稳固基础已然奠定。",
+    "@poetic_59": {
+        "manualTranslation": true,
+        "description": "Score 59 poetic relationship"
+    },
+    "poetic_60": "这种联系接受缺陷并以此变得更强。",
+    "@poetic_60": {
+        "manualTranslation": true,
+        "description": "Score 60 poetic relationship"
+    },
+    "poetic_61": "一种能够提供情感稳定的关系。",
+    "@poetic_61": {
+        "manualTranslation": true,
+        "description": "Score 61 poetic relationship"
+    },
+    "poetic_62": "一种温暖的纽带，促进了共同成长。",
+    "@poetic_62": {
+        "manualTranslation": true,
+        "description": "Score 62 poetic relationship"
+    },
+    "poetic_63": "一个关于共同梦想未来的联系。",
+    "@poetic_63": {
+        "manualTranslation": true,
+        "description": "Score 63 poetic relationship"
+    },
+    "poetic_64": "通过鼓励彼此进步，这段关系不断发展。",
+    "@poetic_64": {
+        "manualTranslation": true,
+        "description": "Score 64 poetic relationship"
+    },
+    "poetic_65": "一种罕见的稳定与激情并存的纽带。",
+    "@poetic_65": {
+        "manualTranslation": true,
+        "description": "Score 65 poetic relationship"
+    },
+    "poetic_66": "这段关系能够克服生活的种种挑战。",
+    "@poetic_66": {
+        "manualTranslation": true,
+        "description": "Score 66 poetic relationship"
+    },
+    "poetic_67": "通过相互认可，这段关系更加茁壮成长。",
+    "@poetic_67": {
+        "manualTranslation": true,
+        "description": "Score 67 poetic relationship"
+    },
+    "poetic_68": "通过联系带来了积极的变化。",
+    "@poetic_68": {
+        "manualTranslation": true,
+        "description": "Score 68 poetic relationship"
+    },
+    "poetic_69": "自然流畅地融入了彼此的生活。",
+    "@poetic_69": {
+        "manualTranslation": true,
+        "description": "Score 69 poetic relationship"
+    },
+    "poetic_70": "这种联系因信任而变得更深。",
+    "@poetic_70": {
+        "manualTranslation": true,
+        "description": "Score 70 poetic relationship"
+    },
+    "poetic_71": "一段关系能够放大彼此的优点。",
+    "@poetic_71": {
+        "manualTranslation": true,
+        "description": "Score 71 poetic relationship"
+    },
+    "poetic_72": "共同和谐的未来成为可能。",
+    "@poetic_72": {
+        "manualTranslation": true,
+        "description": "Score 72 poetic relationship"
+    },
+    "poetic_73": "一场充满激励的合作，造福彼此。",
+    "@poetic_73": {
+        "manualTranslation": true,
+        "description": "Score 73 poetic relationship"
+    },
+    "poetic_74": "时间让这种伙伴关系变得更好。",
+    "@poetic_74": {
+        "manualTranslation": true,
+        "description": "Score 74 poetic relationship"
+    },
+    "poetic_75": "这种纽带提升了彼此的最佳品质。",
+    "@poetic_75": {
+        "manualTranslation": true,
+        "description": "Score 75 poetic relationship"
+    },
+    "poetic_76": "迈向完美关系的重要一步。",
+    "@poetic_76": {
+        "manualTranslation": true,
+        "description": "Score 76 poetic relationship"
+    },
+    "poetic_77": "这种联系弥补了彼此的不足。",
+    "@poetic_77": {
+        "manualTranslation": true,
+        "description": "Score 77 poetic relationship"
+    },
+    "poetic_78": "一种带来安全感和温暖的关系。",
+    "@poetic_78": {
+        "manualTranslation": true,
+        "description": "Score 78 poetic relationship"
+    },
+    "poetic_79": "一个真正意义上朝同一方向的旅程。",
+    "@poetic_79": {
+        "manualTranslation": true,
+        "description": "Score 79 poetic relationship"
+    },
+    "poetic_80": "这种关系因信任而不断成长。",
+    "@poetic_80": {
+        "manualTranslation": true,
+        "description": "Score 80 poetic relationship"
+    },
+    "poetic_81": "一段平衡了信任与关怀的完美联系。",
+    "@poetic_81": {
+        "manualTranslation": true,
+        "description": "Score 81 poetic relationship"
+    },
+    "poetic_82": "随着深度增加，这种关系带来了更多的喜悦。",
+    "@poetic_82": {
+        "manualTranslation": true,
+        "description": "Score 82 poetic relationship"
+    },
+    "poetic_83": "这种关系提供了稳定和灵感。",
+    "@poetic_83": {
+        "manualTranslation": true,
+        "description": "Score 83 poetic relationship"
+    },
+    "poetic_84": "接近完美和谐的巅峰体验。",
+    "@poetic_84": {
+        "manualTranslation": true,
+        "description": "Score 84 poetic relationship"
+    },
+    "poetic_85": "共同梦想将团结与目标结合在一起。",
+    "@poetic_85": {
+        "manualTranslation": true,
+        "description": "Score 85 poetic relationship"
+    },
+    "poetic_86": "在每个方面都完美契合的关系。",
+    "@poetic_86": {
+        "manualTranslation": true,
+        "description": "Score 86 poetic relationship"
+    },
+    "poetic_87": "散发着能量与协同作用的伙伴关系。",
+    "@poetic_87": {
+        "manualTranslation": true,
+        "description": "Score 87 poetic relationship"
+    },
+    "poetic_88": "通过共同成长，这种关系更加充实。",
+    "@poetic_88": {
+        "manualTranslation": true,
+        "description": "Score 88 poetic relationship"
+    },
+    "poetic_89": "一种建立在信任与理解基础上的合作。",
+    "@poetic_89": {
+        "manualTranslation": true,
+        "description": "Score 89 poetic relationship"
+    },
+    "poetic_90": "充满关怀与相互尊重的联系。",
+    "@poetic_90": {
+        "manualTranslation": true,
+        "description": "Score 90 poetic relationship"
+    },
+    "poetic_91": "实现完美团结的和谐团队。",
+    "@poetic_91": {
+        "manualTranslation": true,
+        "description": "Score 91 poetic relationship"
+    },
+    "poetic_92": "粉丝与艺术家之间独一无二的联系。",
+    "@poetic_92": {
+        "manualTranslation": true,
+        "description": "Score 92 poetic relationship"
+    },
+    "poetic_93": "一个每个细节都被尊重与理解的纽带。",
+    "@poetic_93": {
+        "manualTranslation": true,
+        "description": "Score 93 poetic relationship"
+    },
+    "poetic_94": "彼此相信可以共同完成一切的信念。",
+    "@poetic_94": {
+        "manualTranslation": true,
+        "description": "Score 94 poetic relationship"
+    },
+    "poetic_95": "一种永恒平衡的联系。",
+    "@poetic_95": {
+        "manualTranslation": true,
+        "description": "Score 95 poetic relationship"
+    },
+    "poetic_96": "满足彼此需求的和谐关系。",
+    "@poetic_96": {
+        "manualTranslation": true,
+        "description": "Score 96 poetic relationship"
+    },
+    "poetic_97": "独特而令人惊叹的非凡关系。",
+    "@poetic_97": {
+        "manualTranslation": true,
+        "description": "Score 97 poetic relationship"
+    },
+    "poetic_98": "这个世界上独一无二的特别缘分。",
+    "@poetic_98": {
+        "manualTranslation": true,
+        "description": "Score 98 poetic relationship"
+    },
+    "poetic_99": "只需彼此注视，便能继续前行的缘分。",
+    "@poetic_99": {
+        "manualTranslation": true,
+        "description": "Score 99 poetic relationship"
+    },
+    "poetic_100": "能够以最美的沟通画上句号的理想缘分。",
+    "@poetic_100": {
+        "manualTranslation": true,
+        "description": "Score 100 poetic relationship"
     }
 }
