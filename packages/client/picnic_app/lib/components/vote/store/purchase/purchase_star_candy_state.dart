@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/store/common/store_point_info.dart';
@@ -17,143 +16,78 @@ import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/product_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
+import 'package:picnic_app/services/purchase_service.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
 class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
-  final InAppPurchaseService _inAppPurchaseService = InAppPurchaseService();
-  final ReceiptVerificationService _receiptVerificationService =
-      ReceiptVerificationService();
-  final AnalyticsService _analyticsService = AnalyticsService();
-
-  List<ProductDetails> _storeProducts = [];
+  late final PurchaseService _purchaseService;
 
   @override
   void initState() {
     super.initState();
-    _inAppPurchaseService.init(_handlePurchaseUpdated);
+    _purchaseService = PurchaseService(
+      ref: ref,
+      inAppPurchaseService: InAppPurchaseService(),
+      receiptVerificationService: ReceiptVerificationService(),
+      analyticsService: AnalyticsService(),
+    );
+    _purchaseService.inAppPurchaseService.init(_handlePurchaseUpdated);
   }
 
   @override
   void dispose() {
-    _inAppPurchaseService.dispose();
+    _purchaseService.inAppPurchaseService.dispose();
     super.dispose();
   }
 
   Future<void> _handlePurchaseUpdated(
       List<PurchaseDetails> purchaseDetailsList) async {
     for (final purchaseDetails in purchaseDetailsList) {
-      await _handlePurchase(purchaseDetails);
-    }
-  }
-
-  Future<void> _handlePurchase(PurchaseDetails purchaseDetails) async {
-    try {
-      switch (purchaseDetails.status) {
-        case PurchaseStatus.pending:
-          // Handle pending status
-          break;
-        case PurchaseStatus.error:
-          await _handlePurchaseError(purchaseDetails);
-          OverlayLoadingProgress.stop();
-          break;
-        case PurchaseStatus.purchased:
-        case PurchaseStatus.restored:
-          await _handleSuccessfulPurchase(purchaseDetails);
-          OverlayLoadingProgress.stop();
-          break;
-        case PurchaseStatus.canceled:
-          await _handleCanceledPurchase();
-          OverlayLoadingProgress.stop();
-          break;
-        default:
-          // Handle other statuses
-          break;
-      }
-
-      if (purchaseDetails.pendingCompletePurchase) {
-        await _inAppPurchaseService.completePurchase(purchaseDetails);
-      }
-    } catch (e, s) {
-      logger.e('Error handling purchase: $e', stackTrace: s);
-      if (mounted) {
-        await _showErrorDialog(S.of(context).dialog_message_purchase_failed);
-      }
-      rethrow;
-    } finally {
-      // OverlayLoadingProgress.stop();
-    }
-  }
-
-  Future<void> _handlePurchaseError(PurchaseDetails purchaseDetails) async {
-    logger.e('Purchase error: ${purchaseDetails.error!.message}');
-    await _showErrorDialog(S.of(context).dialog_message_purchase_failed);
-  }
-
-  Future<void> _handleSuccessfulPurchase(
-      PurchaseDetails purchaseDetails) async {
-    try {
-      await _receiptVerificationService.verifyReceipt(
-        purchaseDetails.verificationData.serverVerificationData,
-        purchaseDetails.productID,
-        supabase.auth.currentUser!.id,
-        await _receiptVerificationService.getEnvironment(),
+      await _purchaseService.handlePurchase(
+        purchaseDetails,
+        () async {
+          await ref.read(userInfoProvider.notifier).getUserProfiles();
+          if (mounted) {
+            await _showSuccessDialog();
+          }
+        },
+        (error) async {
+          if (mounted) {
+            await _showErrorDialog(error);
+          }
+        },
       );
-
-      // AnalyticsService 연동 추가
-      final productDetails = _storeProducts.firstWhere(
-        (product) => product.id == purchaseDetails.productID,
-        orElse: () => throw Exception('Product not found'),
-      );
-      await _analyticsService.logPurchaseEvent(productDetails);
-
-      await ref.read(userInfoProvider.notifier).getUserProfiles();
-
-      if (mounted) {
-        await _showSuccessDialog();
-      }
-    } catch (e, s) {
-      logger.e('Error in handleSuccessfulPurchase: $e', stackTrace: s);
-      if (mounted) {
-        await _showErrorDialog(S.of(context).dialog_message_purchase_failed);
-      }
-      rethrow;
+      OverlayLoadingProgress.stop();
     }
-  }
-
-  Future<void> _handleCanceledPurchase() async {
-    await _showErrorDialog(S.of(context).dialog_message_purchase_canceled);
   }
 
   Future<void> _handleBuyButtonPressed(
-      BuildContext context,
-      Map<String, dynamic> serverProduct,
-      List<ProductDetails> storeProducts) async {
-    OverlayLoadingProgress.start(context,
-        barrierDismissible: false, color: AppColors.primary500);
+    BuildContext context,
+    Map<String, dynamic> serverProduct,
+    List<ProductDetails> storeProducts,
+  ) async {
+    OverlayLoadingProgress.start(
+      context,
+      barrierDismissible: false,
+      color: AppColors.primary500,
+    );
 
     if (!supabase.isLogged) {
       showRequireLoginDialog();
+      return;
     }
-    try {
-      final productDetails = storeProducts.firstWhere(
-        (element) => Platform.isAndroid
-            ? element.id.toUpperCase() == serverProduct['id']
-            : element.id == serverProduct['id'],
-        orElse: () => throw Exception('Product not found in store products'),
-      );
 
-      await _inAppPurchaseService.buyConsumable(productDetails);
-    } catch (e, s) {
-      logger.e('Error during buy button press: $e', stackTrace: s);
-      if (mounted) {
-        await _showErrorDialog(S.of(context).dialog_message_purchase_failed);
-      }
+    try {
+      await _purchaseService.initiatePurchase(
+        serverProduct['id'],
+      );
+    } catch (e) {
+      await _showErrorDialog(Intl.message('dialog_message_purchase_failed'));
       rethrow;
     } finally {}
   }
@@ -164,8 +98,6 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
   }
 
   Future<void> _showSuccessDialog() async {
-    if (!mounted) return;
-    final context = this.context;
     showSimpleDialog(content: S.of(context).dialog_message_purchase_success);
   }
 
@@ -269,7 +201,6 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
 
   Widget _buildProductList(List<Map<String, dynamic>> serverProducts,
       List<ProductDetails> storeProducts) {
-    _storeProducts = storeProducts; // 여기에 추가
     return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
