@@ -85,6 +85,12 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
     try {
       await _purchaseService.initiatePurchase(
         serverProduct['id'],
+        onSuccess: () {
+          _showSuccessDialog();
+        },
+        onError: (message) {
+          _showErrorDialog(message);
+        },
       );
     } catch (e) {
       await _showErrorDialog(Intl.message('dialog_message_purchase_failed'));
