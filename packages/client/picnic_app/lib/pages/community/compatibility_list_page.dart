@@ -13,9 +13,6 @@ import 'package:picnic_app/providers/community/compatibility_list_provider.dart'
 import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util/date.dart';
-import 'package:picnic_app/util/ui.dart';
-import 'package:timeago/timeago.dart' as timeago;
 
 class CompatibilityHistoryPage extends ConsumerStatefulWidget {
   const CompatibilityHistoryPage({super.key, this.artistId});
