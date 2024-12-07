@@ -12,7 +12,6 @@ Deno.serve(async (req) => {
         const compatibilityService = new CompatibilityService();
         const supabase = getSupabaseClient();
 
-        // 호환성 데이터 조회
         const { data: compatibility, error: fetchError } = await supabase
             .from('compatibility_results')
             .select('*, artist:artist_id(*)')
@@ -25,8 +24,8 @@ Deno.serve(async (req) => {
 
         // 결과 생성 및 저장
         const result = await compatibilityService.getOrGenerateResults(compatibility);
-        await compatibilityService.updateResults(compatibility_id, result);
-        await compatibilityService.generateAndStoreTranslations(compatibility_id, result);
+        const updatedResult = await compatibilityService.updateResults(compatibility_id, result);
+        await compatibilityService.generateAndStoreTranslations(compatibility_id, updatedResult);
 
         return createSuccessResponse({ success: true });
     } catch (error) {

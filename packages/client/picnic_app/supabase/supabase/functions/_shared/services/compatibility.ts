@@ -9,7 +9,6 @@ import type { Compatibility, CompatibilityResult } from '../types/compatibility.
 export class CompatibilityService {
     private supabase;
     private promptService;
-
     constructor() {
         this.supabase = getSupabaseClient();
         this.promptService = PromptService.getInstance();
@@ -20,7 +19,7 @@ export class CompatibilityService {
             // 동일한 조합의 기존 결과 검색
             const query = this.supabase
                 .from('compatibility_results')
-                .select('compatibility_score, compatibility_summary, details, tips')
+                .select()
                 .eq('artist_id', compatibility.artist_id)
                 .eq('idol_birth_date', compatibility.idol_birth_date)
                 .eq('user_birth_date', compatibility.user_birth_date)
@@ -59,19 +58,24 @@ export class CompatibilityService {
     async updateResults(
         compatibilityId: string,
         result: CompatibilityResult,
-    ): Promise<void> {
+    ): Promise<CompatibilityResult> {
         try {
-            const { error } = await this.supabase
+            const compatibility_score = Math.round(Math.random() * 100);
+
+            const { data: updatedResult, error } = await this.supabase
                 .from('compatibility_results')
                 .update({
                     ...result,
+                    compatibility_score,
                     status: 'completed',
                     completed_at: new Date().toISOString(),
                     error_message: null,
                 })
-                .eq('id', compatibilityId);
+                .eq('id', compatibilityId).select().single();
 
             if (error) throw error;
+
+            return updatedResult;
         } catch (error) {
             logError(error, {
                 context: 'update-compatibility',
@@ -87,26 +91,30 @@ export class CompatibilityService {
         result: CompatibilityResult,
     ): Promise<void> {
         try {
-            // 기존 번역 삭제
-            await this.supabase
-                .from('compatibility_results_i18n')
-                .delete()
-                .eq('compatibility_id', compatibilityId);
+            const descriptions = await this.getDescriptions(result.compatibility_score);
 
             // 각 언어별 번역 생성 및 저장
             for (const lang of SUPPORTED_LANGUAGES) {
                 try {
                     const translatedResult = await this.translateResult(result, lang);
 
-                    await this.supabase
+                    const insertData = {
+                        compatibility_id: compatibilityId,
+                        language: lang,
+                        compatibility_score: result.compatibility_score,
+                        compatibility_summary: descriptions[0][lang],
+                        details: translatedResult.details,
+                        tips: translatedResult.tips,
+                    };
+
+                    const { error } = await this.supabase
                         .from('compatibility_results_i18n')
-                        .insert({
-                            compatibility_id: compatibilityId,
-                            language: lang,
-                            ...translatedResult,
-                            created_at: new Date().toISOString(),
-                            updated_at: new Date().toISOString(),
-                        });
+                        .insert(insertData);
+
+                    if (error) {
+                        console.error(`Insert error for ${lang}:`, error);
+                        throw error;
+                    }
 
                     console.log(`Successfully saved ${lang} translation`);
                 } catch (langError) {
@@ -135,6 +143,7 @@ export class CompatibilityService {
             const variables = {
                 artist_name: compatibility.artist.name,
                 idol_birth_date: formatDate(compatibility.idol_birth_date),
+                idol_gender: compatibility.artist.gender,
                 user_birth_date: formatDate(compatibility.user_birth_date),
                 user_birth_time: compatibility.user_birth_time || '미상',
                 gender: compatibility.gender,
@@ -191,8 +200,6 @@ export class CompatibilityService {
     private validateResult(result: any): result is CompatibilityResult {
         return (
             result &&
-            typeof result.compatibility_score === 'number' &&
-            typeof result.compatibility_summary === 'string' &&
             Array.isArray(result.tips) &&
             result.tips.length === 3 &&
             result.details?.style &&
@@ -224,9 +231,19 @@ export class CompatibilityService {
 
         return {
             ...result,
-            compatibility_summary: await translateText(result.compatibility_summary, targetLang),
             details: translatedDetails,
             tips: await translateBatch(result.tips, targetLang),
         };
+    }
+
+    private async getDescriptions(score: number) {
+        const { data: descriptions, error } = await this.supabase
+            .from('compatibility_score_descriptions')
+            .select('score, ko, en, ja, zh')
+            .eq('score', score);
+
+        if (error) throw error;
+
+        return descriptions;
     }
 }

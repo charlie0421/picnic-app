@@ -141,7 +141,7 @@ class _CompatibilityResultPageState
     try {
       await ref
           .read(compatibilityProvider.notifier)
-          .loadCompatibility(widget.compatibility.id);
+          .loadCompatibility(widget.compatibility.id, forceRefresh: true);
 
       if (widget.compatibility.isPending) {
         ref.read(compatibilityLoadingProvider.notifier).state = true;
@@ -161,7 +161,7 @@ class _CompatibilityResultPageState
     try {
       await ref
           .read(compatibilityProvider.notifier)
-          .loadCompatibility(widget.compatibility.id);
+          .loadCompatibility(widget.compatibility.id, forceRefresh: true);
     } catch (e, stack) {
       logger.e('Error refreshing compatibility data',
           error: e, stackTrace: stack);

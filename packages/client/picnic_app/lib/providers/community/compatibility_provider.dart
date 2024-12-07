@@ -29,16 +29,28 @@ class Compatibility extends _$Compatibility {
     return const AsyncValue.data(null);
   }
 
-  Future<void> setCompatibility(CompatibilityModel compatibility) async {
-    state = AsyncValue.data(compatibility);
+  final Set<String> _processingIds = {};
 
-    // Reset loading state
+  Future<void> setCompatibility(CompatibilityModel compatibility) async {
+    // 이미 동일한 데이터로 처리 중인 경우 중복 실행 방지
+    if (state.isLoading ||
+        (state.hasValue && state.value?.id == compatibility.id)) {
+      return;
+    }
+
+    state = AsyncValue.data(compatibility);
     ref.read(compatibilityLoadingProvider.notifier).state = false;
 
-    // If pending, start loading and processing
     if (compatibility.isPending) {
+      // 이미 처리 중인 ID인지 확인
+      if (_processingIds.contains(compatibility.id)) {
+        return;
+      }
+      _processingIds.add(compatibility.id);
+
       ref.read(compatibilityLoadingProvider.notifier).state = true;
-      _processInBackground(compatibility);
+      await _processInBackground(compatibility);
+      _processingIds.remove(compatibility.id);
     }
   }
 
@@ -90,9 +102,9 @@ class Compatibility extends _$Compatibility {
   Future<void> loadCompatibility(String id, {bool forceRefresh = false}) async {
     if (state.isLoading) return;
 
-    // if (!forceRefresh && state.hasValue && state.value?.id == id) {
-    //   return;
-    // }
+    if (!forceRefresh && state.hasValue && state.value?.id == id) {
+      return;
+    }
 
     state = const AsyncValue.loading();
 
