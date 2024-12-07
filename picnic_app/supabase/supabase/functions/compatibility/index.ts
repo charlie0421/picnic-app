@@ -22,10 +22,14 @@ Deno.serve(async (req) => {
             throw new Error('Compatibility record not found');
         }
 
-        // 결과 생성 및 저장
-        const result = await compatibilityService.getOrGenerateResults(compatibility);
-        const updatedResult = await compatibilityService.updateResults(compatibility_id, result);
-        await compatibilityService.generateAndStoreTranslations(compatibility_id, updatedResult);
+        if (await compatibilityService.existSimilarResults(compatibility)) {
+            await compatibilityService.copyExistingResults(compatibility);
+        } else {
+            await compatibilityService.generateNewResults(compatibility);
+            await compatibilityService.updateCompleted(
+                compatibility_id,
+            );
+        }
 
         return createSuccessResponse({ success: true });
     } catch (error) {

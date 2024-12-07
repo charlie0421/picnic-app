@@ -14,7 +14,6 @@ import 'package:picnic_app/components/common/underlined_widget.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_error.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_info.dart';
 import 'package:picnic_app/components/community/compatibility/fortune_divider.dart';
-import 'package:picnic_app/components/community/compatibility/poetic_message.dart';
 import 'package:picnic_app/components/vote/store/purchase/analytics_service.dart';
 import 'package:picnic_app/components/vote/store/purchase/in_app_purchase_service.dart';
 import 'package:picnic_app/components/vote/store/purchase/receipt_verification_service.dart';
@@ -207,7 +206,7 @@ class _CompatibilityResultPageState
             constraints: const BoxConstraints(minHeight: 60),
             child: Center(
               child: Text(
-                PoeticMessages.get(context, localizedResult.compatibilityScore),
+                localizedResult.compatibilitySummary,
                 style: getTextStyle(AppTypo.body14R, AppColors.grey00),
                 textAlign: TextAlign.center,
               ),

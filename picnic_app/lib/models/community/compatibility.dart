@@ -81,7 +81,7 @@ class CompatibilityModel with _$CompatibilityModel {
     String? gender,
     String? errorMessage,
     bool? isLoading,
-    @JsonKey(name: 'compatibility_score') int? compatibilityScore,
+    @JsonKey(name: 'score') int? score,
     @JsonKey(name: 'compatibility_summary') String? compatibilitySummary,
     Details? details,
     List<String>? tips,
@@ -110,7 +110,10 @@ class CompatibilityModel with _$CompatibilityModel {
 class LocalizedCompatibility with _$LocalizedCompatibility {
   const factory LocalizedCompatibility({
     required String language,
-    @JsonKey(name: 'compatibility_score') required int compatibilityScore,
+    @JsonKey(name: 'score') required int score,
+    @JsonKey(name: 'score_title') required String scoreTitle,
+    @JsonKey(name: 'compatibility_summary')
+    required String compatibilitySummary,
     @JsonKey(name: 'details') Details? details,
     @Default([]) List<String> tips,
   }) = _LocalizedCompatibility;

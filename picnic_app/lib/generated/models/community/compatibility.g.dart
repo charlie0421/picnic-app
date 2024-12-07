@@ -57,8 +57,7 @@ _$CompatibilityModelImpl _$$CompatibilityModelImplFromJson(
           gender: $checkedConvert('gender', (v) => v as String?),
           errorMessage: $checkedConvert('error_message', (v) => v as String?),
           isLoading: $checkedConvert('is_loading', (v) => v as bool?),
-          compatibilityScore: $checkedConvert(
-              'compatibility_score', (v) => (v as num?)?.toInt()),
+          score: $checkedConvert('score', (v) => (v as num?)?.toInt()),
           compatibilitySummary:
               $checkedConvert('compatibility_summary', (v) => v as String?),
           details: $checkedConvert(
@@ -85,7 +84,6 @@ _$CompatibilityModelImpl _$$CompatibilityModelImplFromJson(
         'birthTime': 'user_birth_time',
         'errorMessage': 'error_message',
         'isLoading': 'is_loading',
-        'compatibilityScore': 'compatibility_score',
         'compatibilitySummary': 'compatibility_summary',
         'createdAt': 'created_at',
         'completedAt': 'completed_at',
@@ -107,7 +105,7 @@ Map<String, dynamic> _$$CompatibilityModelImplToJson(
       'gender': instance.gender,
       'error_message': instance.errorMessage,
       'is_loading': instance.isLoading,
-      'compatibility_score': instance.compatibilityScore,
+      'score': instance.score,
       'compatibility_summary': instance.compatibilitySummary,
       'details': instance.details?.toJson(),
       'tips': instance.tips,
@@ -133,8 +131,10 @@ _$LocalizedCompatibilityImpl _$$LocalizedCompatibilityImplFromJson(
       ($checkedConvert) {
         final val = _$LocalizedCompatibilityImpl(
           language: $checkedConvert('language', (v) => v as String),
-          compatibilityScore:
-              $checkedConvert('compatibility_score', (v) => (v as num).toInt()),
+          score: $checkedConvert('score', (v) => (v as num).toInt()),
+          scoreTitle: $checkedConvert('score_title', (v) => v as String),
+          compatibilitySummary:
+              $checkedConvert('compatibility_summary', (v) => v as String),
           details: $checkedConvert(
               'details',
               (v) => v == null
@@ -148,14 +148,19 @@ _$LocalizedCompatibilityImpl _$$LocalizedCompatibilityImplFromJson(
         );
         return val;
       },
-      fieldKeyMap: const {'compatibilityScore': 'compatibility_score'},
+      fieldKeyMap: const {
+        'scoreTitle': 'score_title',
+        'compatibilitySummary': 'compatibility_summary'
+      },
     );
 
 Map<String, dynamic> _$$LocalizedCompatibilityImplToJson(
         _$LocalizedCompatibilityImpl instance) =>
     <String, dynamic>{
       'language': instance.language,
-      'compatibility_score': instance.compatibilityScore,
+      'score': instance.score,
+      'score_title': instance.scoreTitle,
+      'compatibility_summary': instance.compatibilitySummary,
       'details': instance.details?.toJson(),
       'tips': instance.tips,
     };
