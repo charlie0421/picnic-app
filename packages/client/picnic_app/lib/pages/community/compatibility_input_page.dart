@@ -207,7 +207,7 @@ class _CompatibilityInputScreenState
           gender,
           status,
           error_message,
-          compatibility_score,
+          score,
           created_at,
           completed_at,
           is_paid

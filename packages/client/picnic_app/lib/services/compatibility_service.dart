@@ -80,7 +80,7 @@ ${birthTime == null ? '' : '- 태어난 시간: $birthTime'}
         idolBirthDate: idolBirthDate,
         userGender: userGender,
         birthTime: birthTime,
-        compatibilityScore: resultJson['compatibility_score'],
+        compatibilityScore: resultJson['score'],
         compatibilitySummary: resultJson['compatibility_summary'],
         details: resultJson['details'],
         tips: List<String>.from(resultJson['tips']),

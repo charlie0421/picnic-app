@@ -6,7 +6,7 @@ part of '../../../providers/community/compatibility_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$compatibilityListHash() => r'443105867dfd827e865e3b1969dac63d94a46357';
+String _$compatibilityListHash() => r'2b2c2f8d19e68ad6f2cb51821815229f953f6bb4';
 
 /// Copied from Dart SDK
 class _SystemHash {

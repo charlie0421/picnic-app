@@ -64,8 +64,18 @@ class CompatibilityList extends _$CompatibilityList {
     final from = page * _pageSize;
     final to = from + _pageSize - 1;
 
-    var query =
-        supabase.from(_table).select('*, artist(*)').eq('user_id', userId);
+    var query = supabase.from(_table).select('''
+          *,
+          artist(*),
+          i18n: compatibility_results_i18n (
+            language,
+            score,
+            score_title,
+            compatibility_summary,
+            details,
+            tips
+          )
+        ''').eq('user_id', userId);
 
     if (_artistId != null) {
       query = query.eq('artist_id', _artistId!);
@@ -74,10 +84,9 @@ class CompatibilityList extends _$CompatibilityList {
     final response =
         await query.order('created_at', ascending: false).range(from, to);
 
-    response.map((data) => logger.d('data: ${data['is_ads']}'));
-
-    return (response as List)
-        .map((data) => CompatibilityModel.fromJson(data))
-        .toList();
+    return (response as List).map((data) {
+      logger.d('Compatibility data: $data');
+      return CompatibilityModel.fromJson(data);
+    }).toList();
   }
 }

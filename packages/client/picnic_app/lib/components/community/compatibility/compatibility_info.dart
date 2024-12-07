@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
@@ -136,20 +137,15 @@ class CompatibilityInfo extends StatelessWidget {
           if (compatibility?.status == CompatibilityStatus.completed &&
               compatibility?.isAds == true)
             AnimatedCompatibilityBar(
-              score: compatibility!.compatibilityScore ?? 0,
-              message: _getScoreMessage(
-                  context, compatibility!.compatibilityScore ?? 0),
+              score: compatibility!
+                      .localizedResults![Intl.getCurrentLocale()]!.score ??
+                  0,
+              message: compatibility!
+                  .localizedResults![Intl.getCurrentLocale()]!.scoreTitle,
             ),
         ],
       ),
     );
-  }
-
-  String _getScoreMessage(BuildContext context, int score) {
-    if (score >= 90) return S.of(context).compatibility_result_90;
-    if (score >= 80) return S.of(context).compatibility_result_80;
-    if (score >= 70) return S.of(context).compatibility_result_70;
-    return S.of(context).compatibility_result_low;
   }
 }
 
