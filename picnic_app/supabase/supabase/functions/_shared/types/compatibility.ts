@@ -24,5 +24,6 @@ export interface Compatibility {
     artist_id: string;
     artist: {
         name: string;
+        gender: string;
     };
 }
