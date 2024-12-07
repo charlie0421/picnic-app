@@ -243,17 +243,22 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
   }
 
   Widget _buildLoginOptions(BuildContext context, WidgetRef ref) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (isIOS()) _buildAppleLogin(context),
-        _buildGoogleLogin(
-          context,
-        ),
-        _buildKakaoLogin(
-          context,
-        ),
-      ],
+    return Container(
+      padding: const EdgeInsets.only(top: 24, bottom: 24),
+      width: double.infinity,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          if (isIOS()) _buildAppleLogin(context),
+          _buildGoogleLogin(
+            context,
+          ),
+          _buildKakaoLogin(
+            context,
+          ),
+        ],
+      ),
     );
   }
 
@@ -312,9 +317,11 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
     return Stack(
       children: [
         Container(
+          width: 240,
           height: 44,
-          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 60),
+          margin: const EdgeInsets.symmetric(vertical: 4),
           child: SignInWithAppleButton(
+            height: 44,
             onPressed: () async {
               try {
                 OverlayLoadingProgress.start(context,
@@ -365,63 +372,69 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
   }
 
   Widget _buildGoogleLogin(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      return Stack(
-        children: [
-          InkWell(
-            onTap: () async {
-              try {
-                OverlayLoadingProgress.start(context,
-                    color: AppColors.primary500, barrierDismissible: false);
+    return Stack(
+      children: [
+        GestureDetector(
+          onTap: () async {
+            try {
+              OverlayLoadingProgress.start(context,
+                  color: AppColors.primary500, barrierDismissible: false);
 
-                if (kIsWeb) {
-                  await supabase.auth.signInWithOAuth(
-                    OAuthProvider.google,
-                    redirectTo: '${Environment.webDomain}/auth/callback',
-                    scopes: 'email profile',
-                  );
+              if (kIsWeb) {
+                await supabase.auth.signInWithOAuth(
+                  OAuthProvider.google,
+                  redirectTo: '${Environment.webDomain}/auth/callback',
+                  scopes: 'email profile',
+                );
+              } else {
+                final user =
+                    await _authService.signInWithProvider(OAuthProvider.google);
+                OverlayLoadingProgress.stop();
+                if (user != null) {
+                  _handleSuccessfulLogin();
                 } else {
-                  final user = await _authService
-                      .signInWithProvider(OAuthProvider.google);
-                  OverlayLoadingProgress.stop();
-                  if (user != null) {
-                    _handleSuccessfulLogin();
-                  } else {
-                    throw PicnicAuthExceptions.unknown();
-                  }
+                  throw PicnicAuthExceptions.unknown();
                 }
-              } on PicnicAuthException catch (e) {
-                OverlayLoadingProgress.stop();
-                logger.e(
-                    'Google login PicnicAuthException: $e (originalError: ${e.originalError})');
-
-                if (e.code == 'canceled') {
-                  return;
-                }
-
-                showSimpleDialog(
-                    type: DialogType.error,
-                    title: Intl.message('error_title'),
-                    content: e.message,
-                    onOk: () {
-                      Navigator.of(context).pop();
-                    });
-              } catch (e, s) {
-                OverlayLoadingProgress.stop();
-                logger.e('Error signing in with Google: $e', stackTrace: s);
-
-                showSimpleDialog(
-                    type: DialogType.error,
-                    title: Intl.message('error_title'),
-                    content: Intl.message('error_message_login_failed'),
-                    onOk: () {
-                      Navigator.of(context).pop();
-                    });
-                rethrow;
               }
-            },
-            child: SizedBox(
-              height: 50,
+            } on PicnicAuthException catch (e) {
+              OverlayLoadingProgress.stop();
+              logger.e(
+                  'Google login PicnicAuthException: $e (originalError: ${e.originalError})');
+
+              if (e.code == 'canceled') {
+                return;
+              }
+
+              showSimpleDialog(
+                  type: DialogType.error,
+                  title: Intl.message('error_title'),
+                  content: e.message,
+                  onOk: () {
+                    Navigator.of(context).pop();
+                  });
+            } catch (e, s) {
+              OverlayLoadingProgress.stop();
+              logger.e('Error signing in with Google: $e', stackTrace: s);
+
+              showSimpleDialog(
+                  type: DialogType.error,
+                  title: Intl.message('error_title'),
+                  content: Intl.message('error_message_login_failed'),
+                  onOk: () {
+                    Navigator.of(context).pop();
+                  });
+              rethrow;
+            }
+          },
+          child: Center(
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColors.grey400, width: 1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              width: 240,
+              height: 44,
+              margin: const EdgeInsets.symmetric(vertical: 4),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -429,23 +442,23 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                   Image.asset('assets/icons/login/google.png',
                       width: 20.cw, height: 20),
                   SizedBox(width: 8.cw),
-                  Text('Google',
+                  Text('Sign in with Google',
                       style: getTextStyle(AppTypo.body14M, AppColors.grey800)),
                 ],
               ),
             ),
           ),
-          if (lastProvider == 'google') LastProvider()
-        ],
-      );
-    });
+        ),
+        if (lastProvider == 'google') LastProvider()
+      ],
+    );
   }
 
   Widget _buildKakaoLogin(BuildContext context) {
     ref.watch(userInfoProvider);
     return LayoutBuilder(builder: (context, constraints) {
       return Stack(children: [
-        InkWell(
+        GestureDetector(
           onTap: () async {
             try {
               OverlayLoadingProgress.start(context,
@@ -494,18 +507,27 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               rethrow;
             }
           },
-          child: SizedBox(
-            height: 50,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Image.asset('assets/icons/login/kakao.png',
-                    width: 20.cw, height: 20),
-                SizedBox(width: 8.cw),
-                Text('Kakao Talk',
-                    style: getTextStyle(AppTypo.body14M, AppColors.grey800)),
-              ],
+          child: Center(
+            child: Container(
+              width: 240,
+              height: 44,
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColors.grey400, width: 1),
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.yellow,
+              ),
+              margin: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image.asset('assets/icons/login/kakao.png',
+                      width: 20.cw, height: 20),
+                  SizedBox(width: 8.cw),
+                  Text('Login with Kakao',
+                      style: getTextStyle(AppTypo.body14M, AppColors.grey800)),
+                ],
+              ),
             ),
           ),
         ),
