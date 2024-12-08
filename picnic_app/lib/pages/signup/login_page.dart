@@ -227,7 +227,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
           onPressed: () {
             showModalBottomSheet(
               context: context,
-              useSafeArea: false,
+              useSafeArea: true,
+              showDragHandle: true,
               builder: (context) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 40),
@@ -244,7 +245,6 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
 
   Widget _buildLoginOptions(BuildContext context, WidgetRef ref) {
     return Container(
-      padding: const EdgeInsets.only(top: 24, bottom: 24),
       width: double.infinity,
       child: Column(
         mainAxisSize: MainAxisSize.min,

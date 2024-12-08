@@ -49,11 +49,15 @@ class CompatibilityResultPage extends ConsumerStatefulWidget {
 
 class _CompatibilityResultPageState
     extends ConsumerState<CompatibilityResultPage> {
-  final GlobalKey _printKey = GlobalKey();
+  final GlobalKey _saveKey = GlobalKey();
+  final GlobalKey _shareKey = GlobalKey();
   final styleController = ExpansionTileController();
   final activityController = ExpansionTileController();
   final tipController = ExpansionTileController();
   late final PurchaseService _purchaseService;
+  bool isSaving = false;
+  final ScrollController _scrollController =
+      ScrollController(); // Add ScrollController
 
   @override
   void initState() {
@@ -69,6 +73,12 @@ class _CompatibilityResultPageState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeData();
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose(); // Dispose the ScrollController
+    super.dispose();
   }
 
   Future<void> _handlePurchaseUpdated(
@@ -266,9 +276,6 @@ class _CompatibilityResultPageState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 36),
-        _buildHeaderSection(localizedResult),
-        FortuneDivider(color: AppColors.grey00),
         if (!(compatibility?.isPaid ?? false))
           Stack(
             children: [
@@ -282,12 +289,13 @@ class _CompatibilityResultPageState
                     if (activities != null) _buildActivitiesSection(activities),
                     SizedBox(height: 36),
                     if (tips.isNotEmpty) _buildTipsSection(tips),
-                    ShareSection(
-                      saveButtonText: S.of(context).save,
-                      shareButtonText: S.of(context).share,
-                      onSave: () => _handleSave(compatibility!),
-                      onShare: () => _handleShare(compatibility!),
-                    ),
+                    if (!isSaving)
+                      ShareSection(
+                        saveButtonText: S.of(context).save,
+                        shareButtonText: S.of(context).share,
+                        onSave: () => _handleSave(compatibility!),
+                        onShare: () => _handleShare(compatibility!),
+                      ),
                   ],
                 ),
               ),
@@ -425,13 +433,13 @@ class _CompatibilityResultPageState
           if (activities != null) _buildActivitiesSection(activities),
           SizedBox(height: 36),
           if (tips.isNotEmpty) _buildTipsSection(tips),
-          SizedBox(height: 36),
-          ShareSection(
-            saveButtonText: S.of(context).save,
-            shareButtonText: S.of(context).share,
-            onSave: () => _handleSave(compatibility!),
-            onShare: () => _handleShare(compatibility!),
-          ),
+          if (!isSaving)
+            ShareSection(
+              saveButtonText: S.of(context).save,
+              shareButtonText: S.of(context).share,
+              onSave: () => _handleSave(compatibility!),
+              onShare: () => _handleShare(compatibility!),
+            ),
         ],
       ],
     );
@@ -681,75 +689,98 @@ class _CompatibilityResultPageState
           return const Center(child: CircularProgressIndicator());
         }
 
-        return SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  AppColors.primary500.withOpacity(.7),
-                  AppColors.mint500.withOpacity(.7),
-                ],
-              ),
-            ),
-            child: Column(
-              children: [
-                RepaintBoundary(
-                  key: _printKey,
+        return CustomScrollView(
+          controller: _scrollController, // Add the ScrollController here
+
+          slivers: [
+            SliverToBoxAdapter(
+              child: RepaintBoundary(
+                key: _saveKey,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        AppColors.primary500.withOpacity(.7),
+                        AppColors.mint500.withOpacity(.7),
+                      ],
+                    ),
+                  ),
                   child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      SizedBox(
-                        height: 20,
-                        child: SvgPicture.asset(
-                          'assets/images/fortune/picnic_logo.svg',
-                          width: 78,
-                          fit: BoxFit.contain,
+                      RepaintBoundary(
+                        key: _shareKey,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: isSaving
+                                ? LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      AppColors.primary500.withOpacity(.7),
+                                      AppColors.mint500.withOpacity(.7),
+                                    ],
+                                  )
+                                : null,
+                          ),
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 20,
+                                child: SvgPicture.asset(
+                                  'assets/images/fortune/picnic_logo.svg',
+                                  width: 78,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                              SizedBox(height: 16),
+                              CompatibilityInfo(
+                                artist: compatibility.artist,
+                                ref: ref,
+                                birthDate: compatibility.birthDate,
+                                birthTime: compatibility.birthTime,
+                                compatibility: compatibility,
+                              ),
+                              SizedBox(height: 24),
+                              _buildHeaderSection(
+                                  compatibility.getLocalizedResult(
+                                      Intl.getCurrentLocale())!),
+                              FortuneDivider(color: AppColors.grey00),
+                            ],
+                          ),
                         ),
                       ),
-                      SizedBox(height: 16),
-                      CompatibilityInfo(
-                        artist: compatibility.artist,
-                        ref: ref,
-                        birthDate: compatibility.birthDate,
-                        birthTime: compatibility.birthTime,
-                        compatibility: compatibility,
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          children: [
+                            if (compatibility.hasError)
+                              CompatibilityErrorView(
+                                error: compatibility.errorMessage ??
+                                    S.of(context).error_unknown,
+                              )
+                            else if (compatibility.isCompleted)
+                              _buildResultContent(compatibility.id)
+                          ],
+                        ),
                       ),
-                      if (compatibility.hasError)
-                        CompatibilityErrorView(
-                          error: compatibility.errorMessage ??
-                              S.of(context).error_unknown,
-                        )
-                      else if (compatibility.isCompleted)
-                        _buildResultContent(compatibility.id)
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
-        );
-      },
-      loading: () => const Center(
-        child: CircularProgressIndicator(),
-      ),
-      error: (error, stack) => Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              S.of(context).compatibility_status_error,
-              style: getTextStyle(AppTypo.body14M, AppColors.point500),
-            ),
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: _refreshData,
-              child: Text(S.of(context).label_retry),
+              ),
             ),
           ],
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => Center(
+        child: Text(
+          'Error: $error',
+          style: getTextStyle(AppTypo.body14R, AppColors.grey500),
         ),
       ),
     );
@@ -757,12 +788,28 @@ class _CompatibilityResultPageState
 
   Future<Future<bool>> _handleSave(CompatibilityModel compatibility) async {
     return ShareUtils.captureAndSaveImage(
-      _printKey,
+      _saveKey,
       onStart: () {
-        if (!mounted) return;
+        setState(() {
+          isSaving = true;
+        });
+        OverlayLoadingProgress.start(context, color: AppColors.primary500);
+        styleController.expand();
+        activityController.expand();
+        tipController.expand();
       },
       onComplete: () {
-        if (!mounted) return;
+        OverlayLoadingProgress.stop();
+        setState(() {
+          isSaving = false;
+        });
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        });
       },
     );
   }
@@ -770,16 +817,29 @@ class _CompatibilityResultPageState
   Future<Future<bool>> _handleShare(CompatibilityModel compatibility) async {
     logger.i('Share to Twitter');
     return ShareUtils.shareToTwitter(
-      _printKey,
+      _shareKey,
       message: getLocaleTextFromJson(compatibility.artist.name),
       hashtag:
           '#Picnic #Vote #PicnicApp #${S.of(context).compatibility_page_title}',
       context,
       onStart: () {
-        if (!mounted) return;
+        OverlayLoadingProgress.start(context, color: AppColors.primary500);
+        setState(() {
+          isSaving = true;
+        });
       },
       onComplete: () {
-        if (!mounted) return;
+        OverlayLoadingProgress.stop();
+        setState(() {
+          isSaving = false;
+        });
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        });
       },
     );
   }
