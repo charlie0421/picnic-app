@@ -34,8 +34,8 @@ class ShareSection extends StatelessWidget {
               backgroundColor: AppColors.primary500,
               shadowColor: AppColors.primary500,
               padding: EdgeInsets.zero,
-              minimumSize: Size(buttonWidth ?? 104.cw, buttonHeight ?? 32),
-              maximumSize: Size(buttonWidth ?? 104.cw, buttonHeight ?? 32),
+              minimumSize: Size(buttonWidth ?? 120.cw, buttonHeight ?? 32),
+              maximumSize: Size(buttonWidth ?? 120.cw, buttonHeight ?? 32),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -48,7 +48,7 @@ class ShareSection extends StatelessWidget {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(width: 4.cw),
+                SizedBox(width: 8.cw),
                 SvgPicture.asset(
                   'assets/icons/save_gallery.svg',
                   width: 16.cw,
@@ -77,7 +77,7 @@ class ShareSection extends StatelessWidget {
                     AppColors.grey00,
                   ),
                 ),
-                SizedBox(width: 4.cw),
+                SizedBox(width: 8.cw),
                 SvgPicture.asset(
                   'assets/icons/twitter_style=fill.svg',
                   width: 16.cw,
