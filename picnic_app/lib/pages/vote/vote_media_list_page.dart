@@ -84,7 +84,7 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
         _pagingController.appendPage(newItems, nextPageKey);
       }
     } catch (e, s) {
-      logger.e(e, stackTrace: s);
+      logger.e('error', error: e, stackTrace: s);
       _pagingController.error = e;
       rethrow;
     }

@@ -25,7 +25,7 @@ class MyPageScreen extends ConsumerWidget {
       pageName =
           (navigationInfo.drawerNavigationStack?.peek() as dynamic).pageName;
     } catch (e, s) {
-      logger.e(e, stackTrace: s);
+      logger.e('error', error: e, stackTrace: s);
       if (e is NoSuchMethodError) {
         pageName = '';
       } else {

@@ -21,7 +21,7 @@ void showRequireLoginDialog() {
       onCancel: () => Navigator.of(navigatorKey.currentContext!).pop(false),
     );
   } catch (e, s) {
-    logger.e(e, stackTrace: s);
+    logger.e('error', error: e, stackTrace: s);
     rethrow;
   }
 }

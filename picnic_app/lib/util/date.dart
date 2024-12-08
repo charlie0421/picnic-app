@@ -42,7 +42,7 @@ String getCurrentTimeZoneIdentifier() {
     return DateTime.now().timeZoneName;
   } catch (e, s) {
     // 오류 발생 시 시스템 시간대 이름 또는 UTC 반환
-    logger.e(e, stackTrace: s);
+    logger.e('error', error: e, stackTrace: s);
     return DateTime.now().timeZoneName;
   }
 }

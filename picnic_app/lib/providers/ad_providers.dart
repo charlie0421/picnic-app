@@ -13,7 +13,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 part '../generated/providers/ad_providers.freezed.dart';
-
 part '../generated/providers/ad_providers.g.dart';
 
 @freezed
@@ -129,7 +128,7 @@ class RewardedAds extends _$RewardedAds {
         ),
       );
     } catch (e, s) {
-      logger.e(e, stackTrace: s);
+      logger.e('error', error: e, stackTrace: s);
       _onAdLoadError(index, e);
       rethrow;
     }
@@ -165,7 +164,7 @@ class RewardedAds extends _$RewardedAds {
         },
       );
     } catch (e, s) {
-      logger.e(e, stackTrace: s);
+      logger.e('error', error: e, stackTrace: s);
       Sentry.captureException(
         e,
         stackTrace: s,

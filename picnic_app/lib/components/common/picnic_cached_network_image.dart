@@ -123,7 +123,7 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
         },
       );
     } catch (e, s) {
-      logger.e(e, stackTrace: s);
+      logger.e('error', error: e, stackTrace: s);
       Sentry.captureException(e, stackTrace: s);
       return const SizedBox.shrink();
     }

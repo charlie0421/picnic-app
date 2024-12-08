@@ -186,7 +186,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             throw Exception('Failed to upload image');
           }
         } catch (e, s) {
-          logger.e(e, stackTrace: s);
+          logger.e('error', error: e, stackTrace: s);
 
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(S.of(context).common_fail),

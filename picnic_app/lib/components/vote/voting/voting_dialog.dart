@@ -522,7 +522,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
       _showVotingCompleteDialog(result);
     } catch (e, s) {
-      logger.e(e, stackTrace: s);
+      logger.e('error', error: e, stackTrace: s);
       OverlayLoadingProgress.stop();
 
       if (!mounted) return;

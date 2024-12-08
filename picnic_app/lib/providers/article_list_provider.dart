@@ -30,7 +30,7 @@ Future<List<ArticleModel>?> fetchArticleList(
 
     return response.data.map((e) => ArticleModel.fromJson(e)).toList();
   } catch (e, s) {
-    logger.e(e, stackTrace: s);
+    logger.e('error', error: e, stackTrace: s);
     Sentry.captureException(
       e,
       stackTrace: s,

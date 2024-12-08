@@ -35,7 +35,7 @@ class ServerProducts extends _$ServerProducts {
 
       return products;
     } catch (e, s) {
-      logger.e(e, stackTrace: s);
+      logger.e('error', error: e, stackTrace: s);
       throw Exception('Error fetching products: $e');
     }
   }

@@ -74,7 +74,7 @@ class AsyncVoteList extends _$AsyncVoteList {
       }
       return response.map((e) => VoteModel.fromJson(e)).toList();
     } catch (e, s) {
-      logger.e(e, stackTrace: s);
+      logger.e('error', error: e, stackTrace: s);
       rethrow;
     } finally {}
   }

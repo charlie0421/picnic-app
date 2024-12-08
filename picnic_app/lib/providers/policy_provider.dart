@@ -50,7 +50,7 @@ class AsyncPolicy extends _$AsyncPolicy {
 
       // return PolicyModel.fromJson(response);
     } catch (e, s) {
-      logger.e(e, stackTrace: s);
+      logger.e('error', error: e, stackTrace: s);
       rethrow;
     }
   }

@@ -105,7 +105,7 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
         logger.i('Updated vote item in state: $id with voteTotal: $voteTotal');
       }
     } catch (e, s) {
-      logger.e(e, stackTrace: s);
+      logger.e('error', error: e, stackTrace: s);
       rethrow;
     }
   }
