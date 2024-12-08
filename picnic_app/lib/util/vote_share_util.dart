@@ -6,7 +6,7 @@ import 'package:appinio_social_share/appinio_social_share.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
@@ -85,7 +85,7 @@ class ShareUtils {
       if (bytes == null) return false;
 
       // 이미지 저장
-      final result = await ImageGallerySaver.saveImage(
+      final result = await ImageGallerySaverPlus.saveImage(
         bytes,
         quality: 100,
         name: "compatibility_result_${DateTime.now().millisecondsSinceEpoch}",
