@@ -78,6 +78,10 @@
     "@compatibility_activities_title": {
         "manualTranslation": true
     },
+    "fortune_with_me": "아티스트와 나의 궁합",
+    "@fortune_with_me": {
+        "manualTranslation": true
+    },
     "fortune_purchase_by_star_candy": "별사탕으로 구매",
     "@fortune_purchase_by_star_candy": {
         "manualTranslation": true
@@ -100,6 +104,8 @@
     "@compatibility_analyze_start": {},
     "compatibility_analyzing": "궁합을 분석하고 있습니다.",
     "@compatibility_analyzing": {},
+    "compatibility_analyzing_prepare": "준비중",
+    "@compatibility_analyzing_prepare": {},
     "compatibility_birthday": "생년월일",
     "@compatibility_birthday": {},
     "compatibility_birthtime": "태어난 시간",
@@ -169,6 +175,10 @@
     "@fortune_lucky_number": {},
     "fortune_lucky_direction": "행운의 방향",
     "@fortune_lucky_direction": {},
+    "compatibility_remain_star_candy": "남은 별사탕",
+    "@compatibility_remain_star_candy": {
+        "manualTranslation": true
+    },
     "fortune_month1": "1월의 운세",
     "@fortune_month1": {},
     "fortune_month2": "2월의 운세",

@@ -48,12 +48,14 @@ class _CompatibilityLoadingPageState
   bool _isBottomBannerLoaded = false;
   Timer? _timer;
 
+  String loadingMessage = '';
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeData();
-      // 3초 후에 타이머 시작
+
       Future.delayed(const Duration(seconds: 3), () {
         if (mounted) {
           setState(() {
@@ -239,7 +241,7 @@ class _CompatibilityLoadingPageState
                     ),
                     Center(
                       child: Text(
-                        '${S.of(context).compatibility_analyzing}(${_isLoadingStarted ? _seconds : _totalSeconds}${S.of(context).seconds})',
+                        '${_isLoadingStarted ? S.of(context).compatibility_analyzing : S.of(context).compatibility_analyzing_prepare} ${_isLoadingStarted ? '($_seconds${S.of(context).seconds})' : ''}',
                         style: getTextStyle(
                           AppTypo.body14B,
                           AppColors.grey00,
@@ -319,6 +321,7 @@ class _CompatibilityLoadingPageState
                     birthDate: widget.compatibility.birthDate,
                     birthTime: widget.compatibility.birthTime,
                     compatibility: widget.compatibility,
+                    gender: widget.compatibility.gender,
                   ),
                   if (widget.compatibility.isPending ||
                       widget.compatibility.isAds == false)

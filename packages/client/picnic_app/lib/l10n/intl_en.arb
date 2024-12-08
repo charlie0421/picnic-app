@@ -1851,5 +1851,15 @@
     "fortune_lack_of_star_candy_message": "Reward Star Candies cannot be used here. \uD83D\uDE25",
     "@fortune_lack_of_star_candy_message": {
         "manualTranslation": true
+    },
+    "fortune_with_me": "Goong-Hap with me",
+    "@fortune_with_me": {
+        "manualTranslation": true
+    },
+    "compatibility_analyzing_prepare": "Preparing",
+    "@compatibility_analyzing_prepare": {},
+    "compatibility_remain_star_candy": "Remaining Star Candy",
+    "@compatibility_remain_star_candy": {
+        "manualTranslation": true
     }
 }

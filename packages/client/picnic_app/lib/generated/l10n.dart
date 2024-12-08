@@ -4219,6 +4219,36 @@ class S {
       args: [],
     );
   }
+
+  /// `Goong-Hap with me`
+  String get fortune_with_me {
+    return Intl.message(
+      'Goong-Hap with me',
+      name: 'fortune_with_me',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Preparing`
+  String get compatibility_analyzing_prepare {
+    return Intl.message(
+      'Preparing',
+      name: 'compatibility_analyzing_prepare',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remaining Star Candy`
+  String get compatibility_remain_star_candy {
+    return Intl.message(
+      'Remaining Star Candy',
+      name: 'compatibility_remain_star_candy',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

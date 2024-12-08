@@ -1,10 +1,10 @@
-import { getSupabaseClient } from '../database.ts';
-import { createChatCompletion } from '../ai/openai.ts';
-import { translateBatch, translateText } from '../ai/deepl.ts';
-import { SUPPORTED_LANGUAGES, SupportedLanguage } from '../types/openai.ts';
-import { formatDate, logError } from '../utils.ts';
-import { PromptService } from './prompt.ts';
-import type { Compatibility } from '../types/compatibility.ts';
+import {getSupabaseClient} from '../database.ts';
+import {createChatCompletion} from '../ai/openai.ts';
+import {translateBatch, translateText} from '../ai/deepl.ts';
+import {SUPPORTED_LANGUAGES, SupportedLanguage} from '../types/openai.ts';
+import {formatDate, logError} from '../utils.ts';
+import {PromptService} from './prompt.ts';
+import type {Compatibility} from '../types/compatibility.ts';
 
 export class CompatibilityService {
     private supabase;
@@ -21,7 +21,7 @@ export class CompatibilityService {
                 .select()
                 .eq('artist_id', compatibility.artist_id)
                 .eq('idol_birth_date', compatibility.idol_birth_date)
-                .eq('user_birth_date', compatibility.user_birth_date)
+                .eq('user_birth_time', compatibility.user_birth_time)
                 .eq('gender', compatibility.gender)
                 .eq('status', 'completed');
 

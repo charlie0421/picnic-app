@@ -1667,5 +1667,15 @@
     "fortune_lack_of_star_candy_message": "奖励星星糖在此无法使用。\uD83D\uDE25",
     "@fortune_lack_of_star_candy_message": {
         "manualTranslation": true
+    },
+    "fortune_with_me": "您与艺术家的兼容性",
+    "@fortune_with_me": {
+        "manualTranslation": true
+    },
+    "compatibility_analyzing_prepare": "准备工作",
+    "@compatibility_analyzing_prepare": {},
+    "compatibility_remain_star_candy": "剩余的糖果",
+    "@compatibility_remain_star_candy": {
+        "manualTranslation": true
     }
 }

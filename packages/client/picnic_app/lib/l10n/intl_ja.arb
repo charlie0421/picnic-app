@@ -1667,5 +1667,15 @@
     "fortune_lack_of_star_candy_message": "リワードスターキャンディはここでは使えません。\uD83D\uDE25",
     "@fortune_lack_of_star_candy_message": {
         "manualTranslation": true
+    },
+    "fortune_with_me": "アーティストと私の相性",
+    "@fortune_with_me": {
+        "manualTranslation": true
+    },
+    "compatibility_analyzing_prepare": "準備中",
+    "@compatibility_analyzing_prepare": {},
+    "compatibility_remain_star_candy": "残りの星飴",
+    "@compatibility_remain_star_candy": {
+        "manualTranslation": true
     }
 }

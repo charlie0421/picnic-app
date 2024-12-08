@@ -18,7 +18,6 @@ import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
@@ -96,7 +95,7 @@ class _PostListState extends ConsumerState<PostList> {
             onTap: () {
               if (supabase.isLogged) {
                 navigationInfoNotifier.setCurrentPage(
-                    CompatibilityHistoryPage(artistId: currentArtist.id));
+                    CompatibilityHistoryPage(artistId: currentArtist?.id));
               } else {
                 showRequireLoginDialog();
               }
@@ -105,8 +104,7 @@ class _PostListState extends ConsumerState<PostList> {
               height: 40,
               padding: EdgeInsets.symmetric(horizontal: 16.cw),
               alignment: Alignment.centerLeft,
-              child: Text(
-                  '${getLocaleTextFromJson(currentArtist!.name)}와 나의 궁합 맞추기',
+              child: Text(S.of(context).fortune_with_me,
                   style: getTextStyle(AppTypo.body14B, AppColors.primary500)),
             ),
           ),
