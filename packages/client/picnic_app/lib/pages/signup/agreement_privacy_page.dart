@@ -146,7 +146,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                         });
                       }
                     } catch (e, s) {
-                      logger.e(e, stackTrace: s);
+                      logger.e('error', error: e, stackTrace: s);
                       Sentry.captureException(
                         e,
                         stackTrace: s,

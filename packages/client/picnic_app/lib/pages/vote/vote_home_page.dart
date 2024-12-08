@@ -64,7 +64,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
       }
     } catch (e, s) {
       _pagingController.error = e;
-      logger.e(e, stackTrace: s);
+      logger.e('error', error: e, stackTrace: s);
     }
   }
 

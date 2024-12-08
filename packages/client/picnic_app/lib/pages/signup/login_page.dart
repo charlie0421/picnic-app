@@ -300,7 +300,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
       }
     } catch (e, s) {
       OverlayLoadingProgress.stop();
-      logger.e(e, stackTrace: s);
+      logger.e('error', error: e, stackTrace: s);
       showSimpleDialog(
           title: Intl.message('error_title'),
           content: Intl.message('error_message_login_failed'),

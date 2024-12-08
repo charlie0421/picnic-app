@@ -110,7 +110,7 @@ bool isMobile() {
     try {
       return Platform.isAndroid || Platform.isIOS;
     } catch (e, s) {
-      logger.e(e, stackTrace: s);
+      logger.e('error', error: e, stackTrace: s);
       return false;
     }
   }

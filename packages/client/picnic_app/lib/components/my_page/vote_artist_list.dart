@@ -74,7 +74,7 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
         }
       }
     } catch (e, s) {
-      logger.e(e, stackTrace: s);
+      logger.e('error', error: e, stackTrace: s);
       if (mounted) {
         _pagingController.error = e;
       }
@@ -162,7 +162,7 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
         }
       }
     } catch (e, s) {
-      logger.e(e, stackTrace: s);
+      logger.e('error', error: e, stackTrace: s);
       rethrow;
     } finally {
       if (mounted) {

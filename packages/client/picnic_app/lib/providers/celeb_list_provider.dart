@@ -77,7 +77,7 @@ class AsyncMyCelebList extends _$AsyncMyCelebList {
       return celebList;
     } catch (e, s) {
       state = AsyncValue.error(e, s);
-      logger.e(e, stackTrace: s);
+      logger.e('error', error: e, stackTrace: s);
       Sentry.captureException(
         e,
         stackTrace: s,

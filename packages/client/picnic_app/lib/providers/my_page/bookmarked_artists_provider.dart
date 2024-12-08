@@ -27,7 +27,7 @@ class AsyncBookmarkedArtists extends _$AsyncBookmarkedArtists {
 
       return bookmarkedArtists;
     } catch (e, s) {
-      logger.e(e, stackTrace: s);
+      logger.e('error', error: e, stackTrace: s);
       Sentry.captureException(e, stackTrace: s);
       return [];
     }
