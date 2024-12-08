@@ -1,10 +1,13 @@
 import 'dart:io';
 import 'dart:ui' as ui;
+import 'dart:ui';
 
 import 'package:appinio_social_share/appinio_social_share.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/util/logger.dart';
@@ -12,7 +15,6 @@ import 'package:picnic_app/util/logger.dart';
 class ShareUtils {
   static final AppinioSocialShare _appinioSocialShare = AppinioSocialShare();
 
-  /// 위젯을 이미지로 캡처
   static Future<ui.Image?> captureWidget(GlobalKey key) async {
     try {
       RenderRepaintBoundary? boundary =
@@ -27,7 +29,6 @@ class ShareUtils {
     }
   }
 
-  /// 캡처한 이미지를 파일로 저장
   static Future<String?> saveImageToTemp(ui.Image image) async {
     try {
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
@@ -52,7 +53,23 @@ class ShareUtils {
     }
   }
 
-  /// 이미지 캡처 및 저장
+  static Future<Uint8List?> captureScrollableContent(GlobalKey key) async {
+    try {
+      final context = key.currentContext;
+      if (context == null) return null;
+
+      await Future.delayed(Duration(milliseconds: 500));
+      final boundary = context.findRenderObject() as RenderRepaintBoundary;
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ImageByteFormat.png);
+
+      return byteData?.buffer.asUint8List();
+    } catch (e, stack) {
+      logger.e('Error capturing content', error: e, stackTrace: stack);
+      return null;
+    }
+  }
+
   static Future<bool> captureAndSaveImage(
     GlobalKey saveKey, {
     VoidCallback? onStart,
@@ -61,21 +78,25 @@ class ShareUtils {
     try {
       if (onStart != null) onStart();
 
-      // 렌더링 대기
-      await Future.delayed(const Duration(milliseconds: 500));
+      // 렌더링 대기 시간을 더 길게 설정
+      await Future.delayed(const Duration(seconds: 2));
 
-      final image = await captureWidget(saveKey);
-      if (image == null) return false;
+      final bytes = await captureScrollableContent(saveKey);
+      if (bytes == null) return false;
 
-      final path = await saveImageToTemp(image);
-      if (path == null) return false;
+      // 이미지 저장
+      final result = await ImageGallerySaver.saveImage(
+        bytes,
+        quality: 100,
+        name: "compatibility_result_${DateTime.now().millisecondsSinceEpoch}",
+      );
 
-      await ImageGallerySaverPlus.saveFile(path);
-      await File(path).delete();
+      if (result == null || result['isSuccess'] != true) {
+        throw Exception('Failed to save image');
+      }
 
       showSimpleDialog(
-        title: '이미지 저장',
-        content: '이미지가 성공적으로 저장되었습니다.',
+        content: Intl.message('image_save_success'),
       );
 
       return true;
@@ -83,18 +104,14 @@ class ShareUtils {
       logger.e('Failed to capture and save image: $e');
       showSimpleDialog(
         type: DialogType.error,
-        title: '이미지 저장',
-        content: '이미지 저장에 실패했습니다.',
+        content: Intl.message('message_pic_pic_save_fail'),
       );
-      showSimpleDialog(
-          type: DialogType.error, title: '이미지 저장', content: '이미지 저장에 실패했습니다');
       return false;
     } finally {
       if (onComplete != null) onComplete();
     }
   }
 
-  /// 트위터로 공유
   static Future<bool> shareToTwitter(
     GlobalKey key,
     BuildContext context, {
@@ -129,11 +146,10 @@ class ShareUtils {
       await File(path).delete();
 
       if (result == 'ERROR_APP_NOT_AVAILABLE') {
-        logger.e('Twitter 앱이 설치되어 있지 않습니다.');
+        logger.e(Intl.message('share_no_twitter'));
         showSimpleDialog(
           type: DialogType.error,
-          title: 'X 공유',
-          content: 'Twitter 앱이 설치되어 있지 않습니다.',
+          content: Intl.message('share_no_twitter'),
         );
         return false;
       }
@@ -143,8 +159,7 @@ class ShareUtils {
       logger.e('Failed to share to Twitter: $e');
       showSimpleDialog(
         type: DialogType.error,
-        title: 'X 공유',
-        content: '공유에 실패했습니다.',
+        content: Intl.message('share_image_fail'),
       );
       return false;
     } finally {

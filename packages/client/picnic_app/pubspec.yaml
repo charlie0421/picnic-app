@@ -97,6 +97,7 @@ dependencies:
     confetti: ^0.8.0
     dart_openai: ^5.1.0
     postgrest: ^2.4.0
+    image_gallery_saver: ^2.0.3
 dev_dependencies:
     flutter_test:
         sdk: flutter
