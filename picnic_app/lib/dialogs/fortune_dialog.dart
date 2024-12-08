@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/app.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/common/share_section.dart';
@@ -39,6 +40,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
   final GlobalKey _saveKey = GlobalKey();
   final GlobalKey _shareKey = GlobalKey();
   bool _isSaving = false;
+  ScrollController _scrollController = ScrollController();
 
   // ExpansionTile Controllers
   final overallController = ExpansionTileController();
@@ -124,24 +126,24 @@ class _FortunePageState extends ConsumerState<FortunePage> {
     }
   }
 
-  Future<void> _captureAndSave() async {
+  Future<void> _handleSave() async {
     try {
-      if (_isSaving) return;
-
-      setState(() => _isSaving = true);
-
-      _saveExpansionStates();
-
-      _expandAll();
-
-      await Future.delayed(const Duration(milliseconds: 100));
-
       await ShareUtils.captureAndSaveImage(
         _saveKey,
-        onStart: () {},
+        onStart: () {
+          setState(() => _isSaving = true);
+          OverlayLoadingProgress.start(context, color: AppColors.primary500);
+
+          _saveExpansionStates();
+
+          _expandAll();
+        },
         onComplete: () {
           _restoreExpansionStates();
-          setState(() => _isSaving = false);
+          OverlayLoadingProgress.stop();
+          setState(() {
+            _isSaving = false;
+          });
         },
       );
     } catch (e, s) {
@@ -157,70 +159,83 @@ class _FortunePageState extends ConsumerState<FortunePage> {
       language: Intl.getCurrentLocale(),
     ));
 
-    return RepaintBoundary(
-      key: _saveKey,
-      child: FullScreenDialog(
-        child: fortuneAsync.when(
-          loading: () => const Center(
-              child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.pink))),
-          error: (error, stackTrace) => _buildError(error),
-          data: (fortune) => DefaultTabController(
-            length: 2,
-            child: SingleChildScrollView(
-              physics: const ClampingScrollPhysics(),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildTopSection(fortune),
-                  _buildHeaderSection(fortune),
-                  TabBar(
-                    labelColor: AppColors.grey900,
-                    labelStyle:
-                        getTextStyle(AppTypo.body14B, AppColors.grey900),
-                    unselectedLabelStyle:
-                        getTextStyle(AppTypo.body14R, AppColors.grey600),
-                    unselectedLabelColor: AppColors.grey600,
-                    indicatorColor: AppColors.grey900,
-                    indicatorWeight: 3,
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    indicatorPadding:
-                        const EdgeInsets.symmetric(horizontal: 16),
-                    onTap: (index) => setState(() => _showMonthly = index == 1),
-                    tabs: [
-                      Tab(text: S.of(context).fortune_total_title),
-                      Tab(text: S.of(context).fortune_monthly),
+    return FullScreenDialog(
+      child: fortuneAsync.when(
+        loading: () => const Center(
+            child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.pink))),
+        error: (error, stackTrace) => _buildError(error),
+        data: (fortune) => DefaultTabController(
+          length: 2,
+          child: CustomScrollView(
+            physics: const ClampingScrollPhysics(),
+            slivers: [
+              SliverToBoxAdapter(
+                child: RepaintBoundary(
+                  key: _saveKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildTopSection(fortune),
+                      _buildHeaderSection(fortune),
+                      TabBar(
+                        labelColor: AppColors.grey900,
+                        labelStyle:
+                            getTextStyle(AppTypo.body14B, AppColors.grey900),
+                        unselectedLabelStyle:
+                            getTextStyle(AppTypo.body14R, AppColors.grey600),
+                        unselectedLabelColor: AppColors.grey600,
+                        indicatorColor: AppColors.grey900,
+                        indicatorWeight: 3,
+                        indicatorSize: TabBarIndicatorSize.tab,
+                        indicatorPadding:
+                            const EdgeInsets.symmetric(horizontal: 16),
+                        onTap: (index) =>
+                            setState(() => _showMonthly = index == 1),
+                        tabs: [
+                          Tab(text: S.of(context).fortune_total_title),
+                          Tab(text: S.of(context).fortune_monthly),
+                        ],
+                      ),
+                      _showMonthly
+                          ? _buildMonthlyFortune(fortune)
+                          : _buildOverallFortune(fortune),
+                      if (!_isSaving)
+                        ShareSection(
+                          saveButtonText: S.of(context).save,
+                          shareButtonText: S.of(context).share,
+                          onSave: _handleSave,
+                          onShare: () {
+                            if (_isSaving) return;
+                            ShareUtils.shareToTwitter(
+                              _shareKey,
+                              context,
+                              message:
+                                  '${getLocaleTextFromJson(fortune.artist.name)} ${Intl.message('fortune_title', args: [
+                                    fortune.year.toString()
+                                  ]).trim()}',
+                              hashtag:
+                                  '#Picnic #Fortune #PicnicApp #${getLocaleTextFromJson(fortune.artist.name)} #${Intl.message('fortune_title', args: [
+                                    fortune.year.toString()
+                                  ]).trim()}',
+                              onStart: () {
+                                OverlayLoadingProgress.start(context,
+                                    color: AppColors.primary500);
+                                setState(() => _isSaving = true);
+                              },
+                              onComplete: () {
+                                OverlayLoadingProgress.stop();
+                                setState(() => _isSaving = false);
+                              },
+                            );
+                          },
+                        ),
+                      SizedBox(height: 48),
                     ],
                   ),
-                  _showMonthly
-                      ? _buildMonthlyFortune(fortune)
-                      : _buildOverallFortune(fortune),
-                  ShareSection(
-                    saveButtonText: S.of(context).save,
-                    shareButtonText: S.of(context).share,
-                    onSave: _captureAndSave,
-                    onShare: () {
-                      if (_isSaving) return;
-                      ShareUtils.shareToTwitter(
-                        _shareKey,
-                        context,
-                        message:
-                            '${getLocaleTextFromJson(fortune.artist.name)} ${Intl.message('fortune_title', args: [
-                              fortune.year.toString()
-                            ]).trim()}',
-                        hashtag:
-                            '#Picnic #Fortune #PicnicApp #${getLocaleTextFromJson(fortune.artist.name)} #${Intl.message('fortune_title', args: [
-                              fortune.year.toString()
-                            ]).trim()}',
-                        onStart: () => setState(() => _isSaving = true),
-                        onComplete: () => setState(() => _isSaving = false),
-                      );
-                    },
-                  ),
-                  SizedBox(height: 48),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),
