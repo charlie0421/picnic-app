@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:load_switch/load_switch.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
 import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
@@ -15,6 +16,7 @@ import 'package:picnic_app/providers/update_checker.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -30,6 +32,7 @@ class SettingPage extends ConsumerStatefulWidget {
 class _SettingPageState extends ConsumerState<SettingPage> {
   bool value1 = false;
   bool value2 = false;
+  String buildNumber = '';
 
   Future<bool> _getFuture1() async {
     await Future.delayed(const Duration(seconds: 1));
@@ -41,6 +44,22 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     return !value2;
   }
 
+  Future<String> getBuildNumber() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    logger.d('buildNumber: ${packageInfo.buildNumber}');
+    return packageInfo.buildNumber;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      setState(() async {
+        buildNumber = await getBuildNumber();
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.watch(platformInfoProvider);
@@ -48,6 +67,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     final appSettingNotifier = ref.read(appSettingProvider.notifier);
     final userInfoState = ref.watch(userInfoProvider);
     final updateChecker = ref.watch(updateCheckerProvider);
+    final isAdmin =
+        ref.watch(userInfoProvider.select((value) => value.value?.isAdmin)) ??
+            false;
 
     return userInfoState.when(
         data: (data) => Container(
@@ -254,7 +276,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                           case UpdateStatus.upToDate:
                             return PicnicListItem(
                               leading:
-                                  '${S.of(context).label_setting_current_version} ${info.currentVersion}',
+                                  '${S.of(context).label_setting_current_version} ${info.currentVersion}${isAdmin ? ' ($buildNumber)' : ''}',
                               title: Container(
                                 margin: EdgeInsets.only(right: 8.cw),
                                 alignment: Alignment.centerRight,

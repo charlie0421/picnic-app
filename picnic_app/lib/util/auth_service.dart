@@ -313,7 +313,7 @@ class AuthService {
 
       throw PicnicAuthExceptions.unknown();
     } catch (e, s) {
-      logger.e('Error during sign in: $e', stackTrace: s);
+      logger.e('Error during sign in:', error: e, stackTrace: s);
       if (e is PicnicAuthException) {
         rethrow;
       }
