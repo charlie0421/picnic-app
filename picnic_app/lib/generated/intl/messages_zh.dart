@@ -88,6 +88,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("开始兼容性分析"),
         "compatibility_analyzing":
             MessageLookupByLibrary.simpleMessage("分析兼容性。"),
+        "compatibility_analyzing_prepare":
+            MessageLookupByLibrary.simpleMessage("准备工作"),
         "compatibility_birthday": MessageLookupByLibrary.simpleMessage("出生日期"),
         "compatibility_birthtime": MessageLookupByLibrary.simpleMessage("出生时间"),
         "compatibility_birthtime_subtitle":
@@ -109,6 +111,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "compatibility_new_compatibility_ask":
             MessageLookupByLibrary.simpleMessage("想看看新的配对吗？"),
         "compatibility_page_title": MessageLookupByLibrary.simpleMessage("兼容性"),
+        "compatibility_remain_star_candy":
+            MessageLookupByLibrary.simpleMessage("剩余的糖果"),
         "compatibility_result_not_found":
             MessageLookupByLibrary.simpleMessage("我们不相容 😔"),
         "compatibility_snackbar_error":
@@ -285,6 +289,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "fortune_relationship": MessageLookupByLibrary.simpleMessage("人际关系"),
         "fortune_title": m0,
         "fortune_total_title": MessageLookupByLibrary.simpleMessage("综合星座运势"),
+        "fortune_with_me": MessageLookupByLibrary.simpleMessage("您与艺术家的兼容性"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("专辑名称"),
         "hint_nickname_input": MessageLookupByLibrary.simpleMessage("请输入昵称。"),
         "image_save_success": MessageLookupByLibrary.simpleMessage("图像已保存。"),

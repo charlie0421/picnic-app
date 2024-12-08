@@ -91,6 +91,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("궁합 분석"),
         "compatibility_analyzing":
             MessageLookupByLibrary.simpleMessage("궁합을 분석하고 있습니다."),
+        "compatibility_analyzing_prepare":
+            MessageLookupByLibrary.simpleMessage("준비중"),
         "compatibility_birthday": MessageLookupByLibrary.simpleMessage("생년월일"),
         "compatibility_birthtime":
             MessageLookupByLibrary.simpleMessage("태어난 시간"),
@@ -114,6 +116,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("새로운 궁합을 보시겠습니까?"),
         "compatibility_page_title":
             MessageLookupByLibrary.simpleMessage("아티스트 궁합보기"),
+        "compatibility_remain_star_candy":
+            MessageLookupByLibrary.simpleMessage("남은 별사탕"),
         "compatibility_result_not_found":
             MessageLookupByLibrary.simpleMessage("궁합이 없어요 😔"),
         "compatibility_snackbar_error":
@@ -301,6 +305,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "fortune_relationship": MessageLookupByLibrary.simpleMessage("대인관계"),
         "fortune_title": m0,
         "fortune_total_title": MessageLookupByLibrary.simpleMessage("종합운세"),
+        "fortune_with_me": MessageLookupByLibrary.simpleMessage("아티스트와 나의 궁합"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("앨범명"),
         "hint_nickname_input":
             MessageLookupByLibrary.simpleMessage("닉네임을 입력해주세요."),

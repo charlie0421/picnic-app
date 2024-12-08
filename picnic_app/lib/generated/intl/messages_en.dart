@@ -94,6 +94,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "Start compatibility analysis"),
         "compatibility_analyzing":
             MessageLookupByLibrary.simpleMessage("Analyzing compatibility."),
+        "compatibility_analyzing_prepare":
+            MessageLookupByLibrary.simpleMessage("Preparing"),
         "compatibility_birthday":
             MessageLookupByLibrary.simpleMessage("Date of birth"),
         "compatibility_birthtime":
@@ -121,6 +123,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Want to see a new pairing?"),
         "compatibility_page_title":
             MessageLookupByLibrary.simpleMessage("Compatibility"),
+        "compatibility_remain_star_candy":
+            MessageLookupByLibrary.simpleMessage("Remaining Star Candy"),
         "compatibility_result_not_found":
             MessageLookupByLibrary.simpleMessage("궁합이 없어요 😔"),
         "compatibility_snackbar_error":
@@ -337,6 +341,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "fortune_title": m0,
         "fortune_total_title":
             MessageLookupByLibrary.simpleMessage("Comprehensive Fortune"),
+        "fortune_with_me":
+            MessageLookupByLibrary.simpleMessage("Goong-Hap with me"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("Album name"),
         "hint_nickname_input":
             MessageLookupByLibrary.simpleMessage("Please enter a nickname."),

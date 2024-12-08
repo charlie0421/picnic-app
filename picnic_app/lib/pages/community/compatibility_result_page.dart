@@ -206,22 +206,23 @@ class _CompatibilityResultPageState
     );
   }
 
-  Widget _buildHeaderSection(LocalizedCompatibility localizedResult) {
+  Widget _buildHeaderSection(LocalizedCompatibility? localizedResult) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
       child: Stack(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 0),
-            constraints: const BoxConstraints(minHeight: 60),
-            child: Center(
-              child: Text(
-                localizedResult.compatibilitySummary,
-                style: getTextStyle(AppTypo.body14R, AppColors.grey00),
-                textAlign: TextAlign.center,
+          if (localizedResult != null)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 0),
+              constraints: const BoxConstraints(minHeight: 60),
+              child: Center(
+                child: Text(
+                  localizedResult.compatibilitySummary,
+                  style: getTextStyle(AppTypo.body14R, AppColors.grey00),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
-          ),
           Positioned(
             top: 10,
             left: 0,
@@ -475,6 +476,27 @@ class _CompatibilityResultPageState
       });
       await ref.read(userInfoProvider.notifier).getUserProfiles();
       await _refreshData();
+
+      showSimpleDialog(
+          contentWidget: Column(
+        children: [
+          Text(Intl.message('compatibility_remain_star_candy')),
+          SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/icons/store/star_100.png',
+                width: 36,
+              ),
+              Text(
+                '${userProfile.starCandy}',
+                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+              ),
+            ],
+          ),
+        ],
+      ));
     }
   }
 
@@ -681,109 +703,121 @@ class _CompatibilityResultPageState
 
   @override
   Widget build(BuildContext context) {
-    final compatibilityState = ref.watch(compatibilityProvider);
+    try {
+      final compatibilityState = ref.watch(compatibilityProvider);
 
-    return compatibilityState.when(
-      data: (compatibility) {
-        if (compatibility == null) {
-          return const Center(child: CircularProgressIndicator());
-        }
+      return compatibilityState.when(
+        data: (compatibility) {
+          if (compatibility == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        return CustomScrollView(
-          controller: _scrollController, // Add the ScrollController here
+          return CustomScrollView(
+            controller: _scrollController, // Add the ScrollController here
 
-          slivers: [
-            SliverToBoxAdapter(
-              child: RepaintBoundary(
-                key: _saveKey,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        AppColors.primary500.withOpacity(.7),
-                        AppColors.mint500.withOpacity(.7),
-                      ],
+            slivers: [
+              SliverToBoxAdapter(
+                child: RepaintBoundary(
+                  key: _saveKey,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          AppColors.primary500.withOpacity(.7),
+                          AppColors.mint500.withOpacity(.7),
+                        ],
+                      ),
                     ),
-                  ),
-                  child: Column(
-                    children: [
-                      RepaintBoundary(
-                        key: _shareKey,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: isSaving
-                                ? LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      AppColors.primary500.withOpacity(.7),
-                                      AppColors.mint500.withOpacity(.7),
-                                    ],
-                                  )
-                                : null,
+                    child: Column(
+                      children: [
+                        RepaintBoundary(
+                          key: _shareKey,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: isSaving
+                                  ? LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        AppColors.primary500.withOpacity(.7),
+                                        AppColors.mint500.withOpacity(.7),
+                                      ],
+                                    )
+                                  : null,
+                            ),
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  height: 20,
+                                  child: SvgPicture.asset(
+                                    'assets/images/fortune/picnic_logo.svg',
+                                    width: 78,
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                                SizedBox(height: 16),
+                                CompatibilityInfo(
+                                  artist: compatibility.artist,
+                                  ref: ref,
+                                  birthDate: compatibility.birthDate,
+                                  birthTime: compatibility.birthTime,
+                                  compatibility: compatibility,
+                                  gender: compatibility.gender,
+                                ),
+                                SizedBox(height: 24),
+                                _buildHeaderSection(
+                                    compatibility.getLocalizedResult(
+                                        Intl.getCurrentLocale())),
+                                FortuneDivider(color: AppColors.grey00),
+                              ],
+                            ),
                           ),
+                        ),
+                        Padding(
                           padding: const EdgeInsets.all(16),
                           child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              SizedBox(
-                                height: 20,
-                                child: SvgPicture.asset(
-                                  'assets/images/fortune/picnic_logo.svg',
-                                  width: 78,
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
-                              SizedBox(height: 16),
-                              CompatibilityInfo(
-                                artist: compatibility.artist,
-                                ref: ref,
-                                birthDate: compatibility.birthDate,
-                                birthTime: compatibility.birthTime,
-                                compatibility: compatibility,
-                              ),
-                              SizedBox(height: 24),
-                              _buildHeaderSection(
-                                  compatibility.getLocalizedResult(
-                                      Intl.getCurrentLocale())!),
-                              FortuneDivider(color: AppColors.grey00),
+                              if (compatibility.hasError)
+                                CompatibilityErrorView(
+                                  error: compatibility.errorMessage ??
+                                      S.of(context).error_unknown,
+                                )
+                              else if (compatibility.isCompleted)
+                                _buildResultContent(compatibility.id)
                             ],
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          children: [
-                            if (compatibility.hasError)
-                              CompatibilityErrorView(
-                                error: compatibility.errorMessage ??
-                                    S.of(context).error_unknown,
-                              )
-                            else if (compatibility.isCompleted)
-                              _buildResultContent(compatibility.id)
-                          ],
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
-        );
-      },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => Center(
+            ],
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(
+          child: Text(
+            'Error: $error',
+            style: getTextStyle(AppTypo.body14R, AppColors.grey500),
+          ),
+        ),
+      );
+    } catch (e, stack) {
+      logger.e('Error building compatibility result page',
+          error: e, stackTrace: stack);
+      return Center(
         child: Text(
-          'Error: $error',
+          'Error: $e',
           style: getTextStyle(AppTypo.body14R, AppColors.grey500),
         ),
-      ),
-    );
+      );
+    }
   }
 
   Future<Future<bool>> _handleSave(CompatibilityModel compatibility) async {

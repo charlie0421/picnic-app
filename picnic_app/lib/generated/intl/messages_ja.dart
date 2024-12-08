@@ -90,6 +90,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("相性分析開始"),
         "compatibility_analyzing":
             MessageLookupByLibrary.simpleMessage("相性を分析しています。"),
+        "compatibility_analyzing_prepare":
+            MessageLookupByLibrary.simpleMessage("準備中"),
         "compatibility_birthday": MessageLookupByLibrary.simpleMessage("生年月日"),
         "compatibility_birthtime": MessageLookupByLibrary.simpleMessage("出生時間"),
         "compatibility_birthtime_subtitle":
@@ -111,6 +113,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "compatibility_new_compatibility_ask":
             MessageLookupByLibrary.simpleMessage("新しい相性を見ませんか？"),
         "compatibility_page_title": MessageLookupByLibrary.simpleMessage("相性"),
+        "compatibility_remain_star_candy":
+            MessageLookupByLibrary.simpleMessage("残りの星飴"),
         "compatibility_result_not_found":
             MessageLookupByLibrary.simpleMessage("相性が悪いです😔。"),
         "compatibility_snackbar_error":
@@ -297,6 +301,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "fortune_relationship": MessageLookupByLibrary.simpleMessage("対人関係"),
         "fortune_title": m0,
         "fortune_total_title": MessageLookupByLibrary.simpleMessage("総合占い"),
+        "fortune_with_me": MessageLookupByLibrary.simpleMessage("アーティストと私の相性"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("アルバム名"),
         "hint_nickname_input":
             MessageLookupByLibrary.simpleMessage("ニックネームを入力してください。"),
