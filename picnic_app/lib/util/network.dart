@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:picnic_app/util/auth_service.dart';
+import 'package:picnic_app/services/auth/auth_service.dart';
 import 'package:picnic_app/util/logger.dart';
 
 class NetworkCheck {

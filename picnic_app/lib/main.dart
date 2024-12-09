@@ -12,8 +12,8 @@ import 'package:picnic_app/app.dart';
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/firebase_options.dart';
 import 'package:picnic_app/main.reflectable.dart';
+import 'package:picnic_app/services/auth/auth_service.dart';
 import 'package:picnic_app/supabase_options.dart';
-import 'package:picnic_app/util/auth_service.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/logging_observer.dart';
 import 'package:picnic_app/util/token_refresh_manager.dart';
@@ -42,7 +42,6 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
 
-    logStorageData();
     final authService = AuthService();
     final isSessionRecovered = await authService.recoverSession();
     if (!isSessionRecovered) {
@@ -80,7 +79,6 @@ void main() async {
         options.beforeSend = (event, hint) {
           if (!Environment.enableSentry || kDebugMode) {
             event.exceptions?.forEach((element) {
-              logger.e('Exception: ${element.value}');
               if (element.stackTrace != null) {
                 final frames = element.stackTrace?.frames;
                 if (frames != null && frames.isNotEmpty) {
@@ -88,7 +86,7 @@ void main() async {
                       .map((frame) =>
                           '${frame.fileName}:${frame.lineNo} - ${frame.function}')
                       .join('\n');
-                  logger.e('Stacktrace:\n$stackTraceString');
+                  logger.e('${element.value}\nStacktrace:\n$stackTraceString');
                 } else {
                   logger.e('Stacktrace: No frames available');
                 }
@@ -110,9 +108,9 @@ void logStorageData() async {
   const storage = FlutterSecureStorage();
   final storageData = await storage.readAll();
 
-  storageData.forEach((key, value) {
-    logger.i('key: $key, value: $value');
-  });
+  final storageDataString =
+      storageData.entries.map((e) => '${e.key}: ${e.value}').join('\n');
+  logger.i(storageDataString);
 }
 
 Future<void> requestAppTrackingTransparency() async {

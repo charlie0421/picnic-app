@@ -22,7 +22,6 @@ Future<FortuneModel> getFortune(
           .eq('year', year)
           .maybeSingle();
 
-      logger.d('fortune: $fortune');
       return FortuneModel.fromJson(fortune!);
     }
 

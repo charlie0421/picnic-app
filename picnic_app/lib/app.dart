@@ -1,5 +1,3 @@
-import 'dart:developer' as developer;
-
 import 'package:another_flutter_splash_screen/another_flutter_splash_screen.dart';
 import 'package:app_links/app_links.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -90,11 +88,9 @@ class _AppState extends ConsumerState<App> {
 
   void _setupSupabaseAuthListener() {
     supabase.auth.onAuthStateChange.listen((data) async {
-      logger.i('Auth state changed: ${data.event}');
-      logger.i('User: ${data.session}');
       final session = data.session;
       if (session != null) {
-        developer.log('jwtToken: ${session.accessToken}');
+        logger.i('jwtToken: ${session.accessToken}');
       }
 
       if (data.event == AuthChangeEvent.signedIn) {

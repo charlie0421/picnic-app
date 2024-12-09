@@ -5,8 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
+import 'package:picnic_app/services/auth/auth_service.dart';
 import 'package:picnic_app/supabase_options.dart';
-import 'package:picnic_app/util/auth_service.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:screen_protector/screen_protector.dart';
@@ -115,7 +115,6 @@ class UserInfo extends _$UserInfo {
   }
 
   Future<void> logout() async {
-    logger.i('Logging out user');
     final authService = AuthService();
     authService.signOut();
 
