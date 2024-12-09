@@ -1,23 +1,44 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 import 'package:stack_trace/stack_trace.dart';
 
 class LongMessagePrinter extends PrettyPrinter {
+  static const int _skipFrames = 4;
+  static const int _maxStackTraceLines = 20;
+  static final _emojiMap = {
+    Level.debug: '🔍',
+    Level.info: 'ℹ️',
+    Level.warning: '⚠️',
+    Level.error: '❌',
+    Level.off: '📝',
+  };
+
+  static final _postgresPatterns = {
+    'code': r'code[\":\s]+([^,}\s]+)',
+    'details': r'detail[s]?[\":\s]+([^,}\s]+[^,}]*)',
+    'hint': r'hint[\":\s]+([^,}\s]+[^,}]*)',
+    'table': r'table[\":\s]+([^,}\s]+)',
+    'column': r'column[\":\s]+([^,}\s]+)',
+    'constraint': r'constraint[\":\s]+([^,}\s]+)',
+    'severity': r'severity[\":\s]+([^,}\s]+)',
+  };
+
   LongMessagePrinter()
       : super(
-            methodCount: 0,
-            errorMethodCount: 8,
-            lineLength: 10000,
-            colors: true,
-            printEmojis: true,
-            printTime: true);
+          methodCount: 0,
+          errorMethodCount: 8,
+          lineLength: 100000,
+          colors: true,
+          printEmojis: true,
+          dateTimeFormat: DateTimeFormat.dateAndTime,
+        );
 
   String _getCallerInfo() {
     final frames = Trace.current().frames;
-    const skipFrames = 4;
-    if (frames.length > skipFrames) {
-      final frame = frames[skipFrames];
+    if (frames.length > _skipFrames) {
+      final frame = frames[_skipFrames];
       return '${frame.uri}:${frame.line}';
     }
     return '';
@@ -31,79 +52,64 @@ class LongMessagePrinter extends PrettyPrinter {
     details.add('  • Type: ${error.runtimeType}');
     details.add('  • Message: $errorString');
 
-    // Postgres 관련 에러 정보 추출
-    final patterns = {
-      'code': r'code[\":\s]+([^,}\s]+)',
-      'details': r'detail[s]?[\":\s]+([^,}\s]+[^,}]*)',
-      'hint': r'hint[\":\s]+([^,}\s]+[^,}]*)',
-      'table': r'table[\":\s]+([^,}\s]+)',
-      'column': r'column[\":\s]+([^,}\s]+)',
-      'constraint': r'constraint[\":\s]+([^,}\s]+)',
-      'severity': r'severity[\":\s]+([^,}\s]+)',
-    };
+    _extractPostgresErrors(errorString, details);
 
-    patterns.forEach((key, pattern) {
-      try {
-        final match =
-            RegExp(pattern, caseSensitive: false).firstMatch(errorString);
-        if (match != null) {
-          String? value = match.group(1);
-          value = value?.replaceAll('"', '');
-          value = value?.replaceAll("'", '');
-          if (value != null && value.isNotEmpty) {
-            details.add(
-                '  • ${key.substring(0, 1).toUpperCase()}${key.substring(1)}: $value');
-          }
-        }
-      } catch (_) {}
-    });
-
-    // JSON 형태의 데이터가 있는지 확인
-    try {
-      final jsonMatch = RegExp(r'\{[^}]+\}').firstMatch(errorString);
-      if (jsonMatch != null) {
-        final jsonStr = jsonMatch.group(0);
-        if (jsonStr != null) {
-          final Map<String, dynamic> jsonData = json.decode(jsonStr);
-          jsonData.forEach((key, value) {
-            if (!details.any(
-                (detail) => detail.toLowerCase().contains(key.toLowerCase()))) {
-              details.add(
-                  '  • ${key.substring(0, 1).toUpperCase()}${key.substring(1)}: $value');
-            }
-          });
-        }
-      }
-    } catch (_) {}
+    _extractJsonData(errorString, details);
 
     return details.join('\n');
   }
 
+  void _extractPostgresErrors(String errorString, List<String> details) {
+    for (final entry in _postgresPatterns.entries) {
+      try {
+        final match =
+            RegExp(entry.value, caseSensitive: false).firstMatch(errorString);
+        if (match != null) {
+          final value =
+              match.group(1)?.replaceAll('"', '').replaceAll("'", '').trim();
+          if (value != null && value.isNotEmpty) {
+            final key = entry.key;
+            details
+                .add('  • ${key[0].toUpperCase()}${key.substring(1)}: $value');
+          }
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('Error extracting ${entry.key}: $e');
+        }
+      }
+    }
+  }
+
+  void _extractJsonData(String errorString, List<String> details) {
+    try {
+      final jsonMatch = RegExp(r'\{[^}]+\}').firstMatch(errorString);
+      if (jsonMatch?.group(0) != null) {
+        final jsonData =
+            json.decode(jsonMatch!.group(0)!) as Map<String, dynamic>;
+        for (final entry in jsonData.entries) {
+          if (!details.any((detail) =>
+              detail.toLowerCase().contains(entry.key.toLowerCase()))) {
+            details.add(
+                '  • ${entry.key[0].toUpperCase()}${entry.key.substring(1)}: ${entry.value}');
+          }
+        }
+      }
+    } catch (e) {
+      // JSON 파싱 에러 시 로깅 추가
+      if (kDebugMode) {
+        print('Error parsing JSON data: $e');
+      }
+    }
+  }
+
   @override
   List<String> log(LogEvent event) {
-    String? emoji;
-    switch (event.level) {
-      case Level.debug:
-        emoji = '🔍';
-        break;
-      case Level.info:
-        emoji = 'ℹ️';
-        break;
-      case Level.warning:
-        emoji = '⚠️';
-        break;
-      case Level.error:
-        emoji = '❌';
-        break;
-      default:
-        emoji = '📝';
-    }
-
     final messages = <String>[];
+    final emoji = _emojiMap[event.level] ?? '📝';
     final callerInfo = _getCallerInfo();
 
-    messages.add(
-        '┌───────────────────────────────────────────────────────────────────────');
+    messages.add(_createBorder('┌'));
     messages.add('│ 📍 $callerInfo');
 
     final formattedMessage = _formatMessage(event.message);
@@ -124,22 +130,27 @@ class LongMessagePrinter extends PrettyPrinter {
       messages.addAll(event.stackTrace
           .toString()
           .split('\n')
-          .take(20)
+          .take(_maxStackTraceLines)
           .map((line) => '│   $line'));
     }
 
-    messages.add(
-        '└───────────────────────────────────────────────────────────────────────\n');
+    messages.add(_createBorder('└'));
+    messages.add(''); // 마지막 빈 줄 추가
 
     return messages;
   }
+
+  String _createBorder(String edge) => '$edge${'─' * 67}';
 
   String _formatMessage(dynamic message) {
     if (message is Map || message is Iterable) {
       try {
         const jsonEncoder = JsonEncoder.withIndent('  ');
         return jsonEncoder.convert(message);
-      } catch (e) {
+      } on Exception catch (e) {
+        if (kDebugMode) {
+          print('Error formatting message: $e');
+        }
         return message.toString();
       }
     }
@@ -174,7 +185,10 @@ extension LoggerJsonExtension on Logger {
       } else {
         d('$title: $json');
       }
-    } catch (e) {
+    } on Exception catch (e) {
+      if (kDebugMode) {
+        print('Error in logJson: $e');
+      }
       d('$title: $json');
     }
   }

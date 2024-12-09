@@ -18,10 +18,10 @@ import 'package:picnic_app/pages/signup/agreement_terms_page.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
+import 'package:picnic_app/services/auth/auth_service.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util/auth_service.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -48,7 +48,6 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
     const storage = FlutterSecureStorage();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       lastProvider = await storage.read(key: 'last_provider');
-      logger.i(lastProvider);
     });
   }
 
@@ -244,7 +243,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
   }
 
   Widget _buildLoginOptions(BuildContext context, WidgetRef ref) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -392,30 +391,17 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                 OverlayLoadingProgress.stop();
                 if (user != null) {
                   _handleSuccessfulLogin();
-                } else {
-                  throw PicnicAuthExceptions.unknown();
                 }
               }
-            } on PicnicAuthException catch (e) {
-              OverlayLoadingProgress.stop();
-              logger.e(
-                  'Google login PicnicAuthException: $e (originalError: ${e.originalError})');
-
-              if (e.code == 'canceled') {
-                return;
-              }
-
-              showSimpleDialog(
-                  type: DialogType.error,
-                  title: Intl.message('error_title'),
-                  content: e.message,
-                  onOk: () {
-                    Navigator.of(context).pop();
-                  });
             } catch (e, s) {
               OverlayLoadingProgress.stop();
               logger.e('Error signing in with Google: $e', stackTrace: s);
 
+              if (e is PicnicAuthException) {
+                if (e.code == 'canceled') {
+                  return;
+                }
+              }
               showSimpleDialog(
                   type: DialogType.error,
                   title: Intl.message('error_title'),
@@ -479,8 +465,6 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               }
             } on PicnicAuthException catch (e) {
               OverlayLoadingProgress.stop();
-              logger.e(
-                  'Kakao login PicnicAuthException: $e (originalError: ${e.originalError})');
 
               if (e.code == 'canceled') {
                 return;

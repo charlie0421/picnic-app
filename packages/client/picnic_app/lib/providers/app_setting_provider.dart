@@ -6,7 +6,6 @@ import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part '../generated/providers/app_setting_provider.freezed.dart';
-
 part '../generated/providers/app_setting_provider.g.dart';
 
 @riverpod
@@ -61,7 +60,7 @@ class Setting with _$Setting {
     var postAnonymousModeStr =
         await globalStorage.loadData('postAnonymousMode', 'false');
 
-    logger.d(
+    logger.i(
         'loaded config: themeMode=$themeModeStr, locale=$localeStr, postAnonymousMode=$postAnonymousModeStr');
     return copyWith(
         themeMode: parseThemeMode(themeModeStr!),

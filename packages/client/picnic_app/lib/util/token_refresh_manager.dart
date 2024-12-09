@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:picnic_app/util/auth_service.dart';
+import 'package:picnic_app/services/auth/auth_service.dart';
 
 class TokenRefreshManager {
   final AuthService _authService;

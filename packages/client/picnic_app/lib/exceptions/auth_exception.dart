@@ -1,74 +1,32 @@
-import 'package:intl/intl.dart';
+class PicnicAuthExceptions {
+  static PicnicAuthException invalidToken() =>
+      PicnicAuthException('invalid_token', '유효하지 않은 토큰입니다.');
+
+  static PicnicAuthException canceled() =>
+      PicnicAuthException('canceled', '인증이 취소되었습니다.');
+
+  static PicnicAuthException network() =>
+      PicnicAuthException('network_error', '네트워크 연결을 확인해주세요.');
+
+  static PicnicAuthException storageError() =>
+      PicnicAuthException('storage_error', '저장소 접근 중 오류가 발생했습니다.');
+
+  static PicnicAuthException unsupportedProvider(String provider) =>
+      PicnicAuthException(
+          'unsupported_provider', '지원하지 않는 로그인 방식입니다: $provider');
+
+  static PicnicAuthException unknown({dynamic originalError}) =>
+      PicnicAuthException('unknown', '알 수 없는 오류가 발생했습니다.',
+          originalError: originalError);
+}
 
 class PicnicAuthException implements Exception {
   final String code;
   final String message;
   final dynamic originalError;
 
-  PicnicAuthException({
-    required this.code,
-    required this.message,
-    this.originalError,
-  });
+  PicnicAuthException(this.code, this.message, {this.originalError});
 
   @override
-  String toString() => message;
-}
-
-// 인증 관련 예외 정의
-class PicnicAuthExceptions {
-  // 일반적인 오류
-  static PicnicAuthException unknown({dynamic originalError}) =>
-      PicnicAuthException(
-        code: 'unknown_error',
-        message: Intl.message('exception_auth_message_common_unknown'),
-        originalError: originalError,
-      );
-
-  static PicnicAuthException canceled() => PicnicAuthException(
-        code: 'canceled',
-        message: Intl.message('exception_auth_message_common_cancel'),
-      );
-
-  static PicnicAuthException network() => PicnicAuthException(
-        code: 'network_error',
-        message: Intl.message('exception_auth_message_common_network'),
-      );
-
-  static PicnicAuthException invalidToken() => PicnicAuthException(
-        code: 'invalid_token',
-        message: Intl.message('exception_auth_message_common_invalid_token'),
-      );
-
-  // Google 특화 오류
-  static PicnicAuthException googlePlayServices() => PicnicAuthException(
-        code: 'google_play_services_error',
-        message:
-            Intl.message('exception_auth_message_google_play_services_error'),
-      );
-
-  // Kakao 특화 오류
-  static PicnicAuthException kakaoNotSupported() => PicnicAuthException(
-        code: 'kakao_not_supported',
-        message: Intl.message('exception_auth_message_kakao_not_supported'),
-      );
-
-  // Apple 특화 오류
-  static PicnicAuthException appleSignInFailed() => PicnicAuthException(
-        code: 'apple_sign_in_failed',
-        message: Intl.message('exception_auth_message_apple_sign_in_failed'),
-      );
-
-  static PicnicAuthException appleInvalidResponse() => PicnicAuthException(
-        code: 'apple_invalid_response',
-        message: Intl.message('exception_auth_message_apple_invalid_response'),
-      );
-
-  // Provider 관련 오류
-  static PicnicAuthException unsupportedProvider(String provider) =>
-      PicnicAuthException(
-        code: 'unsupported_provider',
-        message:
-            '${Intl.message('exception_auth_message_common_unsupported_provider')} $provider',
-      );
+  String toString() => 'PicnicAuthException: $message (code: $code)';
 }
