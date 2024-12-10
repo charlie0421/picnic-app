@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_app/components/common/avatar_container.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
-import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
@@ -31,6 +31,8 @@ class CompatibilityInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final avatarUrl =
+        ref.watch(userInfoProvider.select((value) => value.value?.avatarUrl));
     return Container(
       decoration: BoxDecoration(
         color: AppColors.grey00,
@@ -41,19 +43,37 @@ class CompatibilityInfo extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              ClipRRect(
-                borderRadius:
-                    compatibility?.status == CompatibilityStatus.completed &&
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: compatibility?.status ==
+                                CompatibilityStatus.completed &&
                             compatibility?.isAds == true
                         ? BorderRadius.only(topLeft: Radius.circular(16))
                         : BorderRadius.only(
                             topLeft: Radius.circular(16),
                             bottomLeft: Radius.circular(16)),
-                child: PicnicCachedNetworkImage(
-                  imageUrl: artist.image ?? '',
-                  width: 150.cw,
-                  height: 150.cw,
-                ),
+                    child: PicnicCachedNetworkImage(
+                      imageUrl: artist.image ?? '',
+                      width: 150.cw,
+                      height: 150.cw,
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 6,
+                    right: 6,
+                    child: ProfileImageContainer(
+                      avatarUrl: avatarUrl ?? '',
+                      width: 40,
+                      height: 40,
+                      borderRadius: 20,
+                      border: Border.all(
+                        color: AppColors.primary500,
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               SizedBox(width: 16),
               Column(
