@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/store/common/store_point_info.dart';
@@ -20,6 +19,7 @@ import 'package:picnic_app/services/purchase_service.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
@@ -35,8 +35,8 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
       inAppPurchaseService: InAppPurchaseService(),
       receiptVerificationService: ReceiptVerificationService(),
       analyticsService: AnalyticsService(),
+      onPurchaseUpdate: _handlePurchaseUpdated,
     );
-    _purchaseService.inAppPurchaseService.init(_handlePurchaseUpdated);
   }
 
   @override
@@ -47,22 +47,30 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
 
   Future<void> _handlePurchaseUpdated(
       List<PurchaseDetails> purchaseDetailsList) async {
-    for (final purchaseDetails in purchaseDetailsList) {
-      await _purchaseService.handlePurchase(
-        purchaseDetails,
-        () async {
-          await ref.read(userInfoProvider.notifier).getUserProfiles();
-          if (mounted) {
-            await _showSuccessDialog();
-          }
-        },
-        (error) async {
-          if (mounted) {
-            await _showErrorDialog(error);
-          }
-        },
-      );
-      OverlayLoadingProgress.stop();
+    try {
+      for (final purchaseDetails in purchaseDetailsList) {
+        await _purchaseService.handlePurchase(
+          purchaseDetails,
+          () async {
+            // 구매 성공 시 처리
+            await ref.read(userInfoProvider.notifier).getUserProfiles();
+            if (mounted) {
+              await _showSuccessDialog();
+            }
+          },
+          (error) async {
+            // 에러 발생 시 처리
+            if (mounted) {
+              await _showErrorDialog(error);
+            }
+          },
+        );
+      }
+    } finally {
+      // 모든 구매 처리가 완료된 후에만 로딩바 숨김
+      if (mounted) {
+        OverlayLoadingProgress.stop();
+      }
     }
   }
 
@@ -71,31 +79,46 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
     Map<String, dynamic> serverProduct,
     List<ProductDetails> storeProducts,
   ) async {
-    OverlayLoadingProgress.start(
-      context,
-      barrierDismissible: false,
-      color: AppColors.primary500,
-    );
-
     if (!supabase.isLogged) {
       showRequireLoginDialog();
       return;
     }
 
     try {
-      await _purchaseService.initiatePurchase(
+      // 구매 시작시 로딩바 표시
+      OverlayLoadingProgress.start(
+        context,
+        barrierDismissible: false,
+        color: AppColors.primary500,
+      );
+
+      // 구매 시도
+      final purchaseInitiated = await _purchaseService.initiatePurchase(
         serverProduct['id'],
-        onSuccess: () {
-          _showSuccessDialog();
+        onSuccess: () async {
+          // 구매 성공시 로딩바는 _handlePurchaseUpdated에서 숨김
+          await _showSuccessDialog();
         },
-        onError: (message) {
-          _showErrorDialog(message);
+        onError: (message) async {
+          // 에러 발생시 로딩바는 _handlePurchaseUpdated에서 숨김
+          await _showErrorDialog(message);
         },
       );
+
+      // 구매 시도 자체가 실패한 경우에만 여기서 로딩바 숨김
+      if (!purchaseInitiated) {
+        if (mounted) {
+          OverlayLoadingProgress.stop();
+          await _showErrorDialog(S.of(context).dialog_message_purchase_failed);
+        }
+      }
     } catch (e) {
-      await _showErrorDialog(Intl.message('dialog_message_purchase_failed'));
-      rethrow;
-    } finally {}
+      logger.e('Error starting purchase', error: e);
+      if (mounted) {
+        OverlayLoadingProgress.stop();
+        await _showErrorDialog(S.of(context).dialog_message_purchase_failed);
+      }
+    }
   }
 
   Future<void> _showErrorDialog(String message) async {
@@ -104,6 +127,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
   }
 
   Future<void> _showSuccessDialog() async {
+    if (!mounted) return;
     showSimpleDialog(content: S.of(context).dialog_message_purchase_success);
   }
 

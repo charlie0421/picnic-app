@@ -15,8 +15,10 @@ class PurchaseService {
     required this.inAppPurchaseService,
     required this.receiptVerificationService,
     required this.analyticsService,
+    required void Function(List<PurchaseDetails>) onPurchaseUpdate,
   }) {
-    inAppPurchaseService.init(_handlePurchaseUpdate);
+    // 전달받은 콜백으로 초기화
+    inAppPurchaseService.init(onPurchaseUpdate);
   }
 
   final WidgetRef ref;

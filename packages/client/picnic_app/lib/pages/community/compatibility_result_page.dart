@@ -67,8 +67,8 @@ class _CompatibilityResultPageState
       inAppPurchaseService: InAppPurchaseService(),
       receiptVerificationService: ReceiptVerificationService(),
       analyticsService: AnalyticsService(),
+      onPurchaseUpdate: _handlePurchaseUpdated,
     );
-    _purchaseService.inAppPurchaseService.init(_handlePurchaseUpdated);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeData();
@@ -83,26 +83,36 @@ class _CompatibilityResultPageState
 
   Future<void> _handlePurchaseUpdated(
       List<PurchaseDetails> purchaseDetailsList) async {
-    for (final purchaseDetails in purchaseDetailsList) {
-      await _purchaseService.handlePurchase(
-        purchaseDetails,
-        () async {
-          // 구매 성공 시 처리
-          _showSuccessDialog();
-        },
-        (error) async {
-          // 에러 발생 시 처리
-          _showErrorDialog(error);
-        },
-      );
+    try {
+      for (final purchaseDetails in purchaseDetailsList) {
+        await _purchaseService.handlePurchase(
+          purchaseDetails,
+          () async {
+            // 구매 성공 시 처리
+            if (mounted) {
+              OverlayLoadingProgress.stop();
+              _openCompatibility(widget.compatibility.id);
+            }
+          },
+          (error) async {
+            // 에러 발생 시 처리
+            if (mounted) {
+              OverlayLoadingProgress.stop();
+              await _showErrorDialog(error);
+            }
+          },
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        OverlayLoadingProgress.stop();
+        await _showErrorDialog('구매 처리 중 오류가 발생했습니다.');
+      }
     }
   }
 
   Future<bool> _buyProduct(Map<String, dynamic> product) async {
     try {
-      OverlayLoadingProgress.start(context);
-
-      // 구매 시도 결과 확인
       final purchaseInitiated = await _purchaseService.initiatePurchase(
         product['id'],
         onSuccess: () {
@@ -114,19 +124,11 @@ class _CompatibilityResultPageState
         },
       );
 
-      // 구매 시도 실패시 에러 다이얼로그 표시
-      if (!purchaseInitiated) {
-        await _showErrorDialog(Intl.message('message_error_occurred'));
-        return false;
-      }
-
-      return true;
+      return purchaseInitiated;
     } catch (e, s) {
       logger.e('Error buying product', error: e, stackTrace: s);
       await _showErrorDialog(Intl.message('message_error_occurred'));
       return false;
-    } finally {
-      OverlayLoadingProgress.stop();
     }
   }
 
@@ -398,21 +400,40 @@ class _CompatibilityResultPageState
                                     tapTargetSize:
                                         MaterialTapTargetSize.shrinkWrap),
                                 onPressed: () async {
-                                  OverlayLoadingProgress.start(context);
+                                  if (!mounted) return;
 
-                                  final productDetail = ref
-                                      .read(serverProductsProvider.notifier)
-                                      .getProductDetailById('STAR100');
+                                  try {
+                                    OverlayLoadingProgress.start(context);
 
-                                  logger.i('Buy product: $productDetail');
+                                    final productDetail = ref
+                                        .read(serverProductsProvider.notifier)
+                                        .getProductDetailById('STAR100');
 
-                                  if (!await _buyProduct(productDetail!)) {
-                                    // 구매 시도 실패 또는 pending 상태
-                                    showSimpleDialog(
-                                        content: '구매가 진행 중입니다. 잠시만 기다려주세요.');
-                                    return;
+                                    if (productDetail == null) {
+                                      throw Exception('상품 정보를 찾을 수 없습니다.');
+                                    }
+
+                                    logger.i('Buy product: $productDetail');
+
+                                    // 구매 시도
+                                    final purchaseInitiated =
+                                        await _buyProduct(productDetail);
+
+                                    // 구매 시도 실패시에만 에러 다이얼로그 표시하고 로딩바 숨김
+                                    if (!purchaseInitiated) {
+                                      if (!mounted) return;
+                                      await _showErrorDialog(
+                                          '구매를 시작할 수 없습니다. 잠시 후 다시 시도해 주세요.');
+                                      OverlayLoadingProgress.stop();
+                                    }
+                                    // 구매 시도 성공시에는 로딩바 유지 (실제 구매 완료/실패시 _handlePurchaseUpdated에서 로딩바 숨김)
+                                  } catch (e) {
+                                    logger.e('Error starting purchase',
+                                        error: e);
+                                    if (!mounted) return;
+                                    await _showErrorDialog('구매 중 오류가 발생했습니다.');
+                                    OverlayLoadingProgress.stop();
                                   }
-                                  OverlayLoadingProgress.stop();
                                 },
                                 child: Text(
                                     S.of(context).fortune_purchase_by_one_click,
@@ -866,13 +887,13 @@ class _CompatibilityResultPageState
         setState(() {
           isSaving = false;
         });
-        // WidgetsBinding.instance.addPostFrameCallback((_) {
-        //   _scrollController.animateTo(
-        //     _scrollController.position.maxScrollExtent,
-        //     duration: Duration(milliseconds: 300),
-        //     curve: Curves.easeOut,
-        //   );
-        // });
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        });
       },
     );
   }
