@@ -1,9 +1,6 @@
 import 'dart:io';
 import 'dart:ui' as ui;
-import 'dart:ui';
 
-import 'package:appinio_social_share/appinio_social_share.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
@@ -11,159 +8,160 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/util/logger.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ShareUtils {
-  static final AppinioSocialShare _appinioSocialShare = AppinioSocialShare();
+  static const _initialDelay = Duration(milliseconds: 300);
 
-  static Future<ui.Image?> captureWidget(GlobalKey key) async {
+  static Future<XFile?> _captureContent(GlobalKey key) async {
     try {
-      RenderRepaintBoundary? boundary =
+      await Future.delayed(_initialDelay);
+
+      final boundary =
           key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-      if (boundary == null) return null;
-
-      final image = await boundary.toImage(pixelRatio: 3.0);
-      return image;
-    } catch (e) {
-      logger.e('Failed to capture widget: $e');
-      return null;
-    }
-  }
-
-  static Future<String?> saveImageToTemp(ui.Image image) async {
-    try {
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      if (byteData == null) return null;
-
-      final pngBytes = byteData.buffer.asUint8List();
-      final Directory directory;
-      if (Platform.isAndroid) {
-        directory = (await getExternalStorageDirectory())!;
-      } else {
-        directory = await getTemporaryDirectory();
+      if (boundary == null) {
+        logger.e('RenderRepaintBoundary not found');
+        return null;
       }
 
-      final path = '${directory.path}/vote_result.png';
+      // 캡처 및 이미지 생성
+      final image = await boundary.toImage(pixelRatio: 2.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData == null) {
+        logger.e('ByteData is null');
+        return null;
+      }
+
+      final bytes = byteData.buffer.asUint8List();
+      final tempDir = await getTemporaryDirectory();
+      final filename = 'share_${DateTime.now().millisecondsSinceEpoch}.png';
+      final path = '${tempDir.path}/$filename';
+
       final file = File(path);
-      await file.writeAsBytes(pngBytes);
+      await file.writeAsBytes(bytes);
 
-      return path;
-    } catch (e) {
-      logger.e('Failed to save image to temp: $e');
-      return null;
-    }
-  }
-
-  static Future<Uint8List?> captureScrollableContent(GlobalKey key) async {
-    try {
-      final context = key.currentContext;
-      if (context == null) return null;
-
-      await Future.delayed(Duration(milliseconds: 500));
-      final boundary = context.findRenderObject() as RenderRepaintBoundary;
-      final image = await boundary.toImage(pixelRatio: 3.0);
-      final byteData = await image.toByteData(format: ImageByteFormat.png);
-
-      return byteData?.buffer.asUint8List();
+      return XFile(path);
     } catch (e, stack) {
-      logger.e('Error capturing content', error: e, stackTrace: stack);
+      logger.e('Content capture failed', error: e, stackTrace: stack);
       return null;
     }
   }
 
-  static Future<bool> captureAndSaveImage(
-    GlobalKey saveKey, {
+  static Future<bool> shareToSocial(
+    GlobalKey key, {
+    required String message,
+    required String hashtag,
     VoidCallback? onStart,
     VoidCallback? onComplete,
   }) async {
+    XFile? capturedFile;
+
     try {
-      if (onStart != null) onStart();
+      onStart?.call();
 
-      // 렌더링 대기 시간을 더 길게 설정
-      await Future.delayed(const Duration(seconds: 2));
+      capturedFile = await _captureContent(key);
+      if (capturedFile == null) {
+        throw Exception('Failed to capture content');
+      }
 
-      final bytes = await captureScrollableContent(saveKey);
-      if (bytes == null) return false;
+      final shareText = '$message\n $hashtag      ';
 
-      // 이미지 저장
+      // share_plus를 사용한 공유
+      final result = await Share.shareXFiles(
+        [capturedFile],
+        text: shareText,
+        subject: message,
+      );
+
+      // 공유 결과 확인
+      return result.status == ShareResultStatus.success;
+    } catch (e) {
+      logger.e('Social share failed', error: e);
+      return false;
+    } finally {
+      onComplete?.call();
+      if (capturedFile != null) {
+        try {
+          final file = File(capturedFile.path);
+          if (await file.exists()) {
+            await file.delete();
+          }
+        } catch (e) {
+          logger.e('Temp file cleanup failed', error: e);
+        }
+      }
+    }
+  }
+
+  static Future<bool> saveImage(
+    GlobalKey key, {
+    VoidCallback? onStart,
+    VoidCallback? onComplete,
+  }) async {
+    XFile? capturedFile;
+    try {
+      onStart?.call();
+
+      capturedFile = await _captureContent(key);
+      if (capturedFile == null) {
+        logger.e('Failed to capture content');
+        showSimpleDialog(
+          type: DialogType.error,
+          content: Intl.message('capture_failed'),
+        );
+        return false;
+      }
+
+      // Verify file exists before saving
+      final file = File(capturedFile.path);
+      if (!await file.exists()) {
+        logger.e('Captured file does not exist: ${capturedFile.path}');
+        showSimpleDialog(
+          type: DialogType.error,
+          content: Intl.message('message_pic_pic_save_fail'),
+        );
+        return false;
+      }
+
+      final bytes = await capturedFile.readAsBytes();
+      if (bytes.isEmpty) {
+        logger.e('Captured file is empty');
+        showSimpleDialog(
+          type: DialogType.error,
+          content: Intl.message('message_pic_pic_save_fail'),
+        );
+        return false;
+      }
+
       final result = await ImageGallerySaverPlus.saveImage(
         bytes,
         quality: 100,
         name: "compatibility_result_${DateTime.now().millisecondsSinceEpoch}",
       );
 
-      if (result == null || result['isSuccess'] != true) {
-        throw Exception('Failed to save image');
-      }
+      if (result?['isSuccess'] != true) throw Exception('Save failed');
 
-      showSimpleDialog(
-        content: Intl.message('image_save_success'),
-      );
-
+      showSimpleDialog(content: Intl.message('image_save_success'));
       return true;
     } catch (e) {
-      logger.e('Failed to capture and save image: $e');
+      logger.e('Image save failed', error: e);
       showSimpleDialog(
         type: DialogType.error,
         content: Intl.message('message_pic_pic_save_fail'),
       );
       return false;
     } finally {
-      if (onComplete != null) onComplete();
-    }
-  }
-
-  static Future<bool> shareToTwitter(
-    GlobalKey key,
-    BuildContext context, {
-    required String message,
-    required String hashtag,
-    VoidCallback? onStart,
-    VoidCallback? onComplete,
-  }) async {
-    logger.i('shareToTwitter');
-    try {
-      if (onStart != null) onStart();
-
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      final image = await captureWidget(key);
-      if (image == null) return false;
-
-      final path = await saveImageToTemp(image);
-      if (path == null) return false;
-
-      final shareMessage = '$message $hashtag';
-
-      logger.i('shareMessage: $shareMessage');
-
-      final result = Platform.isIOS
-          ? await _appinioSocialShare.iOS.shareToTwitter(shareMessage, path)
-          : await _appinioSocialShare.android
-              .shareToTwitter(shareMessage, path);
-
-      logger.i('result: $result');
-
-      await File(path).delete();
-
-      if (result == 'ERROR_APP_NOT_AVAILABLE') {
-        logger.e(Intl.message('share_no_twitter'));
-        showSimpleDialog(
-          type: DialogType.error,
-          content: Intl.message('share_no_twitter'),
-        );
-        return false;
+      onComplete?.call();
+      if (capturedFile != null) {
+        try {
+          final file = File(capturedFile.path);
+          if (await file.exists()) {
+            await file.delete();
+          }
+        } catch (e) {
+          logger.e('Temp file cleanup failed', error: e);
+        }
       }
-
-      return result == 'SUCCESS';
-    } catch (e) {
-      logger.e('Failed to share to Twitter: $e');
-      showSimpleDialog(
-        type: DialogType.error,
-        content: Intl.message('share_image_fail'),
-      );
-      return false;
-    } finally {
-      if (onComplete != null) onComplete();
     }
   }
 }

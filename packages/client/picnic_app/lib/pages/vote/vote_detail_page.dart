@@ -299,7 +299,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 shareButtonText: S.of(context).share,
                 onSave: () {
                   if (_isSaving) return;
-                  ShareUtils.captureAndSaveImage(
+                  ShareUtils.saveImage(
                     _globalKey,
                     onStart: () => setState(() => _isSaving = true),
                     onComplete: () => setState(() => _isSaving = false),
@@ -307,9 +307,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 },
                 onShare: () {
                   if (_isSaving) return;
-                  ShareUtils.shareToTwitter(
+                  ShareUtils.shareToSocial(
                     _globalKey,
-                    context,
                     message: getLocaleTextFromJson(voteModel.title),
                     hashtag:
                         '#Picnic #Vote #PicnicApp #${getLocaleTextFromJson(voteModel.title).trim()}',

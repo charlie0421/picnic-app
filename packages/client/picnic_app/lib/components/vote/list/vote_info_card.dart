@@ -223,7 +223,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   }
 
   void _handleSaveImage() async {
-    await ShareUtils.captureAndSaveImage(
+    await ShareUtils.saveImage(
       _globalKey,
       onStart: () => setState(() => _isSaving = true),
       onComplete: () => setState(() => _isSaving = false),
@@ -231,9 +231,8 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   }
 
   void _handleShareToTwitter() async {
-    await ShareUtils.shareToTwitter(
+    await ShareUtils.shareToSocial(
       _globalKey,
-      context,
       message: getLocaleTextFromJson(widget.vote.title),
       hashtag:
           '#Picnic #Vote #PicnicApp #${getLocaleTextFromJson(widget.vote.title).trim()}',

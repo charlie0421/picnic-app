@@ -128,7 +128,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
 
   Future<void> _handleSave() async {
     try {
-      await ShareUtils.captureAndSaveImage(
+      await ShareUtils.saveImage(
         _saveKey,
         onStart: () {
           setState(() => _isSaving = true);
@@ -207,9 +207,8 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                           onSave: _handleSave,
                           onShare: () {
                             if (_isSaving) return;
-                            ShareUtils.shareToTwitter(
+                            ShareUtils.shareToSocial(
                               _shareKey,
-                              context,
                               message:
                                   '${getLocaleTextFromJson(fortune.artist.name)} ${Intl.message('fortune_title', args: [
                                     fortune.year.toString()

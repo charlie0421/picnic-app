@@ -821,7 +821,7 @@ class _CompatibilityResultPageState
   }
 
   Future<Future<bool>> _handleSave(CompatibilityModel compatibility) async {
-    return ShareUtils.captureAndSaveImage(
+    return ShareUtils.saveImage(
       _saveKey,
       onStart: () {
         setState(() {
@@ -850,12 +850,11 @@ class _CompatibilityResultPageState
 
   Future<Future<bool>> _handleShare(CompatibilityModel compatibility) async {
     logger.i('Share to Twitter');
-    return ShareUtils.shareToTwitter(
+    return ShareUtils.shareToSocial(
       _shareKey,
       message: getLocaleTextFromJson(compatibility.artist.name),
       hashtag:
-          '#Picnic #Vote #PicnicApp #${S.of(context).compatibility_page_title}',
-      context,
+          '#Picnic #Vote #PicnicApp #${S.of(context).compatibility_page_title.replaceAll(' ', '')}',
       onStart: () {
         OverlayLoadingProgress.start(context, color: AppColors.primary500);
         setState(() {
@@ -867,13 +866,13 @@ class _CompatibilityResultPageState
         setState(() {
           isSaving = false;
         });
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _scrollController.animateTo(
-            _scrollController.position.maxScrollExtent,
-            duration: Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-        });
+        // WidgetsBinding.instance.addPostFrameCallback((_) {
+        //   _scrollController.animateTo(
+        //     _scrollController.position.maxScrollExtent,
+        //     duration: Duration(milliseconds: 300),
+        //     curve: Curves.easeOut,
+        //   );
+        // });
       },
     );
   }
