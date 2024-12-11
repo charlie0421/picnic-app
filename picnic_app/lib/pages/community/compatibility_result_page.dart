@@ -55,7 +55,8 @@ class _CompatibilityResultPageState
   final activityController = ExpansionTileController();
   final tipController = ExpansionTileController();
   late final PurchaseService _purchaseService;
-  bool isSaving = false;
+  bool _isSaving = false;
+  bool _isSharing = false;
   final ScrollController _scrollController =
       ScrollController(); // Add ScrollController
 
@@ -293,13 +294,14 @@ class _CompatibilityResultPageState
                     if (activities != null) _buildActivitiesSection(activities),
                     SizedBox(height: 36),
                     if (tips.isNotEmpty) _buildTipsSection(tips),
-                    if (!isSaving)
+                    if (!_isSaving)
                       ShareSection(
                         saveButtonText: S.of(context).save,
                         shareButtonText: S.of(context).share,
                         onSave: () => _handleSave(compatibility!),
                         onShare: () => _handleShare(compatibility!),
                       ),
+                    SizedBox(height: 16),
                   ],
                 ),
               ),
@@ -456,13 +458,14 @@ class _CompatibilityResultPageState
           if (activities != null) _buildActivitiesSection(activities),
           SizedBox(height: 36),
           if (tips.isNotEmpty) _buildTipsSection(tips),
-          if (!isSaving)
+          if (!_isSaving)
             ShareSection(
               saveButtonText: S.of(context).save,
               shareButtonText: S.of(context).share,
               onSave: () => _handleSave(compatibility!),
               onShare: () => _handleShare(compatibility!),
             ),
+          SizedBox(height: 16),
         ],
       ],
     );
@@ -758,7 +761,7 @@ class _CompatibilityResultPageState
                           key: _shareKey,
                           child: Container(
                             decoration: BoxDecoration(
-                              gradient: isSaving
+                              gradient: _isSharing
                                   ? LinearGradient(
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
@@ -852,7 +855,7 @@ class _CompatibilityResultPageState
       _saveKey,
       onStart: () {
         setState(() {
-          isSaving = true;
+          _isSaving = true;
         });
         OverlayLoadingProgress.start(context, color: AppColors.primary500);
         styleController.expand();
@@ -862,7 +865,7 @@ class _CompatibilityResultPageState
       onComplete: () {
         OverlayLoadingProgress.stop();
         setState(() {
-          isSaving = false;
+          _isSaving = false;
         });
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _scrollController.animateTo(
@@ -885,13 +888,13 @@ class _CompatibilityResultPageState
       onStart: () {
         OverlayLoadingProgress.start(context, color: AppColors.primary500);
         setState(() {
-          isSaving = true;
+          _isSharing = true;
         });
       },
       onComplete: () {
         OverlayLoadingProgress.stop();
         setState(() {
-          isSaving = false;
+          _isSharing = false;
         });
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _scrollController.animateTo(
