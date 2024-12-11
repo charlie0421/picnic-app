@@ -181,10 +181,10 @@ class AnimatedCompatibilityBar extends StatefulWidget {
 
   @override
   State<AnimatedCompatibilityBar> createState() =>
-      _AnimatedCompatibilityBarState();
+      AnimatedCompatibilityBarState();
 }
 
-class _AnimatedCompatibilityBarState extends State<AnimatedCompatibilityBar>
+class AnimatedCompatibilityBarState extends State<AnimatedCompatibilityBar>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _widthAnimation;
@@ -227,26 +227,35 @@ class _AnimatedCompatibilityBarState extends State<AnimatedCompatibilityBar>
       ),
       child: Stack(
         children: [
-          AnimatedBuilder(
-            animation: _widthAnimation,
-            builder: (context, child) {
-              return FractionallySizedBox(
-                alignment: Alignment.centerLeft,
-                widthFactor: _widthAnimation.value,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: _getScoreColor(widget.score),
-                    gradient: LinearGradient(
-                      colors: [
-                        AppColors.mint500,
-                        AppColors.primary500,
-                      ],
-                    ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return AnimatedBuilder(
+                animation: _widthAnimation,
+                builder: (context, child) {
+                  final actualWidth =
+                      constraints.maxWidth * _widthAnimation.value;
+
+                  return ClipRRect(
                     borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(16),
                     ),
-                  ),
-                ),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        width: actualWidth,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              AppColors.mint500,
+                              AppColors.primary500,
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
               );
             },
           ),
@@ -271,12 +280,5 @@ class _AnimatedCompatibilityBarState extends State<AnimatedCompatibilityBar>
         ],
       ),
     );
-  }
-
-  Color _getScoreColor(int score) {
-    if (score >= 90) return AppColors.primary500; // 핑크
-    if (score >= 80) return AppColors.point900; // 레드
-    if (score >= 70) return AppColors.point500;
-    return AppColors.grey500;
   }
 }
