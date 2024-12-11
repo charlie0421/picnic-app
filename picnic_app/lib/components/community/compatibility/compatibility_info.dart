@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/avatar_container.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
+import 'package:picnic_app/enums.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
@@ -98,7 +99,11 @@ class CompatibilityInfo extends StatelessWidget {
                             style: getTextStyle(
                                 AppTypo.caption12B, AppColors.grey900)),
                         Text(
-                          artist.gender! == 'male' ? '🧑' : '👩',
+                          artist.gender! == Gender.MALE.name
+                              ? '🧑'
+                              : artist.gender! == Gender.FEMALE.name
+                                  ? '👩'
+                                  : '',
                           textAlign: TextAlign.center,
                           style: getTextStyle(
                               AppTypo.caption12M, AppColors.grey900),
