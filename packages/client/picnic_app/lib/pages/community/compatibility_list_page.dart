@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_info.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/navigation.dart';
@@ -13,6 +12,7 @@ import 'package:picnic_app/providers/community/compatibility_list_provider.dart'
 import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/i18n.dart';
 
 class CompatibilityHistoryPage extends ConsumerStatefulWidget {
   const CompatibilityHistoryPage({super.key, this.artistId});
@@ -82,7 +82,7 @@ class _CompatibilityHistoryPageState
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SvgPicture.asset(
-                      'assets/images/fortune/no_item_${Intl.getCurrentLocale()}.svg',
+                      'assets/images/fortune/no_item_${getLocaleLanguage()}.svg',
                     ),
                     SizedBox(height: 64),
                     ElevatedButton(
@@ -112,7 +112,7 @@ class _CompatibilityHistoryPageState
                     padding: const EdgeInsets.fromLTRB(16, 24, 16, 80),
                     children: [
                       SvgPicture.asset(
-                        'assets/images/fortune/title_${Intl.getCurrentLocale()}.svg',
+                        'assets/images/fortune/title_${getLocaleLanguage()}.svg',
                         fit: BoxFit.fitHeight,
                         height: 48,
                       ),

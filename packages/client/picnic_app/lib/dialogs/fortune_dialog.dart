@@ -156,7 +156,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
     final fortuneAsync = ref.watch(getFortuneProvider(
       artistId: widget.artistId,
       year: widget.year,
-      language: Intl.getCurrentLocale(),
+      language: getLocaleLanguage(),
     ));
 
     return FullScreenDialog(

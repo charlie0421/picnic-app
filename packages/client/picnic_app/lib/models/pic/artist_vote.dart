@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_app/util/i18n.dart';
 
 part '../../generated/models/pic/artist_vote.freezed.dart';
 
@@ -56,7 +57,7 @@ class MyStarMemberModel with _$MyStarMemberModel {
 
   getTitle() {
     String title = '';
-    if (Intl.getCurrentLocale() == 'ko') {
+    if (getLocaleLanguage() == 'ko') {
       title = name_ko;
     } else {
       title = name_en;
@@ -85,7 +86,7 @@ class MyStarGroupModel with _$MyStarGroupModel {
 
   String getTitle() {
     String title = '';
-    if (Intl.getCurrentLocale() == 'ko') {
+    if (getLocaleLanguage() == 'ko') {
       title = name_ko;
     } else {
       title = name_en;

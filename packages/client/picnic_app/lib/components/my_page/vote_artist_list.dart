@@ -58,7 +58,7 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
           await ref.read(asyncVoteArtistListProvider.notifier).fetchArtists(
                 page: pageKey,
                 query: _textEditingController.text,
-                language: Intl.getCurrentLocale(),
+                language: getLocaleLanguage(),
               );
       final filteredItems = newItems
           .where((artist) => !bookmarkedArtistIds.contains(artist.id))

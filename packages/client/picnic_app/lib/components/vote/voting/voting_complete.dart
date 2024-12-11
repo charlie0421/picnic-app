@@ -592,7 +592,7 @@ ${Intl.message('vote_share_message')} 🎉
                             height: _bannerAd!.size.height.toDouble(),
                             color: Colors.white,
                             child: Image.asset(
-                              'assets/images/vote/banner_complete_bottom_${Intl.getCurrentLocale() == "ko" ? 'ko' : 'en'}.jpg',
+                              'assets/images/vote/banner_complete_bottom_${getLocaleLanguage() == "ko" ? 'ko' : 'en'}.jpg',
                               // 광고 영역 플레이스홀더 이미지
                               fit: BoxFit.contain,
                             ),

@@ -22,6 +22,7 @@ import 'package:picnic_app/services/auth/auth_service.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -108,7 +109,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
       ),
       itemBuilder: (BuildContext context, int index) {
         return Image.asset(
-            'assets/images/login/${Intl.getCurrentLocale()}_${index + 1}.png');
+            'assets/images/login/${getLocaleLanguage()}_${index + 1}.png');
       },
     );
   }
@@ -144,7 +145,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                         entry.value,
                         style: getTextStyle(
                             AppTypo.body14B,
-                            Intl.getCurrentLocale() == entry.key
+                            getLocaleLanguage() == entry.key
                                 ? AppColors.grey800
                                 : AppColors.grey400),
                       ),

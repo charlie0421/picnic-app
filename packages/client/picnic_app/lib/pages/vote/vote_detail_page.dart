@@ -258,7 +258,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             alignment: Alignment.center,
             margin: const EdgeInsets.only(top: 24),
             child: Image.asset(
-              'assets/images/vote/banner_complete_bottom_${Intl.getCurrentLocale() == "ko" ? 'ko' : 'en'}.jpg',
+              'assets/images/vote/banner_complete_bottom_${getLocaleLanguage() == "ko" ? 'ko' : 'en'}.jpg',
               fit: BoxFit.contain,
             ),
           )

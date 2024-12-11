@@ -1,9 +1,9 @@
-import 'package:intl/intl.dart';
 import 'package:picnic_app/models/community/board.dart';
 import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/models/community/post_scrap.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -139,7 +139,7 @@ Future<List<PostModel>?> postsByQuery(
 
     final response = await searchQuery
         .range((page - 1) * limit, page * limit - 1)
-        .order('title->>${Intl.getCurrentLocale()}', ascending: true);
+        .order('title->>${getLocaleLanguage()}', ascending: true);
 
     return response.map((data) => PostModel.fromJson(data)).toList();
   } catch (e, s) {

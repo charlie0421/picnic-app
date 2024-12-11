@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:picnic_app/util/util.dart';
 
@@ -34,16 +35,16 @@ class _StarCandyInfoTextState extends ConsumerState<StarCandyInfoText> {
     String firstPart = '';
     String secondPart = '';
 
-    if (Intl.getCurrentLocale() == 'ko') {
+    if (getLocaleLanguage() == 'ko') {
       firstPart = '${numberFormatter.format(starCandy)}개';
       secondPart = ' +${numberFormatter.format(starCandyBonus)}개 보너스';
-    } else if (Intl.getCurrentLocale() == 'en') {
+    } else if (getLocaleLanguage() == 'en') {
       firstPart = numberFormatter.format(starCandy);
       secondPart = ' +${numberFormatter.format(starCandyBonus)} bonus';
-    } else if (Intl.getCurrentLocale() == 'ja') {
+    } else if (getLocaleLanguage() == 'ja') {
       firstPart = '${numberFormatter.format(starCandy)}個';
       secondPart = ' +${numberFormatter.format(starCandyBonus)}個ボーナス';
-    } else if (Intl.getCurrentLocale() == 'zh') {
+    } else if (getLocaleLanguage() == 'zh') {
       firstPart = numberFormatter.format(starCandy);
       secondPart = ' +${numberFormatter.format(starCandyBonus)} 奖金';
     }
