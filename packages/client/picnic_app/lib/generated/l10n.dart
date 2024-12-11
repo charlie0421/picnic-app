@@ -4249,6 +4249,46 @@ class S {
       args: [],
     );
   }
+
+  /// `Curious about #{artist_name}’s 2025 fortune? Come to #피크닠 now! Let’s discover that shining destiny together!`
+  String fortune_share_message(Object artist_name) {
+    return Intl.message(
+      'Curious about #$artist_name’s 2025 fortune? Come to #피크닠 now! Let’s discover that shining destiny together!',
+      name: 'fortune_share_message',
+      desc: '',
+      args: [artist_name],
+    );
+  }
+
+  /// `#picnic #신년운세 #Fourtuneteller`
+  String get fortune_share_hashtag {
+    return Intl.message(
+      '#picnic #신년운세 #Fourtuneteller',
+      name: 'fortune_share_hashtag',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `What percentage is my shining chemistry compatibility with #{artist_name}} ? My heart is racing!`
+  String compatibility_share_message(Object artist_name) {
+    return Intl.message(
+      'What percentage is my shining chemistry compatibility with #$artist_name} ? My heart is racing!',
+      name: 'compatibility_share_message',
+      desc: '',
+      args: [artist_name],
+    );
+  }
+
+  /// `#Picnic #피크닠 #아이돌궁합 #Goonghap #피크닠궁합`
+  String get compatibility_share_hashtag {
+    return Intl.message(
+      '#Picnic #피크닠 #아이돌궁합 #Goonghap #피크닠궁합',
+      name: 'compatibility_share_hashtag',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

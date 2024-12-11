@@ -1861,5 +1861,21 @@
     "compatibility_remain_star_candy": "Remaining Star Candy",
     "@compatibility_remain_star_candy": {
         "manualTranslation": true
+    },
+    "fortune_share_message": "Curious about #{artist_name}’s 2025 fortune? Come to #피크닠 now! Let’s discover that shining destiny together!",
+    "@fortune_share_message": {
+        "manualTranslation": true
+    },
+    "fortune_share_hashtag": "#picnic #신년운세 #Fourtuneteller",
+    "@fortune_share_hashtag": {
+        "manualTranslation": true
+    },
+    "compatibility_share_message": "What percentage is my shining chemistry compatibility with #{artist_name}} ? My heart is racing!",
+    "@compatibility_share_message": {
+        "manualTranslation": true
+    },
+    "compatibility_share_hashtag": "#Picnic #피크닠 #아이돌궁합 #Goonghap #피크닠궁합",
+    "@compatibility_share_hashtag": {
+        "manualTranslation": true
     }
 }

@@ -1677,5 +1677,21 @@
     "compatibility_remain_star_candy": "剩余的糖果",
     "@compatibility_remain_star_candy": {
         "manualTranslation": true
+    },
+    "fortune_share_message": "想知道#{artist_name}在2025年的运势吗？快来#피크닠吧！一起揭晓闪耀的运势吧！",
+    "@fortune_share_message": {
+        "manualTranslation": true
+    },
+    "fortune_share_hashtag": "#picnic #신년운세 #Fourtuneteller",
+    "@fortune_share_hashtag": {
+        "manualTranslation": true
+    },
+    "compatibility_share_message": "我与 #{artist_name} 的闪耀默契度是多少％呢？我的心已经怦怦直跳！",
+    "@compatibility_share_message": {
+        "manualTranslation": true
+    },
+    "compatibility_share_hashtag": "#Picnic #피크닠 #아이돌궁합 #Goonghap #피크닠궁합",
+    "@compatibility_share_hashtag": {
+        "manualTranslation": true
     }
 }
