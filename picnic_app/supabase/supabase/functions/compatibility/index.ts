@@ -1,10 +1,5 @@
-import {
-    createErrorResponse,
-    createSuccessResponse,
-    getSupabaseClient,
-    logError,
-} from '.././_shared/index.ts';
-import { CompatibilityService } from '../_shared/services/compatibility.ts';
+import {createErrorResponse, createSuccessResponse, getSupabaseClient, logError,} from '.././_shared/index.ts';
+import {CompatibilityService} from '../_shared/services/compatibility.ts';
 
 Deno.serve(async (req) => {
     try {
@@ -22,8 +17,13 @@ Deno.serve(async (req) => {
             throw new Error('Compatibility record not found');
         }
 
-        if (await compatibilityService.existSimilarResults(compatibility)) {
-            await compatibilityService.copyExistingResults(compatibility);
+        const similarResults = await compatibilityService.existSimilarResults(compatibility);
+        console.log('similarResults', similarResults);
+        console.log('similarResults.length', similarResults.length);
+        console.log('similarResults[0]', similarResults[0]);
+
+        if (similarResults.length > 0) {
+            await compatibilityService.copyExistingResults(similarResults[0], compatibility_id);
         } else {
             await compatibilityService.generateNewResults(compatibility);
             await compatibilityService.updateCompleted(
