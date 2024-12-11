@@ -882,9 +882,9 @@ class _CompatibilityResultPageState
     logger.i('Share to Twitter');
     return ShareUtils.shareToSocial(
       _shareKey,
-      message: getLocaleTextFromJson(compatibility.artist.name),
-      hashtag:
-          '#Picnic #Vote #PicnicApp #${S.of(context).compatibility_page_title.replaceAll(' ', '')}',
+      message: Intl.message('compatibility_share_message',
+          args: [getLocaleTextFromJson(compatibility.artist.name)]),
+      hashtag: S.of(context).compatibility_share_hashtag,
       onStart: () {
         OverlayLoadingProgress.start(context, color: AppColors.primary500);
         setState(() {

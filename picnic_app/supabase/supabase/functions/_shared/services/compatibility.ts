@@ -14,7 +14,7 @@ export class CompatibilityService {
         this.promptService = PromptService.getInstance();
     }
 
-    async existSimilarResults(compatibility: Compatibility): Promise<boolean> {
+    async existSimilarResults(compatibility: Compatibility): Promise<any> {
         try {
             const { data: similarResults, error } = await this.supabase
                 .from('compatibility_results')
@@ -27,7 +27,7 @@ export class CompatibilityService {
 
             if (error) throw error;
 
-            return similarResults.length > 0;
+            return similarResults;
         } catch (error) {
             logError(error, {
                 context: 'existSimilarResults',
@@ -71,7 +71,6 @@ export class CompatibilityService {
         try {
             console.log('Generating translations for:', compatibilityId);
             const descriptions = await this.getDescriptions(result.score!);
-            console.log('Descriptions:', descriptions);
             // 각 언어별 번역 생성 및 저장
             for (const lang of SUPPORTED_LANGUAGES) {
                 try {
@@ -143,6 +142,8 @@ export class CompatibilityService {
                 },
             });
 
+            console.log('Response:', response);
+
             const result = JSON.parse(response.replaceAll('`', '').replace('json', ''));
 
             if (!this.validateResult(result)) {
@@ -174,39 +175,30 @@ export class CompatibilityService {
 
     async copyExistingResults(
         compatibility: Compatibility,
+        compatibility_id: string,
     ): Promise<Compatibility> {
         try {
-            const { data: similarResults, error } = await this.supabase
-                .from('compatibility_results')
-                .select()
-                .eq('artist_id', compatibility.artist_id)
-                .eq('idol_birth_date', compatibility.idol_birth_date)
-                .eq('user_birth_date', compatibility.user_birth_date)
-                .eq('gender', compatibility.gender)
-                .eq('status', 'completed')
-                .order('created_at', { ascending: false })
-                .limit(1)
-                .single();
-
-            if (error) throw error;
+            console.log('similarResults', compatibility);
 
             const { data: newResult, error: resultError } = await this.supabase
                 .from('compatibility_results')
                 .update({
                     status: 'completed',
                     completed_at: new Date().toISOString(),
-                    score: similarResults.score,
-                    details: similarResults.details,
-                    tips: similarResults.tips,
+                    score: compatibility.score,
+                    details: compatibility.details,
+                    tips: compatibility.tips,
                 })
-                .eq('id', compatibility.id)
+                .eq('id', compatibility_id)
                 .select('*, details, tips')
                 .single();
+
+            console.log('newResult', newResult);
 
             if (resultError) throw resultError;
 
             // i18n 데이터 복사
-            await this.copyI18nData(similarResults.id, newResult.id);
+            await this.copyI18nData(compatibility.id, newResult.id);
 
             // 복사된 결과임을 표시
             return { ...newResult, is_copied: true };

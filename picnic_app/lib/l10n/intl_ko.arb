@@ -738,6 +738,22 @@
     "@fortune_button_title": {
         "manualTranslation": true
     },
+    "fortune_share_message": "#{artist_name} 의 2025년 운세가 궁금하다면? 지금 바로 #피크닠 으로 오세요! 우리 같이 빛나는 운세 확인해요!",
+    "@fortune_share_message": {
+        "manualTranslation": true
+    },
+    "fortune_share_hashtag": "#picnic #신년운세 #Fourtuneteller",
+    "@fortune_share_hashtag": {
+        "manualTranslation": true
+    },
+    "compatibility_share_message": "나와 #{artist_name} 의 빛나는 케미 궁합은 몇 %일까? 심장이 두근두근!",
+    "@compatibility_share_message": {
+        "manualTranslation": true
+    },
+    "compatibility_share_hashtag": "#Picnic #피크닠 #아이돌궁합 #Goonghap #피크닠궁합",
+    "@compatibility_share_hashtag": {
+        "manualTranslation": true
+    },
     "fortune_title": "{year}년 마이 아티스트 운세",
     "@fortune_title": {
         "manualTranslation": true

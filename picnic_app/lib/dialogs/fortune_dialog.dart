@@ -209,14 +209,12 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                             if (_isSaving) return;
                             ShareUtils.shareToSocial(
                               _shareKey,
-                              message:
-                                  '${getLocaleTextFromJson(fortune.artist.name)} ${Intl.message('fortune_title', args: [
-                                    fortune.year.toString()
-                                  ]).trim()}',
-                              hashtag:
-                                  '#Picnic #Fortune #PicnicApp #${getLocaleTextFromJson(fortune.artist.name)} #${Intl.message('fortune_title', args: [
-                                    fortune.year.toString()
-                                  ]).trim()}',
+                              message: Intl.message(
+                                  'compatibility_share_message',
+                                  args: [
+                                    getLocaleTextFromJson(fortune.artist.name)
+                                  ]),
+                              hashtag: S.of(context).fortune_share_hashtag,
                               onStart: () {
                                 OverlayLoadingProgress.start(context,
                                     color: AppColors.primary500);
