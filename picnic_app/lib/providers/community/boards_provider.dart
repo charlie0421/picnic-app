@@ -1,6 +1,6 @@
-import 'package:intl/intl.dart';
 import 'package:picnic_app/models/community/board.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -54,7 +54,7 @@ class BoardsByArtistNameNotifier extends _$BoardsByArtistNameNotifier {
                 'name, board_id, artist_id, description, is_official, features, artist!inner(*, artist_group(*))')
             .neq('artist_id', 0)
             .eq('status', 'approved')
-            .order('artist(name->>${Intl.getCurrentLocale()})', ascending: true)
+            .order('artist(name->>${getLocaleLanguage()})', ascending: true)
             .order('is_official', ascending: false)
             .order('order', ascending: true)
             .range(page * limit, (page + 1) * limit - 1);
@@ -69,7 +69,7 @@ class BoardsByArtistNameNotifier extends _$BoardsByArtistNameNotifier {
           .neq('artist_id', 0)
           .eq('status', 'approved')
           .or('name->>ko.ilike.%$query%,name->>en.ilike.%$query%,name->>ja.ilike.%$query%,name->>zh.ilike.%$query%')
-          .order('artist(name->>${Intl.getCurrentLocale()})', ascending: true)
+          .order('artist(name->>${getLocaleLanguage()})', ascending: true)
           .range(page * limit, (page + 1) * limit - 1);
 
       return response.map((data) => BoardModel.fromJson(data)).toList();

@@ -1,7 +1,11 @@
 import 'package:intl/intl.dart';
 
+String getLocaleLanguage() {
+  return Intl.getCurrentLocale().split('_').first;
+}
+
 String getLocaleTextFromJson(Map<String, dynamic> json) {
-  String locale = Intl.getCurrentLocale().split('_').first;
+  String locale = getLocaleLanguage();
 
   if (json.isEmpty) {
     return '';

@@ -12,6 +12,7 @@ import 'package:picnic_app/providers/policy_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
+import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -91,7 +92,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
             color: AppColors.grey100,
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
             child: Markdown(
-                data: Intl.getCurrentLocale() == 'ko'
+                data: getLocaleLanguage() == 'ko'
                     ? data.privacyKo.content
                     : data.privacyEn.content),
           ),

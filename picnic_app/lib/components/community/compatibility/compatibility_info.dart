@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/avatar_container.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/enums.dart';
@@ -159,15 +158,25 @@ class CompatibilityInfo extends StatelessWidget {
                   ]),
             ],
           ),
-          if (compatibility?.status == CompatibilityStatus.completed &&
-              compatibility?.isAds == true)
-            AnimatedCompatibilityBar(
-              score: compatibility!
-                      .localizedResults![Intl.getCurrentLocale()]!.score ??
-                  0,
-              message: compatibility!
-                  .localizedResults![Intl.getCurrentLocale()]!.scoreTitle,
+          if (compatibility != null &&
+              compatibility?.status == CompatibilityStatus.completed &&
+              compatibility?.isAds == true) ...[
+            Builder(
+              builder: (context) {
+                final currentLocale = getLocaleLanguage();
+                final localizedResult =
+                    compatibility?.localizedResults?[currentLocale];
+
+                if (localizedResult != null) {
+                  return AnimatedCompatibilityBar(
+                    score: localizedResult.score ?? 0,
+                    message: localizedResult.scoreTitle ?? '',
+                  );
+                }
+                return const SizedBox.shrink(); // 결과가 없을 경우 빈 위젯 반환
+              },
             ),
+          ],
         ],
       ),
     );

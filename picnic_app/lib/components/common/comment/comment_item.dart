@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/avatar_container.dart';
 import 'package:picnic_app/components/common/comment/comment_actions.dart';
 import 'package:picnic_app/components/common/comment/comment_contents.dart';
@@ -14,6 +13,7 @@ import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/providers/community/comments_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/deepl_translate_service.dart';
+import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
@@ -82,7 +82,7 @@ class _CommentItemState extends ConsumerState<CommentItem>
   }
 
   void _initializeTranslationState() {
-    final currentLocale = Intl.getCurrentLocale().split('_').first;
+    final currentLocale = getLocaleLanguage();
     final hasTranslation =
         widget.commentModel.content?.containsKey(currentLocale) ?? false;
     final isDifferentLanguage =

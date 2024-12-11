@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_app/models/pic/celeb.dart';
+import 'package:picnic_app/util/i18n.dart';
 
 part '../../generated/models/pic/gallery.freezed.dart';
 
@@ -19,7 +20,7 @@ class GalleryModel with _$GalleryModel {
   }) = _GalleryModel;
 
   getTitle() {
-    switch (Intl.getCurrentLocale()) {
+    switch (getLocaleLanguage()) {
       case 'ko':
         return title_ko;
       case 'en':

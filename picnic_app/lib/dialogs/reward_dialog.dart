@@ -143,7 +143,7 @@ class RewardSection extends StatelessWidget {
   }
 
   List<Widget> _buildSectionContent(BuildContext context) {
-    final locale = Intl.getCurrentLocale();
+    final locale = getLocaleLanguage();
     List<Widget> widgets = [];
 
     switch (type) {

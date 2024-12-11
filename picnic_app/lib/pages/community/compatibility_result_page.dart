@@ -252,7 +252,7 @@ class _CompatibilityResultPageState
 
   Widget _buildResultContent(String compatibilityId) {
     final compatibility = ref.read(compatibilityProvider).value;
-    String language = Intl.getCurrentLocale();
+    String language = getLocaleLanguage();
     if (compatibility?.localizedResults?.isEmpty ?? true) {
       return Center(
         child: Text(
@@ -798,9 +798,8 @@ class _CompatibilityResultPageState
                                   gender: compatibility.gender,
                                 ),
                                 SizedBox(height: 24),
-                                _buildHeaderSection(
-                                    compatibility.getLocalizedResult(
-                                        Intl.getCurrentLocale())),
+                                _buildHeaderSection(compatibility
+                                    .getLocalizedResult(getLocaleLanguage())),
                                 SizedBox(height: 36),
                               ],
                             ),
