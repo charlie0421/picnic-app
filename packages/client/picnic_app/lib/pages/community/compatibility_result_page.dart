@@ -210,17 +210,18 @@ class _CompatibilityResultPageState
 
   Widget _buildHeaderSection(LocalizedCompatibility? localizedResult) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
+      padding: const EdgeInsets.symmetric(horizontal: 25),
+      constraints: const BoxConstraints(maxHeight: 72),
       child: Stack(
         children: [
           if (localizedResult != null)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 0),
+              padding: const EdgeInsets.symmetric(horizontal: 36),
               constraints: const BoxConstraints(minHeight: 60),
               child: Center(
                 child: Text(
                   localizedResult.compatibilitySummary,
-                  style: getTextStyle(AppTypo.body14R, AppColors.grey00),
+                  style: getTextStyle(AppTypo.body16B, AppColors.grey00),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -768,11 +769,14 @@ class _CompatibilityResultPageState
                                     )
                                   : null,
                             ),
-                            padding: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                            ),
                             child: Column(
                               mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
+                                SizedBox(height: 24),
                                 SizedBox(
                                   height: 20,
                                   child: SvgPicture.asset(
@@ -781,7 +785,7 @@ class _CompatibilityResultPageState
                                     fit: BoxFit.contain,
                                   ),
                                 ),
-                                SizedBox(height: 16),
+                                SizedBox(height: 36),
                                 CompatibilityInfo(
                                   artist: compatibility.artist,
                                   ref: ref,
@@ -794,13 +798,15 @@ class _CompatibilityResultPageState
                                 _buildHeaderSection(
                                     compatibility.getLocalizedResult(
                                         Intl.getCurrentLocale())),
-                                FortuneDivider(color: AppColors.grey00),
+                                SizedBox(height: 36),
                               ],
                             ),
                           ),
                         ),
+                        FortuneDivider(color: AppColors.grey00),
+                        SizedBox(height: 36),
                         Padding(
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Column(
                             children: [
                               if (compatibility.hasError)
