@@ -108,8 +108,8 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
           child: LargePopupWidget(
             backgroundColor: AppColors.mint500,
             content: Container(
-              padding: EdgeInsets.only(
-                  top: 24, left: 24.cw, right: 24.cw, bottom: 48),
+              padding:
+                  EdgeInsets.only(top: 8, left: 24.cw, right: 24.cw, bottom: 8),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -162,7 +162,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   Container(
                       width: 291.cw,
                       height: 70,
@@ -209,7 +209,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                           ),
                         ],
                       )),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   Container(
                     width: 291.cw,
                     decoration: BoxDecoration(
@@ -226,29 +226,23 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                       children: [
                         Container(
                           padding: EdgeInsets.only(
-                              top: 16.cw,
-                              bottom: 0.cw,
-                              left: 24.cw,
-                              right: 24.cw),
+                              top: 2, bottom: 2, left: 24.cw, right: 24.cw),
                           alignment: Alignment.center,
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
                               Text(S.of(context).text_this_time_vote,
                                   style: getTextStyle(AppTypo.caption12M,
                                       AppColors.primary500)),
-                              SizedBox(width: 16.cw),
-                              Expanded(
-                                child: Text(
-                                  getLocaleTextFromJson(widget.voteModel.title),
-                                  style: getTextStyle(
-                                    AppTypo.body14B,
-                                    AppColors.grey900,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
+                              Text(
+                                getLocaleTextFromJson(widget.voteModel.title),
+                                style: getTextStyle(
+                                  AppTypo.caption12B,
+                                  AppColors.grey900,
                                 ),
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                               ),
                             ],
                           ),
@@ -260,7 +254,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                           thickness: 1,
                           height: 1,
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 4),
                         Container(
                           padding: EdgeInsets.only(right: 16.cw),
                           child: Row(
@@ -271,11 +265,9 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                                 flex: 1,
                                 child: SizedBox(
                                   width: 120,
-                                  height: 140,
+                                  height: 120,
                                   child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: widget.voteItemModel.artist.id !=
                                             0
                                         ? _artist(widget.voteItemModel.artist)
@@ -284,14 +276,13 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 10.cw),
                               Expanded(
                                 flex: 1,
                                 child: Stack(
                                   alignment: Alignment.center,
                                   children: [
                                     SizedBox(
-                                      width: 120.cw,
+                                      width: 120,
                                       height: 120,
                                       child: GradientCircularProgressIndicator(
                                         value: widget.result['addedVoteTotal'] /
@@ -335,76 +326,55 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
                   if (_isBannerLoaded && _bannerAd != null)
-                    Stack(
-                      children: [
-                        // 실제 광고 (화면에 표시됨)
-                        if (!_isSaving)
-                          Container(
-                            alignment: Alignment.center,
-                            width: _bannerAd!.size.width.toDouble(),
-                            height: _bannerAd!.size.height.toDouble(),
-                            color: Colors.white,
-                            child: AdWidget(ad: _bannerAd!),
-                          ),
-                        // 캡처용 플레이스홀더 (저장/공유 시에만 표시)
-                        if (_isSaving)
-                          Container(
-                            alignment: Alignment.center,
-                            width: _bannerAd!.size.width.toDouble(),
-                            height: _bannerAd!.size.height.toDouble(),
-                            color: Colors.white,
-                            child: Image.asset(
-                              'assets/images/vote/banner_complete_bottom_${getLocaleLanguage() == "ko" ? 'ko' : 'en'}.jpg',
-                              // 광고 영역 플레이스홀더 이미지
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                      ],
-                    )
-                  else
-                    SizedBox(height: AdSize.largeBanner.height.toDouble()),
-                  !_isSaving
-                      ? ShareSection(
-                          saveButtonText: S.of(context).save,
-                          shareButtonText: S.of(context).share,
-                          onSave: () {
-                            if (_isSaving) return;
-                            ShareUtils.saveImage(
-                              _globalKey,
-                              onStart: () => setState(() => _isSaving = true),
-                              onComplete: () =>
-                                  setState(() => _isSaving = false),
-                            );
-                          },
-                          onShare: () {
-                            if (_isSaving) return;
-                            final artist = widget.voteItemModel.artist.id != 0
-                                ? getLocaleTextFromJson(
-                                    widget.voteItemModel.artist.name)
-                                : getLocaleTextFromJson(
-                                    widget.voteItemModel.artistGroup.name);
-                            final voteTitle =
-                                getLocaleTextFromJson(widget.voteModel.title);
+                    if (!_isSaving) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        alignment: Alignment.center,
+                        width: _bannerAd!.size.width.toDouble(),
+                        height: _bannerAd!.size.height.toDouble(),
+                        color: Colors.white,
+                        child: AdWidget(ad: _bannerAd!),
+                      )
+                    ],
+                  if (!_isSaving)
+                    ShareSection(
+                      saveButtonText: S.of(context).save,
+                      shareButtonText: S.of(context).share,
+                      onSave: () {
+                        if (_isSaving) return;
+                        ShareUtils.saveImage(
+                          _globalKey,
+                          onStart: () => setState(() => _isSaving = true),
+                          onComplete: () => setState(() => _isSaving = false),
+                        );
+                      },
+                      onShare: () {
+                        if (_isSaving) return;
+                        final artist = widget.voteItemModel.artist.id != 0
+                            ? getLocaleTextFromJson(
+                                widget.voteItemModel.artist.name)
+                            : getLocaleTextFromJson(
+                                widget.voteItemModel.artistGroup.name);
+                        final voteTitle =
+                            getLocaleTextFromJson(widget.voteModel.title);
 
-                            ShareUtils.shareToSocial(
-                              _globalKey,
-                              message: '''$artist - $voteTitle
-${Intl.message('vote_share_message')} 🎉''',
-                              hashtag:
-                                  '#Picnic #Vote #PicnicApp #${voteTitle.trim()}',
-                              onStart: () => setState(() => _isSaving = true),
-                              onComplete: () =>
-                                  setState(() => _isSaving = false),
-                            );
-                          },
-                        )
-                      : Image.asset(
-                          'assets/images/logo.png',
-                          width: 75.cw,
-                          height: 57,
-                        ),
+                        ShareUtils.shareToSocial(
+                          _globalKey,
+                          message:
+                              '$artist - $voteTitle ${Intl.message('vote_share_message')} 🎉',
+                          hashtag:
+                              '#Picnic #Vote #PicnicApp #${voteTitle.replaceAll(' ', '')}',
+                          onStart: () => setState(() => _isSaving = true),
+                          onComplete: () => setState(() => _isSaving = false),
+                        );
+                      },
+                    ),
+                  SizedBox(height: 4),
+                  Image.asset(
+                    'assets/images/logo.png',
+                    width: 50,
+                  ),
                 ],
               ),
             ),
@@ -429,20 +399,17 @@ ${Intl.message('vote_share_message')} 🎉''',
           ),
         ),
       ),
-      const SizedBox(height: 8),
       Text(
         getLocaleTextFromJson(artist.name),
         style: getTextStyle(AppTypo.body16B, AppColors.grey900),
         textAlign: TextAlign.center,
       ),
-      const SizedBox(height: 4),
       Text(
         getLocaleTextFromJson(artist.artist_group!.name),
         style: getTextStyle(AppTypo.caption12R, AppColors.grey600)
             .copyWith(height: .8),
         textAlign: TextAlign.center,
       ),
-      const SizedBox(height: 3),
       AnimatedDigitWidget(
           value: widget.result['updatedVoteTotal'],
           enableSeparator: true,
@@ -467,20 +434,17 @@ ${Intl.message('vote_share_message')} 🎉''',
           ),
         ),
       ),
-      const SizedBox(height: 8),
       Text(
         getLocaleTextFromJson(group.name),
         style: getTextStyle(AppTypo.body16B, AppColors.grey900),
         textAlign: TextAlign.center,
       ),
-      const SizedBox(height: 4),
       Text(
         getLocaleTextFromJson(group.name),
         style: getTextStyle(AppTypo.caption12R, AppColors.grey600)
             .copyWith(height: .8),
         textAlign: TextAlign.center,
       ),
-      const SizedBox(height: 3),
       AnimatedDigitWidget(
           value: widget.result['updatedVoteTotal'],
           enableSeparator: true,
