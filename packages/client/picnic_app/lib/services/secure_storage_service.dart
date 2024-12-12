@@ -43,7 +43,17 @@ class SecureStorageService {
 
   Future<void> clearTokenInfo() async {
     try {
-      await _storage.delete(key: 'auth_token_info');
+      // Get all keys
+      final allKeys = await _storage.readAll();
+
+      // Delete all keys except 'last_provider'
+      for (var key in allKeys.keys) {
+        if (key != 'last_provider') {
+          await _storage.delete(key: key);
+        }
+      }
+
+      logger.i('Token info cleared, kept last_provider');
     } catch (e, s) {
       logger.e('Error clearing token info', error: e, stackTrace: s);
       throw PicnicAuthExceptions.storageError();

@@ -25,81 +25,120 @@ import 'package:url_strategy/url_strategy.dart';
 
 void main() async {
   await runZonedGuarded(() async {
-    BindingBase.debugZoneErrorsAreFatal = true;
+    try {
+      logger.i('Starting app initialization...');
+      BindingBase.debugZoneErrorsAreFatal = true;
 
-    WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+      WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+      logger.i('Widget binding initialized');
 
-    const String environment =
-        String.fromEnvironment('ENVIRONMENT', defaultValue: 'prod');
-    await Environment.initConfig(environment);
+      const String environment =
+          String.fromEnvironment('ENVIRONMENT', defaultValue: 'prod');
+      logger.i('Initializing environment config...');
+      await Environment.initConfig(environment);
+      logger.i('Environment config initialized');
 
-    await initializeSupabase();
-    if (isMobile()) {
-      await WebPSupportChecker.instance.initialize();
-    }
+      logger.i('Initializing Supabase...');
+      await initializeSupabase();
+      logger.i('Supabase initialized');
 
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+      if (isMobile()) {
+        logger.i('Initializing WebP support...');
+        await WebPSupportChecker.instance.initialize();
+        logger.i('WebP support initialized');
+      }
 
-    final authService = AuthService();
-    final isSessionRecovered = await authService.recoverSession();
-    if (!isSessionRecovered) {
-      // authService.signOut();
-    }
-    logStorageData();
+      logger.i('Initializing Firebase...');
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      logger.i('Firebase initialized');
 
-    final tokenRefreshManager = TokenRefreshManager(authService);
-    tokenRefreshManager.startPeriodicRefresh();
+      final authService = AuthService();
+      logger.i('Attempting to recover session...');
+      final isSessionRecovered = await authService.recoverSession().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          logger.e('Session recovery timed out');
+          return false;
+        },
+      );
+      logger.i('Session recovery completed: $isSessionRecovered');
 
-    tz.initializeTimeZones();
+      logStorageData();
 
-    if (isMobile()) {
-      await initializeWidgetsAndDeviceOrientation(widgetsBinding);
-    }
+      final tokenRefreshManager = TokenRefreshManager(authService);
+      tokenRefreshManager.startPeriodicRefresh();
+      logger.i('Token refresh manager started');
 
-    initializeReflectable();
+      tz.initializeTimeZones();
+      logger.i('Timezones initialized');
 
-    if (isMobile()) {
-      requestAppTrackingTransparency();
-    }
+      if (isMobile()) {
+        logger.i('Initializing mobile specific settings...');
+        await initializeWidgetsAndDeviceOrientation(widgetsBinding);
+        logger.i('Mobile settings initialized');
+      }
 
-    setPathUrlStrategy();
+      initializeReflectable();
+      logger.i('Reflectable initialized');
 
-    SentryFlutter.init(
-      (options) {
-        options.dsn =
-            kIsWeb ? Environment.sentryWebDsn : Environment.sentryAppDsn;
-        options.tracesSampleRate = Environment.sentryTraceSampleRate;
-        options.profilesSampleRate = Environment.sentryProfileSampleRate;
-        options.experimental.replay.sessionSampleRate =
-            Environment.sentrySessionSampleRate;
-        options.experimental.replay.onErrorSampleRate =
-            Environment.sentryErrorSampleRate;
-        options.beforeSend = (event, hint) {
-          if (!Environment.enableSentry || kDebugMode) {
-            event.exceptions?.forEach((element) {
-              if (element.stackTrace != null) {
-                final frames = element.stackTrace?.frames;
-                if (frames != null && frames.isNotEmpty) {
-                  final stackTraceString = frames
-                      .map((frame) =>
-                          '${frame.fileName}:${frame.lineNo} - ${frame.function}')
-                      .join('\n');
-                  logger.e('${element.value}\nStacktrace:\n$stackTraceString');
-                } else {
-                  logger.e('Stacktrace: No frames available');
+      if (isMobile()) {
+        logger.i('Requesting app tracking transparency...');
+        await requestAppTrackingTransparency();
+        logger.i('App tracking transparency completed');
+      }
+
+      setPathUrlStrategy();
+      logger.i('URL strategy set');
+
+      logger.i('Initializing Sentry...');
+      await SentryFlutter.init(
+        (options) {
+          options.dsn =
+              kIsWeb ? Environment.sentryWebDsn : Environment.sentryAppDsn;
+          options.tracesSampleRate = Environment.sentryTraceSampleRate;
+          options.profilesSampleRate = Environment.sentryProfileSampleRate;
+          options.experimental.replay.sessionSampleRate =
+              Environment.sentrySessionSampleRate;
+          options.experimental.replay.onErrorSampleRate =
+              Environment.sentryErrorSampleRate;
+          options.beforeSend = (event, hint) {
+            if (!Environment.enableSentry || kDebugMode) {
+              event.exceptions?.forEach((element) {
+                if (element.stackTrace != null) {
+                  final frames = element.stackTrace?.frames;
+                  if (frames != null && frames.isNotEmpty) {
+                    final stackTraceString = frames
+                        .map((frame) =>
+                            '${frame.fileName}:${frame.lineNo} - ${frame.function}')
+                        .join('\n');
+                    logger
+                        .e('${element.value}\nStacktrace:\n$stackTraceString');
+                  } else {
+                    logger.e('Stacktrace: No frames available');
+                  }
                 }
-              }
-            });
-            return null; // null을 반환하면 이벤트가 Sentry로 전송되지 않습니다.
-          }
-          return event;
-        };
-      },
-    );
-    runApp(ProviderScope(observers: [LoggingObserver()], child: const App()));
+              });
+              return null;
+            }
+            return event;
+          };
+        },
+      );
+      logger.i('Sentry initialized');
+
+      logger.i('Starting app...');
+      runApp(ProviderScope(observers: [LoggingObserver()], child: const App()));
+      logger.i('App started successfully');
+    } catch (e, stackTrace) {
+      logger.e('Error during initialization: $e');
+      logger.e(stackTrace.toString());
+      rethrow;
+    }
   }, (Object error, StackTrace stackTrace) {
+    logger.e('Uncaught error: $error');
+    logger.e(stackTrace.toString());
     Sentry.captureException(error, stackTrace: stackTrace);
   });
 }
