@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
+import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/common/avatar_container.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/common/share_section.dart';
@@ -336,7 +337,10 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                         color: Colors.white,
                         child: AdWidget(ad: _bannerAd!),
                       )
-                    ],
+                    ] else
+                      SizedBox(height: 0)
+                  else
+                    SizedBox(height: AdSize.largeBanner.height.toDouble()),
                   if (!_isSaving)
                     ShareSection(
                       saveButtonText: S.of(context).save,
@@ -345,8 +349,15 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                         if (_isSaving) return;
                         ShareUtils.saveImage(
                           _globalKey,
-                          onStart: () => setState(() => _isSaving = true),
-                          onComplete: () => setState(() => _isSaving = false),
+                          onStart: () {
+                            OverlayLoadingProgress.start(context,
+                                color: AppColors.primary500);
+                            setState(() => _isSaving = true);
+                          },
+                          onComplete: () {
+                            OverlayLoadingProgress.stop();
+                            setState(() => _isSaving = false);
+                          },
                         );
                       },
                       onShare: () {
@@ -365,8 +376,15 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                               '$artist - $voteTitle ${Intl.message('vote_share_message')} 🎉',
                           hashtag:
                               '#Picnic #Vote #PicnicApp #${voteTitle.replaceAll(' ', '')}',
-                          onStart: () => setState(() => _isSaving = true),
-                          onComplete: () => setState(() => _isSaving = false),
+                          onStart: () {
+                            OverlayLoadingProgress.start(context,
+                                color: AppColors.primary500);
+                            setState(() => _isSaving = true);
+                          },
+                          onComplete: () {
+                            OverlayLoadingProgress.stop();
+                            setState(() => _isSaving = false);
+                          },
                         );
                       },
                     ),

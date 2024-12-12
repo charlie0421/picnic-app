@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:intl/intl.dart';
+import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/common/share_section.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_achieve.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_header.dart';
@@ -48,6 +48,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   late final Animation<Offset> _offsetAnimation;
   late final Animation<double> _opacityAnimation;
   final GlobalKey _globalKey = GlobalKey();
+  final GlobalKey _shareKey = GlobalKey();
   bool _isSaving = false;
   BannerAd? _bannerAd;
   bool _isBannerLoaded = false;
@@ -225,19 +226,31 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   void _handleSaveImage() async {
     await ShareUtils.saveImage(
       _globalKey,
-      onStart: () => setState(() => _isSaving = true),
-      onComplete: () => setState(() => _isSaving = false),
+      onStart: () {
+        OverlayLoadingProgress.start(context, color: AppColors.primary500);
+        setState(() => _isSaving = true);
+      },
+      onComplete: () {
+        OverlayLoadingProgress.stop();
+        setState(() => _isSaving = false);
+      },
     );
   }
 
   void _handleShareToTwitter() async {
     await ShareUtils.shareToSocial(
-      _globalKey,
+      _shareKey,
       message: getLocaleTextFromJson(widget.vote.title),
       hashtag:
-          '#Picnic #Vote #PicnicApp #${getLocaleTextFromJson(widget.vote.title).trim()}',
-      onStart: () => setState(() => _isSaving = true),
-      onComplete: () => setState(() => _isSaving = false),
+          '#Picnic #Vote #PicnicApp #${getLocaleTextFromJson(widget.vote.title).replaceAll(' ', '')}',
+      onStart: () {
+        OverlayLoadingProgress.start(context, color: AppColors.primary500);
+        setState(() => _isSaving = true);
+      },
+      onComplete: () {
+        OverlayLoadingProgress.stop();
+        setState(() => _isSaving = false);
+      },
     );
   }
 
@@ -277,15 +290,12 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
     final asyncVoteItemList = ref.watch(asyncVoteItemListProvider(
         voteId: widget.vote.id, votePortal: widget.votePortal));
 
-    return RepaintBoundary(
-      key: _globalKey,
-      child: Container(
-        color: AppColors.grey00,
-        child: asyncVoteDetail.when(
-          data: (vote) => _buildCard(context, vote, asyncVoteItemList),
-          loading: () => buildLoadingOverlay(),
-          error: (error, stack) => Text('Error: $error'),
-        ),
+    return Container(
+      color: AppColors.grey00,
+      child: asyncVoteDetail.when(
+        data: (vote) => _buildCard(context, vote, asyncVoteItemList),
+        loading: () => buildLoadingOverlay(),
+        error: (error, stack) => Text('Error: $error'),
       ),
     );
   }
@@ -306,72 +316,73 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
                   voteId: widget.vote.id, votePortal: widget.votePortal),
         );
       },
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.cw),
-        margin: EdgeInsets.only(top: 8, bottom: 16),
-        child: Column(
-          children: [
-            VoteCardInfoHeader(
-              title: getLocaleTextFromJson(vote.title),
-              stopAt: widget.status == VoteStatus.upcoming
-                  ? vote.startAt!
-                  : vote.stopAt!,
-              onRefresh:
-                  widget.status == VoteStatus.active ? _handleRefresh : null,
-              status: widget.status,
-            ),
-            if (widget.status == VoteStatus.active ||
-                widget.status == VoteStatus.end)
-              if (vote.voteCategory != VoteCategory.achieve.name)
-                _buildVoteItemList(asyncVoteItemList),
-            if (widget.status == VoteStatus.active ||
-                widget.status == VoteStatus.end)
-              if (vote.voteCategory == VoteCategory.achieve.name)
-                _buildAchieveVoteItemList(asyncVoteItemList),
-            if (widget.status == VoteStatus.end) ...[
-              if (!_isAdLoading && _isBannerLoaded && _bannerAd != null)
-                Stack(
+      child: RepaintBoundary(
+        key: _globalKey,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.cw),
+          margin: EdgeInsets.only(top: 8, bottom: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              RepaintBoundary(
+                key: _shareKey,
+                child: Column(
                   children: [
-                    if (!_isSaving)
-                      Container(
-                        alignment: Alignment.center,
-                        margin: const EdgeInsets.only(top: 24),
-                        width: _bannerAd!.size.width.toDouble(),
-                        height: _bannerAd!.size.height.toDouble(),
-                        color: Colors.white,
-                        child: AdWidget(ad: _bannerAd!),
-                      ),
-                    if (_isSaving)
-                      Container(
-                        alignment: Alignment.center,
-                        margin: const EdgeInsets.only(top: 24),
-                        width: _bannerAd!.size.width.toDouble(),
-                        height: _bannerAd!.size.height.toDouble(),
-                        color: Colors.white,
-                        child: Image.asset(
-                          'assets/images/vote/banner_complete_bottom_${getLocaleLanguage() == "ko" ? 'ko' : 'en'}.jpg',
-                          fit: BoxFit.contain,
-                        ),
-                      ),
+                    VoteCardInfoHeader(
+                      title: getLocaleTextFromJson(vote.title),
+                      stopAt: widget.status == VoteStatus.upcoming
+                          ? vote.startAt!
+                          : vote.stopAt!,
+                      onRefresh: widget.status == VoteStatus.active
+                          ? _handleRefresh
+                          : null,
+                      status: widget.status,
+                    ),
+                    if (widget.status == VoteStatus.active ||
+                        widget.status == VoteStatus.end)
+                      if (vote.voteCategory != VoteCategory.achieve.name)
+                        _buildVoteItemList(asyncVoteItemList),
+                    if (widget.status == VoteStatus.active ||
+                        widget.status == VoteStatus.end)
+                      if (vote.voteCategory == VoteCategory.achieve.name)
+                        _buildAchieveVoteItemList(asyncVoteItemList),
                   ],
-                )
-              else if (_isAdLoading)
-                Container(
-                  alignment: Alignment.center,
-                  margin: const EdgeInsets.only(top: 24),
-                  width: AdSize.largeBanner.width.toDouble(),
-                  height: AdSize.largeBanner.height.toDouble(),
-                  color: Colors.white,
                 ),
-              if (!_isSaving && (!_isAdLoading || !_isBannerLoaded))
-                ShareSection(
-                  saveButtonText: S.of(context).save,
-                  shareButtonText: S.of(context).share,
-                  onSave: _handleSaveImage,
-                  onShare: _handleShareToTwitter,
-                ),
+              ),
+              if (widget.status == VoteStatus.end) ...[
+                if (!_isAdLoading && _isBannerLoaded && _bannerAd != null)
+                  Stack(
+                    children: [
+                      if (!_isSaving)
+                        Container(
+                          alignment: Alignment.center,
+                          margin: const EdgeInsets.only(top: 24),
+                          width: _bannerAd!.size.width.toDouble(),
+                          height: _bannerAd!.size.height.toDouble(),
+                          color: Colors.white,
+                          child: AdWidget(ad: _bannerAd!),
+                        ),
+                    ],
+                  )
+                else if (_isAdLoading)
+                  Container(
+                    alignment: Alignment.center,
+                    margin: const EdgeInsets.only(top: 24),
+                    width: AdSize.largeBanner.width.toDouble(),
+                    height: AdSize.largeBanner.height.toDouble(),
+                    color: Colors.white,
+                  ),
+                if (!_isSaving && (!_isAdLoading || !_isBannerLoaded))
+                  ShareSection(
+                    saveButtonText: S.of(context).save,
+                    shareButtonText: S.of(context).share,
+                    onSave: _handleSaveImage,
+                    onShare: _handleShareToTwitter,
+                  ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
+import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/common/common_search_box.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/common/share_section.dart';
@@ -48,7 +49,6 @@ class VoteDetailPage extends ConsumerStatefulWidget {
 
 class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   late ScrollController _scrollController;
-
   late TextEditingController _textEditingController;
   late FocusNode _focusNode;
   bool _hasFocus = false;
@@ -63,6 +63,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   bool _isBannerLoaded = false;
 
   final GlobalKey _globalKey = GlobalKey();
+  final GlobalKey _captureKey = GlobalKey(); // 캡쳐 영역을 위한 새 키
   bool _isSaving = false;
 
   @override
@@ -140,6 +141,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     _textEditingController.dispose();
     _searchSubject.close();
     _updateTimer?.cancel();
+    _bannerAd?.dispose();
     super.dispose();
   }
 
@@ -169,6 +171,43 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     );
   }
 
+  void _handleShare() {
+    if (_isSaving) return;
+    ShareUtils.shareToSocial(
+      _captureKey,
+      message: getLocaleTextFromJson(ref
+          .read(asyncVoteDetailProvider(
+              voteId: widget.voteId, votePortal: widget.votePortal))
+          .value!
+          .title),
+      hashtag:
+          '#Picnic #Vote #PicnicApp #${getLocaleTextFromJson(ref.read(asyncVoteDetailProvider(voteId: widget.voteId, votePortal: widget.votePortal)).value!.title).replaceAll(' ', '')}',
+      onStart: () {
+        OverlayLoadingProgress.start(context, color: AppColors.primary500);
+        setState(() => _isSaving = true);
+      },
+      onComplete: () {
+        OverlayLoadingProgress.stop();
+        setState(() => _isSaving = false);
+      },
+    );
+  }
+
+  void _handleSave() {
+    if (_isSaving) return;
+    ShareUtils.saveImage(
+      _captureKey,
+      onStart: () {
+        OverlayLoadingProgress.start(context, color: AppColors.primary500);
+        setState(() => _isSaving = true);
+      },
+      onComplete: () {
+        OverlayLoadingProgress.stop();
+        setState(() => _isSaving = false);
+      },
+    );
+  }
+
   List<int> _getFilteredIndices(List<dynamic> args) {
     final List<VoteItemModel?> data = args[0];
     final String query = args[1];
@@ -177,12 +216,13 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     }
 
     return List<int>.generate(data.length, (index) => index).where((index) {
-      return data[index]!.artist != 0 &&
-              getLocaleTextFromJson(data[index]!.artist.name)
+      final item = data[index]!;
+      return item.artist != 0 &&
+              getLocaleTextFromJson(item.artist.name)
                   .toLowerCase()
                   .contains(query.toLowerCase()) ||
-          data[index]!.artist != 0 &&
-              getLocaleTextFromJson(data[index]!.artistGroup.name)
+          item.artist != 0 &&
+              getLocaleTextFromJson(item.artistGroup.name)
                   .toLowerCase()
                   .contains(query.toLowerCase());
     }).toList();
@@ -190,37 +230,42 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return RepaintBoundary(
-      key: _globalKey,
-      child: Container(
-        color: AppColors.grey00,
-        child: ref
-            .watch(asyncVoteDetailProvider(
-                voteId: widget.voteId, votePortal: widget.votePortal))
-            .when(
-              data: (voteModel) {
-                if (voteModel == null) return const SizedBox.shrink();
-                isEnded = voteModel.isEnded!;
-                isUpcoming = voteModel.isUpcoming!;
+    return Container(
+      color: AppColors.grey00,
+      child: ref
+          .watch(asyncVoteDetailProvider(
+              voteId: widget.voteId, votePortal: widget.votePortal))
+          .when(
+            data: (voteModel) {
+              if (voteModel == null) return const SizedBox.shrink();
+              isEnded = voteModel.isEnded!;
+              isUpcoming = voteModel.isUpcoming!;
 
-                return GestureDetector(
-                  onTap: () => _focusNode.unfocus(),
-                  child: CustomScrollView(
-                    controller: _scrollController,
-                    slivers: [
-                      SliverToBoxAdapter(
-                        child: _buildVoteInfo(context, voteModel),
+              return GestureDetector(
+                onTap: () => _focusNode.unfocus(),
+                child: CustomScrollView(
+                  controller: _scrollController,
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: RepaintBoundary(
+                        key: _captureKey,
+                        child: Column(
+                          children: [
+                            _buildVoteInfo(context, voteModel),
+                            if (_isSaving) _buildCaptureVoteList(context),
+                          ],
+                        ),
                       ),
-                      _buildVoteItemList(context),
-                    ],
-                  ),
-                );
-              },
-              loading: () => _buildLoadingShimmer(),
-              error: (error, stackTrace) => buildErrorView(context,
-                  error: error.toString(), stackTrace: stackTrace),
-            ),
-      ),
+                    ),
+                    if (!_isSaving) _buildVoteItemList(context),
+                  ],
+                ),
+              );
+            },
+            loading: () => _buildLoadingShimmer(),
+            error: (error, stackTrace) => buildErrorView(context,
+                error: error.toString(), stackTrace: stackTrace),
+          ),
     );
   }
 
@@ -252,26 +297,19 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
           ),
         ),
-        const SizedBox(height: 8),
-        if (_isSaving)
-          Container(
-            alignment: Alignment.center,
-            margin: const EdgeInsets.only(top: 24),
-            child: Image.asset(
-              'assets/images/vote/banner_complete_bottom_${getLocaleLanguage() == "ko" ? 'ko' : 'en'}.jpg',
-              fit: BoxFit.contain,
-            ),
-          )
-        else if (_isBannerLoaded && _bannerAd != null)
-          Container(
-            alignment: Alignment.center,
-            width: _bannerAd!.size.width.toDouble(),
-            height: _bannerAd!.size.height.toDouble(),
-            child: AdWidget(ad: _bannerAd!),
-          )
-        else
-          SizedBox(height: AdSize.largeBanner.height.toDouble()),
-        const SizedBox(height: 8),
+        if (!_isSaving) ...[
+          const SizedBox(height: 8),
+          if (_isBannerLoaded && _bannerAd != null)
+            Container(
+              alignment: Alignment.center,
+              width: _bannerAd!.size.width.toDouble(),
+              height: _bannerAd!.size.height.toDouble(),
+              child: AdWidget(ad: _bannerAd!),
+            )
+          else
+            SizedBox(height: AdSize.largeBanner.height.toDouble()),
+          const SizedBox(height: 8),
+        ],
         if (voteModel.reward != null && widget.votePortal == VotePortal.vote)
           Column(
             children: [
@@ -290,41 +328,22 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   ))
             ],
           ),
-        const SizedBox(height: 18),
         if (isEnded && !_isSaving)
           Column(
             children: [
               ShareSection(
                 saveButtonText: S.of(context).save,
                 shareButtonText: S.of(context).share,
-                onSave: () {
-                  if (_isSaving) return;
-                  ShareUtils.saveImage(
-                    _globalKey,
-                    onStart: () => setState(() => _isSaving = true),
-                    onComplete: () => setState(() => _isSaving = false),
-                  );
-                },
-                onShare: () {
-                  if (_isSaving) return;
-                  ShareUtils.shareToSocial(
-                    _globalKey,
-                    message: getLocaleTextFromJson(voteModel.title),
-                    hashtag:
-                        '#Picnic #Vote #PicnicApp #${getLocaleTextFromJson(voteModel.title).trim()}',
-                    onStart: () => setState(() => _isSaving = true),
-                    onComplete: () => setState(() => _isSaving = false),
-                  );
-                },
+                onSave: _handleSave,
+                onShare: _handleShare,
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 12),
             ],
           ),
       ],
     );
   }
 
-  // VoteDetailPage 클래스 내에서 _buildVoteItemList 메서드를 수정
   Widget _buildVoteItemList(BuildContext context) {
     final searchQuery = ref.watch(searchQueryProvider);
     return Consumer(
@@ -337,41 +356,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 final filteredIndices =
                     _getFilteredIndices([data, searchQuery]);
 
-                // 캡쳐용 레이아웃
-                if (_isSaving) {
-                  return SliverToBoxAdapter(
-                    child: Container(
-                      width: double.infinity,
-                      margin: EdgeInsets.symmetric(horizontal: 16.cw),
-                      decoration: BoxDecoration(
-                        border:
-                            Border.all(color: AppColors.primary500, width: 1.r),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(70.r),
-                          topRight: Radius.circular(70.r),
-                          bottomLeft: Radius.circular(40.r),
-                          bottomRight: Radius.circular(40.r),
-                        ),
-                        color: Colors.white,
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.all(16.r),
-                        child: Column(
-                          children: [
-                            for (int i = 0; i < 3 && i < data.length; i++)
-                              Padding(
-                                padding:
-                                    EdgeInsets.only(bottom: i < 2 ? 36 : 16),
-                                child: _buildVoteItem(context, data[i]!, i),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                }
-
-                // 일반적인 리스트 표시
                 return SliverToBoxAdapter(
                   child: Stack(
                     children: [
@@ -432,6 +416,43 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     );
   }
 
+  Widget _buildCaptureVoteList(BuildContext context) {
+    return Consumer(
+      builder: (context, ref, _) {
+        return ref
+            .watch(asyncVoteItemListProvider(
+                voteId: widget.voteId, votePortal: widget.votePortal))
+            .when(
+              data: (data) {
+                return Container(
+                  width: double.infinity,
+                  margin: EdgeInsets.symmetric(horizontal: 16.cw),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.primary500, width: 1.r),
+                    borderRadius: BorderRadius.circular(40.r),
+                    color: Colors.white,
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(16.r),
+                    child: Column(
+                      children: [
+                        for (int i = 0; i < 3 && i < data.length; i++)
+                          Padding(
+                            padding: EdgeInsets.only(bottom: i < 2 ? 36 : 16),
+                            child: _buildVoteItem(context, data[i]!, i),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+              loading: () => const SizedBox.shrink(),
+              error: (_, __) => const SizedBox.shrink(),
+            );
+      },
+    );
+  }
+
   Widget _buildVoteItem(BuildContext context, VoteItemModel item, int index) {
     final previousVoteCount = _previousVoteCounts[item.id] ?? item.voteTotal;
     final voteCountDiff = item.voteTotal! - previousVoteCount!;
@@ -455,8 +476,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
       ),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () => _handleVoteItemTap(context, item, index), // index 추가
-
+        onTap: () => _handleVoteItemTap(context, item, index),
         child: SizedBox(
           height: 45,
           child: Row(
@@ -469,8 +489,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   children: [
                     if (index < 3)
                       SvgPicture.asset(
-                        key:
-                            ValueKey('assets/icons/vote/crown${index + 1}.svg'),
                         'assets/icons/vote/crown${index + 1}.svg',
                       ),
                     Text(
@@ -524,14 +542,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 ),
               ),
               SizedBox(width: 16.cw),
-              if (!isEnded)
+              if (!isEnded && !_isSaving)
                 SizedBox(
                   width: 24.cw,
                   height: 24,
-                  child: SvgPicture.asset(
-                    key: const ValueKey('assets/icons/star_candy_icon.svg'),
-                    'assets/icons/star_candy_icon.svg',
-                  ),
+                  child: SvgPicture.asset('assets/icons/star_candy_icon.svg'),
                 ),
             ],
           ),
@@ -555,8 +570,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(39),
         child: PicnicCachedNetworkImage(
-          key: ValueKey(
-              item.artist.id != 0 ? item.artist.image : item.artistGroup.image),
           imageUrl: (item.artist.id != 0
                   ? item.artist.image
                   : item.artistGroup.image) ??
@@ -584,7 +597,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             gradient: commonGradient,
             borderRadius: BorderRadius.circular(10.r),
           ),
-          // 변화가 있을 때 key를 변경하여 새로운 애니메이션 트리거
           key: ValueKey(hasChanged ? item.voteTotal : 'static'),
         ),
         Container(
@@ -768,33 +780,5 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         ),
       ),
     );
-  }
-}
-
-class GradientProgressPainter extends CustomPainter {
-  final double progress;
-  final Gradient gradient;
-
-  GradientProgressPainter({required this.progress, required this.gradient});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..shader =
-          gradient.createShader(Rect.fromLTWH(0, 0, size.width, size.height))
-      ..style = PaintingStyle.fill;
-
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(0, 0, size.width * progress, size.height),
-        Radius.circular(10.r),
-      ),
-      paint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(GradientProgressPainter oldDelegate) {
-    return progress != oldDelegate.progress;
   }
 }
