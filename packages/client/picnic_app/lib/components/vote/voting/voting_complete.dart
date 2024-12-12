@@ -1,34 +1,24 @@
-import 'dart:io';
-import 'dart:ui' as ui;
-
 import 'package:animated_digit/animated_digit.dart';
-import 'package:appinio_social_share/appinio_social_share.dart';
-import 'package:bubble_box/bubble_box.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:picnic_app/components/common/avatar_container.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
+import 'package:picnic_app/components/common/share_section.dart';
 import 'package:picnic_app/components/ui/large_popup.dart';
 import 'package:picnic_app/components/vote/voting/gradient_circular_progress_indicator.dart';
-import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/models/vote/artist_group.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/config_service.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
-import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
+import 'package:picnic_app/util/vote_share_util.dart';
 
 const Duration _duration = Duration(milliseconds: 1000);
 
@@ -70,7 +60,6 @@ class VotingCompleteDialog extends ConsumerStatefulWidget {
 class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
   bool _isSaving = false;
   final GlobalKey _globalKey = GlobalKey();
-  AppinioSocialShare appinioSocialShare = AppinioSocialShare();
 
   BannerAd? _bannerAd;
   bool _isBannerLoaded = false;
@@ -103,231 +92,6 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
         },
       ),
     )..load();
-  }
-
-  Future<ui.Image?> _captureWidget(GlobalKey key) async {
-    try {
-      RenderRepaintBoundary? boundary =
-          key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-      if (boundary == null) return null;
-
-      final image = await boundary.toImage(pixelRatio: 3.0);
-      return image;
-    } catch (e) {
-      logger.e('Failed to capture widget: $e');
-      return null;
-    }
-  }
-
-  Future<void> _captureAndSaveImage() async {
-    try {
-      setState(() {
-        _isSaving = true;
-      });
-
-      // 렌더링 대기
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      final boundary = _globalKey.currentContext?.findRenderObject()
-          as RenderRepaintBoundary?;
-      if (boundary == null) throw Exception('Failed to find render boundary');
-
-      final image = await boundary.toImage(pixelRatio: 3.0);
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      if (byteData == null) throw Exception('Failed to convert image to bytes');
-
-      final pngBytes = byteData.buffer.asUint8List();
-
-      final directory = await getApplicationDocumentsDirectory();
-      final path = '${directory.path}/voting_dialog.png';
-      final file = File(path);
-      await file.writeAsBytes(pngBytes);
-
-      final result = await ImageGallerySaverPlus.saveFile(path);
-      logger.d('image saved: $path, result: $result');
-
-      await file.delete();
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            duration: const Duration(milliseconds: 300),
-            content: Text(S.of(context).image_save_success),
-          ),
-        );
-      }
-    } catch (e) {
-      logger.e('image saving fail: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            duration: const Duration(milliseconds: 300),
-            content: Text(S.of(context).share_image_fail),
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSaving = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _captureAndShareImage() async {
-    try {
-      setState(() {
-        _isSaving = true;
-      });
-
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      final boundary = _globalKey.currentContext?.findRenderObject()
-          as RenderRepaintBoundary?;
-      if (boundary == null) throw Exception('Failed to find render boundary');
-
-      final image = await boundary.toImage(pixelRatio: 3.0);
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      if (byteData == null) throw Exception('Failed to convert image to bytes');
-
-      final pngBytes = byteData.buffer.asUint8List();
-
-      final directory = await getApplicationDocumentsDirectory();
-      final path = '${directory.path}/voting_dialog.png';
-      final file = File(path);
-      await file.writeAsBytes(pngBytes);
-
-      final artist = widget.voteItemModel.artist.id != 0
-          ? getLocaleTextFromJson(widget.voteItemModel.artist.name)
-          : getLocaleTextFromJson(widget.voteItemModel.artistGroup.name);
-      final voteTitle = getLocaleTextFromJson(widget.voteModel.title);
-
-      final shareMessage = '''$artist - $voteTitle
-${Intl.message('vote_share_message')} 🎉
-#Picnic #Vote #${artist.replaceAll(' ', '')} #PicnicApp''';
-
-      final result = Platform.isIOS
-          ? await appinioSocialShare.iOS.shareToTwitter(shareMessage, path)
-          : await appinioSocialShare.android.shareToTwitter(shareMessage, path);
-
-      logger.d('image share result: $result');
-
-      if (result == 'ERROR_APP_NOT_AVAILABLE') {
-        showSimpleDialog(
-          type: DialogType.error,
-          content: Intl.message('share_no_twitter'),
-        );
-      } else if (result == 'SUCCESS') {
-        final voteCount = widget.result['addedVoteTotal'];
-        if (voteCount >= 100) {
-          final userInfo = ref.read(userInfoProvider);
-          await _awardBonus(userInfo.value?.id);
-        }
-      }
-
-      await ref.read(userInfoProvider.notifier).getUserProfiles();
-
-      await file.delete();
-    } catch (e) {
-      logger.e('image sharing fail: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            duration: const Duration(milliseconds: 300),
-            content: Text(S.of(context).share_image_fail),
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSaving = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _awardBonus(String? userId) async {
-    if (userId == null) return;
-
-    try {
-      logger.d('Awarding bonus candy for user: $userId');
-      logger.d('voteId: ${widget.voteModel.id}');
-      logger.d('votePickId: ${widget.result['votePickId']}');
-      final response = await supabase.functions.invoke(
-        'check-and-award-bonus',
-        body: {
-          'voteId': widget.voteModel.id,
-          'userId': userId,
-          'votePickId': widget.result['votePickId'], // vote_pick 테이블의 ID
-        },
-      );
-
-      if (response.data['success']) {
-        showSimpleDialog(
-          content: Intl.message('bonus_candy_awarded'),
-        );
-      }
-    } catch (e) {
-      showSimpleDialog(
-        type: DialogType.error,
-        content: Intl.message('bonus_candy_fail'),
-      );
-      logger.e('Failed to award bonus: $e');
-    }
-  }
-
-  Future<void> _saveDialogAsImage() async {
-    if (_isSaving) return;
-
-    try {
-      setState(() {
-        _isSaving = true;
-      });
-
-      await _captureAndSaveImage();
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            duration: const Duration(milliseconds: 300),
-            content: Text(S.of(context).image_save_success),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            duration: const Duration(milliseconds: 300),
-            content: Text(S.of(context).share_image_fail),
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSaving = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _shareDialogImage() async {
-    setState(() {
-      _isSaving = true;
-    });
-
-    try {
-      await _captureAndShareImage();
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSaving = false;
-        });
-      }
-    }
   }
 
   @override
@@ -602,100 +366,39 @@ ${Intl.message('vote_share_message')} 🎉
                   else
                     SizedBox(height: AdSize.largeBanner.height.toDouble()),
                   !_isSaving
-                      ? Stack(
-                          children: [
-                            // 버튼들
-                            Container(
-                              padding: EdgeInsets.only(top: 16),
-                              height: 120,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: _saveDialogAsImage,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.primary500,
-                                      shadowColor: AppColors.primary500,
-                                      padding: EdgeInsets.zero,
-                                      minimumSize: Size(104.cw, 32),
-                                      maximumSize: Size(104.cw, 32),
-                                    ),
-                                    child: Text(
-                                      S
-                                          .of(context)
-                                          .label_button_save_vote_paper,
-                                      style: getTextStyle(
-                                        AppTypo.body14B,
-                                        AppColors.grey00,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                  SizedBox(width: 16.cw),
-                                  ElevatedButton(
-                                    onPressed: _shareDialogImage,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.primary500,
-                                      shadowColor: AppColors.primary500,
-                                      padding: EdgeInsets.zero,
-                                      minimumSize: Size(104.cw, 32),
-                                      maximumSize: Size(104.cw, 32),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          S.of(context).label_button_share,
-                                          style: getTextStyle(
-                                            AppTypo.body14B,
-                                            AppColors.grey00,
-                                          ),
-                                        ),
-                                        SizedBox(width: 4.cw),
-                                        SvgPicture.asset(
-                                          'assets/icons/twitter_style=fill.svg',
-                                          width: 16.cw,
-                                          height: 16,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            // 버블 메시지
-                            Positioned(
-                              top: 56,
-                              right: 16.cw,
-                              child: Container(
-                                constraints: BoxConstraints(maxWidth: 180.cw),
-                                height: 56,
-                                child: BubbleBox(
-                                  shape: BubbleShapeBorder(
-                                    border: BubbleBoxBorder(
-                                      color: AppColors.primary500,
-                                      width: 1.5,
-                                      style: BubbleBoxBorderStyle.dashed,
-                                    ),
-                                    position: const BubblePosition.center(40),
-                                    arrowHeight: 8,
-                                    arrowAngle: 8,
-                                    direction: BubbleDirection.top,
-                                  ),
-                                  backgroundColor: AppColors.grey00,
-                                  child: Text(
-                                    S.of(context).voting_share_benefit_text,
-                                    style: getTextStyle(
-                                      AppTypo.caption10SB,
-                                      AppColors.primary500,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                      ? ShareSection(
+                          saveButtonText: S.of(context).save,
+                          shareButtonText: S.of(context).share,
+                          onSave: () {
+                            if (_isSaving) return;
+                            ShareUtils.saveImage(
+                              _globalKey,
+                              onStart: () => setState(() => _isSaving = true),
+                              onComplete: () =>
+                                  setState(() => _isSaving = false),
+                            );
+                          },
+                          onShare: () {
+                            if (_isSaving) return;
+                            final artist = widget.voteItemModel.artist.id != 0
+                                ? getLocaleTextFromJson(
+                                    widget.voteItemModel.artist.name)
+                                : getLocaleTextFromJson(
+                                    widget.voteItemModel.artistGroup.name);
+                            final voteTitle =
+                                getLocaleTextFromJson(widget.voteModel.title);
+
+                            ShareUtils.shareToSocial(
+                              _globalKey,
+                              message: '''$artist - $voteTitle
+${Intl.message('vote_share_message')} 🎉''',
+                              hashtag:
+                                  '#Picnic #Vote #PicnicApp #${voteTitle.trim()}',
+                              onStart: () => setState(() => _isSaving = true),
+                              onComplete: () =>
+                                  setState(() => _isSaving = false),
+                            );
+                          },
                         )
                       : Image.asset(
                           'assets/images/logo.png',
