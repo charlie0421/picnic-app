@@ -1,5 +1,7 @@
 // auth_service.dart
 
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:picnic_app/config/environment.dart';
@@ -26,8 +28,10 @@ abstract class SocialLogin {
 class AuthService {
   final SecureStorageService _storageService;
   final Map<Supabase.OAuthProvider, SocialLogin> _loginProviders;
-
   static const tokenExpirationDuration = Duration(hours: 1);
+  static const networkCheckTimeout = Duration(seconds: 5);
+  static const sessionRecoveryTimeout = Duration(seconds: 10);
+  static const tokenRefreshTimeout = Duration(seconds: 8);
 
   AuthService({
     SecureStorageService? storageService,
@@ -87,7 +91,14 @@ class AuthService {
 
   Future<bool> recoverSession() async {
     try {
-      if (!await NetworkCheck.isOnline()) {
+      // 네트워크 체크에 타임아웃 추가
+      final isOnline = await NetworkCheck.isOnline()
+          .timeout(networkCheckTimeout, onTimeout: () {
+        logger.e('Network check timed out');
+        return false;
+      });
+
+      if (!isOnline) {
         logger.w('Cannot recover session - offline');
         return false;
       }
@@ -104,10 +115,15 @@ class AuthService {
       }
 
       try {
-        final response = await supabase.auth.signInWithIdToken(
+        // signInWithIdToken에 타임아웃 추가
+        final response = await supabase.auth
+            .signInWithIdToken(
           provider: tokenInfo.provider,
           idToken: tokenInfo.idToken,
-        );
+        )
+            .timeout(sessionRecoveryTimeout, onTimeout: () {
+          throw TimeoutException('Session recovery timed out');
+        });
 
         if (response.session != null) {
           await _updateSessionTokens(response.session!, tokenInfo);
@@ -128,7 +144,12 @@ class AuthService {
 
   Future<bool> _refreshSession(AuthTokenInfo tokenInfo) async {
     try {
-      final response = await supabase.auth.refreshSession();
+      // refreshSession에 타임아웃 추가
+      final response = await supabase.auth
+          .refreshSession()
+          .timeout(tokenRefreshTimeout, onTimeout: () {
+        throw TimeoutException('Token refresh timed out');
+      });
 
       if (response.session != null) {
         await _updateSessionTokens(response.session!, tokenInfo);
@@ -144,6 +165,25 @@ class AuthService {
     }
   }
 
+  Future<void> _handleAuthError(dynamic error) async {
+    logger.e('Handling auth error: $error'); // 추가된 로그
+    if (error is TimeoutException) {
+      await _storageService.clearTokenInfo();
+      logger.i('Cleared stored tokens due to timeout');
+      return;
+    }
+
+    if (error is AuthException) {
+      if (error.message.contains('Token expired') || error.statusCode == 401) {
+        await _storageService.clearTokenInfo();
+        logger.i('Cleared stored tokens due to expiration/unauthorized');
+      }
+    } else if (error is String && error.contains('Token expired')) {
+      await _storageService.clearTokenInfo();
+      logger.i('Cleared stored tokens due to expiration message');
+    }
+  }
+
   Future<void> _updateSessionTokens(
       Session session, AuthTokenInfo oldTokenInfo) async {
     final newTokenInfo = AuthTokenInfo(
@@ -156,18 +196,6 @@ class AuthService {
 
     await _storageService.saveTokenInfo(newTokenInfo);
     logger.i('Session tokens updated successfully');
-  }
-
-  Future<void> _handleAuthError(dynamic error) async {
-    if (error is AuthException) {
-      if (error.message.contains('Token expired') || error.statusCode == 401) {
-        await _storageService.clearTokenInfo();
-        logger.i('Cleared stored tokens due to expiration/unauthorized');
-      }
-    } else if (error is String && error.contains('Token expired')) {
-      await _storageService.clearTokenInfo();
-      logger.i('Cleared stored tokens due to expiration message');
-    }
   }
 
   Future<void> signOut() async {
@@ -233,11 +261,11 @@ class AuthService {
   }
 }
 
-// network_check.dart
 class NetworkCheck {
   static Future<bool> isOnline() async {
     try {
-      final result = await InternetAddress.lookup('google.com');
+      final result = await InternetAddress.lookup('google.com')
+          .timeout(const Duration(seconds: 5));
       return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
     } on SocketException catch (_) {
       return false;
