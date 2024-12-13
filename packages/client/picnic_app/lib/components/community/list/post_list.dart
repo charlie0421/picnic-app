@@ -14,7 +14,6 @@ import 'package:picnic_app/pages/community/post_write_page.dart';
 import 'package:picnic_app/providers/community/post_provider.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
-import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/logger.dart';
@@ -41,80 +40,76 @@ class _PostListState extends ConsumerState<PostList> {
       final postListAsyncValue = widget.type == PostListType.artist
           ? ref.watch(postsByArtistProvider(widget.id as int, 10, 1))
           : ref.watch(postsByBoardProvider(widget.id as String, 10, 1));
-      final isAdmin =
-          ref.watch(userInfoProvider.select((value) => value.value?.isAdmin));
 
       final currentArtist = ref.watch(
           communityStateInfoProvider.select((value) => value.currentArtist));
 
       return Column(
         children: [
-          if (isAdmin ?? false) ...[
-            InkWell(
-              onTap: () async {
-                if (!supabase.isLogged) {
-                  showRequireLoginDialog();
-                  return;
-                }
+          InkWell(
+            onTap: () async {
+              if (!supabase.isLogged) {
+                showRequireLoginDialog();
+                return;
+              }
 
-                if (currentArtist == null) {
-                  return;
-                }
+              if (currentArtist == null) {
+                return;
+              }
 
-                final fortune = await supabase
-                    .from("fortune_telling")
-                    .select('*, artist(*)')
-                    .eq('artist_id', currentArtist.id.toInt())
-                    .maybeSingle();
+              final fortune = await supabase
+                  .from("fortune_telling")
+                  .select('*, artist(*)')
+                  .eq('artist_id', currentArtist.id.toInt())
+                  .maybeSingle();
 
-                if (fortune == null) {
-                  showSimpleDialog(
-                    content: '아직 토정비결이 없습니다.',
-                    onOk: () {
-                      Navigator.of(context).pop();
-                    },
-                  );
-                  return;
-                }
+              if (fortune == null) {
+                showSimpleDialog(
+                  content: '아직 토정비결이 없습니다.',
+                  onOk: () {
+                    Navigator.of(context).pop();
+                  },
+                );
+                return;
+              }
 
-                showFortuneDialog(currentArtist.id.toInt(), 2025);
-              },
-              child: Container(
-                height: 40,
-                padding: EdgeInsets.symmetric(horizontal: 16.cw),
-                alignment: Alignment.centerLeft,
-                child: Text(S.of(context).fortune_button_title,
-                    style: getTextStyle(AppTypo.body14B, AppColors.primary500)),
-              ),
+              showFortuneDialog(currentArtist.id.toInt(), 2025);
+            },
+            child: Container(
+              height: 40,
+              padding: EdgeInsets.symmetric(horizontal: 16.cw),
+              alignment: Alignment.centerLeft,
+              child: Text(S.of(context).fortune_button_title,
+                  style: getTextStyle(AppTypo.body14B, AppColors.primary500)),
             ),
-            Divider(
-              height: 1,
-              thickness: 1,
-              color: AppColors.grey300,
+          ),
+          Divider(
+            height: 1,
+            thickness: 1,
+            color: AppColors.grey300,
+          ),
+          InkWell(
+            onTap: () {
+              if (supabase.isLogged) {
+                navigationInfoNotifier.setCurrentPage(
+                    CompatibilityHistoryPage(artistId: currentArtist?.id));
+              } else {
+                showRequireLoginDialog();
+              }
+            },
+            child: Container(
+              height: 40,
+              padding: EdgeInsets.symmetric(horizontal: 16.cw),
+              alignment: Alignment.centerLeft,
+              child: Text(S.of(context).fortune_with_me,
+                  style: getTextStyle(AppTypo.body14B, AppColors.primary500)),
             ),
-            InkWell(
-              onTap: () {
-                if (supabase.isLogged) {
-                  navigationInfoNotifier.setCurrentPage(
-                      CompatibilityHistoryPage(artistId: currentArtist?.id));
-                } else {
-                  showRequireLoginDialog();
-                }
-              },
-              child: Container(
-                height: 40,
-                padding: EdgeInsets.symmetric(horizontal: 16.cw),
-                alignment: Alignment.centerLeft,
-                child: Text(S.of(context).fortune_with_me,
-                    style: getTextStyle(AppTypo.body14B, AppColors.primary500)),
-              ),
-            ),
-            Divider(
-              height: 1,
-              thickness: 1,
-              color: AppColors.grey300,
-            ),
-          ],
+          ),
+          Divider(
+            height: 1,
+            thickness: 1,
+            color: AppColors.grey300,
+          ),
           Expanded(
             child: postListAsyncValue.when(
               data: (data) {
