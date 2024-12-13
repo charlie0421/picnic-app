@@ -40,6 +40,7 @@ class _CompatibilityInputScreenState
   bool _agreedToSaveProfile = false;
   List<String>? _timeSlots;
   bool _isLoading = false;
+  ScrollController _scrollController = ScrollController();
 
   static List<Map<String, String>> genderOptions = [
     {'value': 'male', 'label': Intl.message('compatibility_gender_male')},
@@ -361,6 +362,7 @@ class _CompatibilityInputScreenState
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
+      controller: _scrollController,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -516,51 +518,51 @@ class _CompatibilityInputScreenState
                       ),
                     ),
                   ),
-                  InkWell(
-                    onTap: _selectDate,
-                    borderRadius: BorderRadius.circular(16),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 8),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          UnderlinedText(
-                            text: S.of(context).compatibility_birthday,
-                            textStyle: getTextStyle(
-                                AppTypo.body14B, AppColors.grey900),
-                            underlineColor: AppColors.primary500,
-                            underlineHeight: 2,
-                            underlineGap: 4,
-                          ),
-                          const SizedBox(height: 12),
-                          Container(
-                            height: 26,
-                            constraints: BoxConstraints(
-                              maxWidth: 260,
+                  Expanded(
+                    child: InkWell(
+                      onTap: _selectDate,
+                      borderRadius: BorderRadius.circular(16),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            UnderlinedText(
+                              text: S.of(context).compatibility_birthday,
+                              textStyle: getTextStyle(
+                                  AppTypo.body14B, AppColors.grey900),
+                              underlineColor: AppColors.primary500,
+                              underlineHeight: 2,
+                              underlineGap: 4,
                             ),
-                            alignment: Alignment.centerLeft,
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: AppColors.grey900,
-                                width: 1,
+                            const SizedBox(height: 12),
+                            Container(
+                              height: 26,
+                              alignment: Alignment.centerLeft,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: AppColors.grey900,
+                                  width: 1,
+                                ),
                               ),
-                            ),
-                            child: Text(
-                              _birthDate == null
-                                  ? S.of(context).compatibility_birthday
-                                  : formatDateTimeYYYYMMDD(_birthDate!),
-                              style: getTextStyle(
-                                AppTypo.caption12M,
+                              child: Text(
                                 _birthDate == null
-                                    ? AppColors.grey500
-                                    : AppColors.grey900,
+                                    ? S.of(context).compatibility_birthday
+                                    : formatDateTimeYYYYMMDD(_birthDate!),
+                                style: getTextStyle(
+                                  AppTypo.caption12M,
+                                  _birthDate == null
+                                      ? AppColors.grey500
+                                      : AppColors.grey900,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -591,101 +593,100 @@ class _CompatibilityInputScreenState
                       ),
                     ),
                   ),
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            UnderlinedText(
-                              textStyle: getTextStyle(
-                                  AppTypo.body14B, AppColors.grey900),
-                              text: S.of(context).compatibility_birthtime,
-                              underlineColor: AppColors.primary500,
-                              underlineHeight: 2,
-                              underlineGap: 4,
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              S.of(context).compatibility_birthtime_subtitle,
-                              style: getTextStyle(
-                                AppTypo.caption10SB,
-                                AppColors.point900,
+                  Expanded(
+                    child: Container(
+                      alignment: Alignment.centerLeft,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 8),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              UnderlinedText(
+                                textStyle: getTextStyle(
+                                    AppTypo.body14B, AppColors.grey900),
+                                text: S.of(context).compatibility_birthtime,
+                                underlineColor: AppColors.primary500,
+                                underlineHeight: 2,
+                                underlineGap: 4,
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 12),
-                        Center(
-                          child: Container(
-                            height: 26,
-                            constraints: BoxConstraints(
-                              maxWidth: 260,
-                            ),
-                            child: DropdownButtonFormField<String>(
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(
-                                    color: AppColors.grey900,
-                                    width: 0.1,
-                                  ),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
+                              SizedBox(width: 8),
+                              Text(
+                                S.of(context).compatibility_birthtime_subtitle,
+                                style: getTextStyle(
+                                  AppTypo.caption10SB,
+                                  AppColors.point900,
                                 ),
                               ),
-                              value: _birthTime,
-                              items: [
-                                DropdownMenuItem(
-                                  value: null,
-                                  child: Text(
-                                    S
-                                        .of(context)
-                                        .compatibility_time_slot_unknown,
-                                    style: getTextStyle(
-                                      AppTypo.caption10SB,
-                                      AppColors.grey900,
+                            ],
+                          ),
+                          SizedBox(height: 12),
+                          Center(
+                            child: Container(
+                              height: 26,
+                              child: DropdownButtonFormField<String>(
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: const BorderSide(
+                                      color: AppColors.grey900,
+                                      width: 0.1,
                                     ),
                                   ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                  ),
                                 ),
-                                ...?_timeSlots?.asMap().entries.map(
-                                  (entry) {
-                                    final index = entry.key;
-                                    final time = entry.value;
-                                    final parts = time.split('|');
-                                    final text = parts[0];
-                                    final textTime = parts[1];
-                                    final icon =
-                                        parts.length > 2 ? parts[2] : '';
+                                value: _birthTime,
+                                items: [
+                                  DropdownMenuItem(
+                                    value: null,
+                                    child: Text(
+                                      S
+                                          .of(context)
+                                          .compatibility_time_slot_unknown,
+                                      style: getTextStyle(
+                                        AppTypo.caption10SB,
+                                        AppColors.grey900,
+                                      ),
+                                    ),
+                                  ),
+                                  ...?_timeSlots?.asMap().entries.map(
+                                    (entry) {
+                                      final index = entry.key;
+                                      final time = entry.value;
+                                      final parts = time.split('|');
+                                      final text = parts[0];
+                                      final textTime = parts[1];
+                                      final icon =
+                                          parts.length > 2 ? parts[2] : '';
 
-                                    return DropdownMenuItem(
-                                        value: (index + 1).toString(),
-                                        child: Text(
-                                          '${icon.isNotEmpty ? '$icon ' : ''}$text $textTime',
-                                          style: getTextStyle(
-                                            AppTypo.caption10SB,
-                                            AppColors.grey900,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ));
-                                  },
-                                ),
-                              ],
-                              onChanged: (value) {
-                                setState(() {
-                                  _birthTime = value;
-                                });
-                              },
+                                      return DropdownMenuItem(
+                                          value: (index + 1).toString(),
+                                          child: Text(
+                                            '${icon.isNotEmpty ? '$icon ' : ''}$text $textTime',
+                                            style: getTextStyle(
+                                              AppTypo.caption10SB,
+                                              AppColors.grey900,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ));
+                                    },
+                                  ),
+                                ],
+                                onChanged: (value) {
+                                  setState(() {
+                                    _birthTime = value;
+                                  });
+                                },
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -699,6 +700,13 @@ class _CompatibilityInputScreenState
               value: _agreedToSaveProfile,
               activeColor: AppColors.primary500,
               onChanged: (value) {
+                if (value ?? false) {
+                  _scrollController.animateTo(
+                    _scrollController.position.maxScrollExtent,
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeOut,
+                  );
+                }
                 setState(() {
                   _agreedToSaveProfile = value ?? false;
                 });
