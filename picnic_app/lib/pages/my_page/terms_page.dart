@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/enums.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
-import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/policy_provider.dart';
 import 'package:picnic_app/util/ui.dart';
 
@@ -26,10 +25,6 @@ class _TermsPageState extends ConsumerState<TermsPage>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-          showPortal: false, showTopMenu: true, showBottomNavigation: false);
-    });
   }
 
   @override
