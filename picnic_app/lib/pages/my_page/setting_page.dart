@@ -16,7 +16,6 @@ import 'package:picnic_app/providers/update_checker.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/ui/common_gradient.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -46,7 +45,6 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
   Future<String> getBuildNumber() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    logger.d('buildNumber: ${packageInfo.buildNumber}');
     return packageInfo.buildNumber;
   }
 
@@ -54,8 +52,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-      setState(() async {
-        buildNumber = await getBuildNumber();
+      getBuildNumber().then((value) {
+        buildNumber = value;
+        setState(() {});
       });
     });
   }
