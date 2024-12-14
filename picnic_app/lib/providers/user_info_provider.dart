@@ -110,7 +110,7 @@ class UserInfo extends _$UserInfo {
     } catch (e, s) {
       logger.e('Error updating profile', error: e, stackTrace: s);
       Sentry.captureException(e, stackTrace: s);
-      throw Exception('프로필 업데이트 중 오류가 발생했습니다');
+      rethrow;
     }
   }
 

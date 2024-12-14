@@ -112,12 +112,13 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
           await _showErrorDialog(S.of(context).dialog_message_purchase_failed);
         }
       }
-    } catch (e) {
-      logger.e('Error starting purchase', error: e);
+    } catch (e, s) {
+      logger.e('Error starting purchase', error: e, stackTrace: s);
       if (mounted) {
         OverlayLoadingProgress.stop();
         await _showErrorDialog(S.of(context).dialog_message_purchase_failed);
       }
+      rethrow;
     }
   }
 

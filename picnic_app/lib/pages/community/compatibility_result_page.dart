@@ -104,11 +104,14 @@ class _CompatibilityResultPageState
           },
         );
       }
-    } catch (e) {
+    } catch (e, s) {
+      logger.e('exception:', error: e, stackTrace: s);
+
       if (mounted) {
         OverlayLoadingProgress.stop();
         await _showErrorDialog('구매 처리 중 오류가 발생했습니다.');
       }
+      rethrow;
     }
   }
 
@@ -430,12 +433,13 @@ class _CompatibilityResultPageState
                                       OverlayLoadingProgress.stop();
                                     }
                                     // 구매 시도 성공시에는 로딩바 유지 (실제 구매 완료/실패시 _handlePurchaseUpdated에서 로딩바 숨김)
-                                  } catch (e) {
+                                  } catch (e, s) {
                                     logger.e('Error starting purchase',
-                                        error: e);
+                                        error: e, stackTrace: s);
                                     if (!mounted) return;
                                     await _showErrorDialog('구매 중 오류가 발생했습니다.');
                                     OverlayLoadingProgress.stop();
+                                    rethrow;
                                   }
                                 },
                                 child: Text(

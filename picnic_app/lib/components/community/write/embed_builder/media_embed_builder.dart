@@ -130,8 +130,8 @@ class LocalImageEmbedBuilder extends EmbedBuilder {
         onUploadComplete(source, mediaUrl);
         return mediaUrl;
       }
-    } catch (e) {
-      logger.i('Error uploading image: $e');
+    } catch (e, s) {
+      logger.i('Error uploading image', error: e, stackTrace: s);
       rethrow;
     }
   }

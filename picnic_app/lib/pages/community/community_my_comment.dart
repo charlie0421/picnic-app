@@ -13,6 +13,7 @@ import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class CommunityMyComment extends ConsumerStatefulWidget {
@@ -80,7 +81,9 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment> {
       );
       await commentsNotifier.deleteComment(commentId);
       _handleRefresh();
-    } catch (e) {
+    } catch (e, s) {
+      logger.e('exception:', error: e, stackTrace: s);
+
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -90,6 +93,7 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment> {
           behavior: SnackBarBehavior.floating,
         ),
       );
+      rethrow;
     }
   }
 

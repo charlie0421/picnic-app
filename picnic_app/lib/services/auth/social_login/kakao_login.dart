@@ -51,7 +51,8 @@ class KakaoLogin implements SocialLogin {
       } else {
         return await UserApi.instance.loginWithKakaoAccount();
       }
-    } catch (e) {
+    } catch (e, s) {
+      logger.e('_performKakaoLogin', error: e, stackTrace: s);
       if (e is PlatformException && e.code == 'NotSupportError') {
         return await UserApi.instance.loginWithKakaoAccount();
       }

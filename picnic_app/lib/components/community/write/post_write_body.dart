@@ -17,6 +17,7 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/community/board.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class PostWriteBody extends ConsumerStatefulWidget {
@@ -86,9 +87,10 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
       });
 
       _isKeyboardListenerInitialized = true;
-    } catch (e) {
-      debugPrint('Keyboard height plugin initialization failed: $e');
+    } catch (e, s) {
+      logger.e('exception:', error: e, stackTrace: s);
       _isKeyboardListenerInitialized = false;
+      rethrow;
     }
   }
 
