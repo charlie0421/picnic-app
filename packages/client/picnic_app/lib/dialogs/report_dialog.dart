@@ -8,6 +8,7 @@ import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/providers/community/comments_provider.dart';
 import 'package:picnic_app/providers/community/post_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/logger.dart';
 
 enum ReportType { comment, post }
 
@@ -249,7 +250,8 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
       );
 
       Navigator.of(context).pop(true);
-    } catch (e) {
+    } catch (e, s) {
+      logger.e('exception:', error: e, stackTrace: s);
       if (!mounted) return;
 
       setState(() {
@@ -264,6 +266,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
           behavior: SnackBarBehavior.floating,
         ),
       );
+      rethrow;
     }
   }
 

@@ -1,5 +1,6 @@
 import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part '../../generated/providers/community/compatibility_list_provider.g.dart';
@@ -31,7 +32,8 @@ class CompatibilityList extends _$CompatibilityList {
         hasMore: items.length >= _pageSize,
         isLoading: false,
       );
-    } catch (e) {
+    } catch (e, s) {
+      logger.e('exception:', error: e, stackTrace: s);
       state = state.copyWith(isLoading: false);
       rethrow;
     }

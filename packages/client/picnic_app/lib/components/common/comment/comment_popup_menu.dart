@@ -8,6 +8,7 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/providers/community/comments_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
 class CommentPopupMenu extends ConsumerStatefulWidget {
@@ -60,7 +61,9 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
             if (navigatorKey.currentContext != null) {
               Navigator.of(navigatorKey.currentContext!).pop();
             }
-          } catch (e) {
+          } catch (e, s) {
+            logger.e('exception:', error: e, stackTrace: s);
+
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -69,6 +72,7 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
                 ),
               );
             }
+            rethrow;
           }
         },
         onCancel: () {

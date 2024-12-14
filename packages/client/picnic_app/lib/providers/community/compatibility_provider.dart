@@ -74,9 +74,9 @@ class Compatibility extends _$Compatibility {
         }
 
         throw Exception('Edge function error: ${response.data}');
-      } catch (e) {
+      } catch (e, s) {
         logger.e('Edge function error (attempt ${retryCount + 1}/$_maxRetries)',
-            error: e);
+            error: e, stackTrace: s);
         retryCount++;
 
         if (retryCount == _maxRetries) {
@@ -95,6 +95,7 @@ class Compatibility extends _$Compatibility {
         }
 
         await Future.delayed(_retryDelay * retryCount);
+        rethrow;
       }
     }
   }
@@ -217,8 +218,8 @@ class Compatibility extends _$Compatibility {
           .timeout(_defaultTimeout);
 
       return List<Map<String, dynamic>>.from(response);
-    } catch (e) {
-      logger.e('Error fetching i18n data', error: e);
+    } catch (e, s) {
+      logger.e('Error fetching i18n data', error: e, stackTrace: s);
       return [];
     }
   }

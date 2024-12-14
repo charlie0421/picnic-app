@@ -6,6 +6,7 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/community/comments_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/number.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
@@ -115,7 +116,9 @@ class LikeButtonState extends ConsumerState<LikeButton>
       } else {
         await commentsNotifier.unlikeComment(widget.commentId);
       }
-    } catch (e) {
+    } catch (e, s) {
+      logger.e('exception:', error: e, stackTrace: s);
+
       if (!mounted) return;
 
       // Revert changes on error
@@ -131,6 +134,7 @@ class LikeButtonState extends ConsumerState<LikeButton>
           behavior: SnackBarBehavior.floating,
         ),
       );
+      rethrow;
     } finally {
       if (mounted) {
         setState(() {

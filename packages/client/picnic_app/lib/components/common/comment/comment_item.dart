@@ -148,7 +148,8 @@ class _CommentItemState extends ConsumerState<CommentItem>
       if (mounted) {
         widget.pagingController?.refresh();
       }
-    } catch (e) {
+    } catch (e, s) {
+      logger.e('exception:', error: e, stackTrace: s);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -158,6 +159,7 @@ class _CommentItemState extends ConsumerState<CommentItem>
           ),
         );
       }
+      rethrow;
     } finally {
       if (mounted) {
         setState(() {

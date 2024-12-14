@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:dart_openai/dart_openai.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
@@ -93,7 +94,8 @@ ${birthTime == null ? '' : '- 태어난 시간: $birthTime'}
           .insert(compatibilityResult.toJson());
 
       return compatibilityResult;
-    } catch (e) {
+    } catch (e, s) {
+      logger.e('궁합 분석 중 오류가 발생했습니다', error: e, stackTrace: s);
       throw Exception('궁합 분석 중 오류가 발생했습니다: $e');
     }
   }
@@ -111,8 +113,10 @@ ${birthTime == null ? '' : '- 태어난 시간: $birthTime'}
       return (response as List)
           .map((data) => CompatibilityResult.fromJson(data))
           .toList();
-    } catch (e) {
-      throw Exception('궁합 히스토리 조회 중 오류가 발생했습니다: $e');
+    } catch (e, s) {
+      logger.e('exception:', error: e, stackTrace: s);
+
+      rethrow;
     }
   }
 }

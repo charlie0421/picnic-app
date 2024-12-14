@@ -62,13 +62,16 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
           _requestMessageController.text = request.requestMessage ?? '';
         }
       });
-    } catch (e) {
+    } catch (e, s) {
+      logger.e('exception:', error: e, stackTrace: s);
+
       if (!mounted) return;
 
       setState(() {
         _error = e.toString();
         _isLoading = false;
       });
+      rethrow;
     }
   }
 

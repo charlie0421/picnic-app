@@ -66,8 +66,9 @@ class InAppPurchaseService {
   Future<void> _handlePendingPurchases() async {
     try {
       await _inAppPurchase.restorePurchases();
-    } catch (e) {
-      logger.e('Error handling pending purchases', error: e);
+    } catch (e, s) {
+      logger.e('Error handling pending purchases', error: e, stackTrace: s);
+      rethrow;
     }
   }
 

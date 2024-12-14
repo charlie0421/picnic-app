@@ -161,8 +161,11 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
 
     try {
       await status.ad!.load();
-    } catch (e) {
+    } catch (e, s) {
+      logger.e('exception:', error: e, stackTrace: s);
+
       completer.complete(); // Complete anyway to not block content
+      rethrow;
     }
 
     return completer.future;

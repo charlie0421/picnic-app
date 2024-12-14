@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:picnic_app/components/community/write/embed_builder/deletable_embed_builder.dart';
 import 'package:picnic_app/services/link_service.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LinkEmbedBuilder extends EmbedBuilder {
@@ -128,14 +129,15 @@ class _ReadOnlyLinkPreviewWidgetState
         isLoading = false;
         errorMessage = null;
       });
-    } catch (e) {
-      debugPrint('Link preview error: $e');
+    } catch (e, s) {
+      logger.e('exception:', error: e, stackTrace: s);
       setState(() {
         title = Uri.parse(_linkService.normalizeUrl(url)).host;
         description = 'Error loading preview: ${e.toString()}';
         isLoading = false;
         errorMessage = e.toString();
       });
+      rethrow;
     }
   }
 
@@ -341,14 +343,15 @@ class _EditableLinkPreviewWidgetState
         isLoading = false;
         errorMessage = null;
       });
-    } catch (e) {
-      debugPrint('Link preview error: $e');
+    } catch (e, s) {
+      logger.e('exception:', error: e, stackTrace: s);
       setState(() {
         title = Uri.parse(_linkService.normalizeUrl(url)).host;
         description = 'Error loading preview: ${e.toString()}';
         isLoading = false;
         errorMessage = e.toString();
       });
+      rethrow;
     }
   }
 

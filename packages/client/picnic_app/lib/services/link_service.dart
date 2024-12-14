@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:picnic_app/config/environment.dart';
+import 'package:picnic_app/util/logger.dart';
 
 class LinkPreviewException implements Exception {
   final String message;
@@ -111,7 +112,8 @@ class LinkService {
       return kIsWeb
           ? await _fetchLinkPreviewWeb(url)
           : await _fetchLinkPreviewNative(url);
-    } catch (e) {
+    } catch (e, s) {
+      logger.e('exception:', error: e, stackTrace: s);
       debugPrint('Error fetching link preview: $e');
       if (e is LinkPreviewException) {
         rethrow;
@@ -203,8 +205,8 @@ class LinkService {
     } on TimeoutException catch (e) {
       debugPrint('Timeout error: $e');
       throw LinkPreviewException('Request timed out');
-    } catch (e) {
-      debugPrint('Unexpected error: $e');
+    } catch (e, s) {
+      logger.e('exception:', error: e, stackTrace: s);
       return LinkPreview.fallback(url);
     }
   }

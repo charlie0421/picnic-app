@@ -21,6 +21,7 @@ import 'package:picnic_app/providers/vote_detail_provider.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:picnic_app/util/vote_share_util.dart';
 
@@ -188,7 +189,9 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
           }
         },
       );
-    } catch (e) {
+    } catch (e, s) {
+      logger.e('exception:', error: e, stackTrace: s);
+
       if (!_disposed) {
         _retryCount++;
         if (_retryCount < maxRetries) {
@@ -207,6 +210,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
           });
         }
       }
+      rethrow;
     }
   }
 
