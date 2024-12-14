@@ -314,7 +314,7 @@ class _CompatibilityResultPageState
                     filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.3),
+                        color: Colors.white.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Container(
@@ -476,56 +476,69 @@ class _CompatibilityResultPageState
   }
 
   void _openCompatibility(String compatibilityId) async {
-    final userProfile =
-        await ref.read(userInfoProvider.notifier).getUserProfiles();
+    try {
+      final userProfile =
+          await ref.read(userInfoProvider.notifier).getUserProfiles();
 
-    if (userProfile == null) {
-      showSimpleDialog(
-        content: Intl.message('message_error_occurred'),
-        onOk: () {
-          ref.read(navigationInfoProvider.notifier).setCurrentPage(StorePage());
-          Navigator.of(context).pop();
-        },
-      );
-    }
+      if (userProfile == null) {
+        showSimpleDialog(
+          content: Intl.message('message_error_occurred'),
+          onOk: () {
+            ref
+                .read(navigationInfoProvider.notifier)
+                .setCurrentPage(StorePage());
+            Navigator.of(context).pop();
+          },
+        );
+      }
 
-    if ((userProfile!.starCandy ?? 0) < 100) {
-      showSimpleDialog(
-        title: Intl.message('fortune_lack_of_star_candy_title'),
-        content: Intl.message('fortune_lack_of_star_candy_message'),
-        onOk: () {
-          ref.read(navigationInfoProvider.notifier).setCurrentPage(StorePage());
-          Navigator.of(context).pop();
-        },
-      );
-    } else {
-      await supabase.functions.invoke('open-compatibility', body: {
-        'userId': userProfile.id,
-        'compatibilityId': compatibilityId,
-      });
-      await ref.read(userInfoProvider.notifier).getUserProfiles();
-      await _refreshData();
+      if ((userProfile!.starCandy ?? 0) < 100) {
+        showSimpleDialog(
+          title: Intl.message('fortune_lack_of_star_candy_title'),
+          content: Intl.message('fortune_lack_of_star_candy_message'),
+          onOk: () {
+            ref
+                .read(navigationInfoProvider.notifier)
+                .setCurrentPage(StorePage());
+            Navigator.of(context).pop();
+          },
+        );
+      } else {
+        await supabase.functions.invoke('open-compatibility', body: {
+          'userId': userProfile.id,
+          'compatibilityId': compatibilityId,
+        });
+        final updatedProfile =
+            await ref.read(userInfoProvider.notifier).getUserProfiles();
+        if (updatedProfile == null) {
+          throw Exception('Failed to get updated user profile');
+        }
+        await _refreshData();
 
-      showSimpleDialog(
-          contentWidget: Column(
-        children: [
-          Text(Intl.message('compatibility_remain_star_candy')),
-          SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                'assets/icons/store/star_100.png',
-                width: 36,
-              ),
-              Text(
-                '${userProfile.starCandy}',
-                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
-              ),
-            ],
-          ),
-        ],
-      ));
+        showSimpleDialog(
+            contentWidget: Column(
+          children: [
+            Text(Intl.message('compatibility_remain_star_candy')),
+            SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'assets/icons/store/star_100.png',
+                  width: 36,
+                ),
+                Text(
+                  '${updatedProfile.starCandy}',
+                  style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+                ),
+              ],
+            ),
+          ],
+        ));
+      }
+    } catch (e, s) {
+      logger.e('Error opening compatibility', error: e, stackTrace: s);
+      rethrow;
     }
   }
 
@@ -754,8 +767,8 @@ class _CompatibilityResultPageState
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          AppColors.primary500.withOpacity(.7),
-                          AppColors.mint500.withOpacity(.7),
+                          AppColors.primary500.withValues(alpha: .7),
+                          AppColors.mint500.withValues(alpha: .7),
                         ],
                       ),
                     ),
@@ -770,8 +783,9 @@ class _CompatibilityResultPageState
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
                                       colors: [
-                                        AppColors.primary500.withOpacity(.7),
-                                        AppColors.mint500.withOpacity(.7),
+                                        AppColors.primary500
+                                            .withValues(alpha: .7),
+                                        AppColors.mint500.withValues(alpha: .7),
                                       ],
                                     )
                                   : null,
