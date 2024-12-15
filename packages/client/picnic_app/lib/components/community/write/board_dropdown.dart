@@ -31,9 +31,11 @@ class _BoardDropdownState extends ConsumerState<BoardDropdown> {
   Widget build(BuildContext context) {
     final currentArtist = ref.watch(
         communityStateInfoProvider.select((value) => value.currentArtist));
-
+    if (currentArtist == null) {
+      return const SizedBox();
+    }
     return PostBoardSelectPopupMenu(
-      artistId: currentArtist!.id,
+      artistId: currentArtist.id,
       refreshFunction: () {},
     );
   }
