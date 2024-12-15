@@ -57,9 +57,11 @@ class _CompatibilityHistoryPageState
 
   void _onNewCompatibilityTap() {
     final currentArtist = ref.read(communityStateInfoProvider).currentArtist;
-    ref.read(navigationInfoProvider.notifier).setCurrentPage(
-          CompatibilityInputPage(artist: currentArtist!),
-        );
+    if (currentArtist != null) {
+      ref.read(navigationInfoProvider.notifier).setCurrentPage(
+            CompatibilityInputPage(artist: currentArtist),
+          );
+    }
   }
 
   @override
