@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
-import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/config_service.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/util/logger.dart';
@@ -64,7 +64,7 @@ class RewardedAds extends _$RewardedAds {
     switch (result) {
       case AdResult.completed:
         showSimpleDialog(
-          content: S.of(context).text_dialog_star_candy_received,
+          content: Intl.message('text_dialog_star_candy_received'),
           onOk: () {
             Navigator.of(context).pop();
             ref.read(userInfoProvider.notifier).getUserProfiles();
@@ -78,13 +78,13 @@ class RewardedAds extends _$RewardedAds {
         break;
       case AdResult.dismissed:
         showSimpleDialog(
-          content: S.of(context).text_dialog_ad_dismissed,
+          content: Intl.message('text_dialog_ad_dismissed'),
           onOk: () => Navigator.of(context).pop(),
         );
         break;
       case AdResult.error:
         showSimpleDialog(
-          content: S.of(context).text_dialog_ad_failed_to_show,
+          content: Intl.message('text_dialog_ad_failed_to_show'),
           onOk: () => Navigator.of(context).pop(),
         );
         break;
