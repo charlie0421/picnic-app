@@ -312,8 +312,6 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
   }
 
   Widget _buildAppleLogin(BuildContext context) {
-    ref.watch(userInfoProvider);
-
     return Stack(
       children: [
         Container(
@@ -442,7 +440,6 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
   }
 
   Widget _buildKakaoLogin(BuildContext context) {
-    ref.watch(userInfoProvider);
     return LayoutBuilder(builder: (context, constraints) {
       return Stack(children: [
         GestureDetector(
