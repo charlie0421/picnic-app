@@ -14,10 +14,10 @@ import 'package:picnic_app/services/auth/social_login/kakao_login.dart';
 import 'package:picnic_app/services/secure_storage_service.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/logger.dart';
+import 'package:picnic_app/util/network.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as Supabase;
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:universal_io/io.dart';
 
 abstract class SocialLogin {
   Future<SocialLoginResult> login();
@@ -248,7 +248,6 @@ class AuthService {
     } catch (e, s) {
       logger.e('Token refresh failed', error: e, stackTrace: s);
       await _handleAuthError(e);
-      throw PicnicAuthExceptions.unknown(originalError: e);
     }
   }
 
@@ -257,18 +256,6 @@ class AuthService {
     while (true) {
       yield await _storageService.getTokenInfo();
       await Future.delayed(const Duration(minutes: 1));
-    }
-  }
-}
-
-class NetworkCheck {
-  static Future<bool> isOnline() async {
-    try {
-      final result = await InternetAddress.lookup('google.com')
-          .timeout(const Duration(seconds: 5));
-      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
-    } on SocketException catch (_) {
-      return false;
     }
   }
 }
