@@ -180,7 +180,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             await ref.read(userInfoProvider.notifier).updateAvatar(imageUrl);
 
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(S.of(context).common_success),
+                content: Text(Intl.message('common_success')),
                 duration: const Duration(seconds: 2)));
           } else {
             throw Exception('Failed to upload image');
@@ -189,7 +189,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
           logger.e('error', error: e, stackTrace: s);
 
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(S.of(context).common_fail),
+            content: Text(Intl.message('common_fail')),
           ));
           rethrow;
         } finally {

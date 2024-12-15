@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/comment/comment_item.dart';
 import 'package:picnic_app/components/common/comment/comment_list.dart';
 import 'package:picnic_app/components/common/comment/post_popup_menu.dart';
@@ -181,7 +182,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
       if (_isDisposed) return Future.error('Widget is disposed');
 
       if (updatedPost == null) {
-        throw Exception(S.of(context).post_not_found);
+        throw Exception(Intl.message('post_not_found'));
       }
 
       _initializeQuillController(updatedPost);
