@@ -14,11 +14,16 @@ Future<List<PostModel>?> postsByArtist(
     ref, int artistId, int limit, int page) async {
   try {
     // 1. 차단한 사용자 목록 조회
-    final blockedResponse = await supabase
-        .from('user_blocks')
-        .select('blocked_user_id')
-        .eq('user_id', supabase.auth.currentUser!.id)
-        .isFilter('deleted_at', null);
+    List<Map<String, dynamic>> blockedResponse = [];
+    if (supabase.auth.currentUser == null) {
+      blockedResponse = [];
+    } else {
+      blockedResponse = await supabase
+          .from('user_blocks')
+          .select('blocked_user_id')
+          .eq('user_id', supabase.auth.currentUser!.id)
+          .isFilter('deleted_at', null);
+    }
 
     final blockedUserIds =
         blockedResponse.map((row) => row['blocked_user_id'] as String).toList();
@@ -59,11 +64,16 @@ Future<List<PostModel>?> postsByBoard(
     ref, String boardId, int limit, int page) async {
   try {
     // 1. 차단한 사용자 목록 조회
-    final blockedResponse = await supabase
-        .from('user_blocks')
-        .select('blocked_user_id')
-        .eq('user_id', supabase.auth.currentUser!.id)
-        .isFilter('deleted_at', null);
+    List<Map<String, dynamic>> blockedResponse = [];
+    if (supabase.auth.currentUser == null) {
+      blockedResponse = [];
+    } else {
+      blockedResponse = await supabase
+          .from('user_blocks')
+          .select('blocked_user_id')
+          .eq('user_id', supabase.auth.currentUser!.id)
+          .isFilter('deleted_at', null);
+    }
 
     final blockedUserIds =
         blockedResponse.map((row) => row['blocked_user_id'] as String).toList();
@@ -108,11 +118,16 @@ Future<List<PostModel>?> postsByQuery(
     }
 
     // 1. 차단한 사용자 목록 조회
-    final blockedResponse = await supabase
-        .from('user_blocks')
-        .select('blocked_user_id')
-        .eq('user_id', supabase.auth.currentUser!.id)
-        .isFilter('deleted_at', null);
+    List<Map<String, dynamic>> blockedResponse = [];
+    if (supabase.auth.currentUser == null) {
+      blockedResponse = [];
+    } else {
+      blockedResponse = await supabase
+          .from('user_blocks')
+          .select('blocked_user_id')
+          .eq('user_id', supabase.auth.currentUser!.id)
+          .isFilter('deleted_at', null);
+    }
 
     final blockedUserIds =
         blockedResponse.map((row) => row['blocked_user_id'] as String).toList();
@@ -156,11 +171,16 @@ Future<PostModel?> postById(ref, String postId,
         'Fetching post: $postId, isIncrementViewCount: $isIncrementViewCount');
 
     // 1. 차단한 사용자 목록 조회
-    final blockedResponse = await supabase
-        .from('user_blocks')
-        .select('blocked_user_id')
-        .eq('user_id', supabase.auth.currentUser!.id)
-        .isFilter('deleted_at', null);
+    List<Map<String, dynamic>> blockedResponse = [];
+    if (supabase.auth.currentUser == null) {
+      blockedResponse = [];
+    } else {
+      blockedResponse = await supabase
+          .from('user_blocks')
+          .select('blocked_user_id')
+          .eq('user_id', supabase.auth.currentUser!.id)
+          .isFilter('deleted_at', null);
+    }
 
     final blockedUserIds =
         blockedResponse.map((row) => row['blocked_user_id'] as String).toList();
@@ -213,11 +233,16 @@ Future<List<PostModel>> postsByUser(
     ref, String userId, int limit, int page) async {
   try {
     // 1. 차단한 사용자 목록 조회
-    final blockedResponse = await supabase
-        .from('user_blocks')
-        .select('blocked_user_id')
-        .eq('user_id', supabase.auth.currentUser!.id)
-        .isFilter('deleted_at', null);
+    List<Map<String, dynamic>> blockedResponse = [];
+    if (supabase.auth.currentUser == null) {
+      blockedResponse = [];
+    } else {
+      blockedResponse = await supabase
+          .from('user_blocks')
+          .select('blocked_user_id')
+          .eq('user_id', supabase.auth.currentUser!.id)
+          .isFilter('deleted_at', null);
+    }
 
     final blockedUserIds =
         blockedResponse.map((row) => row['blocked_user_id'] as String).toList();
@@ -258,11 +283,16 @@ Future<List<PostScrapModel>> postsScrapedByUser(
     ref, String userId, int limit, int page) async {
   try {
     // 1. 차단한 사용자 목록 조회
-    final blockedResponse = await supabase
-        .from('user_blocks')
-        .select('blocked_user_id')
-        .eq('user_id', supabase.auth.currentUser!.id)
-        .isFilter('deleted_at', null);
+    List<Map<String, dynamic>> blockedResponse = [];
+    if (supabase.auth.currentUser == null) {
+      blockedResponse = [];
+    } else {
+      blockedResponse = await supabase
+          .from('user_blocks')
+          .select('blocked_user_id')
+          .eq('user_id', supabase.auth.currentUser!.id)
+          .isFilter('deleted_at', null);
+    }
 
     final blockedUserIds =
         blockedResponse.map((row) => row['blocked_user_id'] as String).toList();
