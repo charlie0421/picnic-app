@@ -1,13 +1,11 @@
 import 'dart:async';
 
-import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:picnic_app/app.dart';
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/firebase_options.dart';
@@ -16,6 +14,7 @@ import 'package:picnic_app/services/auth/auth_service.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/logging_observer.dart';
+import 'package:picnic_app/util/privacy_consent_manager.dart';
 import 'package:picnic_app/util/token_refresh_manager.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:picnic_app/util/webp_support_checker.dart';
@@ -83,11 +82,7 @@ void main() async {
       initializeReflectable();
       logger.i('Reflectable initialized');
 
-      if (isMobile()) {
-        logger.i('Requesting app tracking transparency...');
-        await requestAppTrackingTransparency();
-        logger.i('App tracking transparency completed');
-      }
+      await requestAppTrackingTransparency();
 
       setPathUrlStrategy();
       logger.i('URL strategy set');
@@ -153,29 +148,7 @@ void logStorageData() async {
 }
 
 Future<void> requestAppTrackingTransparency() async {
-  final trackingStatus =
-      await AppTrackingTransparency.trackingAuthorizationStatus;
-
-  if (trackingStatus == TrackingStatus.notDetermined) {
-    await AppTrackingTransparency.requestTrackingAuthorization();
-  }
-
-  // 권한 상태와 관계없이 항상 광고 초기화
-  if (trackingStatus == TrackingStatus.authorized) {
-    // IDFA 접근 권한이 부여된 경우 AdMob 초기화
-    await MobileAds.instance.initialize();
-  } else {
-    // 권한이 거부되거나 결정되지 않은 경우 비개인화 광고 설정
-    await MobileAds.instance.updateRequestConfiguration(
-      RequestConfiguration(
-        tagForChildDirectedTreatment: TagForChildDirectedTreatment.unspecified,
-        tagForUnderAgeOfConsent: TagForUnderAgeOfConsent.unspecified,
-        maxAdContentRating: MaxAdContentRating.g,
-      ),
-    );
-    await MobileAds.instance.initialize();
-  }
-  logger.i('AppTrackingTransparency: $trackingStatus');
+  await PrivacyConsentManager.initialize();
 }
 
 Future<void> initializeWidgetsAndDeviceOrientation(
