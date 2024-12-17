@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -28,7 +27,7 @@ class ForceUpdateOverlay extends StatelessWidget {
               child: Center(
                 child: Card(
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0).r,
+                    padding: const EdgeInsets.all(16.0),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [

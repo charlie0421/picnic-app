@@ -70,7 +70,6 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
           key: ValueKey('${item.id}_$_currentIndex'),
           imageUrl: imageUrl,
           fit: BoxFit.cover,
-          duration: isGif ? item.duration : null,
         ),
         if (title.isNotEmpty)
           Positioned(

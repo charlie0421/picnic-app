@@ -84,7 +84,7 @@ class DefaultAvatar extends StatelessWidget {
     return Container(
       width: 36,
       height: 36,
-      padding: const EdgeInsets.all(6).r,
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         color: AppColors.grey200,
         borderRadius: BorderRadius.circular(8.r),

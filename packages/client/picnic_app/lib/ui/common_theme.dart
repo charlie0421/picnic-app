@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
 
@@ -48,8 +47,8 @@ SwitchThemeData commonSwitchTheme = SwitchThemeData(
 BottomSheetThemeData commonBottomSheetTheme = BottomSheetThemeData(
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.only(
-      topLeft: const Radius.circular(40).r,
-      topRight: const Radius.circular(40).r,
+      topLeft: const Radius.circular(40),
+      topRight: const Radius.circular(40),
     ),
   ),
 );

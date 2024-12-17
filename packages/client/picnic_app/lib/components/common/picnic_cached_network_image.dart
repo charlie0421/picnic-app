@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
@@ -13,10 +12,9 @@ class PicnicCachedNetworkImage extends StatefulWidget {
   final double? width;
   final double? height;
   final BoxFit? fit;
-  final bool useScreenUtil;
   final int? memCacheWidth;
   final int? memCacheHeight;
-  final int? duration;
+  final BorderRadius? borderRadius;
 
   const PicnicCachedNetworkImage({
     super.key,
@@ -24,10 +22,9 @@ class PicnicCachedNetworkImage extends StatefulWidget {
     this.width,
     this.height,
     this.fit = BoxFit.cover,
-    this.useScreenUtil = true,
     this.memCacheWidth,
     this.memCacheHeight,
-    this.duration,
+    this.borderRadius,
   });
 
   @override
@@ -87,40 +84,48 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
   Widget _buildCachedNetworkImage(
       String url, double? width, double? height, int index) {
     try {
-      return CachedNetworkImage(
-        key: ValueKey(
-            '${url}_$index${isGif ? '_${DateTime.now().millisecondsSinceEpoch}' : ''}'),
-        imageUrl: url,
-        width: width,
-        height: height,
-        fit: widget.fit,
-        memCacheWidth: widget.memCacheWidth,
-        memCacheHeight: widget.memCacheHeight,
-        errorWidget: (context, url, error) {
-          logger.e('Image loading error: $error for url: $url');
-          return const SizedBox.shrink();
-        },
-        progressIndicatorBuilder: (context, url, downloadProgress) =>
-            buildLoadingOverlay(),
-        imageBuilder: (context, imageProvider) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) {
-              setState(() {
-                _loading = false;
-              });
-            }
-          });
-
-          return Image(
+      return Container(
+        decoration: BoxDecoration(
+          borderRadius: widget.borderRadius ?? BorderRadius.zero,
+        ),
+        child: ClipRRect(
+          borderRadius: widget.borderRadius ?? BorderRadius.zero,
+          child: CachedNetworkImage(
             key: ValueKey(
-                'image_${url}_$index${isGif ? '_${DateTime.now().millisecondsSinceEpoch}' : ''}'),
-            image: imageProvider,
-            fit: widget.fit,
+                '${url}_$index${isGif ? '_${DateTime.now().millisecondsSinceEpoch}' : ''}'),
+            imageUrl: url,
             width: width,
             height: height,
-            gaplessPlayback: false,
-          );
-        },
+            fit: widget.fit,
+            memCacheWidth: widget.memCacheWidth,
+            memCacheHeight: widget.memCacheHeight,
+            errorWidget: (context, url, error) {
+              logger.e('Image loading error: $error for url: $url');
+              return const SizedBox.shrink();
+            },
+            progressIndicatorBuilder: (context, url, downloadProgress) =>
+                buildLoadingOverlay(),
+            imageBuilder: (context, imageProvider) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  setState(() {
+                    _loading = false;
+                  });
+                }
+              });
+
+              return Image(
+                key: ValueKey(
+                    'image_${url}_$index${isGif ? '_${DateTime.now().millisecondsSinceEpoch}' : ''}'),
+                image: imageProvider,
+                fit: widget.fit,
+                width: width,
+                height: height,
+                gaplessPlayback: false,
+              );
+            },
+          ),
+        ),
       );
     } catch (e, s) {
       logger.e('error', error: e, stackTrace: s);
@@ -131,12 +136,8 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
 
   @override
   Widget build(BuildContext context) {
-    final imageWidth = widget.useScreenUtil
-        ? widget.width?.cw.toDouble()
-        : widget.width?.toDouble();
-    final imageHeight = widget.useScreenUtil
-        ? widget.height?.h.toDouble()
-        : widget.height?.toDouble();
+    final imageWidth = widget.width;
+    final imageHeight = widget.height;
     final resolutionMultiplier = _getResolutionMultiplier(context);
     final urls = _getTransformedUrls(context, resolutionMultiplier);
 
@@ -146,7 +147,11 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          if (_loading) buildLoadingOverlay(),
+          if (_loading)
+            ClipRRect(
+              borderRadius: widget.borderRadius ?? BorderRadius.zero,
+              child: buildLoadingOverlay(),
+            ),
           ...urls.asMap().entries.map((entry) => _buildCachedNetworkImage(
                 entry.value,
                 imageWidth,

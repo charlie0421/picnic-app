@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:picnic_app/components/custom_dropdown_button.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote_pick.dart';
+import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
@@ -32,6 +33,12 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
     super.initState();
     _pagingController.addPageRequestListener((pageKey) {
       _fetchPage(pageKey);
+    });
+
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      ref
+          .read(navigationInfoProvider.notifier)
+          .setMyPageTitle(pageTitle: S.of(context).label_mypage_vote_history);
     });
   }
 

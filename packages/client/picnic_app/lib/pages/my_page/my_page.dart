@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/components/common/avatar_container.dart';
+import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/common/picnic_list_item.dart';
 import 'package:picnic_app/components/star_candy_info_text.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
@@ -33,6 +34,16 @@ class MyPage extends ConsumerStatefulWidget {
 }
 
 class _MyPageState extends ConsumerState<MyPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(navigationInfoProvider.notifier)
+          .setMyPageTitle(pageTitle: S.of(context).page_title_mypage);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final userInfoState = ref.watch(userInfoProvider);
@@ -122,10 +133,10 @@ class _MyPageState extends ConsumerState<MyPage> {
           Container(
             width: 80.cw,
             height: 80.cw,
-            padding: const EdgeInsets.all(6).r,
+            padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               color: AppColors.grey200,
-              borderRadius: BorderRadius.circular(40).r,
+              borderRadius: BorderRadius.circular(40),
             ),
             child: SvgPicture.asset(
               'assets/icons/header/default_avatar.svg',
@@ -168,8 +179,8 @@ class _MyPageState extends ConsumerState<MyPage> {
               children: [
                 ProfileImageContainer(
                   avatarUrl: data?.avatarUrl,
-                  width: 80.cw,
-                  height: 80.cw,
+                  width: 80,
+                  height: 80,
                   borderRadius: 80.r,
                 ),
                 SizedBox(width: 16.cw),
@@ -258,11 +269,11 @@ class _MyPageState extends ConsumerState<MyPage> {
                         itemBuilder: (context, index) => Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            ProfileImageContainer(
-                              avatarUrl: artists[index].image,
+                            PicnicCachedNetworkImage(
+                              imageUrl: artists[index].image ?? '',
                               width: 60,
                               height: 60,
-                              borderRadius: 60,
+                              borderRadius: BorderRadius.circular(30),
                             ),
                           ],
                         ),
@@ -300,10 +311,10 @@ class _MyPageState extends ConsumerState<MyPage> {
               Container(
                 width: 60.cw,
                 height: 60.cw,
-                padding: const EdgeInsets.all(6).r,
+                padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: AppColors.grey200,
-                  borderRadius: BorderRadius.circular(30).r,
+                  borderRadius: BorderRadius.circular(30),
                 ),
               ),
             ],
@@ -317,13 +328,15 @@ class _MyPageState extends ConsumerState<MyPage> {
   void _launchURL(String targetUrl) async {
     Uri url = Uri.parse(targetUrl);
     if (await canLaunchUrl(url)) {
-      await launchUrl(
-        url,
-        mode: LaunchMode.inAppWebView,
-        webViewConfiguration: const WebViewConfiguration(
-          enableJavaScript: true,
-        ),
-      );
+      try {
+        await launchUrl(
+          url,
+          mode: LaunchMode.externalApplication, // WebView 대신 외부 브라우저 사용
+        );
+      } catch (e) {
+        // 오류 처리
+        print('URL 실행 오류: $e');
+      }
     } else {
       throw 'Could not launch $url';
     }

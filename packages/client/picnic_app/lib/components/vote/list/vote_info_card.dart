@@ -3,7 +3,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/common/share_section.dart';
@@ -412,7 +411,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
           margin: const EdgeInsets.only(top: 24),
           clipBehavior: Clip.hardEdge,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(40).r,
+            borderRadius: BorderRadius.circular(40),
             border: Border.all(
               color: AppColors.primary500,
               width: 1.5.cw,
@@ -465,7 +464,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
         margin: const EdgeInsets.only(top: 24),
         clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(40).r,
+          borderRadius: BorderRadius.circular(40),
           border: Border.all(
             color: AppColors.primary500,
             width: 1.5.cw,

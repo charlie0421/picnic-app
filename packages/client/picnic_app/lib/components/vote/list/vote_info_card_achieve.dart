@@ -82,7 +82,6 @@ class VoteCardColumnAchieve extends StatelessWidget {
                       borderRadius: BorderRadius.circular(100),
                       child: PicnicCachedNetworkImage(
                           imageUrl: rank.reward.thumbnail!,
-                          useScreenUtil: true,
                           width: 100,
                           height: 100),
                     ),
