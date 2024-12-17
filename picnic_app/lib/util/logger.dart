@@ -73,9 +73,12 @@ class LongMessagePrinter extends PrettyPrinter {
                 .add('  • ${key[0].toUpperCase()}${key.substring(1)}: $value');
           }
         }
-      } catch (e) {
+      } catch (e, s) {
+        // stackTrace 파라미터 추가
         if (kDebugMode) {
           print('Error extracting ${entry.key}: $e');
+          print('Stack trace:');
+          print(s); // stackTrace 출력 추가
         }
       }
     }
@@ -95,10 +98,11 @@ class LongMessagePrinter extends PrettyPrinter {
           }
         }
       }
-    } catch (e) {
+    } catch (e, s) {
       // JSON 파싱 에러 시 로깅 추가
       if (kDebugMode) {
-        print('Error parsing JSON data: $e');
+        print('Stack trace:');
+        print(s); // stackTrace 출력 추가
       }
     }
   }
@@ -147,9 +151,10 @@ class LongMessagePrinter extends PrettyPrinter {
       try {
         const jsonEncoder = JsonEncoder.withIndent('  ');
         return jsonEncoder.convert(message);
-      } on Exception catch (e) {
+      } on Exception catch (e, s) {
         if (kDebugMode) {
-          print('Error formatting message: $e');
+          print('Stack trace:');
+          print(s); // stackTrace 출력 추가
         }
         return message.toString();
       }
@@ -185,9 +190,10 @@ extension LoggerJsonExtension on Logger {
       } else {
         d('$title: $json');
       }
-    } on Exception catch (e) {
+    } on Exception catch (e, s) {
       if (kDebugMode) {
-        print('Error in logJson: $e');
+        print('Stack trace:');
+        print(s); // stackTrace 출력 추가
       }
       d('$title: $json');
     }

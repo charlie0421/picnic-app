@@ -6,7 +6,7 @@ part of '../../../providers/community/fortune_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$getFortuneHash() => r'71cc218bef6e69eef1a28451bb6e61bb711a1d1d';
+String _$getFortuneHash() => r'd7e2a2688d0201d54a36ba0f06b9e8aef4fe5389';
 
 /// Copied from Dart SDK
 class _SystemHash {

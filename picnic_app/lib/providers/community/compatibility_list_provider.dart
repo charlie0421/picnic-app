@@ -52,7 +52,8 @@ class CompatibilityList extends _$CompatibilityList {
         hasMore: items.length >= _pageSize,
         isLoading: false,
       );
-    } catch (e) {
+    } catch (e, s) {
+      logger.e('Error', error: e, stackTrace: s);
       state = state.copyWith(isLoading: false);
       rethrow;
     }

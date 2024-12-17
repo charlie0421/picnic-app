@@ -188,14 +188,16 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
 
         await newBannerAd.load();
         await completer.future;
-      } catch (e) {
+      } catch (e, s) {
+        logger.e('_loadBannerAd', error: e, stackTrace: s);
+
         newBannerAd?.dispose();
         if (!_isDisposed) {
           _scheduleRetry();
         }
       }
-    } catch (e) {
-      logger.e('Error loading banner ad: $e');
+    } catch (e, s) {
+      logger.e('Error loading banner ad', error: e, stackTrace: s);
       if (!_isDisposed) {
         _scheduleRetry();
       }

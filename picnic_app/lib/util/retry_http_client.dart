@@ -19,8 +19,7 @@ class RetryHttpClient extends http.BaseClient {
   static const int _maxConcurrentConnections = 6;
   final Random _random = Random();
 
-  RetryHttpClient(
-    this._inner, {
+  RetryHttpClient(this._inner, {
     this.maxAttempts = 3,
     this.timeout = const Duration(seconds: 30),
     this.keepAlive = const Duration(seconds: 60),
@@ -45,7 +44,7 @@ class RetryHttpClient extends http.BaseClient {
 
         // 응답 스트림 최적화
         final optimizedStream =
-            await _optimizeResponseStream(response, newRequest);
+        await _optimizeResponseStream(response, newRequest);
 
         // 성공적인 응답인 경우 connection pool 업데이트
         if (response.statusCode >= 200 && response.statusCode < 300) {
@@ -53,11 +52,11 @@ class RetryHttpClient extends http.BaseClient {
         }
 
         return optimizedStream;
-      } on Exception catch (e) {
+      } on Exception catch (e, s) {
         lastException = e;
         if (_shouldRetry(e)) {
           final logMessage = _createDetailedErrorLog(e, attempts, request.url);
-          logger.e(logMessage);
+          logger.e(logMessage, error: e, stackTrace: s);
 
           if (attempts < maxAttempts) {
             await _handleRetryDelay(attempts);
@@ -79,7 +78,7 @@ class RetryHttpClient extends http.BaseClient {
 
     // 오래된 연결 제거
     _connectionPool.removeWhere(
-        (_, timestamp) => now.difference(timestamp) > _connectionMaxAge);
+            (_, timestamp) => now.difference(timestamp) > _connectionMaxAge);
 
     // 최대 연결 수 제한
     if (_connectionPool.length >= _maxConcurrentConnections) {
@@ -140,7 +139,8 @@ class RetryHttpClient extends http.BaseClient {
       }
 
       return response;
-    } catch (e) {
+    } catch (e, s) {
+      logger.e('Error sending request', error: e, stackTrace: s);
       if (e is TimeoutException) {
         rethrow;
       }
@@ -275,7 +275,7 @@ Headers: ${error is ClientException ? error.uri : 'N/A'}
     final bytes = <int>[];
 
     response.stream.listen(
-      (data) {
+          (data) {
         bytes.addAll(data);
       },
       onError: (error) {
