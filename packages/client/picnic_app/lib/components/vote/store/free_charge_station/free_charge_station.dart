@@ -174,7 +174,16 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
               logger.e('Banner ad failed to load: $error');
               ad.dispose();
               if (!completer.isCompleted) {
-                completer.completeError(error);
+                completer.complete(); // 에러 없이 정상적으로 완료
+                if (!_isDisposed) {
+                  setState(() {
+                    _bannerAdState = BannerAdState(
+                      isLoading: false,
+                      error: 'Failed to load ad',
+                    );
+                  });
+                  _scheduleRetry();
+                }
               }
               if (!_isDisposed) {
                 _scheduleRetry();
