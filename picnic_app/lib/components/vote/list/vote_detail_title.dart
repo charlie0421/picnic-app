@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
@@ -18,7 +17,7 @@ class VoteCommonTitle extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 16.cw),
         decoration: BoxDecoration(
             color: AppColors.mint500,
-            borderRadius: BorderRadius.circular(24).r,
+            borderRadius: BorderRadius.circular(24),
             border: Border.all(
               color: AppColors.primary500,
               width: 1.5,

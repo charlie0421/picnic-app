@@ -172,7 +172,6 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                   '',
               width: 100,
               height: 100,
-              useScreenUtil: false,
             ),
           ),
         ),
@@ -341,7 +340,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
               : AppColors.primary500,
           width: 1,
         ),
-        borderRadius: BorderRadius.circular(24).r,
+        borderRadius: BorderRadius.circular(24),
       ),
       padding: EdgeInsets.only(right: 16.cw),
       child: Row(
@@ -455,7 +454,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         height: 52,
         decoration: BoxDecoration(
           color: _canVote ? AppColors.primary500 : AppColors.grey300,
-          borderRadius: BorderRadius.circular(24).r,
+          borderRadius: BorderRadius.circular(24),
         ),
         alignment: Alignment.center,
         child: Text(

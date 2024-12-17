@@ -25,7 +25,7 @@ class PortalMenuItem extends ConsumerWidget {
       height: 26,
       margin: EdgeInsets.only(left: 16.cw),
       child: InkWell(
-        borderRadius: BorderRadius.circular(13).r,
+        borderRadius: BorderRadius.circular(13),
         onTap: () {
           navigationInfoNotifier.setPortal(portalType);
         },
@@ -34,7 +34,7 @@ class PortalMenuItem extends ConsumerWidget {
           alignment: Alignment.center,
           padding: EdgeInsets.symmetric(horizontal: 12.cw),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(13).r,
+            borderRadius: BorderRadius.circular(13),
             border: Border.all(
               color: AppColors.grey900,
               width: 1.r,

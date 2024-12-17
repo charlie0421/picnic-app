@@ -112,7 +112,6 @@ class VoteCardColumnVertical extends StatelessWidget {
                               ? voteItem.artist.image
                               : voteItem.artistGroup.image) ??
                           '',
-                      useScreenUtil: true,
                       width: 100,
                       height: 100),
                 ),

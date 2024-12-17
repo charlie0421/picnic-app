@@ -167,12 +167,11 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                       child: Stack(
                         children: [
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(8).r,
+                            borderRadius: BorderRadius.circular(8),
                             child: PicnicCachedNetworkImage(
                               imageUrl: data[index].thumbnail ?? '',
                               width: 120,
                               height: 100,
-                              useScreenUtil: false,
                               fit: BoxFit.fitWidth,
                             ),
                           ),
@@ -183,8 +182,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                               height: 30,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.only(
-                                  bottomLeft: const Radius.circular(8).r,
-                                  bottomRight: const Radius.circular(8).r,
+                                  bottomLeft: const Radius.circular(8),
+                                  bottomRight: const Radius.circular(8),
                                 ),
                                 color: Colors.black.withOpacity(0.5),
                               ),

@@ -13,8 +13,8 @@ void showUsagePolicyDialog(BuildContext context, WidgetRef ref) {
       context: context,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
-          topLeft: const Radius.circular(48).r,
-          topRight: const Radius.circular(48).r,
+          topLeft: const Radius.circular(48),
+          topRight: const Radius.circular(48),
         ),
       ),
       builder: (context) => StatefulBuilder(

@@ -311,7 +311,7 @@ class _CelebDropDownState extends ConsumerState<CelebDropDown> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(24).r,
+              borderRadius: BorderRadius.circular(24),
               child: PicnicCachedNetworkImage(
                 imageUrl: selectedCelebState?.thumbnail ?? '',
                 width: 28,

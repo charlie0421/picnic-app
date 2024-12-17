@@ -10,28 +10,27 @@ import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 
-class MyPageScreen extends ConsumerWidget {
+class MyPageScreen extends ConsumerStatefulWidget {
   static const String routeName = '/mypage';
 
   const MyPageScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  MyPageScreenState createState() => MyPageScreenState();
+}
+
+class MyPageScreenState extends ConsumerState<MyPageScreen> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final navigationInfo = ref.watch(navigationInfoProvider);
     final userInfoState = ref.watch(userInfoProvider);
 
-    String pageName;
-    try {
-      pageName =
-          (navigationInfo.drawerNavigationStack?.peek() as dynamic).pageName;
-    } catch (e, s) {
-      logger.e('error', error: e, stackTrace: s);
-      if (e is NoSuchMethodError) {
-        pageName = '';
-      } else {
-        rethrow;
-      }
-    }
+    String pageName = navigationInfo.pageTitle;
 
     return PopScope(
       canPop: false,

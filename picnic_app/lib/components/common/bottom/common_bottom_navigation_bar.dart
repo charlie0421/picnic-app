@@ -55,7 +55,7 @@ class _CommonBottomNavigationBarState
             decoration: ShapeDecoration(
               color: widget.screenInfo.color,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20).r,
+                borderRadius: BorderRadius.circular(20),
               ),
               shadows: [
                 BoxShadow(

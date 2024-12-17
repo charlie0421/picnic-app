@@ -1,7 +1,6 @@
 // lib/components/vote/media/video_list_item.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:picnic_app/components/common/webview/video_webview.dart';
 import 'package:picnic_app/generated/l10n.dart';
@@ -78,7 +77,9 @@ class _VideoListItemState extends State<VideoListItem> {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(S.of(context).post_cannot_open_youtube)),
+        SnackBar(content: Text(S
+            .of(context)
+            .post_cannot_open_youtube)),
       );
     }
   }
@@ -86,7 +87,7 @@ class _VideoListItemState extends State<VideoListItem> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16).r,
+      padding: const EdgeInsets.all(16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,7 +140,7 @@ class _VideoListItemState extends State<VideoListItem> {
                     Text(
                       formatDateTimeYYYYMMDD(widget.item.created_at),
                       style:
-                          getTextStyle(AppTypo.caption12M, AppColors.grey900),
+                      getTextStyle(AppTypo.caption12M, AppColors.grey900),
                     ),
                   ],
                 ),

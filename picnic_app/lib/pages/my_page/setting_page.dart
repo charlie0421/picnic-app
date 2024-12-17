@@ -11,6 +11,7 @@ import 'package:picnic_app/constants.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
+import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/platform_info_provider.dart';
 import 'package:picnic_app/providers/update_checker.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
@@ -56,6 +57,10 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         buildNumber = value;
         setState(() {});
       });
+
+      ref
+          .read(navigationInfoProvider.notifier)
+          .setMyPageTitle(pageTitle: S.of(context).mypage_setting);
     });
   }
 
