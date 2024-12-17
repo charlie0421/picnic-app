@@ -83,7 +83,7 @@ class _ReadOnlyLinkPreviewWidgetState
         final jsonData = json.decode(data);
         debugPrint('Parsed JSON data: $jsonData');
         url = jsonData['url'] as String? ?? '';
-      } catch (e) {
+      } catch (e, s) {
         debugPrint('JSON parsing error: $e');
         url = data;
       }
@@ -97,12 +97,12 @@ class _ReadOnlyLinkPreviewWidgetState
   String _decodeText(String text) {
     try {
       return utf8.decode(text.runes.toList());
-    } catch (e) {
-      debugPrint('UTF-8 decoding error: $e');
+    } catch (e, s) {
+      logger.e('_decodeText', error: e, stackTrace: s);
       try {
         return latin1.decode(text.codeUnits);
-      } catch (e) {
-        debugPrint('Latin1 decoding error: $e');
+      } catch (e, s) {
+        logger.e('_decodeText', error: e, stackTrace: s);
         return text;
       }
     }
@@ -297,8 +297,8 @@ class _EditableLinkPreviewWidgetState
         final jsonData = json.decode(data);
         debugPrint('Parsed JSON data: $jsonData');
         url = jsonData['url'] as String? ?? '';
-      } catch (e) {
-        debugPrint('JSON parsing error: $e');
+      } catch (e, s) {
+        logger.e('_extractUrl', error: e, stackTrace: s);
         url = data;
       }
     } else if (data is Map<String, dynamic>) {
@@ -311,12 +311,12 @@ class _EditableLinkPreviewWidgetState
   String _decodeText(String text) {
     try {
       return utf8.decode(text.runes.toList());
-    } catch (e) {
-      debugPrint('UTF-8 decoding error: $e');
+    } catch (e, s) {
+      logger.e('_decodeText', error: e, stackTrace: s);
       try {
         return latin1.decode(text.codeUnits);
-      } catch (e) {
-        debugPrint('Latin1 decoding error: $e');
+      } catch (e, s) {
+        logger.e('_decodeText', error: e, stackTrace: s);
         return text;
       }
     }

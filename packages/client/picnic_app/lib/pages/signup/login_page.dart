@@ -330,9 +330,11 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                 if (user != null) {
                   _handleSuccessfulLogin();
                 }
-              } on PicnicAuthException catch (e) {
+              } on PicnicAuthException catch (e, s) {
                 logger.e(
-                    'Apple login PicnicAuthException: $e (originalError: ${e.originalError})');
+                    'Apple login PicnicAuthException: $e (originalError: ${e.originalError})',
+                    error: e,
+                    stackTrace: s);
 
                 if (e.code == 'canceled') {
                   return;

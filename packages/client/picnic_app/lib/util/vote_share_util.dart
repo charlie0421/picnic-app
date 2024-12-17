@@ -18,7 +18,7 @@ class ShareUtils {
       await Future.delayed(_initialDelay);
 
       final boundary =
-          key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
       if (boundary == null) {
         logger.e('RenderRepaintBoundary not found');
         return null;
@@ -34,7 +34,9 @@ class ShareUtils {
 
       final bytes = byteData.buffer.asUint8List();
       final tempDir = await getTemporaryDirectory();
-      final filename = 'share_${DateTime.now().millisecondsSinceEpoch}.png';
+      final filename = 'share_${DateTime
+          .now()
+          .millisecondsSinceEpoch}.png';
       final path = '${tempDir.path}/$filename';
 
       final file = File(path);
@@ -47,8 +49,7 @@ class ShareUtils {
     }
   }
 
-  static Future<bool> shareToSocial(
-    GlobalKey key, {
+  static Future<bool> shareToSocial(GlobalKey key, {
     required String message,
     required String hashtag,
     VoidCallback? onStart,
@@ -75,8 +76,8 @@ class ShareUtils {
 
       // 공유 결과 확인
       return result.status == ShareResultStatus.success;
-    } catch (e) {
-      logger.e('Social share failed', error: e);
+    } catch (e, s) {
+      logger.e('Social share failed', error: e, stackTrace: s);
       return false;
     } finally {
       onComplete?.call();
@@ -86,15 +87,14 @@ class ShareUtils {
           if (await file.exists()) {
             await file.delete();
           }
-        } catch (e) {
-          logger.e('Temp file cleanup failed', error: e);
+        } catch (e, s) {
+          logger.e('Temp file cleanup failed', error: e, stackTrace: s);
         }
       }
     }
   }
 
-  static Future<bool> saveImage(
-    GlobalKey key, {
+  static Future<bool> saveImage(GlobalKey key, {
     VoidCallback? onStart,
     VoidCallback? onComplete,
   }) async {
@@ -136,15 +136,17 @@ class ShareUtils {
       final result = await ImageGallerySaverPlus.saveImage(
         bytes,
         quality: 100,
-        name: "compatibility_result_${DateTime.now().millisecondsSinceEpoch}",
+        name: "compatibility_result_${DateTime
+            .now()
+            .millisecondsSinceEpoch}",
       );
 
       if (result?['isSuccess'] != true) throw Exception('Save failed');
 
       showSimpleDialog(content: Intl.message('image_save_success'));
       return true;
-    } catch (e) {
-      logger.e('Image save failed', error: e);
+    } catch (e, s) {
+      logger.e('Image save failed', error: e, stackTrace: s);
       showSimpleDialog(
         type: DialogType.error,
         content: Intl.message('message_pic_pic_save_fail'),
@@ -158,8 +160,8 @@ class ShareUtils {
           if (await file.exists()) {
             await file.delete();
           }
-        } catch (e) {
-          logger.e('Temp file cleanup failed', error: e);
+        } catch (e, s) {
+          logger.e('Temp file cleanup failed', error: e, stackTrace: s);
         }
       }
     }

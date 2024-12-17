@@ -86,7 +86,8 @@ class LinkService {
     try {
       final uri = Uri.parse(url);
       return uri.hasAuthority;
-    } catch (e) {
+    } catch (e, s) {
+      logger.e('Error', error: e, stackTrace: s);
       return false;
     }
   }
@@ -199,11 +200,11 @@ class LinkService {
 
       final data = json.decode(response.body);
       return LinkPreview.fromJson(data, url);
-    } on http.ClientException catch (e) {
-      debugPrint('HTTP client error: $e');
+    } on http.ClientException catch (e, s) {
+      logger.e('Error', error: e, stackTrace: s);
       throw LinkPreviewException('Network error: ${e.message}');
-    } on TimeoutException catch (e) {
-      debugPrint('Timeout error: $e');
+    } on TimeoutException catch (e, s) {
+      logger.e('Error', error: e, stackTrace: s);
       throw LinkPreviewException('Request timed out');
     } catch (e, s) {
       logger.e('exception:', error: e, stackTrace: s);

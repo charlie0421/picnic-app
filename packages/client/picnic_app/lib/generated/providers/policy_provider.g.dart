@@ -6,7 +6,7 @@ part of '../../providers/policy_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$asyncPolicyHash() => r'805e4566c12180c603883bc785456476b1ac514e';
+String _$asyncPolicyHash() => r'2743672128cbfebfa5678d96c0ce2f48f6ce091a';
 
 /// See also [AsyncPolicy].
 @ProviderFor(AsyncPolicy)

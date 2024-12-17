@@ -19,6 +19,7 @@ import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/screens/signup/signup_screen.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
@@ -333,9 +334,8 @@ class _MyPageState extends ConsumerState<MyPage> {
           url,
           mode: LaunchMode.externalApplication, // WebView 대신 외부 브라우저 사용
         );
-      } catch (e) {
-        // 오류 처리
-        print('URL 실행 오류: $e');
+      } catch (e, s) {
+        logger.e('_launchURL:', error: e, stackTrace: s);
       }
     } else {
       throw 'Could not launch $url';

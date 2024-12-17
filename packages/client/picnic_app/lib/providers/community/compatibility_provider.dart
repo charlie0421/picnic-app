@@ -229,8 +229,8 @@ class Compatibility extends _$Compatibility {
 
     try {
       await loadCompatibility(state.value!.id, forceRefresh: true);
-    } catch (e) {
-      logger.e('Failed to refresh compatibility', error: e);
+    } catch (e, s) {
+      logger.e('Failed to refresh compatibility', error: e, stackTrace: s);
     }
   }
 }

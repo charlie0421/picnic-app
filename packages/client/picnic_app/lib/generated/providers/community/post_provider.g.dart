@@ -6,7 +6,7 @@ part of '../../../providers/community/post_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$postsByArtistHash() => r'db9f947f35ad77b82513272683a3230de8f271c5';
+String _$postsByArtistHash() => r'131ffa957f6bc58ced14492598b43ea04f5898a4';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -192,7 +192,7 @@ class _PostsByArtistProviderElement
   int get page => (origin as PostsByArtistProvider).page;
 }
 
-String _$postsByBoardHash() => r'51ed36a313a45e883dd7352b03aaa5c246352a4f';
+String _$postsByBoardHash() => r'85a71afdb2023b30ffeb684d8b9df33cbc57fbf3';
 
 /// See also [postsByBoard].
 @ProviderFor(postsByBoard)
@@ -356,7 +356,7 @@ class _PostsByBoardProviderElement
   int get page => (origin as PostsByBoardProvider).page;
 }
 
-String _$postsByQueryHash() => r'2fbf0253087b4e3afff0720e256e64baab1141be';
+String _$postsByQueryHash() => r'ed1ab92cfafb78fc1d5bb7af9d9d21a17876f0ff';
 
 /// See also [postsByQuery].
 @ProviderFor(postsByQuery)
@@ -536,7 +536,7 @@ class _PostsByQueryProviderElement
   int get limit => (origin as PostsByQueryProvider).limit;
 }
 
-String _$postByIdHash() => r'3c8df580ec86ae68621d6754d1c8983efb1fdbe0';
+String _$postByIdHash() => r'0467e8687c5e1edaae8df28bc3051c02644ee771';
 
 /// See also [postById].
 @ProviderFor(postById)
@@ -683,7 +683,7 @@ class _PostByIdProviderElement
       (origin as PostByIdProvider).isIncrementViewCount;
 }
 
-String _$postsByUserHash() => r'4bc94bb145ba4bcee1d781b76255029e3f99f67f';
+String _$postsByUserHash() => r'f47bffd3c1249a02f9d990b83add6cfc27e74286';
 
 /// See also [postsByUser].
 @ProviderFor(postsByUser)
@@ -848,7 +848,7 @@ class _PostsByUserProviderElement
 }
 
 String _$postsScrapedByUserHash() =>
-    r'98580f047febbbfd4a4ddd2caafb2a51e9aa926a';
+    r'6eb871d1c0860ccb52bf1f910bc921f75c25708f';
 
 /// See also [postsScrapedByUser].
 @ProviderFor(postsScrapedByUser)
