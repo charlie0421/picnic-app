@@ -1,3 +1,4 @@
+// free_charge_station.dart
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:picnic_app/components/vote/store/purchase/store_list_tile.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/models/ad_info.dart';
 import 'package:picnic_app/providers/ad_providers.dart';
 import 'package:picnic_app/providers/config_service.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
@@ -61,6 +63,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
   Timer? _retryTimer;
   int _retryCount = 0;
   static const int maxRetries = 3;
+  bool _isDisposed = false;
 
   @override
   void initState() {
@@ -81,45 +84,58 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
 
   @override
   void dispose() {
-    _animationController.dispose();
-    _bannerAd?.dispose();
+    _isDisposed = true;
+    _cleanupAd();
     _retryTimer?.cancel();
+    _animationController.dispose();
     super.dispose();
   }
 
+  void _cleanupAd() {
+    try {
+      _bannerAd?.dispose();
+    } catch (e, s) {
+      logger.e('Error disposing banner ad', error: e, stackTrace: s);
+    } finally {
+      _bannerAd = null;
+    }
+  }
+
   Future<void> _initializePage() async {
+    if (_isDisposed) return;
+
     try {
       await _loadBannerAd();
-      if (mounted) {
+      if (!_isDisposed) {
         setState(() {
           _isPageReady = true;
         });
       }
     } catch (e, s) {
       logger.e('Error initializing page', error: e, stackTrace: s);
-      if (mounted) {
+      if (!_isDisposed) {
         setState(() {
           _isPageReady = true;
         });
-        rethrow;
       }
     }
   }
 
   Future<void> _loadBannerAd() async {
-    if (_retryCount >= maxRetries) {
-      setState(() {
-        _bannerAdState = BannerAdState(
-          isLoading: false,
-          error: 'Maximum retry attempts reached',
-        );
-      });
+    if (_isDisposed || _retryCount >= maxRetries) {
+      if (!_isDisposed) {
+        setState(() {
+          _bannerAdState = BannerAdState(
+            isLoading: false,
+            error: 'Maximum retry attempts reached',
+          );
+        });
+      }
       return;
     }
 
     try {
-      _bannerAd?.dispose();
-      _bannerAd = null;
+      _cleanupAd();
 
       final configService = ref.read(configServiceProvider);
       final adUnitId = isIOS()
@@ -129,58 +145,66 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       if (adUnitId == null) throw Exception('Ad unit ID is null');
 
       final completer = Completer<void>();
+      BannerAd? newBannerAd;
 
-      final newBannerAd = BannerAd(
-        adUnitId: adUnitId,
-        size: AdSize.banner,
-        request: const AdRequest(),
-        listener: BannerAdListener(
-          onAdLoaded: (Ad ad) {
-            if (!mounted) {
+      try {
+        newBannerAd = BannerAd(
+          adUnitId: adUnitId,
+          size: AdSize.banner,
+          request: const AdRequest(),
+          listener: BannerAdListener(
+            onAdLoaded: (Ad ad) {
+              if (_isDisposed) {
+                ad.dispose();
+                return;
+              }
+              if (!completer.isCompleted) {
+                completer.complete();
+              }
+              setState(() {
+                _bannerAd = ad as BannerAd;
+                _bannerAdState = BannerAdState(
+                  isLoading: false,
+                  bannerAd: _bannerAd,
+                );
+                _retryCount = 0;
+              });
+            },
+            onAdFailedToLoad: (Ad ad, LoadAdError error) {
+              logger.e('Banner ad failed to load: $error');
               ad.dispose();
-              return;
-            }
-            if (!completer.isCompleted) {
-              completer.complete();
-            }
-            setState(() {
-              _bannerAd = ad as BannerAd;
-              _bannerAdState = BannerAdState(
-                isLoading: false,
-                bannerAd: _bannerAd,
-              );
-              _retryCount = 0;
-            });
-          },
-          onAdFailedToLoad: (Ad ad, LoadAdError error) {
-            logger.e('Banner ad failed to load: $error');
-            ad.dispose();
-            if (!completer.isCompleted) {
-              completer.completeError(error);
-            }
-            if (mounted) {
-              _scheduleRetry();
-            }
-          },
-        ),
-      );
+              if (!completer.isCompleted) {
+                completer.completeError(error);
+              }
+              if (!_isDisposed) {
+                _scheduleRetry();
+              }
+            },
+          ),
+        );
 
-      setState(() {
-        _bannerAdState = BannerAdState(isLoading: true);
-      });
+        if (!_isDisposed) {
+          setState(() {
+            _bannerAdState = BannerAdState(isLoading: true);
+          });
+        }
 
-      await newBannerAd.load();
-      await completer.future;
+        await newBannerAd.load();
+        await completer.future;
+      } catch (e) {
+        newBannerAd?.dispose();
+        rethrow;
+      }
     } catch (e, s) {
       logger.e('Error loading banner ad', error: e, stackTrace: s);
-      if (mounted) {
+      if (!_isDisposed) {
         _scheduleRetry();
       }
     }
   }
 
   void _scheduleRetry() {
-    if (mounted && _retryCount < maxRetries) {
+    if (!_isDisposed && _retryCount < maxRetries) {
       setState(() {
         _retryCount++;
         _bannerAdState = BannerAdState(
@@ -195,6 +219,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
   }
 
   void _showErrorDialog(String message) {
+    if (_isDisposed) return;
     showSimpleDialog(
       contentWidget: Text(
         message,
@@ -204,18 +229,24 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
   }
 
   Future<void> _showRewardedAdmob(int index) async {
+    if (_isDisposed) return;
+
     final userState = ref.read(userInfoProvider);
     if (userState.value == null) {
-      showRequireLoginDialog();
+      if (!_isDisposed) {
+        showRequireLoginDialog();
+      }
       return;
     }
 
     try {
-      OverlayLoadingProgress.start(context);
+      if (!_isDisposed) {
+        OverlayLoadingProgress.start(context);
+      }
 
       final response = await supabase.functions.invoke('check-ads-count');
 
-      if (!mounted) return;
+      if (_isDisposed) return;
       OverlayLoadingProgress.stop();
 
       final allowed = response.data['allowed'] as bool?;
@@ -224,18 +255,26 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
         return;
       }
 
-      final adProvider = ref.read(rewardedAdsProvider.notifier);
-      await adProvider.loadAd(index, showWhenLoaded: true, context: context);
-      _animateButton();
+      ref
+          .read(rewardedAdsProvider.notifier)
+          .loadAd(index, showWhenLoaded: true, context: context);
+      if (!_isDisposed) {
+        _animateButton();
+      }
     } catch (e, s) {
       logger.e('Error in _showRewardedAdmob', error: e, stackTrace: s);
-      if (!mounted) return;
-      _showErrorDialog(S.of(context).label_loading_ads_fail);
+      if (!_isDisposed) {
+        _showErrorDialog(Intl.message('label_loading_ads_fail'));
+      }
+    } finally {
+      if (!_isDisposed) {
+        OverlayLoadingProgress.stop(); // 에러가 발생하더라도 로딩 인디케이터를 멈춤
+      }
     }
   }
 
   void _handleExceededAdsLimit(String? nextAvailableTimeStr) {
-    if (nextAvailableTimeStr == null) return;
+    if (_isDisposed || nextAvailableTimeStr == null) return;
 
     final nextAvailableTime = DateTime.parse(nextAvailableTimeStr).toLocal();
     final formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
@@ -266,7 +305,9 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
   }
 
   void _animateButton() {
-    _animationController.forward(from: 0.0);
+    if (!_isDisposed) {
+      _animationController.forward(from: 0.0);
+    }
   }
 
   @override
@@ -341,16 +382,7 @@ class FreeChargeContent extends ConsumerWidget {
           }
 
           if (bannerAdState.error != null && onRetryBannerAd != null) {
-            return Center(
-              child: TextButton(
-                onPressed: onRetryBannerAd,
-                child: Text(
-                  '${S.of(context).label_retry}\n${bannerAdState.error}',
-                  textAlign: TextAlign.center,
-                  style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
-                ),
-              ),
-            );
+            return buildLoadingOverlay();
           }
 
           if (bannerAdState.bannerAd != null) {
