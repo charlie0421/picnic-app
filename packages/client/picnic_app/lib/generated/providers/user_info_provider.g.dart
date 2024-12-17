@@ -56,7 +56,7 @@ final expireBonusProvider =
 // ignore: unused_element
 typedef ExpireBonusRef
     = AutoDisposeFutureProviderRef<List<Map<String, dynamic>?>?>;
-String _$userInfoHash() => r'7b5df58dab2a7c078d370377dab2c9fdee1b7ff6';
+String _$userInfoHash() => r'eb7645bb8b3601d688aa56859ec69e78db2d915a';
 
 /// See also [UserInfo].
 @ProviderFor(UserInfo)
