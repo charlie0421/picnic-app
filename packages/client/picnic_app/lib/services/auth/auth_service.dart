@@ -84,8 +84,7 @@ class AuthService {
       }
     } catch (e, s) {
       logger.e('Error during sign in:', error: e, stackTrace: s);
-      if (e is PicnicAuthException) rethrow;
-      throw PicnicAuthExceptions.unknown(originalError: e);
+      rethrow;
     }
   }
 
@@ -215,7 +214,7 @@ class AuthService {
       logger.i('Sign out completed successfully');
     } catch (e, s) {
       logger.e('Error during sign out', error: e, stackTrace: s);
-      throw PicnicAuthExceptions.unknown(originalError: e);
+      rethrow;
     }
   }
 

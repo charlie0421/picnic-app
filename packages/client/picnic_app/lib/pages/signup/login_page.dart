@@ -326,13 +326,11 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                     color: AppColors.primary500, barrierDismissible: false);
                 final user =
                     await _authService.signInWithProvider(OAuthProvider.apple);
-                OverlayLoadingProgress.stop();
 
                 if (user != null) {
                   _handleSuccessfulLogin();
                 }
               } on PicnicAuthException catch (e) {
-                OverlayLoadingProgress.stop();
                 logger.e(
                     'Apple login PicnicAuthException: $e (originalError: ${e.originalError})');
 
@@ -359,6 +357,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                       Navigator.of(context).pop();
                     });
                 rethrow;
+              } finally {
+                OverlayLoadingProgress.stop();
               }
             },
             style: SignInWithAppleButtonStyle.black,
@@ -387,13 +387,11 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               } else {
                 final user =
                     await _authService.signInWithProvider(OAuthProvider.google);
-                OverlayLoadingProgress.stop();
                 if (user != null) {
                   _handleSuccessfulLogin();
                 }
               }
             } catch (e, s) {
-              OverlayLoadingProgress.stop();
               logger.e('Error signing in with Google: $e', stackTrace: s);
 
               if (e is PicnicAuthException) {
@@ -409,6 +407,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                     Navigator.of(context).pop();
                   });
               rethrow;
+            } finally {
+              OverlayLoadingProgress.stop();
             }
           },
           child: Center(
@@ -456,14 +456,11 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               } else {
                 final user =
                     await _authService.signInWithProvider(OAuthProvider.kakao);
-                OverlayLoadingProgress.stop();
                 if (user != null) {
                   _handleSuccessfulLogin();
                 }
               }
             } on PicnicAuthException catch (e) {
-              OverlayLoadingProgress.stop();
-
               if (e.code == 'canceled') {
                 return;
               }
@@ -487,6 +484,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                     Navigator.of(context).pop();
                   });
               rethrow;
+            } finally {
+              OverlayLoadingProgress.stop();
             }
           },
           child: Center(
