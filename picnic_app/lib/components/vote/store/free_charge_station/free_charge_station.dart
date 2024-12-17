@@ -1,5 +1,6 @@
 // free_charge_station.dart
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -122,17 +123,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
   }
 
   Future<void> _loadBannerAd() async {
-    if (_isDisposed || _retryCount >= maxRetries) {
-      if (!_isDisposed) {
-        setState(() {
-          _bannerAdState = BannerAdState(
-            isLoading: false,
-            error: 'Maximum retry attempts reached',
-          );
-        });
-      }
-      return;
-    }
+    if (_isDisposed) return;
 
     try {
       _cleanupAd();
@@ -167,14 +158,14 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
                   isLoading: false,
                   bannerAd: _bannerAd,
                 );
-                _retryCount = 0;
+                _retryCount = 0; // 성공시 재시도 카운트 리셋
               });
             },
             onAdFailedToLoad: (Ad ad, LoadAdError error) {
               logger.e('Banner ad failed to load: $error');
               ad.dispose();
               if (!completer.isCompleted) {
-                completer.complete(); // 에러 없이 정상적으로 완료
+                completer.complete();
                 if (!_isDisposed) {
                   setState(() {
                     _bannerAdState = BannerAdState(
@@ -184,9 +175,6 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
                   });
                   _scheduleRetry();
                 }
-              }
-              if (!_isDisposed) {
-                _scheduleRetry();
               }
             },
           ),
@@ -202,10 +190,12 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
         await completer.future;
       } catch (e) {
         newBannerAd?.dispose();
-        rethrow;
+        if (!_isDisposed) {
+          _scheduleRetry();
+        }
       }
-    } catch (e, s) {
-      logger.e('Error loading banner ad', error: e, stackTrace: s);
+    } catch (e) {
+      logger.e('Error loading banner ad: $e');
       if (!_isDisposed) {
         _scheduleRetry();
       }
@@ -213,18 +203,21 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
   }
 
   void _scheduleRetry() {
-    if (!_isDisposed && _retryCount < maxRetries) {
-      setState(() {
-        _retryCount++;
-        _bannerAdState = BannerAdState(
-          isLoading: false,
-          error: 'Failed to load ad. Retrying... ($_retryCount/$maxRetries)',
-        );
-      });
+    if (_isDisposed) return;
 
-      _retryTimer?.cancel();
-      _retryTimer = Timer(const Duration(seconds: 5), _loadBannerAd);
-    }
+    setState(() {
+      _retryCount++;
+      _bannerAdState = BannerAdState(
+        isLoading: false,
+        error: 'Failed to load ad. Retrying...',
+      );
+    });
+
+    // 재시도 간격을 점진적으로 증가 (최대 1분)
+    final retryDelay = Duration(seconds: min(5 * _retryCount, 60));
+
+    _retryTimer?.cancel();
+    _retryTimer = Timer(retryDelay, _loadBannerAd);
   }
 
   void _showErrorDialog(String message) {
@@ -330,7 +323,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       buttonScaleAnimation: _buttonScaleAnimation,
       onPolicyTap: () => showUsagePolicyDialog(context, ref),
       onAdButtonPressed: _showRewardedAdmob,
-      onRetryBannerAd: _retryCount < maxRetries ? _loadBannerAd : null,
+      onRetryBannerAd: _loadBannerAd, // maxRetries 조건 제거
     );
   }
 }
@@ -387,10 +380,10 @@ class FreeChargeContent extends ConsumerWidget {
       child: Builder(
         builder: (context) {
           if (bannerAdState.isLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return buildLoadingOverlay();
           }
 
-          if (bannerAdState.error != null && onRetryBannerAd != null) {
+          if (bannerAdState.error != null) {
             return buildLoadingOverlay();
           }
 
