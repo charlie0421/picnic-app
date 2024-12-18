@@ -2,6 +2,11 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven {
+            name "Tapjoy's maven repo"
+            url "https://sdk.tapjoy.com/"
+        }
+
     }
 }
 
@@ -18,7 +23,7 @@ tasks.register("clean", Delete) {
 }
 
 buildscript {
-    ext.kotlin_version = '1.7.10'
+    ext.kotlin_version = '2.1.0'
 
     repositories {
         google()

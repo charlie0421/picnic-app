@@ -22,6 +22,7 @@ import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
+import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 
 class BannerAdState {
   final bool isLoading;
@@ -92,16 +93,6 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     super.dispose();
   }
 
-  void _cleanupAd() {
-    try {
-      _bannerAd?.dispose();
-    } catch (e, s) {
-      logger.e('Error disposing banner ad', error: e, stackTrace: s);
-    } finally {
-      _bannerAd = null;
-    }
-  }
-
   Future<void> _initializePage() async {
     if (_isDisposed) return;
 
@@ -126,7 +117,8 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     if (_isDisposed) return;
 
     try {
-      _cleanupAd();
+      // 기존 광고 정리
+      await _cleanupAd();
 
       final configService = ref.read(configServiceProvider);
       final adUnitId = isIOS()
@@ -135,72 +127,59 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
 
       if (adUnitId == null) throw Exception('Ad unit ID is null');
 
-      final completer = Completer<void>();
-      BannerAd? newBannerAd;
+      if (_isDisposed) return; // 한번 더 체크
 
-      try {
-        newBannerAd = BannerAd(
-          adUnitId: adUnitId,
-          size: AdSize.banner,
-          request: const AdRequest(),
-          listener: BannerAdListener(
-            onAdLoaded: (Ad ad) {
-              if (_isDisposed) {
-                ad.dispose();
-                return;
-              }
-              if (!completer.isCompleted) {
-                completer.complete();
-              }
-              setState(() {
-                _bannerAd = ad as BannerAd;
-                _bannerAdState = BannerAdState(
-                  isLoading: false,
-                  bannerAd: _bannerAd,
-                );
-                _retryCount = 0; // 성공시 재시도 카운트 리셋
-              });
-            },
-            onAdFailedToLoad: (Ad ad, LoadAdError error) {
-              logger.e('Banner ad failed to load: $error');
+      final newBannerAd = BannerAd(
+        adUnitId: adUnitId,
+        size: AdSize.banner,
+        request: const AdRequest(),
+        listener: BannerAdListener(
+          onAdLoaded: (Ad ad) {
+            if (_isDisposed) {
               ad.dispose();
-              if (!completer.isCompleted) {
-                completer.complete();
-                if (!_isDisposed) {
-                  setState(() {
-                    _bannerAdState = BannerAdState(
-                      isLoading: false,
-                      error: 'Failed to load ad',
-                    );
-                  });
-                  _scheduleRetry();
-                }
-              }
-            },
-          ),
-        );
+              return;
+            }
+            setState(() {
+              _bannerAd = ad as BannerAd;
+              _bannerAdState = BannerAdState(
+                isLoading: false,
+                bannerAd: _bannerAd,
+              );
+              _retryCount = 0;
+            });
+          },
+          onAdFailedToLoad: (Ad ad, LoadAdError error) {
+            ad.dispose();
+            if (_isDisposed) return;
 
-        if (!_isDisposed) {
-          setState(() {
-            _bannerAdState = BannerAdState(isLoading: true);
-          });
-        }
+            setState(() {
+              _bannerAdState = BannerAdState(
+                isLoading: false,
+                error: 'Failed to load ad',
+              );
+            });
+            _scheduleRetry();
+          },
+        ),
+      );
 
-        await newBannerAd.load();
-        await completer.future;
-      } catch (e, s) {
-        logger.e('_loadBannerAd', error: e, stackTrace: s);
-
-        newBannerAd?.dispose();
-        if (!_isDisposed) {
-          _scheduleRetry();
-        }
-      }
+      await newBannerAd.load();
     } catch (e, s) {
       logger.e('Error loading banner ad', error: e, stackTrace: s);
       if (!_isDisposed) {
         _scheduleRetry();
       }
+    }
+  }
+
+  // cleanup 함수 개선
+  Future<void> _cleanupAd() async {
+    try {
+      final currentAd = _bannerAd;
+      _bannerAd = null; // 먼저 참조 제거
+      await currentAd?.dispose();
+    } catch (e, s) {
+      logger.e('Error disposing banner ad', error: e, stackTrace: s);
     }
   }
 
@@ -366,6 +345,8 @@ class FreeChargeContent extends ConsumerWidget {
           const SizedBox(height: 18),
           _buildBannerAdSection(),
           const SizedBox(height: 18),
+          _buildMissionSection(),
+          const Divider(height: 32, thickness: 1, color: AppColors.grey200),
           _buildStoreListTileAdmob(context, 0, adState),
           const Divider(height: 32, thickness: 1, color: AppColors.grey200),
           _buildStoreListTileAdmob(context, 1, adState),
@@ -373,6 +354,41 @@ class FreeChargeContent extends ConsumerWidget {
           _buildPolicyGuide(),
         ],
       ),
+    );
+  }
+
+  Widget _buildMissionSection() {
+    return ElevatedButton(
+      onPressed: () async {
+        Tapjoy.setUserID(
+            userId: supabase.auth.currentUser!.id,
+            onSetUserIDSuccess: () {
+              logger.i('setUserID onSuccess');
+            },
+            onSetUserIDFailure: (error) {
+              logger.e('setUserID onFailure', error: error);
+            });
+        TJPlacement placement = await TJPlacement.getPlacement(
+            placementName: isIOS() ? 'mission-ios' : 'mission-android',
+            onRequestSuccess: (placement) {
+              logger.i('onRequestSuccess');
+            },
+            onRequestFailure: (placement, error) {
+              logger.e('onRequestFailure', error: error);
+            },
+            onContentReady: (placement) {
+              logger.i('onContentReady');
+              placement.showContent();
+            },
+            onContentShow: (placement) {
+              logger.i('onContentShow');
+            },
+            onContentDismiss: (placement) {
+              logger.i('onContentDismiss');
+            });
+        await placement.requestContent();
+      },
+      child: Text('Show Offerwall'),
     );
   }
 

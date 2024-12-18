@@ -37,7 +37,8 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace "io.iconcasting.picnic.app"
     compileSdk flutter.compileSdkVersion
-    ndkVersion flutter.ndkVersion
+//    ndkVersion flutter.ndkVersion
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -101,6 +102,7 @@ dependencies {
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation 'com.tapjoy:tapjoy-android-sdk:14.2.1' // 버전은 최신 버전으로 업데이트
 
 }
 
