@@ -81,6 +81,7 @@ dependencies:
     confetti: ^0.8.0
     dart_openai: ^5.1.0
     share_plus: ^10.1.2
+    tapjoy_offerwall: ^14.2.1
 dev_dependencies:
     flutter_test:
         sdk: flutter
