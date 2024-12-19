@@ -110,6 +110,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
 
   Widget _buildVoteSection() {
     return Column(
+      mainAxisSize: MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         PagedListView<int, VoteModel>.separated(

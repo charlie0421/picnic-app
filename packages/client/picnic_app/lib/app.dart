@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:another_flutter_splash_screen/another_flutter_splash_screen.dart';
 import 'package:app_links/app_links.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -12,6 +15,7 @@ import 'package:picnic_app/components/web/web_download_section.dart';
 import 'package:picnic_app/dialogs/update_dialog.dart';
 import 'package:picnic_app/enums.dart';
 import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/optimizedSplashImage.dart';
 import 'package:picnic_app/pages/oauth_callback_page.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/global_media_query.dart';
@@ -31,9 +35,9 @@ import 'package:picnic_app/ui/community_theme.dart';
 import 'package:picnic_app/ui/mypage_theme.dart';
 import 'package:picnic_app/ui/novel_theme.dart';
 import 'package:picnic_app/ui/pic_theme.dart';
+import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/ui/vote_theme.dart';
 import 'package:picnic_app/util/logger.dart';
-import 'package:picnic_app/util/ui.dart';
 import 'package:screen_protector/screen_protector.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -52,38 +56,100 @@ class _AppState extends ConsumerState<App> {
   static final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   static final FirebaseAnalyticsObserver observer =
       FirebaseAnalyticsObserver(analytics: analytics);
+  int? _androidSdkVersion;
+  final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
 
   @override
   void initState() {
     super.initState();
-    _initializeApp();
+    if (!kIsWeb) {
+      _setupAppLinksListener();
+      _setupSupabaseAuthListener();
+      _checkAndroidVersion();
+    }
+
+    _initializeSystemUI();
   }
 
-  void _initializeApp() {
+  Future<void> _checkAndroidVersion() async {
+    if (UniversalPlatform.isAndroid) {
+      try {
+        final androidInfo = await _deviceInfo.androidInfo;
+        setState(() {
+          _androidSdkVersion = androidInfo.version.sdkInt;
+          print('Android SDK Version: $_androidSdkVersion'); // 디버깅용
+        });
+      } catch (e) {
+        print('Failed to get Android SDK version: $e'); // 디버깅용
+      }
+    }
+    _initializeSystemUI();
+  }
+
+  void _initializeSystemUI() {
+    if (kIsWeb) return;
+
+    if (UniversalPlatform.isAndroid) {
+      SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.dark,
+          systemNavigationBarColor: Colors.transparent,
+          systemNavigationBarDividerColor: Colors.transparent,
+          systemNavigationBarIconBrightness: Brightness.dark,
+        ),
+      );
+
+      if (_androidSdkVersion != null && _androidSdkVersion! < 30) {
+        // Android 11 미만
+        SystemChrome.setEnabledSystemUIMode(
+          SystemUiMode.manual,
+          overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
+        );
+      } else {
+        // Android 11 이상
+        SystemChrome.setEnabledSystemUIMode(
+          SystemUiMode.edgeToEdge,
+        );
+      }
+    }
+
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
+
+  void _initializeApp() async {
+    await precacheImage(AssetImage("assets/splash.webp"), context);
+
+    unawaited(_loadProducts());
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(appSettingProvider.notifier);
+      ref
+          .read(globalMediaQueryProvider.notifier)
+          .updateMediaQueryData(MediaQuery.of(context));
+      if (!kIsWeb) {
+        ref.read(updateCheckerProvider.notifier).checkForUpdate();
+      }
+
       ref
           .read(globalMediaQueryProvider.notifier)
           .updateMediaQueryData(MediaQuery.of(context));
     });
+  }
 
-    if (!kIsWeb) {
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        ref.read(updateCheckerProvider.notifier).checkForUpdate();
-      });
+  Future<void> _loadProducts() async {
+    try {
+      await Future.wait([
+        ref.read(serverProductsProvider.future),
+        ref.read(storeProductsProvider.future),
+      ]);
+    } catch (e) {
+      logger.e('Failed to load products: $e');
+      // 제품 로드 실패 처리
     }
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      ref.read(appSettingProvider.notifier);
-    });
-
-    if (!kIsWeb) {
-      Future.microtask(() {
-        ref.read(serverProductsProvider);
-        ref.read(storeProductsProvider);
-      });
-    }
-
-    _setupSupabaseAuthListener();
-    _setupAppLinksListener();
   }
 
   void _setupSupabaseAuthListener() {
@@ -210,8 +276,10 @@ class _AppState extends ConsumerState<App> {
   void _updateScreenProtector(bool isScreenProtector) {
     if (!kIsWeb) {
       if (isScreenProtector) {
+        ScreenProtector.protectDataLeakageWithColor(AppColors.primary500);
         ScreenProtector.preventScreenshotOn();
       } else {
+        ScreenProtector.protectDataLeakageWithColorOff();
         ScreenProtector.preventScreenshotOff();
       }
     }
@@ -234,14 +302,11 @@ class _AppState extends ConsumerState<App> {
     } else {
       return FlutterSplashScreen.fadeIn(
         useImmersiveMode: true,
-        duration: const Duration(milliseconds: 3000),
-        animationDuration: const Duration(milliseconds: 3000),
-        childWidget: SizedBox(
-          width: getPlatformScreenSize(context).width,
-          height: getPlatformScreenSize(context).height,
-          child: Image.asset("assets/splash.png", fit: BoxFit.cover),
-        ),
+        duration: const Duration(milliseconds: 2000),
+        animationDuration: const Duration(milliseconds: 1500),
+        childWidget: OptimizedSplashImage(),
         nextScreen: initScreen ?? const Portal(),
+        onInit: _initializeApp,
       );
     }
   }

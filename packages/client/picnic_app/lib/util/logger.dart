@@ -44,6 +44,12 @@ class LongMessagePrinter extends PrettyPrinter {
     return '';
   }
 
+  String _getTimestamp() {
+    final now = DateTime.now();
+    return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')} '
+        '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}.${now.millisecond.toString().padLeft(3, '0')}';
+  }
+
   String _extractErrorDetails(dynamic error) {
     final details = <String>[];
     final errorString = error.toString();
@@ -53,7 +59,6 @@ class LongMessagePrinter extends PrettyPrinter {
     details.add('  • Message: $errorString');
 
     _extractPostgresErrors(errorString, details);
-
     _extractJsonData(errorString, details);
 
     return details.join('\n');
@@ -74,11 +79,10 @@ class LongMessagePrinter extends PrettyPrinter {
           }
         }
       } catch (e, s) {
-        // stackTrace 파라미터 추가
         if (kDebugMode) {
           print('Error extracting ${entry.key}: $e');
           print('Stack trace:');
-          print(s); // stackTrace 출력 추가
+          print(s);
         }
       }
     }
@@ -99,10 +103,9 @@ class LongMessagePrinter extends PrettyPrinter {
         }
       }
     } catch (e, s) {
-      // JSON 파싱 에러 시 로깅 추가
       if (kDebugMode) {
         print('Stack trace:');
-        print(s); // stackTrace 출력 추가
+        print(s);
       }
     }
   }
@@ -112,8 +115,10 @@ class LongMessagePrinter extends PrettyPrinter {
     final messages = <String>[];
     final emoji = _emojiMap[event.level] ?? '📝';
     final callerInfo = _getCallerInfo();
+    final timestamp = _getTimestamp();
 
     messages.add(_createBorder('┌'));
+    messages.add('│ 🕒 $timestamp');
     messages.add('│ 📍 $callerInfo');
 
     final formattedMessage = _formatMessage(event.message);
@@ -139,7 +144,7 @@ class LongMessagePrinter extends PrettyPrinter {
     }
 
     messages.add(_createBorder('└'));
-    messages.add(''); // 마지막 빈 줄 추가
+    messages.add('');
 
     return messages;
   }
@@ -154,7 +159,7 @@ class LongMessagePrinter extends PrettyPrinter {
       } on Exception catch (e, s) {
         if (kDebugMode) {
           print('Stack trace:');
-          print(s); // stackTrace 출력 추가
+          print(s);
         }
         return message.toString();
       }
@@ -193,7 +198,7 @@ extension LoggerJsonExtension on Logger {
     } on Exception catch (e, s) {
       if (kDebugMode) {
         print('Stack trace:');
-        print(s); // stackTrace 출력 추가
+        print(s);
       }
       d('$title: $json');
     }

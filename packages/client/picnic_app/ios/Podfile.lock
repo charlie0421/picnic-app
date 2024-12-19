@@ -14,6 +14,8 @@ PODS:
   - connectivity_plus (0.0.1):
     - Flutter
     - FlutterMacOS
+  - device_info_plus (0.0.1):
+    - Flutter
   - DKImagePickerController/Core (4.3.9):
     - DKImagePickerController/ImageDataManager
     - DKImagePickerController/Resource
@@ -59,7 +61,7 @@ PODS:
     - Firebase/Analytics (= 11.4.0)
     - firebase_core
     - Flutter
-  - firebase_core (3.8.1):
+  - firebase_core (3.9.0):
     - Firebase/CoreOnly (= 11.4.0)
     - Flutter
   - FirebaseAnalytics (11.4.0):
@@ -218,7 +220,7 @@ PODS:
     - SDWebImage/Core (= 5.20.0)
   - SDWebImage/Core (5.20.0)
   - Sentry/HybridSDK (8.41.0)
-  - sentry_flutter (8.11.0):
+  - sentry_flutter (8.11.1):
     - Flutter
     - FlutterMacOS
     - Sentry/HybridSDK (= 8.41.0)
@@ -251,6 +253,7 @@ DEPENDENCIES:
   - app_tracking_transparency (from `.symlinks/plugins/app_tracking_transparency/ios`)
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/darwin`)
+  - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - firebase_analytics (from `.symlinks/plugins/firebase_analytics/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
@@ -318,6 +321,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/camera_avfoundation/ios"
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/darwin"
+  device_info_plus:
+    :path: ".symlinks/plugins/device_info_plus/ios"
   file_picker:
     :path: ".symlinks/plugins/file_picker/ios"
   firebase_analytics:
@@ -384,13 +389,14 @@ SPEC CHECKSUMS:
   app_tracking_transparency: e169b653478da7bb15a6c61209015378ca73e375
   AppAuth: d4f13a8fe0baf391b2108511793e4b479691fb73
   camera_avfoundation: dd002b0330f4981e1bbcb46ae9b62829237459a4
-  connectivity_plus: 4c41c08fc6d7c91f63bc7aec70ffe3730b04f563
+  connectivity_plus: 18382e7311ba19efcaee94442b23b32507b20695
+  device_info_plus: bf2e3232933866d73fe290f2942f2156cdd10342
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
   DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
   file_picker: 09aa5ec1ab24135ccd7a1621c46c84134bfd6655
   Firebase: cf1b19f21410b029b6786a54e9764a0cacad3c99
   firebase_analytics: 2815af29d49c1a994652abd37a5b001a88bc7b75
-  firebase_core: 418aed674e9a0b8b6088aec16cde82a811f6261f
+  firebase_core: b62a5080210edad3f2934314a8b2c6f5124e8e10
   FirebaseAnalytics: 3feef9ae8733c567866342a1000691baaa7cad49
   FirebaseCore: e0510f1523bc0eb21653cac00792e1e2bd6f1771
   FirebaseCoreInternal: d98ab91e2d80a56d7b246856a8885443b302c0c2
@@ -427,7 +433,7 @@ SPEC CHECKSUMS:
   ScreenProtectorKit: 83a6281b02c7a5902ee6eac4f5045f674e902ae4
   SDWebImage: 73c6079366fea25fa4bb9640d5fb58f0893facd8
   Sentry: 54d0fe6c0df448497c8ed4cce66ccf7027e1823e
-  sentry_flutter: 83a84efb7f978522c9127fbc0c07dab09663eecc
+  sentry_flutter: d8bce6e1d6c4f57d0208e274f745d1eee8bae249
   share_plus: 8b6f8b3447e494cca5317c8c3073de39b3600d1f
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
   sign_in_with_apple: f3bf75217ea4c2c8b91823f225d70230119b8440

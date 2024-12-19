@@ -66,11 +66,8 @@ class _PicnicAnimatedSwitcherState
           },
           child: Container(
             padding: navigationInfo.showBottomNavigation
-                ? EdgeInsets.only(
-                    bottom: MediaQuery.of(context).padding.bottom + 20 + 52)
-                : EdgeInsets.only(
-                    bottom: MediaQuery.of(context).padding.bottom +
-                        (isIOS() ? 0 : 20)),
+                ? EdgeInsets.only(bottom: getBottomPadding(context) + 52)
+                : EdgeInsets.only(bottom: getBottomPadding(context)),
             child: currentTopWidget ?? Container(),
           ),
         ),
