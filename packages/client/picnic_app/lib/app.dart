@@ -24,12 +24,14 @@ import 'package:picnic_app/providers/product_provider.dart';
 import 'package:picnic_app/providers/screen_protector_provider.dart';
 import 'package:picnic_app/providers/update_checker.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
+import 'package:picnic_app/screens/network_error_screen.dart';
 import 'package:picnic_app/screens/pic/pic_camera_screen.dart';
 import 'package:picnic_app/screens/portal.dart';
 import 'package:picnic_app/screens/privacy.dart';
 import 'package:picnic_app/screens/purchase.dart';
 import 'package:picnic_app/screens/signup/signup_screen.dart';
 import 'package:picnic_app/screens/terms.dart';
+import 'package:picnic_app/services/network_connectivity_service.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/community_theme.dart';
 import 'package:picnic_app/ui/mypage_theme.dart';
@@ -58,17 +60,38 @@ class _AppState extends ConsumerState<App> {
       FirebaseAnalyticsObserver(analytics: analytics);
   int? _androidSdkVersion;
   final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
+  bool _hasNetwork = true;
 
   @override
   void initState() {
     super.initState();
+    _checkInitialNetwork();
+
     if (!kIsWeb) {
       _setupAppLinksListener();
       _setupSupabaseAuthListener();
       _checkAndroidVersion();
     }
+  }
 
-    _initializeSystemUI();
+  Future<void> _checkInitialNetwork() async {
+    try {
+      final isConnected =
+          await NetworkConnectivityService().checkConnectivity();
+      logger.i('Network check: $isConnected');
+
+      setState(() {
+        _hasNetwork = isConnected;
+      });
+    } catch (e) {
+      logger.e('Network check error: $e');
+      setState(() => _hasNetwork = false);
+    }
+  }
+
+  Future<void> _retryConnection() async {
+    setState(() => _hasNetwork = false); // 재시도 중에는 로딩 상태로
+    await _checkInitialNetwork();
   }
 
   Future<void> _checkAndroidVersion() async {
@@ -197,6 +220,12 @@ class _AppState extends ConsumerState<App> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_hasNetwork) {
+      return NetworkErrorScreen(
+        onRetry: _retryConnection,
+      );
+    }
+
     return ScreenUtilInit(
       designSize: const Size(393, 892),
       minTextAdapt: true,
