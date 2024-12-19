@@ -151,3 +151,9 @@ double getAppBarHeight(WidgetRef ref) {
   // 총 AppBar 높이 (안전 영역 상단 + AppBar)
   return safeAreaTop + appBarHeight;
 }
+
+double getBottomPadding(BuildContext context) {
+  return MediaQuery.of(context).padding.bottom > 34
+      ? 20
+      : MediaQuery.of(context).padding.bottom + 20;
+}

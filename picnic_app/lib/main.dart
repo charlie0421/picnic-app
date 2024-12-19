@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:picnic_app/app.dart';
@@ -27,16 +26,80 @@ void main() async {
   await runZonedGuarded(() async {
     try {
       logger.i('Starting app initialization...');
-      BindingBase.debugZoneErrorsAreFatal = true;
 
-      WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+      WidgetsFlutterBinding.ensureInitialized();
       logger.i('Widget binding initialized');
 
+      logger.i('Initializing environment config...');
       const String environment =
           String.fromEnvironment('ENVIRONMENT', defaultValue: 'prod');
-      logger.i('Initializing environment config...');
       await Environment.initConfig(environment);
       logger.i('Environment config initialized');
+
+      BindingBase.debugZoneErrorsAreFatal = true;
+
+      logger.i('Initializing Sentry...');
+      await SentryFlutter.init(
+        (options) {
+          options.dsn =
+              kIsWeb ? Environment.sentryWebDsn : Environment.sentryAppDsn;
+
+          // 성능 모니터링 설정
+          options.tracesSampleRate = Environment.sentryTraceSampleRate;
+          options.profilesSampleRate = Environment.sentryProfileSampleRate;
+
+          // 디버그 모드 최적화
+          options.enableAutoSessionTracking = !kDebugMode;
+          options.autoAppStart = !kDebugMode;
+
+          // 실험적 기능 설정
+          options.experimental.replay.sessionSampleRate =
+              Environment.sentrySessionSampleRate;
+          options.experimental.replay.onErrorSampleRate =
+              Environment.sentryErrorSampleRate;
+
+          // 환경 설정
+          options.debug = kDebugMode;
+
+          // 성능 최적화
+          options.maxBreadcrumbs = 50;
+          options.attachStacktrace = true;
+
+          // 디버그 메타데이터 활성화
+          options.enableAutoNativeBreadcrumbs = true;
+
+          // Native SDK 통합 활성화
+          options.enableNativeCrashHandling = true;
+
+          options.enableTimeToFullDisplayTracing = false; // 옵션 1: 비활성화
+
+          // 디버그 메타데이터 경로 설정
+          options.addInAppInclude('sentry-debug-meta.properties');
+
+          options.beforeSend = (event, hint) {
+            if (!Environment.enableSentry || kDebugMode) {
+              event.exceptions?.forEach((element) {
+                if (element.stackTrace != null) {
+                  final frames = element.stackTrace?.frames;
+                  if (frames != null && frames.isNotEmpty) {
+                    final stackTraceString = frames
+                        .map((frame) =>
+                            '${frame.fileName}:${frame.lineNo} - ${frame.function}')
+                        .join('\n');
+                    logger
+                        .e('${element.value}\nStacktrace:\n$stackTraceString');
+                  } else {
+                    logger.e('Stacktrace: No frames available');
+                  }
+                }
+              });
+              return null;
+            }
+            return event;
+          };
+        },
+      );
+      logger.i('Sentry initialized');
 
       logger.i('Initializing Supabase...');
       await initializeSupabase();
@@ -73,6 +136,7 @@ void main() async {
             logger.w('Tapjoy connect warning: $code, $warning');
           },
         );
+        logger.i('Tapjoy initialized');
       }
 
       logger.i('Initializing Firebase...');
@@ -98,15 +162,11 @@ void main() async {
       tokenRefreshManager.startPeriodicRefresh();
       logger.i('Token refresh manager started');
 
+      logger.i('Initializing timezones...');
       tz.initializeTimeZones();
       logger.i('Timezones initialized');
 
-      if (isMobile()) {
-        logger.i('Initializing mobile specific settings...');
-        await initializeWidgetsAndDeviceOrientation(widgetsBinding);
-        logger.i('Mobile settings initialized');
-      }
-
+      logger.i('Initializing reflectable...');
       initializeReflectable();
       logger.i('Reflectable initialized');
 
@@ -115,54 +175,16 @@ void main() async {
       setPathUrlStrategy();
       logger.i('URL strategy set');
 
-      logger.i('Initializing Sentry...');
-      await SentryFlutter.init(
-        (options) {
-          options.dsn =
-              kIsWeb ? Environment.sentryWebDsn : Environment.sentryAppDsn;
-          options.tracesSampleRate = Environment.sentryTraceSampleRate;
-          options.profilesSampleRate = Environment.sentryProfileSampleRate;
-          options.experimental.replay.sessionSampleRate =
-              Environment.sentrySessionSampleRate;
-          options.experimental.replay.onErrorSampleRate =
-              Environment.sentryErrorSampleRate;
-          options.beforeSend = (event, hint) {
-            if (!Environment.enableSentry || kDebugMode) {
-              event.exceptions?.forEach((element) {
-                if (element.stackTrace != null) {
-                  final frames = element.stackTrace?.frames;
-                  if (frames != null && frames.isNotEmpty) {
-                    final stackTraceString = frames
-                        .map((frame) =>
-                            '${frame.fileName}:${frame.lineNo} - ${frame.function}')
-                        .join('\n');
-                    logger
-                        .e('${element.value}\nStacktrace:\n$stackTraceString');
-                  } else {
-                    logger.e('Stacktrace: No frames available');
-                  }
-                }
-              });
-              return null;
-            }
-            return event;
-          };
-        },
-      );
-      logger.i('Sentry initialized');
-
       logger.i('Starting app...');
       runApp(ProviderScope(observers: [LoggingObserver()], child: const App()));
       logger.i('App started successfully');
-    } catch (e, stackTrace) {
-      logger.e('Error during initialization: $e');
-      logger.e(stackTrace.toString());
+    } catch (e, s) {
+      logger.e('Error during initialization', error: e, stackTrace: s);
       rethrow;
     }
-  }, (Object error, StackTrace stackTrace) {
-    logger.e('Uncaught error: $error');
-    logger.e(stackTrace.toString());
-    Sentry.captureException(error, stackTrace: stackTrace);
+  }, (Object error, StackTrace s) async {
+    logger.e('Main Uncaught error', error: error, stackTrace: s);
+    await Sentry.captureException(error, stackTrace: s);
   });
 }
 
@@ -177,11 +199,4 @@ void logStorageData() async {
 
 Future<void> requestAppTrackingTransparency() async {
   await PrivacyConsentManager.initialize();
-}
-
-Future<void> initializeWidgetsAndDeviceOrientation(
-    WidgetsBinding widgetsBinding) async {
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-  ]);
 }
