@@ -66,7 +66,7 @@ dependencies:
     deepl_dart: ^1.5.0
     firebase_analytics: ^11.3.6
     timezone: ^0.10.0
-    connectivity_plus: ^6.1.0
+    connectivity_plus: ^6.1.1
     image_cropper: ^8.0.2
     flutter_inappwebview: ^6.1.5
     version: ^3.0.2
@@ -83,6 +83,7 @@ dependencies:
     share_plus: ^10.1.2
     tapjoy_offerwall: ^14.2.1
     device_info_plus: ^11.2.0
+    flutter_phoenix: ^1.1.1
 dev_dependencies:
     flutter_test:
         sdk: flutter

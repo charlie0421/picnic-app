@@ -78,6 +78,7 @@ class _PortalState extends ConsumerState<Portal> {
                           error: (error, stackTrace) => const Icon(Icons.error),
                           loading: () => SizedBox(
                             width: 36,
+                            height: 36,
                             child: ClipRRect(
                                 borderRadius: BorderRadius.circular(8.r),
                                 child: buildPlaceholderImage()),
