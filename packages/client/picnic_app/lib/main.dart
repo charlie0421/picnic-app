@@ -107,7 +107,9 @@ void main() async {
 
       if (isMobile()) {
         logger.i('Initializing WebP support...');
-        await WebPSupportChecker.instance.initialize();
+        final supportInfo = await WebPSupportChecker.instance.checkSupport();
+        logger.i(
+            'WebP support: ${supportInfo.webp}, ${supportInfo.animatedWebp}');
         logger.i('WebP support initialized');
       }
 
