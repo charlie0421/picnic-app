@@ -57,6 +57,8 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
       BuildContext context, double resolutionMultiplier) {
     return [
       _getTransformedUrl(widget.imageUrl, resolutionMultiplier * .2, 20),
+      _getTransformedUrl(widget.imageUrl, resolutionMultiplier * .5, 50),
+      // 중간품질
       _getTransformedUrl(widget.imageUrl, resolutionMultiplier, 80),
     ];
   }
@@ -74,8 +76,10 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
     };
 
     if (!isGif) {
-      queryParameters['f'] =
-          WebPSupportChecker.instance.supportsWebP ? 'webp' : 'png';
+      queryParameters['f'] = WebPSupportChecker.instance.supportInfo != null &&
+              WebPSupportChecker.instance.supportInfo!.webp
+          ? 'webp'
+          : 'png';
     }
 
     return uri.replace(queryParameters: queryParameters).toString();
