@@ -76,12 +76,13 @@ class _AppState extends ConsumerState<App> {
 
   Future<void> _checkInitialNetwork() async {
     try {
-      final isConnected =
-          await NetworkConnectivityService().checkConnectivity();
-      logger.i('Network check: $isConnected');
+      final networkService = NetworkConnectivityService();
+
+      final isOnline = await networkService.checkOnlineStatus();
+      logger.i('Network check: $isOnline');
 
       setState(() {
-        _hasNetwork = isConnected;
+        _hasNetwork = isOnline;
       });
     } catch (e) {
       logger.e('Network check error: $e');
@@ -100,10 +101,10 @@ class _AppState extends ConsumerState<App> {
         final androidInfo = await _deviceInfo.androidInfo;
         setState(() {
           _androidSdkVersion = androidInfo.version.sdkInt;
-          print('Android SDK Version: $_androidSdkVersion'); // 디버깅용
+          logger.i('Android SDK Version: $_androidSdkVersion'); // 디버깅용
         });
       } catch (e) {
-        print('Failed to get Android SDK version: $e'); // 디버깅용
+        logger.i('Failed to get Android SDK version: $e'); // 디버깅용
       }
     }
     _initializeSystemUI();
@@ -353,8 +354,6 @@ class _AppState extends ConsumerState<App> {
         return novelThemeLight;
       case PortalType.mypage:
         return mypageThemeLight;
-      default:
-        return picThemeLight;
     }
   }
 }
