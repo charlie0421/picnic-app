@@ -9,18 +9,24 @@ class OptimizedSplashImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Image.asset(
-      _getOptimizedImagePath(),
-      fit: BoxFit.cover,
-      cacheWidth: 800,
-      cacheHeight: 1600,
-      errorBuilder: (context, error, stackTrace) {
-        logger.e('error:', error: error, stackTrace: stackTrace);
-        return Container(
-            width: double.infinity,
-            height: double.infinity,
-            color: AppColors.primary500);
-      },
+    return Container(
+      color: AppColors.primary500,
+      alignment: Alignment.center,
+      width: double.infinity,
+      height: double.infinity,
+      child: Image.asset(
+        _getOptimizedImagePath(),
+        fit: BoxFit.contain,
+        cacheWidth: 800,
+        cacheHeight: 1600,
+        errorBuilder: (context, error, stackTrace) {
+          logger.e('error:', error: error, stackTrace: stackTrace);
+          return Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: AppColors.primary500);
+        },
+      ),
     );
   }
 
