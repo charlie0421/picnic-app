@@ -19,8 +19,25 @@ class KakaoLogin implements SocialLogin {
       );
 
       if (kIsWeb) {
-        await supabase.auth.signInWithOAuth(OAuthProvider.kakao);
-        return const SocialLoginResult();
+        try {
+          final success = await supabase.auth.signInWithOAuth(
+            OAuthProvider.kakao,
+          );
+
+          if (!success) {
+            throw PicnicAuthExceptions.unknown();
+          }
+
+          final session = supabase.auth.currentSession;
+          final user = supabase.auth.currentUser;
+
+          return SocialLoginResult(
+            accessToken: session?.accessToken,
+            userData: user?.userMetadata ?? {},
+          );
+        } catch (e) {
+          throw _handleKakaoLoginError(e);
+        }
       }
 
       final token = await _performKakaoLogin();
@@ -33,14 +50,14 @@ class KakaoLogin implements SocialLogin {
         idToken: token.idToken,
         accessToken: token.accessToken,
         userData: {
-          'email': user.kakaoAccount?.email,
-          'name': user.kakaoAccount?.profile?.nickname,
-          'photoUrl': user.kakaoAccount?.profile?.profileImageUrl,
+          'email': user.kakaoAccount?.email ?? '',
+          'name': user.kakaoAccount?.profile?.nickname ?? '',
+          'photoUrl': user.kakaoAccount?.profile?.profileImageUrl ?? '',
         },
       );
     } catch (e, s) {
       logger.e('Kakao login error', error: e, stackTrace: s);
-      throw _handleKakaoLoginError(e);
+      return Future.error(_handleKakaoLoginError(e));
     }
   }
 
@@ -61,7 +78,6 @@ class KakaoLogin implements SocialLogin {
   }
 
   Never _handleKakaoLoginError(dynamic e) {
-    // Never 반환 타입 명시
     if (e is PlatformException) {
       switch (e.code) {
         case 'CANCELED':
@@ -82,7 +98,11 @@ class KakaoLogin implements SocialLogin {
   @override
   Future<void> logout() async {
     try {
-      await UserApi.instance.logout();
+      if (kIsWeb) {
+        await supabase.auth.signOut();
+      } else {
+        await UserApi.instance.logout();
+      }
     } catch (e, s) {
       logger.e('Kakao logout error', error: e, stackTrace: s);
       throw PicnicAuthExceptions.unknown(originalError: e);

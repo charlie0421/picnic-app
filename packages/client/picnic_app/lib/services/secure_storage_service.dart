@@ -1,62 +1,50 @@
+// secure_storage_service.dart
+
 import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:picnic_app/exceptions/auth_exception.dart';
-import 'package:picnic_app/models/auth_token_info.dart';
 import 'package:picnic_app/util/logger.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SecureStorageService {
+  static const _sessionKey = 'session';
   final FlutterSecureStorage _storage;
 
-  SecureStorageService({FlutterSecureStorage? storage})
+  SecureStorageService([FlutterSecureStorage? storage])
       : _storage = storage ?? const FlutterSecureStorage();
 
-  Future<void> saveTokenInfo(AuthTokenInfo tokenInfo) async {
+  Future<void> saveSession(Session session) async {
     try {
-      final jsonData = tokenInfo.toJson();
+      final sessionJson = session.toJson();
       await _storage.write(
-        key: 'auth_token_info',
-        value: jsonEncode(jsonData),
-      );
-      await _storage.write(
-        key: 'last_provider',
-        value: tokenInfo.provider.name,
+        key: _sessionKey,
+        value: jsonEncode(sessionJson),
       );
     } catch (e, s) {
-      logger.e('Error saving token info', error: e, stackTrace: s);
-      throw PicnicAuthExceptions.storageError();
+      logger.e('Error saving session to storage', error: e, stackTrace: s);
+      rethrow;
     }
   }
 
-  Future<AuthTokenInfo?> getTokenInfo() async {
+  Future<Session?> getSession() async {
     try {
-      final jsonStr = await _storage.read(key: 'auth_token_info');
-      if (jsonStr == null) return null;
+      final sessionStr = await _storage.read(key: _sessionKey);
+      if (sessionStr == null) return null;
 
-      final jsonData = jsonDecode(jsonStr);
-      return AuthTokenInfo.fromJson(jsonData);
+      final sessionJson = jsonDecode(sessionStr);
+      return Session.fromJson(sessionJson);
     } catch (e, s) {
-      logger.e('Error reading token info', error: e, stackTrace: s);
+      logger.e('Error reading session from storage', error: e, stackTrace: s);
       return null;
     }
   }
 
-  Future<void> clearTokenInfo() async {
+  Future<void> clearSession() async {
     try {
-      // Get all keys
-      final allKeys = await _storage.readAll();
-
-      // Delete all keys except 'last_provider'
-      for (var key in allKeys.keys) {
-        if (key != 'last_provider') {
-          await _storage.delete(key: key);
-        }
-      }
-
-      logger.i('Token info cleared, kept last_provider');
+      await _storage.delete(key: _sessionKey);
     } catch (e, s) {
-      logger.e('Error clearing token info', error: e, stackTrace: s);
-      throw PicnicAuthExceptions.storageError();
+      logger.e('Error clearing session from storage', error: e, stackTrace: s);
+      rethrow;
     }
   }
 }
