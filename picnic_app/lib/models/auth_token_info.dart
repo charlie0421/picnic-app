@@ -1,39 +1,34 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+// auth_token_info.dart
+
+import 'package:supabase_flutter/supabase_flutter.dart' as Supabase;
 
 class AuthTokenInfo {
   final String accessToken;
   final String? refreshToken;
-  final String idToken;
   final DateTime expiresAt;
-  final OAuthProvider provider;
+  final Supabase.OAuthProvider provider;
 
   AuthTokenInfo({
     required this.accessToken,
     required this.refreshToken,
-    required this.idToken,
     required this.expiresAt,
     required this.provider,
   });
 
+  bool get isExpired => DateTime.now().isAfter(expiresAt);
+
   Map<String, dynamic> toJson() => {
         'accessToken': accessToken,
         'refreshToken': refreshToken,
-        'idToken': idToken,
         'expiresAt': expiresAt.toIso8601String(),
         'provider': provider.name,
       };
 
-  factory AuthTokenInfo.fromJson(Map<String, dynamic> json) {
-    return AuthTokenInfo(
-      accessToken: json['accessToken'],
-      refreshToken: json['refreshToken'],
-      idToken: json['idToken'],
-      expiresAt: DateTime.parse(json['expiresAt']),
-      provider: OAuthProvider.values.firstWhere(
-        (e) => e.name == json['provider'],
-      ),
-    );
-  }
-
-  bool get isExpired => DateTime.now().isAfter(expiresAt);
+  factory AuthTokenInfo.fromJson(Map<String, dynamic> json) => AuthTokenInfo(
+        accessToken: json['accessToken'] as String,
+        refreshToken: json['refreshToken'] as String,
+        expiresAt: DateTime.parse(json['expiresAt'] as String),
+        provider: Supabase.OAuthProvider.values
+            .firstWhere((e) => e.name == json['provider']),
+      );
 }

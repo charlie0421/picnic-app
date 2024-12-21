@@ -37,33 +37,31 @@ class AppleLogin implements SocialLogin {
         throw PicnicAuthExceptions.invalidToken();
       }
 
-      final String? fullName =
-          credential.familyName != null || credential.givenName != null
-              ? '${credential.givenName ?? ''} ${credential.familyName ?? ''}'
-                  .trim()
-              : null;
+      // 이름 처리 로직 개선
+      final fullName = [
+        credential.givenName,
+        credential.familyName,
+      ].where((name) => name != null && name.isNotEmpty).join(' ');
 
       return SocialLoginResult(
         idToken: credential.identityToken,
         accessToken: credential.authorizationCode,
         userData: {
           'email': credential.email,
-          'name': fullName,
+          'name': fullName.isEmpty ? null : fullName,
         },
       );
     } catch (e, s) {
       logger.e('Apple login error', error: e, stackTrace: s);
-      return _handleAppleLoginError(e); // throw 대신 return으로 변경
+      throw _handleAppleLoginError(e); // throw로 수정
     }
   }
 
   Never _handleAppleLoginError(dynamic e) {
-    // Never 반환 타입 명시
     if (e is SignInWithAppleAuthorizationException) {
-      if (e.code == AuthorizationErrorCode.canceled) {
-        throw PicnicAuthExceptions.canceled();
-      }
       switch (e.code) {
+        case AuthorizationErrorCode.canceled:
+          throw PicnicAuthExceptions.canceled();
         case AuthorizationErrorCode.failed:
           throw PicnicAuthExceptions.invalidToken();
         case AuthorizationErrorCode.invalidResponse:

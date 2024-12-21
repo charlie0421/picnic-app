@@ -13,11 +13,16 @@ class GoogleLogin implements SocialLogin {
   Future<SocialLoginResult> login() async {
     try {
       final googleUser = await _googleSignIn.signIn();
+      logger.d('Google Sign In attempt result: $googleUser'); // 수정된 로그
+
       if (googleUser == null) {
+        logger.w('Google Sign In was canceled by user');
         throw PicnicAuthExceptions.canceled();
       }
 
       final googleAuth = await googleUser.authentication;
+      logger.d('Google Auth completed successfully');
+
       return SocialLoginResult(
         idToken: googleAuth.idToken,
         accessToken: googleAuth.accessToken,
@@ -28,13 +33,13 @@ class GoogleLogin implements SocialLogin {
         },
       );
     } catch (e, s) {
-      logger.e('Google login error', error: e, stackTrace: s);
-      throw _handleGoogleLoginError(e);
+      // 수정된 에러 로깅
+      logger.e('Google login error: ${e.toString()}', error: e, stackTrace: s);
+      return Future.error(_handleGoogleLoginError(e));
     }
   }
 
-  _handleGoogleLoginError(dynamic e) {
-    // Never 반환 타입 명시
+  PicnicAuthException _handleGoogleLoginError(Object e) {
     if (e is PicnicAuthException) {
       switch (e.code) {
         case 'sign_in_canceled':
@@ -46,6 +51,7 @@ class GoogleLogin implements SocialLogin {
           return PicnicAuthExceptions.unknown(originalError: e);
       }
     }
+    return PicnicAuthExceptions.unknown(originalError: e);
   }
 
   @override
