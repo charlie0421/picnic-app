@@ -252,6 +252,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                         child: Column(
                           children: [
                             _buildVoteInfo(context, voteModel),
+                            SizedBox(height: 24),
                             if (_isSaving) _buildCaptureVoteList(context),
                           ],
                         ),

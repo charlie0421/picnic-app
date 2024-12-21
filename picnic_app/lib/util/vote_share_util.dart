@@ -18,7 +18,7 @@ class ShareUtils {
       await Future.delayed(_initialDelay);
 
       final boundary =
-      key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+          key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
       if (boundary == null) {
         logger.e('RenderRepaintBoundary not found');
         return null;
@@ -34,9 +34,7 @@ class ShareUtils {
 
       final bytes = byteData.buffer.asUint8List();
       final tempDir = await getTemporaryDirectory();
-      final filename = 'share_${DateTime
-          .now()
-          .millisecondsSinceEpoch}.png';
+      final filename = 'share_${DateTime.now().millisecondsSinceEpoch}.png';
       final path = '${tempDir.path}/$filename';
 
       final file = File(path);
@@ -49,9 +47,11 @@ class ShareUtils {
     }
   }
 
-  static Future<bool> shareToSocial(GlobalKey key, {
+  static Future<bool> shareToSocial(
+    GlobalKey key, {
     required String message,
     required String hashtag,
+    String downloadLink = 'https://picnic.fan/download.html',
     VoidCallback? onStart,
     VoidCallback? onComplete,
   }) async {
@@ -65,7 +65,7 @@ class ShareUtils {
         throw Exception('Failed to capture content');
       }
 
-      final shareText = '$message\n $hashtag      ';
+      final shareText = '$message\n $hashtag $downloadLink     ';
 
       // share_plus를 사용한 공유
       final result = await Share.shareXFiles(
@@ -94,7 +94,8 @@ class ShareUtils {
     }
   }
 
-  static Future<bool> saveImage(GlobalKey key, {
+  static Future<bool> saveImage(
+    GlobalKey key, {
     VoidCallback? onStart,
     VoidCallback? onComplete,
   }) async {
@@ -136,9 +137,7 @@ class ShareUtils {
       final result = await ImageGallerySaverPlus.saveImage(
         bytes,
         quality: 100,
-        name: "compatibility_result_${DateTime
-            .now()
-            .millisecondsSinceEpoch}",
+        name: "compatibility_result_${DateTime.now().millisecondsSinceEpoch}",
       );
 
       if (result?['isSuccess'] != true) throw Exception('Save failed');
